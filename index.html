@@ -3,13 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Year 4 English Words</title>
+  <title>Aussie English Word Practice</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+
+  <!-- Level select overlay (shown on first visit, and whenever "Change level" is pressed) -->
+  <div id="level-overlay" class="level-overlay">
+    <div class="level-overlay-card">
+      <h2>📚 Choose your level</h2>
+      <p>Pick the year level you want to practise. You can change this anytime.</p>
+      <div class="level-choices">
+        <button class="level-choice" data-level="year4">
+          <span class="lv-title">Year 4</span>
+          <span class="lv-desc">Foundation vocabulary</span>
+        </button>
+        <button class="level-choice" data-level="year5">
+          <span class="lv-title">Year 5</span>
+          <span class="lv-desc">Intermediate vocabulary</span>
+        </button>
+        <button class="level-choice" data-level="year6">
+          <span class="lv-title">Year 6</span>
+          <span class="lv-desc">Advanced / GATE-style vocabulary</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <header>
-    <h1><span class="emoji">📚</span> Year 4 English Word Practice</h1>
+    <h1><span class="emoji">📚</span> Aussie English Word Practice</h1>
     <p>Build your vocabulary, spelling and word skills!</p>
+    <button id="level-badge" class="level-badge" title="Change level">Level: Year 4 ▾</button>
   </header>
 
   <main>
@@ -18,6 +42,7 @@
       <button data-view="quiz">❓ Quiz</button>
       <button data-view="spelling">✏️ Spelling</button>
       <button data-view="wordlist">📖 Word List</button>
+      <button data-view="addword">➕ Add Word</button>
       <button data-view="stats">📊 My Progress</button>
     </nav>
 
@@ -38,12 +63,12 @@
               <div class="word" id="flash-word">word</div>
             </div>
             <div class="flashcard-face flashcard-back">
-              <div class="definition" id="flash-definition">definition</div>
-              <div class="example" id="flash-example">example sentence</div>
+              <div class="definition speakable-line" id="flash-definition" title="Tap to hear">definition</div>
+              <div class="example speakable-line" id="flash-example" title="Tap to hear">example sentence</div>
             </div>
           </div>
         </div>
-        <p class="hint">Tap the card to flip it</p>
+        <p class="hint">Tap the card to flip it • Tap the meaning or example to hear it read aloud</p>
         <div class="flash-controls">
           <button class="pill error" id="flash-dont-know">😕 Still learning</button>
           <button class="pill success" id="flash-know">😀 I know this!</button>
@@ -68,7 +93,7 @@
           <button class="pill primary" id="quiz-restart" style="margin-left:auto;">🔄 New Quiz</button>
         </div>
         <div class="progress-bar"><div class="progress-bar-fill" id="quiz-progress-fill"></div></div>
-        <div id="quiz-question">Question</div>
+        <div id="quiz-question" class="speakable-line" title="Tap to hear">Question</div>
         <div class="options" id="quiz-options"></div>
         <div class="quiz-footer">
           <span class="score-tag" id="quiz-score">Score: 0 / 0</span>
@@ -103,6 +128,70 @@
       </div>
     </section>
 
+    <!-- Add Word -->
+    <section id="view-addword" class="view">
+      <div class="card">
+        <h3>➕ Add a word manually</h3>
+        <form id="manual-add-form">
+          <input type="hidden" id="manual-edit-id" value="" />
+          <div class="form-row">
+            <label for="manual-word">Word *</label>
+            <input type="text" id="manual-word" required placeholder="e.g. resilient" />
+          </div>
+          <div class="form-row">
+            <label for="manual-definition">Meaning *</label>
+            <input type="text" id="manual-definition" required placeholder="e.g. able to recover quickly from difficulties" />
+          </div>
+          <div class="form-row">
+            <label for="manual-example">Example sentence</label>
+            <input type="text" id="manual-example" placeholder="e.g. The resilient plant grew back after the fire." />
+          </div>
+          <div class="form-row">
+            <label for="manual-level">Level</label>
+            <select id="manual-level">
+              <option value="year4">Year 4</option>
+              <option value="year5">Year 5</option>
+              <option value="year6">Year 6</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="pill primary" id="manual-save-btn">Save word</button>
+            <button type="button" class="pill neutral" id="manual-cancel-btn" style="display:none;">Cancel edit</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>📷 Extract words from a photo</h3>
+        <p class="muted">Take a photo of a book page, or upload a screenshot of an online passage. We'll read the text and pull out candidate words you can add to your word list.</p>
+        <input type="file" id="ocr-file-input" accept="image/*" capture="environment" />
+        <div id="ocr-progress" class="ocr-progress" hidden>
+          <div class="progress-bar"><div class="progress-bar-fill" id="ocr-progress-fill"></div></div>
+          <div id="ocr-progress-label">Reading image...</div>
+        </div>
+        <div id="ocr-review" class="ocr-review" hidden>
+          <p class="muted" id="ocr-review-hint">Tap the words you'd like to add:</p>
+          <div class="wordlist-grid" id="ocr-candidates"></div>
+          <div class="setting-row">
+            <label for="ocr-level">Save selected words as</label>
+            <select id="ocr-level">
+              <option value="year4">Year 4</option>
+              <option value="year5">Year 5</option>
+              <option value="year6">Year 6</option>
+            </select>
+            <button class="pill primary" id="ocr-add-btn" style="margin-left:auto;">Add selected words</button>
+          </div>
+          <div id="ocr-status" class="spelling-tip"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📝 My added words</h3>
+        <div class="wordlist-grid" id="custom-words-grid"></div>
+        <p class="muted" id="custom-words-empty" hidden>You haven't added any words yet.</p>
+      </div>
+    </section>
+
     <!-- Stats -->
     <section id="view-stats" class="view">
       <div class="card">
@@ -112,9 +201,10 @@
     </section>
   </main>
 
-  <footer>Made for Year 4 students learning English vocabulary. 🇦🇺</footer>
+  <footer>Made for Australian primary students learning English vocabulary. 🇦🇺</footer>
 
   <script src="js/words.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

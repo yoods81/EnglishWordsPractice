@@ -424,3 +424,172 @@ footer {
   font-size: 0.8rem;
   padding: 30px 16px;
 }
+
+/* Level overlay */
+.level-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 28, 55, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.level-overlay[hidden] {
+  display: none;
+}
+
+.level-overlay-card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+.level-overlay-card h2 {
+  margin: 0 0 8px;
+}
+
+.level-overlay-card p {
+  color: var(--muted);
+  margin: 0 0 20px;
+}
+
+.level-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.level-choice {
+  border: 2px solid #e0e5f2;
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.level-choice:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.level-choice .lv-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.level-choice .lv-desc {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.level-badge {
+  margin-top: 12px;
+  border: none;
+  background: #fff;
+  color: var(--primary-dark);
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+
+/* Speakable lines (click to hear via speech synthesis) */
+.speakable-line {
+  cursor: pointer;
+  position: relative;
+}
+
+.speakable-line:hover {
+  text-decoration: underline dotted;
+}
+
+.speakable-line::after {
+  content: " 🔊";
+  opacity: 0.6;
+  font-size: 0.8em;
+}
+
+/* Add Word form */
+.form-row {
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.form-row label {
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.form-row input,
+.form-row select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d9deec;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+#ocr-file-input {
+  margin: 12px 0;
+}
+
+.ocr-progress {
+  margin-top: 14px;
+}
+
+.ocr-review {
+  margin-top: 18px;
+}
+
+.candidate-chip {
+  cursor: pointer;
+  user-select: none;
+}
+
+.candidate-chip.selected {
+  border-color: var(--primary);
+  background: #eef2fb;
+}
+
+.wordlist-item .edit-btn,
+.wordlist-item .delete-btn {
+  border: none;
+  background: #eef2fb;
+  color: var(--primary-dark);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.wordlist-item .delete-btn {
+  background: #fdeaea;
+  color: var(--error);
+}
