@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Year 4 English Words</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1><span class="emoji">📚</span> Year 4 English Word Practice</h1>
+    <p>Build your vocabulary, spelling and word skills!</p>
+  </header>
+
+  <main>
+    <nav class="tabs">
+      <button data-view="flashcards" class="active">🃏 Flashcards</button>
+      <button data-view="quiz">❓ Quiz</button>
+      <button data-view="spelling">✏️ Spelling</button>
+      <button data-view="wordlist">📖 Word List</button>
+      <button data-view="stats">📊 My Progress</button>
+    </nav>
+
+    <!-- Flashcards -->
+    <section id="view-flashcards" class="view active">
+      <div class="card">
+        <div class="setting-row">
+          <label for="flash-category">Category</label>
+          <select id="flash-category">
+            <option value="vocabulary">Vocabulary</option>
+            <option value="synonyms">Synonyms &amp; Antonyms</option>
+          </select>
+        </div>
+        <div id="flashcard-stage">
+          <div class="flashcard" id="flashcard">
+            <div class="flashcard-face flashcard-front">
+              <button class="speak-btn" id="flash-speak" title="Listen">🔊 Listen</button>
+              <div class="word" id="flash-word">word</div>
+            </div>
+            <div class="flashcard-face flashcard-back">
+              <div class="definition" id="flash-definition">definition</div>
+              <div class="example" id="flash-example">example sentence</div>
+            </div>
+          </div>
+        </div>
+        <p class="hint">Tap the card to flip it</p>
+        <div class="flash-controls">
+          <button class="pill error" id="flash-dont-know">😕 Still learning</button>
+          <button class="pill success" id="flash-know">😀 I know this!</button>
+        </div>
+        <div class="flash-controls">
+          <button class="pill neutral" id="flash-prev">⬅ Previous</button>
+          <button class="pill primary" id="flash-next">Next ➡</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section id="view-quiz" class="view">
+      <div class="card">
+        <div class="setting-row">
+          <label for="quiz-category">Category</label>
+          <select id="quiz-category">
+            <option value="vocabulary">Vocabulary</option>
+            <option value="synonyms">Synonyms &amp; Antonyms</option>
+            <option value="homophones">Homophones</option>
+          </select>
+          <button class="pill primary" id="quiz-restart" style="margin-left:auto;">🔄 New Quiz</button>
+        </div>
+        <div class="progress-bar"><div class="progress-bar-fill" id="quiz-progress-fill"></div></div>
+        <div id="quiz-question">Question</div>
+        <div class="options" id="quiz-options"></div>
+        <div class="quiz-footer">
+          <span class="score-tag" id="quiz-score">Score: 0 / 0</span>
+          <button class="pill accent" id="quiz-next" style="display:none;">Next Question ➡</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Spelling -->
+    <section id="view-spelling" class="view">
+      <div class="card">
+        <div id="spelling-word-audio">
+          <button class="pill primary" id="spelling-speak">🔊 Hear the word</button>
+        </div>
+        <input type="text" id="spelling-input" placeholder="Type what you hear..." autocomplete="off" autocapitalize="off" spellcheck="false" />
+        <div class="spelling-tip" id="spelling-feedback"></div>
+        <div class="flash-controls">
+          <button class="pill primary" id="spelling-check">Check</button>
+          <button class="pill neutral" id="spelling-skip">Skip ➡</button>
+        </div>
+        <div class="quiz-footer">
+          <span class="score-tag" id="spelling-score">Score: 0 / 0</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Word list -->
+    <section id="view-wordlist" class="view">
+      <div class="card">
+        <input type="text" class="wordlist-search" id="wordlist-search" placeholder="🔍 Search words..." />
+        <div class="wordlist-grid" id="wordlist-grid"></div>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section id="view-stats" class="view">
+      <div class="card">
+        <div class="stats-grid" id="stats-grid"></div>
+        <button class="reset-btn" id="reset-progress">Reset all progress</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>Made for Year 4 students learning English vocabulary. 🇦🇺</footer>
+
+  <script src="js/words.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
