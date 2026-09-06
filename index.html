@@ -234,7 +234,13 @@
       </div>
 
       <div class="card">
-        <h3 data-i18n="myAddedWordsTitle">📝 My added words</h3>
+        <div class="my-added-words-header">
+          <h3 data-i18n="myAddedWordsTitle">📝 My added words</h3>
+          <div class="my-added-words-header-actions">
+            <button type="button" class="pill neutral small" id="custom-delete-selected-btn" data-i18n="deleteSelectedBtn" disabled>🗑️ Delete Selected</button>
+            <button type="button" class="pill neutral small" id="custom-sort-toggle-btn" data-i18n="sortMissingFirstBtn">⚠️ Missing meaning first</button>
+          </div>
+        </div>
         <div class="ocr-review-header failed-words-banner" id="custom-words-failed-banner" hidden>
           <p class="muted" id="custom-words-failed-text"></p>
           <div class="failed-actions">

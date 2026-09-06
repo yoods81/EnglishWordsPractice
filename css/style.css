@@ -308,6 +308,38 @@ button.pill.accent { background: var(--accent); color: #fff; }
 button.pill.dark { background: #1f2430; color: #fff; }
 button.pill.green { background: #2bb673; color: #fff; }
 
+button.pill.small {
+  padding: 5px 11px;
+  font-size: 0.72rem;
+}
+
+button.pill:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+}
+
+.my-added-words-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.my-added-words-header-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.wordlist-item .cw-select {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
 .speak-btn {
   border: none;
   background: #eef2fb;

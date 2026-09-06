@@ -105,6 +105,9 @@ const TRANSLATIONS = {
     ocrNoDefFound: "(No definition found — tap Edit to add one.)",
     myAddedWordsTitle: "📝 My added words",
     myAddedWordsEmpty: "You haven't added any words yet.",
+    sortMissingFirstBtn: "⚠️ Missing meaning first",
+    deleteSelectedBtn: "🗑️ Delete Selected",
+    deleteSelectedConfirm: (n) => `Delete ${n} selected word(s)?`,
     editBtn: "Edit",
     deleteBtn: "Delete",
     retryBtn: "🔄 Retry",
@@ -225,6 +228,9 @@ const TRANSLATIONS = {
     ocrNoDefFound: "(뜻을 찾지 못했어요 — Edit 버튼으로 직접 입력해주세요.)",
     myAddedWordsTitle: "📝 내가 추가한 단어",
     myAddedWordsEmpty: "아직 추가한 단어가 없어요.",
+    sortMissingFirstBtn: "⚠️ 뜻 없는 단어 먼저",
+    deleteSelectedBtn: "🗑️ 선택 삭제",
+    deleteSelectedConfirm: (n) => `선택한 단어 ${n}개를 삭제할까요?`,
     editBtn: "수정",
     deleteBtn: "삭제",
     retryBtn: "🔄 다시 찾기",
@@ -326,6 +332,74 @@ function saveCustomWords() {
   }
 }
 
+// A custom (user-added) word stores its meaning and level separately per
+// language track (definitionEn/definitionKo, levelEn/levelKo, noDefinitionEn/
+// noDefinitionKo) so a word added while viewing one track still shows the
+// right meaning and level when viewed from the other track. `example` is a
+// single English sentence shared by both tracks (matching how the built-in
+// word banks work). These helpers look up the field for a given language;
+// the cw*-prefixed ones default to whichever language is currently active.
+function defKey(lang) {
+  return lang === "ko" ? "definitionKo" : "definitionEn";
+}
+function levelKey(lang) {
+  return lang === "ko" ? "levelKo" : "levelEn";
+}
+function noDefKey(lang) {
+  return lang === "ko" ? "noDefinitionKo" : "noDefinitionEn";
+}
+function otherLang(lang) {
+  return lang === "ko" ? "en" : "ko";
+}
+function cwDefinition(w, lang) {
+  return w[defKey(lang || currentLang)];
+}
+function cwLevel(w, lang) {
+  return w[levelKey(lang || currentLang)];
+}
+function cwNoDefinition(w, lang) {
+  return !!w[noDefKey(lang || currentLang)];
+}
+
+// One-time migration for words saved before the dual-language schema above
+// existed: they only had flat `definition`/`level`/`noDefinition` fields for
+// whichever language track was active when the word was added. We infer that
+// original language from the level id's prefix (built-in Korean levels are
+// "kr_..."), keep that side as-is, and guess a level for the other side —
+// its meaning is left blank (flagged as not-yet-found) until looked up via
+// the existing Retry feature.
+function migrateCustomWords(list) {
+  let changed = false;
+  const migrated = list.map((w) => {
+    if (w.definitionEn !== undefined || w.definitionKo !== undefined) return w;
+    changed = true;
+    const origLang = typeof w.level === "string" && w.level.indexOf("kr_") === 0 ? "ko" : "en";
+    const other = otherLang(origLang);
+    const migratedWord = {
+      id: w.id,
+      word: w.word,
+      example: w.example || "",
+      source: w.source,
+      createdAt: w.createdAt,
+    };
+    migratedWord[defKey(origLang)] = w.definition;
+    migratedWord[levelKey(origLang)] = w.level;
+    migratedWord[noDefKey(origLang)] = !!w.noDefinition;
+    migratedWord[defKey(other)] = null;
+    migratedWord[levelKey(other)] = guessLevelForWord(w.word, other);
+    migratedWord[noDefKey(other)] = true;
+    return migratedWord;
+  });
+  if (changed) {
+    try {
+      localStorage.setItem(CUSTOM_WORDS_KEY, JSON.stringify(migrated));
+    } catch (e) {
+      console.warn("Could not save migrated custom words", e);
+    }
+  }
+  return migrated;
+}
+
 function loadLevels() {
   try {
     const raw = localStorage.getItem(LEVELS_KEY);
@@ -362,7 +436,7 @@ function saveLang(lang) {
 
 let progress = loadProgress();
 if (!progress.spellingStatus) progress.spellingStatus = {}; // back-compat for progress saved before this existed
-let customWords = loadCustomWords();
+let customWords = migrateCustomWords(loadCustomWords());
 let savedLevels = loadLevels();
 let currentLang = loadLang() || "en";
 let currentLevel = savedLevels[currentLang] || currentSystem_levels_default();
@@ -444,8 +518,8 @@ function speak(text) {
 function getVocabPool(level) {
   const builtIn = currentSystem().bank.vocabulary.filter((w) => w.level === level);
   const custom = customWords
-    .filter((w) => w.level === level)
-    .map((w) => ({ word: w.word, definition: w.definition, example: w.example || "", custom: true }));
+    .filter((w) => cwLevel(w) === level)
+    .map((w) => ({ word: w.word, definition: cwDefinition(w) || t("ocrNoDefFound"), example: w.example || "", custom: true }));
   return builtIn.concat(custom);
 }
 
@@ -457,8 +531,8 @@ function getSpellingPool(level) {
   }
   const builtIn = currentSystem().bank.spelling.filter((w) => w.level === level);
   const custom = customWords
-    .filter((w) => w.level === level)
-    .map((w) => ({ word: w.word, tip: t("hintPrefix", w.definition || "a word you added yourself"), custom: true }));
+    .filter((w) => cwLevel(w) === level)
+    .map((w) => ({ word: w.word, tip: t("hintPrefix", cwDefinition(w) || "a word you added yourself"), custom: true }));
   return builtIn.concat(custom);
 }
 
@@ -1237,6 +1311,10 @@ const customWordsFailedText = document.getElementById("custom-words-failed-text"
 const customWordsStatus = document.getElementById("custom-words-status");
 const customRetryAllBtn = document.getElementById("custom-retry-all-btn");
 const customDeleteFailedBtn = document.getElementById("custom-delete-failed-btn");
+const customSortToggleBtn = document.getElementById("custom-sort-toggle-btn");
+const customDeleteSelectedBtn = document.getElementById("custom-delete-selected-btn");
+let sortMissingFirst = false;
+let selectedCustomWordIds = new Set();
 const ocrLevelSelectEl = document.getElementById("ocr-level");
 const addModeSingleBtn = document.getElementById("add-mode-single-btn");
 const addModeBulkBtn = document.getElementById("add-mode-bulk-btn");
@@ -1249,13 +1327,15 @@ function genId() {
   return `cw_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-// Best-effort automatic level for a word added via bulk-add: reuse the level
-// already assigned to it in our own curated word banks when it's a known word;
-// otherwise fall back to a rough word-length heuristic. This is an estimate,
-// not a real difficulty assessment — users can always fix it via Edit.
-function guessLevelForWord(word) {
+// Best-effort automatic level for a word, for a given language track (defaults
+// to the currently active one): reuse the level already assigned to it in our
+// own curated word banks when it's a known word; otherwise fall back to a
+// rough word-length heuristic. This is an estimate, not a real difficulty
+// assessment — users can always fix it via Edit.
+function guessLevelForWord(word, lang) {
+  lang = lang || currentLang;
   const w = word.toLowerCase();
-  const sys = currentSystem();
+  const sys = SYSTEMS[lang];
   const hit =
     sys.bank.vocabulary.find((v) => v.word.toLowerCase() === w) ||
     (sys.bank.spelling || []).find((v) => v.word.toLowerCase() === w) ||
@@ -1264,7 +1344,7 @@ function guessLevelForWord(word) {
 
   const levelIds = sys.levels.map((lv) => lv.id);
   const len = w.replace(/[^a-z]/g, "").length;
-  if (currentLang === "ko") {
+  if (lang === "ko") {
     if (len <= 4) return levelIds[0];
     if (len <= 6) return levelIds[1];
     if (len <= 8) return levelIds[2];
@@ -1311,15 +1391,17 @@ bulkAddSaveBtn.addEventListener("click", async () => {
 
   words.forEach((word, i) => {
     const info = infos[i];
-    const found = !!(info && info.definition);
     customWords.push({
       id: genId(),
       word,
-      definition: found ? info.definition : t("ocrNoDefFound"),
       example: (info && info.example) || "",
-      level: guessLevelForWord(word),
+      definitionEn: (info && info.definitionEn) || null,
+      definitionKo: (info && info.definitionKo) || null,
+      levelEn: guessLevelForWord(word, "en"),
+      levelKo: guessLevelForWord(word, "ko"),
+      noDefinitionEn: !(info && info.definitionEn),
+      noDefinitionKo: !(info && info.definitionKo),
       source: "bulk",
-      noDefinition: !found,
       createdAt: Date.now(),
     });
   });
@@ -1355,22 +1437,48 @@ manualForm.addEventListener("submit", (e) => {
   if (!word || !definition) return;
 
   const editId = manualEditId.value;
+  let newWord = null;
   if (editId) {
     const existing = customWords.find((w) => w.id === editId);
     if (existing) {
       existing.word = word;
-      existing.definition = definition;
       existing.example = example;
-      existing.level = level;
-      existing.noDefinition = false;
+      existing[defKey(currentLang)] = definition;
+      existing[levelKey(currentLang)] = level;
+      existing[noDefKey(currentLang)] = false;
     }
   } else {
-    customWords.push({ id: genId(), word, definition, example, level, source: "manual", createdAt: Date.now() });
+    const other = otherLang(currentLang);
+    newWord = { id: genId(), word, example, source: "manual", createdAt: Date.now() };
+    newWord[defKey(currentLang)] = definition;
+    newWord[levelKey(currentLang)] = level;
+    newWord[noDefKey(currentLang)] = false;
+    // The other language's meaning isn't typed in by hand — leave it flagged
+    // as not-yet-found and try to fill it in automatically in the background.
+    newWord[defKey(other)] = null;
+    newWord[levelKey(other)] = guessLevelForWord(word, other);
+    newWord[noDefKey(other)] = true;
+    customWords.push(newWord);
   }
   saveCustomWords();
   resetManualForm();
   renderCustomWords();
   renderWordList();
+
+  if (newWord) {
+    const other = otherLang(currentLang);
+    fetchWordInfo(word).then((info) => {
+      if (!info) return;
+      const val = other === "ko" ? info.definitionKo : info.definitionEn;
+      if (val) {
+        newWord[defKey(other)] = val;
+        newWord[noDefKey(other)] = false;
+        if (!newWord.example && info.example) newWord.example = info.example;
+        saveCustomWords();
+        renderCustomWords();
+      }
+    });
+  }
 });
 
 manualCancelBtn.addEventListener("click", resetManualForm);
@@ -1388,9 +1496,9 @@ function startEditCustomWord(id) {
   if (!w) return;
   manualEditId.value = w.id;
   manualWordInput.value = w.word;
-  manualDefinitionInput.value = w.noDefinition ? "" : w.definition;
+  manualDefinitionInput.value = cwNoDefinition(w) ? "" : cwDefinition(w);
   manualExampleInput.value = w.example || "";
-  manualLevelSelect.value = w.level;
+  manualLevelSelect.value = cwLevel(w);
   manualCancelBtn.style.display = "inline-block";
   manualSaveBtn.textContent = t("updateWordBtn");
   manualWordInput.focus();
@@ -1404,26 +1512,35 @@ function deleteCustomWord(id) {
   renderWordList();
 }
 
+// Applies a freshly fetched {definitionEn, definitionKo, example} result to a
+// custom word, filling in whichever language sides were still missing.
+function applyFetchedInfo(w, info) {
+  if (!info) return;
+  if (info.definitionEn) {
+    w.definitionEn = info.definitionEn;
+    w.noDefinitionEn = false;
+  }
+  if (info.definitionKo) {
+    w.definitionKo = info.definitionKo;
+    w.noDefinitionKo = false;
+  }
+  if (info.example && !w.example) w.example = info.example;
+}
+
 async function retrySingleWord(id) {
   const w = customWords.find((cw) => cw.id === id);
   if (!w) return;
   customWordsStatus.textContent = t("retryingOne");
   const info = await fetchWordInfo(w.word);
-  if (info && info.definition) {
-    w.definition = info.definition;
-    if (info.example) w.example = info.example;
-    w.noDefinition = false;
-    saveCustomWords();
-    customWordsStatus.textContent = t("retryResult", 1, 1);
-  } else {
-    customWordsStatus.textContent = t("retryResult", 0, 1);
-  }
+  applyFetchedInfo(w, info);
+  saveCustomWords();
+  customWordsStatus.textContent = t("retryResult", cwNoDefinition(w) ? 0 : 1, 1);
   renderCustomWords();
   renderWordList();
 }
 
 async function retryAllFailedWords() {
-  const failed = customWords.filter((w) => w.noDefinition);
+  const failed = customWords.filter((w) => cwNoDefinition(w));
   if (failed.length === 0) return;
   customRetryAllBtn.disabled = true;
   customDeleteFailedBtn.disabled = true;
@@ -1435,13 +1552,8 @@ async function retryAllFailedWords() {
 
   let foundCount = 0;
   failed.forEach((w, i) => {
-    const info = infos[i];
-    if (info && info.definition) {
-      w.definition = info.definition;
-      if (info.example) w.example = info.example;
-      w.noDefinition = false;
-      foundCount++;
-    }
+    applyFetchedInfo(w, infos[i]);
+    if (!cwNoDefinition(w)) foundCount++;
   });
   saveCustomWords();
 
@@ -1453,24 +1565,39 @@ async function retryAllFailedWords() {
 }
 
 function deleteAllFailedWords() {
-  const failed = customWords.filter((w) => w.noDefinition);
+  const failed = customWords.filter((w) => cwNoDefinition(w));
   if (failed.length === 0) return;
   if (!confirm(t("deleteAllFailedConfirm", failed.length))) return;
-  customWords = customWords.filter((w) => !w.noDefinition);
+  const failedIds = new Set(failed.map((w) => w.id));
+  customWords = customWords.filter((w) => !failedIds.has(w.id));
   saveCustomWords();
   customWordsStatus.textContent = "";
   renderCustomWords();
   renderWordList();
 }
 
+function updateDeleteSelectedBtn() {
+  customDeleteSelectedBtn.disabled = selectedCustomWordIds.size === 0;
+}
+
 function renderCustomWords() {
-  const failedWords = customWords.filter((w) => w.noDefinition);
+  // Drop selection for any word that no longer exists (e.g. deleted elsewhere).
+  const liveIds = new Set(customWords.map((w) => w.id));
+  selectedCustomWordIds.forEach((id) => {
+    if (!liveIds.has(id)) selectedCustomWordIds.delete(id);
+  });
+
+  const failedWords = customWords.filter((w) => cwNoDefinition(w));
   if (failedWords.length > 0) {
     customWordsFailedBanner.hidden = false;
     customWordsFailedText.textContent = t("failedWordsBanner", failedWords.length);
   } else {
     customWordsFailedBanner.hidden = true;
   }
+
+  customSortToggleBtn.classList.toggle("primary", sortMissingFirst);
+  customSortToggleBtn.classList.toggle("neutral", !sortMissingFirst);
+  updateDeleteSelectedBtn();
 
   customWordsGrid.innerHTML = "";
   if (customWords.length === 0) {
@@ -1481,10 +1608,28 @@ function renderCustomWords() {
 
   customWords
     .slice()
-    .sort((a, b) => b.createdAt - a.createdAt)
+    .sort((a, b) => {
+      if (sortMissingFirst) {
+        const aMissing = cwNoDefinition(a) ? 0 : 1;
+        const bMissing = cwNoDefinition(b) ? 0 : 1;
+        if (aMissing !== bMissing) return aMissing - bMissing;
+      }
+      return b.createdAt - a.createdAt;
+    })
     .forEach((w) => {
       const row = document.createElement("div");
       row.className = "wordlist-item";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "cw-select";
+      checkbox.checked = selectedCustomWordIds.has(w.id);
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) selectedCustomWordIds.add(w.id);
+        else selectedCustomWordIds.delete(w.id);
+        updateDeleteSelectedBtn();
+      });
+      row.appendChild(checkbox);
 
       const left = document.createElement("div");
       const wordEl = document.createElement("div");
@@ -1496,7 +1641,7 @@ function renderCustomWords() {
 
       const defEl = document.createElement("div");
       defEl.className = "d";
-      defEl.textContent = w.definition;
+      defEl.textContent = cwDefinition(w) || t("ocrNoDefFound");
       left.appendChild(defEl);
 
       if (w.example) {
@@ -1521,14 +1666,14 @@ function renderCustomWords() {
 
       const badge = document.createElement("span");
       badge.className = "mastery";
-      badge.textContent = levelLabel(w.level);
+      badge.textContent = levelLabel(cwLevel(w));
       right.appendChild(badge);
 
       const btnRow = document.createElement("div");
       btnRow.style.display = "flex";
       btnRow.style.gap = "6px";
 
-      if (w.noDefinition) {
+      if (cwNoDefinition(w)) {
         const retryBtn = document.createElement("button");
         retryBtn.className = "retry-btn";
         retryBtn.textContent = t("retryBtn");
@@ -1560,6 +1705,21 @@ function renderCustomWords() {
 
 customRetryAllBtn.addEventListener("click", retryAllFailedWords);
 customDeleteFailedBtn.addEventListener("click", deleteAllFailedWords);
+
+customSortToggleBtn.addEventListener("click", () => {
+  sortMissingFirst = !sortMissingFirst;
+  renderCustomWords();
+});
+
+customDeleteSelectedBtn.addEventListener("click", () => {
+  if (selectedCustomWordIds.size === 0) return;
+  if (!confirm(t("deleteSelectedConfirm", selectedCustomWordIds.size))) return;
+  customWords = customWords.filter((w) => !selectedCustomWordIds.has(w.id));
+  selectedCustomWordIds.clear();
+  saveCustomWords();
+  renderCustomWords();
+  renderWordList();
+});
 
 /* ---------- OCR: extract words from a photo ---------- */
 const ocrChooseBtn = document.getElementById("ocr-choose-btn");
@@ -1791,16 +1951,17 @@ async function fetchKoreanTranslationWithRetry(word) {
   return result;
 }
 
-// Looks up a definition (and example, where available) for one word,
-// matching whichever language track is currently active.
+// Looks up a definition for one word in BOTH languages at once (English via
+// dictionaryapi.dev, Korean via a translation of the English word), so a word
+// added from either language track ends up with a usable meaning on both.
 async function fetchWordInfo(word) {
-  if (currentLang === "ko") {
-    const [enEntry, koMeaning] = await Promise.all([fetchDefinitionWithRetry(word), fetchKoreanTranslationWithRetry(word)]);
-    if (!koMeaning && !enEntry) return null;
-    return { definition: koMeaning || null, example: (enEntry && enEntry.example) || "" };
-  }
-  const enEntry = await fetchDefinitionWithRetry(word);
-  return enEntry ? { definition: enEntry.definition, example: enEntry.example } : null;
+  const [enEntry, koMeaning] = await Promise.all([fetchDefinitionWithRetry(word), fetchKoreanTranslationWithRetry(word)]);
+  if (!enEntry && !koMeaning) return null;
+  return {
+    definitionEn: (enEntry && enEntry.definition) || null,
+    definitionKo: koMeaning || null,
+    example: (enEntry && enEntry.example) || "",
+  };
 }
 
 ocrAddBtn.addEventListener("click", async () => {
@@ -1817,19 +1978,23 @@ ocrAddBtn.addEventListener("click", async () => {
     ocrStatus.textContent = t("ocrAddingProgress", done, total);
   });
 
+  const other = otherLang(currentLang);
   selected.forEach((word, i) => {
     const info = infos[i];
-    const found = !!(info && info.definition);
-    customWords.push({
+    const newWord = {
       id: genId(),
       word,
-      definition: found ? info.definition : t("ocrNoDefFound"),
       example: (info && info.example) || "",
-      level,
+      definitionEn: (info && info.definitionEn) || null,
+      definitionKo: (info && info.definitionKo) || null,
+      noDefinitionEn: !(info && info.definitionEn),
+      noDefinitionKo: !(info && info.definitionKo),
       source: "ocr",
-      noDefinition: !found,
       createdAt: Date.now(),
-    });
+    };
+    newWord[levelKey(currentLang)] = level;
+    newWord[levelKey(other)] = guessLevelForWord(word, other);
+    customWords.push(newWord);
   });
   saveCustomWords();
 
