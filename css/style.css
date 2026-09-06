@@ -725,7 +725,8 @@ footer {
 }
 
 .wordlist-item .edit-btn,
-.wordlist-item .delete-btn {
+.wordlist-item .delete-btn,
+.wordlist-item .retry-btn {
   border: none;
   background: #eef2fb;
   color: var(--primary-dark);
@@ -739,4 +740,37 @@ footer {
 .wordlist-item .delete-btn {
   background: #fdeaea;
   color: var(--error);
+}
+
+.wordlist-item .retry-btn {
+  background: #fff3e0;
+  color: #b56a00;
+}
+
+.wordlist-item .retry-btn:disabled,
+.failed-words-banner button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.failed-words-banner {
+  background: #fff8ec;
+  border: 1px solid #f3d9a8;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.failed-words-banner[hidden] {
+  display: none;
+}
+
+.failed-words-banner p {
+  color: #8a5a00;
+}
+
+.failed-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
 }

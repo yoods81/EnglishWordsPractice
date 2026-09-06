@@ -181,6 +181,14 @@
 
       <div class="card">
         <h3 data-i18n="myAddedWordsTitle">📝 My added words</h3>
+        <div class="ocr-review-header failed-words-banner" id="custom-words-failed-banner" hidden>
+          <p class="muted" id="custom-words-failed-text"></p>
+          <div class="failed-actions">
+            <button type="button" class="pill neutral" id="custom-retry-all-btn" data-i18n="retryAllBtn">🔄 Retry All</button>
+            <button type="button" class="pill error" id="custom-delete-failed-btn" data-i18n="deleteAllFailedBtn">🗑️ Delete All Failed</button>
+          </div>
+        </div>
+        <div id="custom-words-status" class="spelling-tip"></div>
         <div class="wordlist-grid" id="custom-words-grid"></div>
         <p class="muted" id="custom-words-empty" hidden data-i18n="myAddedWordsEmpty">You haven't added any words yet.</p>
       </div>

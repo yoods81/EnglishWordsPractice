@@ -89,7 +89,15 @@ const TRANSLATIONS = {
     myAddedWordsEmpty: "You haven't added any words yet.",
     editBtn: "Edit",
     deleteBtn: "Delete",
+    retryBtn: "🔄 Retry",
     deleteConfirm: "Delete this word?",
+    failedWordsBanner: (n) => (n === 1 ? "⚠️ 1 word still needs a meaning." : `⚠️ ${n} words still need a meaning.`),
+    retryAllBtn: "🔄 Retry All",
+    deleteAllFailedBtn: "🗑️ Delete All Failed",
+    deleteAllFailedConfirm: (n) => (n === 1 ? "Delete 1 word that still has no meaning?" : `Delete ${n} words that still have no meaning?`),
+    retryingOne: "Retrying...",
+    retryProgress: (done, total) => `Retrying... ${done} / ${total}`,
+    retryResult: (found, total) => (found === total ? `Found meanings for all ${total} word(s)! 🎉` : `Found meanings for ${found} / ${total} word(s).`),
     hintPrefix: (def) => `Hint: ${def}`,
     statWordsPracticed: "Words practised",
     statFlashKnown: "Flashcards known",
@@ -178,7 +186,15 @@ const TRANSLATIONS = {
     myAddedWordsEmpty: "아직 추가한 단어가 없어요.",
     editBtn: "수정",
     deleteBtn: "삭제",
+    retryBtn: "🔄 다시 찾기",
     deleteConfirm: "이 단어를 삭제할까요?",
+    failedWordsBanner: (n) => `⚠️ 아직 뜻을 찾지 못한 단어 ${n}개가 있어요.`,
+    retryAllBtn: "🔄 전체 다시 찾기",
+    deleteAllFailedBtn: "🗑️ 실패한 단어 전체 삭제",
+    deleteAllFailedConfirm: (n) => `뜻을 찾지 못한 단어 ${n}개를 삭제할까요?`,
+    retryingOne: "다시 찾는 중...",
+    retryProgress: (done, total) => `다시 찾는 중... ${done} / ${total}`,
+    retryResult: (found, total) => (found === total ? `${total}개 단어 모두 뜻을 찾았어요! 🎉` : `${total}개 중 ${found}개 단어의 뜻을 찾았어요.`),
     hintPrefix: (def) => `힌트: ${def}`,
     statWordsPracticed: "연습한 단어 수",
     statFlashKnown: "외운 플래시카드 수",
@@ -980,6 +996,11 @@ const manualSaveBtn = document.getElementById("manual-save-btn");
 const manualCancelBtn = document.getElementById("manual-cancel-btn");
 const customWordsGrid = document.getElementById("custom-words-grid");
 const customWordsEmpty = document.getElementById("custom-words-empty");
+const customWordsFailedBanner = document.getElementById("custom-words-failed-banner");
+const customWordsFailedText = document.getElementById("custom-words-failed-text");
+const customWordsStatus = document.getElementById("custom-words-status");
+const customRetryAllBtn = document.getElementById("custom-retry-all-btn");
+const customDeleteFailedBtn = document.getElementById("custom-delete-failed-btn");
 const ocrLevelSelectEl = document.getElementById("ocr-level");
 
 function genId() {
@@ -1016,6 +1037,7 @@ manualForm.addEventListener("submit", (e) => {
       existing.definition = definition;
       existing.example = example;
       existing.level = level;
+      existing.noDefinition = false;
     }
   } else {
     customWords.push({ id: genId(), word, definition, example, level, source: "manual", createdAt: Date.now() });
@@ -1041,7 +1063,7 @@ function startEditCustomWord(id) {
   if (!w) return;
   manualEditId.value = w.id;
   manualWordInput.value = w.word;
-  manualDefinitionInput.value = w.definition;
+  manualDefinitionInput.value = w.noDefinition ? "" : w.definition;
   manualExampleInput.value = w.example || "";
   manualLevelSelect.value = w.level;
   manualCancelBtn.style.display = "inline-block";
@@ -1057,7 +1079,74 @@ function deleteCustomWord(id) {
   renderWordList();
 }
 
+async function retrySingleWord(id) {
+  const w = customWords.find((cw) => cw.id === id);
+  if (!w) return;
+  customWordsStatus.textContent = t("retryingOne");
+  const info = await fetchWordInfo(w.word);
+  if (info && info.definition) {
+    w.definition = info.definition;
+    if (info.example) w.example = info.example;
+    w.noDefinition = false;
+    saveCustomWords();
+    customWordsStatus.textContent = t("retryResult", 1, 1);
+  } else {
+    customWordsStatus.textContent = t("retryResult", 0, 1);
+  }
+  renderCustomWords();
+  renderWordList();
+}
+
+async function retryAllFailedWords() {
+  const failed = customWords.filter((w) => w.noDefinition);
+  if (failed.length === 0) return;
+  customRetryAllBtn.disabled = true;
+  customDeleteFailedBtn.disabled = true;
+  customWordsStatus.textContent = t("retryProgress", 0, failed.length);
+
+  const infos = await mapWithConcurrency(failed, 4, (w) => fetchWordInfo(w.word), (done, total) => {
+    customWordsStatus.textContent = t("retryProgress", done, total);
+  });
+
+  let foundCount = 0;
+  failed.forEach((w, i) => {
+    const info = infos[i];
+    if (info && info.definition) {
+      w.definition = info.definition;
+      if (info.example) w.example = info.example;
+      w.noDefinition = false;
+      foundCount++;
+    }
+  });
+  saveCustomWords();
+
+  customWordsStatus.textContent = t("retryResult", foundCount, failed.length);
+  customRetryAllBtn.disabled = false;
+  customDeleteFailedBtn.disabled = false;
+  renderCustomWords();
+  renderWordList();
+}
+
+function deleteAllFailedWords() {
+  const failed = customWords.filter((w) => w.noDefinition);
+  if (failed.length === 0) return;
+  if (!confirm(t("deleteAllFailedConfirm", failed.length))) return;
+  customWords = customWords.filter((w) => !w.noDefinition);
+  saveCustomWords();
+  customWordsStatus.textContent = "";
+  renderCustomWords();
+  renderWordList();
+}
+
 function renderCustomWords() {
+  const failedWords = customWords.filter((w) => w.noDefinition);
+  if (failedWords.length > 0) {
+    customWordsFailedBanner.hidden = false;
+    customWordsFailedText.textContent = t("failedWordsBanner", failedWords.length);
+  } else {
+    customWordsFailedBanner.hidden = true;
+  }
+
   customWordsGrid.innerHTML = "";
   if (customWords.length === 0) {
     customWordsEmpty.hidden = false;
@@ -1114,6 +1203,17 @@ function renderCustomWords() {
       btnRow.style.display = "flex";
       btnRow.style.gap = "6px";
 
+      if (w.noDefinition) {
+        const retryBtn = document.createElement("button");
+        retryBtn.className = "retry-btn";
+        retryBtn.textContent = t("retryBtn");
+        retryBtn.addEventListener("click", () => {
+          retryBtn.disabled = true;
+          retrySingleWord(w.id);
+        });
+        btnRow.appendChild(retryBtn);
+      }
+
       const editBtn = document.createElement("button");
       editBtn.className = "edit-btn";
       editBtn.textContent = t("editBtn");
@@ -1132,6 +1232,9 @@ function renderCustomWords() {
       customWordsGrid.appendChild(row);
     });
 }
+
+customRetryAllBtn.addEventListener("click", retryAllFailedWords);
+customDeleteFailedBtn.addEventListener("click", deleteAllFailedWords);
 
 /* ---------- OCR: extract words from a photo ---------- */
 const ocrChooseBtn = document.getElementById("ocr-choose-btn");
@@ -1391,13 +1494,15 @@ ocrAddBtn.addEventListener("click", async () => {
 
   selected.forEach((word, i) => {
     const info = infos[i];
+    const found = !!(info && info.definition);
     customWords.push({
       id: genId(),
       word,
-      definition: info && info.definition ? info.definition : t("ocrNoDefFound"),
+      definition: found ? info.definition : t("ocrNoDefFound"),
       example: (info && info.example) || "",
       level,
       source: "ocr",
+      noDefinition: !found,
       createdAt: Date.now(),
     });
   });
