@@ -32,6 +32,9 @@ const TRANSLATIONS = {
     optVocabulary: "Vocabulary",
     optSynonyms: "Synonyms & Antonyms",
     optHomophones: "Homophones",
+    flashFrontModeLabel: "Flashcard front side",
+    flashFrontWord: "🔤 Word",
+    flashFrontMeaning: "💡 Meaning",
     backLabel: "Back",
     nextLabel: "Next",
     flashHint: "Tap the card to flip it • Tap the meaning or example to hear it read aloud",
@@ -155,6 +158,9 @@ const TRANSLATIONS = {
     optVocabulary: "어휘",
     optSynonyms: "동의어 & 반의어",
     optHomophones: "동음이의어",
+    flashFrontModeLabel: "플래시카드 앞면",
+    flashFrontWord: "🔤 단어",
+    flashFrontMeaning: "💡 뜻",
     backLabel: "이전",
     nextLabel: "다음",
     flashHint: "카드를 탭하면 뒤집혀요 • 뜻이나 예문을 탭하면 소리로 들을 수 있어요",
@@ -587,6 +593,9 @@ function applyStaticTranslations() {
   document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
     el.placeholder = t(el.dataset.i18nPlaceholder);
   });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((el) => {
+    el.setAttribute("aria-label", t(el.dataset.i18nAriaLabel));
+  });
   document.getElementById("app-title").textContent = t("appTitle");
   document.getElementById("app-subtitle").textContent = t("appSubtitle");
   document.getElementById("app-footer").textContent = t("footerText");
@@ -797,6 +806,7 @@ updateAdminUI();
 
 /* ================= FLASHCARDS ================= */
 const flashCategorySel = document.getElementById("flash-category");
+const flashFrontModeSel = document.getElementById("flash-front-mode");
 const flashcardEl = document.getElementById("flashcard");
 const flashWordEl = document.getElementById("flash-word");
 const flashDefEl = document.getElementById("flash-definition");
@@ -830,14 +840,20 @@ function buildFlashDeck() {
 function renderFlashcard() {
   flashcardEl.classList.remove("flipped");
   if (flashDeck.length === 0) {
+    flashcardEl.classList.remove("front-meaning");
     flashWordEl.textContent = t("flashEmptyWord");
     flashDefEl.textContent = t("flashEmptyDef", levelLabel(currentLevel));
     flashExampleEl.textContent = "";
     return;
   }
   const item = flashDeck[flashIndex];
-  flashWordEl.textContent = item.word;
-  flashDefEl.textContent = item.definition;
+  const meaningFirst = flashFrontModeSel.value === "meaning";
+  flashcardEl.classList.toggle("front-meaning", meaningFirst);
+  // The front/back DOM slots (and their speak-on-tap handlers) always read
+  // whatever text is currently shown in them, so swapping which field goes
+  // where here is all that's needed to support both front-side modes.
+  flashWordEl.textContent = meaningFirst ? item.definition : item.word;
+  flashDefEl.textContent = meaningFirst ? item.word : item.definition;
   flashExampleEl.textContent = item.example;
 }
 
@@ -848,12 +864,12 @@ flashcardEl.addEventListener("click", (e) => {
 
 flashSpeakBtn.addEventListener("click", (e) => {
   e.stopPropagation();
-  if (flashDeck[flashIndex]) speak(flashDeck[flashIndex].word);
+  if (flashDeck.length) speak(flashWordEl.textContent);
 });
 
 flashDefEl.addEventListener("click", (e) => {
   e.stopPropagation();
-  if (flashDeck[flashIndex]) speak(flashDeck[flashIndex].definition);
+  if (flashDeck.length) speak(flashDefEl.textContent);
 });
 
 flashExampleEl.addEventListener("click", (e) => {
@@ -891,6 +907,7 @@ flashDontKnowBtn.addEventListener("click", () => {
 });
 
 flashCategorySel.addEventListener("change", buildFlashDeck);
+flashFrontModeSel.addEventListener("change", renderFlashcard);
 
 /* ================= QUIZ ================= */
 const quizCategorySel = document.getElementById("quiz-category");

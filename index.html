@@ -45,9 +45,9 @@
 
   <main>
     <nav class="tabs">
-      <button data-view="flashcards" class="active" data-i18n="navFlashcards">🃏 Flashcards</button>
       <button data-view="quiz" data-i18n="navQuiz">❓ Quiz</button>
       <button data-view="spelling" data-i18n="navSpelling">✏️ Spelling</button>
+      <button data-view="flashcards" class="active" data-i18n="navFlashcards">🃏 Flashcards</button>
       <button data-view="wordlist" data-i18n="navWordlist">📖 Word List</button>
       <button data-view="addword" data-i18n="navAddword">➕ Add Word</button>
       <button data-view="stats" data-i18n="navStats">📊 My Progress</button>
@@ -61,6 +61,10 @@
           <select id="flash-category">
             <option value="vocabulary" data-i18n="optVocabulary">Vocabulary</option>
             <option value="synonyms" data-i18n="optSynonyms">Synonyms &amp; Antonyms</option>
+          </select>
+          <select id="flash-front-mode" data-i18n-aria-label="flashFrontModeLabel" aria-label="Flashcard front side">
+            <option value="word" data-i18n="flashFrontWord">🔤 Word</option>
+            <option value="meaning" data-i18n="flashFrontMeaning">💡 Meaning</option>
           </select>
           <button type="button" class="pill neutral icon-btn" id="flash-stats-shortcut" style="margin-left:auto;">
             <span class="btn-icon">📊</span><span class="btn-label" data-i18n="statsShortcutLabel">My Progress</span>

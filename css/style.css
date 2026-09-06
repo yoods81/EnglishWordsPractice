@@ -253,6 +253,14 @@ select {
   font-weight: 700;
 }
 
+/* When the meaning is shown on the front instead of the word, it's usually
+   a full sentence rather than a single word — shrink it so longer text still
+   fits comfortably. */
+.flashcard.front-meaning .flashcard-front .word {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
 .flashcard-back {
   background: #fff;
   transform: rotateY(180deg);
@@ -412,6 +420,19 @@ button.pill:disabled {
 
   .setting-row-nowrap label {
     white-space: nowrap;
+  }
+
+  /* The flashcards row packs a category select, a front-side select, and the
+     My Progress shortcut into one line — give the selects equal room to
+     shrink into and drop the "Category" label so all three fit. */
+  #view-flashcards .setting-row-nowrap label {
+    display: none;
+  }
+
+  #view-flashcards .setting-row-nowrap select {
+    flex: 1 1 0;
+    padding: 6px 4px;
+    font-size: 0.78rem;
   }
 }
 
