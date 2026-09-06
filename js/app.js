@@ -24,6 +24,7 @@ const TRANSLATIONS = {
     navWordlist: "📖 Word List",
     navAddword: "➕ Add Word",
     navStats: "📊 My Progress",
+    statsShortcutLabel: "My Progress",
     categoryLabel: "Category",
     optVocabulary: "Vocabulary",
     optSynonyms: "Synonyms & Antonyms",
@@ -66,9 +67,13 @@ const TRANSLATIONS = {
     cancelEditBtn: "Cancel edit",
     ocrTitle: "📷 Extract words from a photo",
     ocrDesc: "Take a photo of a book page, or upload a screenshot of an online passage. We'll read the text and pull out candidate words you can add to your word list.",
+    ocrChooseBtn: "📁 Choose Photo",
+    ocrNoFileChosen: "No file chosen",
     ocrProgressDefault: "Reading image...",
     ocrProgressStatus: (status, pct) => `${status} (${pct}%)`,
     ocrReviewHintDefault: "Tap the words you'd like to add:",
+    ocrSelectAll: "Select All",
+    ocrDeselectAll: "Deselect All",
     ocrLevelLabel: "Save selected words as",
     ocrAddBtn: "Add selected words",
     ocrNoTesseract: "The photo-reading tool couldn't load (check your internet connection) and can't be used right now.",
@@ -107,6 +112,7 @@ const TRANSLATIONS = {
     navWordlist: "📖 단어장",
     navAddword: "➕ 단어 추가",
     navStats: "📊 내 진행상황",
+    statsShortcutLabel: "내 진행상황",
     categoryLabel: "카테고리",
     optVocabulary: "어휘",
     optSynonyms: "동의어 & 반의어",
@@ -149,9 +155,13 @@ const TRANSLATIONS = {
     cancelEditBtn: "수정 취소",
     ocrTitle: "📷 사진에서 단어 추출하기",
     ocrDesc: "책 페이지를 촬영하거나 온라인 지문을 캡처한 이미지를 올려보세요. 텍스트를 읽어서 단어장에 추가할 후보 단어를 찾아드려요.",
+    ocrChooseBtn: "📁 사진 선택하기",
+    ocrNoFileChosen: "선택된 파일 없음",
     ocrProgressDefault: "이미지를 읽는 중...",
     ocrProgressStatus: (status, pct) => `${status} (${pct}%)`,
     ocrReviewHintDefault: "추가하고 싶은 단어를 탭하세요:",
+    ocrSelectAll: "전체 선택",
+    ocrDeselectAll: "전체 해제",
     ocrLevelLabel: "선택한 단어를 저장할 레벨",
     ocrAddBtn: "선택한 단어 추가하기",
     ocrNoTesseract: "사진 읽기 기능을 불러오지 못했어요 (인터넷 연결을 확인해주세요). 지금은 사용할 수 없어요.",
@@ -442,6 +452,10 @@ function applyStaticTranslations() {
   document.getElementById("level-overlay-desc").textContent = t("levelOverlayDesc");
   document.documentElement.lang = currentLang === "ko" ? "ko" : "en";
   updateCategoryOptionVisibility();
+  // These two show state (not static copy), so re-derive them after the
+  // generic data-i18n sweep above may have reset them to their default text.
+  if (typeof ocrFileNameEl !== "undefined" && ocrLastFileName) ocrFileNameEl.textContent = ocrLastFileName;
+  if (typeof ocrSelectAllBtn !== "undefined" && ocrCandidateWords && ocrCandidateWords.length) updateSelectAllLabel();
 }
 
 function updateCategoryOptionVisibility() {
@@ -553,15 +567,17 @@ function refreshView(view) {
   if (view === "stats") renderStats();
 }
 
+function goToTab(view) {
+  tabButtons.forEach((b) => b.classList.toggle("active", b.dataset.view === view));
+  views.forEach((v) => v.classList.toggle("active", v.id === `view-${view}`));
+  refreshView(view);
+}
+
 tabButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    tabButtons.forEach((b) => b.classList.remove("active"));
-    views.forEach((v) => v.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById(`view-${btn.dataset.view}`).classList.add("active");
-    refreshView(btn.dataset.view);
-  });
+  btn.addEventListener("click", () => goToTab(btn.dataset.view));
 });
+
+document.getElementById("flash-stats-shortcut").addEventListener("click", () => goToTab("stats"));
 
 /* ================= FLASHCARDS ================= */
 const flashCategorySel = document.getElementById("flash-category");
@@ -1116,12 +1132,15 @@ function renderCustomWords() {
 }
 
 /* ---------- OCR: extract words from a photo ---------- */
+const ocrChooseBtn = document.getElementById("ocr-choose-btn");
+const ocrFileNameEl = document.getElementById("ocr-file-name");
 const ocrFileInput = document.getElementById("ocr-file-input");
 const ocrProgress = document.getElementById("ocr-progress");
 const ocrProgressFill = document.getElementById("ocr-progress-fill");
 const ocrProgressLabel = document.getElementById("ocr-progress-label");
 const ocrReview = document.getElementById("ocr-review");
 const ocrCandidatesEl = document.getElementById("ocr-candidates");
+const ocrSelectAllBtn = document.getElementById("ocr-select-all-btn");
 const ocrLevelSelect = document.getElementById("ocr-level");
 const ocrAddBtn = document.getElementById("ocr-add-btn");
 const ocrStatus = document.getElementById("ocr-status");
@@ -1136,15 +1155,29 @@ const STOPWORDS = new Set(
 );
 
 let ocrSelectedWords = new Set();
+let ocrCandidateWords = [];
+let ocrCandidateChips = new Map();
+let ocrLastFileName = null;
+
+ocrChooseBtn.addEventListener("click", () => ocrFileInput.click());
 
 ocrFileInput.addEventListener("change", async (e) => {
   const file = e.target.files && e.target.files[0];
-  if (!file) return;
+  if (!file) {
+    ocrLastFileName = null;
+    ocrFileNameEl.textContent = t("ocrNoFileChosen");
+    return;
+  }
 
+  ocrLastFileName = file.name;
+  ocrFileNameEl.textContent = file.name;
   ocrReview.hidden = true;
   ocrStatus.textContent = "";
   ocrSelectedWords = new Set();
+  ocrCandidateWords = [];
+  ocrCandidateChips = new Map();
   ocrCandidatesEl.innerHTML = "";
+  ocrSelectAllBtn.hidden = true;
   ocrLevelSelect.value = currentLevel;
 
   if (typeof Tesseract === "undefined") {
@@ -1175,6 +1208,8 @@ ocrFileInput.addEventListener("change", async (e) => {
     ocrStatus.textContent = t("ocrFailRead");
     ocrReview.hidden = false;
   } finally {
+    // Reset the underlying input (not the visible filename label) so choosing
+    // the same file again still fires a "change" event.
     ocrFileInput.value = "";
   }
 });
@@ -1192,32 +1227,62 @@ function processOcrText(text) {
   });
 
   const list = Array.from(candidates).sort().slice(0, 60);
+  ocrCandidateWords = list;
+  ocrCandidateChips = new Map();
   ocrReview.hidden = false;
+  updateSelectAllLabel();
 
   if (list.length === 0) {
     ocrReviewHintEl.textContent = t("ocrNoCandidates");
     ocrCandidatesEl.innerHTML = "";
+    ocrSelectAllBtn.hidden = true;
     return;
   }
 
+  ocrSelectAllBtn.hidden = false;
   ocrReviewHintEl.textContent = t("ocrFoundCandidates", list.length);
   ocrCandidatesEl.innerHTML = "";
   list.forEach((word) => {
     const chip = document.createElement("div");
     chip.className = "wordlist-item candidate-chip";
     chip.textContent = word;
-    chip.addEventListener("click", () => {
-      if (ocrSelectedWords.has(word)) {
-        ocrSelectedWords.delete(word);
-        chip.classList.remove("selected");
-      } else {
-        ocrSelectedWords.add(word);
-        chip.classList.add("selected");
-      }
-    });
+    chip.addEventListener("click", () => toggleCandidateSelection(word));
     ocrCandidatesEl.appendChild(chip);
+    ocrCandidateChips.set(word, chip);
   });
 }
+
+function toggleCandidateSelection(word) {
+  const chip = ocrCandidateChips.get(word);
+  if (ocrSelectedWords.has(word)) {
+    ocrSelectedWords.delete(word);
+    if (chip) chip.classList.remove("selected");
+  } else {
+    ocrSelectedWords.add(word);
+    if (chip) chip.classList.add("selected");
+  }
+  updateSelectAllLabel();
+}
+
+function updateSelectAllLabel() {
+  const allSelected = ocrCandidateWords.length > 0 && ocrCandidateWords.every((w) => ocrSelectedWords.has(w));
+  ocrSelectAllBtn.textContent = t(allSelected ? "ocrDeselectAll" : "ocrSelectAll");
+}
+
+ocrSelectAllBtn.addEventListener("click", () => {
+  const allSelected = ocrCandidateWords.length > 0 && ocrCandidateWords.every((w) => ocrSelectedWords.has(w));
+  ocrCandidateWords.forEach((word) => {
+    const chip = ocrCandidateChips.get(word);
+    if (allSelected) {
+      ocrSelectedWords.delete(word);
+      if (chip) chip.classList.remove("selected");
+    } else {
+      ocrSelectedWords.add(word);
+      if (chip) chip.classList.add("selected");
+    }
+  });
+  updateSelectAllLabel();
+});
 
 async function fetchDefinition(word) {
   try {
@@ -1261,6 +1326,8 @@ ocrAddBtn.addEventListener("click", async () => {
 
   ocrStatus.textContent = t("ocrAddedStatus", selected.length, levelLabel(level));
   ocrSelectedWords = new Set();
+  ocrCandidateWords = [];
+  ocrCandidateChips = new Map();
   ocrReview.hidden = true;
   ocrCandidatesEl.innerHTML = "";
   ocrAddBtn.disabled = false;

@@ -143,6 +143,23 @@ nav.tabs button.active {
   margin-bottom: 12px;
 }
 
+.setting-row-nowrap {
+  flex-wrap: nowrap;
+}
+
+.setting-row-nowrap select {
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 .setting-row label {
   font-weight: 600;
   color: var(--muted);
@@ -328,6 +345,19 @@ button.pill.accent { background: var(--accent); color: #fff; }
 
   header h1 {
     font-size: 1.05rem;
+  }
+
+  .icon-btn .btn-label {
+    display: none;
+  }
+
+  .icon-btn {
+    padding: 8px 10px;
+    font-size: 1rem;
+  }
+
+  .setting-row-nowrap label {
+    white-space: nowrap;
   }
 }
 
@@ -643,8 +673,18 @@ footer {
   font-size: 0.82rem;
 }
 
-#ocr-file-input {
+.file-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 12px 0;
+  flex-wrap: wrap;
+}
+
+.file-picker-name {
+  color: var(--muted);
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
 }
 
 .ocr-progress {
@@ -653,6 +693,25 @@ footer {
 
 .ocr-review {
   margin-top: 18px;
+}
+
+.ocr-review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ocr-review-header p {
+  margin: 0;
+  flex: 1 1 auto;
+}
+
+.ocr-review-header button {
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+  padding: 6px 12px;
 }
 
 .candidate-chip {

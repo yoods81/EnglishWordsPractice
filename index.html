@@ -37,12 +37,15 @@
     <!-- Flashcards -->
     <section id="view-flashcards" class="view active">
       <div class="card">
-        <div class="setting-row">
+        <div class="setting-row setting-row-nowrap">
           <label for="flash-category" data-i18n="categoryLabel">Category</label>
           <select id="flash-category">
             <option value="vocabulary" data-i18n="optVocabulary">Vocabulary</option>
             <option value="synonyms" data-i18n="optSynonyms">Synonyms &amp; Antonyms</option>
           </select>
+          <button type="button" class="pill neutral icon-btn" id="flash-stats-shortcut" style="margin-left:auto;">
+            <span class="btn-icon">📊</span><span class="btn-label" data-i18n="statsShortcutLabel">My Progress</span>
+          </button>
         </div>
         <div class="flashcard-row">
           <button class="pill neutral flash-side-btn" id="flash-prev">
@@ -123,6 +126,33 @@
     <!-- Add Word -->
     <section id="view-addword" class="view">
       <div class="card">
+        <h3 data-i18n="ocrTitle">📷 Extract words from a photo</h3>
+        <p class="muted" data-i18n="ocrDesc">Take a photo of a book page, or upload a screenshot of an online passage. We'll read the text and pull out candidate words you can add to your word list.</p>
+        <div class="file-picker-row">
+          <button type="button" class="pill primary" id="ocr-choose-btn" data-i18n="ocrChooseBtn">📁 Choose Photo</button>
+          <span class="file-picker-name" id="ocr-file-name" data-i18n="ocrNoFileChosen">No file chosen</span>
+          <input type="file" id="ocr-file-input" accept="image/*" hidden />
+        </div>
+        <div id="ocr-progress" class="ocr-progress" hidden>
+          <div class="progress-bar"><div class="progress-bar-fill" id="ocr-progress-fill"></div></div>
+          <div id="ocr-progress-label" data-i18n="ocrProgressDefault">Reading image...</div>
+        </div>
+        <div id="ocr-review" class="ocr-review" hidden>
+          <div class="ocr-review-header">
+            <p class="muted" id="ocr-review-hint" data-i18n="ocrReviewHintDefault">Tap the words you'd like to add:</p>
+            <button type="button" class="pill neutral" id="ocr-select-all-btn" data-i18n="ocrSelectAll">Select All</button>
+          </div>
+          <div class="wordlist-grid" id="ocr-candidates"></div>
+          <div class="setting-row">
+            <label for="ocr-level" data-i18n="ocrLevelLabel">Save selected words as</label>
+            <select id="ocr-level"></select>
+            <button class="pill primary" id="ocr-add-btn" style="margin-left:auto;" data-i18n="ocrAddBtn">Add selected words</button>
+          </div>
+          <div id="ocr-status" class="spelling-tip"></div>
+        </div>
+      </div>
+
+      <div class="card">
         <h3 data-i18n="addWordManualTitle">➕ Add a word manually</h3>
         <form id="manual-add-form">
           <input type="hidden" id="manual-edit-id" value="" />
@@ -147,26 +177,6 @@
             <button type="button" class="pill neutral" id="manual-cancel-btn" style="display:none;" data-i18n="cancelEditBtn">Cancel edit</button>
           </div>
         </form>
-      </div>
-
-      <div class="card">
-        <h3 data-i18n="ocrTitle">📷 Extract words from a photo</h3>
-        <p class="muted" data-i18n="ocrDesc">Take a photo of a book page, or upload a screenshot of an online passage. We'll read the text and pull out candidate words you can add to your word list.</p>
-        <input type="file" id="ocr-file-input" accept="image/*" capture="environment" />
-        <div id="ocr-progress" class="ocr-progress" hidden>
-          <div class="progress-bar"><div class="progress-bar-fill" id="ocr-progress-fill"></div></div>
-          <div id="ocr-progress-label" data-i18n="ocrProgressDefault">Reading image...</div>
-        </div>
-        <div id="ocr-review" class="ocr-review" hidden>
-          <p class="muted" id="ocr-review-hint" data-i18n="ocrReviewHintDefault">Tap the words you'd like to add:</p>
-          <div class="wordlist-grid" id="ocr-candidates"></div>
-          <div class="setting-row">
-            <label for="ocr-level" data-i18n="ocrLevelLabel">Save selected words as</label>
-            <select id="ocr-level"></select>
-            <button class="pill primary" id="ocr-add-btn" style="margin-left:auto;" data-i18n="ocrAddBtn">Add selected words</button>
-          </div>
-          <div id="ocr-status" class="spelling-tip"></div>
-        </div>
       </div>
 
       <div class="card">
