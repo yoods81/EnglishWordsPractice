@@ -62,6 +62,14 @@ const TRANSLATIONS = {
     masteryNew: "New",
     masteryPct: (pct) => `${pct}% mastered`,
     addWordManualTitle: "➕ Add a word manually",
+    addModeSingle: "Single word",
+    addModeBulk: "Multiple words",
+    bulkWordsLabel: "Words (one per line, or separated by commas)",
+    bulkWordsPlaceholder: "resilient\nmagnificent\ncurious",
+    bulkWordsHint: "We'll automatically look up each word's meaning and example, and guess a matching level for it.",
+    bulkAddSaveBtn: "Save words",
+    bulkNoWords: "Please enter at least one word.",
+    bulkAddedStatus: (n) => `Added ${n} word${n === 1 ? "" : "s"}!`,
     labelWord: "Word *",
     labelMeaning: "Meaning *",
     labelExample: "Example sentence",
@@ -166,6 +174,14 @@ const TRANSLATIONS = {
     masteryNew: "신규",
     masteryPct: (pct) => `${pct}% 숙달`,
     addWordManualTitle: "➕ 단어 직접 추가하기",
+    addModeSingle: "개별 단어 추가",
+    addModeBulk: "여러 단어 추가",
+    bulkWordsLabel: "단어들 (한 줄에 하나씩, 또는 쉼표로 구분)",
+    bulkWordsPlaceholder: "resilient\nmagnificent\ncurious",
+    bulkWordsHint: "각 단어의 뜻과 예문을 자동으로 찾아드리고, 알맞은 레벨도 자동으로 추정해드려요.",
+    bulkAddSaveBtn: "단어 저장하기",
+    bulkNoWords: "단어를 최소 1개 이상 입력해주세요.",
+    bulkAddedStatus: (n) => `${n}개의 단어를 추가했어요!`,
     labelWord: "단어 *",
     labelMeaning: "뜻 *",
     labelExample: "예문",
@@ -867,8 +883,9 @@ const spellingReportRestartBtn = document.getElementById("spelling-report-restar
 let spellingDeck = [];
 let spellingIndex = 0;
 let spellingScore = { correct: 0, total: 0 };
-let spellingTotalCountedWords = new Set(); // this session only — stops a retried word double-counting "total"
-let spellingSessionWrongWords = new Map(); // word -> {word, meaning} — for the end-of-session report
+let spellingTotalCountedWords = new Set(); // this round only — stops a retried word double-counting "total"
+let spellingWrongThisRound = new Set(); // this round only — word had >=1 wrong attempt, so it can't earn "correct" credit this round
+let spellingSessionWrongWords = new Map(); // word -> {word, meaning} — for the end-of-round report
 
 function buildSpellingDeck() {
   const pool = getSpellingPool(currentLevel);
@@ -880,6 +897,7 @@ function buildSpellingDeck() {
   spellingIndex = 0;
   spellingScore = { correct: 0, total: 0 };
   spellingTotalCountedWords = new Set();
+  spellingWrongThisRound = new Set();
   spellingSessionWrongWords = new Map();
   updateSpellingScoreLabel();
   spellingInput.value = "";
@@ -950,14 +968,20 @@ function attemptSpellingNext() {
   }
 
   if (correct) {
-    spellingScore.correct++;
-    progress.spelling.correct++;
-    progress.spellingStatus[current.word] = "correct";
+    // Only credit "correct" if this word was spelled right on the first try this
+    // round — a word that was ever wrong this round stays counted as wrong, even
+    // though you still move on to the next word once you get it right.
+    if (!spellingWrongThisRound.has(current.word)) {
+      spellingScore.correct++;
+      progress.spelling.correct++;
+      progress.spellingStatus[current.word] = "correct";
+    }
     saveProgress();
     updateSpellingScoreLabel();
     spellingIndex++;
     loadSpellingWord();
   } else {
+    spellingWrongThisRound.add(current.word);
     progress.spellingStatus[current.word] = "wrong";
     spellingSessionWrongWords.set(current.word, { word: current.word, meaning: current.tip || "" });
     saveProgress();
@@ -1122,10 +1146,99 @@ const customWordsStatus = document.getElementById("custom-words-status");
 const customRetryAllBtn = document.getElementById("custom-retry-all-btn");
 const customDeleteFailedBtn = document.getElementById("custom-delete-failed-btn");
 const ocrLevelSelectEl = document.getElementById("ocr-level");
+const addModeSingleBtn = document.getElementById("add-mode-single-btn");
+const addModeBulkBtn = document.getElementById("add-mode-bulk-btn");
+const bulkAddForm = document.getElementById("bulk-add-form");
+const bulkWordsInput = document.getElementById("bulk-words-input");
+const bulkAddSaveBtn = document.getElementById("bulk-add-save-btn");
+const bulkAddStatus = document.getElementById("bulk-add-status");
 
 function genId() {
   return `cw_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
+
+// Best-effort automatic level for a word added via bulk-add: reuse the level
+// already assigned to it in our own curated word banks when it's a known word;
+// otherwise fall back to a rough word-length heuristic. This is an estimate,
+// not a real difficulty assessment — users can always fix it via Edit.
+function guessLevelForWord(word) {
+  const w = word.toLowerCase();
+  const sys = currentSystem();
+  const hit =
+    sys.bank.vocabulary.find((v) => v.word.toLowerCase() === w) ||
+    (sys.bank.spelling || []).find((v) => v.word.toLowerCase() === w) ||
+    (sys.bank.synonyms || []).find((v) => v.word.toLowerCase() === w);
+  if (hit) return hit.level;
+
+  const levelIds = sys.levels.map((lv) => lv.id);
+  const len = w.replace(/[^a-z]/g, "").length;
+  if (currentLang === "ko") {
+    if (len <= 4) return levelIds[0];
+    if (len <= 6) return levelIds[1];
+    if (len <= 8) return levelIds[2];
+    return levelIds[3];
+  }
+  if (len <= 6) return levelIds[0];
+  if (len <= 9) return levelIds[1];
+  return levelIds[2];
+}
+
+function setAddMode(mode) {
+  const single = mode === "single";
+  manualForm.hidden = !single;
+  bulkAddForm.hidden = single;
+  addModeSingleBtn.classList.toggle("primary", single);
+  addModeSingleBtn.classList.toggle("neutral", !single);
+  addModeBulkBtn.classList.toggle("primary", !single);
+  addModeBulkBtn.classList.toggle("neutral", single);
+}
+
+addModeSingleBtn.addEventListener("click", () => setAddMode("single"));
+addModeBulkBtn.addEventListener("click", () => setAddMode("bulk"));
+
+bulkAddSaveBtn.addEventListener("click", async () => {
+  const words = Array.from(
+    new Set(
+      bulkWordsInput.value
+        .split(/[\n,]+/)
+        .map((w) => w.trim().toLowerCase())
+        .filter((w) => /^[a-z']{2,}$/.test(w))
+    )
+  );
+  if (words.length === 0) {
+    bulkAddStatus.textContent = t("bulkNoWords");
+    return;
+  }
+
+  bulkAddSaveBtn.disabled = true;
+  bulkAddStatus.textContent = t("ocrAddingStatus", words.length);
+
+  const infos = await mapWithConcurrency(words, 4, (w) => fetchWordInfo(w), (done, total) => {
+    bulkAddStatus.textContent = t("ocrAddingProgress", done, total);
+  });
+
+  words.forEach((word, i) => {
+    const info = infos[i];
+    const found = !!(info && info.definition);
+    customWords.push({
+      id: genId(),
+      word,
+      definition: found ? info.definition : t("ocrNoDefFound"),
+      example: (info && info.example) || "",
+      level: guessLevelForWord(word),
+      source: "bulk",
+      noDefinition: !found,
+      createdAt: Date.now(),
+    });
+  });
+  saveCustomWords();
+
+  bulkAddStatus.textContent = t("bulkAddedStatus", words.length);
+  bulkWordsInput.value = "";
+  bulkAddSaveBtn.disabled = false;
+  renderCustomWords();
+  renderWordList();
+});
 
 function populateLevelSelects() {
   [manualLevelSelect, ocrLevelSelectEl].forEach((sel) => {

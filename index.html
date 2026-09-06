@@ -172,6 +172,11 @@
 
       <div class="card">
         <h3 data-i18n="addWordManualTitle">➕ Add a word manually</h3>
+        <div class="add-mode-toggle">
+          <button type="button" class="pill primary" id="add-mode-single-btn" data-i18n="addModeSingle">Single word</button>
+          <button type="button" class="pill neutral" id="add-mode-bulk-btn" data-i18n="addModeBulk">Multiple words</button>
+        </div>
+
         <form id="manual-add-form">
           <input type="hidden" id="manual-edit-id" value="" />
           <div class="form-row">
@@ -195,6 +200,18 @@
             <button type="button" class="pill neutral" id="manual-cancel-btn" style="display:none;" data-i18n="cancelEditBtn">Cancel edit</button>
           </div>
         </form>
+
+        <div id="bulk-add-form" hidden>
+          <div class="form-row">
+            <label for="bulk-words-input" data-i18n="bulkWordsLabel">Words (one per line, or separated by commas)</label>
+            <textarea id="bulk-words-input" rows="5" data-i18n-placeholder="bulkWordsPlaceholder" placeholder="resilient&#10;magnificent&#10;curious"></textarea>
+          </div>
+          <p class="muted" data-i18n="bulkWordsHint">We'll automatically look up each word's meaning and example, and guess a matching level for it.</p>
+          <div class="form-actions">
+            <button type="button" class="pill primary" id="bulk-add-save-btn" data-i18n="bulkAddSaveBtn">Save words</button>
+          </div>
+          <div id="bulk-add-status" class="spelling-tip"></div>
+        </div>
       </div>
 
       <div class="card">

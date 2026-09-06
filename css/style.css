@@ -680,12 +680,30 @@ footer {
 }
 
 .form-row input,
-.form-row select {
+.form-row select,
+.form-row textarea {
   padding: 8px 10px;
   border-radius: 10px;
   border: 1px solid #d9deec;
   font-size: 0.9rem;
   width: 100%;
+}
+
+.form-row textarea {
+  font-family: inherit;
+  resize: vertical;
+  min-height: 90px;
+}
+
+.add-mode-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.add-mode-toggle button {
+  font-size: 0.8rem;
+  padding: 7px 14px;
 }
 
 .form-actions {
