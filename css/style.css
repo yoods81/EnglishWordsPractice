@@ -16,6 +16,10 @@
   box-sizing: border-box;
 }
 
+html {
+  font-size: 14px;
+}
+
 body {
   margin: 0;
   font-family: "Segoe UI", "Trebuchet MS", Verdana, sans-serif;
@@ -25,48 +29,57 @@ body {
 }
 
 header {
-  padding: 24px 16px 8px;
+  padding: 12px 16px 4px;
   text-align: center;
 }
 
 header h1 {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 1.3rem;
 }
 
 header h1 .emoji {
-  font-size: 1.6rem;
+  font-size: 1.2rem;
 }
 
 header p {
-  margin: 6px 0 0;
+  margin: 3px 0 0;
   color: var(--muted);
+  font-size: 0.85rem;
 }
 
 main {
-  max-width: 780px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 10px 14px 20px;
 }
 
 nav.tabs {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  margin: 16px 0 24px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 5px;
+  /* "safe" centers the row when it fits, but falls back to start-alignment
+     when it overflows so the first tab never scrolls out of reach */
+  justify-content: safe center;
+  margin: 10px 0 14px;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 
 nav.tabs button {
   border: none;
   background: var(--card-bg);
   color: var(--text);
-  padding: 10px 18px;
+  padding: 7px 11px;
   border-radius: 999px;
-  font-size: 0.95rem;
+  font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
   box-shadow: var(--shadow);
+  white-space: nowrap;
+  flex: 0 0 auto;
   transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
 
@@ -97,42 +110,47 @@ nav.tabs button.active {
   background: var(--card-bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 24px;
-  margin-bottom: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.card h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
 }
 
 .setting-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .setting-row label {
   font-weight: 600;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 select {
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 10px;
   border: 1px solid #d9deec;
   background: #fff;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 /* Flashcards */
 #flashcard-stage {
   perspective: 1200px;
-  max-width: 460px;
+  max-width: 380px;
   margin: 0 auto;
 }
 
 .flashcard {
   position: relative;
-  min-height: 240px;
+  min-height: 170px;
   border-radius: var(--radius);
   cursor: pointer;
   transform-style: preserve-3d;
@@ -152,7 +170,7 @@ select {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 16px;
   text-align: center;
   box-shadow: var(--shadow);
 }
@@ -163,7 +181,7 @@ select {
 }
 
 .flashcard-front .word {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
 }
 
@@ -174,38 +192,39 @@ select {
 }
 
 .flashcard-back .definition {
-  font-size: 1.15rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .flashcard-back .example {
   color: var(--muted);
   font-style: italic;
+  font-size: 0.85rem;
 }
 
 .hint {
   text-align: center;
   color: var(--muted);
-  font-size: 0.85rem;
-  margin-top: 10px;
+  font-size: 0.75rem;
+  margin-top: 6px;
 }
 
 .flash-controls {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-top: 18px;
+  gap: 8px;
+  margin-top: 10px;
   flex-wrap: wrap;
 }
 
 button.pill {
   border: none;
   border-radius: 999px;
-  padding: 10px 20px;
+  padding: 8px 16px;
   font-weight: 600;
   cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   transition: transform 0.1s ease;
 }
 
@@ -224,17 +243,17 @@ button.pill.accent { background: var(--accent); color: #fff; }
   background: #eef2fb;
   color: var(--primary-dark);
   border-radius: 999px;
-  padding: 6px 12px;
+  padding: 5px 10px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
 }
 
 /* Quiz */
 #quiz-question {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 600;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 #quiz-question .quiz-target {
@@ -244,7 +263,7 @@ button.pill.accent { background: var(--accent); color: #fff; }
 .options {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 8px;
 }
 
 @media (max-width: 480px) {
@@ -255,8 +274,8 @@ button.pill.accent { background: var(--accent); color: #fff; }
   border: 2px solid #e0e5f2;
   background: #fff;
   border-radius: 12px;
-  padding: 14px;
-  font-size: 1rem;
+  padding: 10px;
+  font-size: 0.88rem;
   cursor: pointer;
   text-align: left;
   transition: border-color 0.15s ease, background 0.15s ease;
@@ -284,17 +303,17 @@ button.pill.accent { background: var(--accent); color: #fff; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 12px;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .progress-bar {
-  height: 8px;
+  height: 6px;
   background: #e6e9f4;
   border-radius: 999px;
   overflow: hidden;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .progress-bar-fill {
@@ -315,12 +334,12 @@ button.pill.accent { background: var(--accent); color: #fff; }
 
 #spelling-input {
   width: 100%;
-  padding: 14px;
-  font-size: 1.2rem;
+  padding: 10px;
+  font-size: 1.05rem;
   border-radius: 12px;
   border: 2px solid #d9deec;
   text-align: center;
-  margin: 16px 0;
+  margin: 10px 0;
 }
 
 #spelling-input.correct { border-color: var(--success); background: #e4f8ef; }
@@ -329,48 +348,52 @@ button.pill.accent { background: var(--accent); color: #fff; }
 .spelling-tip {
   color: var(--muted);
   text-align: center;
-  font-size: 0.9rem;
-  min-height: 20px;
+  font-size: 0.85rem;
+  min-height: 18px;
 }
 
 /* Word list */
 .wordlist-search {
   width: 100%;
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-radius: 999px;
   border: 1px solid #d9deec;
-  margin-bottom: 16px;
-  font-size: 1rem;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
 }
 
 .wordlist-grid {
   display: grid;
-  gap: 10px;
+  gap: 8px;
+  max-height: 46vh;
+  overflow-y: auto;
+  padding-right: 2px;
 }
 
 .wordlist-item {
   background: #fff;
   border-radius: 12px;
-  padding: 12px 16px;
+  padding: 9px 12px;
   box-shadow: var(--shadow);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .wordlist-item .w {
   font-weight: 700;
+  font-size: 0.92rem;
 }
 
 .wordlist-item .d {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .wordlist-item .mastery {
-  font-size: 0.8rem;
-  padding: 3px 10px;
+  font-size: 0.72rem;
+  padding: 3px 9px;
   border-radius: 999px;
   background: #eef2fb;
   color: var(--primary-dark);
@@ -383,28 +406,28 @@ button.pill.accent { background: var(--accent); color: #fff; }
 /* Stats */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .stat-box {
   background: #fff;
   border-radius: 12px;
-  padding: 16px;
+  padding: 10px;
   text-align: center;
   box-shadow: var(--shadow);
 }
 
 .stat-box .num {
-  font-size: 1.6rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: var(--primary);
 }
 
 .stat-box .lbl {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.75rem;
 }
 
 .reset-btn {
@@ -414,15 +437,16 @@ button.pill.accent { background: var(--accent); color: #fff; }
   border: 1px solid var(--error);
   color: var(--error);
   border-radius: 999px;
-  padding: 8px 18px;
+  padding: 7px 16px;
   cursor: pointer;
+  font-size: 0.85rem;
 }
 
 footer {
   text-align: center;
   color: var(--muted);
-  font-size: 0.8rem;
-  padding: 30px 16px;
+  font-size: 0.7rem;
+  padding: 14px 16px;
 }
 
 /* Level overlay */
@@ -444,33 +468,35 @@ footer {
 .level-overlay-card {
   background: #fff;
   border-radius: var(--radius);
-  padding: 28px 24px;
-  max-width: 420px;
+  padding: 20px 18px;
+  max-width: 380px;
   width: 100%;
   text-align: center;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
 }
 
 .level-overlay-card h2 {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
+  font-size: 1.15rem;
 }
 
 .level-overlay-card p {
   color: var(--muted);
-  margin: 0 0 20px;
+  margin: 0 0 14px;
+  font-size: 0.85rem;
 }
 
 .level-choices {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .level-choice {
   border: 2px solid #e0e5f2;
   background: #fff;
   border-radius: 12px;
-  padding: 14px;
+  padding: 10px 12px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -485,21 +511,22 @@ footer {
 
 .level-choice .lv-title {
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
 }
 
 .level-choice .lv-desc {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.78rem;
 }
 
 .level-badge {
-  margin-top: 12px;
+  margin-top: 6px;
   border: none;
   background: #fff;
   color: var(--primary-dark);
   font-weight: 700;
-  padding: 6px 16px;
+  padding: 4px 14px;
+  font-size: 0.78rem;
   border-radius: 999px;
   cursor: pointer;
   box-shadow: var(--shadow);
@@ -523,36 +550,36 @@ footer {
 
 /* Add Word form */
 .form-row {
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   text-align: left;
 }
 
 .form-row label {
   font-weight: 600;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
 }
 
 .form-row input,
 .form-row select {
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-radius: 10px;
   border: 1px solid #d9deec;
-  font-size: 1rem;
+  font-size: 0.9rem;
   width: 100%;
 }
 
 .form-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 .muted {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
 }
 
 #ocr-file-input {
