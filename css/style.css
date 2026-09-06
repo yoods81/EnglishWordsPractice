@@ -31,6 +31,22 @@ body {
 header {
   padding: 12px 16px 4px;
   text-align: center;
+  position: relative;
+}
+
+.lang-toggle {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  background: #fff;
+  color: var(--primary-dark);
+  font-weight: 700;
+  padding: 5px 12px;
+  font-size: 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
 }
 
 header h1 {
@@ -142,10 +158,25 @@ select {
 }
 
 /* Flashcards */
+.flashcard-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.flash-side-btn {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 #flashcard-stage {
   perspective: 1200px;
-  max-width: 380px;
-  margin: 0 auto;
+  max-width: 340px;
+  flex: 1 1 auto;
+  margin: 0;
 }
 
 .flashcard {
@@ -268,6 +299,36 @@ button.pill.accent { background: var(--accent); color: #fff; }
 
 @media (max-width: 480px) {
   .options { grid-template-columns: 1fr; }
+
+  .flash-side-btn {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+  }
+
+  .flash-side-btn .btn-label {
+    display: none;
+  }
+
+  .flash-side-btn .btn-arrow {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  #flashcard-stage {
+    max-width: none;
+  }
+
+  header {
+    padding-left: 68px;
+    padding-right: 68px;
+  }
+
+  header h1 {
+    font-size: 1.05rem;
+  }
 }
 
 .option-btn {

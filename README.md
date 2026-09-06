@@ -4,16 +4,20 @@ A browser app for practising English vocabulary and spelling, levelled for Austr
 
 ## Features
 
-- **Three levels** — Year 4, Year 5, and Year 6 (more advanced, GATE-style) vocabulary. Choose your level on the first screen; change it anytime from the "Level" button in the header. Every mode (flashcards, quiz, spelling, word list) filters to the selected level.
-- **Flashcards** — flip cards to reveal a word's definition and example sentence. Tap the word, the meaning, or the example to hear it read aloud in an Australian voice.
-- **Quiz** — multiple-choice questions across vocabulary, synonyms/antonyms, and homophones, with a progress bar and running score. Tap the question line to hear it read aloud.
-- **Spelling practice** — listen to a word (via speech synthesis) and type what you hear, with spelling tips for tricky words.
+- **Two language tracks, switchable anytime** — a "한국어 / English" button in the top-right corner of the header swaps the entire UI (and the level choices, word banks, and quiz categories) between:
+  - **English track**: Year 4, Year 5, and Year 6 (more advanced, GATE-style) Australian-curriculum vocabulary.
+  - **Korean track** (필수 영어 단어 연습): 초등학교 6학년 / 중학교 1학년 / 중학교 2학년 / 중학교 3학년 essential English vocabulary, 120+ words per level, with meanings shown in Korean and example sentences in English. Since this track has no separate synonym/homophone word lists, those quiz categories are hidden and Spelling practice draws on the vocabulary list itself (using the Korean meaning as a hint).
+  - Each language remembers its own selected level independently, so switching back and forth returns you to where you left off.
+- **Flashcards** — flip cards to reveal a word's definition and example sentence, with **Back**/**Next** buttons on either side of the card (shown as large arrow icons only on narrow/mobile screens). Tap the word, the meaning, or the example to hear it read aloud.
+- **Quiz** — multiple-choice questions across vocabulary (and, on the English track, synonyms/antonyms and homophones), with a progress bar and running score. Tap the question line to hear it read aloud.
+- **Spelling practice** — listen to a word (via speech synthesis) and type what you hear, with a hint if you get it wrong.
 - **Word list** — a searchable list of all words for the current level with a per-word mastery percentage. Tap a word or its example sentence to hear it.
 - **Add Word** — add your own words:
   - **Manually**: type the word, its meaning, an optional example sentence, and pick a level.
   - **From a photo**: take a photo of a book page (or upload a screenshot of an online passage). The app reads the text with on-device OCR (Tesseract.js), suggests candidate words you haven't added yet, and — once you pick a level and confirm — looks up a definition/example automatically (via the free dictionaryapi.dev service) and saves them. You can edit or delete any word you've added.
   - Requires an internet connection the first time (to load the OCR engine and to look up definitions); reading the photo itself happens in your browser.
 - **My Progress** — overall stats (words practised, flashcards known, quiz/spelling accuracy, words you've added), saved locally in the browser (`localStorage`) so progress persists between visits. A "Reset all progress" button is available.
+- **Text-to-speech voice** — tuned to read as a natural, younger-sounding adult female voice: an Australian English voice on the English track, an American English voice on the Korean track. The Web Speech API doesn't let a website pick an exact age, so this is a best-effort voice selection (by name/language) plus a slightly brighter pitch — the actual voice depends on what your browser/OS provides.
 
 ## Running locally
 
@@ -30,16 +34,21 @@ You can also open `index.html` directly in a browser, though some browsers restr
 ## Project structure
 
 ```
-index.html      Page structure and all views (level select, flashcards, quiz, spelling, word list, add word, stats)
-css/style.css   Styling
-js/words.js     Built-in word data, grouped by category and level ("year4" / "year5" / "year6")
-js/app.js       App logic (level switching, tabs, quiz/flashcard/spelling engines, manual add, OCR extraction, progress storage)
+index.html        Page structure and all views (language toggle, level select, flashcards, quiz, spelling, word list, add word, stats)
+css/style.css      Styling
+js/words.js        English-track word data, grouped by category and level ("year4" / "year5" / "year6")
+js/words_ko.js     Korean-track vocabulary data ("kr_elem6" / "kr_mid1" / "kr_mid2" / "kr_mid3"), Korean definitions + English examples
+js/app.js          App logic (i18n/translations, language + level switching, tabs, quiz/flashcard/spelling engines, manual add, OCR extraction, text-to-speech voice selection, progress storage)
 ```
 
-## Customising the built-in word list
+## Customising the built-in word lists
 
-Built-in words live in `js/words.js`, grouped by category (`vocabulary`, `spelling`, `synonyms`, `homophones`); each entry has a `level` field (`year4`, `year5`, `year6`). Add, edit, or remove entries there to tailor the word list. Words added by a user through the app (manually or from a photo) are stored separately in the browser's `localStorage` and are not written back to this file.
+- English track: `js/words.js`, grouped by category (`vocabulary`, `spelling`, `synonyms`, `homophones`); each entry has a `level` field (`year4`, `year5`, `year6`).
+- Korean track: `js/words_ko.js`, a single `vocabulary` list; each entry has a `level` field (`kr_elem6`, `kr_mid1`, `kr_mid2`, `kr_mid3`), a Korean `definition`, and an English `example` sentence.
+- UI text for both languages lives in the `TRANSLATIONS` object near the top of `js/app.js`.
 
-## Notes on the Year 5 / Year 6 word lists
+Add, edit, or remove entries in these files to tailor the word lists. Words added by a user through the app (manually or from a photo) are stored separately in the browser's `localStorage` and are not written back to these files.
 
-The Year 5 and Year 6 vocabulary, spelling, synonym and homophone lists are general-purpose, curriculum-appropriate word sets written to be harder than the Year 4 list — they are not sourced from any specific GATE/selective-school test paper. Use the "Add Word" photo-extraction or manual-add features to build out a list that matches words from the actual practice materials you're using.
+## Notes on the word lists
+
+The Year 5/Year 6 (English) and all four Korean-track word lists are general-purpose, curriculum-appropriate word sets written to reflect realistic difficulty progression — they are not sourced from any specific GATE/selective-school test paper or official Korean textbook list. Use the "Add Word" photo-extraction or manual-add features to build out a list that matches words from the actual practice materials you're using.

@@ -6,8 +6,199 @@
 
 const STORAGE_KEY = "ywp_progress_v1";
 const CUSTOM_WORDS_KEY = "ywp_custom_words_v1";
-const LEVEL_KEY = "ywp_level_v1";
+const LEVELS_KEY = "ywp_levels_v1"; // { en: "year4", ko: "kr_elem6" }
+const LANG_KEY = "ywp_lang_v1";
 
+/* ================= TRANSLATIONS ================= */
+const TRANSLATIONS = {
+  en: {
+    appTitle: "Aussie English Word Practice",
+    appSubtitle: "Build your vocabulary, spelling and word skills!",
+    langToggle: "한국어",
+    levelBadgePrefix: "Level",
+    levelOverlayTitle: "📚 Choose your level",
+    levelOverlayDesc: "Pick the level you want to practise. You can change this anytime.",
+    navFlashcards: "🃏 Flashcards",
+    navQuiz: "❓ Quiz",
+    navSpelling: "✏️ Spelling",
+    navWordlist: "📖 Word List",
+    navAddword: "➕ Add Word",
+    navStats: "📊 My Progress",
+    categoryLabel: "Category",
+    optVocabulary: "Vocabulary",
+    optSynonyms: "Synonyms & Antonyms",
+    optHomophones: "Homophones",
+    backLabel: "Back",
+    nextLabel: "Next",
+    flashHint: "Tap the card to flip it • Tap the meaning or example to hear it read aloud",
+    flashStillLearning: "😕 Still learning",
+    flashKnowIt: "😀 I know this!",
+    flashEmptyWord: "No words yet",
+    flashEmptyDef: (lvl) => `Add some ${lvl} words first!`,
+    newQuizBtn: "🔄 New Quiz",
+    nextQuestionBtn: "Next Question ➡",
+    scoreLabel: (c, t) => `Score: ${c} / ${t}`,
+    quizNotEnough: (lvl) => `Not enough ${lvl} words for this quiz yet. Try another category or add more words!`,
+    quizComplete: (score, total) => `Quiz complete! You scored ${score} / ${total} 🎉`,
+    quizSynonymPrompt: (word) => `Which word means the same as "${word}"?`,
+    quizHomophonePrompt: (word) => `What does "${word}" mean?`,
+    spellingHearBtn: "🔊 Hear the word",
+    spellingPlaceholder: "Type what you hear...",
+    spellingCheckBtn: "Check",
+    spellingSkipBtn: "Skip ➡",
+    spellingCorrect: "Correct! Well done. 🎉",
+    spellingIncorrect: (word, tip) => `Not quite — the correct spelling is "${word}". ${tip}`,
+    spellingEmpty: (lvl) => `No ${lvl} spelling words yet. Add some in "Add Word"!`,
+    wordlistSearchPlaceholder: "🔍 Search words...",
+    wordlistEmpty: "No words found for this level yet.",
+    masteryNew: "New",
+    masteryPct: (pct) => `${pct}% mastered`,
+    addWordManualTitle: "➕ Add a word manually",
+    labelWord: "Word *",
+    labelMeaning: "Meaning *",
+    labelExample: "Example sentence",
+    labelLevel: "Level",
+    phWord: "e.g. resilient",
+    phMeaning: "e.g. able to recover quickly from difficulties",
+    phExample: "e.g. The resilient plant grew back after the fire.",
+    saveWordBtn: "Save word",
+    updateWordBtn: "Update word",
+    cancelEditBtn: "Cancel edit",
+    ocrTitle: "📷 Extract words from a photo",
+    ocrDesc: "Take a photo of a book page, or upload a screenshot of an online passage. We'll read the text and pull out candidate words you can add to your word list.",
+    ocrProgressDefault: "Reading image...",
+    ocrProgressStatus: (status, pct) => `${status} (${pct}%)`,
+    ocrReviewHintDefault: "Tap the words you'd like to add:",
+    ocrLevelLabel: "Save selected words as",
+    ocrAddBtn: "Add selected words",
+    ocrNoTesseract: "The photo-reading tool couldn't load (check your internet connection) and can't be used right now.",
+    ocrFailRead: "Sorry, we couldn't read text from that image. Try a clearer, well-lit photo.",
+    ocrNoCandidates: "We couldn't find any new candidate words in that image (they may already be in your word list).",
+    ocrFoundCandidates: (n) => `Found ${n} candidate words — tap the ones you want to add:`,
+    ocrSelectAtLeastOne: "Please select at least one word first.",
+    ocrAddingStatus: (n) => `Adding ${n} word(s) — looking up meanings...`,
+    ocrAddedStatus: (n, lvl) => `Added ${n} word(s) to ${lvl}!`,
+    ocrNoDefFound: "(No definition found — tap Edit to add one.)",
+    myAddedWordsTitle: "📝 My added words",
+    myAddedWordsEmpty: "You haven't added any words yet.",
+    editBtn: "Edit",
+    deleteBtn: "Delete",
+    deleteConfirm: "Delete this word?",
+    hintPrefix: (def) => `Hint: ${def}`,
+    statWordsPracticed: "Words practised",
+    statFlashKnown: "Flashcards known",
+    statQuizAccuracy: (c, t) => `Quiz accuracy (${c}/${t})`,
+    statSpellAccuracy: (c, t) => `Spelling accuracy (${c}/${t})`,
+    statWordsAdded: "Words you've added",
+    resetBtn: "Reset all progress",
+    resetConfirm: "This will erase all your saved progress. Are you sure?",
+    footerText: "Made for Australian primary students learning English vocabulary. 🇦🇺",
+  },
+  ko: {
+    appTitle: "필수 영어 단어 연습",
+    appSubtitle: "영어 어휘력과 스펠링 실력을 키워보세요!",
+    langToggle: "English",
+    levelBadgePrefix: "레벨",
+    levelOverlayTitle: "📚 레벨을 선택하세요",
+    levelOverlayDesc: "학습할 레벨을 선택하세요. 언제든지 바꿀 수 있어요.",
+    navFlashcards: "🃏 플래시카드",
+    navQuiz: "❓ 퀴즈",
+    navSpelling: "✏️ 스펠링",
+    navWordlist: "📖 단어장",
+    navAddword: "➕ 단어 추가",
+    navStats: "📊 내 진행상황",
+    categoryLabel: "카테고리",
+    optVocabulary: "어휘",
+    optSynonyms: "동의어 & 반의어",
+    optHomophones: "동음이의어",
+    backLabel: "이전",
+    nextLabel: "다음",
+    flashHint: "카드를 탭하면 뒤집혀요 • 뜻이나 예문을 탭하면 소리로 들을 수 있어요",
+    flashStillLearning: "😕 아직 어려워요",
+    flashKnowIt: "😀 알고 있어요!",
+    flashEmptyWord: "단어가 없어요",
+    flashEmptyDef: (lvl) => `먼저 ${lvl} 단어를 추가해주세요!`,
+    newQuizBtn: "🔄 새 퀴즈",
+    nextQuestionBtn: "다음 문제 ➡",
+    scoreLabel: (c, t) => `점수: ${c} / ${t}`,
+    quizNotEnough: (lvl) => `${lvl} 레벨에는 아직 퀴즈를 만들 단어가 부족해요. 다른 카테고리를 선택하거나 단어를 더 추가해보세요!`,
+    quizComplete: (score, total) => `퀴즈 완료! ${score} / ${total}점 🎉`,
+    quizSynonymPrompt: (word) => `"${word}"와 뜻이 같은 단어는 무엇일까요?`,
+    quizHomophonePrompt: (word) => `"${word}"의 뜻은 무엇일까요?`,
+    spellingHearBtn: "🔊 단어 듣기",
+    spellingPlaceholder: "들리는 대로 입력하세요...",
+    spellingCheckBtn: "확인",
+    spellingSkipBtn: "건너뛰기 ➡",
+    spellingCorrect: "정답이에요! 잘했어요. 🎉",
+    spellingIncorrect: (word, tip) => `아쉬워요 — 정답은 "${word}"예요. ${tip}`,
+    spellingEmpty: (lvl) => `${lvl} 레벨에는 아직 스펠링 연습 단어가 없어요. "단어 추가"에서 추가해보세요!`,
+    wordlistSearchPlaceholder: "🔍 단어 검색...",
+    wordlistEmpty: "이 레벨에는 아직 단어가 없어요.",
+    masteryNew: "신규",
+    masteryPct: (pct) => `${pct}% 숙달`,
+    addWordManualTitle: "➕ 단어 직접 추가하기",
+    labelWord: "단어 *",
+    labelMeaning: "뜻 *",
+    labelExample: "예문",
+    labelLevel: "레벨",
+    phWord: "예: resilient",
+    phMeaning: "예: 어려움에서 빨리 회복하는",
+    phExample: "예: The resilient plant grew back after the fire.",
+    saveWordBtn: "단어 저장",
+    updateWordBtn: "단어 수정",
+    cancelEditBtn: "수정 취소",
+    ocrTitle: "📷 사진에서 단어 추출하기",
+    ocrDesc: "책 페이지를 촬영하거나 온라인 지문을 캡처한 이미지를 올려보세요. 텍스트를 읽어서 단어장에 추가할 후보 단어를 찾아드려요.",
+    ocrProgressDefault: "이미지를 읽는 중...",
+    ocrProgressStatus: (status, pct) => `${status} (${pct}%)`,
+    ocrReviewHintDefault: "추가하고 싶은 단어를 탭하세요:",
+    ocrLevelLabel: "선택한 단어를 저장할 레벨",
+    ocrAddBtn: "선택한 단어 추가하기",
+    ocrNoTesseract: "사진 읽기 기능을 불러오지 못했어요 (인터넷 연결을 확인해주세요). 지금은 사용할 수 없어요.",
+    ocrFailRead: "이미지에서 글자를 읽지 못했어요. 더 선명하고 밝은 사진으로 다시 시도해보세요.",
+    ocrNoCandidates: "이 이미지에서 새로운 후보 단어를 찾지 못했어요 (이미 단어장에 있는 단어일 수 있어요).",
+    ocrFoundCandidates: (n) => `${n}개의 후보 단어를 찾았어요 — 추가하고 싶은 단어를 탭하세요:`,
+    ocrSelectAtLeastOne: "먼저 단어를 하나 이상 선택해주세요.",
+    ocrAddingStatus: (n) => `${n}개의 단어를 추가하는 중 — 의미를 찾고 있어요...`,
+    ocrAddedStatus: (n, lvl) => `${lvl}에 ${n}개의 단어를 추가했어요!`,
+    ocrNoDefFound: "(뜻을 찾지 못했어요 — Edit 버튼으로 직접 입력해주세요.)",
+    myAddedWordsTitle: "📝 내가 추가한 단어",
+    myAddedWordsEmpty: "아직 추가한 단어가 없어요.",
+    editBtn: "수정",
+    deleteBtn: "삭제",
+    deleteConfirm: "이 단어를 삭제할까요?",
+    hintPrefix: (def) => `힌트: ${def}`,
+    statWordsPracticed: "연습한 단어 수",
+    statFlashKnown: "외운 플래시카드 수",
+    statQuizAccuracy: (c, t) => `퀴즈 정답률 (${c}/${t})`,
+    statSpellAccuracy: (c, t) => `스펠링 정답률 (${c}/${t})`,
+    statWordsAdded: "내가 추가한 단어 수",
+    resetBtn: "전체 진행상황 초기화",
+    resetConfirm: "저장된 모든 진행상황이 사라져요. 계속할까요?",
+    footerText: "영어 필수 단어를 공부하는 학생들을 위해 만들었어요. 🇰🇷",
+  },
+};
+
+function t(key, ...args) {
+  const entry = TRANSLATIONS[currentLang][key];
+  if (typeof entry === "function") return entry(...args);
+  return entry != null ? entry : key;
+}
+
+/* ================= LANGUAGE SYSTEMS ================= */
+const _KO_LEVELS = typeof KO_LEVELS !== "undefined" ? KO_LEVELS : [];
+const _WORD_BANK_KO = typeof WORD_BANK_KO !== "undefined" ? WORD_BANK_KO : { vocabulary: [] };
+
+const SYSTEMS = {
+  en: { levels: LEVELS, bank: WORD_BANK, hasSynonyms: true, hasHomophones: true, hasSpelling: true, speechLang: "en-AU" },
+  ko: { levels: _KO_LEVELS, bank: _WORD_BANK_KO, hasSynonyms: false, hasHomophones: false, hasSpelling: false, speechLang: "en-US" },
+};
+
+function currentSystem() {
+  return SYSTEMS[currentLang];
+}
+
+/* ================= STORAGE ================= */
 function loadProgress() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -57,28 +248,53 @@ function saveCustomWords() {
   }
 }
 
-function loadLevel() {
+function loadLevels() {
   try {
-    return localStorage.getItem(LEVEL_KEY);
+    const raw = localStorage.getItem(LEVELS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    console.warn("Could not read saved levels", e);
+  }
+  return {};
+}
+
+function saveLevels() {
+  try {
+    localStorage.setItem(LEVELS_KEY, JSON.stringify(savedLevels));
+  } catch (e) {
+    console.warn("Could not save levels", e);
+  }
+}
+
+function loadLang() {
+  try {
+    return localStorage.getItem(LANG_KEY);
   } catch (e) {
     return null;
   }
 }
 
-function saveLevel(level) {
+function saveLang(lang) {
   try {
-    localStorage.setItem(LEVEL_KEY, level);
+    localStorage.setItem(LANG_KEY, lang);
   } catch (e) {
-    console.warn("Could not save level", e);
+    console.warn("Could not save language", e);
   }
 }
 
 let progress = loadProgress();
 let customWords = loadCustomWords();
-let currentLevel = loadLevel() || "year4";
+let savedLevels = loadLevels();
+let currentLang = loadLang() || "en";
+let currentLevel = savedLevels[currentLang] || currentSystem_levels_default();
+
+function currentSystem_levels_default() {
+  const lv = (SYSTEMS[currentLang] || SYSTEMS.en).levels;
+  return lv && lv[0] ? lv[0].id : "year4";
+}
 
 function levelLabel(levelId) {
-  const lv = LEVELS.find((l) => l.id === levelId);
+  const lv = currentSystem().levels.find((l) => l.id === levelId);
   return lv ? lv.label : levelId;
 }
 
@@ -96,19 +312,58 @@ function pickRandom(arr, n, excludeIndex) {
   return shuffle(pool).slice(0, n);
 }
 
+/* ================= TEXT-TO-SPEECH ================= */
+// Try to pick a natural-sounding young adult female voice for the given language.
+// The Web Speech API doesn't expose age, so this is a best-effort heuristic based
+// on known voice names shipped by common browsers/OSes, with a graceful fallback.
+const FEMALE_VOICE_HINTS = {
+  "en-AU": ["karen", "catherine", "zoe", "olivia", "female"],
+  "en-US": ["samantha", "zira", "jenny", "aria", "female", "susan", "allison"],
+};
+const MALE_VOICE_HINTS = ["male", "russell", "lee", "guy", "daniel", "fred", "james"];
+
+let cachedVoices = [];
+function refreshVoices() {
+  if ("speechSynthesis" in window) cachedVoices = window.speechSynthesis.getVoices() || [];
+}
+if ("speechSynthesis" in window) {
+  refreshVoices();
+  window.speechSynthesis.onvoiceschanged = refreshVoices;
+}
+
+function pickVoice(lang) {
+  if (!cachedVoices.length) return null;
+  const hints = FEMALE_VOICE_HINTS[lang] || [];
+  const sameLang = cachedVoices.filter((v) => v.lang && v.lang.toLowerCase().replace("_", "-") === lang.toLowerCase());
+  const pool = sameLang.length ? sameLang : cachedVoices.filter((v) => v.lang && v.lang.toLowerCase().startsWith(lang.split("-")[0]));
+  if (pool.length === 0) return null;
+
+  const isLikelyMale = (name) => MALE_VOICE_HINTS.some((h) => name.toLowerCase().includes(h));
+  const named = pool.find((v) => hints.some((h) => v.name.toLowerCase().includes(h)));
+  if (named) return named;
+
+  const notMale = pool.filter((v) => !isLikelyMale(v.name));
+  return notMale[0] || pool[0];
+}
+
 function speak(text) {
   if (!text || !("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
+  const lang = currentSystem().speechLang;
   const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = "en-AU";
-  utter.rate = 0.9;
+  utter.lang = lang;
+  const voice = pickVoice(lang);
+  if (voice) utter.voice = voice;
+  // Slightly brighter pitch/pace to read as a younger adult voice.
+  utter.rate = 0.95;
+  utter.pitch = 1.08;
   window.speechSynthesis.speak(utter);
 }
 
 /* ================= LEVEL POOLS ================= */
 
 function getVocabPool(level) {
-  const builtIn = WORD_BANK.vocabulary.filter((w) => w.level === level);
+  const builtIn = currentSystem().bank.vocabulary.filter((w) => w.level === level);
   const custom = customWords
     .filter((w) => w.level === level)
     .map((w) => ({ word: w.word, definition: w.definition, example: w.example || "", custom: true }));
@@ -116,19 +371,26 @@ function getVocabPool(level) {
 }
 
 function getSpellingPool(level) {
-  const builtIn = WORD_BANK.spelling.filter((w) => w.level === level);
+  if (!currentSystem().hasSpelling) {
+    // No dedicated spelling list for this system — practise spelling the vocabulary
+    // words themselves, using their meaning as a hint.
+    return getVocabPool(level).map((w) => ({ word: w.word, tip: t("hintPrefix", w.definition), custom: !!w.custom }));
+  }
+  const builtIn = currentSystem().bank.spelling.filter((w) => w.level === level);
   const custom = customWords
     .filter((w) => w.level === level)
-    .map((w) => ({ word: w.word, tip: `Hint: ${w.definition || "a word you added yourself"}`, custom: true }));
+    .map((w) => ({ word: w.word, tip: t("hintPrefix", w.definition || "a word you added yourself"), custom: true }));
   return builtIn.concat(custom);
 }
 
 function getSynonymPool(level) {
-  return WORD_BANK.synonyms.filter((w) => w.level === level);
+  if (!currentSystem().hasSynonyms) return [];
+  return currentSystem().bank.synonyms.filter((w) => w.level === level);
 }
 
 function getHomophonePool(level) {
-  return WORD_BANK.homophones.filter((w) => w.level === level);
+  if (!currentSystem().hasHomophones) return [];
+  return currentSystem().bank.homophones.filter((w) => w.level === level);
 }
 
 function getAllWordsForLevel(level) {
@@ -152,43 +414,126 @@ function getAllWordsForLevel(level) {
 
 function allKnownWordsLowercase() {
   const set = new Set();
-  WORD_BANK.vocabulary.forEach((w) => set.add(w.word.toLowerCase()));
-  WORD_BANK.spelling.forEach((w) => set.add(w.word.toLowerCase()));
-  WORD_BANK.synonyms.forEach((w) => {
+  const bank = currentSystem().bank;
+  (bank.vocabulary || []).forEach((w) => set.add(w.word.toLowerCase()));
+  (bank.spelling || []).forEach((w) => set.add(w.word.toLowerCase()));
+  (bank.synonyms || []).forEach((w) => {
     set.add(w.word.toLowerCase());
     set.add(w.synonym.toLowerCase());
   });
-  WORD_BANK.homophones.forEach((p) => p.pair.forEach((w) => set.add(w.toLowerCase())));
+  (bank.homophones || []).forEach((p) => p.pair.forEach((w) => set.add(w.toLowerCase())));
   customWords.forEach((w) => set.add(w.word.toLowerCase()));
   return set;
+}
+
+/* ================= TRANSLATION APPLICATION ================= */
+function applyStaticTranslations() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+  document.getElementById("app-title").textContent = t("appTitle");
+  document.getElementById("app-subtitle").textContent = t("appSubtitle");
+  document.getElementById("app-footer").textContent = t("footerText");
+  document.getElementById("lang-toggle").textContent = t("langToggle");
+  document.getElementById("level-overlay-title").textContent = t("levelOverlayTitle");
+  document.getElementById("level-overlay-desc").textContent = t("levelOverlayDesc");
+  document.documentElement.lang = currentLang === "ko" ? "ko" : "en";
+  updateCategoryOptionVisibility();
+}
+
+function updateCategoryOptionVisibility() {
+  const sys = currentSystem();
+  [flashCategorySel, quizCategorySel].forEach((sel) => {
+    if (!sel) return;
+    Array.from(sel.options).forEach((opt) => {
+      if (opt.value === "synonyms") opt.hidden = !sys.hasSynonyms;
+      if (opt.value === "homophones") opt.hidden = !sys.hasHomophones;
+    });
+    if (sel.selectedOptions[0] && sel.selectedOptions[0].hidden) sel.value = "vocabulary";
+  });
 }
 
 /* ================= LEVEL SELECT OVERLAY ================= */
 const levelOverlay = document.getElementById("level-overlay");
 const levelBadge = document.getElementById("level-badge");
+const levelChoicesEl = document.getElementById("level-choices");
+const LEVEL_DESCRIPTIONS = {
+  en: { year4: "Foundation vocabulary", year5: "Intermediate vocabulary", year6: "Advanced / GATE-style vocabulary" },
+  ko: {
+    kr_elem6: "초등 기초 필수 어휘",
+    kr_mid1: "중1 필수 어휘",
+    kr_mid2: "중2 필수 어휘",
+    kr_mid3: "중3 필수 어휘 (심화)",
+  },
+};
 
-function applyLevel(level, { closeOverlay } = { closeOverlay: true }) {
-  currentLevel = level;
-  saveLevel(level);
-  levelBadge.textContent = `Level: ${levelLabel(level)} ▾`;
-  if (closeOverlay) levelOverlay.hidden = true;
-  refreshCurrentView();
-  renderCustomWords();
-  if (manualLevelSelect) manualLevelSelect.value = level;
-  if (ocrLevelSelect) ocrLevelSelect.value = level;
+function renderLevelChoices() {
+  levelChoicesEl.innerHTML = "";
+  const descMap = LEVEL_DESCRIPTIONS[currentLang] || {};
+  currentSystem().levels.forEach((lv) => {
+    const btn = document.createElement("button");
+    btn.className = "level-choice";
+    btn.dataset.level = lv.id;
+    const title = document.createElement("span");
+    title.className = "lv-title";
+    title.textContent = lv.label;
+    const desc = document.createElement("span");
+    desc.className = "lv-desc";
+    desc.textContent = descMap[lv.id] || "";
+    btn.appendChild(title);
+    btn.appendChild(desc);
+    btn.addEventListener("click", () => applyLevel(lv.id));
+    levelChoicesEl.appendChild(btn);
+  });
 }
 
-document.querySelectorAll(".level-choice").forEach((btn) => {
-  btn.addEventListener("click", () => applyLevel(btn.dataset.level));
-});
+function updateLevelBadge() {
+  levelBadge.textContent = `${t("levelBadgePrefix")}: ${levelLabel(currentLevel)} ▾`;
+}
+
+function applyLevel(level) {
+  currentLevel = level;
+  savedLevels[currentLang] = level;
+  saveLevels();
+  updateLevelBadge();
+  levelOverlay.hidden = true;
+  populateLevelSelects();
+  refreshCurrentView();
+  renderCustomWords();
+}
 
 levelBadge.addEventListener("click", () => {
+  renderLevelChoices();
   levelOverlay.hidden = false;
 });
 
-// Show the overlay on first-ever visit (no saved level); otherwise start hidden.
-levelOverlay.hidden = !!loadLevel();
-levelBadge.textContent = `Level: ${levelLabel(currentLevel)} ▾`;
+/* ================= LANGUAGE TOGGLE ================= */
+const langToggleBtn = document.getElementById("lang-toggle");
+
+function switchLanguage(lang) {
+  currentLang = lang;
+  saveLang(lang);
+  currentLevel = savedLevels[lang] || currentSystem_levels_default();
+  applyStaticTranslations();
+  updateLevelBadge();
+  resetManualForm();
+  renderLevelChoices();
+
+  if (savedLevels[lang]) {
+    populateLevelSelects();
+    refreshCurrentView();
+    renderCustomWords();
+  } else {
+    levelOverlay.hidden = false;
+  }
+}
+
+langToggleBtn.addEventListener("click", () => {
+  switchLanguage(currentLang === "en" ? "ko" : "en");
+});
 
 /* ---------- Tab navigation ---------- */
 const tabButtons = document.querySelectorAll("nav.tabs button");
@@ -253,8 +598,8 @@ function buildFlashDeck() {
 function renderFlashcard() {
   flashcardEl.classList.remove("flipped");
   if (flashDeck.length === 0) {
-    flashWordEl.textContent = "No words yet";
-    flashDefEl.textContent = `Add some ${levelLabel(currentLevel)} words first!`;
+    flashWordEl.textContent = t("flashEmptyWord");
+    flashDefEl.textContent = t("flashEmptyDef", levelLabel(currentLevel));
     flashExampleEl.textContent = "";
     return;
   }
@@ -347,7 +692,7 @@ function buildSynonymQuestions(level) {
   return pool.map((item, i) => {
     const distractors = pickRandom(pool, 3, i).map((d) => d.synonym);
     const options = shuffle([item.synonym, ...distractors]);
-    return { prompt: `Which word means the same as "${item.word}"?`, answer: item.synonym, options, target: item.word };
+    return { prompt: t("quizSynonymPrompt", item.word), answer: item.synonym, options, target: item.word };
   });
 }
 
@@ -361,7 +706,7 @@ function buildHomophoneQuestions(level) {
       const otherDefs = pool.filter((_, pi) => pi !== i).flatMap((p) => p.defs);
       const distractors = shuffle(otherDefs).slice(0, 3);
       const options = shuffle([correctDef, ...distractors]);
-      questions.push({ prompt: `What does "${word}" mean?`, answer: correctDef, options, target: word });
+      questions.push({ prompt: t("quizHomophonePrompt", word), answer: correctDef, options, target: word });
     });
   });
   return questions;
@@ -387,7 +732,7 @@ function renderQuizQuestion() {
 
   if (total === 0) {
     quizProgressFill.style.width = "0%";
-    quizQuestionEl.textContent = `Not enough ${levelLabel(currentLevel)} words for this quiz yet. Try another category or add more words!`;
+    quizQuestionEl.textContent = t("quizNotEnough", levelLabel(currentLevel));
     quizOptionsEl.innerHTML = "";
     updateQuizScoreLabel();
     return;
@@ -396,7 +741,7 @@ function renderQuizQuestion() {
   quizProgressFill.style.width = `${(quizIndex / total) * 100}%`;
 
   if (quizIndex >= total) {
-    quizQuestionEl.textContent = `Quiz complete! You scored ${quizScore} / ${total} 🎉`;
+    quizQuestionEl.textContent = t("quizComplete", quizScore, total);
     quizOptionsEl.innerHTML = "";
     quizProgressFill.style.width = "100%";
     updateQuizScoreLabel();
@@ -438,7 +783,7 @@ function handleQuizAnswer(btn, chosen, q) {
 }
 
 function updateQuizScoreLabel() {
-  quizScoreEl.textContent = `Score: ${quizScore} / ${quizQuestions.length}`;
+  quizScoreEl.textContent = t("scoreLabel", quizScore, quizQuestions.length);
 }
 
 quizNextBtn.addEventListener("click", () => {
@@ -478,7 +823,7 @@ function loadSpellingWord() {
   spellingInput.className = "";
   spellingFeedback.textContent = "";
   if (spellingDeck.length === 0) {
-    spellingFeedback.textContent = `No ${levelLabel(currentLevel)} spelling words yet. Add some in "Add Word"!`;
+    spellingFeedback.textContent = t("spellingEmpty", levelLabel(currentLevel));
     return;
   }
   if (spellingIndex >= spellingDeck.length) {
@@ -509,15 +854,13 @@ function checkSpelling() {
   saveProgress();
 
   spellingInput.className = correct ? "correct" : "incorrect";
-  spellingFeedback.textContent = correct
-    ? "Correct! Well done. 🎉"
-    : `Not quite — the correct spelling is "${current.word}". ${current.tip}`;
+  spellingFeedback.textContent = correct ? t("spellingCorrect") : t("spellingIncorrect", current.word, current.tip);
 
   updateSpellingScoreLabel();
 }
 
 function updateSpellingScoreLabel() {
-  spellingScoreEl.textContent = `Score: ${spellingScore.correct} / ${spellingScore.total}`;
+  spellingScoreEl.textContent = t("scoreLabel", spellingScore.correct, spellingScore.total);
 }
 
 spellingCheckBtn.addEventListener("click", checkSpelling);
@@ -542,12 +885,12 @@ const wordlistGrid = document.getElementById("wordlist-grid");
 
 function masteryLabel(word) {
   const s = progress.wordStats[word];
-  if (!s || s.correct + s.incorrect === 0) return { text: "New", cls: "" };
+  if (!s || s.correct + s.incorrect === 0) return { text: t("masteryNew"), cls: "" };
   const total = s.correct + s.incorrect;
   const pct = Math.round((s.correct / total) * 100);
-  if (pct >= 75) return { text: `${pct}% mastered`, cls: "high" };
-  if (pct <= 35) return { text: `${pct}% mastered`, cls: "low" };
-  return { text: `${pct}% mastered`, cls: "" };
+  if (pct >= 75) return { text: t("masteryPct", pct), cls: "high" };
+  if (pct <= 35) return { text: t("masteryPct", pct), cls: "low" };
+  return { text: t("masteryPct", pct), cls: "" };
 }
 
 function buildWordRow(w) {
@@ -599,7 +942,7 @@ function renderWordList() {
   if (words.length === 0) {
     const p = document.createElement("p");
     p.className = "muted";
-    p.textContent = "No words found for this level yet.";
+    p.textContent = t("wordlistEmpty");
     wordlistGrid.appendChild(p);
     return;
   }
@@ -619,12 +962,25 @@ const manualSaveBtn = document.getElementById("manual-save-btn");
 const manualCancelBtn = document.getElementById("manual-cancel-btn");
 const customWordsGrid = document.getElementById("custom-words-grid");
 const customWordsEmpty = document.getElementById("custom-words-empty");
+const ocrLevelSelectEl = document.getElementById("ocr-level");
 
 function genId() {
   return `cw_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-manualLevelSelect.value = currentLevel;
+function populateLevelSelects() {
+  [manualLevelSelect, ocrLevelSelectEl].forEach((sel) => {
+    if (!sel) return;
+    sel.innerHTML = "";
+    currentSystem().levels.forEach((lv) => {
+      const opt = document.createElement("option");
+      opt.value = lv.id;
+      opt.textContent = lv.label;
+      sel.appendChild(opt);
+    });
+    sel.value = currentLevel;
+  });
+}
 
 manualForm.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -657,9 +1013,9 @@ manualCancelBtn.addEventListener("click", resetManualForm);
 function resetManualForm() {
   manualForm.reset();
   manualEditId.value = "";
-  manualLevelSelect.value = currentLevel;
+  if (manualLevelSelect.options.length) manualLevelSelect.value = currentLevel;
   manualCancelBtn.style.display = "none";
-  manualSaveBtn.textContent = "Save word";
+  manualSaveBtn.textContent = t("saveWordBtn");
 }
 
 function startEditCustomWord(id) {
@@ -671,12 +1027,12 @@ function startEditCustomWord(id) {
   manualExampleInput.value = w.example || "";
   manualLevelSelect.value = w.level;
   manualCancelBtn.style.display = "inline-block";
-  manualSaveBtn.textContent = "Update word";
+  manualSaveBtn.textContent = t("updateWordBtn");
   manualWordInput.focus();
 }
 
 function deleteCustomWord(id) {
-  if (!confirm("Delete this word?")) return;
+  if (!confirm(t("deleteConfirm"))) return;
   customWords = customWords.filter((w) => w.id !== id);
   saveCustomWords();
   renderCustomWords();
@@ -742,12 +1098,12 @@ function renderCustomWords() {
 
       const editBtn = document.createElement("button");
       editBtn.className = "edit-btn";
-      editBtn.textContent = "Edit";
+      editBtn.textContent = t("editBtn");
       editBtn.addEventListener("click", () => startEditCustomWord(w.id));
 
       const deleteBtn = document.createElement("button");
       deleteBtn.className = "delete-btn";
-      deleteBtn.textContent = "Delete";
+      deleteBtn.textContent = t("deleteBtn");
       deleteBtn.addEventListener("click", () => deleteCustomWord(w.id));
 
       btnRow.appendChild(editBtn);
@@ -769,6 +1125,7 @@ const ocrCandidatesEl = document.getElementById("ocr-candidates");
 const ocrLevelSelect = document.getElementById("ocr-level");
 const ocrAddBtn = document.getElementById("ocr-add-btn");
 const ocrStatus = document.getElementById("ocr-status");
+const ocrReviewHintEl = document.getElementById("ocr-review-hint");
 
 const STOPWORDS = new Set(
   ("the and for that with have this from they were been their said each which she does how out many then them these" +
@@ -779,8 +1136,6 @@ const STOPWORDS = new Set(
 );
 
 let ocrSelectedWords = new Set();
-
-ocrLevelSelect.value = currentLevel;
 
 ocrFileInput.addEventListener("change", async (e) => {
   const file = e.target.files && e.target.files[0];
@@ -793,21 +1148,22 @@ ocrFileInput.addEventListener("change", async (e) => {
   ocrLevelSelect.value = currentLevel;
 
   if (typeof Tesseract === "undefined") {
-    ocrStatus.textContent = "The photo-reading tool couldn't load (check your internet connection) and can't be used right now.";
+    ocrStatus.textContent = t("ocrNoTesseract");
     ocrReview.hidden = false;
     return;
   }
 
   ocrProgress.hidden = false;
   ocrProgressFill.style.width = "0%";
-  ocrProgressLabel.textContent = "Reading image...";
+  ocrProgressLabel.textContent = t("ocrProgressDefault");
 
   try {
     const result = await Tesseract.recognize(file, "eng", {
       logger: (m) => {
         if (m.progress != null) {
-          ocrProgressFill.style.width = `${Math.round(m.progress * 100)}%`;
-          ocrProgressLabel.textContent = `${m.status} (${Math.round(m.progress * 100)}%)`;
+          const pct = Math.round(m.progress * 100);
+          ocrProgressFill.style.width = `${pct}%`;
+          ocrProgressLabel.textContent = t("ocrProgressStatus", m.status, pct);
         }
       },
     });
@@ -816,7 +1172,7 @@ ocrFileInput.addEventListener("change", async (e) => {
   } catch (err) {
     console.error(err);
     ocrProgress.hidden = true;
-    ocrStatus.textContent = "Sorry, we couldn't read text from that image. Try a clearer, well-lit photo.";
+    ocrStatus.textContent = t("ocrFailRead");
     ocrReview.hidden = false;
   } finally {
     ocrFileInput.value = "";
@@ -839,13 +1195,12 @@ function processOcrText(text) {
   ocrReview.hidden = false;
 
   if (list.length === 0) {
-    document.getElementById("ocr-review-hint").textContent =
-      "We couldn't find any new candidate words in that image (they may already be in your word list).";
+    ocrReviewHintEl.textContent = t("ocrNoCandidates");
     ocrCandidatesEl.innerHTML = "";
     return;
   }
 
-  document.getElementById("ocr-review-hint").textContent = `Found ${list.length} candidate words — tap the ones you want to add:`;
+  ocrReviewHintEl.textContent = t("ocrFoundCandidates", list.length);
   ocrCandidatesEl.innerHTML = "";
   list.forEach((word) => {
     const chip = document.createElement("div");
@@ -882,12 +1237,12 @@ async function fetchDefinition(word) {
 ocrAddBtn.addEventListener("click", async () => {
   const selected = Array.from(ocrSelectedWords);
   if (selected.length === 0) {
-    ocrStatus.textContent = "Please select at least one word first.";
+    ocrStatus.textContent = t("ocrSelectAtLeastOne");
     return;
   }
   const level = ocrLevelSelect.value;
   ocrAddBtn.disabled = true;
-  ocrStatus.textContent = `Adding ${selected.length} word(s) — looking up meanings...`;
+  ocrStatus.textContent = t("ocrAddingStatus", selected.length);
 
   const results = await Promise.allSettled(selected.map((w) => fetchDefinition(w)));
   selected.forEach((word, i) => {
@@ -895,7 +1250,7 @@ ocrAddBtn.addEventListener("click", async () => {
     customWords.push({
       id: genId(),
       word,
-      definition: info ? info.definition : "(No definition found — tap Edit to add one.)",
+      definition: info ? info.definition : t("ocrNoDefFound"),
       example: info ? info.example : "",
       level,
       source: "ocr",
@@ -904,7 +1259,7 @@ ocrAddBtn.addEventListener("click", async () => {
   });
   saveCustomWords();
 
-  ocrStatus.textContent = `Added ${selected.length} word(s) to ${levelLabel(level)}!`;
+  ocrStatus.textContent = t("ocrAddedStatus", selected.length, levelLabel(level));
   ocrSelectedWords = new Set();
   ocrReview.hidden = true;
   ocrCandidatesEl.innerHTML = "";
@@ -928,11 +1283,11 @@ function renderStats() {
     : 0;
 
   const stats = [
-    { num: wordsPracticed, lbl: "Words practised" },
-    { num: flashKnownCount, lbl: "Flashcards known" },
-    { num: `${quizPct}%`, lbl: `Quiz accuracy (${progress.quiz.correct}/${progress.quiz.total})` },
-    { num: `${spellPct}%`, lbl: `Spelling accuracy (${progress.spelling.correct}/${progress.spelling.total})` },
-    { num: customWords.length, lbl: "Words you've added" },
+    { num: wordsPracticed, lbl: t("statWordsPracticed") },
+    { num: flashKnownCount, lbl: t("statFlashKnown") },
+    { num: `${quizPct}%`, lbl: t("statQuizAccuracy", progress.quiz.correct, progress.quiz.total) },
+    { num: `${spellPct}%`, lbl: t("statSpellAccuracy", progress.spelling.correct, progress.spelling.total) },
+    { num: customWords.length, lbl: t("statWordsAdded") },
   ];
 
   statsGrid.innerHTML = stats
@@ -941,7 +1296,7 @@ function renderStats() {
 }
 
 resetProgressBtn.addEventListener("click", () => {
-  if (!confirm("This will erase all your saved progress. Are you sure?")) return;
+  if (!confirm(t("resetConfirm"))) return;
   progress = { wordStats: {}, flashKnown: {}, quiz: { correct: 0, total: 0 }, spelling: { correct: 0, total: 0 } };
   saveProgress();
   renderStats();
@@ -949,6 +1304,14 @@ resetProgressBtn.addEventListener("click", () => {
 });
 
 /* ================= INIT ================= */
+applyStaticTranslations();
+renderLevelChoices();
+updateLevelBadge();
+populateLevelSelects();
+
+// Show the level-select overlay only if we don't yet have a saved level for this language.
+levelOverlay.hidden = !!savedLevels[currentLang];
+
 buildFlashDeck();
 buildQuizQuestions();
 buildSpellingDeck();
