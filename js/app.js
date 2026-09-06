@@ -1926,40 +1926,60 @@ async function fetchDefinitionWithRetry(word) {
   return result;
 }
 
-// Best-effort English -> Korean translation of a single word, used so words
-// added from a photo on the Korean track get a Korean meaning automatically
-// (dictionaryapi.dev only returns English definitions).
-async function fetchKoreanTranslation(word) {
+// Best-effort translation of arbitrary text via the free MyMemory API. Used
+// both to get a Korean meaning for an English word (langpair "en|ko") and,
+// as a fallback, to translate a meaning we already have into the other
+// language (e.g. "ko|en") when the direct lookup for that side came up empty.
+async function fetchTranslation(text, langpair) {
   try {
-    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|ko`);
+    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langpair}`);
     if (!res.ok) return null;
     const data = await res.json();
-    const text = data && data.responseData && data.responseData.translatedText;
-    if (!text || /mymemory warning/i.test(text)) return null;
-    return text.trim();
+    const translated = data && data.responseData && data.responseData.translatedText;
+    if (!translated || /mymemory warning/i.test(translated)) return null;
+    return translated.trim();
   } catch (e) {
     return null;
   }
 }
 
-async function fetchKoreanTranslationWithRetry(word) {
-  let result = await fetchKoreanTranslation(word);
+async function fetchTranslationWithRetry(text, langpair) {
+  let result = await fetchTranslation(text, langpair);
   if (!result) {
     await wait(400);
-    result = await fetchKoreanTranslation(word);
+    result = await fetchTranslation(text, langpair);
   }
   return result;
+}
+
+function fetchKoreanTranslationWithRetry(word) {
+  return fetchTranslationWithRetry(word, "en|ko");
 }
 
 // Looks up a definition for one word in BOTH languages at once (English via
 // dictionaryapi.dev, Korean via a translation of the English word), so a word
 // added from either language track ends up with a usable meaning on both.
+// If one side comes back empty (e.g. dictionaryapi.dev has no entry for a
+// word that isn't in a formal English dictionary, or MyMemory fails to
+// translate the word directly) but the other side succeeded, we fall back to
+// translating that meaning into the missing language instead of leaving it
+// blank.
 async function fetchWordInfo(word) {
   const [enEntry, koMeaning] = await Promise.all([fetchDefinitionWithRetry(word), fetchKoreanTranslationWithRetry(word)]);
-  if (!enEntry && !koMeaning) return null;
+  let definitionEn = (enEntry && enEntry.definition) || null;
+  let definitionKo = koMeaning || null;
+
+  if (!definitionEn && definitionKo) {
+    definitionEn = await fetchTranslationWithRetry(definitionKo, "ko|en");
+  }
+  if (!definitionKo && definitionEn) {
+    definitionKo = await fetchTranslationWithRetry(definitionEn, "en|ko");
+  }
+
+  if (!definitionEn && !definitionKo) return null;
   return {
-    definitionEn: (enEntry && enEntry.definition) || null,
-    definitionKo: koMeaning || null,
+    definitionEn,
+    definitionKo,
     example: (enEntry && enEntry.example) || "",
   };
 }
