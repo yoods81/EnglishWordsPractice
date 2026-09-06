@@ -82,6 +82,7 @@ const TRANSLATIONS = {
     ocrFoundCandidates: (n) => `Found ${n} candidate words — tap the ones you want to add:`,
     ocrSelectAtLeastOne: "Please select at least one word first.",
     ocrAddingStatus: (n) => `Adding ${n} word(s) — looking up meanings...`,
+    ocrAddingProgress: (done, total) => `Looking up meanings... ${done} / ${total}`,
     ocrAddedStatus: (n, lvl) => `Added ${n} word(s) to ${lvl}!`,
     ocrNoDefFound: "(No definition found — tap Edit to add one.)",
     myAddedWordsTitle: "📝 My added words",
@@ -170,6 +171,7 @@ const TRANSLATIONS = {
     ocrFoundCandidates: (n) => `${n}개의 후보 단어를 찾았어요 — 추가하고 싶은 단어를 탭하세요:`,
     ocrSelectAtLeastOne: "먼저 단어를 하나 이상 선택해주세요.",
     ocrAddingStatus: (n) => `${n}개의 단어를 추가하는 중 — 의미를 찾고 있어요...`,
+    ocrAddingProgress: (done, total) => `의미를 찾는 중... ${done} / ${total}`,
     ocrAddedStatus: (n, lvl) => `${lvl}에 ${n}개의 단어를 추가했어요!`,
     ocrNoDefFound: "(뜻을 찾지 못했어요 — Edit 버튼으로 직접 입력해주세요.)",
     myAddedWordsTitle: "📝 내가 추가한 단어",
@@ -1284,6 +1286,34 @@ ocrSelectAllBtn.addEventListener("click", () => {
   updateSelectAllLabel();
 });
 
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Runs `worker` over `items` with at most `limit` calls in flight at once,
+// calling `onProgress(completedCount, total)` after each one finishes.
+// Keeps lookups (below) from firing 50-100 requests at the same instant,
+// which is what was causing many of them to silently fail before.
+async function mapWithConcurrency(items, limit, worker, onProgress) {
+  const results = new Array(items.length);
+  let nextIndex = 0;
+  let completed = 0;
+
+  async function runNext() {
+    const i = nextIndex++;
+    if (i >= items.length) return;
+    results[i] = await worker(items[i], i);
+    completed++;
+    if (onProgress) onProgress(completed, items.length);
+    await runNext();
+  }
+
+  const workers = [];
+  for (let i = 0; i < Math.min(limit, items.length); i++) workers.push(runNext());
+  await Promise.all(workers);
+  return results;
+}
+
 async function fetchDefinition(word) {
   try {
     const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
@@ -1299,6 +1329,52 @@ async function fetchDefinition(word) {
   }
 }
 
+async function fetchDefinitionWithRetry(word) {
+  let result = await fetchDefinition(word);
+  if (!result) {
+    await wait(400);
+    result = await fetchDefinition(word);
+  }
+  return result;
+}
+
+// Best-effort English -> Korean translation of a single word, used so words
+// added from a photo on the Korean track get a Korean meaning automatically
+// (dictionaryapi.dev only returns English definitions).
+async function fetchKoreanTranslation(word) {
+  try {
+    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|ko`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const text = data && data.responseData && data.responseData.translatedText;
+    if (!text || /mymemory warning/i.test(text)) return null;
+    return text.trim();
+  } catch (e) {
+    return null;
+  }
+}
+
+async function fetchKoreanTranslationWithRetry(word) {
+  let result = await fetchKoreanTranslation(word);
+  if (!result) {
+    await wait(400);
+    result = await fetchKoreanTranslation(word);
+  }
+  return result;
+}
+
+// Looks up a definition (and example, where available) for one word,
+// matching whichever language track is currently active.
+async function fetchWordInfo(word) {
+  if (currentLang === "ko") {
+    const [enEntry, koMeaning] = await Promise.all([fetchDefinitionWithRetry(word), fetchKoreanTranslationWithRetry(word)]);
+    if (!koMeaning && !enEntry) return null;
+    return { definition: koMeaning || null, example: (enEntry && enEntry.example) || "" };
+  }
+  const enEntry = await fetchDefinitionWithRetry(word);
+  return enEntry ? { definition: enEntry.definition, example: enEntry.example } : null;
+}
+
 ocrAddBtn.addEventListener("click", async () => {
   const selected = Array.from(ocrSelectedWords);
   if (selected.length === 0) {
@@ -1309,14 +1385,17 @@ ocrAddBtn.addEventListener("click", async () => {
   ocrAddBtn.disabled = true;
   ocrStatus.textContent = t("ocrAddingStatus", selected.length);
 
-  const results = await Promise.allSettled(selected.map((w) => fetchDefinition(w)));
+  const infos = await mapWithConcurrency(selected, 4, (w) => fetchWordInfo(w), (done, total) => {
+    ocrStatus.textContent = t("ocrAddingProgress", done, total);
+  });
+
   selected.forEach((word, i) => {
-    const info = results[i].status === "fulfilled" ? results[i].value : null;
+    const info = infos[i];
     customWords.push({
       id: genId(),
       word,
-      definition: info ? info.definition : t("ocrNoDefFound"),
-      example: info ? info.example : "",
+      definition: info && info.definition ? info.definition : t("ocrNoDefFound"),
+      example: (info && info.example) || "",
       level,
       source: "ocr",
       createdAt: Date.now(),
