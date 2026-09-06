@@ -51,6 +51,12 @@ const TRANSLATIONS = {
     spellingSkipBtn: "Skip ➡",
     spellingWrongPrompt: "Please enter the correct spelling to go to the next word",
     spellingEmpty: (lvl) => `No ${lvl} spelling words yet. Add some in "Add Word"!`,
+    spellingFinishBtn: "🏁 Finish",
+    spellingReportTitle: "📋 Spelling Report",
+    spellingReportEmpty: "No mistakes today — great job! 🎉",
+    spellingReportRestart: "🔄 Practice Again",
+    spellingTodayScore: (c, t) => `Today's score: ${c} / ${t}`,
+    spellingWrongBadge: "Incorrect",
     wordlistSearchPlaceholder: "🔍 Search words...",
     wordlistEmpty: "No words found for this level yet.",
     masteryNew: "New",
@@ -149,6 +155,12 @@ const TRANSLATIONS = {
     spellingSkipBtn: "건너뛰기 ➡",
     spellingWrongPrompt: "정확한 철자를 입력해야 다음 단어로 넘어갈 수 있어요.",
     spellingEmpty: (lvl) => `${lvl} 레벨에는 아직 스펠링 연습 단어가 없어요. "단어 추가"에서 추가해보세요!`,
+    spellingFinishBtn: "🏁 종료",
+    spellingReportTitle: "📋 스펠링 리포트",
+    spellingReportEmpty: "오늘은 틀린 단어가 없어요 — 정말 잘했어요! 🎉",
+    spellingReportRestart: "🔄 다시 연습하기",
+    spellingTodayScore: (c, t) => `오늘의 점수: ${c} / ${t}`,
+    spellingWrongBadge: "틀린문제",
     wordlistSearchPlaceholder: "🔍 단어 검색...",
     wordlistEmpty: "이 레벨에는 아직 단어가 없어요.",
     masteryNew: "신규",
@@ -241,6 +253,7 @@ function loadProgress() {
     flashKnown: {}, // word -> true
     quiz: { correct: 0, total: 0 },
     spelling: { correct: 0, total: 0 },
+    spellingStatus: {}, // word -> "wrong" | "correct" — persists so wrong words are re-served first next time
   };
 }
 
@@ -313,6 +326,7 @@ function saveLang(lang) {
 }
 
 let progress = loadProgress();
+if (!progress.spellingStatus) progress.spellingStatus = {}; // back-compat for progress saved before this existed
 let customWords = loadCustomWords();
 let savedLevels = loadLevels();
 let currentLang = loadLang() || "en";
@@ -843,21 +857,37 @@ const spellingBackBtn = document.getElementById("spelling-back");
 const spellingSkipBtn = document.getElementById("spelling-skip");
 const spellingNextBtn = document.getElementById("spelling-next");
 const spellingScoreEl = document.getElementById("spelling-score");
+const spellingFinishBtn = document.getElementById("spelling-finish-btn");
+const spellingReport = document.getElementById("spelling-report");
+const spellingReportList = document.getElementById("spelling-report-list");
+const spellingReportEmpty = document.getElementById("spelling-report-empty");
+const spellingReportScoreEl = document.getElementById("spelling-report-score");
+const spellingReportRestartBtn = document.getElementById("spelling-report-restart");
 
 let spellingDeck = [];
 let spellingIndex = 0;
 let spellingScore = { correct: 0, total: 0 };
+let spellingTotalCountedWords = new Set(); // this session only — stops a retried word double-counting "total"
+let spellingSessionWrongWords = new Map(); // word -> {word, meaning} — for the end-of-session report
 
 function buildSpellingDeck() {
-  spellingDeck = shuffle(getSpellingPool(currentLevel));
+  const pool = getSpellingPool(currentLevel);
+  const status = progress.spellingStatus;
+  const wrongWords = pool.filter((w) => status[w.word] === "wrong");
+  const untriedWords = pool.filter((w) => !(w.word in status));
+  const doneWords = pool.filter((w) => status[w.word] === "correct");
+  spellingDeck = [...shuffle(wrongWords), ...shuffle(untriedWords), ...shuffle(doneWords)];
   spellingIndex = 0;
   spellingScore = { correct: 0, total: 0 };
+  spellingTotalCountedWords = new Set();
+  spellingSessionWrongWords = new Map();
   updateSpellingScoreLabel();
   spellingInput.value = "";
   spellingInput.className = "";
   spellingFeedback.innerHTML = "";
   spellingStartScreen.hidden = false;
   spellingPractice.hidden = true;
+  spellingReport.hidden = true;
 }
 
 spellingStartBtn.addEventListener("click", () => {
@@ -913,16 +943,25 @@ function attemptSpellingNext() {
   const correct = guess === current.word.toLowerCase();
   recordResult(current.word, correct);
 
-  if (correct) {
+  if (!spellingTotalCountedWords.has(current.word)) {
+    spellingTotalCountedWords.add(current.word);
     spellingScore.total++;
-    spellingScore.correct++;
     progress.spelling.total++;
+  }
+
+  if (correct) {
+    spellingScore.correct++;
     progress.spelling.correct++;
+    progress.spellingStatus[current.word] = "correct";
     saveProgress();
     updateSpellingScoreLabel();
     spellingIndex++;
     loadSpellingWord();
   } else {
+    progress.spellingStatus[current.word] = "wrong";
+    spellingSessionWrongWords.set(current.word, { word: current.word, meaning: current.tip || "" });
+    saveProgress();
+    updateSpellingScoreLabel();
     spellingInput.className = "incorrect";
     showSpellingWrongFeedback(current);
   }
@@ -949,11 +988,56 @@ spellingBackBtn.addEventListener("click", () => {
   }
 });
 
+function renderSpellingReport() {
+  spellingPractice.hidden = true;
+  spellingReport.hidden = false;
+
+  const words = Array.from(spellingSessionWrongWords.values());
+  spellingReportList.innerHTML = "";
+  spellingReportEmpty.hidden = words.length > 0;
+
+  words.forEach((w) => {
+    const row = document.createElement("div");
+    row.className = "wordlist-item";
+
+    const left = document.createElement("div");
+    const wordEl = document.createElement("div");
+    wordEl.className = "w speakable-line";
+    wordEl.title = "Tap to hear";
+    wordEl.textContent = w.word;
+    wordEl.addEventListener("click", () => speak(w.word));
+    left.appendChild(wordEl);
+    if (w.meaning) {
+      const meaningEl = document.createElement("div");
+      meaningEl.className = "d";
+      meaningEl.textContent = w.meaning;
+      left.appendChild(meaningEl);
+    }
+    row.appendChild(left);
+
+    const badge = document.createElement("span");
+    badge.className = "mastery low";
+    badge.textContent = t("spellingWrongBadge");
+    row.appendChild(badge);
+
+    spellingReportList.appendChild(row);
+  });
+
+  spellingReportScoreEl.textContent = t("spellingTodayScore", spellingScore.correct, spellingScore.total);
+}
+
+spellingFinishBtn.addEventListener("click", renderSpellingReport);
+
+spellingReportRestartBtn.addEventListener("click", () => {
+  buildSpellingDeck();
+});
+
 /* ================= WORD LIST ================= */
 const wordlistSearch = document.getElementById("wordlist-search");
 const wordlistGrid = document.getElementById("wordlist-grid");
 
 function masteryLabel(word) {
+  if (progress.spellingStatus[word] === "wrong") return { text: t("spellingWrongBadge"), cls: "low" };
   const s = progress.wordStats[word];
   if (!s || s.correct + s.incorrect === 0) return { text: t("masteryNew"), cls: "" };
   const total = s.correct + s.incorrect;
@@ -1584,7 +1668,13 @@ function renderStats() {
 
 resetProgressBtn.addEventListener("click", () => {
   if (!confirm(t("resetConfirm"))) return;
-  progress = { wordStats: {}, flashKnown: {}, quiz: { correct: 0, total: 0 }, spelling: { correct: 0, total: 0 } };
+  progress = {
+    wordStats: {},
+    flashKnown: {},
+    quiz: { correct: 0, total: 0 },
+    spelling: { correct: 0, total: 0 },
+    spellingStatus: {},
+  };
   saveProgress();
   renderStats();
   renderWordList();

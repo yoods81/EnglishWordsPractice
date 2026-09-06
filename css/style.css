@@ -285,6 +285,8 @@ button.pill.success { background: var(--success); color: #fff; }
 button.pill.error { background: var(--error); color: #fff; }
 button.pill.neutral { background: #e6e9f4; color: var(--text); }
 button.pill.accent { background: var(--accent); color: #fff; }
+button.pill.dark { background: #1f2430; color: #fff; }
+button.pill.green { background: #2bb673; color: #fff; }
 
 .speak-btn {
   border: none;

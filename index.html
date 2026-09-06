@@ -105,17 +105,29 @@
         </div>
         <div id="spelling-practice" hidden>
           <div id="spelling-word-audio">
-            <button class="pill primary" id="spelling-speak" data-i18n="spellingHearBtn">🔊 Hear the word</button>
+            <button class="pill green" id="spelling-speak" data-i18n="spellingHearBtn">🔊 Hear the word</button>
           </div>
           <input type="text" id="spelling-input" data-i18n-placeholder="spellingPlaceholder" placeholder="Type what you hear..." autocomplete="off" autocapitalize="off" spellcheck="false" />
           <div class="spelling-tip" id="spelling-feedback"></div>
           <div class="flash-controls">
-            <button class="pill neutral" id="spelling-back" data-i18n="spellingBackBtn">⬅ Back</button>
+            <button class="pill dark" id="spelling-back" data-i18n="spellingBackBtn">⬅ Back</button>
             <button class="pill neutral" id="spelling-skip" data-i18n="spellingSkipBtn">Skip ➡</button>
             <button class="pill primary" id="spelling-next" data-i18n="spellingNextBtn">Next ➡</button>
           </div>
           <div class="quiz-footer">
             <span class="score-tag" id="spelling-score">Score: 0 / 0</span>
+            <button class="pill error" id="spelling-finish-btn" style="margin-left:auto;" data-i18n="spellingFinishBtn">🏁 Finish</button>
+          </div>
+        </div>
+        <div id="spelling-report" hidden>
+          <h3 data-i18n="spellingReportTitle">📋 Spelling Report</h3>
+          <div class="wordlist-grid" id="spelling-report-list"></div>
+          <p class="muted" id="spelling-report-empty" hidden data-i18n="spellingReportEmpty">No mistakes today — great job! 🎉</p>
+          <div class="quiz-footer">
+            <span class="score-tag" id="spelling-report-score">Today's score: 0 / 0</span>
+          </div>
+          <div class="flash-controls">
+            <button class="pill primary" id="spelling-report-restart" data-i18n="spellingReportRestart">🔄 Practice Again</button>
           </div>
         </div>
       </div>
