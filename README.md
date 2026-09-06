@@ -10,7 +10,7 @@ A browser app for practising English vocabulary and spelling, levelled for Austr
   - Each language remembers its own selected level independently, so switching back and forth returns you to where you left off.
 - **Flashcards** — flip cards to reveal a word's definition and example sentence, with **Back**/**Next** buttons on either side of the card (shown as large arrow icons only on narrow/mobile screens). Tap the word, the meaning, or the example to hear it read aloud.
 - **Quiz** — multiple-choice questions across vocabulary (and, on the English track, synonyms/antonyms and homophones), with a progress bar and running score. Tap the question line to hear it read aloud.
-- **Spelling practice** — listen to a word (via speech synthesis) and type what you hear, with a hint if you get it wrong.
+- **Spelling practice** — starts on a "▶ Start the first word" screen so nothing plays until you're ready; tap it to hear the first word. Type your answer and tap **Next** — a correct spelling advances to the next word and adds 1 to the score; an incorrect one stays on the same word and shows the correct spelling (in red) with a prompt to try again, plus the word's meaning/tip below. **Skip** moves on without affecting the score; **Back** returns to the previous word to retry it.
 - **Word list** — a searchable list of all words for the current level with a per-word mastery percentage. Tap a word or its example sentence to hear it.
 - **Add Word** — add your own words:
   - **Manually**: type the word, its meaning, an optional example sentence, and pick a level.

@@ -443,6 +443,29 @@ button.pill.accent { background: var(--accent); color: #fff; }
   min-height: 18px;
 }
 
+#spelling-start-screen {
+  text-align: center;
+  padding: 30px 10px;
+}
+
+.spelling-wrong-word {
+  color: var(--error);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.spelling-wrong-prompt {
+  color: var(--error);
+  font-size: 0.82rem;
+  margin-top: 2px;
+}
+
+.spelling-meaning-line {
+  color: var(--text);
+  font-size: 0.85rem;
+  margin-top: 6px;
+}
+
 /* Word list */
 .wordlist-search {
   width: 100%;

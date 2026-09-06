@@ -45,10 +45,11 @@ const TRANSLATIONS = {
     quizHomophonePrompt: (word) => `What does "${word}" mean?`,
     spellingHearBtn: "🔊 Hear the word",
     spellingPlaceholder: "Type what you hear...",
-    spellingCheckBtn: "Check",
+    spellingStartBtn: "▶ Start the first word",
+    spellingBackBtn: "⬅ Back",
+    spellingNextBtn: "Next ➡",
     spellingSkipBtn: "Skip ➡",
-    spellingCorrect: "Correct! Well done. 🎉",
-    spellingIncorrect: (word, tip) => `Not quite — the correct spelling is "${word}". ${tip}`,
+    spellingWrongPrompt: "Please enter the correct spelling to go to the next word",
     spellingEmpty: (lvl) => `No ${lvl} spelling words yet. Add some in "Add Word"!`,
     wordlistSearchPlaceholder: "🔍 Search words...",
     wordlistEmpty: "No words found for this level yet.",
@@ -142,10 +143,11 @@ const TRANSLATIONS = {
     quizHomophonePrompt: (word) => `"${word}"의 뜻은 무엇일까요?`,
     spellingHearBtn: "🔊 단어 듣기",
     spellingPlaceholder: "들리는 대로 입력하세요...",
-    spellingCheckBtn: "확인",
+    spellingStartBtn: "▶ 첫 단어 시작하기",
+    spellingBackBtn: "⬅ 이전",
+    spellingNextBtn: "다음 ➡",
     spellingSkipBtn: "건너뛰기 ➡",
-    spellingCorrect: "정답이에요! 잘했어요. 🎉",
-    spellingIncorrect: (word, tip) => `아쉬워요 — 정답은 "${word}"예요. ${tip}`,
+    spellingWrongPrompt: "정확한 철자를 입력해야 다음 단어로 넘어갈 수 있어요.",
     spellingEmpty: (lvl) => `${lvl} 레벨에는 아직 스펠링 연습 단어가 없어요. "단어 추가"에서 추가해보세요!`,
     wordlistSearchPlaceholder: "🔍 단어 검색...",
     wordlistEmpty: "이 레벨에는 아직 단어가 없어요.",
@@ -831,39 +833,53 @@ quizRestartBtn.addEventListener("click", buildQuizQuestions);
 quizCategorySel.addEventListener("change", buildQuizQuestions);
 
 /* ================= SPELLING ================= */
+const spellingStartScreen = document.getElementById("spelling-start-screen");
+const spellingStartBtn = document.getElementById("spelling-start-btn");
+const spellingPractice = document.getElementById("spelling-practice");
 const spellingSpeakBtn = document.getElementById("spelling-speak");
 const spellingInput = document.getElementById("spelling-input");
 const spellingFeedback = document.getElementById("spelling-feedback");
-const spellingCheckBtn = document.getElementById("spelling-check");
+const spellingBackBtn = document.getElementById("spelling-back");
 const spellingSkipBtn = document.getElementById("spelling-skip");
+const spellingNextBtn = document.getElementById("spelling-next");
 const spellingScoreEl = document.getElementById("spelling-score");
 
 let spellingDeck = [];
 let spellingIndex = 0;
 let spellingScore = { correct: 0, total: 0 };
-let spellingChecked = false;
 
 function buildSpellingDeck() {
   spellingDeck = shuffle(getSpellingPool(currentLevel));
   spellingIndex = 0;
   spellingScore = { correct: 0, total: 0 };
   updateSpellingScoreLabel();
-  loadSpellingWord();
-}
-
-function loadSpellingWord() {
-  spellingChecked = false;
   spellingInput.value = "";
   spellingInput.className = "";
-  spellingFeedback.textContent = "";
+  spellingFeedback.innerHTML = "";
+  spellingStartScreen.hidden = false;
+  spellingPractice.hidden = true;
+}
+
+spellingStartBtn.addEventListener("click", () => {
+  spellingStartScreen.hidden = true;
+  spellingPractice.hidden = false;
+  loadSpellingWord();
+});
+
+function loadSpellingWord() {
+  spellingInput.value = "";
+  spellingInput.className = "";
+  spellingFeedback.innerHTML = "";
   if (spellingDeck.length === 0) {
     spellingFeedback.textContent = t("spellingEmpty", levelLabel(currentLevel));
+    spellingBackBtn.disabled = true;
     return;
   }
   if (spellingIndex >= spellingDeck.length) {
     spellingDeck = shuffle(spellingDeck);
     spellingIndex = 0;
   }
+  spellingBackBtn.disabled = spellingIndex === 0;
   speak(spellingDeck[spellingIndex].word);
   spellingInput.focus();
 }
@@ -872,45 +888,65 @@ spellingSpeakBtn.addEventListener("click", () => {
   if (spellingDeck[spellingIndex]) speak(spellingDeck[spellingIndex].word);
 });
 
-function checkSpelling() {
-  if (spellingChecked || spellingDeck.length === 0) return;
+function showSpellingWrongFeedback(current) {
+  spellingFeedback.innerHTML = "";
+  const wordLine = document.createElement("div");
+  wordLine.className = "spelling-wrong-word";
+  wordLine.textContent = current.word;
+  const promptLine = document.createElement("div");
+  promptLine.className = "spelling-wrong-prompt";
+  promptLine.textContent = t("spellingWrongPrompt");
+  spellingFeedback.appendChild(wordLine);
+  spellingFeedback.appendChild(promptLine);
+  if (current.tip) {
+    const meaningLine = document.createElement("div");
+    meaningLine.className = "spelling-meaning-line";
+    meaningLine.textContent = current.tip;
+    spellingFeedback.appendChild(meaningLine);
+  }
+}
+
+function attemptSpellingNext() {
+  if (spellingDeck.length === 0) return;
   const current = spellingDeck[spellingIndex];
   const guess = spellingInput.value.trim().toLowerCase();
   const correct = guess === current.word.toLowerCase();
-
-  spellingChecked = true;
-  spellingScore.total++;
-  if (correct) spellingScore.correct++;
   recordResult(current.word, correct);
 
-  progress.spelling.total++;
-  if (correct) progress.spelling.correct++;
-  saveProgress();
-
-  spellingInput.className = correct ? "correct" : "incorrect";
-  spellingFeedback.textContent = correct ? t("spellingCorrect") : t("spellingIncorrect", current.word, current.tip);
-
-  updateSpellingScoreLabel();
+  if (correct) {
+    spellingScore.total++;
+    spellingScore.correct++;
+    progress.spelling.total++;
+    progress.spelling.correct++;
+    saveProgress();
+    updateSpellingScoreLabel();
+    spellingIndex++;
+    loadSpellingWord();
+  } else {
+    spellingInput.className = "incorrect";
+    showSpellingWrongFeedback(current);
+  }
 }
 
 function updateSpellingScoreLabel() {
   spellingScoreEl.textContent = t("scoreLabel", spellingScore.correct, spellingScore.total);
 }
 
-spellingCheckBtn.addEventListener("click", checkSpelling);
+spellingNextBtn.addEventListener("click", attemptSpellingNext);
 spellingInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    if (!spellingChecked) checkSpelling();
-    else {
-      spellingIndex++;
-      loadSpellingWord();
-    }
-  }
+  if (e.key === "Enter") attemptSpellingNext();
 });
 
 spellingSkipBtn.addEventListener("click", () => {
   spellingIndex++;
   loadSpellingWord();
+});
+
+spellingBackBtn.addEventListener("click", () => {
+  if (spellingIndex > 0) {
+    spellingIndex--;
+    loadSpellingWord();
+  }
 });
 
 /* ================= WORD LIST ================= */

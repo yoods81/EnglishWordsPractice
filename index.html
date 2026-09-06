@@ -100,17 +100,23 @@
     <!-- Spelling -->
     <section id="view-spelling" class="view">
       <div class="card">
-        <div id="spelling-word-audio">
-          <button class="pill primary" id="spelling-speak" data-i18n="spellingHearBtn">🔊 Hear the word</button>
+        <div id="spelling-start-screen">
+          <button class="pill primary" id="spelling-start-btn" data-i18n="spellingStartBtn">▶ Start the first word</button>
         </div>
-        <input type="text" id="spelling-input" data-i18n-placeholder="spellingPlaceholder" placeholder="Type what you hear..." autocomplete="off" autocapitalize="off" spellcheck="false" />
-        <div class="spelling-tip" id="spelling-feedback"></div>
-        <div class="flash-controls">
-          <button class="pill primary" id="spelling-check" data-i18n="spellingCheckBtn">Check</button>
-          <button class="pill neutral" id="spelling-skip" data-i18n="spellingSkipBtn">Skip ➡</button>
-        </div>
-        <div class="quiz-footer">
-          <span class="score-tag" id="spelling-score">Score: 0 / 0</span>
+        <div id="spelling-practice" hidden>
+          <div id="spelling-word-audio">
+            <button class="pill primary" id="spelling-speak" data-i18n="spellingHearBtn">🔊 Hear the word</button>
+          </div>
+          <input type="text" id="spelling-input" data-i18n-placeholder="spellingPlaceholder" placeholder="Type what you hear..." autocomplete="off" autocapitalize="off" spellcheck="false" />
+          <div class="spelling-tip" id="spelling-feedback"></div>
+          <div class="flash-controls">
+            <button class="pill neutral" id="spelling-back" data-i18n="spellingBackBtn">⬅ Back</button>
+            <button class="pill neutral" id="spelling-skip" data-i18n="spellingSkipBtn">Skip ➡</button>
+            <button class="pill primary" id="spelling-next" data-i18n="spellingNextBtn">Next ➡</button>
+          </div>
+          <div class="quiz-footer">
+            <span class="score-tag" id="spelling-score">Score: 0 / 0</span>
+          </div>
         </div>
       </div>
     </section>
