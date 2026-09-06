@@ -17,7 +17,26 @@
     </div>
   </div>
 
+  <!-- Admin login overlay -->
+  <div id="admin-login-overlay" class="admin-login-overlay" hidden>
+    <div class="admin-login-card">
+      <h2 id="admin-login-title">🔒 Admin Login</h2>
+      <form id="admin-login-form">
+        <label id="admin-username-label" for="admin-username-input">Username</label>
+        <input id="admin-username-input" type="text" autocomplete="username" />
+        <label id="admin-password-label" for="admin-password-input">Password</label>
+        <input id="admin-password-input" type="password" autocomplete="current-password" />
+        <p id="admin-login-error" class="admin-login-error" hidden></p>
+        <div class="admin-login-actions">
+          <button type="button" id="admin-login-cancel" class="pill neutral">Cancel</button>
+          <button type="submit" id="admin-login-submit" class="pill primary">Login</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <header>
+    <button id="admin-toggle" class="admin-toggle" type="button">🔒 Admin</button>
     <button id="lang-toggle" class="lang-toggle" type="button">한국어</button>
     <h1><span class="emoji">📚</span> <span id="app-title">Aussie English Word Practice</span></h1>
     <p id="app-subtitle">Build your vocabulary, spelling and word skills!</p>

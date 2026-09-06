@@ -8,6 +8,9 @@ const STORAGE_KEY = "ywp_progress_v1";
 const CUSTOM_WORDS_KEY = "ywp_custom_words_v1";
 const LEVELS_KEY = "ywp_levels_v1"; // { en: "year4", ko: "kr_elem6" }
 const LANG_KEY = "ywp_lang_v1";
+const ADMIN_KEY = "ywp_admin_v1";
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "admin1234";
 
 /* ================= TRANSLATIONS ================= */
 const TRANSLATIONS = {
@@ -122,6 +125,14 @@ const TRANSLATIONS = {
     resetBtn: "Reset all progress",
     resetConfirm: "This will erase all your saved progress. Are you sure?",
     footerText: "Made for Australian primary students learning English vocabulary. 🇦🇺",
+    adminLoginBtn: "🔒 Admin",
+    adminLogoutBtn: "🔓 Logout",
+    adminLoginTitle: "🔒 Admin Login",
+    adminUsernameLabel: "Username",
+    adminPasswordLabel: "Password",
+    adminLoginSubmitBtn: "Login",
+    adminLoginCancelBtn: "Cancel",
+    adminLoginErrorText: "Incorrect username or password.",
   },
   ko: {
     appTitle: "필수 영어 단어 연습",
@@ -234,6 +245,14 @@ const TRANSLATIONS = {
     resetBtn: "전체 진행상황 초기화",
     resetConfirm: "저장된 모든 진행상황이 사라져요. 계속할까요?",
     footerText: "영어 필수 단어를 공부하는 학생들을 위해 만들었어요. 🇰🇷",
+    adminLoginBtn: "🔒 관리자",
+    adminLogoutBtn: "🔓 로그아웃",
+    adminLoginTitle: "🔒 관리자 로그인",
+    adminUsernameLabel: "아이디",
+    adminPasswordLabel: "비밀번호",
+    adminLoginSubmitBtn: "로그인",
+    adminLoginCancelBtn: "취소",
+    adminLoginErrorText: "아이디 또는 비밀번호가 올바르지 않아요.",
   },
 };
 
@@ -500,6 +519,12 @@ function applyStaticTranslations() {
   document.getElementById("lang-toggle").textContent = t("langToggle");
   document.getElementById("level-overlay-title").textContent = t("levelOverlayTitle");
   document.getElementById("level-overlay-desc").textContent = t("levelOverlayDesc");
+  document.getElementById("admin-login-title").textContent = t("adminLoginTitle");
+  document.getElementById("admin-username-label").textContent = t("adminUsernameLabel");
+  document.getElementById("admin-password-label").textContent = t("adminPasswordLabel");
+  document.getElementById("admin-login-submit").textContent = t("adminLoginSubmitBtn");
+  document.getElementById("admin-login-cancel").textContent = t("adminLoginCancelBtn");
+  document.getElementById("admin-toggle").textContent = t(isAdmin ? "adminLogoutBtn" : "adminLoginBtn");
   document.documentElement.lang = currentLang === "ko" ? "ko" : "en";
   updateCategoryOptionVisibility();
   // These two show state (not static copy), so re-derive them after the
@@ -623,11 +648,78 @@ function goToTab(view) {
   refreshView(view);
 }
 
+const addwordTabButton = document.querySelector('nav.tabs button[data-view="addword"]');
+
 tabButtons.forEach((btn) => {
-  btn.addEventListener("click", () => goToTab(btn.dataset.view));
+  btn.addEventListener("click", () => {
+    if (btn.dataset.view === "addword" && !isAdmin) return;
+    goToTab(btn.dataset.view);
+  });
 });
 
 document.getElementById("flash-stats-shortcut").addEventListener("click", () => goToTab("stats"));
+
+/* ---------- Admin login ---------- */
+let isAdmin = sessionStorage.getItem(ADMIN_KEY) === "1";
+const adminToggleBtn = document.getElementById("admin-toggle");
+const adminLoginOverlay = document.getElementById("admin-login-overlay");
+const adminLoginForm = document.getElementById("admin-login-form");
+const adminUsernameInput = document.getElementById("admin-username-input");
+const adminPasswordInput = document.getElementById("admin-password-input");
+const adminLoginError = document.getElementById("admin-login-error");
+const adminLoginCancelBtn = document.getElementById("admin-login-cancel");
+
+function updateAdminUI() {
+  if (addwordTabButton) addwordTabButton.hidden = !isAdmin;
+  adminToggleBtn.textContent = t(isAdmin ? "adminLogoutBtn" : "adminLoginBtn");
+  adminToggleBtn.classList.toggle("admin-toggle-active", isAdmin);
+  if (!isAdmin && addwordTabButton && addwordTabButton.classList.contains("active")) {
+    goToTab("flashcards");
+  }
+}
+
+function openAdminLogin() {
+  adminUsernameInput.value = "";
+  adminPasswordInput.value = "";
+  adminLoginError.hidden = true;
+  adminLoginOverlay.hidden = false;
+  adminUsernameInput.focus();
+}
+
+function closeAdminLogin() {
+  adminLoginOverlay.hidden = true;
+}
+
+adminToggleBtn.addEventListener("click", () => {
+  if (isAdmin) {
+    isAdmin = false;
+    sessionStorage.removeItem(ADMIN_KEY);
+    updateAdminUI();
+  } else {
+    openAdminLogin();
+  }
+});
+
+adminLoginCancelBtn.addEventListener("click", closeAdminLogin);
+
+adminLoginOverlay.addEventListener("click", (e) => {
+  if (e.target === adminLoginOverlay) closeAdminLogin();
+});
+
+adminLoginForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (adminUsernameInput.value === ADMIN_USERNAME && adminPasswordInput.value === ADMIN_PASSWORD) {
+    isAdmin = true;
+    sessionStorage.setItem(ADMIN_KEY, "1");
+    closeAdminLogin();
+    updateAdminUI();
+  } else {
+    adminLoginError.textContent = t("adminLoginErrorText");
+    adminLoginError.hidden = false;
+  }
+});
+
+updateAdminUI();
 
 /* ================= FLASHCARDS ================= */
 const flashCategorySel = document.getElementById("flash-category");
