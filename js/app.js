@@ -10,7 +10,21 @@ const LEVELS_KEY = "ywp_levels_v1"; // { en: "year4", ko: "kr_elem6" }
 const LANG_KEY = "ywp_lang_v1";
 const ADMIN_KEY = "ywp_admin_v1";
 const ADMIN_USERNAME = "admin";
-const ADMIN_PASSWORD = "admin1234";
+// SHA-256 of the admin password, so the password itself isn't sitting in
+// plain text in the page source. This is still a static site with no
+// backend, so it's not real security (the hash and check both run in the
+// browser, and this short a password could be brute-forced offline against
+// the hash) — it just stops a casual glance at "view source" from handing
+// the password over directly.
+const ADMIN_PASSWORD_HASH = "ac9689e2272427085e35b9d3e3e8bed88cb3434828b43b86fc0596cad4c6e270";
+
+async function sha256Hex(text) {
+  const bytes = new TextEncoder().encode(text);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
 
 /* ================= TRANSLATIONS ================= */
 const TRANSLATIONS = {
@@ -789,9 +803,10 @@ adminLoginOverlay.addEventListener("click", (e) => {
   if (e.target === adminLoginOverlay) closeAdminLogin();
 });
 
-adminLoginForm.addEventListener("submit", (e) => {
+adminLoginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (adminUsernameInput.value === ADMIN_USERNAME && adminPasswordInput.value === ADMIN_PASSWORD) {
+  const enteredHash = await sha256Hex(adminPasswordInput.value);
+  if (adminUsernameInput.value === ADMIN_USERNAME && enteredHash === ADMIN_PASSWORD_HASH) {
     isAdmin = true;
     sessionStorage.setItem(ADMIN_KEY, "1");
     closeAdminLogin();
