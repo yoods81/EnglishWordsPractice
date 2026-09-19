@@ -1934,10 +1934,34 @@ async function mapWithConcurrency(items, limit, worker, onProgress) {
   return results;
 }
 
-async function fetchDefinition(word) {
+const FETCH_TIMEOUT_MS = 5000;
+
+// fetch with a hard timeout — without this a hung API freezes the whole flow.
+async function fetchWithTimeout(url, ms = FETCH_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
   try {
-    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
-    if (!res.ok) return null;
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// When dictionaryapi.dev is down, every word in a bulk add would otherwise pay
+// the full timeout. Once we see it fail, skip it for a couple of minutes
+// (its own 522 response asks for Retry-After: 120).
+let dictionaryDownUntil = 0;
+const DICTIONARY_COOLDOWN_MS = 120000;
+
+async function fetchDefinition(word) {
+  if (Date.now() < dictionaryDownUntil) return { error: "cooldown" };
+  try {
+    const res = await fetchWithTimeout(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+    if (res.status >= 500) {
+      dictionaryDownUntil = Date.now() + DICTIONARY_COOLDOWN_MS;
+      return { error: res.status };
+    }
+    if (!res.ok) return { error: res.status }; // usually 404 — no entry for this word
     const data = await res.json();
     const entry = data[0];
     const meaning = entry && entry.meanings && entry.meanings[0];
@@ -1945,17 +1969,24 @@ async function fetchDefinition(word) {
     if (!def) return null;
     return { definition: def.definition, example: def.example || "" };
   } catch (e) {
-    return null;
+    return { error: "timeout" };
   }
 }
 
 async function fetchDefinitionWithRetry(word) {
-  let result = await fetchDefinition(word);
-  if (!result) {
-    await wait(400);
-    result = await fetchDefinition(word);
+  const first = await fetchDefinition(word);
+  if (first && first.definition) return first;
+  // Retrying is pointless when the word simply isn't in the dictionary (404)
+  // or the service itself is down — only a timeout is worth one more go.
+  if (!first || (first.error && first.error !== "timeout")) return null;
+
+  await wait(400);
+  const second = await fetchDefinition(word);
+  if (second && second.definition) return second;
+  if (second && second.error === "timeout") {
+    dictionaryDownUntil = Date.now() + DICTIONARY_COOLDOWN_MS;
   }
-  return result;
+  return null;
 }
 
 // Best-effort translation of arbitrary text via the free MyMemory API. Used
@@ -1964,7 +1995,7 @@ async function fetchDefinitionWithRetry(word) {
 // language (e.g. "ko|en") when the direct lookup for that side came up empty.
 async function fetchTranslation(text, langpair) {
   try {
-    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langpair}`);
+    const res = await fetchWithTimeout(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langpair}`);
     if (!res.ok) return null;
     const data = await res.json();
     const translated = data && data.responseData && data.responseData.translatedText;
