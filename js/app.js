@@ -381,6 +381,41 @@ function cwNoDefinition(w, lang) {
   return !!w[noDefKey(lang || currentLang)];
 }
 
+// A meaning that just echoes the word back ("describe" -> "describe") explains
+// nothing, and neither does a lone word where a definition belongs
+// ("position" -> "Occupation"). Both are what filling a missing English
+// definition by translating the Korean meaning back produced while
+// dictionaryapi.dev was down. A single word is fine as a Korean gloss though,
+// so only the English side is held to being a phrase.
+function isUselessMeaning(word, meaning, requirePhrase) {
+  if (!meaning) return false;
+  const text = meaning.trim();
+  if (!text) return false;
+  if (text.toLowerCase() === word.toLowerCase()) return true;
+  return requirePhrase && !/\s/.test(text);
+}
+
+// Clears those out so they show as missing and get picked up by Retry /
+// "Missing meaning first" instead of sitting there looking answered. Meanings
+// the user typed in by hand are never touched.
+function clearUselessMeanings(list) {
+  let changed = false;
+  list.forEach((w) => {
+    if (w.source === "manual") return;
+    if (isUselessMeaning(w.word, w.definitionEn, true)) {
+      w.definitionEn = null;
+      w.noDefinitionEn = true;
+      changed = true;
+    }
+    if (isUselessMeaning(w.word, w.definitionKo, false)) {
+      w.definitionKo = null;
+      w.noDefinitionKo = true;
+      changed = true;
+    }
+  });
+  return changed;
+}
+
 // One-time migration for words saved before the dual-language schema above
 // existed: they only had flat `definition`/`level`/`noDefinition` fields for
 // whichever language track was active when the word was added. We infer that
@@ -410,6 +445,7 @@ function migrateCustomWords(list) {
     migratedWord[noDefKey(other)] = true;
     return migratedWord;
   });
+  if (clearUselessMeanings(migrated)) changed = true;
   if (changed) {
     try {
       localStorage.setItem(CUSTOM_WORDS_KEY, JSON.stringify(migrated));
@@ -1989,10 +2025,56 @@ async function fetchDefinitionWithRetry(word) {
   return null;
 }
 
+function stripHtml(html) {
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Wiktionary is a second source of real English definitions, used when
+// dictionaryapi.dev has no entry or is down. Without it the English side had
+// nothing to fall back on but translating the Korean meaning back into
+// English, which returns the word itself ("describe" -> "describe") or a lone
+// synonym ("position" -> "Occupation") rather than an explanation.
+let wiktionaryDownUntil = 0;
+
+async function fetchWiktionaryDefinition(word) {
+  if (Date.now() < wiktionaryDownUntil) return null;
+  try {
+    const res = await fetchWithTimeout(`https://en.wiktionary.org/api/rest_v1/page/definition/${encodeURIComponent(word)}`);
+    if (res.status >= 500) {
+      wiktionaryDownUntil = Date.now() + DICTIONARY_COOLDOWN_MS;
+      return null;
+    }
+    if (!res.ok) return null; // 404 — no Wiktionary page for this word
+    const data = await res.json();
+    const sections = (data && data.en) || []; // English-language senses only
+    for (const section of sections) {
+      for (const entry of section.definitions || []) {
+        const definition = stripHtml(entry.definition || "");
+        if (definition.length < 8) continue; // skip stubs and bare cross-references
+        const rawExample = entry.examples && entry.examples[0];
+        return { definition, example: rawExample ? stripHtml(rawExample) : "" };
+      }
+    }
+    return null;
+  } catch (e) {
+    wiktionaryDownUntil = Date.now() + DICTIONARY_COOLDOWN_MS;
+    return null;
+  }
+}
+
 // Best-effort translation of arbitrary text via the free MyMemory API. Used
 // both to get a Korean meaning for an English word (langpair "en|ko") and,
-// as a fallback, to translate a meaning we already have into the other
-// language (e.g. "ko|en") when the direct lookup for that side came up empty.
+// as a fallback, to translate an English definition we already have into
+// Korean when the direct word lookup came up empty.
 async function fetchTranslation(text, langpair) {
   try {
     const res = await fetchWithTimeout(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langpair}`);
@@ -2019,32 +2101,33 @@ function fetchKoreanTranslationWithRetry(word) {
   return fetchTranslationWithRetry(word, "en|ko");
 }
 
-// Looks up a definition for one word in BOTH languages at once (English via
-// dictionaryapi.dev, Korean via a translation of the English word), so a word
-// added from either language track ends up with a usable meaning on both.
-// If one side comes back empty (e.g. dictionaryapi.dev has no entry for a
-// word that isn't in a formal English dictionary, or MyMemory fails to
-// translate the word directly) but the other side succeeded, we fall back to
-// translating that meaning into the missing language instead of leaving it
-// blank.
+// Looks up a definition for one word in BOTH languages at once, so a word
+// added from either language track ends up with a usable meaning on both:
+// English from dictionaryapi.dev, falling back to Wiktionary, and Korean
+// from translating the word. A missing English definition is never filled in
+// by translating the Korean meaning back to English — that round trip returns
+// the word itself or a lone synonym, not an explanation of it.
 async function fetchWordInfo(word) {
   const [enEntry, koMeaning] = await Promise.all([fetchDefinitionWithRetry(word), fetchKoreanTranslationWithRetry(word)]);
   let definitionEn = (enEntry && enEntry.definition) || null;
   let definitionKo = koMeaning || null;
+  let example = (enEntry && enEntry.example) || "";
 
-  if (!definitionEn && definitionKo) {
-    definitionEn = await fetchTranslationWithRetry(definitionKo, "ko|en");
+  if (!definitionEn) {
+    const fromWiktionary = await fetchWiktionaryDefinition(word);
+    if (fromWiktionary) {
+      definitionEn = fromWiktionary.definition;
+      if (!example) example = fromWiktionary.example;
+    }
   }
+  // Translating a full English definition into Korean does read as a meaning,
+  // so this direction stays.
   if (!definitionKo && definitionEn) {
     definitionKo = await fetchTranslationWithRetry(definitionEn, "en|ko");
   }
 
   if (!definitionEn && !definitionKo) return null;
-  return {
-    definitionEn,
-    definitionKo,
-    example: (enEntry && enEntry.example) || "",
-  };
+  return { definitionEn, definitionKo, example };
 }
 
 ocrAddBtn.addEventListener("click", async () => {
