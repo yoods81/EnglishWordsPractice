@@ -4,7 +4,7 @@ A browser app for practising English vocabulary and spelling, levelled for Austr
 
 ## Features
 
-- **Admin login** — a 🔒 Admin button in the top-left corner of the header opens a login form (username `admin`, password `admin1234`). This is a UI convenience for the parent/teacher managing the word lists, not real security: there's no backend, so the check runs in the browser and only the password's SHA-256 hash is stored in the source (not the password itself) — enough to stop a casual "view source" from handing it over, but not enough to stop someone determined to brute-force a short password against that hash. Login state is kept in `sessionStorage` (cleared when the browser tab closes). The **Add Word** tab is hidden and disabled for everyone else, and only appears once logged in as Admin.
+- **Admin login** — a 🔒 Admin button in the top-left corner of the header opens a login form. The password is checked by the Worker against a Cloudflare secret, so it never reaches the browser, and a signed `HttpOnly` session cookie is what authorises changes to the shared word list. The **Add Word** tab is hidden for everyone else. If the API can't be reached at all, the app falls back to an in-page check against a password hash — that only unlocks editing words in that one browser, since the server rejects any write without a valid session.
 - **Two language tracks, switchable anytime** — a "한국어 / English" button in the top-right corner of the header swaps the entire UI (and the level choices, word banks, and quiz categories) between:
   - **English track**: Year 4, Year 5, and Year 6 (more advanced, GATE-style) Australian-curriculum vocabulary.
   - **Korean track** (필수 영어 단어 연습): 초등학교 6학년 / 중학교 1학년 / 중학교 2학년 / 중학교 3학년 essential English vocabulary, 120+ words per level, with meanings shown in Korean and example sentences in English. Since this track has no separate synonym/homophone word lists, those quiz categories are hidden and Spelling practice draws on the vocabulary list itself (using the Korean meaning as a hint).
@@ -23,27 +23,67 @@ A browser app for practising English vocabulary and spelling, levelled for Austr
 - **My Progress** — overall stats (words practised, flashcards known, quiz/spelling accuracy, words you've added), saved locally in the browser (`localStorage`) so progress persists between visits. A "Reset all progress" button is available.
 - **Text-to-speech voice** — tuned to read as a natural, younger-sounding adult female voice: an Australian English voice on the English track, an American English voice on the Korean track. The Web Speech API doesn't let a website pick an exact age, so this is a best-effort voice selection (by name/language) plus a slightly brighter pitch — the actual voice depends on what your browser/OS provides.
 
+## Where words are stored
+
+Words the admin adds are saved **on the server** (a Cloudflare D1 database behind a Worker), so they show up on every device and for every visitor — including a fresh incognito window. Each learner's own progress (scores, flashcards known, wrong-word flags) stays in their own browser's `localStorage`, since that's personal to them.
+
+If the API can't be reached — it isn't deployed yet, or the browser is offline — the app keeps working from a cached copy of the shared list, and anything added then is saved to that browser only until it's uploaded (see the **Upload** button under "My added words").
+
 ## Running locally
 
-No dependencies or build tools are needed. Just serve the folder and open it in a browser, for example:
+The app itself is plain HTML/CSS/JS, so for front-end work you can just serve `public/`:
 
 ```bash
-python3 -m http.server 8000
+python3 -m http.server 8000 --directory public
 ```
 
-Then visit `http://localhost:8000`.
+The shared word list needs the Worker. To run the whole thing, including a local D1 database:
 
-You can also open `index.html` directly in a browser, though some browsers restrict local file access for scripts — serving it is more reliable.
+```bash
+npm install
+npx wrangler d1 execute englishwordspractice --local --file=./schema.sql   # once
+printf 'ADMIN_PASSWORD=choose-one\nSESSION_SECRET=any-long-random-string\n' > .dev.vars
+npm run dev
+```
+
+Then visit the URL wrangler prints (usually `http://localhost:8787`).
+
+## Deploying (Cloudflare Workers)
+
+The Worker serves `public/` as static assets and handles `/api/*`. One-time setup:
+
+1. **Create the database** and copy the printed `database_id` into `wrangler.jsonc`:
+   ```bash
+   npx wrangler d1 create englishwordspractice
+   ```
+2. **Create the table** in the deployed database:
+   ```bash
+   npm run db:init
+   ```
+3. **Set the secrets** — these live in Cloudflare, never in the repo:
+   ```bash
+   npx wrangler secret put ADMIN_PASSWORD     # the admin password
+   npx wrangler secret put SESSION_SECRET     # any long random string
+   ```
+4. **Deploy** with `npm run deploy`, or by pushing if the Worker is connected to this repo on GitHub.
+5. Sign in as admin and use **☁️ Upload** under "My added words" to move words already saved in that browser up to the server.
+
+Check that `name` in `wrangler.jsonc` matches the existing Worker, otherwise step 4 creates a second Worker at a different URL.
 
 ## Project structure
 
 ```
-index.html        Page structure and all views (language toggle, level select, flashcards, quiz, spelling, word list, add word, stats)
-css/style.css      Styling
-js/words.js        English-track word data, grouped by category and level ("year4" / "year5" / "year6")
-js/words_ko.js     Korean-track vocabulary data ("kr_elem6" / "kr_mid1" / "kr_mid2" / "kr_mid3"), Korean definitions + English examples
-js/app.js          App logic (i18n/translations, language + level switching, tabs, quiz/flashcard/spelling engines, manual add, OCR extraction, text-to-speech voice selection, progress storage)
+public/index.html   Page structure and all views (language toggle, level select, flashcards, quiz, spelling, word list, add word, stats)
+public/css/style.css  Styling
+public/js/words.js    English-track word data, grouped by category and level ("year4" / "year5" / "year6")
+public/js/words_ko.js Korean-track vocabulary data ("kr_elem6" / "kr_mid1" / "kr_mid2" / "kr_mid3"), Korean definitions + English examples
+public/js/app.js      App logic (i18n/translations, language + level switching, tabs, quiz/flashcard/spelling engines, manual add, OCR extraction, text-to-speech voice selection, progress storage, shared-word-list API client)
+worker/index.js     Cloudflare Worker: serves the app and the /api routes for the shared word list and admin sign-in
+schema.sql          D1 table definitions
+wrangler.jsonc      Worker config (static assets + D1 binding)
 ```
+
+Only `public/` is published — the Worker source, schema and README aren't part of the assets directory, so they aren't reachable from the web.
 
 ## Customising the built-in word lists
 

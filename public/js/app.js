@@ -6,6 +6,7 @@
 
 const STORAGE_KEY = "ywp_progress_v1";
 const CUSTOM_WORDS_KEY = "ywp_custom_words_v1";
+const SHARED_WORDS_CACHE_KEY = "ywp_shared_words_cache_v1";
 const LEVELS_KEY = "ywp_levels_v1"; // { en: "year4", ko: "kr_elem6" }
 const LANG_KEY = "ywp_lang_v1";
 const ADMIN_KEY = "ywp_admin_v1";
@@ -125,6 +126,13 @@ const TRANSLATIONS = {
     sortMissingFirstBtn: "⚠️ Missing meaning first",
     deleteSelectedBtn: "🗑️ Delete Selected",
     deleteSelectedConfirm: (n) => `Delete ${n} selected word(s)?`,
+    uploadLocalBtn: (n) => `☁️ Upload ${n} to server`,
+    uploadLocalConfirm: (n) =>
+      `Upload ${n} word(s) saved in this browser to the server, so they show up on every device?`,
+    uploadLocalDone: (n) => `Uploaded ${n} word(s) — they're now shared with every device.`,
+    uploadLocalFailed: "Could not reach the server. The words are still saved in this browser.",
+    storageNoteShared: "Words you add here are saved on the server and show up on every device.",
+    storageNoteLocal: "Not signed in to the server — words you add are saved in this browser only.",
     editBtn: "Edit",
     deleteBtn: "Delete",
     retryBtn: "🔄 Retry",
@@ -251,6 +259,12 @@ const TRANSLATIONS = {
     sortMissingFirstBtn: "⚠️ 뜻 없는 단어 먼저",
     deleteSelectedBtn: "🗑️ 선택 삭제",
     deleteSelectedConfirm: (n) => `선택한 단어 ${n}개를 삭제할까요?`,
+    uploadLocalBtn: (n) => `☁️ ${n}개 서버로 올리기`,
+    uploadLocalConfirm: (n) => `이 브라우저에 저장된 단어 ${n}개를 서버로 올릴까요? 모든 기기에서 보이게 됩니다.`,
+    uploadLocalDone: (n) => `${n}개를 올렸어요 — 이제 모든 기기에서 보여요.`,
+    uploadLocalFailed: "서버에 연결하지 못했어요. 단어는 이 브라우저에 그대로 있어요.",
+    storageNoteShared: "여기서 추가한 단어는 서버에 저장되어 모든 기기에서 보여요.",
+    storageNoteLocal: "서버에 로그인되지 않아, 추가한 단어가 이 브라우저에만 저장돼요.",
     editBtn: "수정",
     deleteBtn: "삭제",
     retryBtn: "🔄 다시 찾기",
@@ -344,9 +358,24 @@ function loadCustomWords() {
   return [];
 }
 
+// Words the admin adds live on the server so every device sees them; they're
+// marked `remote` and kept in a local cache purely so the app still works
+// offline or while the API is unreachable. Words without that mark belong to
+// this browser alone, as before.
+function loadSharedWordsCache() {
+  try {
+    const raw = localStorage.getItem(SHARED_WORDS_CACHE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    console.warn("Could not read cached shared words", e);
+  }
+  return [];
+}
+
 function saveCustomWords() {
   try {
-    localStorage.setItem(CUSTOM_WORDS_KEY, JSON.stringify(customWords));
+    localStorage.setItem(CUSTOM_WORDS_KEY, JSON.stringify(customWords.filter((w) => !w.remote)));
+    localStorage.setItem(SHARED_WORDS_CACHE_KEY, JSON.stringify(customWords.filter((w) => w.remote)));
   } catch (e) {
     console.warn("Could not save custom words", e);
   }
@@ -492,7 +521,9 @@ function saveLang(lang) {
 
 let progress = loadProgress();
 if (!progress.spellingStatus) progress.spellingStatus = {}; // back-compat for progress saved before this existed
-let customWords = migrateCustomWords(loadCustomWords());
+let customWords = migrateCustomWords(loadCustomWords()).concat(
+  loadSharedWordsCache().map((w) => ({ ...w, remote: true }))
+);
 let savedLevels = loadLevels();
 let currentLang = loadLang() || "en";
 let currentLevel = savedLevels[currentLang] || currentSystem_levels_default();
@@ -792,6 +823,65 @@ tabButtons.forEach((btn) => {
 
 document.getElementById("flash-stats-shortcut").addEventListener("click", () => goToTab("stats"));
 
+/* ---------- Shared word list API ---------- */
+// serverAdmin means the Worker accepted the password and issued a session, so
+// this browser may change the shared list. isAdmin only unlocks the Add Word
+// UI — when the API is unreachable it falls back to the in-page password check
+// below, which unlocks editing this browser's own words and nothing more.
+let serverAdmin = false;
+let sharedWordsAvailable = false;
+
+async function api(path, options = {}) {
+  const res = await fetch(`/api${path}`, {
+    credentials: "same-origin",
+    headers: options.body ? { "content-type": "application/json" } : undefined,
+    ...options,
+  });
+  if (!res.ok) {
+    const error = new Error(`api ${path} failed: ${res.status}`);
+    error.status = res.status;
+    throw error;
+  }
+  return res.json();
+}
+
+async function refreshSharedWords() {
+  try {
+    const { words } = await api("/words");
+    sharedWordsAvailable = true;
+    const local = customWords.filter((w) => !w.remote);
+    customWords = local.concat(words.map((w) => ({ ...w, remote: true })));
+    saveCustomWords();
+    renderCustomWords();
+    renderWordList();
+    refreshCurrentView();
+  } catch (e) {
+    // No API yet, or offline — the cached copy stays in place.
+    sharedWordsAvailable = false;
+  }
+}
+
+// Best-effort writes: the local list is already updated by the caller, so a
+// failure here means the change didn't reach other devices, not that it was
+// lost.
+async function pushSharedWords(words) {
+  if (!serverAdmin || words.length === 0) return;
+  try {
+    await api("/words", { method: "PUT", body: JSON.stringify({ words }) });
+  } catch (e) {
+    console.warn("Could not save words to the server", e);
+  }
+}
+
+async function removeSharedWords(ids) {
+  if (!serverAdmin || ids.length === 0) return;
+  try {
+    await api("/words", { method: "DELETE", body: JSON.stringify({ ids }) });
+  } catch (e) {
+    console.warn("Could not delete words on the server", e);
+  }
+}
+
 /* ---------- Admin login ---------- */
 let isAdmin = sessionStorage.getItem(ADMIN_KEY) === "1";
 const adminToggleBtn = document.getElementById("admin-toggle");
@@ -823,11 +913,17 @@ function closeAdminLogin() {
   adminLoginOverlay.hidden = true;
 }
 
-adminToggleBtn.addEventListener("click", () => {
+adminToggleBtn.addEventListener("click", async () => {
   if (isAdmin) {
     isAdmin = false;
+    serverAdmin = false;
     sessionStorage.removeItem(ADMIN_KEY);
     updateAdminUI();
+    try {
+      await api("/admin/logout", { method: "POST" });
+    } catch (e) {
+      /* nothing to end server-side */
+    }
   } else {
     openAdminLogin();
   }
@@ -841,19 +937,57 @@ adminLoginOverlay.addEventListener("click", (e) => {
 
 adminLoginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const enteredHash = await sha256Hex(adminPasswordInput.value);
-  if (adminUsernameInput.value === ADMIN_USERNAME && enteredHash === ADMIN_PASSWORD_HASH) {
+  const username = adminUsernameInput.value;
+  const password = adminPasswordInput.value;
+
+  // The server is the real check: the password lives in a Worker secret and
+  // is never sent to the browser.
+  let serverRejected = false;
+  try {
+    await api("/admin/login", { method: "POST", body: JSON.stringify({ password }) });
+    serverAdmin = true;
     isAdmin = true;
-    sessionStorage.setItem(ADMIN_KEY, "1");
-    closeAdminLogin();
-    updateAdminUI();
-  } else {
+  } catch (err) {
+    // 401 means the server answered and the password was wrong. Anything else
+    // (no API deployed yet, offline, misconfigured) means we couldn't ask it.
+    serverRejected = err && err.status === 401;
+  }
+
+  // Only when the server couldn't answer do we fall back to the in-page check,
+  // which unlocks editing this browser's own words and nothing more.
+  if (!isAdmin && !serverRejected) {
+    const enteredHash = await sha256Hex(password);
+    if (username === ADMIN_USERNAME && enteredHash === ADMIN_PASSWORD_HASH) isAdmin = true;
+  }
+
+  if (!isAdmin) {
     adminLoginError.textContent = t("adminLoginErrorText");
     adminLoginError.hidden = false;
+    return;
   }
+
+  sessionStorage.setItem(ADMIN_KEY, "1");
+  closeAdminLogin();
+  updateAdminUI();
+  if (serverAdmin) refreshSharedWords();
 });
 
+// A session cookie outlives a page reload, so ask the server whether this
+// browser is still signed in before deciding what the admin may change.
+async function restoreServerAdmin() {
+  try {
+    const { admin } = await api("/admin/session");
+    serverAdmin = !!admin;
+    if (serverAdmin) isAdmin = true;
+  } catch (e) {
+    serverAdmin = false;
+  }
+  updateAdminUI();
+}
+
 updateAdminUI();
+restoreServerAdmin();
+refreshSharedWords();
 
 /* ================= FLASHCARDS ================= */
 const flashCategorySel = document.getElementById("flash-category");
@@ -1381,6 +1515,8 @@ const customRetryAllBtn = document.getElementById("custom-retry-all-btn");
 const customDeleteFailedBtn = document.getElementById("custom-delete-failed-btn");
 const customSortToggleBtn = document.getElementById("custom-sort-toggle-btn");
 const customDeleteSelectedBtn = document.getElementById("custom-delete-selected-btn");
+const customUploadBtn = document.getElementById("custom-upload-btn");
+const customStorageNote = document.getElementById("custom-words-storage-note");
 let sortMissingFirst = false;
 let selectedCustomWordIds = new Set();
 const ocrLevelSelectEl = document.getElementById("ocr-level");
@@ -1457,9 +1593,9 @@ bulkAddSaveBtn.addEventListener("click", async () => {
     bulkAddStatus.textContent = t("ocrAddingProgress", done, total);
   });
 
-  words.forEach((word, i) => {
+  const added = words.map((word, i) => {
     const info = infos[i];
-    customWords.push({
+    const newWord = {
       id: genId(),
       word,
       example: (info && info.example) || "",
@@ -1471,9 +1607,13 @@ bulkAddSaveBtn.addEventListener("click", async () => {
       noDefinitionKo: !(info && info.definitionKo),
       source: "bulk",
       createdAt: Date.now(),
-    });
+      remote: serverAdmin,
+    };
+    customWords.push(newWord);
+    return newWord;
   });
   saveCustomWords();
+  await pushSharedWords(added);
 
   bulkAddStatus.textContent = t("bulkAddedStatus", words.length);
   bulkWordsInput.value = "";
@@ -1506,6 +1646,7 @@ manualForm.addEventListener("submit", (e) => {
 
   const editId = manualEditId.value;
   let newWord = null;
+  let editedWord = null;
   if (editId) {
     const existing = customWords.find((w) => w.id === editId);
     if (existing) {
@@ -1514,10 +1655,11 @@ manualForm.addEventListener("submit", (e) => {
       existing[defKey(currentLang)] = definition;
       existing[levelKey(currentLang)] = level;
       existing[noDefKey(currentLang)] = false;
+      editedWord = existing;
     }
   } else {
     const other = otherLang(currentLang);
-    newWord = { id: genId(), word, example, source: "manual", createdAt: Date.now() };
+    newWord = { id: genId(), word, example, source: "manual", createdAt: Date.now(), remote: serverAdmin };
     newWord[defKey(currentLang)] = definition;
     newWord[levelKey(currentLang)] = level;
     newWord[noDefKey(currentLang)] = false;
@@ -1532,6 +1674,7 @@ manualForm.addEventListener("submit", (e) => {
   resetManualForm();
   renderCustomWords();
   renderWordList();
+  pushSharedWords([newWord || editedWord].filter((w) => w && w.remote));
 
   if (newWord) {
     const other = otherLang(currentLang);
@@ -1544,6 +1687,7 @@ manualForm.addEventListener("submit", (e) => {
         if (!newWord.example && info.example) newWord.example = info.example;
         saveCustomWords();
         renderCustomWords();
+        pushSharedWords(newWord.remote ? [newWord] : []);
       }
     });
   }
@@ -1574,10 +1718,12 @@ function startEditCustomWord(id) {
 
 function deleteCustomWord(id) {
   if (!confirm(t("deleteConfirm"))) return;
+  const removed = customWords.find((w) => w.id === id);
   customWords = customWords.filter((w) => w.id !== id);
   saveCustomWords();
   renderCustomWords();
   renderWordList();
+  if (removed && removed.remote) removeSharedWords([id]);
 }
 
 // Applies a freshly fetched {definitionEn, definitionKo, example} result to a
@@ -1605,6 +1751,7 @@ async function retrySingleWord(id) {
   customWordsStatus.textContent = t("retryResult", cwNoDefinition(w) ? 0 : 1, 1);
   renderCustomWords();
   renderWordList();
+  if (w.remote) pushSharedWords([w]);
 }
 
 async function retryAllFailedWords() {
@@ -1630,6 +1777,7 @@ async function retryAllFailedWords() {
   customDeleteFailedBtn.disabled = false;
   renderCustomWords();
   renderWordList();
+  await pushSharedWords(failed.filter((w) => w.remote));
 }
 
 function deleteAllFailedWords() {
@@ -1642,6 +1790,7 @@ function deleteAllFailedWords() {
   customWordsStatus.textContent = "";
   renderCustomWords();
   renderWordList();
+  removeSharedWords(failed.filter((w) => w.remote).map((w) => w.id));
 }
 
 function updateDeleteSelectedBtn() {
@@ -1666,6 +1815,13 @@ function renderCustomWords() {
   customSortToggleBtn.classList.toggle("primary", sortMissingFirst);
   customSortToggleBtn.classList.toggle("neutral", !sortMissingFirst);
   updateDeleteSelectedBtn();
+
+  // Words still held only in this browser can be pushed up to the shared list.
+  const localOnly = customWords.filter((w) => !w.remote);
+  customUploadBtn.hidden = !(serverAdmin && localOnly.length > 0);
+  customUploadBtn.textContent = t("uploadLocalBtn", localOnly.length);
+  customStorageNote.hidden = false;
+  customStorageNote.textContent = t(serverAdmin ? "storageNoteShared" : "storageNoteLocal");
 
   customWordsGrid.innerHTML = "";
   if (customWords.length === 0) {
@@ -1779,14 +1935,41 @@ customSortToggleBtn.addEventListener("click", () => {
   renderCustomWords();
 });
 
+customUploadBtn.addEventListener("click", async () => {
+  const localOnly = customWords.filter((w) => !w.remote);
+  if (localOnly.length === 0) return;
+  if (!confirm(t("uploadLocalConfirm", localOnly.length))) return;
+  customUploadBtn.disabled = true;
+  try {
+    // The API caps how many words one request may carry.
+    for (let i = 0; i < localOnly.length; i += 100) {
+      const batch = localOnly.slice(i, i + 100);
+      await api("/words", { method: "PUT", body: JSON.stringify({ words: batch }) });
+      batch.forEach((w) => {
+        w.remote = true;
+      });
+    }
+    saveCustomWords();
+    customWordsStatus.textContent = t("uploadLocalDone", localOnly.length);
+  } catch (e) {
+    customWordsStatus.textContent = t("uploadLocalFailed");
+  }
+  customUploadBtn.disabled = false;
+  renderCustomWords();
+});
+
 customDeleteSelectedBtn.addEventListener("click", () => {
   if (selectedCustomWordIds.size === 0) return;
   if (!confirm(t("deleteSelectedConfirm", selectedCustomWordIds.size))) return;
+  const removedRemoteIds = customWords
+    .filter((w) => selectedCustomWordIds.has(w.id) && w.remote)
+    .map((w) => w.id);
   customWords = customWords.filter((w) => !selectedCustomWordIds.has(w.id));
   selectedCustomWordIds.clear();
   saveCustomWords();
   renderCustomWords();
   renderWordList();
+  removeSharedWords(removedRemoteIds);
 });
 
 /* ---------- OCR: extract words from a photo ---------- */
@@ -2145,7 +2328,7 @@ ocrAddBtn.addEventListener("click", async () => {
   });
 
   const other = otherLang(currentLang);
-  selected.forEach((word, i) => {
+  const added = selected.map((word, i) => {
     const info = infos[i];
     const newWord = {
       id: genId(),
@@ -2157,12 +2340,15 @@ ocrAddBtn.addEventListener("click", async () => {
       noDefinitionKo: !(info && info.definitionKo),
       source: "ocr",
       createdAt: Date.now(),
+      remote: serverAdmin,
     };
     newWord[levelKey(currentLang)] = level;
     newWord[levelKey(other)] = guessLevelForWord(word, other);
     customWords.push(newWord);
+    return newWord;
   });
   saveCustomWords();
+  await pushSharedWords(added);
 
   ocrStatus.textContent = t("ocrAddedStatus", selected.length, levelLabel(level));
   ocrSelectedWords = new Set();

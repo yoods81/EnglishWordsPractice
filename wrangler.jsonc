@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "englishwordspractice",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-09-01",
+  "observability": { "enabled": true },
+
+  // Only ./public is published. Everything else in the repo (the Worker
+  // source, schema.sql, README) stays private because it simply isn't part
+  // of the assets directory. Requests that don't match a file fall through
+  // to the Worker, which is what serves /api/*.
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+
+  // Replace database_id with the id printed by:
+  //   npx wrangler d1 create englishwordspractice
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "englishwordspractice",
+      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+    }
+  ]
+}
