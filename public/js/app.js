@@ -1472,11 +1472,25 @@ function buildWordRow(w) {
 
   row.appendChild(left);
 
+  const badges = document.createElement("div");
+  badges.style.display = "flex";
+  badges.style.gap = "6px";
+  badges.style.alignItems = "center";
+
+  // Set only on search hits from a level other than the one being browsed.
+  if (w.level) {
+    const levelBadge = document.createElement("span");
+    levelBadge.className = "mastery";
+    levelBadge.textContent = levelLabel(w.level);
+    badges.appendChild(levelBadge);
+  }
+
   const m = masteryLabel(w.word);
   const badge = document.createElement("span");
   badge.className = `mastery ${m.cls}`;
   badge.textContent = m.text;
-  row.appendChild(badge);
+  badges.appendChild(badge);
+  row.appendChild(badges);
 
   return row;
 }
@@ -1484,7 +1498,19 @@ function buildWordRow(w) {
 function renderWordList() {
   const query = wordlistSearch.value.trim().toLowerCase();
   wordlistGrid.innerHTML = "";
-  const words = getAllWordsForLevel(currentLevel).filter((w) => w.word.toLowerCase().includes(query));
+
+  // With an empty box you're browsing the level you picked. Once you type,
+  // search every level — a word added automatically lands in whichever level
+  // was guessed for it, which usually isn't the one you happen to be on.
+  const levels = query ? currentSystem().levels.map((lv) => lv.id) : [currentLevel];
+  const words = [];
+  levels.forEach((level) => {
+    getAllWordsForLevel(level).forEach((w) => {
+      if (!w.word.toLowerCase().includes(query)) return;
+      if (words.some((seen) => seen.word === w.word)) return;
+      words.push(level === currentLevel ? w : { ...w, level });
+    });
+  });
   if (words.length === 0) {
     const p = document.createElement("p");
     p.className = "muted";
