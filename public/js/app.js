@@ -7,6 +7,9 @@
 const STORAGE_KEY = "ywp_progress_v1";
 const CUSTOM_WORDS_KEY = "ywp_custom_words_v1";
 const SHARED_WORDS_CACHE_KEY = "ywp_shared_words_cache_v1";
+const MY_DECK_KEY = "ywp_my_deck_v1";
+const GOALS_KEY = "ywp_goals_v1";
+const GOAL_CHOICES = [5, 10, 15, 20];
 const LEVELS_KEY = "ywp_levels_v1"; // { en: "year4", ko: "kr_elem6" }
 const LANG_KEY = "ywp_lang_v1";
 const ADMIN_KEY = "ywp_admin_v1";
@@ -42,12 +45,23 @@ const TRANSLATIONS = {
     navWordlist: "📖 Word List",
     navAddword: "➕ Add Word",
     navStats: "📊 My Progress",
-    statsShortcutLabel: "My Progress",
     categoryLabel: "Category",
     optVocabulary: "Vocabulary",
     optSynonyms: "Synonyms & Antonyms",
     optHomophones: "Homophones",
     flashFrontModeLabel: "Flashcard front side",
+    flashSourceLabel: "Flashcard source",
+    flashSourceAuto: "🎲 Level words",
+    flashSourceMine: "⭐ My cards",
+    myDeckTitle: "⭐ My flashcards",
+    myDeckAddBtn: "Add to my cards",
+    myDeckClearBtn: "🗑️ Clear all",
+    myDeckClearConfirm: (n) => `Remove all ${n} of your own cards?`,
+    myDeckEmpty: "No cards of your own yet — add one above, or pick words in the Word List tab.",
+    myDeckEmptyCard: "No cards yet",
+    myDeckEmptyHint: "Add your own words below, or pick some in the Word List tab.",
+    myDeckAdded: (n) => `Added ${n} card${n === 1 ? "" : "s"}.`,
+    myDeckDuplicate: "That word is already in your cards.",
     flashFrontWord: "🔤 Word",
     flashFrontMeaning: "💡 Meaning",
     backLabel: "Back",
@@ -57,6 +71,13 @@ const TRANSLATIONS = {
     flashKnowIt: "😀 I know this!",
     flashEmptyWord: "No words yet",
     flashEmptyDef: (lvl) => `Add some ${lvl} words first!`,
+    goalLabel: "Target score",
+    goalOff: "🎯 No target",
+    goalOption: (n) => `🎯 ${n} correct`,
+    goalReached: (score, level) => `🎉 ${score} correct — you've hit your target for ${level}!`,
+    goalReachedTop: (score, level) => `🎉 ${score} correct on ${level} — that's the highest level. Brilliant!`,
+    goalNextLevelBtn: "🚀 Try the next level",
+    goalKeepGoingBtn: "Keep going",
     newQuizBtn: "🔄 New Quiz",
     nextQuestionBtn: "Next Question ➡",
     scoreLabel: (c, t) => `Score: ${c} / ${t}`,
@@ -81,6 +102,12 @@ const TRANSLATIONS = {
     wordlistSearchPlaceholder: "🔍 Search words...",
     wordlistEmpty: "No words found for this level yet.",
     wordlistAllLevels: "📚 All levels",
+    addToMyDeckBtn: "⭐ Add to my flashcards",
+    clearSelectionBtn: "Clear selection",
+    addedToMyDeck: (added, picked) =>
+      added === picked
+        ? `Added ${added} word${added === 1 ? "" : "s"} to your flashcards.`
+        : `Added ${added} of ${picked} — the rest were already in your flashcards.`,
     wordlistCount: (n) => `${n} word${n === 1 ? "" : "s"}`,
     masteryNew: "New",
     masteryPct: (pct) => `${pct}% mastered`,
@@ -125,7 +152,12 @@ const TRANSLATIONS = {
     ocrNoDefFound: "(No definition found — tap Edit to add one.)",
     myAddedWordsTitle: "📝 My added words",
     myAddedWordsEmpty: "You haven't added any words yet.",
-    sortMissingFirstBtn: "⚠️ Missing meaning first",
+    customSearchPlaceholder: "🔍 Search added words...",
+    sortRecent: "🕒 Newest first",
+    sortOldest: "🕒 Oldest first",
+    sortAz: "🔤 A → Z",
+    sortZa: "🔤 Z → A",
+    sortMissing: "⚠️ Missing meaning first",
     deleteSelectedBtn: "🗑️ Delete Selected",
     deleteSelectedConfirm: (n) => `Delete ${n} selected word(s)?`,
     changeLevelPlaceholder: "📚 Change level",
@@ -180,12 +212,23 @@ const TRANSLATIONS = {
     navWordlist: "📖 단어장",
     navAddword: "➕ 단어 추가",
     navStats: "📊 내 진행상황",
-    statsShortcutLabel: "내 진행상황",
     categoryLabel: "카테고리",
     optVocabulary: "어휘",
     optSynonyms: "동의어 & 반의어",
     optHomophones: "동음이의어",
     flashFrontModeLabel: "플래시카드 앞면",
+    flashSourceLabel: "플래시카드 출처",
+    flashSourceAuto: "🎲 레벨 단어",
+    flashSourceMine: "⭐ 나만의 카드",
+    myDeckTitle: "⭐ 나만의 플래시카드",
+    myDeckAddBtn: "내 카드에 추가",
+    myDeckClearBtn: "🗑️ 전체 삭제",
+    myDeckClearConfirm: (n) => `내 카드 ${n}개를 모두 지울까요?`,
+    myDeckEmpty: "아직 나만의 카드가 없어요 — 위에서 추가하거나 단어장 탭에서 골라보세요.",
+    myDeckEmptyCard: "카드가 없어요",
+    myDeckEmptyHint: "아래에서 단어를 추가하거나 단어장 탭에서 골라보세요.",
+    myDeckAdded: (n) => `카드 ${n}개를 추가했어요.`,
+    myDeckDuplicate: "이미 내 카드에 있는 단어예요.",
     flashFrontWord: "🔤 단어",
     flashFrontMeaning: "💡 뜻",
     backLabel: "이전",
@@ -195,6 +238,13 @@ const TRANSLATIONS = {
     flashKnowIt: "😀 알고 있어요!",
     flashEmptyWord: "단어가 없어요",
     flashEmptyDef: (lvl) => `먼저 ${lvl} 단어를 추가해주세요!`,
+    goalLabel: "목표 점수",
+    goalOff: "🎯 목표 없음",
+    goalOption: (n) => `🎯 ${n}개 맞히기`,
+    goalReached: (score, level) => `🎉 ${score}개 정답 — ${level} 목표를 달성했어요!`,
+    goalReachedTop: (score, level) => `🎉 ${level}에서 ${score}개 정답 — 가장 높은 레벨이에요. 정말 잘했어요!`,
+    goalNextLevelBtn: "🚀 다음 레벨 도전",
+    goalKeepGoingBtn: "계속하기",
     newQuizBtn: "🔄 새 퀴즈",
     nextQuestionBtn: "다음 문제 ➡",
     scoreLabel: (c, t) => `점수: ${c} / ${t}`,
@@ -219,6 +269,12 @@ const TRANSLATIONS = {
     wordlistSearchPlaceholder: "🔍 단어 검색...",
     wordlistEmpty: "이 레벨에는 아직 단어가 없어요.",
     wordlistAllLevels: "📚 전체 레벨",
+    addToMyDeckBtn: "⭐ 내 플래시카드에 추가",
+    clearSelectionBtn: "선택 해제",
+    addedToMyDeck: (added, picked) =>
+      added === picked
+        ? `${added}개를 내 플래시카드에 추가했어요.`
+        : `${picked}개 중 ${added}개를 추가했어요 — 나머지는 이미 들어있어요.`,
     wordlistCount: (n) => `단어 ${n}개`,
     masteryNew: "신규",
     masteryPct: (pct) => `${pct}% 숙달`,
@@ -263,7 +319,12 @@ const TRANSLATIONS = {
     ocrNoDefFound: "(뜻을 찾지 못했어요 — Edit 버튼으로 직접 입력해주세요.)",
     myAddedWordsTitle: "📝 내가 추가한 단어",
     myAddedWordsEmpty: "아직 추가한 단어가 없어요.",
-    sortMissingFirstBtn: "⚠️ 뜻 없는 단어 먼저",
+    customSearchPlaceholder: "🔍 추가한 단어 검색...",
+    sortRecent: "🕒 최근 추가순",
+    sortOldest: "🕒 오래된 순",
+    sortAz: "🔤 ㄱ/A → Z",
+    sortZa: "🔤 Z → A/ㄱ",
+    sortMissing: "⚠️ 뜻 없는 단어 먼저",
     deleteSelectedBtn: "🗑️ 선택 삭제",
     deleteSelectedConfirm: (n) => `선택한 단어 ${n}개를 삭제할까요?`,
     changeLevelPlaceholder: "📚 레벨 변경",
@@ -495,6 +556,64 @@ function migrateCustomWords(list) {
   return migrated;
 }
 
+// The learner's own flashcard deck — words they typed in or picked from the
+// word list. Personal to this browser, like their progress.
+function loadMyDeck() {
+  try {
+    const raw = localStorage.getItem(MY_DECK_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    console.warn("Could not read my flashcards", e);
+  }
+  return [];
+}
+
+function saveMyDeck() {
+  try {
+    localStorage.setItem(MY_DECK_KEY, JSON.stringify(myDeck));
+  } catch (e) {
+    console.warn("Could not save my flashcards", e);
+  }
+}
+
+// Returns how many were actually added, skipping words already in the deck.
+function addToMyDeck(entries) {
+  const have = new Set(myDeck.map((c) => c.word.toLowerCase()));
+  let added = 0;
+  entries.forEach((entry) => {
+    const word = (entry.word || "").trim();
+    if (!word || have.has(word.toLowerCase())) return;
+    have.add(word.toLowerCase());
+    myDeck.push({
+      word,
+      definition: (entry.definition || "").trim(),
+      example: (entry.example || "").trim(),
+      createdAt: Date.now(),
+    });
+    added++;
+  });
+  if (added) saveMyDeck();
+  return added;
+}
+
+function loadGoals() {
+  try {
+    const raw = localStorage.getItem(GOALS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    console.warn("Could not read saved goals", e);
+  }
+  return { quiz: 10, spelling: 10 };
+}
+
+function saveGoals() {
+  try {
+    localStorage.setItem(GOALS_KEY, JSON.stringify(goals));
+  } catch (e) {
+    console.warn("Could not save goals", e);
+  }
+}
+
 function loadLevels() {
   try {
     const raw = localStorage.getItem(LEVELS_KEY);
@@ -534,6 +653,8 @@ if (!progress.spellingStatus) progress.spellingStatus = {}; // back-compat for p
 let customWords = migrateCustomWords(loadCustomWords()).concat(
   loadSharedWordsCache().map((w) => ({ ...w, remote: true }))
 );
+let myDeck = loadMyDeck();
+let goals = loadGoals();
 let savedLevels = loadLevels();
 let currentLang = loadLang() || "en";
 let currentLevel = savedLevels[currentLang] || currentSystem_levels_default();
@@ -546,6 +667,39 @@ function currentSystem_levels_default() {
 function levelLabel(levelId) {
   const lv = currentSystem().levels.find((l) => l.id === levelId);
   return lv ? lv.label : levelId;
+}
+
+// The level after the current one, or null when already at the top.
+function nextLevelId() {
+  const ids = currentSystem().levels.map((lv) => lv.id);
+  const next = ids[ids.indexOf(currentLevel) + 1];
+  return next || null;
+}
+
+function populateGoalSelect(select, mode) {
+  select.innerHTML = "";
+  const off = document.createElement("option");
+  off.value = "0";
+  off.textContent = t("goalOff");
+  select.appendChild(off);
+  GOAL_CHOICES.forEach((n) => {
+    const opt = document.createElement("option");
+    opt.value = String(n);
+    opt.textContent = t("goalOption", n);
+    select.appendChild(opt);
+  });
+  select.value = String(goals[mode] || 0);
+}
+
+// Shows the congratulations panel once a round's correct count reaches the
+// target, offering the next level up as the next challenge.
+function showGoalReached(banner, message, nextLevelBtn, score) {
+  const next = nextLevelId();
+  message.textContent = next
+    ? t("goalReached", score, levelLabel(currentLevel))
+    : t("goalReachedTop", score, levelLabel(currentLevel));
+  nextLevelBtn.hidden = !next;
+  banner.hidden = false;
 }
 
 function shuffle(arr) {
@@ -700,6 +854,9 @@ function applyStaticTranslations() {
   document.getElementById("admin-login-cancel").textContent = t("adminLoginCancelBtn");
   document.getElementById("admin-toggle").textContent = t(isAdmin ? "adminLogoutBtn" : "adminLoginBtn");
   document.documentElement.lang = currentLang === "ko" ? "ko" : "en";
+  populateCustomSortSelect();
+  populateGoalSelect(quizGoalSelect, "quiz");
+  populateGoalSelect(spellingGoalSelect, "spelling");
   updateCategoryOptionVisibility();
   // These two show state (not static copy), so re-derive them after the
   // generic data-i18n sweep above may have reset them to their default text.
@@ -830,8 +987,6 @@ tabButtons.forEach((btn) => {
     goToTab(btn.dataset.view);
   });
 });
-
-document.getElementById("flash-stats-shortcut").addEventListener("click", () => goToTab("stats"));
 
 /* ---------- Shared word list API ---------- */
 // serverAdmin means the Worker accepted the password and issued a session, so
@@ -1012,6 +1167,17 @@ const flashDontKnowBtn = document.getElementById("flash-dont-know");
 const flashPrevBtn = document.getElementById("flash-prev");
 const flashNextBtn = document.getElementById("flash-next");
 
+const flashSourceSel = document.getElementById("flash-source");
+const myDeckCard = document.getElementById("my-deck-card");
+const myDeckForm = document.getElementById("my-deck-form");
+const myDeckWordInput = document.getElementById("my-deck-word");
+const myDeckDefInput = document.getElementById("my-deck-definition");
+const myDeckExampleInput = document.getElementById("my-deck-example");
+const myDeckList = document.getElementById("my-deck-list");
+const myDeckEmpty = document.getElementById("my-deck-empty");
+const myDeckCountEl = document.getElementById("my-deck-count");
+const myDeckClearBtn = document.getElementById("my-deck-clear-btn");
+
 let flashDeck = [];
 let flashIndex = 0;
 
@@ -1026,9 +1192,19 @@ function getFlashItems(category, level) {
   return getVocabPool(level);
 }
 
+function usingMyDeck() {
+  return flashSourceSel.value === "mine";
+}
+
 function buildFlashDeck() {
-  flashDeck = shuffle(getFlashItems(flashCategorySel.value, currentLevel));
+  const items = usingMyDeck() ? myDeck.slice() : getFlashItems(flashCategorySel.value, currentLevel);
+  flashDeck = shuffle(items);
   flashIndex = 0;
+  // The category only applies to the generated deck, and the deck editor only
+  // to your own cards.
+  flashCategorySel.disabled = usingMyDeck();
+  myDeckCard.hidden = !usingMyDeck();
+  if (usingMyDeck()) renderMyDeck();
   renderFlashcard();
 }
 
@@ -1036,8 +1212,8 @@ function renderFlashcard() {
   flashcardEl.classList.remove("flipped");
   if (flashDeck.length === 0) {
     flashcardEl.classList.remove("front-meaning");
-    flashWordEl.textContent = t("flashEmptyWord");
-    flashDefEl.textContent = t("flashEmptyDef", levelLabel(currentLevel));
+    flashWordEl.textContent = usingMyDeck() ? t("myDeckEmptyCard") : t("flashEmptyWord");
+    flashDefEl.textContent = usingMyDeck() ? t("myDeckEmptyHint") : t("flashEmptyDef", levelLabel(currentLevel));
     flashExampleEl.textContent = "";
     return;
   }
@@ -1103,10 +1279,76 @@ flashDontKnowBtn.addEventListener("click", () => {
 
 flashCategorySel.addEventListener("change", buildFlashDeck);
 flashFrontModeSel.addEventListener("change", renderFlashcard);
+flashSourceSel.addEventListener("change", buildFlashDeck);
+
+function renderMyDeck() {
+  myDeckList.innerHTML = "";
+  myDeckCountEl.textContent = myDeck.length ? t("wordlistCount", myDeck.length) : "";
+  myDeckEmpty.hidden = myDeck.length > 0;
+  myDeckClearBtn.disabled = myDeck.length === 0;
+
+  myDeck
+    .slice()
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .forEach((card) => {
+      const row = document.createElement("div");
+      row.className = "wordlist-item";
+
+      const left = document.createElement("div");
+      const wordEl = document.createElement("div");
+      wordEl.className = "w speakable-line";
+      wordEl.title = "Tap to hear";
+      wordEl.textContent = card.word;
+      wordEl.addEventListener("click", () => speak(card.word));
+      left.appendChild(wordEl);
+
+      const defEl = document.createElement("div");
+      defEl.className = "d";
+      defEl.textContent = card.definition;
+      left.appendChild(defEl);
+      row.appendChild(left);
+
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "delete-btn";
+      removeBtn.textContent = t("deleteBtn");
+      removeBtn.addEventListener("click", () => {
+        myDeck = myDeck.filter((c) => c !== card);
+        saveMyDeck();
+        buildFlashDeck();
+      });
+      row.appendChild(removeBtn);
+      myDeckList.appendChild(row);
+    });
+}
+
+myDeckForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const added = addToMyDeck([
+    { word: myDeckWordInput.value, definition: myDeckDefInput.value, example: myDeckExampleInput.value },
+  ]);
+  myDeckCountEl.textContent = added ? t("wordlistCount", myDeck.length) : t("myDeckDuplicate");
+  if (!added) return;
+  myDeckForm.reset();
+  buildFlashDeck();
+});
+
+myDeckClearBtn.addEventListener("click", () => {
+  if (myDeck.length === 0) return;
+  if (!confirm(t("myDeckClearConfirm", myDeck.length))) return;
+  myDeck = [];
+  saveMyDeck();
+  buildFlashDeck();
+});
 
 /* ================= QUIZ ================= */
 const quizCategorySel = document.getElementById("quiz-category");
 const quizRestartBtn = document.getElementById("quiz-restart");
+const quizGoalSelect = document.getElementById("quiz-goal");
+const quizGoalBanner = document.getElementById("quiz-goal-banner");
+const quizGoalMessage = document.getElementById("quiz-goal-message");
+const quizGoalNextLevelBtn = document.getElementById("quiz-goal-next-level");
+const quizGoalDismissBtn = document.getElementById("quiz-goal-dismiss");
+let quizGoalCelebrated = false;
 const quizQuestionEl = document.getElementById("quiz-question");
 const quizOptionsEl = document.getElementById("quiz-options");
 const quizScoreEl = document.getElementById("quiz-score");
@@ -1157,6 +1399,8 @@ function buildHomophoneQuestions(level) {
 }
 
 function buildQuizQuestions() {
+  quizGoalBanner.hidden = true;
+  quizGoalCelebrated = false;
   const cat = quizCategorySel.value;
   let pool;
   if (cat === "synonyms") pool = buildSynonymQuestions(currentLevel);
@@ -1224,6 +1468,12 @@ function handleQuizAnswer(btn, chosen, q) {
 
   quizNextBtn.style.display = "inline-block";
   updateQuizScoreLabel();
+
+  const goal = goals.quiz;
+  if (goal && !quizGoalCelebrated && quizScore >= goal) {
+    quizGoalCelebrated = true;
+    showGoalReached(quizGoalBanner, quizGoalMessage, quizGoalNextLevelBtn, quizScore);
+  }
 }
 
 function updateQuizScoreLabel() {
@@ -1240,6 +1490,25 @@ quizQuestionEl.addEventListener("click", () => speak(quizQuestionEl.textContent)
 quizRestartBtn.addEventListener("click", buildQuizQuestions);
 quizCategorySel.addEventListener("change", buildQuizQuestions);
 
+quizGoalSelect.addEventListener("change", () => {
+  goals.quiz = Number(quizGoalSelect.value);
+  saveGoals();
+  quizGoalBanner.hidden = true;
+  quizGoalCelebrated = false;
+});
+
+quizGoalDismissBtn.addEventListener("click", () => {
+  quizGoalBanner.hidden = true;
+});
+
+quizGoalNextLevelBtn.addEventListener("click", () => {
+  const next = nextLevelId();
+  if (!next) return;
+  applyLevel(next);
+  goToTab("quiz");
+  buildQuizQuestions();
+});
+
 /* ================= SPELLING ================= */
 const spellingStartScreen = document.getElementById("spelling-start-screen");
 const spellingStartBtn = document.getElementById("spelling-start-btn");
@@ -1251,6 +1520,12 @@ const spellingBackBtn = document.getElementById("spelling-back");
 const spellingSkipBtn = document.getElementById("spelling-skip");
 const spellingNextBtn = document.getElementById("spelling-next");
 const spellingScoreEl = document.getElementById("spelling-score");
+const spellingGoalSelect = document.getElementById("spelling-goal");
+const spellingGoalBanner = document.getElementById("spelling-goal-banner");
+const spellingGoalMessage = document.getElementById("spelling-goal-message");
+const spellingGoalNextLevelBtn = document.getElementById("spelling-goal-next-level");
+const spellingGoalDismissBtn = document.getElementById("spelling-goal-dismiss");
+let spellingGoalCelebrated = false;
 const spellingFinishBtn = document.getElementById("spelling-finish-btn");
 const spellingReport = document.getElementById("spelling-report");
 const spellingReportList = document.getElementById("spelling-report-list");
@@ -1266,6 +1541,8 @@ let spellingWrongThisRound = new Set(); // this round only — word had >=1 wron
 let spellingSessionWrongWords = new Map(); // word -> {word, meaning} — for the end-of-round report
 
 function buildSpellingDeck() {
+  spellingGoalBanner.hidden = true;
+  spellingGoalCelebrated = false;
   const pool = getSpellingPool(currentLevel);
   const status = progress.spellingStatus;
   const wrongWords = pool.filter((w) => status[w.word] === "wrong");
@@ -1358,6 +1635,12 @@ function attemptSpellingNext() {
     updateSpellingScoreLabel();
     spellingIndex++;
     loadSpellingWord();
+
+    const goal = goals.spelling;
+    if (goal && !spellingGoalCelebrated && spellingScore.correct >= goal) {
+      spellingGoalCelebrated = true;
+      showGoalReached(spellingGoalBanner, spellingGoalMessage, spellingGoalNextLevelBtn, spellingScore.correct);
+    }
   } else {
     spellingWrongThisRound.add(current.word);
     progress.spellingStatus[current.word] = "wrong";
@@ -1434,11 +1717,40 @@ spellingReportRestartBtn.addEventListener("click", () => {
   buildSpellingDeck();
 });
 
+spellingGoalSelect.addEventListener("change", () => {
+  goals.spelling = Number(spellingGoalSelect.value);
+  saveGoals();
+  spellingGoalBanner.hidden = true;
+  spellingGoalCelebrated = false;
+});
+
+spellingGoalDismissBtn.addEventListener("click", () => {
+  spellingGoalBanner.hidden = true;
+});
+
+spellingGoalNextLevelBtn.addEventListener("click", () => {
+  const next = nextLevelId();
+  if (!next) return;
+  applyLevel(next);
+  goToTab("spelling");
+  buildSpellingDeck();
+});
+
 /* ================= WORD LIST ================= */
 const wordlistSearch = document.getElementById("wordlist-search");
 const wordlistGrid = document.getElementById("wordlist-grid");
 const wordlistLevelSelect = document.getElementById("wordlist-level");
 const wordlistCountEl = document.getElementById("wordlist-count");
+const wordlistAddDeckBtn = document.getElementById("wordlist-add-deck-btn");
+const wordlistClearSelectionBtn = document.getElementById("wordlist-clear-selection-btn");
+// Keyed by word, since the same word can be reached under several levels.
+const selectedWordlistWords = new Map();
+
+function updateWordlistSelectionButtons() {
+  const none = selectedWordlistWords.size === 0;
+  wordlistAddDeckBtn.disabled = none;
+  wordlistClearSelectionBtn.disabled = none;
+}
 
 function masteryLabel(word) {
   if (progress.spellingStatus[word] === "wrong") return { text: t("spellingWrongBadge"), cls: "low" };
@@ -1454,6 +1766,17 @@ function masteryLabel(word) {
 function buildWordRow(w) {
   const row = document.createElement("div");
   row.className = "wordlist-item";
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.className = "cw-select";
+  checkbox.checked = selectedWordlistWords.has(w.word);
+  checkbox.addEventListener("change", () => {
+    if (checkbox.checked) selectedWordlistWords.set(w.word, w);
+    else selectedWordlistWords.delete(w.word);
+    updateWordlistSelectionButtons();
+  });
+  row.appendChild(checkbox);
 
   const left = document.createElement("div");
 
@@ -1528,6 +1851,7 @@ function renderWordList() {
   });
 
   wordlistCountEl.textContent = t("wordlistCount", words.length);
+  updateWordlistSelectionButtons();
   if (words.length === 0) {
     const p = document.createElement("p");
     p.className = "muted";
@@ -1540,6 +1864,22 @@ function renderWordList() {
 
 wordlistSearch.addEventListener("input", renderWordList);
 wordlistLevelSelect.addEventListener("change", renderWordList);
+
+wordlistAddDeckBtn.addEventListener("click", () => {
+  const picked = Array.from(selectedWordlistWords.values());
+  if (picked.length === 0) return;
+  const added = addToMyDeck(picked);
+  selectedWordlistWords.clear();
+  renderWordList();
+  buildFlashDeck();
+  // After the re-render, so it isn't overwritten by the count.
+  wordlistCountEl.textContent = t("addedToMyDeck", added, picked.length);
+});
+
+wordlistClearSelectionBtn.addEventListener("click", () => {
+  selectedWordlistWords.clear();
+  renderWordList();
+});
 
 /* ================= ADD WORD (manual + OCR) ================= */
 const manualForm = document.getElementById("manual-add-form");
@@ -1557,13 +1897,27 @@ const customWordsFailedText = document.getElementById("custom-words-failed-text"
 const customWordsStatus = document.getElementById("custom-words-status");
 const customRetryAllBtn = document.getElementById("custom-retry-all-btn");
 const customDeleteFailedBtn = document.getElementById("custom-delete-failed-btn");
-const customSortToggleBtn = document.getElementById("custom-sort-toggle-btn");
+const customSearchInput = document.getElementById("custom-search");
+const customSortSelect = document.getElementById("custom-sort");
+const customWordsCountEl = document.getElementById("custom-words-count");
+const CUSTOM_SORTS = ["recent", "oldest", "az", "za", "missing"];
 const customDeleteSelectedBtn = document.getElementById("custom-delete-selected-btn");
 const customUploadBtn = document.getElementById("custom-upload-btn");
 const customLevelSelect = document.getElementById("custom-level-select");
 const customStorageNote = document.getElementById("custom-words-storage-note");
-let sortMissingFirst = false;
 let selectedCustomWordIds = new Set();
+
+function populateCustomSortSelect() {
+  const previous = customSortSelect.value || "recent";
+  customSortSelect.innerHTML = "";
+  CUSTOM_SORTS.forEach((id) => {
+    const opt = document.createElement("option");
+    opt.value = id;
+    opt.textContent = t(`sort${id.charAt(0).toUpperCase()}${id.slice(1)}`);
+    customSortSelect.appendChild(opt);
+  });
+  customSortSelect.value = previous;
+}
 const ocrLevelSelectEl = document.getElementById("ocr-level");
 const addModeSingleBtn = document.getElementById("add-mode-single-btn");
 const addModeBulkBtn = document.getElementById("add-mode-bulk-btn");
@@ -1897,8 +2251,6 @@ function renderCustomWords() {
     customWordsFailedBanner.hidden = true;
   }
 
-  customSortToggleBtn.classList.toggle("primary", sortMissingFirst);
-  customSortToggleBtn.classList.toggle("neutral", !sortMissingFirst);
   updateDeleteSelectedBtn();
 
   // Words still held only in this browser can be pushed up to the shared list.
@@ -1911,21 +2263,33 @@ function renderCustomWords() {
   customWordsGrid.innerHTML = "";
   if (customWords.length === 0) {
     customWordsEmpty.hidden = false;
+    customWordsCountEl.textContent = "";
     return;
   }
   customWordsEmpty.hidden = true;
 
-  customWords
-    .slice()
-    .sort((a, b) => {
-      if (sortMissingFirst) {
-        const aMissing = cwNoDefinition(a) ? 0 : 1;
-        const bMissing = cwNoDefinition(b) ? 0 : 1;
-        if (aMissing !== bMissing) return aMissing - bMissing;
-      }
-      return b.createdAt - a.createdAt;
-    })
-    .forEach((w) => {
+  const query = customSearchInput.value.trim().toLowerCase();
+  const sort = customSortSelect.value || "recent";
+  const shown = customWords.filter((w) => {
+    if (!query) return true;
+    const meaning = cwDefinition(w) || "";
+    return w.word.toLowerCase().includes(query) || meaning.toLowerCase().includes(query);
+  });
+
+  shown.sort((a, b) => {
+    if (sort === "az") return a.word.localeCompare(b.word);
+    if (sort === "za") return b.word.localeCompare(a.word);
+    if (sort === "oldest") return a.createdAt - b.createdAt;
+    if (sort === "missing") {
+      const aMissing = cwNoDefinition(a) ? 0 : 1;
+      const bMissing = cwNoDefinition(b) ? 0 : 1;
+      if (aMissing !== bMissing) return aMissing - bMissing;
+    }
+    return b.createdAt - a.createdAt;
+  });
+
+  customWordsCountEl.textContent = t("wordlistCount", shown.length);
+  shown.forEach((w) => {
       const row = document.createElement("div");
       row.className = "wordlist-item";
 
@@ -2015,10 +2379,8 @@ function renderCustomWords() {
 customRetryAllBtn.addEventListener("click", retryAllFailedWords);
 customDeleteFailedBtn.addEventListener("click", deleteAllFailedWords);
 
-customSortToggleBtn.addEventListener("click", () => {
-  sortMissingFirst = !sortMissingFirst;
-  renderCustomWords();
-});
+customSearchInput.addEventListener("input", renderCustomWords);
+customSortSelect.addEventListener("change", renderCustomWords);
 
 // Bulk levels are set for the language track you're looking at; the other
 // track keeps the level that was guessed for it, the same as editing one word.

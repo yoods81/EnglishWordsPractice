@@ -66,9 +66,10 @@
             <option value="word" data-i18n="flashFrontWord">🔤 Word</option>
             <option value="meaning" data-i18n="flashFrontMeaning">💡 Meaning</option>
           </select>
-          <button type="button" class="pill neutral icon-btn" id="flash-stats-shortcut" style="margin-left:auto;">
-            <span class="btn-icon">📊</span><span class="btn-label" data-i18n="statsShortcutLabel">My Progress</span>
-          </button>
+          <select id="flash-source" data-i18n-aria-label="flashSourceLabel" aria-label="Flashcard source" style="margin-left:auto;">
+            <option value="auto" data-i18n="flashSourceAuto">🎲 Level words</option>
+            <option value="mine" data-i18n="flashSourceMine">⭐ My cards</option>
+          </select>
         </div>
         <div class="flashcard-row">
           <button class="pill neutral flash-side-btn" id="flash-prev">
@@ -96,6 +97,35 @@
           <button class="pill success" id="flash-know" data-i18n="flashKnowIt">😀 I know this!</button>
         </div>
       </div>
+
+      <div class="card" id="my-deck-card" hidden>
+        <div class="my-added-words-header">
+          <h3 data-i18n="myDeckTitle">⭐ My flashcards</h3>
+          <div class="my-added-words-header-actions">
+            <button type="button" class="pill neutral small" id="my-deck-clear-btn" data-i18n="myDeckClearBtn">🗑️ Clear all</button>
+          </div>
+        </div>
+        <form id="my-deck-form">
+          <div class="form-row">
+            <label for="my-deck-word" data-i18n="labelWord">Word *</label>
+            <input type="text" id="my-deck-word" required data-i18n-placeholder="phWord" placeholder="e.g. resilient" />
+          </div>
+          <div class="form-row">
+            <label for="my-deck-definition" data-i18n="labelMeaning">Meaning *</label>
+            <input type="text" id="my-deck-definition" required data-i18n-placeholder="phMeaning" placeholder="e.g. able to recover quickly from difficulties" />
+          </div>
+          <div class="form-row">
+            <label for="my-deck-example" data-i18n="labelExample">Example sentence</label>
+            <input type="text" id="my-deck-example" data-i18n-placeholder="phExample" placeholder="e.g. The resilient plant grew back after the fire." />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="pill primary" id="my-deck-save-btn" data-i18n="myDeckAddBtn">Add to my cards</button>
+          </div>
+        </form>
+        <p class="muted wordlist-count" id="my-deck-count"></p>
+        <div class="wordlist-grid" id="my-deck-list"></div>
+        <p class="muted" id="my-deck-empty" hidden data-i18n="myDeckEmpty">No cards of your own yet — add one above, or pick words in the Word List tab.</p>
+      </div>
     </section>
 
     <!-- Quiz -->
@@ -108,7 +138,15 @@
             <option value="synonyms" data-i18n="optSynonyms">Synonyms &amp; Antonyms</option>
             <option value="homophones" data-i18n="optHomophones">Homophones</option>
           </select>
+          <select id="quiz-goal" class="wordlist-level-select" data-i18n-aria-label="goalLabel" aria-label="Target score"></select>
           <button class="pill primary" id="quiz-restart" style="margin-left:auto;" data-i18n="newQuizBtn">🔄 New Quiz</button>
+        </div>
+        <div class="goal-banner" id="quiz-goal-banner" hidden>
+          <p class="goal-message" id="quiz-goal-message"></p>
+          <div class="goal-actions">
+            <button type="button" class="pill success" id="quiz-goal-next-level" data-i18n="goalNextLevelBtn">🚀 Try the next level</button>
+            <button type="button" class="pill neutral" id="quiz-goal-dismiss" data-i18n="goalKeepGoingBtn">Keep going</button>
+          </div>
         </div>
         <div class="progress-bar"><div class="progress-bar-fill" id="quiz-progress-fill"></div></div>
         <div id="quiz-question" class="speakable-line" title="Tap to hear">Question</div>
@@ -123,6 +161,17 @@
     <!-- Spelling -->
     <section id="view-spelling" class="view">
       <div class="card">
+        <div class="setting-row setting-row-nowrap">
+          <label for="spelling-goal" data-i18n="goalLabel">Target score</label>
+          <select id="spelling-goal" class="wordlist-level-select"></select>
+        </div>
+        <div class="goal-banner" id="spelling-goal-banner" hidden>
+          <p class="goal-message" id="spelling-goal-message"></p>
+          <div class="goal-actions">
+            <button type="button" class="pill success" id="spelling-goal-next-level" data-i18n="goalNextLevelBtn">🚀 Try the next level</button>
+            <button type="button" class="pill neutral" id="spelling-goal-dismiss" data-i18n="goalKeepGoingBtn">Keep going</button>
+          </div>
+        </div>
         <div id="spelling-start-screen">
           <button class="pill primary" id="spelling-start-btn" data-i18n="spellingStartBtn">▶ Start the first word</button>
         </div>
@@ -162,6 +211,10 @@
         <div class="wordlist-filters">
           <input type="text" class="wordlist-search" id="wordlist-search" data-i18n-placeholder="wordlistSearchPlaceholder" placeholder="🔍 Search words..." />
           <select id="wordlist-level" class="wordlist-level-select"></select>
+        </div>
+        <div class="my-added-words-header-actions">
+          <button type="button" class="pill accent small" id="wordlist-add-deck-btn" data-i18n="addToMyDeckBtn" disabled>⭐ Add to my flashcards</button>
+          <button type="button" class="pill neutral small" id="wordlist-clear-selection-btn" data-i18n="clearSelectionBtn" disabled>Clear selection</button>
         </div>
         <p class="muted wordlist-count" id="wordlist-count"></p>
         <div class="wordlist-grid" id="wordlist-grid"></div>
@@ -248,9 +301,13 @@
             <button type="button" class="pill accent small" id="custom-upload-btn" hidden>☁️ Upload</button>
             <select id="custom-level-select" class="level-bulk-select" disabled></select>
             <button type="button" class="pill neutral small" id="custom-delete-selected-btn" data-i18n="deleteSelectedBtn" disabled>🗑️ Delete Selected</button>
-            <button type="button" class="pill neutral small" id="custom-sort-toggle-btn" data-i18n="sortMissingFirstBtn">⚠️ Missing meaning first</button>
           </div>
         </div>
+        <div class="wordlist-filters">
+          <input type="text" class="wordlist-search" id="custom-search" data-i18n-placeholder="customSearchPlaceholder" placeholder="🔍 Search added words..." />
+          <select id="custom-sort" class="wordlist-level-select"></select>
+        </div>
+        <p class="muted wordlist-count" id="custom-words-count"></p>
         <p class="muted" id="custom-words-storage-note" hidden></p>
         <div class="ocr-review-header failed-words-banner" id="custom-words-failed-banner" hidden>
           <p class="muted" id="custom-words-failed-text"></p>

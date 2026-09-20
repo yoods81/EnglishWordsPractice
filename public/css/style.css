@@ -577,6 +577,33 @@ button.pill:disabled {
   font-size: 0.8rem;
 }
 
+.goal-banner {
+  background: #e4f8ef;
+  border: 1px solid #a8e2c7;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.goal-banner[hidden] {
+  display: none;
+}
+
+.goal-message {
+  margin: 0 0 10px;
+  font-weight: 700;
+  color: #1c7a55;
+  font-size: 0.9rem;
+}
+
+.goal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 .wordlist-count {
   margin: 0 0 8px;
   font-size: 0.75rem;
