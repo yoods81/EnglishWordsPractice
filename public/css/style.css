@@ -553,13 +553,33 @@ button.pill:disabled {
 }
 
 /* Word list */
+.wordlist-filters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
 .wordlist-search {
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
   padding: 8px 12px;
   border-radius: 999px;
   border: 1px solid #d9deec;
-  margin-bottom: 12px;
   font-size: 0.9rem;
+}
+
+.wordlist-level-select {
+  flex: 0 1 auto;
+  min-width: 0;
+  border-radius: 999px;
+  padding: 8px 10px;
+  font-size: 0.8rem;
+}
+
+.wordlist-count {
+  margin: 0 0 8px;
+  font-size: 0.75rem;
 }
 
 .wordlist-grid {

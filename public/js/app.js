@@ -80,6 +80,8 @@ const TRANSLATIONS = {
     spellingWrongBadge: "Incorrect",
     wordlistSearchPlaceholder: "🔍 Search words...",
     wordlistEmpty: "No words found for this level yet.",
+    wordlistAllLevels: "📚 All levels",
+    wordlistCount: (n) => `${n} word${n === 1 ? "" : "s"}`,
     masteryNew: "New",
     masteryPct: (pct) => `${pct}% mastered`,
     addWordManualTitle: "➕ Add a word manually",
@@ -216,6 +218,8 @@ const TRANSLATIONS = {
     spellingWrongBadge: "틀린문제",
     wordlistSearchPlaceholder: "🔍 단어 검색...",
     wordlistEmpty: "이 레벨에는 아직 단어가 없어요.",
+    wordlistAllLevels: "📚 전체 레벨",
+    wordlistCount: (n) => `단어 ${n}개`,
     masteryNew: "신규",
     masteryPct: (pct) => `${pct}% 숙달`,
     addWordManualTitle: "➕ 단어 직접 추가하기",
@@ -1433,6 +1437,8 @@ spellingReportRestartBtn.addEventListener("click", () => {
 /* ================= WORD LIST ================= */
 const wordlistSearch = document.getElementById("wordlist-search");
 const wordlistGrid = document.getElementById("wordlist-grid");
+const wordlistLevelSelect = document.getElementById("wordlist-level");
+const wordlistCountEl = document.getElementById("wordlist-count");
 
 function masteryLabel(word) {
   if (progress.spellingStatus[word] === "wrong") return { text: t("spellingWrongBadge"), cls: "low" };
@@ -1505,18 +1511,23 @@ function renderWordList() {
   const query = wordlistSearch.value.trim().toLowerCase();
   wordlistGrid.innerHTML = "";
 
-  // With an empty box you're browsing the level you picked. Once you type,
-  // search every level — a word added automatically lands in whichever level
-  // was guessed for it, which usually isn't the one you happen to be on.
-  const levels = query ? currentSystem().levels.map((lv) => lv.id) : [currentLevel];
+  // The dropdown picks which level to browse ("" = all of them). Searching
+  // always spans every level regardless: a word added automatically lands in
+  // whichever level was guessed for it, which usually isn't the one you're on.
+  const spanAllLevels = wordlistLevelSelect.value === "" || !!query;
+  const levels = spanAllLevels ? currentSystem().levels.map((lv) => lv.id) : [wordlistLevelSelect.value];
+
   const words = [];
   levels.forEach((level) => {
     getAllWordsForLevel(level).forEach((w) => {
       if (!w.word.toLowerCase().includes(query)) return;
       if (words.some((seen) => seen.word === w.word)) return;
-      words.push(level === currentLevel ? w : { ...w, level });
+      // The level badge only earns its place when more than one is on screen.
+      words.push(spanAllLevels ? { ...w, level } : w);
     });
   });
+
+  wordlistCountEl.textContent = t("wordlistCount", words.length);
   if (words.length === 0) {
     const p = document.createElement("p");
     p.className = "muted";
@@ -1528,6 +1539,7 @@ function renderWordList() {
 }
 
 wordlistSearch.addEventListener("input", renderWordList);
+wordlistLevelSelect.addEventListener("change", renderWordList);
 
 /* ================= ADD WORD (manual + OCR) ================= */
 const manualForm = document.getElementById("manual-add-form");
@@ -1668,6 +1680,27 @@ function populateLevelSelects() {
     sel.value = currentLevel;
   });
   populateBulkLevelSelect();
+  populateWordlistLevelSelect();
+}
+
+// Follows the level you're practising, unless you've deliberately switched
+// the word list over to showing every level.
+function populateWordlistLevelSelect() {
+  // An empty select reads as "" too, so only treat it as the all-levels
+  // choice once the options are actually there to have chosen from.
+  const wasShowingAllLevels = wordlistLevelSelect.options.length > 0 && wordlistLevelSelect.value === "";
+  wordlistLevelSelect.innerHTML = "";
+  const all = document.createElement("option");
+  all.value = "";
+  all.textContent = t("wordlistAllLevels");
+  wordlistLevelSelect.appendChild(all);
+  currentSystem().levels.forEach((lv) => {
+    const opt = document.createElement("option");
+    opt.value = lv.id;
+    opt.textContent = lv.label;
+    wordlistLevelSelect.appendChild(opt);
+  });
+  wordlistLevelSelect.value = wasShowingAllLevels ? "" : currentLevel;
 }
 
 // Unlike the selects above this one isn't reporting a level, it's an action —
@@ -2001,6 +2034,7 @@ customLevelSelect.addEventListener("change", () => {
   selected.forEach((w) => {
     w[levelKey(currentLang)] = level;
   });
+  selectedCustomWordIds.clear();
   saveCustomWords();
   customWordsStatus.textContent = t("changeLevelDone", selected.length, label);
   renderCustomWords();

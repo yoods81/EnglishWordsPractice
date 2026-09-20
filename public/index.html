@@ -159,7 +159,11 @@
     <!-- Word list -->
     <section id="view-wordlist" class="view">
       <div class="card">
-        <input type="text" class="wordlist-search" id="wordlist-search" data-i18n-placeholder="wordlistSearchPlaceholder" placeholder="🔍 Search words..." />
+        <div class="wordlist-filters">
+          <input type="text" class="wordlist-search" id="wordlist-search" data-i18n-placeholder="wordlistSearchPlaceholder" placeholder="🔍 Search words..." />
+          <select id="wordlist-level" class="wordlist-level-select"></select>
+        </div>
+        <p class="muted wordlist-count" id="wordlist-count"></p>
         <div class="wordlist-grid" id="wordlist-grid"></div>
       </div>
     </section>
