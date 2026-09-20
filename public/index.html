@@ -105,6 +105,12 @@
             <button type="button" class="pill neutral small" id="my-deck-clear-btn" data-i18n="myDeckClearBtn">🗑️ Clear all</button>
           </div>
         </div>
+        <div class="add-mode-toggle">
+          <button type="button" class="pill primary" id="my-deck-mode-manual" data-i18n="myDeckModeManual">✏️ Add manually</button>
+          <button type="button" class="pill neutral" id="my-deck-mode-bulk" data-i18n="myDeckModeBulk">📋 Multiple words</button>
+          <button type="button" class="pill neutral" id="my-deck-mode-search" data-i18n="myDeckModeSearch">🔍 Search &amp; add</button>
+        </div>
+
         <form id="my-deck-form">
           <div class="form-row">
             <label for="my-deck-word" data-i18n="labelWord">Word *</label>
@@ -122,6 +128,25 @@
             <button type="submit" class="pill primary" id="my-deck-save-btn" data-i18n="myDeckAddBtn">Add to my cards</button>
           </div>
         </form>
+
+        <div id="my-deck-bulk" hidden>
+          <div class="form-row">
+            <label for="my-deck-bulk-input" data-i18n="bulkWordsLabel">Words (one per line, or separated by commas)</label>
+            <textarea id="my-deck-bulk-input" rows="5" data-i18n-placeholder="bulkWordsPlaceholder" placeholder="resilient&#10;magnificent&#10;curious"></textarea>
+          </div>
+          <p class="muted" data-i18n="myDeckBulkHint">We'll look up each word's meaning and example for you.</p>
+          <div class="form-actions">
+            <button type="button" class="pill primary" id="my-deck-bulk-save-btn" data-i18n="bulkAddSaveBtn">Save words</button>
+          </div>
+          <div id="my-deck-bulk-status" class="spelling-tip"></div>
+        </div>
+
+        <div id="my-deck-search" hidden>
+          <input type="text" class="wordlist-search" id="my-deck-search-input" data-i18n-placeholder="myDeckSearchPlaceholder" placeholder="🔍 Search the word lists..." />
+          <p class="muted" id="my-deck-search-status"></p>
+          <div class="wordlist-grid" id="my-deck-search-results"></div>
+        </div>
+
         <p class="muted wordlist-count" id="my-deck-count"></p>
         <div class="wordlist-grid" id="my-deck-list"></div>
         <p class="muted" id="my-deck-empty" hidden data-i18n="myDeckEmpty">No cards of your own yet — add one above, or pick words in the Word List tab.</p>

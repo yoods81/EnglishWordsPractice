@@ -55,6 +55,16 @@ const TRANSLATIONS = {
     flashSourceMine: "⭐ My cards",
     myDeckTitle: "⭐ My flashcards",
     myDeckAddBtn: "Add to my cards",
+    myDeckModeManual: "✏️ Add manually",
+    myDeckModeBulk: "📋 Multiple words",
+    myDeckModeSearch: "🔍 Search & add",
+    myDeckBulkHint: "We'll look up each word's meaning and example for you.",
+    myDeckSearchPlaceholder: "🔍 Search the word lists...",
+    myDeckSearchHint: "Type to search every level of the current word lists.",
+    myDeckSearchNone: "No words match that.",
+    myDeckSearchCount: (n) => `${n} match${n === 1 ? "" : "es"} — tap ⭐ to add`,
+    myDeckInDeck: "In your cards",
+    myDeckAddOne: "⭐ Add",
     myDeckClearBtn: "🗑️ Clear all",
     myDeckClearConfirm: (n) => `Remove all ${n} of your own cards?`,
     myDeckEmpty: "No cards of your own yet — add one above, or pick words in the Word List tab.",
@@ -222,6 +232,16 @@ const TRANSLATIONS = {
     flashSourceMine: "⭐ 나만의 카드",
     myDeckTitle: "⭐ 나만의 플래시카드",
     myDeckAddBtn: "내 카드에 추가",
+    myDeckModeManual: "✏️ 직접 추가",
+    myDeckModeBulk: "📋 여러 단어",
+    myDeckModeSearch: "🔍 검색해서 추가",
+    myDeckBulkHint: "각 단어의 뜻과 예문을 자동으로 찾아드려요.",
+    myDeckSearchPlaceholder: "🔍 단어장에서 검색...",
+    myDeckSearchHint: "입력하면 현재 단어장의 모든 레벨에서 찾아드려요.",
+    myDeckSearchNone: "일치하는 단어가 없어요.",
+    myDeckSearchCount: (n) => `${n}개 검색됨 — ⭐를 눌러 추가하세요`,
+    myDeckInDeck: "내 카드에 있음",
+    myDeckAddOne: "⭐ 추가",
     myDeckClearBtn: "🗑️ 전체 삭제",
     myDeckClearConfirm: (n) => `내 카드 ${n}개를 모두 지울까요?`,
     myDeckEmpty: "아직 나만의 카드가 없어요 — 위에서 추가하거나 단어장 탭에서 골라보세요.",
@@ -1177,6 +1197,17 @@ const myDeckList = document.getElementById("my-deck-list");
 const myDeckEmpty = document.getElementById("my-deck-empty");
 const myDeckCountEl = document.getElementById("my-deck-count");
 const myDeckClearBtn = document.getElementById("my-deck-clear-btn");
+const myDeckModeManualBtn = document.getElementById("my-deck-mode-manual");
+const myDeckModeBulkBtn = document.getElementById("my-deck-mode-bulk");
+const myDeckModeSearchBtn = document.getElementById("my-deck-mode-search");
+const myDeckBulkPanel = document.getElementById("my-deck-bulk");
+const myDeckBulkInput = document.getElementById("my-deck-bulk-input");
+const myDeckBulkSaveBtn = document.getElementById("my-deck-bulk-save-btn");
+const myDeckBulkStatus = document.getElementById("my-deck-bulk-status");
+const myDeckSearchPanel = document.getElementById("my-deck-search");
+const myDeckSearchInput = document.getElementById("my-deck-search-input");
+const myDeckSearchStatus = document.getElementById("my-deck-search-status");
+const myDeckSearchResults = document.getElementById("my-deck-search-results");
 
 let flashDeck = [];
 let flashIndex = 0;
@@ -1282,6 +1313,8 @@ flashFrontModeSel.addEventListener("change", renderFlashcard);
 flashSourceSel.addEventListener("change", buildFlashDeck);
 
 function renderMyDeck() {
+  // Keeps the "in your cards" tags honest when the deck changes underneath.
+  if (!myDeckSearchPanel.hidden) renderMyDeckSearch();
   myDeckList.innerHTML = "";
   myDeckCountEl.textContent = myDeck.length ? t("wordlistCount", myDeck.length) : "";
   myDeckEmpty.hidden = myDeck.length > 0;
@@ -1320,6 +1353,123 @@ function renderMyDeck() {
       myDeckList.appendChild(row);
     });
 }
+
+function setMyDeckMode(mode) {
+  myDeckForm.hidden = mode !== "manual";
+  myDeckBulkPanel.hidden = mode !== "bulk";
+  myDeckSearchPanel.hidden = mode !== "search";
+  [
+    [myDeckModeManualBtn, "manual"],
+    [myDeckModeBulkBtn, "bulk"],
+    [myDeckModeSearchBtn, "search"],
+  ].forEach(([btn, id]) => {
+    btn.classList.toggle("primary", mode === id);
+    btn.classList.toggle("neutral", mode !== id);
+  });
+  if (mode === "search") renderMyDeckSearch();
+}
+
+setMyDeckMode("manual");
+myDeckModeManualBtn.addEventListener("click", () => setMyDeckMode("manual"));
+myDeckModeBulkBtn.addEventListener("click", () => setMyDeckMode("bulk"));
+myDeckModeSearchBtn.addEventListener("click", () => setMyDeckMode("search"));
+
+// Looks through every level of the current language track, the same words the
+// Word List tab shows, so a card can be built without retyping a meaning.
+function searchWordsAcrossLevels(query) {
+  const found = [];
+  currentSystem().levels.forEach((lv) => {
+    getAllWordsForLevel(lv.id).forEach((w) => {
+      if (!w.word.toLowerCase().includes(query)) return;
+      if (found.some((f) => f.word === w.word)) return;
+      found.push(w);
+    });
+  });
+  return found;
+}
+
+function renderMyDeckSearch() {
+  const query = myDeckSearchInput.value.trim().toLowerCase();
+  myDeckSearchResults.innerHTML = "";
+  if (!query) {
+    myDeckSearchStatus.textContent = t("myDeckSearchHint");
+    return;
+  }
+
+  const matches = searchWordsAcrossLevels(query).slice(0, 50);
+  myDeckSearchStatus.textContent = matches.length ? t("myDeckSearchCount", matches.length) : t("myDeckSearchNone");
+
+  const inDeck = new Set(myDeck.map((c) => c.word.toLowerCase()));
+  matches.forEach((w) => {
+    const row = document.createElement("div");
+    row.className = "wordlist-item";
+
+    const left = document.createElement("div");
+    const wordEl = document.createElement("div");
+    wordEl.className = "w";
+    wordEl.textContent = w.word;
+    left.appendChild(wordEl);
+    const defEl = document.createElement("div");
+    defEl.className = "d";
+    defEl.textContent = w.definition;
+    left.appendChild(defEl);
+    row.appendChild(left);
+
+    if (inDeck.has(w.word.toLowerCase())) {
+      const tag = document.createElement("span");
+      tag.className = "mastery high";
+      tag.textContent = t("myDeckInDeck");
+      row.appendChild(tag);
+    } else {
+      const addBtn = document.createElement("button");
+      addBtn.className = "edit-btn";
+      addBtn.textContent = t("myDeckAddOne");
+      addBtn.addEventListener("click", () => {
+        addToMyDeck([w]);
+        buildFlashDeck();
+        renderMyDeckSearch();
+      });
+      row.appendChild(addBtn);
+    }
+    myDeckSearchResults.appendChild(row);
+  });
+}
+
+myDeckSearchInput.addEventListener("input", renderMyDeckSearch);
+
+myDeckBulkSaveBtn.addEventListener("click", async () => {
+  const words = Array.from(
+    new Set(
+      myDeckBulkInput.value
+        .split(/[\n,]+/)
+        .map((w) => w.trim().toLowerCase())
+        .filter((w) => /^[a-z']{2,}$/.test(w))
+    )
+  );
+  if (words.length === 0) {
+    myDeckBulkStatus.textContent = t("bulkNoWords");
+    return;
+  }
+
+  myDeckBulkSaveBtn.disabled = true;
+  myDeckBulkStatus.textContent = t("ocrAddingStatus", words.length);
+  const infos = await mapWithConcurrency(words, 4, (w) => fetchWordInfo(w), (done, total) => {
+    myDeckBulkStatus.textContent = t("ocrAddingProgress", done, total);
+  });
+
+  const added = addToMyDeck(
+    words.map((word, i) => {
+      const info = infos[i];
+      const meaning = info && (currentLang === "ko" ? info.definitionKo : info.definitionEn);
+      return { word, definition: meaning || t("ocrNoDefFound"), example: (info && info.example) || "" };
+    })
+  );
+
+  myDeckBulkStatus.textContent = t("myDeckAdded", added);
+  myDeckBulkInput.value = "";
+  myDeckBulkSaveBtn.disabled = false;
+  buildFlashDeck();
+});
 
 myDeckForm.addEventListener("submit", (e) => {
   e.preventDefault();
