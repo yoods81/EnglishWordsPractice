@@ -14,19 +14,12 @@
 		"directory": "./public",
 		"binding": "ASSETS"
 	},
-	// Replace database_id with the id printed by:
-	//   npx wrangler d1 create englishwordspractice
+	// The Worker reads this as env.DB.
 	"d1_databases": [
 		{
 			"binding": "DB",
 			"database_name": "englishwordspractice",
 			"database_id": "d668fdc3-e149-4361-bc76-b2def46fb060"
-		},
-		{
-			"binding": "englishwordspractice",
-			"database_name": "englishwordspractice",
-			"database_id": "d668fdc3-e149-4361-bc76-b2def46fb060",
-			"remote": true
 		}
 	]
 }

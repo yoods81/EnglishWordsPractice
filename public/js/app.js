@@ -126,6 +126,9 @@ const TRANSLATIONS = {
     sortMissingFirstBtn: "⚠️ Missing meaning first",
     deleteSelectedBtn: "🗑️ Delete Selected",
     deleteSelectedConfirm: (n) => `Delete ${n} selected word(s)?`,
+    changeLevelPlaceholder: "📚 Change level",
+    changeLevelConfirm: (n, level) => `Move ${n} selected word(s) to ${level}?`,
+    changeLevelDone: (n, level) => `Moved ${n} word(s) to ${level}.`,
     uploadLocalBtn: (n) => `☁️ Upload ${n} to server`,
     uploadLocalConfirm: (n) =>
       `Upload ${n} word(s) saved in this browser to the server, so they show up on every device?`,
@@ -259,6 +262,9 @@ const TRANSLATIONS = {
     sortMissingFirstBtn: "⚠️ 뜻 없는 단어 먼저",
     deleteSelectedBtn: "🗑️ 선택 삭제",
     deleteSelectedConfirm: (n) => `선택한 단어 ${n}개를 삭제할까요?`,
+    changeLevelPlaceholder: "📚 레벨 변경",
+    changeLevelConfirm: (n, level) => `선택한 단어 ${n}개를 ${level} 레벨로 옮길까요?`,
+    changeLevelDone: (n, level) => `${n}개를 ${level} 레벨로 옮겼어요.`,
     uploadLocalBtn: (n) => `☁️ ${n}개 서버로 올리기`,
     uploadLocalConfirm: (n) => `이 브라우저에 저장된 단어 ${n}개를 서버로 올릴까요? 모든 기기에서 보이게 됩니다.`,
     uploadLocalDone: (n) => `${n}개를 올렸어요 — 이제 모든 기기에서 보여요.`,
@@ -1542,6 +1548,7 @@ const customDeleteFailedBtn = document.getElementById("custom-delete-failed-btn"
 const customSortToggleBtn = document.getElementById("custom-sort-toggle-btn");
 const customDeleteSelectedBtn = document.getElementById("custom-delete-selected-btn");
 const customUploadBtn = document.getElementById("custom-upload-btn");
+const customLevelSelect = document.getElementById("custom-level-select");
 const customStorageNote = document.getElementById("custom-words-storage-note");
 let sortMissingFirst = false;
 let selectedCustomWordIds = new Set();
@@ -1660,6 +1667,24 @@ function populateLevelSelects() {
     });
     sel.value = currentLevel;
   });
+  populateBulkLevelSelect();
+}
+
+// Unlike the selects above this one isn't reporting a level, it's an action —
+// so it sits on a placeholder and snaps back to it after each use.
+function populateBulkLevelSelect() {
+  customLevelSelect.innerHTML = "";
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = t("changeLevelPlaceholder");
+  customLevelSelect.appendChild(placeholder);
+  currentSystem().levels.forEach((lv) => {
+    const opt = document.createElement("option");
+    opt.value = lv.id;
+    opt.textContent = lv.label;
+    customLevelSelect.appendChild(opt);
+  });
+  customLevelSelect.value = "";
 }
 
 manualForm.addEventListener("submit", (e) => {
@@ -1821,6 +1846,7 @@ function deleteAllFailedWords() {
 
 function updateDeleteSelectedBtn() {
   customDeleteSelectedBtn.disabled = selectedCustomWordIds.size === 0;
+  customLevelSelect.disabled = selectedCustomWordIds.size === 0;
 }
 
 function renderCustomWords() {
@@ -1959,6 +1985,27 @@ customDeleteFailedBtn.addEventListener("click", deleteAllFailedWords);
 customSortToggleBtn.addEventListener("click", () => {
   sortMissingFirst = !sortMissingFirst;
   renderCustomWords();
+});
+
+// Bulk levels are set for the language track you're looking at; the other
+// track keeps the level that was guessed for it, the same as editing one word.
+customLevelSelect.addEventListener("change", () => {
+  const level = customLevelSelect.value;
+  if (!level) return;
+  const selected = customWords.filter((w) => selectedCustomWordIds.has(w.id));
+  const label = levelLabel(level);
+  customLevelSelect.value = "";
+  if (selected.length === 0) return;
+  if (!confirm(t("changeLevelConfirm", selected.length, label))) return;
+
+  selected.forEach((w) => {
+    w[levelKey(currentLang)] = level;
+  });
+  saveCustomWords();
+  customWordsStatus.textContent = t("changeLevelDone", selected.length, label);
+  renderCustomWords();
+  renderWordList();
+  pushSharedWords(selected.filter((w) => w.remote));
 });
 
 customUploadBtn.addEventListener("click", async () => {

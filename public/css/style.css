@@ -335,6 +335,17 @@ button.pill:disabled {
   gap: 8px;
 }
 
+.level-bulk-select {
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  border-radius: 999px;
+}
+
+.level-bulk-select:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .my-added-words-header-actions {
   display: flex;
   gap: 6px;
