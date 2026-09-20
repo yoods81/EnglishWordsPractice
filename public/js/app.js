@@ -43,15 +43,18 @@ const TRANSLATIONS = {
     navFlashcards: "🃏 Flashcards",
     navQuiz: "❓ Quiz",
     navSpelling: "✏️ Spelling",
-    navTypeGame: "⌨️ Word Drop",
+    navTypeGame: "⌨️ Typing Game",
     navWordlist: "📖 Word List",
     navAddword: "➕ Add Word",
     navStats: "📊 My Progress",
-    typeGameTitle: "⌨️ Word Drop",
+    typeGameTitle: "⌨️ Typing Game",
     typeGameDesc: "Type each word before it reaches the bottom!",
     typeGameStartBtn: "▶ Start Game",
     typeGameNotEnough: (lvl) => `${lvl} needs a few more words before you can play — add some in Add Word or Word List first!`,
-    typeGameHint: "Just start typing — the matching falling word locks on automatically.",
+    typeGameHint: "Just start typing — the matching falling word locks on automatically. Press Enter to check a guess.",
+    typeGameTypoMsg: "❌ No matching word — try again!",
+    typeGameMute: "Mute music",
+    typeGameUnmute: "Unmute music",
     typeGameInputPlaceholder: "Type here...",
     typeGameScoreLabel: (score) => `Score: ${score}`,
     typeGameOverTitle: "💥 Game Over",
@@ -233,15 +236,18 @@ const TRANSLATIONS = {
     navFlashcards: "🃏 플래시카드",
     navQuiz: "❓ 퀴즈",
     navSpelling: "✏️ 스펠링",
-    navTypeGame: "⌨️ 단어 낙하 게임",
+    navTypeGame: "⌨️ 타이핑 게임",
     navWordlist: "📖 단어장",
     navAddword: "➕ 단어 추가",
     navStats: "📊 내 진행상황",
-    typeGameTitle: "⌨️ 단어 낙하 게임",
+    typeGameTitle: "⌨️ 타이핑 게임",
     typeGameDesc: "단어가 바닥에 닿기 전에 타이핑하세요!",
     typeGameStartBtn: "▶ 게임 시작",
     typeGameNotEnough: (lvl) => `${lvl} 레벨에 단어가 조금 더 필요해요 — 단어 추가나 단어장에서 먼저 추가해주세요!`,
-    typeGameHint: "그냥 타이핑을 시작하세요 — 일치하는 단어가 자동으로 선택돼요.",
+    typeGameHint: "그냥 타이핑을 시작하세요 — 일치하는 단어가 자동으로 선택돼요. Enter를 누르면 입력을 확인해요.",
+    typeGameTypoMsg: "❌ 일치하는 단어가 없어요 — 다시 시도해보세요!",
+    typeGameMute: "음악 끄기",
+    typeGameUnmute: "음악 켜기",
     typeGameInputPlaceholder: "여기에 입력하세요...",
     typeGameScoreLabel: (score) => `점수: ${score}`,
     typeGameOverTitle: "💥 게임 종료",
@@ -1920,21 +1926,25 @@ spellingGoalNextLevelBtn.addEventListener("click", () => {
   buildSpellingDeck();
 });
 
-/* ================= WORD DROP (typing game) =================
+/* ================= TYPING GAME (falling words) =================
    A falling-words typing game: words spawn at the top of the stage and fall
    toward the bottom on a requestAnimationFrame loop; the player's keystrokes
    are matched against whichever falling word they start with. Clearing a
-   word scores points and gradually speeds the game up; a word that reaches
-   the bottom costs a life, and running out of lives ends the round. */
+   word scores points; every TYPEGAME_WORDS_PER_SPEEDUP correct words nudges
+   the fall speed and spawn rate up a notch (from a deliberately gentle
+   starting pace, since this is meant to work for a beginner still learning
+   the keyboard). A word that reaches the bottom costs a life, and running
+   out of lives ends the round. */
 const TYPEGAME_LIVES = 5;
-const TYPEGAME_BASE_SPEED = 32; // px/sec
-const TYPEGAME_MAX_SPEED = 130; // px/sec
-const TYPEGAME_SPEED_STEP = 6; // px/sec added per speed-up
-const TYPEGAME_SPAWN_START = 2200; // ms between spawns at the start
-const TYPEGAME_SPAWN_MIN = 800; // ms — fastest spawn rate
-const TYPEGAME_SPAWN_STEP = 130; // ms shaved off per speed-up
-const TYPEGAME_LEVEL_UP_SCORE = 50; // points needed per speed-up
+const TYPEGAME_BASE_SPEED = 10; // px/sec — gentle enough for a first-time typist
+const TYPEGAME_MAX_SPEED = 70; // px/sec
+const TYPEGAME_SPEED_STEP = 4; // px/sec added per speed-up
+const TYPEGAME_SPAWN_START = 3600; // ms between spawns at the start
+const TYPEGAME_SPAWN_MIN = 1400; // ms — fastest spawn rate
+const TYPEGAME_SPAWN_STEP = 180; // ms shaved off per speed-up
+const TYPEGAME_WORDS_PER_SPEEDUP = 10; // correct words needed per speed-up
 const TYPEGAME_MIN_POOL_SIZE = 4;
+const TYPEGAME_MUTE_KEY = "ywp_typegame_muted_v1";
 
 const typeGameScoreEl = document.getElementById("typegame-score");
 const typeGameLivesEl = document.getElementById("typegame-lives");
@@ -1948,25 +1958,29 @@ const typeGameFinalScoreEl = document.getElementById("typegame-final-score");
 const typeGameHighScoreEl = document.getElementById("typegame-high-score");
 const typeGameRestartBtn = document.getElementById("typegame-restart-btn");
 const typeGameInput = document.getElementById("typegame-input");
+const typeGameTypoMsg = document.getElementById("typegame-typo-msg");
+const typeGameMuteBtn = document.getElementById("typegame-mute-btn");
 
 let typeGameRunning = false;
 let typeGamePaused = false;
 let typeGameActive = []; // { text, el, top }
 let typeGameWordPool = [];
 let typeGameScore = 0;
+let typeGameWordsCleared = 0;
 let typeGameLives = TYPEGAME_LIVES;
 let typeGameSpeed = TYPEGAME_BASE_SPEED;
 let typeGameSpawnInterval = TYPEGAME_SPAWN_START;
 let typeGameSpawnTimer = null;
 let typeGameRafId = null;
 let typeGameLastTs = null;
+let typeGameTypoTimer = null;
 
 function loadTypeGameHighScores() {
   try {
     const raw = localStorage.getItem(TYPEGAME_HIGH_SCORE_KEY);
     if (raw) return JSON.parse(raw);
   } catch (e) {
-    console.warn("Could not read Word Drop high scores", e);
+    console.warn("Could not read Typing Game high scores", e);
   }
   return {};
 }
@@ -1975,7 +1989,7 @@ function saveTypeGameHighScores() {
   try {
     localStorage.setItem(TYPEGAME_HIGH_SCORE_KEY, JSON.stringify(typeGameHighScores));
   } catch (e) {
-    console.warn("Could not save Word Drop high scores", e);
+    console.warn("Could not save Typing Game high scores", e);
   }
 }
 
@@ -2020,11 +2034,13 @@ function resetTypeGame() {
   typeGameActive.forEach((w) => w.el.remove());
   typeGameActive = [];
   typeGameScore = 0;
+  typeGameWordsCleared = 0;
   typeGameLives = TYPEGAME_LIVES;
   typeGameSpeed = TYPEGAME_BASE_SPEED;
   typeGameSpawnInterval = TYPEGAME_SPAWN_START;
   typeGameInput.value = "";
   typeGameInput.disabled = true;
+  hideTypeGameTypo();
   updateTypeGameHud();
 
   typeGameWordPool = buildTypeGameWordPool();
@@ -2040,6 +2056,7 @@ function startTypeGame() {
   typeGameRunning = true;
   typeGamePaused = false;
   typeGameScore = 0;
+  typeGameWordsCleared = 0;
   typeGameLives = TYPEGAME_LIVES;
   typeGameSpeed = TYPEGAME_BASE_SPEED;
   typeGameSpawnInterval = TYPEGAME_SPAWN_START;
@@ -2049,6 +2066,7 @@ function startTypeGame() {
   typeGameOverOverlay.hidden = true;
   typeGameInput.disabled = false;
   typeGameInput.value = "";
+  hideTypeGameTypo();
   typeGameInput.focus();
   updateTypeGameHud();
 
@@ -2056,6 +2074,7 @@ function startTypeGame() {
   scheduleTypeGameSpawn();
   typeGameLastTs = null;
   typeGameRafId = requestAnimationFrame(typeGameLoop);
+  startTypeGameMusic();
 }
 
 function pauseTypeGame() {
@@ -2066,7 +2085,9 @@ function pauseTypeGame() {
   clearTimeout(typeGameSpawnTimer);
   typeGameInput.disabled = true;
   typeGameInput.value = "";
+  hideTypeGameTypo();
   clearTypeGameHighlights();
+  stopTypeGameMusic();
 }
 
 function resumeTypeGame() {
@@ -2077,6 +2098,7 @@ function resumeTypeGame() {
   typeGameRafId = requestAnimationFrame(typeGameLoop);
   scheduleTypeGameSpawn();
   typeGameInput.focus();
+  startTypeGameMusic();
 }
 
 function scheduleTypeGameSpawn() {
@@ -2162,9 +2184,14 @@ function clearTypeGameWord(word) {
   typeGameActive = typeGameActive.filter((w) => w !== word);
 
   typeGameScore += word.text.length * 10;
+  typeGameWordsCleared++;
   updateTypeGameHud();
 
-  const speedUps = Math.floor(typeGameScore / TYPEGAME_LEVEL_UP_SCORE);
+  // Speed ramps up by how many words have been typed correctly, not by
+  // score, so a beginner spelling out long words isn't punished with a
+  // faster game — the pace only picks up once they've clearly got the hang
+  // of it.
+  const speedUps = Math.floor(typeGameWordsCleared / TYPEGAME_WORDS_PER_SPEEDUP);
   typeGameSpeed = Math.min(TYPEGAME_BASE_SPEED + speedUps * TYPEGAME_SPEED_STEP, TYPEGAME_MAX_SPEED);
   typeGameSpawnInterval = Math.max(TYPEGAME_SPAWN_MIN, TYPEGAME_SPAWN_START - speedUps * TYPEGAME_SPAWN_STEP);
 }
@@ -2176,8 +2203,10 @@ function endTypeGame() {
   clearTimeout(typeGameSpawnTimer);
   typeGameInput.disabled = true;
   typeGameInput.value = "";
+  hideTypeGameTypo();
   typeGameActive.forEach((w) => w.el.remove());
   typeGameActive = [];
+  stopTypeGameMusic();
 
   const key = typeGameHighScoreKey();
   const prevBest = typeGameHighScores[key] || 0;
@@ -2191,8 +2220,22 @@ function endTypeGame() {
   typeGameOverOverlay.hidden = false;
 }
 
+function showTypeGameTypo() {
+  typeGameInput.classList.add("typegame-input-error");
+  typeGameTypoMsg.hidden = false;
+  clearTimeout(typeGameTypoTimer);
+  typeGameTypoTimer = setTimeout(hideTypeGameTypo, 1800);
+}
+
+function hideTypeGameTypo() {
+  clearTimeout(typeGameTypoTimer);
+  typeGameInput.classList.remove("typegame-input-error");
+  typeGameTypoMsg.hidden = true;
+}
+
 typeGameInput.addEventListener("input", () => {
   if (!typeGameRunning) return;
+  hideTypeGameTypo();
   const val = typeGameInput.value.toLowerCase();
 
   let match = null;
@@ -2220,8 +2263,125 @@ typeGameInput.addEventListener("input", () => {
   }
 });
 
+// Enter submits the current guess: if it isn't the start of any falling
+// word, that's a wrong entry — flag it and clear the box so they can try
+// again, rather than leaving a dead-end guess sitting in the input. A guess
+// that IS still a valid (partial) prefix is left alone, since the player
+// might just not be finished typing it yet.
+typeGameInput.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" || !typeGameRunning) return;
+  e.preventDefault();
+  const val = typeGameInput.value.trim().toLowerCase();
+  if (!val) return;
+  const isValidPrefix = typeGameActive.some((w) => w.text.toLowerCase().startsWith(val));
+  if (!isValidPrefix) {
+    showTypeGameTypo();
+    typeGameInput.value = "";
+    clearTypeGameHighlights();
+  }
+});
+
 typeGameStartBtn.addEventListener("click", startTypeGame);
 typeGameRestartBtn.addEventListener("click", startTypeGame);
+
+/* ---------- Typing Game background music ----------
+   A short, cheerful loop generated entirely with the Web Audio API (a
+   handful of oscillator notes on a pentatonic scale) rather than a shipped
+   audio file, so there's nothing to download and no licensing to worry
+   about. It only ever starts from a click (Start/Play Again, or returning
+   to a paused round), which satisfies browsers' autoplay restrictions. */
+const TYPEGAME_MELODY_HZ = [523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 659.25, 783.99, 880.0, 783.99, 659.25];
+const TYPEGAME_NOTE_DURATION = 0.22; // seconds per note
+
+let typeGameAudioCtx = null;
+let typeGameMusicIndex = 0;
+let typeGameNextNoteTime = 0;
+let typeGameMusicSchedulerId = null;
+
+function loadTypeGameMuted() {
+  try {
+    return localStorage.getItem(TYPEGAME_MUTE_KEY) === "1";
+  } catch (e) {
+    return false;
+  }
+}
+
+function saveTypeGameMuted() {
+  try {
+    localStorage.setItem(TYPEGAME_MUTE_KEY, typeGameMuted ? "1" : "0");
+  } catch (e) {
+    console.warn("Could not save Typing Game mute setting", e);
+  }
+}
+
+let typeGameMuted = loadTypeGameMuted();
+
+function updateTypeGameMuteBtn() {
+  typeGameMuteBtn.textContent = typeGameMuted ? "🔇" : "🔊";
+  const label = t(typeGameMuted ? "typeGameUnmute" : "typeGameMute");
+  typeGameMuteBtn.setAttribute("aria-label", label);
+  typeGameMuteBtn.title = label;
+}
+
+function ensureTypeGameAudioCtx() {
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if (!Ctx) return null;
+  if (!typeGameAudioCtx) typeGameAudioCtx = new Ctx();
+  if (typeGameAudioCtx.state === "suspended") typeGameAudioCtx.resume();
+  return typeGameAudioCtx;
+}
+
+function playTypeGameNote(freq, when) {
+  const ctx = typeGameAudioCtx;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = "triangle";
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0, when);
+  gain.gain.linearRampToValueAtTime(0.05, when + 0.02);
+  gain.gain.linearRampToValueAtTime(0, when + TYPEGAME_NOTE_DURATION);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(when);
+  osc.stop(when + TYPEGAME_NOTE_DURATION + 0.02);
+}
+
+// Schedules notes a little ahead of playback time (the standard Web Audio
+// lookahead pattern) rather than one at a time, so the tempo stays steady
+// even if this timer occasionally fires a bit late.
+function scheduleTypeGameMusic() {
+  if (typeGameMuted || !typeGameRunning || !typeGameAudioCtx) return;
+  while (typeGameNextNoteTime < typeGameAudioCtx.currentTime + 0.5) {
+    playTypeGameNote(TYPEGAME_MELODY_HZ[typeGameMusicIndex % TYPEGAME_MELODY_HZ.length], typeGameNextNoteTime);
+    typeGameMusicIndex++;
+    typeGameNextNoteTime += TYPEGAME_NOTE_DURATION;
+  }
+  typeGameMusicSchedulerId = setTimeout(scheduleTypeGameMusic, 150);
+}
+
+function startTypeGameMusic() {
+  stopTypeGameMusic();
+  if (typeGameMuted) return;
+  const ctx = ensureTypeGameAudioCtx();
+  if (!ctx) return;
+  typeGameMusicIndex = 0;
+  typeGameNextNoteTime = ctx.currentTime + 0.05;
+  scheduleTypeGameMusic();
+}
+
+function stopTypeGameMusic() {
+  clearTimeout(typeGameMusicSchedulerId);
+  typeGameMusicSchedulerId = null;
+}
+
+typeGameMuteBtn.addEventListener("click", () => {
+  typeGameMuted = !typeGameMuted;
+  saveTypeGameMuted();
+  updateTypeGameMuteBtn();
+  if (typeGameMuted) stopTypeGameMusic();
+  else if (typeGameRunning) startTypeGameMusic();
+});
+
+updateTypeGameMuteBtn();
 
 /* ================= WORD LIST ================= */
 const wordlistSearch = document.getElementById("wordlist-search");

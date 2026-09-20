@@ -387,7 +387,7 @@ button.pill:disabled {
   gap: 8px;
 }
 
-/* Word Drop typing game */
+/* Typing Game (falling words) */
 .typegame-lives {
   font-size: 0.95rem;
   letter-spacing: 2px;
@@ -401,6 +401,67 @@ button.pill:disabled {
   margin-bottom: 10px;
   background: linear-gradient(180deg, #dfe9ff 0%, #f4f7fb 100%);
   box-shadow: inset 0 0 0 2px #d9e2f7;
+}
+
+/* A slow, low-opacity cloud/star drift — just enough movement to feel alive
+   without competing for attention with the falling words. */
+.typegame-sky {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.typegame-cloud {
+  position: absolute;
+  font-size: 1.8rem;
+  opacity: 0.5;
+  animation: typegame-drift 55s linear infinite;
+}
+
+.typegame-cloud-1 { top: 6%; left: -12%; }
+.typegame-cloud-2 { top: 32%; left: -22%; font-size: 1.3rem; opacity: 0.35; animation-duration: 70s; animation-delay: -20s; }
+.typegame-cloud-3 { top: 58%; left: -16%; font-size: 1.5rem; opacity: 0.3; animation-duration: 62s; animation-delay: -40s; }
+
+@keyframes typegame-drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(800px); }
+}
+
+.typegame-star {
+  position: absolute;
+  font-size: 1rem;
+  opacity: 0.5;
+  animation: typegame-twinkle 2.6s ease-in-out infinite;
+}
+
+.typegame-star-1 { top: 12%; right: 16%; }
+.typegame-star-2 { top: 66%; right: 28%; font-size: 0.85rem; animation-delay: 1.2s; }
+
+@keyframes typegame-twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.9); }
+  50% { opacity: 0.7; transform: scale(1.15); }
+}
+
+.typegame-mute-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: var(--shadow);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.typegame-mute-btn:hover {
+  background: #fff;
 }
 
 .typegame-stage.typegame-shake {
@@ -453,6 +514,7 @@ button.pill:disabled {
 .typegame-overlay {
   position: absolute;
   inset: 0;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -496,6 +558,22 @@ button.pill:disabled {
 .typegame-input:focus {
   outline: none;
   border-color: var(--primary);
+}
+
+.typegame-input.typegame-input-error {
+  border-color: var(--error);
+}
+
+.typegame-typo-msg {
+  text-align: center;
+  color: var(--error);
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin: 0 0 6px;
+}
+
+.typegame-typo-msg[hidden] {
+  display: none;
 }
 
 @media (max-width: 480px) {

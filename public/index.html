@@ -47,7 +47,7 @@
     <nav class="tabs">
       <button data-view="quiz" data-i18n="navQuiz">❓ Quiz</button>
       <button data-view="spelling" data-i18n="navSpelling">✏️ Spelling</button>
-      <button data-view="typegame" data-i18n="navTypeGame">⌨️ Word Drop</button>
+      <button data-view="typegame" data-i18n="navTypeGame">⌨️ Typing Game</button>
       <button data-view="flashcards" class="active" data-i18n="navFlashcards">🃏 Flashcards</button>
       <button data-view="wordlist" data-i18n="navWordlist">📖 Word List</button>
       <button data-view="addword" data-i18n="navAddword">➕ Add Word</button>
@@ -231,7 +231,7 @@
       </div>
     </section>
 
-    <!-- Word Drop typing game -->
+    <!-- Typing Game (falling words) -->
     <section id="view-typegame" class="view">
       <div class="card">
         <div class="setting-row setting-row-nowrap">
@@ -240,10 +240,20 @@
         </div>
 
         <div class="typegame-stage" id="typegame-stage">
+          <div class="typegame-sky" aria-hidden="true">
+            <span class="typegame-cloud typegame-cloud-1">☁️</span>
+            <span class="typegame-cloud typegame-cloud-2">☁️</span>
+            <span class="typegame-cloud typegame-cloud-3">☁️</span>
+            <span class="typegame-star typegame-star-1">✨</span>
+            <span class="typegame-star typegame-star-2">⭐</span>
+          </div>
+
+          <button type="button" class="typegame-mute-btn" id="typegame-mute-btn" data-i18n-aria-label="typeGameMute" aria-label="Mute music">🔊</button>
+
           <div class="typegame-words" id="typegame-words"></div>
 
           <div class="typegame-overlay" id="typegame-start-overlay">
-            <h3 data-i18n="typeGameTitle">⌨️ Word Drop</h3>
+            <h3 data-i18n="typeGameTitle">⌨️ Typing Game</h3>
             <p id="typegame-start-message" data-i18n="typeGameDesc">Type each word before it reaches the bottom!</p>
             <button class="pill primary" id="typegame-start-btn" data-i18n="typeGameStartBtn">▶ Start Game</button>
           </div>
@@ -256,8 +266,9 @@
           </div>
         </div>
 
+        <p class="typegame-typo-msg" id="typegame-typo-msg" hidden data-i18n="typeGameTypoMsg">❌ No matching word — try again!</p>
         <input type="text" id="typegame-input" class="typegame-input" data-i18n-placeholder="typeGameInputPlaceholder" placeholder="Type here..." autocomplete="off" autocapitalize="off" spellcheck="false" disabled />
-        <p class="hint" data-i18n="typeGameHint">Just start typing — the matching falling word locks on automatically.</p>
+        <p class="hint" data-i18n="typeGameHint">Just start typing — the matching falling word locks on automatically. Press Enter to check a guess.</p>
       </div>
     </section>
 
