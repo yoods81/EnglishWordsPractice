@@ -387,6 +387,117 @@ button.pill:disabled {
   gap: 8px;
 }
 
+/* Word Drop typing game */
+.typegame-lives {
+  font-size: 0.95rem;
+  letter-spacing: 2px;
+}
+
+.typegame-stage {
+  position: relative;
+  height: 320px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 10px;
+  background: linear-gradient(180deg, #dfe9ff 0%, #f4f7fb 100%);
+  box-shadow: inset 0 0 0 2px #d9e2f7;
+}
+
+.typegame-stage.typegame-shake {
+  animation: typegame-shake 0.3s ease;
+}
+
+@keyframes typegame-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+.typegame-words {
+  position: absolute;
+  inset: 0;
+}
+
+.typegame-word {
+  position: absolute;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 2px solid #c9d4ee;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+}
+
+.typegame-word.tw-lock {
+  border-color: var(--primary);
+  background: #eaf1ff;
+}
+
+.typegame-word.tw-cleared {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  transform: translateX(-50%) scale(1.3);
+  opacity: 0;
+}
+
+.typegame-word .tw-typed {
+  color: var(--success);
+}
+
+.typegame-word .tw-rest {
+  color: var(--text);
+}
+
+.typegame-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  padding: 16px;
+  background: rgba(20, 28, 55, 0.72);
+  color: #fff;
+}
+
+.typegame-overlay[hidden] {
+  display: none;
+}
+
+.typegame-overlay h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.typegame-overlay p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #dbe3f7;
+  max-width: 280px;
+}
+
+.typegame-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 2px solid #d9deec;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.typegame-input:disabled {
+  background: #f0f2f8;
+}
+
+.typegame-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
 @media (max-width: 480px) {
   .options { grid-template-columns: 1fr; }
 
@@ -444,6 +555,15 @@ button.pill:disabled {
     flex: 1 1 0;
     padding: 6px 4px;
     font-size: 0.78rem;
+  }
+
+  .typegame-stage {
+    height: 260px;
+  }
+
+  .typegame-word {
+    font-size: 0.85rem;
+    padding: 4px 9px;
   }
 }
 

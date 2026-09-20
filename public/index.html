@@ -47,6 +47,7 @@
     <nav class="tabs">
       <button data-view="quiz" data-i18n="navQuiz">❓ Quiz</button>
       <button data-view="spelling" data-i18n="navSpelling">✏️ Spelling</button>
+      <button data-view="typegame" data-i18n="navTypeGame">⌨️ Word Drop</button>
       <button data-view="flashcards" class="active" data-i18n="navFlashcards">🃏 Flashcards</button>
       <button data-view="wordlist" data-i18n="navWordlist">📖 Word List</button>
       <button data-view="addword" data-i18n="navAddword">➕ Add Word</button>
@@ -227,6 +228,36 @@
             <button class="pill primary" id="spelling-report-restart" data-i18n="spellingReportRestart">🔄 Practice Again</button>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Word Drop typing game -->
+    <section id="view-typegame" class="view">
+      <div class="card">
+        <div class="setting-row setting-row-nowrap">
+          <span class="score-tag" id="typegame-score">Score: 0</span>
+          <span class="typegame-lives" id="typegame-lives" style="margin-left:auto;"></span>
+        </div>
+
+        <div class="typegame-stage" id="typegame-stage">
+          <div class="typegame-words" id="typegame-words"></div>
+
+          <div class="typegame-overlay" id="typegame-start-overlay">
+            <h3 data-i18n="typeGameTitle">⌨️ Word Drop</h3>
+            <p id="typegame-start-message" data-i18n="typeGameDesc">Type each word before it reaches the bottom!</p>
+            <button class="pill primary" id="typegame-start-btn" data-i18n="typeGameStartBtn">▶ Start Game</button>
+          </div>
+
+          <div class="typegame-overlay" id="typegame-over-overlay" hidden>
+            <h3 data-i18n="typeGameOverTitle">💥 Game Over</h3>
+            <p id="typegame-final-score"></p>
+            <p id="typegame-high-score"></p>
+            <button class="pill primary" id="typegame-restart-btn" data-i18n="typeGameRestartBtn">🔄 Play Again</button>
+          </div>
+        </div>
+
+        <input type="text" id="typegame-input" class="typegame-input" data-i18n-placeholder="typeGameInputPlaceholder" placeholder="Type here..." autocomplete="off" autocapitalize="off" spellcheck="false" disabled />
+        <p class="hint" data-i18n="typeGameHint">Just start typing — the matching falling word locks on automatically.</p>
       </div>
     </section>
 

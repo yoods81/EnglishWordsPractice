@@ -13,6 +13,7 @@ const GOAL_CHOICES = [5, 10, 15, 20];
 const LEVELS_KEY = "ywp_levels_v1"; // { en: "year4", ko: "kr_elem6" }
 const LANG_KEY = "ywp_lang_v1";
 const ADMIN_KEY = "ywp_admin_v1";
+const TYPEGAME_HIGH_SCORE_KEY = "ywp_typegame_highscores_v1";
 const ADMIN_USERNAME = "admin";
 // SHA-256 of the admin password, so the password itself isn't sitting in
 // plain text in the page source. This is still a static site with no
@@ -42,9 +43,22 @@ const TRANSLATIONS = {
     navFlashcards: "🃏 Flashcards",
     navQuiz: "❓ Quiz",
     navSpelling: "✏️ Spelling",
+    navTypeGame: "⌨️ Word Drop",
     navWordlist: "📖 Word List",
     navAddword: "➕ Add Word",
     navStats: "📊 My Progress",
+    typeGameTitle: "⌨️ Word Drop",
+    typeGameDesc: "Type each word before it reaches the bottom!",
+    typeGameStartBtn: "▶ Start Game",
+    typeGameNotEnough: (lvl) => `${lvl} needs a few more words before you can play — add some in Add Word or Word List first!`,
+    typeGameHint: "Just start typing — the matching falling word locks on automatically.",
+    typeGameInputPlaceholder: "Type here...",
+    typeGameScoreLabel: (score) => `Score: ${score}`,
+    typeGameOverTitle: "💥 Game Over",
+    typeGameFinalScore: (score) => `Final score: ${score}`,
+    typeGameHighScore: (score) => `Best score: ${score}`,
+    typeGameNewHighScore: "🎉 New best score!",
+    typeGameRestartBtn: "🔄 Play Again",
     categoryLabel: "Category",
     optVocabulary: "Vocabulary",
     optSynonyms: "Synonyms & Antonyms",
@@ -219,9 +233,22 @@ const TRANSLATIONS = {
     navFlashcards: "🃏 플래시카드",
     navQuiz: "❓ 퀴즈",
     navSpelling: "✏️ 스펠링",
+    navTypeGame: "⌨️ 단어 낙하 게임",
     navWordlist: "📖 단어장",
     navAddword: "➕ 단어 추가",
     navStats: "📊 내 진행상황",
+    typeGameTitle: "⌨️ 단어 낙하 게임",
+    typeGameDesc: "단어가 바닥에 닿기 전에 타이핑하세요!",
+    typeGameStartBtn: "▶ 게임 시작",
+    typeGameNotEnough: (lvl) => `${lvl} 레벨에 단어가 조금 더 필요해요 — 단어 추가나 단어장에서 먼저 추가해주세요!`,
+    typeGameHint: "그냥 타이핑을 시작하세요 — 일치하는 단어가 자동으로 선택돼요.",
+    typeGameInputPlaceholder: "여기에 입력하세요...",
+    typeGameScoreLabel: (score) => `점수: ${score}`,
+    typeGameOverTitle: "💥 게임 종료",
+    typeGameFinalScore: (score) => `최종 점수: ${score}`,
+    typeGameHighScore: (score) => `최고 점수: ${score}`,
+    typeGameNewHighScore: "🎉 최고 기록 달성!",
+    typeGameRestartBtn: "🔄 다시 하기",
     categoryLabel: "카테고리",
     optVocabulary: "어휘",
     optSynonyms: "동의어 & 반의어",
@@ -988,12 +1015,19 @@ function refreshView(view) {
   if (view === "flashcards") buildFlashDeck();
   if (view === "quiz") buildQuizQuestions();
   if (view === "spelling") buildSpellingDeck();
+  if (view === "typegame") enterTypeGameTab();
   if (view === "wordlist") renderWordList();
   if (view === "addword") renderCustomWords();
   if (view === "stats") renderStats();
 }
 
 function goToTab(view) {
+  const previousBtn = document.querySelector("nav.tabs button.active");
+  const previousView = previousBtn ? previousBtn.dataset.view : null;
+  // Leaving mid-round freezes the game in place rather than ending it, so
+  // switching tabs to check something doesn't cost the player their score.
+  if (previousView === "typegame" && view !== "typegame") pauseTypeGame();
+
   tabButtons.forEach((b) => b.classList.toggle("active", b.dataset.view === view));
   views.forEach((v) => v.classList.toggle("active", v.id === `view-${view}`));
   refreshView(view);
@@ -1885,6 +1919,309 @@ spellingGoalNextLevelBtn.addEventListener("click", () => {
   goToTab("spelling");
   buildSpellingDeck();
 });
+
+/* ================= WORD DROP (typing game) =================
+   A falling-words typing game: words spawn at the top of the stage and fall
+   toward the bottom on a requestAnimationFrame loop; the player's keystrokes
+   are matched against whichever falling word they start with. Clearing a
+   word scores points and gradually speeds the game up; a word that reaches
+   the bottom costs a life, and running out of lives ends the round. */
+const TYPEGAME_LIVES = 5;
+const TYPEGAME_BASE_SPEED = 32; // px/sec
+const TYPEGAME_MAX_SPEED = 130; // px/sec
+const TYPEGAME_SPEED_STEP = 6; // px/sec added per speed-up
+const TYPEGAME_SPAWN_START = 2200; // ms between spawns at the start
+const TYPEGAME_SPAWN_MIN = 800; // ms — fastest spawn rate
+const TYPEGAME_SPAWN_STEP = 130; // ms shaved off per speed-up
+const TYPEGAME_LEVEL_UP_SCORE = 50; // points needed per speed-up
+const TYPEGAME_MIN_POOL_SIZE = 4;
+
+const typeGameScoreEl = document.getElementById("typegame-score");
+const typeGameLivesEl = document.getElementById("typegame-lives");
+const typeGameStage = document.getElementById("typegame-stage");
+const typeGameWordsEl = document.getElementById("typegame-words");
+const typeGameStartOverlay = document.getElementById("typegame-start-overlay");
+const typeGameStartMessage = document.getElementById("typegame-start-message");
+const typeGameStartBtn = document.getElementById("typegame-start-btn");
+const typeGameOverOverlay = document.getElementById("typegame-over-overlay");
+const typeGameFinalScoreEl = document.getElementById("typegame-final-score");
+const typeGameHighScoreEl = document.getElementById("typegame-high-score");
+const typeGameRestartBtn = document.getElementById("typegame-restart-btn");
+const typeGameInput = document.getElementById("typegame-input");
+
+let typeGameRunning = false;
+let typeGamePaused = false;
+let typeGameActive = []; // { text, el, top }
+let typeGameWordPool = [];
+let typeGameScore = 0;
+let typeGameLives = TYPEGAME_LIVES;
+let typeGameSpeed = TYPEGAME_BASE_SPEED;
+let typeGameSpawnInterval = TYPEGAME_SPAWN_START;
+let typeGameSpawnTimer = null;
+let typeGameRafId = null;
+let typeGameLastTs = null;
+
+function loadTypeGameHighScores() {
+  try {
+    const raw = localStorage.getItem(TYPEGAME_HIGH_SCORE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    console.warn("Could not read Word Drop high scores", e);
+  }
+  return {};
+}
+
+function saveTypeGameHighScores() {
+  try {
+    localStorage.setItem(TYPEGAME_HIGH_SCORE_KEY, JSON.stringify(typeGameHighScores));
+  } catch (e) {
+    console.warn("Could not save Word Drop high scores", e);
+  }
+}
+
+let typeGameHighScores = loadTypeGameHighScores();
+
+// High scores are kept per language + level, since a Year 6 round and a
+// Year 4 round aren't really comparable.
+function typeGameHighScoreKey() {
+  return `${currentLang}_${currentLevel}`;
+}
+
+// Reuses the same word source as Spelling practice (the built-in spelling
+// list where the track has one, otherwise the vocabulary list), so the two
+// modes always agree on what "this level's words" means. Multi-word phrases
+// don't fall — filtered out rather than dropped silently mid-game.
+function buildTypeGameWordPool() {
+  const words = getSpellingPool(currentLevel)
+    .map((w) => w.word)
+    .filter((w) => /^[A-Za-z']+$/.test(w));
+  return Array.from(new Set(words));
+}
+
+function updateTypeGameHud() {
+  typeGameScoreEl.textContent = t("typeGameScoreLabel", typeGameScore);
+  const full = "❤️".repeat(Math.max(typeGameLives, 0));
+  const empty = "🖤".repeat(Math.max(TYPEGAME_LIVES - typeGameLives, 0));
+  typeGameLivesEl.textContent = full + empty;
+}
+
+// Called whenever this tab becomes active: resumes a round that was frozen
+// by switching tabs, or — if there's no round in progress — shows a fresh
+// start screen for the current level.
+function enterTypeGameTab() {
+  if (typeGamePaused) {
+    resumeTypeGame();
+  } else if (!typeGameRunning) {
+    resetTypeGame();
+  }
+}
+
+function resetTypeGame() {
+  typeGameActive.forEach((w) => w.el.remove());
+  typeGameActive = [];
+  typeGameScore = 0;
+  typeGameLives = TYPEGAME_LIVES;
+  typeGameSpeed = TYPEGAME_BASE_SPEED;
+  typeGameSpawnInterval = TYPEGAME_SPAWN_START;
+  typeGameInput.value = "";
+  typeGameInput.disabled = true;
+  updateTypeGameHud();
+
+  typeGameWordPool = buildTypeGameWordPool();
+  const notEnough = typeGameWordPool.length < TYPEGAME_MIN_POOL_SIZE;
+  typeGameStartBtn.disabled = notEnough;
+  typeGameStartMessage.textContent = notEnough ? t("typeGameNotEnough", levelLabel(currentLevel)) : t("typeGameDesc");
+  typeGameOverOverlay.hidden = true;
+  typeGameStartOverlay.hidden = false;
+}
+
+function startTypeGame() {
+  if (typeGameWordPool.length < TYPEGAME_MIN_POOL_SIZE) return;
+  typeGameRunning = true;
+  typeGamePaused = false;
+  typeGameScore = 0;
+  typeGameLives = TYPEGAME_LIVES;
+  typeGameSpeed = TYPEGAME_BASE_SPEED;
+  typeGameSpawnInterval = TYPEGAME_SPAWN_START;
+  typeGameActive.forEach((w) => w.el.remove());
+  typeGameActive = [];
+  typeGameStartOverlay.hidden = true;
+  typeGameOverOverlay.hidden = true;
+  typeGameInput.disabled = false;
+  typeGameInput.value = "";
+  typeGameInput.focus();
+  updateTypeGameHud();
+
+  spawnTypeGameWord();
+  scheduleTypeGameSpawn();
+  typeGameLastTs = null;
+  typeGameRafId = requestAnimationFrame(typeGameLoop);
+}
+
+function pauseTypeGame() {
+  if (!typeGameRunning) return;
+  typeGameRunning = false;
+  typeGamePaused = true;
+  cancelAnimationFrame(typeGameRafId);
+  clearTimeout(typeGameSpawnTimer);
+  typeGameInput.disabled = true;
+  typeGameInput.value = "";
+  clearTypeGameHighlights();
+}
+
+function resumeTypeGame() {
+  typeGamePaused = false;
+  typeGameRunning = true;
+  typeGameInput.disabled = false;
+  typeGameLastTs = null;
+  typeGameRafId = requestAnimationFrame(typeGameLoop);
+  scheduleTypeGameSpawn();
+  typeGameInput.focus();
+}
+
+function scheduleTypeGameSpawn() {
+  clearTimeout(typeGameSpawnTimer);
+  typeGameSpawnTimer = setTimeout(() => {
+    if (!typeGameRunning) return;
+    spawnTypeGameWord();
+    scheduleTypeGameSpawn();
+  }, typeGameSpawnInterval);
+}
+
+function spawnTypeGameWord() {
+  // Prefer a word that doesn't share a prefix with one already falling, so
+  // typing never has to guess which of two words is meant; if every word in
+  // the pool conflicts right now, just fall back to any random one.
+  const candidates = shuffle(typeGameWordPool).filter(
+    (w) =>
+      !typeGameActive.some(
+        (a) => a.text.toLowerCase().startsWith(w.toLowerCase()) || w.toLowerCase().startsWith(a.text.toLowerCase())
+      )
+  );
+  const word = candidates[0] || shuffle(typeGameWordPool)[0];
+  if (!word) return;
+
+  const el = document.createElement("div");
+  el.className = "typegame-word";
+  const typedSpan = document.createElement("span");
+  typedSpan.className = "tw-typed";
+  const restSpan = document.createElement("span");
+  restSpan.className = "tw-rest";
+  restSpan.textContent = word;
+  el.appendChild(typedSpan);
+  el.appendChild(restSpan);
+  el.style.left = `${6 + Math.random() * 82}%`;
+  el.style.top = "-30px";
+  typeGameWordsEl.appendChild(el);
+
+  typeGameActive.push({ text: word, el, top: -30 });
+}
+
+function typeGameLoop(ts) {
+  if (!typeGameRunning) return;
+  if (typeGameLastTs == null) typeGameLastTs = ts;
+  const dt = (ts - typeGameLastTs) / 1000;
+  typeGameLastTs = ts;
+
+  const stageHeight = typeGameStage.clientHeight;
+  for (let i = typeGameActive.length - 1; i >= 0; i--) {
+    const w = typeGameActive[i];
+    w.top += typeGameSpeed * dt;
+    w.el.style.top = `${w.top}px`;
+    if (w.top > stageHeight - 30) {
+      w.el.remove();
+      typeGameActive.splice(i, 1);
+      loseTypeGameLife();
+    }
+  }
+
+  if (typeGameRunning) typeGameRafId = requestAnimationFrame(typeGameLoop);
+}
+
+function loseTypeGameLife() {
+  typeGameLives--;
+  updateTypeGameHud();
+  typeGameStage.classList.remove("typegame-shake");
+  // Force a reflow so the shake animation restarts if it's still playing.
+  void typeGameStage.offsetWidth;
+  typeGameStage.classList.add("typegame-shake");
+  if (typeGameLives <= 0) endTypeGame();
+}
+
+function clearTypeGameHighlights() {
+  typeGameActive.forEach((w) => {
+    w.el.querySelector(".tw-typed").textContent = "";
+    w.el.querySelector(".tw-rest").textContent = w.text;
+    w.el.classList.remove("tw-lock");
+  });
+}
+
+function clearTypeGameWord(word) {
+  word.el.classList.add("tw-cleared");
+  setTimeout(() => word.el.remove(), 150);
+  typeGameActive = typeGameActive.filter((w) => w !== word);
+
+  typeGameScore += word.text.length * 10;
+  updateTypeGameHud();
+
+  const speedUps = Math.floor(typeGameScore / TYPEGAME_LEVEL_UP_SCORE);
+  typeGameSpeed = Math.min(TYPEGAME_BASE_SPEED + speedUps * TYPEGAME_SPEED_STEP, TYPEGAME_MAX_SPEED);
+  typeGameSpawnInterval = Math.max(TYPEGAME_SPAWN_MIN, TYPEGAME_SPAWN_START - speedUps * TYPEGAME_SPAWN_STEP);
+}
+
+function endTypeGame() {
+  typeGameRunning = false;
+  typeGamePaused = false;
+  cancelAnimationFrame(typeGameRafId);
+  clearTimeout(typeGameSpawnTimer);
+  typeGameInput.disabled = true;
+  typeGameInput.value = "";
+  typeGameActive.forEach((w) => w.el.remove());
+  typeGameActive = [];
+
+  const key = typeGameHighScoreKey();
+  const prevBest = typeGameHighScores[key] || 0;
+  const isNewBest = typeGameScore > prevBest;
+  if (isNewBest) {
+    typeGameHighScores[key] = typeGameScore;
+    saveTypeGameHighScores();
+  }
+  typeGameFinalScoreEl.textContent = t("typeGameFinalScore", typeGameScore);
+  typeGameHighScoreEl.textContent = isNewBest ? t("typeGameNewHighScore") : t("typeGameHighScore", Math.max(prevBest, typeGameScore));
+  typeGameOverOverlay.hidden = false;
+}
+
+typeGameInput.addEventListener("input", () => {
+  if (!typeGameRunning) return;
+  const val = typeGameInput.value.toLowerCase();
+
+  let match = null;
+  if (val) {
+    typeGameActive.forEach((w) => {
+      if (w.text.toLowerCase().startsWith(val) && (!match || w.top > match.top)) match = w;
+    });
+  }
+
+  typeGameActive.forEach((w) => {
+    if (w === match) {
+      w.el.querySelector(".tw-typed").textContent = w.text.slice(0, val.length);
+      w.el.querySelector(".tw-rest").textContent = w.text.slice(val.length);
+      w.el.classList.add("tw-lock");
+    } else {
+      w.el.querySelector(".tw-typed").textContent = "";
+      w.el.querySelector(".tw-rest").textContent = w.text;
+      w.el.classList.remove("tw-lock");
+    }
+  });
+
+  if (match && val.length === match.text.length) {
+    clearTypeGameWord(match);
+    typeGameInput.value = "";
+  }
+});
+
+typeGameStartBtn.addEventListener("click", startTypeGame);
+typeGameRestartBtn.addEventListener("click", startTypeGame);
 
 /* ================= WORD LIST ================= */
 const wordlistSearch = document.getElementById("wordlist-search");
@@ -3033,5 +3370,6 @@ levelOverlay.hidden = !!savedLevels[currentLang];
 buildFlashDeck();
 buildQuizQuestions();
 buildSpellingDeck();
+resetTypeGame();
 renderWordList();
 renderCustomWords();
