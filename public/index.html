@@ -61,6 +61,17 @@
     <div class="auth-card">
       <h2 data-i18n="upgradeTitle">⭐ Upgrade to Paid</h2>
       <p class="auth-hint" data-i18n="upgradeDesc">Free accounts are capped at 100 questions per round. Enter a special code from the admin to unlock more questions and your own private word list.</p>
+
+      <div id="upgrade-request-pending" hidden>
+        <p class="auth-hint" data-i18n="upgradeRequestPendingMsg">Your request is in — waiting for admin to approve it. Check back later.</p>
+        <button type="button" class="pill neutral" id="upgrade-request-pending-close-btn" data-i18n="authCancelBtn">Cancel</button>
+      </div>
+
+      <div id="upgrade-request-fulfilled" hidden>
+        <p class="auth-hint" data-i18n="upgradeRequestFulfilledMsg">Admin sent you a code — enter it below to finish activating.</p>
+        <p class="admin-code-text" id="upgrade-request-fulfilled-code"></p>
+      </div>
+
       <form id="upgrade-form" class="auth-form">
         <label for="upgrade-code-input" data-i18n="authCodeLabelPlain">Special code</label>
         <input id="upgrade-code-input" type="text" autocomplete="off" />
@@ -72,21 +83,17 @@
       </form>
       <p class="auth-hint" id="upgrade-no-code-hint" data-i18n="upgradeNoCodeHint">Don't have a code yet?</p>
       <button type="button" class="pill neutral" id="upgrade-request-btn" data-i18n="upgradeRequestBtn">📨 Request an upgrade from admin</button>
-
-      <div id="upgrade-request-pending" hidden>
-        <p class="auth-hint" data-i18n="upgradeRequestPendingMsg">Your request is in — waiting for admin to approve it. Check back later.</p>
-        <button type="button" class="pill neutral" id="upgrade-request-pending-close-btn" data-i18n="authCancelBtn">Cancel</button>
-      </div>
-
-      <div id="upgrade-request-fulfilled" hidden>
-        <p class="auth-hint" data-i18n="upgradeRequestFulfilledMsg">Admin sent you an upgrade code — activate it now.</p>
-        <button type="button" class="pill primary" id="upgrade-request-claim-btn" data-i18n="upgradeRequestClaimBtn">✅ Activate now</button>
-      </div>
     </div>
   </div>
 
   <header>
-    <button id="auth-toggle" class="auth-toggle" type="button">🔑 Log In</button>
+    <div class="auth-toggle-wrap">
+      <button id="auth-toggle" class="auth-toggle" type="button">🔑 Log In</button>
+      <div id="auth-menu" class="auth-menu" hidden>
+        <button type="button" id="auth-menu-account-btn" data-i18n="myAccountMenuItem">👤 My Account</button>
+        <button type="button" id="auth-menu-logout-btn" data-i18n="authLogoutBtn">Log Out</button>
+      </div>
+    </div>
     <button id="lang-toggle" class="lang-toggle" type="button">한국어</button>
     <h1><span class="emoji">📚</span> <span id="app-title">Aussie English Word Practice</span></h1>
     <p id="app-subtitle">Build your vocabulary, spelling and word skills!</p>
@@ -461,20 +468,20 @@
       </div>
     </section>
 
-    <!-- Admin panel: upgrade requests, user accounts, paid signup codes -->
+    <!-- Admin panel: user accounts (incl. upgrade requests), paid signup codes -->
     <section id="view-admincodes" class="view">
       <div class="card">
-        <h3 data-i18n="adminRequestsTitle">📨 Upgrade Requests</h3>
-        <p class="muted" data-i18n="adminRequestsDesc">A free account asked to be upgraded. Approve one to generate a code bound to that account — they'll see it waiting for them next time they open the app.</p>
-        <p class="muted wordlist-count" id="admin-requests-count"></p>
-        <div class="wordlist-grid" id="admin-requests-grid"></div>
-        <p class="muted" id="admin-requests-empty" hidden data-i18n="adminRequestsEmpty">No pending requests.</p>
-      </div>
-
-      <div class="card">
         <h3 data-i18n="adminUsersTitle">👥 User Accounts</h3>
-        <p class="muted" data-i18n="adminUsersDesc">Search for an account and change its role directly.</p>
+        <p class="muted" data-i18n="adminUsersDesc">Search for an account, change its role or password, or approve a pending upgrade request — a user waiting on one is pinned to the top.</p>
         <input type="text" id="admin-users-search" data-i18n-placeholder="adminUsersSearchPlaceholder" placeholder="Search by username" />
+        <div class="setting-row setting-row-nowrap">
+          <label for="admin-users-sort" data-i18n="adminUsersSortLabel">Sort by</label>
+          <select id="admin-users-sort">
+            <option value="joined" data-i18n="adminUsersSortJoined">Join date</option>
+            <option value="az" data-i18n="adminUsersSortAz">Username (A→Z)</option>
+            <option value="role" data-i18n="adminUsersSortRole">Role</option>
+          </select>
+        </div>
         <p class="muted wordlist-count" id="admin-users-count"></p>
         <div class="wordlist-grid" id="admin-users-grid"></div>
         <p class="muted" id="admin-users-empty" hidden data-i18n="adminUsersEmpty">No accounts found.</p>
@@ -484,9 +491,39 @@
         <h3 data-i18n="adminCodesTitle">🎟️ Paid Signup Codes</h3>
         <p class="muted" data-i18n="adminCodesDesc">Generate a one-time code and send it to someone so they can sign up as a paid account instead of free.</p>
         <button type="button" class="pill primary" id="admin-codes-generate-btn" data-i18n="adminCodesGenerateBtn">🎲 Generate New Code</button>
+        <div class="setting-row setting-row-nowrap">
+          <label for="admin-codes-sort" data-i18n="adminCodesSortLabel">Sort by</label>
+          <select id="admin-codes-sort">
+            <option value="newest" data-i18n="adminCodesSortNewest">Newest</option>
+            <option value="unused" data-i18n="adminCodesSortUnused">Not used first</option>
+            <option value="used" data-i18n="adminCodesSortUsed">Used first</option>
+          </select>
+        </div>
         <p class="muted wordlist-count" id="admin-codes-count"></p>
         <div class="wordlist-grid" id="admin-codes-grid"></div>
         <p class="muted" id="admin-codes-empty" hidden data-i18n="adminCodesEmpty">No codes generated yet.</p>
+      </div>
+    </section>
+
+    <!-- My Account: a signed-in user's own status + password change -->
+    <section id="view-myaccount" class="view">
+      <div class="card">
+        <h3 data-i18n="myAccountTitle">👤 My Account</h3>
+        <div id="my-account-status" class="my-account-status"></div>
+      </div>
+      <div class="card">
+        <h3 data-i18n="myAccountChangePasswordTitle">🔒 Change Password</h3>
+        <form id="my-account-password-form" class="auth-form">
+          <label for="my-account-current-password" data-i18n="myAccountCurrentPasswordLabel">Current password</label>
+          <input id="my-account-current-password" type="password" autocomplete="current-password" />
+          <label for="my-account-new-password" data-i18n="myAccountNewPasswordLabel">New password</label>
+          <input id="my-account-new-password" type="password" autocomplete="new-password" />
+          <p id="my-account-password-error" class="auth-error" hidden></p>
+          <p id="my-account-password-success" class="auth-hint" hidden data-i18n="myAccountPasswordChanged">Password updated.</p>
+          <div class="auth-actions">
+            <button type="submit" class="pill primary" id="my-account-password-submit-btn" data-i18n="myAccountChangePasswordBtn">Update password</button>
+          </div>
+        </form>
       </div>
     </section>
   </main>

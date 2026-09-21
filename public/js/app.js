@@ -65,22 +65,32 @@ const TRANSLATIONS = {
     adminCodeCopyBtn: "Copy",
     adminCodeCopiedBtn: "Copied!",
     adminCodeGenerateFailed: "Could not generate a code — please try again.",
-    adminRequestsTitle: "📨 Upgrade Requests",
-    adminRequestsDesc: "A free account asked to be upgraded. Approve one to generate a code bound to that account — they'll see it waiting for them next time they open the app.",
-    adminRequestsEmpty: "No pending requests.",
-    adminRequestsCount: (n) => `${n} pending request${n === 1 ? "" : "s"}`,
-    adminRequestedAt: (when) => `Requested ${when}`,
+    adminCodeDeleteBtn: "Delete",
+    adminCodeConfirmDelete: (code) => `Delete code ${code}? This can't be undone.`,
+    adminCodesSortLabel: "Sort by",
+    adminCodesSortNewest: "Newest",
+    adminCodesSortUnused: "Not used first",
+    adminCodesSortUsed: "Used first",
     adminRequestApproveBtn: "✅ Approve",
     adminRequestDismissBtn: "Dismiss",
     adminRequestActionFailed: "That didn't work — please try again.",
     adminUsersTitle: "👥 User Accounts",
-    adminUsersDesc: "Search for an account and change its role directly.",
+    adminUsersDesc: "Search for an account, change its role or password, or approve a pending upgrade request — a user waiting on one is pinned to the top.",
     adminUsersSearchPlaceholder: "Search by username",
+    adminUsersSortLabel: "Sort by",
+    adminUsersSortJoined: "Join date",
+    adminUsersSortAz: "Username (A→Z)",
+    adminUsersSortRole: "Role",
     adminUsersEmpty: "No accounts found.",
     adminUserCreatedAt: (when) => `Joined ${when}`,
+    adminUserUpgradedAt: (when) => `Upgraded ${when}`,
+    adminUserPendingRequest: "⏳ Upgrade requested",
     adminUserYou: "(you)",
     adminUserApplyRoleBtn: "Apply",
     adminUserConfirmRoleChange: (username, role) => `Change ${username}'s role to ${role}?`,
+    adminUserResetPasswordBtn: "Reset password",
+    adminUserResetPasswordPrompt: (username) => `New password for ${username} (min. 8 characters):`,
+    adminUserResetPasswordDone: (username) => `${username}'s password has been reset.`,
     adminRole_free: "Free",
     adminRole_paid: "Paid",
     adminRole_admin: "Admin",
@@ -88,9 +98,8 @@ const TRANSLATIONS = {
     upgradeRequestBtn: "📨 Request an upgrade from admin",
     upgradeRequestFailed: "Could not send the request — please try again.",
     upgradeRequestPendingMsg: "Your request is in — waiting for admin to approve it. Check back later.",
-    upgradeRequestFulfilledMsg: "Admin sent you an upgrade code — activate it now.",
-    upgradeRequestClaimBtn: "✅ Activate now",
-    upgradeReadyBanner: "⭐ Your upgrade code has arrived — tap to activate!",
+    upgradeRequestFulfilledMsg: "Admin sent you a code — enter it below to finish activating.",
+    upgradeReadyBanner: "⭐ Your upgrade code has arrived — tap to enter it!",
     typeGameTitle: "⌨️ Typing Game",
     typeGameDesc: "Type each word before it reaches the bottom!",
     typeGameStartBtn: "▶ Start Game",
@@ -182,6 +191,7 @@ const TRANSLATIONS = {
         ? `Added ${added} word${added === 1 ? "" : "s"} to your flashcards.`
         : `Added ${added} of ${picked} — the rest were already in your flashcards.`,
     wordlistCount: (n) => `${n} word${n === 1 ? "" : "s"}`,
+    customWordsCount: (n) => `Total ${n} word${n === 1 ? "" : "s"}`,
     masteryNew: "New",
     masteryPct: (pct) => `${pct}% mastered`,
     addWordManualTitle: "➕ Add a word manually",
@@ -266,6 +276,7 @@ const TRANSLATIONS = {
     deleteAllFailedConfirm: (n) => (n === 1 ? "Delete 1 word that still has no meaning?" : `Delete ${n} words that still have no meaning?`),
     retryingOne: "Retrying...",
     retryProgress: (done, total) => `Retrying... ${done} / ${total}`,
+    bulkRetryingMissing: (n) => `Looking up meanings again for ${n} word${n === 1 ? "" : "s"} that didn't get one...`,
     retryResult: (found, total) => (found === total ? `Found meanings for all ${total} word(s)! 🎉` : `Found meanings for ${found} / ${total} word(s).`),
     hintPrefix: (def) => `Hint: ${def}`,
     statWordsPracticed: "Words practised",
@@ -278,6 +289,18 @@ const TRANSLATIONS = {
     footerText: "Made for Australian primary students learning English vocabulary. 🇦🇺",
     authHeaderLoginBtn: "🔑 Log In",
     authLogoutBtn: "Logout",
+    myAccountMenuItem: "👤 My Account",
+    myAccountTitle: "👤 My Account",
+    myAccountChangePasswordTitle: "🔒 Change Password",
+    myAccountCurrentPasswordLabel: "Current password",
+    myAccountNewPasswordLabel: "New password",
+    myAccountPasswordChanged: "Password updated.",
+    myAccountChangePasswordBtn: "Update password",
+    myAccountWrongCurrentPassword: "That current password isn't right.",
+    myAccountUsername: "Username",
+    myAccountRole: "Role",
+    myAccountJoined: "Joined",
+    myAccountUpgraded: "Upgraded to paid",
     authModeLogin: "Log In",
     authModeSignup: "Sign Up",
     authUsernameLabel: "Username",
@@ -329,22 +352,32 @@ const TRANSLATIONS = {
     adminCodeCopyBtn: "복사",
     adminCodeCopiedBtn: "복사됨!",
     adminCodeGenerateFailed: "코드를 생성하지 못했어요 — 다시 시도해주세요.",
-    adminRequestsTitle: "📨 업그레이드 요청",
-    adminRequestsDesc: "무료 사용자가 업그레이드를 요청했어요. 승인하면 그 계정 전용 코드가 생성되고, 다음에 앱을 열 때 사용자에게 표시돼요.",
-    adminRequestsEmpty: "대기 중인 요청이 없어요.",
-    adminRequestsCount: (n) => `대기 중인 요청 ${n}개`,
-    adminRequestedAt: (when) => `요청 시각: ${when}`,
+    adminCodeDeleteBtn: "삭제",
+    adminCodeConfirmDelete: (code) => `코드 ${code}를 삭제할까요? 되돌릴 수 없어요.`,
+    adminCodesSortLabel: "정렬",
+    adminCodesSortNewest: "최신순",
+    adminCodesSortUnused: "미사용 우선",
+    adminCodesSortUsed: "사용됨 우선",
     adminRequestApproveBtn: "✅ 승인",
     adminRequestDismissBtn: "거절",
     adminRequestActionFailed: "처리하지 못했어요 — 다시 시도해주세요.",
     adminUsersTitle: "👥 사용자 계정",
-    adminUsersDesc: "계정을 검색하고 역할을 직접 변경할 수 있어요.",
+    adminUsersDesc: "계정을 검색하고 역할이나 비밀번호를 변경하거나, 업그레이드 요청을 승인할 수 있어요 — 요청 대기 중인 사용자는 맨 위에 고정돼요.",
     adminUsersSearchPlaceholder: "사용자명으로 검색",
+    adminUsersSortLabel: "정렬",
+    adminUsersSortJoined: "가입일",
+    adminUsersSortAz: "사용자명 (A→Z)",
+    adminUsersSortRole: "역할",
     adminUsersEmpty: "계정을 찾을 수 없어요.",
     adminUserCreatedAt: (when) => `가입일: ${when}`,
+    adminUserUpgradedAt: (when) => `업그레이드: ${when}`,
+    adminUserPendingRequest: "⏳ 업그레이드 요청됨",
     adminUserYou: "(나)",
     adminUserApplyRoleBtn: "적용",
     adminUserConfirmRoleChange: (username, role) => `${username}님의 역할을 ${role}(으)로 변경할까요?`,
+    adminUserResetPasswordBtn: "비밀번호 재설정",
+    adminUserResetPasswordPrompt: (username) => `${username}님의 새 비밀번호 (최소 8자):`,
+    adminUserResetPasswordDone: (username) => `${username}님의 비밀번호를 재설정했어요.`,
     adminRole_free: "무료",
     adminRole_paid: "유료",
     adminRole_admin: "관리자",
@@ -352,9 +385,8 @@ const TRANSLATIONS = {
     upgradeRequestBtn: "📨 관리자에게 업그레이드 요청하기",
     upgradeRequestFailed: "요청을 보내지 못했어요 — 다시 시도해주세요.",
     upgradeRequestPendingMsg: "요청을 보냈어요. 관리자 승인을 기다리는 중이에요. 나중에 다시 확인해주세요.",
-    upgradeRequestFulfilledMsg: "관리자가 업그레이드 코드를 보냈어요 — 지금 활성화하세요.",
-    upgradeRequestClaimBtn: "✅ 지금 활성화",
-    upgradeReadyBanner: "⭐ 업그레이드 코드가 도착했어요 — 눌러서 활성화하세요!",
+    upgradeRequestFulfilledMsg: "관리자가 코드를 보냈어요 — 아래에 입력해서 활성화를 완료하세요.",
+    upgradeReadyBanner: "⭐ 업그레이드 코드가 도착했어요 — 눌러서 입력하세요!",
     typeGameTitle: "⌨️ 타이핑 게임",
     typeGameDesc: "단어가 바닥에 닿기 전에 타이핑하세요!",
     typeGameStartBtn: "▶ 게임 시작",
@@ -446,6 +478,7 @@ const TRANSLATIONS = {
         ? `${added}개를 내 플래시카드에 추가했어요.`
         : `${picked}개 중 ${added}개를 추가했어요 — 나머지는 이미 들어있어요.`,
     wordlistCount: (n) => `단어 ${n}개`,
+    customWordsCount: (n) => `총 ${n}개 단어`,
     masteryNew: "신규",
     masteryPct: (pct) => `${pct}% 숙달`,
     addWordManualTitle: "➕ 단어 직접 추가하기",
@@ -526,6 +559,7 @@ const TRANSLATIONS = {
     deleteAllFailedConfirm: (n) => `뜻을 찾지 못한 단어 ${n}개를 삭제할까요?`,
     retryingOne: "다시 찾는 중...",
     retryProgress: (done, total) => `다시 찾는 중... ${done} / ${total}`,
+    bulkRetryingMissing: (n) => `뜻을 찾지 못한 ${n}개 단어를 다시 검색하는 중...`,
     retryResult: (found, total) => (found === total ? `${total}개 단어 모두 뜻을 찾았어요! 🎉` : `${total}개 중 ${found}개 단어의 뜻을 찾았어요.`),
     hintPrefix: (def) => `힌트: ${def}`,
     statWordsPracticed: "연습한 단어 수",
@@ -538,6 +572,18 @@ const TRANSLATIONS = {
     footerText: "영어 필수 단어를 공부하는 학생들을 위해 만들었어요. 🇰🇷",
     authHeaderLoginBtn: "🔑 로그인",
     authLogoutBtn: "로그아웃",
+    myAccountMenuItem: "👤 내 계정",
+    myAccountTitle: "👤 내 계정",
+    myAccountChangePasswordTitle: "🔒 비밀번호 변경",
+    myAccountCurrentPasswordLabel: "현재 비밀번호",
+    myAccountNewPasswordLabel: "새 비밀번호",
+    myAccountPasswordChanged: "비밀번호가 변경됐어요.",
+    myAccountChangePasswordBtn: "비밀번호 변경",
+    myAccountWrongCurrentPassword: "현재 비밀번호가 올바르지 않아요.",
+    myAccountUsername: "아이디",
+    myAccountRole: "역할",
+    myAccountJoined: "가입일",
+    myAccountUpgraded: "유료 업그레이드일",
     authModeLogin: "로그인",
     authModeSignup: "회원가입",
     authUsernameLabel: "아이디",
@@ -1256,9 +1302,9 @@ function refreshView(view) {
   if (view === "stats") renderStats();
   if (view === "admincodes") {
     loadAdminCodes();
-    loadAdminUpgradeRequests();
     loadAdminUsers();
   }
+  if (view === "myaccount") renderMyAccount();
 }
 
 function goToTab(view) {
@@ -1464,16 +1510,19 @@ function updateAdminUI() {
   // title for space on narrow screens — the full "tap to log out" meaning
   // lives in the tooltip and the green "signed in" coloring instead.
   authToggleBtn.textContent = currentUser ? `👤 ${currentUser.username}` : t("authHeaderLoginBtn");
-  authToggleBtn.title = currentUser ? t("authLogoutBtn") : t("authHeaderLoginBtn");
+  authToggleBtn.title = currentUser ? t("myAccountMenuItem") : t("authHeaderLoginBtn");
   authToggleBtn.classList.toggle("auth-toggle-active", !!currentUser);
+  if (!currentUser) closeAuthMenu();
 
   // Bounce back to Quiz if we're sitting on a tab that just became off-limits
-  // (signed out while on an account-gated tab, or lost admin on admincodes).
+  // (signed out while on an account-gated tab, or lost admin on admincodes),
+  // or on My Account (no nav button of its own) after signing out.
   const activeOffLimitsTab = [
     ...(canUseAccountFeatures() ? [] : accountGatedTabButtons),
     ...(serverAdmin ? [] : [adminCodesTabButton]),
   ].find((btn) => btn && btn.classList.contains("active"));
-  if (activeOffLimitsTab) goToTab("quiz");
+  const onMyAccountSignedOut = !currentUser && document.getElementById("view-myaccount").classList.contains("active");
+  if (activeOffLimitsTab || onMyAccountSignedOut) goToTab("quiz");
 }
 
 function setAuthMode(mode) {
@@ -1504,27 +1553,119 @@ function closeAuthOverlay() {
   authOverlay.hidden = true;
 }
 
-authToggleBtn.addEventListener("click", async () => {
+const authMenu = document.getElementById("auth-menu");
+const authMenuAccountBtn = document.getElementById("auth-menu-account-btn");
+const authMenuLogoutBtn = document.getElementById("auth-menu-logout-btn");
+
+function closeAuthMenu() {
+  authMenu.hidden = true;
+}
+
+async function logOut() {
+  currentUser = null;
+  isAdmin = false;
+  serverAdmin = false;
+  pendingUpgradeRequest = null;
+  sessionStorage.removeItem(ADMIN_KEY);
+  // A free account's words only ever existed in memory for that session —
+  // they don't carry over once you sign out.
+  customWords = customWords.filter((w) => !w.volatile);
+  updateAdminUI();
+  renderUpgradeReadyBanner();
+  try {
+    await api("/auth/logout", { method: "POST" });
+  } catch (e) {
+    /* nothing to end server-side */
+  }
+  refreshSharedWords();
+}
+
+authToggleBtn.addEventListener("click", () => {
   if (currentUser) {
-    currentUser = null;
-    isAdmin = false;
-    serverAdmin = false;
-    pendingUpgradeRequest = null;
-    sessionStorage.removeItem(ADMIN_KEY);
-    // A free account's words only ever existed in memory for that session —
-    // they don't carry over once you sign out.
-    customWords = customWords.filter((w) => !w.volatile);
-    updateAdminUI();
-    renderUpgradeReadyBanner();
-    try {
-      await api("/auth/logout", { method: "POST" });
-    } catch (e) {
-      /* nothing to end server-side */
-    }
-    refreshSharedWords();
+    authMenu.hidden = !authMenu.hidden;
   } else {
     openAuthOverlay("login");
   }
+});
+
+document.addEventListener("click", (e) => {
+  if (!authMenu.hidden && !authMenu.contains(e.target) && e.target !== authToggleBtn) closeAuthMenu();
+});
+
+authMenuLogoutBtn.addEventListener("click", () => {
+  closeAuthMenu();
+  logOut();
+});
+
+authMenuAccountBtn.addEventListener("click", () => {
+  closeAuthMenu();
+  goToTab("myaccount");
+});
+
+/* ---------- My Account: self-service status + change password ---------- */
+const myAccountStatusEl = document.getElementById("my-account-status");
+const myAccountPasswordForm = document.getElementById("my-account-password-form");
+const myAccountCurrentPasswordInput = document.getElementById("my-account-current-password");
+const myAccountNewPasswordInput = document.getElementById("my-account-new-password");
+const myAccountPasswordError = document.getElementById("my-account-password-error");
+const myAccountPasswordSuccess = document.getElementById("my-account-password-success");
+const myAccountPasswordSubmitBtn = document.getElementById("my-account-password-submit-btn");
+
+function formatDate(ms) {
+  return ms ? new Date(ms).toLocaleDateString() : "—";
+}
+
+async function renderMyAccount() {
+  if (!currentUser) return;
+  myAccountStatusEl.innerHTML = "";
+  let account = currentUser;
+  try {
+    const { user } = await api("/auth/me");
+    if (user) account = user;
+  } catch (e) {
+    // Fall back to the cached currentUser fields if the server can't be reached.
+  }
+
+  const dl = document.createElement("dl");
+  const rows = [
+    [t("myAccountUsername"), account.username],
+    [t("myAccountRole"), roleLabel(account.role)],
+    [t("myAccountJoined"), formatDate(account.createdAt)],
+    [t("myAccountUpgraded"), formatDate(account.upgradedAt)],
+  ];
+  rows.forEach(([label, value]) => {
+    const dt = document.createElement("dt");
+    dt.textContent = label;
+    const dd = document.createElement("dd");
+    dd.textContent = value;
+    dl.appendChild(dt);
+    dl.appendChild(dd);
+  });
+  myAccountStatusEl.appendChild(dl);
+}
+
+myAccountPasswordForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  myAccountPasswordError.hidden = true;
+  myAccountPasswordSuccess.hidden = true;
+  const currentPassword = myAccountCurrentPasswordInput.value;
+  const newPassword = myAccountNewPasswordInput.value;
+  if (!currentPassword || newPassword.length < 8) {
+    myAccountPasswordError.textContent = t("authSignupErrorPassword");
+    myAccountPasswordError.hidden = false;
+    return;
+  }
+  myAccountPasswordSubmitBtn.disabled = true;
+  try {
+    await api("/auth/change-password", { method: "POST", body: JSON.stringify({ currentPassword, newPassword }) });
+    myAccountPasswordSuccess.hidden = false;
+    myAccountPasswordForm.reset();
+  } catch (err) {
+    const code = err && err.data && err.data.error;
+    myAccountPasswordError.textContent = code === "wrong_current_password" ? t("myAccountWrongCurrentPassword") : t("authSignupErrorGeneric");
+    myAccountPasswordError.hidden = false;
+  }
+  myAccountPasswordSubmitBtn.disabled = false;
 });
 
 authModeLoginBtn.addEventListener("click", () => setAuthMode("login"));
@@ -1623,7 +1764,7 @@ const upgradeRequestBtn = document.getElementById("upgrade-request-btn");
 const upgradeRequestPending = document.getElementById("upgrade-request-pending");
 const upgradeRequestPendingCloseBtn = document.getElementById("upgrade-request-pending-close-btn");
 const upgradeRequestFulfilled = document.getElementById("upgrade-request-fulfilled");
-const upgradeRequestClaimBtn = document.getElementById("upgrade-request-claim-btn");
+const upgradeRequestFulfilledCode = document.getElementById("upgrade-request-fulfilled-code");
 const upgradeReadyBanner = document.getElementById("upgrade-ready-banner");
 
 // Set from /auth/me, /auth/login and /auth/upgrade-request's responses —
@@ -1634,16 +1775,19 @@ function renderUpgradeReadyBanner() {
   upgradeReadyBanner.hidden = !(pendingUpgradeRequest && pendingUpgradeRequest.status === "fulfilled");
 }
 
-// The overlay has three mutually exclusive states: enter-a-code (the
-// default), a request already pending admin review, or a request admin has
-// fulfilled with a code ready to activate in one tap.
+// The overlay's code-entry form is always available except while a request
+// is pending (nothing to type yet). Once admin fulfils that request, the
+// code is shown as text above the same form — the user still has to type
+// or paste it in and submit themselves, the same as any other code, rather
+// than the account being upgraded silently on their behalf.
 function renderUpgradeOverlayState() {
   const status = pendingUpgradeRequest && pendingUpgradeRequest.status;
-  upgradeForm.hidden = status === "pending" || status === "fulfilled";
-  upgradeNoCodeHint.hidden = upgradeForm.hidden;
-  upgradeRequestBtn.hidden = upgradeForm.hidden;
+  upgradeForm.hidden = status === "pending";
+  upgradeNoCodeHint.hidden = status === "pending" || status === "fulfilled";
+  upgradeRequestBtn.hidden = upgradeNoCodeHint.hidden;
   upgradeRequestPending.hidden = status !== "pending";
   upgradeRequestFulfilled.hidden = status !== "fulfilled";
+  if (status === "fulfilled") upgradeRequestFulfilledCode.textContent = pendingUpgradeRequest.code || "";
 }
 
 function openUpgradeOverlay() {
@@ -1711,17 +1855,6 @@ upgradeRequestBtn.addEventListener("click", async () => {
     alert(t("upgradeRequestFailed"));
   }
   upgradeRequestBtn.disabled = false;
-});
-
-upgradeRequestClaimBtn.addEventListener("click", async () => {
-  if (!pendingUpgradeRequest || !pendingUpgradeRequest.code) return;
-  upgradeRequestClaimBtn.disabled = true;
-  try {
-    await redeemUpgradeCode(pendingUpgradeRequest.code);
-  } catch (err) {
-    alert(t("authSignupErrorGeneric"));
-  }
-  upgradeRequestClaimBtn.disabled = false;
 });
 
 // A session cookie outlives a page reload, so ask the server who (if anyone)
@@ -3303,6 +3436,26 @@ bulkAddSaveBtn.addEventListener("click", async () => {
     saveCustomWords();
     const pushResult = await pushSharedWords(added);
     failedCount = pushResult.failed.length;
+
+    // A word that came back without a definition on the first pass — often
+    // dictionaryapi.dev rate-limiting under a big batch, not the word
+    // actually being unknown — gets one automatic retry right away, instead
+    // of requiring a separate manual "Retry All" click afterwards.
+    const stillMissing = added.filter((w) => w.noDefinitionEn || w.noDefinitionKo);
+    if (stillMissing.length > 0) {
+      bulkAddStatus.textContent = t("bulkRetryingMissing", stillMissing.length);
+      const retryInfos = await mapWithConcurrency(
+        stillMissing,
+        4,
+        (w) => fetchWordInfo(w.word),
+        (done, total) => {
+          bulkAddStatus.textContent = t("retryProgress", done, total);
+        }
+      );
+      stillMissing.forEach((w, i) => applyFetchedInfo(w, retryInfos[i]));
+      saveCustomWords();
+      await pushSharedWords(stillMissing.filter((w) => w.remote));
+    }
   }
 
   const savedCount = added.length - failedCount;
@@ -3606,7 +3759,7 @@ function renderCustomWords() {
     return b.createdAt - a.createdAt;
   });
 
-  customWordsCountEl.textContent = t("wordlistCount", shown.length);
+  customWordsCountEl.textContent = t("customWordsCount", shown.length);
   shown.forEach((w) => {
       const row = document.createElement("div");
       row.className = "wordlist-item";
@@ -3805,6 +3958,7 @@ customMergeDuplicatesBtn.addEventListener("click", () => {
 
 /* ---------- Admin: paid-signup special codes ---------- */
 const adminCodesGenerateBtn = document.getElementById("admin-codes-generate-btn");
+const adminCodesSort = document.getElementById("admin-codes-sort");
 const adminCodesGrid = document.getElementById("admin-codes-grid");
 const adminCodesCountEl = document.getElementById("admin-codes-count");
 const adminCodesEmpty = document.getElementById("admin-codes-empty");
@@ -3821,6 +3975,15 @@ async function loadAdminCodes() {
   renderAdminCodes();
 }
 
+function sortedAdminCodes() {
+  const sort = adminCodesSort.value || "newest";
+  return [...adminCodes].sort((a, b) => {
+    if (sort === "unused") return (a.redeemedByUsername ? 1 : 0) - (b.redeemedByUsername ? 1 : 0);
+    if (sort === "used") return (b.redeemedByUsername ? 1 : 0) - (a.redeemedByUsername ? 1 : 0);
+    return b.createdAt - a.createdAt;
+  });
+}
+
 function renderAdminCodes() {
   adminCodesGrid.innerHTML = "";
   if (adminCodes.length === 0) {
@@ -3831,7 +3994,7 @@ function renderAdminCodes() {
   adminCodesEmpty.hidden = true;
   adminCodesCountEl.textContent = t("adminCodesCount", adminCodes.length);
 
-  adminCodes.forEach((c) => {
+  sortedAdminCodes().forEach((c) => {
     const row = document.createElement("div");
     row.className = "wordlist-item";
 
@@ -3870,6 +4033,24 @@ function renderAdminCodes() {
       }
     });
     btnRow.appendChild(copyBtn);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "delete-btn";
+    deleteBtn.textContent = t("adminCodeDeleteBtn");
+    deleteBtn.addEventListener("click", async () => {
+      if (!confirm(t("adminCodeConfirmDelete", c.code))) return;
+      deleteBtn.disabled = true;
+      try {
+        await api("/admin/codes/delete", { method: "POST", body: JSON.stringify({ code: c.code }) });
+        adminCodes = adminCodes.filter((x) => x.code !== c.code);
+        renderAdminCodes();
+      } catch (e) {
+        alert(t("adminRequestActionFailed"));
+        deleteBtn.disabled = false;
+      }
+    });
+    btnRow.appendChild(deleteBtn);
+
     right.appendChild(btnRow);
     row.appendChild(right);
 
@@ -3888,94 +4069,11 @@ adminCodesGenerateBtn.addEventListener("click", async () => {
   }
   adminCodesGenerateBtn.disabled = false;
 });
+adminCodesSort.addEventListener("change", renderAdminCodes);
 
-/* ---------- Admin: upgrade requests from free accounts ---------- */
-const adminRequestsGrid = document.getElementById("admin-requests-grid");
-const adminRequestsCountEl = document.getElementById("admin-requests-count");
-const adminRequestsEmpty = document.getElementById("admin-requests-empty");
-let adminUpgradeRequests = [];
-
-async function loadAdminUpgradeRequests() {
-  if (!serverAdmin) return;
-  try {
-    const { requests } = await api("/admin/upgrade-requests?status=pending");
-    adminUpgradeRequests = requests;
-  } catch (e) {
-    console.warn("Could not load upgrade requests", e);
-  }
-  renderAdminUpgradeRequests();
-}
-
-function renderAdminUpgradeRequests() {
-  adminRequestsGrid.innerHTML = "";
-  if (adminUpgradeRequests.length === 0) {
-    adminRequestsEmpty.hidden = false;
-    adminRequestsCountEl.textContent = "";
-    return;
-  }
-  adminRequestsEmpty.hidden = true;
-  adminRequestsCountEl.textContent = t("adminRequestsCount", adminUpgradeRequests.length);
-
-  adminUpgradeRequests.forEach((r) => {
-    const row = document.createElement("div");
-    row.className = "wordlist-item";
-
-    const left = document.createElement("div");
-    const nameEl = document.createElement("div");
-    nameEl.className = "w";
-    nameEl.textContent = r.username;
-    left.appendChild(nameEl);
-    const whenEl = document.createElement("div");
-    whenEl.className = "d";
-    whenEl.textContent = t("adminRequestedAt", new Date(r.requestedAt).toLocaleString());
-    left.appendChild(whenEl);
-    row.appendChild(left);
-
-    const right = document.createElement("div");
-    const btnRow = document.createElement("div");
-    btnRow.style.display = "flex";
-    btnRow.style.gap = "6px";
-
-    const approveBtn = document.createElement("button");
-    approveBtn.className = "edit-btn";
-    approveBtn.textContent = t("adminRequestApproveBtn");
-    approveBtn.addEventListener("click", async () => {
-      approveBtn.disabled = true;
-      try {
-        await api("/admin/upgrade-requests/approve", { method: "POST", body: JSON.stringify({ requestId: r.id }) });
-        adminUpgradeRequests = adminUpgradeRequests.filter((x) => x.id !== r.id);
-        renderAdminUpgradeRequests();
-      } catch (e) {
-        alert(t("adminRequestActionFailed"));
-        approveBtn.disabled = false;
-      }
-    });
-    btnRow.appendChild(approveBtn);
-
-    const dismissBtn = document.createElement("button");
-    dismissBtn.className = "delete-btn";
-    dismissBtn.textContent = t("adminRequestDismissBtn");
-    dismissBtn.addEventListener("click", async () => {
-      dismissBtn.disabled = true;
-      try {
-        await api("/admin/upgrade-requests/dismiss", { method: "POST", body: JSON.stringify({ requestId: r.id }) });
-        adminUpgradeRequests = adminUpgradeRequests.filter((x) => x.id !== r.id);
-        renderAdminUpgradeRequests();
-      } catch (e) {
-        alert(t("adminRequestActionFailed"));
-        dismissBtn.disabled = false;
-      }
-    });
-    btnRow.appendChild(dismissBtn);
-
-    right.appendChild(btnRow);
-    row.appendChild(right);
-    adminRequestsGrid.appendChild(row);
-  });
-}
-
-/* ---------- Admin: user accounts ---------- */
+/* ---------- Admin: user accounts (incl. upgrade requests) ---------- */
 const adminUsersSearch = document.getElementById("admin-users-search");
+const adminUsersSort = document.getElementById("admin-users-sort");
 const adminUsersGrid = document.getElementById("admin-users-grid");
 const adminUsersCountEl = document.getElementById("admin-users-count");
 const adminUsersEmpty = document.getElementById("admin-users-empty");
@@ -3994,6 +4092,23 @@ async function loadAdminUsers(query) {
   renderAdminUsers();
 }
 
+function roleLabel(role) {
+  return t(`adminRole_${role}`) || role;
+}
+
+function sortedAdminUsers() {
+  const sort = adminUsersSort.value || "joined";
+  const sorted = [...adminUsers].sort((a, b) => {
+    if (sort === "az") return a.username.localeCompare(b.username);
+    if (sort === "role") return a.role.localeCompare(b.role) || a.username.localeCompare(b.username);
+    return b.createdAt - a.createdAt;
+  });
+  // A user waiting on a pending upgrade request always bubbles to the top,
+  // regardless of the chosen sort, so admin never has to go hunting for them.
+  sorted.sort((a, b) => (b.pendingRequestId ? 1 : 0) - (a.pendingRequestId ? 1 : 0));
+  return sorted;
+}
+
 function renderAdminUsers() {
   adminUsersGrid.innerHTML = "";
   if (adminUsers.length === 0) {
@@ -4004,7 +4119,7 @@ function renderAdminUsers() {
   adminUsersEmpty.hidden = true;
   adminUsersCountEl.textContent = t("wordlistCount", adminUsers.length);
 
-  adminUsers.forEach((u) => {
+  sortedAdminUsers().forEach((u) => {
     const row = document.createElement("div");
     row.className = "wordlist-item";
 
@@ -4015,17 +4130,68 @@ function renderAdminUsers() {
     left.appendChild(nameEl);
     const whenEl = document.createElement("div");
     whenEl.className = "d";
-    whenEl.textContent = t("adminUserCreatedAt", new Date(u.createdAt).toLocaleDateString());
+    whenEl.textContent =
+      t("adminUserCreatedAt", formatDate(u.createdAt)) +
+      (u.upgradedAt ? " · " + t("adminUserUpgradedAt", formatDate(u.upgradedAt)) : "");
     left.appendChild(whenEl);
+    if (u.pendingRequestId) {
+      const pendingBadge = document.createElement("div");
+      pendingBadge.className = "d admin-pending-badge";
+      pendingBadge.textContent = t("adminUserPendingRequest");
+      left.appendChild(pendingBadge);
+    }
     row.appendChild(left);
 
     const right = document.createElement("div");
     const btnRow = document.createElement("div");
     btnRow.style.display = "flex";
+    btnRow.style.flexWrap = "wrap";
     btnRow.style.gap = "6px";
     btnRow.style.alignItems = "center";
+    btnRow.style.justifyContent = "flex-end";
 
-    // admin's own account can't be re-roled from here — no lockout risk.
+    if (u.pendingRequestId) {
+      const approveBtn = document.createElement("button");
+      approveBtn.className = "edit-btn";
+      approveBtn.textContent = t("adminRequestApproveBtn");
+      approveBtn.addEventListener("click", async () => {
+        approveBtn.disabled = true;
+        try {
+          await api("/admin/upgrade-requests/approve", {
+            method: "POST",
+            body: JSON.stringify({ requestId: u.pendingRequestId }),
+          });
+          u.pendingRequestId = null;
+          renderAdminUsers();
+        } catch (e) {
+          alert(t("adminRequestActionFailed"));
+          approveBtn.disabled = false;
+        }
+      });
+      btnRow.appendChild(approveBtn);
+
+      const dismissBtn = document.createElement("button");
+      dismissBtn.className = "delete-btn";
+      dismissBtn.textContent = t("adminRequestDismissBtn");
+      dismissBtn.addEventListener("click", async () => {
+        dismissBtn.disabled = true;
+        try {
+          await api("/admin/upgrade-requests/dismiss", {
+            method: "POST",
+            body: JSON.stringify({ requestId: u.pendingRequestId }),
+          });
+          u.pendingRequestId = null;
+          renderAdminUsers();
+        } catch (e) {
+          alert(t("adminRequestActionFailed"));
+          dismissBtn.disabled = false;
+        }
+      });
+      btnRow.appendChild(dismissBtn);
+    }
+
+    // admin's own account can't be re-roled or password-reset from here —
+    // no lockout risk, and password changes go through My Account instead.
     const isSelf = currentUser && u.id === currentUser.id;
     if (isSelf) {
       const meLabel = document.createElement("span");
@@ -4057,6 +4223,7 @@ function renderAdminUsers() {
             body: JSON.stringify({ userId: u.id, role: newRole }),
           });
           u.role = user.role;
+          u.upgradedAt = user.upgradedAt;
           renderAdminUsers();
         } catch (e) {
           alert(t("adminRequestActionFailed"));
@@ -4064,6 +4231,30 @@ function renderAdminUsers() {
         }
       });
       btnRow.appendChild(applyBtn);
+
+      const resetPasswordBtn = document.createElement("button");
+      resetPasswordBtn.className = "edit-btn";
+      resetPasswordBtn.textContent = t("adminUserResetPasswordBtn");
+      resetPasswordBtn.addEventListener("click", async () => {
+        const newPassword = prompt(t("adminUserResetPasswordPrompt", u.username));
+        if (!newPassword) return;
+        if (newPassword.length < 8) {
+          alert(t("authSignupErrorPassword"));
+          return;
+        }
+        resetPasswordBtn.disabled = true;
+        try {
+          await api("/admin/users/set-password", {
+            method: "POST",
+            body: JSON.stringify({ userId: u.id, newPassword }),
+          });
+          alert(t("adminUserResetPasswordDone", u.username));
+        } catch (e) {
+          alert(t("adminRequestActionFailed"));
+        }
+        resetPasswordBtn.disabled = false;
+      });
+      btnRow.appendChild(resetPasswordBtn);
     }
 
     right.appendChild(btnRow);
@@ -4072,15 +4263,12 @@ function renderAdminUsers() {
   });
 }
 
-function roleLabel(role) {
-  return t(`adminRole_${role}`) || role;
-}
-
 let adminUsersSearchTimer = null;
 adminUsersSearch.addEventListener("input", () => {
   clearTimeout(adminUsersSearchTimer);
   adminUsersSearchTimer = setTimeout(() => loadAdminUsers(adminUsersSearch.value.trim()), 300);
 });
+adminUsersSort.addEventListener("change", renderAdminUsers);
 
 /* ---------- OCR: extract words from a photo ---------- */
 const ocrChooseBtn = document.getElementById("ocr-choose-btn");
@@ -4290,6 +4478,12 @@ async function fetchDefinition(word) {
       dictionaryDownUntil = Date.now() + DICTIONARY_COOLDOWN_MS;
       return { error: res.status };
     }
+    // 429 means we're being rate-limited, not that the word has no entry —
+    // treated as retryable, same as a timeout, instead of being written off
+    // as "not found" like a real 404 (a big bulk add is exactly what can
+    // trigger this, so getting it wrong here silently loses definitions for
+    // everything after the limit kicks in).
+    if (res.status === 429) return { error: "timeout" };
     if (!res.ok) return { error: res.status }; // usually 404 — no entry for this word
     const data = await res.json();
     const entry = data[0];
@@ -4306,7 +4500,8 @@ async function fetchDefinitionWithRetry(word) {
   const first = await fetchDefinition(word);
   if (first && first.definition) return first;
   // Retrying is pointless when the word simply isn't in the dictionary (404)
-  // or the service itself is down — only a timeout is worth one more go.
+  // or the service itself is down — only a timeout (or a 429 rate limit,
+  // folded into the same "timeout" error above) is worth one more go.
   if (!first || (first.error && first.error !== "timeout")) return null;
 
   await wait(400);
@@ -4320,6 +4515,11 @@ async function fetchDefinitionWithRetry(word) {
 
 function stripHtml(html) {
   return html
+    // Some Wiktionary entries embed a <style>...</style> block (for citation
+    // formatting) inline in the definition text — stripping only the tags
+    // and not their contents left the raw CSS rules as visible text.
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
     .replace(/<[^>]*>/g, "")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")

@@ -217,10 +217,19 @@ async function handleApi(request, env, url) {
   if (route === "/auth/me" && request.method === "GET") {
     const session = await getSessionUser(request, env);
     if (!session) return json({ user: null });
-    const row = await env.DB.prepare("SELECT id, username, role FROM users WHERE id = ?").bind(session.id).first();
+    const row = await env.DB.prepare("SELECT id, username, role, created_at, upgraded_at FROM users WHERE id = ?")
+      .bind(session.id)
+      .first();
     if (!row) return json({ user: null });
     const pendingUpgradeRequest = await fetchPendingUpgradeRequest(env, row.id, row.role);
-    return json({ user: row, pendingUpgradeRequest });
+    const user = {
+      id: row.id,
+      username: row.username,
+      role: row.role,
+      createdAt: row.created_at,
+      upgradedAt: row.upgraded_at || null,
+    };
+    return json({ user, pendingUpgradeRequest });
   }
 
   if (route === "/auth/signup" && request.method === "POST") {
@@ -261,10 +270,11 @@ async function handleApi(request, env, url) {
     const { hash, salt } = await hashPassword(password);
     const id = genId();
     const now = Date.now();
+    const upgradedAt = role === "paid" ? now : null;
     await env.DB.prepare(
-      "INSERT INTO users (id, username, password_hash, password_salt, role, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+      "INSERT INTO users (id, username, password_hash, password_salt, role, created_at, upgraded_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
     )
-      .bind(id, username, hash, salt, role, now)
+      .bind(id, username, hash, salt, role, now, upgradedAt)
       .run();
 
     if (redeemedCode) {
@@ -333,6 +343,32 @@ async function handleApi(request, env, url) {
     return json({ ok: true }, 200, { "set-cookie": sessionCookie("", 0) });
   }
 
+  if (route === "/auth/change-password" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session) return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const currentPassword = typeof body?.currentPassword === "string" ? body.currentPassword : "";
+    const newPassword = typeof body?.newPassword === "string" ? body.newPassword : "";
+    if (!currentPassword || !validPassword(newPassword)) return json({ error: "bad_request" }, 400);
+
+    const user = await env.DB.prepare("SELECT * FROM users WHERE id = ?").bind(session.id).first();
+    if (!user) return json({ error: "unauthorized" }, 401);
+    if (!(await verifyPassword(currentPassword, user.password_salt, user.password_hash))) {
+      return json({ error: "wrong_current_password" }, 400);
+    }
+
+    const { hash, salt } = await hashPassword(newPassword);
+    await env.DB.prepare("UPDATE users SET password_hash = ?, password_salt = ? WHERE id = ?")
+      .bind(hash, salt, session.id)
+      .run();
+    return json({ ok: true });
+  }
+
   // Redeems a special code against an already-existing free account, moving
   // it to paid — the same one-time code mechanism signup already uses,
   // just for someone who signed up before deciding to upgrade.
@@ -360,7 +396,7 @@ async function handleApi(request, env, url) {
     if (!codeRow) return json({ error: "invalid_code" }, 400);
 
     const now = Date.now();
-    await env.DB.prepare("UPDATE users SET role = 'paid' WHERE id = ?").bind(session.id).run();
+    await env.DB.prepare("UPDATE users SET role = 'paid', upgraded_at = ? WHERE id = ?").bind(now, session.id).run();
     await env.DB.prepare("UPDATE special_codes SET redeemed_by = ?, redeemed_at = ? WHERE code = ?")
       .bind(session.id, now, specialCode)
       .run();
@@ -421,20 +457,49 @@ async function handleApi(request, env, url) {
     return json({ code: { code, createdAt: now, redeemedAt: null, redeemedByUsername: null } });
   }
 
+  if (route === "/admin/codes/delete" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const code = typeof body?.code === "string" ? body.code : "";
+    if (!code) return json({ error: "bad_request" }, 400);
+    await env.DB.prepare("DELETE FROM special_codes WHERE code = ?").bind(code).run();
+    return json({ ok: true });
+  }
+
   const VALID_ROLES = ["free", "paid", "admin"];
+
+  function rowToAdminUser(r) {
+    return {
+      id: r.id,
+      username: r.username,
+      role: r.role,
+      createdAt: r.created_at,
+      upgradedAt: r.upgraded_at || null,
+      pendingRequestId: r.pending_request_id || null,
+    };
+  }
 
   if (route === "/admin/users" && request.method === "GET") {
     const session = await getSessionUser(request, env);
     if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
     const q = (url.searchParams.get("q") || "").trim();
+    // A pending upgrade request (if any) rides along on the same row, so the
+    // frontend can show one merged Users list instead of two separate ones.
+    const base = `SELECT u.id, u.username, u.role, u.created_at, u.upgraded_at,
+                    (SELECT ur.id FROM upgrade_requests ur WHERE ur.user_id = u.id AND ur.status = 'pending'
+                     ORDER BY ur.requested_at DESC LIMIT 1) AS pending_request_id
+                   FROM users u`;
     const query = q
-      ? env.DB.prepare("SELECT id, username, role, created_at FROM users WHERE username LIKE ? ORDER BY created_at DESC")
-          .bind(`%${q}%`)
-      : env.DB.prepare("SELECT id, username, role, created_at FROM users ORDER BY created_at DESC");
+      ? env.DB.prepare(`${base} WHERE u.username LIKE ? ORDER BY u.created_at DESC`).bind(`%${q}%`)
+      : env.DB.prepare(`${base} ORDER BY u.created_at DESC`);
     const { results } = await query.all();
-    return json({
-      users: (results || []).map((r) => ({ id: r.id, username: r.username, role: r.role, createdAt: r.created_at })),
-    });
+    return json({ users: (results || []).map(rowToAdminUser) });
   }
 
   if (route === "/admin/users/set-role" && request.method === "POST") {
@@ -454,9 +519,40 @@ async function handleApi(request, env, url) {
     const target = await env.DB.prepare("SELECT id FROM users WHERE id = ?").bind(userId).first();
     if (!target) return json({ error: "not_found" }, 404);
 
-    await env.DB.prepare("UPDATE users SET role = ? WHERE id = ?").bind(role, userId).run();
-    const updated = await env.DB.prepare("SELECT id, username, role, created_at FROM users WHERE id = ?").bind(userId).first();
-    return json({ user: { id: updated.id, username: updated.username, role: updated.role, createdAt: updated.created_at } });
+    if (role === "paid") {
+      await env.DB.prepare("UPDATE users SET role = ?, upgraded_at = ? WHERE id = ?").bind(role, Date.now(), userId).run();
+    } else {
+      await env.DB.prepare("UPDATE users SET role = ? WHERE id = ?").bind(role, userId).run();
+    }
+    const updated = await env.DB.prepare(
+      "SELECT id, username, role, created_at, upgraded_at FROM users WHERE id = ?"
+    )
+      .bind(userId)
+      .first();
+    return json({ user: rowToAdminUser(updated) });
+  }
+
+  if (route === "/admin/users/set-password" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const userId = typeof body?.userId === "string" ? body.userId : "";
+    const newPassword = typeof body?.newPassword === "string" ? body.newPassword : "";
+    if (!userId || !validPassword(newPassword)) return json({ error: "bad_request" }, 400);
+
+    const target = await env.DB.prepare("SELECT id FROM users WHERE id = ?").bind(userId).first();
+    if (!target) return json({ error: "not_found" }, 404);
+
+    const { hash, salt } = await hashPassword(newPassword);
+    await env.DB.prepare("UPDATE users SET password_hash = ?, password_salt = ? WHERE id = ?")
+      .bind(hash, salt, userId)
+      .run();
+    return json({ ok: true });
   }
 
   if (route === "/admin/upgrade-requests" && request.method === "GET") {

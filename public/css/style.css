@@ -49,6 +49,13 @@ header {
   box-shadow: var(--shadow);
 }
 
+/* A class selector setting display: block would otherwise tie with (and, as
+   the later rule, beat) the browser's own [hidden] { display: none } rule —
+   this keeps the hidden attribute actually hiding the banner. */
+.upgrade-ready-banner[hidden] {
+  display: none;
+}
+
 .lang-toggle {
   position: absolute;
   top: 10px;
@@ -64,10 +71,13 @@ header {
   box-shadow: var(--shadow);
 }
 
-.auth-toggle {
+.auth-toggle-wrap {
   position: absolute;
   top: 10px;
   left: 12px;
+}
+
+.auth-toggle {
   border: none;
   background: #fff;
   color: var(--muted);
@@ -86,6 +96,43 @@ header {
 .auth-toggle.auth-toggle-active {
   background: var(--success);
   color: #fff;
+}
+
+.auth-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 140px;
+}
+
+.auth-menu[hidden] {
+  display: none;
+}
+
+.auth-menu button {
+  border: none;
+  background: none;
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.auth-menu button:hover {
+  background: var(--bg);
+}
+
+.auth-menu button + button {
+  border-top: 1px solid #eef0f6;
 }
 
 header h1 {
@@ -899,6 +946,12 @@ button.pill:disabled {
   font-size: 0.75rem;
 }
 
+#custom-words-count {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
 .wordlist-grid {
   display: grid;
   gap: 8px;
@@ -914,7 +967,11 @@ button.pill:disabled {
   box-shadow: var(--shadow);
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  /* flex-start rather than center: a row whose definition wraps onto a
+     second line should keep its text (and the buttons beside it) pinned to
+     the top-left instead of drifting to the row's vertical centre, which is
+     what made rows with longer text look out of line with short ones. */
+  align-items: flex-start;
   gap: 8px;
 }
 
@@ -928,10 +985,24 @@ button.pill:disabled {
   font-size: 0.8rem;
 }
 
-.wordlist-item .admin-code-text {
+.admin-pending-badge {
+  color: #a15c00;
+  font-weight: 700;
+}
+
+.wordlist-item .admin-code-text,
+.admin-code-text {
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 1rem;
   letter-spacing: 0.5px;
+}
+
+#upgrade-request-fulfilled-code {
+  font-weight: 700;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 8px 12px;
+  text-align: center;
 }
 
 .wordlist-item .mastery {
@@ -1077,6 +1148,23 @@ footer {
 
 .auth-error[hidden] {
   display: none;
+}
+
+.my-account-status {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 14px;
+  font-size: 0.85rem;
+}
+
+.my-account-status dt {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.my-account-status dd {
+  margin: 0;
+  font-weight: 700;
 }
 
 .auth-actions {

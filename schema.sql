@@ -22,14 +22,18 @@ CREATE INDEX IF NOT EXISTS idx_shared_words_owner ON shared_words (owner_id);
 
 -- User accounts. Passwords are stored as a PBKDF2-SHA256 hash with a random
 -- per-user salt — never in plaintext, never reversible. role is one of
--- 'admin' | 'paid' | 'free'.
+-- 'admin' | 'paid' | 'free'. upgraded_at is set whenever role transitions to
+-- 'paid' (signup with a code, self-serve upgrade, or an admin setting the
+-- role directly) and left alone on any other role change, so it always
+-- reads as "the last time this account became paid".
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
   username TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
   password_salt TEXT NOT NULL,
   role TEXT NOT NULL DEFAULT 'free',
-  created_at INTEGER NOT NULL
+  created_at INTEGER NOT NULL,
+  upgraded_at INTEGER
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
