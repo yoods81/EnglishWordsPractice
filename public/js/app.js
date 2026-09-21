@@ -10,7 +10,11 @@ const SHARED_WORDS_CACHE_KEY = "ywp_shared_words_cache_v1";
 const MY_DECK_KEY = "ywp_my_deck_v1";
 const GOALS_KEY = "ywp_goals_v1";
 const GOAL_MIN = 5;
-const GOAL_MAX = 50;
+// Signed-out visitors are capped at 50 questions per round — going further
+// is the nudge to sign up; any signed-in account (free/paid/admin) gets a
+// much higher ceiling instead.
+const GOAL_MAX_ANONYMOUS = 50;
+const GOAL_MAX_SIGNED_IN = 200;
 const GOAL_STEP = 5;
 const LEVELS_KEY = "ywp_levels_v1"; // { en: "year4", ko: "kr_elem6" }
 const LANG_KEY = "ywp_lang_v1";
@@ -114,6 +118,7 @@ const TRANSLATIONS = {
     goalLabel: "Number of Questions",
     goalDecreaseLabel: "Fewer questions",
     goalIncreaseLabel: "More questions",
+    anonymousQuestionCapPrompt: "Signed-out practice is capped at 50 questions. Sign up (it's free!) to unlock more questions and the rest of the app?",
     goalReached: (score, level) => `🎉 ${score} correct — you've hit your target for ${level}!`,
     goalReachedTop: (score, level) => `🎉 ${score} correct on ${level} — that's the highest level. Brilliant!`,
     goalNextLevelBtn: "🚀 Try the next level",
@@ -343,6 +348,7 @@ const TRANSLATIONS = {
     goalLabel: "문제들의 수",
     goalDecreaseLabel: "문제 수 줄이기",
     goalIncreaseLabel: "문제 수 늘리기",
+    anonymousQuestionCapPrompt: "가입 전에는 문제 수가 최대 50개로 제한돼요. 가입하고(무료예요!) 더 많은 문제와 나머지 기능도 사용해보시겠어요?",
     goalReached: (score, level) => `🎉 ${score}개 정답 — ${level} 목표를 달성했어요!`,
     goalReachedTop: (score, level) => `🎉 ${level}에서 ${score}개 정답 — 가장 높은 레벨이에요. 정말 잘했어요!`,
     goalNextLevelBtn: "🚀 다음 레벨 도전",
@@ -802,13 +808,41 @@ function nextLevelId() {
   return next || null;
 }
 
+function goalMaxFor() {
+  return currentUser ? GOAL_MAX_SIGNED_IN : GOAL_MAX_ANONYMOUS;
+}
+
+// A goal saved while signed in (or before this cap existed) could sit above
+// the anonymous ceiling — pull it back down whenever the session isn't
+// signed in, so a round never silently hands out more than 50 questions to
+// a visitor who hasn't signed up.
+function clampGoalsForRole() {
+  const max = goalMaxFor();
+  if (goals.quiz > max) {
+    goals.quiz = max;
+    saveGoals();
+  }
+  if (goals.spelling > max) {
+    goals.spelling = max;
+    saveGoals();
+  }
+}
+
 function renderGoalStepper(mode) {
   const valueEl = mode === "quiz" ? quizGoalValueEl : spellingGoalValueEl;
   const minusBtn = mode === "quiz" ? quizGoalMinusBtn : spellingGoalMinusBtn;
   const plusBtn = mode === "quiz" ? quizGoalPlusBtn : spellingGoalPlusBtn;
   valueEl.textContent = String(goals[mode]);
   minusBtn.disabled = goals[mode] <= GOAL_MIN;
-  plusBtn.disabled = goals[mode] >= GOAL_MAX;
+  // Signed-out visitors keep + enabled right at the 50 cap — tapping it
+  // there triggers the sign-up nudge instead of just going inert.
+  plusBtn.disabled = currentUser ? goals[mode] >= GOAL_MAX_SIGNED_IN : false;
+}
+
+function promptSignupForMoreQuestions() {
+  if (confirm(t("anonymousQuestionCapPrompt"))) {
+    openAuthOverlay("signup");
+  }
 }
 
 // Shows the congratulations panel once a round's correct count reaches the
@@ -1127,10 +1161,16 @@ function goToTab(view) {
 
 const addwordTabButton = document.querySelector('nav.tabs button[data-view="addword"]');
 const adminCodesTabButton = document.querySelector('nav.tabs button[data-view="admincodes"]');
+const flashcardsTabButton = document.querySelector('nav.tabs button[data-view="flashcards"]');
+const wordlistTabButton = document.querySelector('nav.tabs button[data-view="wordlist"]');
+const statsTabButton = document.querySelector('nav.tabs button[data-view="stats"]');
+// Tabs gated behind being signed in (any role) — Quiz/Spelling/Typing Game
+// stay open to everyone, admincodes has its own, stricter admin-only gate.
+const accountGatedTabButtons = [addwordTabButton, flashcardsTabButton, wordlistTabButton, statsTabButton];
 
 tabButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    if (btn.dataset.view === "addword" && !canAddWords()) return;
+    if (accountGatedTabButtons.includes(btn) && !canUseAccountFeatures()) return;
     if (btn.dataset.view === "admincodes" && !serverAdmin) return;
     goToTab(btn.dataset.view);
   });
@@ -1145,10 +1185,14 @@ tabButtons.forEach((btn) => {
 let serverAdmin = false;
 let sharedWordsAvailable = false;
 
-// Anyone signed in (any role) may open the Add Word tab; what happens to a
-// word they add from there depends on the role (see newWordStorageFlags()).
-function canAddWords() {
+// Signing in (any role) unlocks everything beyond Quiz/Spelling/Typing Game —
+// Flashcards, Word List, Add Word, My Progress. What happens to a word added
+// from Add Word still depends on the specific role (newWordStorageFlags()).
+function canUseAccountFeatures() {
   return !!currentUser || isAdmin;
+}
+function canAddWords() {
+  return canUseAccountFeatures();
 }
 
 // Admin and paid accounts are the only roles whose words are ever written to
@@ -1274,16 +1318,19 @@ const signupError = document.getElementById("signup-error");
 const signupCancelBtn = document.getElementById("signup-cancel-btn");
 
 function updateAdminUI() {
-  if (addwordTabButton) addwordTabButton.hidden = !canAddWords();
+  clampGoalsForRole();
+  accountGatedTabButtons.forEach((btn) => {
+    if (btn) btn.hidden = !canUseAccountFeatures();
+  });
   if (adminCodesTabButton) adminCodesTabButton.hidden = !serverAdmin;
   authToggleBtn.textContent = currentUser ? `👤 ${currentUser.username} · ${t("authLogoutBtn")}` : t("authHeaderLoginBtn");
   authToggleBtn.classList.toggle("auth-toggle-active", !!currentUser);
-  if (!canAddWords() && addwordTabButton && addwordTabButton.classList.contains("active")) {
-    goToTab("quiz");
-  }
-  if (!serverAdmin && adminCodesTabButton && adminCodesTabButton.classList.contains("active")) {
-    goToTab("quiz");
-  }
+
+  // Bounce back to Quiz if the tab we were on just got hidden out from under us.
+  const activeHiddenTab = [...accountGatedTabButtons, adminCodesTabButton].find(
+    (btn) => btn && btn.hidden && btn.classList.contains("active")
+  );
+  if (activeHiddenTab) goToTab("quiz");
 }
 
 function setAuthMode(mode) {
@@ -1909,7 +1956,11 @@ quizGoalMinusBtn.addEventListener("click", () => {
 });
 
 quizGoalPlusBtn.addEventListener("click", () => {
-  goals.quiz = Math.min(GOAL_MAX, goals.quiz + GOAL_STEP);
+  if (!currentUser && goals.quiz >= GOAL_MAX_ANONYMOUS) {
+    promptSignupForMoreQuestions();
+    return;
+  }
+  goals.quiz = Math.min(goalMaxFor(), goals.quiz + GOAL_STEP);
   saveGoals();
   renderGoalStepper("quiz");
   buildQuizQuestions();
@@ -2179,7 +2230,11 @@ spellingGoalMinusBtn.addEventListener("click", () => {
 });
 
 spellingGoalPlusBtn.addEventListener("click", () => {
-  goals.spelling = Math.min(GOAL_MAX, goals.spelling + GOAL_STEP);
+  if (!currentUser && goals.spelling >= GOAL_MAX_ANONYMOUS) {
+    promptSignupForMoreQuestions();
+    return;
+  }
+  goals.spelling = Math.min(goalMaxFor(), goals.spelling + GOAL_STEP);
   saveGoals();
   renderGoalStepper("spelling");
   buildSpellingDeck();
