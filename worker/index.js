@@ -313,6 +313,39 @@ async function handleApi(request, env, url) {
     return json({ ok: true }, 200, { "set-cookie": sessionCookie("", 0) });
   }
 
+  // Redeems a special code against an already-existing free account, moving
+  // it to paid — the same one-time code mechanism signup already uses,
+  // just for someone who signed up before deciding to upgrade.
+  if (route === "/auth/upgrade" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session) return json({ error: "unauthorized" }, 401);
+    if (session.role !== "free") return json({ error: "not_eligible" }, 400);
+
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const specialCode = typeof body?.specialCode === "string" ? body.specialCode.trim() : "";
+    if (!specialCode) return json({ error: "invalid_code" }, 400);
+
+    const codeRow = await env.DB.prepare("SELECT code FROM special_codes WHERE code = ? AND redeemed_by IS NULL")
+      .bind(specialCode)
+      .first();
+    if (!codeRow) return json({ error: "invalid_code" }, 400);
+
+    const now = Date.now();
+    await env.DB.prepare("UPDATE users SET role = 'paid' WHERE id = ?").bind(session.id).run();
+    await env.DB.prepare("UPDATE special_codes SET redeemed_by = ?, redeemed_at = ? WHERE code = ?")
+      .bind(session.id, now, specialCode)
+      .run();
+
+    const user = await env.DB.prepare("SELECT id, username, role FROM users WHERE id = ?").bind(session.id).first();
+    const token = await makeSessionToken(env, user.id, user.role);
+    return json({ user }, 200, { "set-cookie": sessionCookie(token, SESSION_TTL_MS / 1000) });
+  }
+
   if (route === "/admin/codes" && request.method === "GET") {
     const session = await getSessionUser(request, env);
     if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);

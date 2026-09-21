@@ -56,6 +56,23 @@
     </div>
   </div>
 
+  <!-- Upgrade to paid overlay -->
+  <div id="upgrade-overlay" class="auth-overlay" hidden>
+    <div class="auth-card">
+      <h2 data-i18n="upgradeTitle">⭐ Upgrade to Paid</h2>
+      <p class="auth-hint" data-i18n="upgradeDesc">Free accounts are capped at 100 questions per round. Enter a special code from the admin to unlock more questions and your own private word list.</p>
+      <form id="upgrade-form" class="auth-form">
+        <label for="upgrade-code-input" data-i18n="authCodeLabelPlain">Special code</label>
+        <input id="upgrade-code-input" type="text" autocomplete="off" />
+        <p id="upgrade-error" class="auth-error" hidden></p>
+        <div class="auth-actions">
+          <button type="button" id="upgrade-cancel-btn" class="pill neutral" data-i18n="authCancelBtn">Cancel</button>
+          <button type="submit" id="upgrade-submit-btn" class="pill primary" data-i18n="upgradeSubmitBtn">Upgrade</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <header>
     <button id="auth-toggle" class="auth-toggle" type="button">🔑 Log In</button>
     <button id="lang-toggle" class="lang-toggle" type="button">한국어</button>

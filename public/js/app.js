@@ -10,11 +10,12 @@ const SHARED_WORDS_CACHE_KEY = "ywp_shared_words_cache_v1";
 const MY_DECK_KEY = "ywp_my_deck_v1";
 const GOALS_KEY = "ywp_goals_v1";
 const GOAL_MIN = 5;
-// Signed-out visitors are capped at 50 questions per round — going further
-// is the nudge to sign up; any signed-in account (free/paid/admin) gets a
-// much higher ceiling instead.
+// Three tiers of question-count ceiling: signed-out visitors are capped at
+// 50 (going further nudges them to sign up), a free account at 100 (going
+// further nudges an upgrade to paid), and a paid or admin account at 200.
 const GOAL_MAX_ANONYMOUS = 50;
-const GOAL_MAX_SIGNED_IN = 200;
+const GOAL_MAX_FREE = 100;
+const GOAL_MAX_PAID = 200;
 const GOAL_STEP = 5;
 const LEVELS_KEY = "ywp_levels_v1"; // { en: "year4", ko: "kr_elem6" }
 const LANG_KEY = "ywp_lang_v1";
@@ -256,6 +257,7 @@ const TRANSLATIONS = {
     authPasswordLabel: "Password",
     authPasswordHint: "At least 8 characters.",
     authCodeLabel: "Special code (optional, for a paid account)",
+    authCodeLabelPlain: "Special code",
     authCancelBtn: "Cancel",
     authLoginBtn: "Login",
     authSignupBtn: "Sign Up",
@@ -265,6 +267,11 @@ const TRANSLATIONS = {
     authSignupErrorUsername: "Username must be 3-20 characters: letters, numbers, underscore.",
     authSignupErrorPassword: "Password must be at least 8 characters.",
     authSignupErrorGeneric: "Sign up failed — please try again.",
+    upgradeTitle: "⭐ Upgrade to Paid",
+    upgradeDesc: "Free accounts are capped at 100 questions per round. Enter a special code from the admin to unlock more questions and your own private word list.",
+    upgradeSubmitBtn: "Upgrade",
+    upgradeErrorNotEligible: "This account can't be upgraded from here.",
+    anonymousFeatureSignupPrompt: "This feature is for signed-in accounts. Sign up (it's free!) to unlock it?",
     roleAdmin: "Admin",
     rolePaid: "Paid",
     roleFree: "Free",
@@ -482,6 +489,7 @@ const TRANSLATIONS = {
     authPasswordLabel: "비밀번호",
     authPasswordHint: "8자 이상 입력해주세요.",
     authCodeLabel: "특별 코드 (선택, 유료 계정 가입 시 입력)",
+    authCodeLabelPlain: "특별 코드",
     authCancelBtn: "취소",
     authLoginBtn: "로그인",
     authSignupBtn: "회원가입",
@@ -491,6 +499,11 @@ const TRANSLATIONS = {
     authSignupErrorUsername: "아이디는 3~20자의 영문/숫자/밑줄(_)만 가능해요.",
     authSignupErrorPassword: "비밀번호는 8자 이상이어야 해요.",
     authSignupErrorGeneric: "회원가입에 실패했어요 — 다시 시도해주세요.",
+    upgradeTitle: "⭐ 유료로 업그레이드",
+    upgradeDesc: "무료 계정은 한 라운드에 최대 100문제까지만 가능해요. admin에게 받은 특별 코드를 입력하면 더 많은 문제와 나만의 단어장을 사용할 수 있어요.",
+    upgradeSubmitBtn: "업그레이드",
+    upgradeErrorNotEligible: "이 계정은 여기서 업그레이드할 수 없어요.",
+    anonymousFeatureSignupPrompt: "이 기능은 로그인한 계정만 사용할 수 있어요. 가입하고(무료예요!) 사용해보시겠어요?",
     roleAdmin: "관리자",
     rolePaid: "유료",
     roleFree: "무료",
@@ -728,9 +741,13 @@ function addToMyDeck(entries) {
   return added;
 }
 
+// sessionStorage, not localStorage: the chosen question count should stick
+// around for reloads within the same browser session (so it survives a tab
+// refresh or switching tabs and back), but reset to the default once the
+// browser is closed and reopened, rather than accumulating forever.
 function loadGoals() {
   try {
-    const raw = localStorage.getItem(GOALS_KEY);
+    const raw = sessionStorage.getItem(GOALS_KEY);
     if (raw) return JSON.parse(raw);
   } catch (e) {
     console.warn("Could not read saved goals", e);
@@ -740,7 +757,7 @@ function loadGoals() {
 
 function saveGoals() {
   try {
-    localStorage.setItem(GOALS_KEY, JSON.stringify(goals));
+    sessionStorage.setItem(GOALS_KEY, JSON.stringify(goals));
   } catch (e) {
     console.warn("Could not save goals", e);
   }
@@ -809,13 +826,34 @@ function nextLevelId() {
 }
 
 function goalMaxFor() {
-  return currentUser ? GOAL_MAX_SIGNED_IN : GOAL_MAX_ANONYMOUS;
+  if (!currentUser) return GOAL_MAX_ANONYMOUS;
+  if (currentUser.role === "free") return GOAL_MAX_FREE;
+  return GOAL_MAX_PAID;
 }
 
-// A goal saved while signed in (or before this cap existed) could sit above
-// the anonymous ceiling — pull it back down whenever the session isn't
-// signed in, so a round never silently hands out more than 50 questions to
-// a visitor who hasn't signed up.
+// How many questions the current quiz category/level, or the current
+// spelling level, can actually produce — the stepper (and the round it
+// builds) can never exceed this, regardless of how high a role's own
+// ceiling goes.
+function quizPoolSizeForCurrentCategory() {
+  const cat = quizCategorySel.value;
+  if (cat === "synonyms") return buildSynonymQuestions(currentLevel).length;
+  if (cat === "homophones") return buildHomophoneQuestions(currentLevel).length;
+  return buildVocabQuestions(currentLevel).length;
+}
+
+function spellingPoolSize() {
+  return getSpellingPool(currentLevel).length;
+}
+
+function goalPoolSize(mode) {
+  return mode === "quiz" ? quizPoolSizeForCurrentCategory() : spellingPoolSize();
+}
+
+// A goal saved under a higher tier (or before these caps existed) could sit
+// above the current session's ceiling — pull it back down whenever the
+// role changes, so a round never silently hands out more questions than
+// this account is entitled to.
 function clampGoalsForRole() {
   const max = goalMaxFor();
   if (goals.quiz > max) {
@@ -834,9 +872,17 @@ function renderGoalStepper(mode) {
   const plusBtn = mode === "quiz" ? quizGoalPlusBtn : spellingGoalPlusBtn;
   valueEl.textContent = String(goals[mode]);
   minusBtn.disabled = goals[mode] <= GOAL_MIN;
-  // Signed-out visitors keep + enabled right at the 50 cap — tapping it
-  // there triggers the sign-up nudge instead of just going inert.
-  plusBtn.disabled = currentUser ? goals[mode] >= GOAL_MAX_SIGNED_IN : false;
+
+  const poolMax = goalPoolSize(mode);
+  const roleMax = goalMaxFor();
+  // A paid/admin account has no upsell above its own ceiling, so both the
+  // pool and the role ceiling act as hard stops for it. A signed-out
+  // visitor or a free account keeps + enabled right at their role ceiling
+  // (as long as the pool genuinely has more) — tapping it there triggers
+  // the sign-up/upgrade nudge instead of just going inert.
+  const hasUpsellAbove = !currentUser || currentUser.role === "free";
+  const hardCeiling = hasUpsellAbove ? poolMax : Math.min(roleMax, poolMax);
+  plusBtn.disabled = goals[mode] >= hardCeiling;
 }
 
 function promptSignupForMoreQuestions() {
@@ -1170,11 +1216,20 @@ const accountGatedTabButtons = [addwordTabButton, flashcardsTabButton, wordlistT
 
 tabButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    if (accountGatedTabButtons.includes(btn) && !canUseAccountFeatures()) return;
+    if (accountGatedTabButtons.includes(btn) && !canUseAccountFeatures()) {
+      promptSignupForFeature();
+      return;
+    }
     if (btn.dataset.view === "admincodes" && !serverAdmin) return;
     goToTab(btn.dataset.view);
   });
 });
+
+function promptSignupForFeature() {
+  if (confirm(t("anonymousFeatureSignupPrompt"))) {
+    openAuthOverlay("signup");
+  }
+}
 
 /* ---------- Shared word list API ---------- */
 // serverAdmin means the Worker confirmed an admin session, so this browser
@@ -1319,18 +1374,25 @@ const signupCancelBtn = document.getElementById("signup-cancel-btn");
 
 function updateAdminUI() {
   clampGoalsForRole();
-  accountGatedTabButtons.forEach((btn) => {
-    if (btn) btn.hidden = !canUseAccountFeatures();
-  });
+  // Flashcards/Word List/Add Word/My Progress stay visible even signed out —
+  // tapping one prompts to sign up instead of the tab just disappearing (see
+  // the click handler above). admincodes is the one tab that's genuinely
+  // hidden, since it's admin-only rather than sign-in-gated.
   if (adminCodesTabButton) adminCodesTabButton.hidden = !serverAdmin;
-  authToggleBtn.textContent = currentUser ? `👤 ${currentUser.username} · ${t("authLogoutBtn")}` : t("authHeaderLoginBtn");
+  // Keep the label short (just the username) so it never fights the centered
+  // title for space on narrow screens — the full "tap to log out" meaning
+  // lives in the tooltip and the green "signed in" coloring instead.
+  authToggleBtn.textContent = currentUser ? `👤 ${currentUser.username}` : t("authHeaderLoginBtn");
+  authToggleBtn.title = currentUser ? t("authLogoutBtn") : t("authHeaderLoginBtn");
   authToggleBtn.classList.toggle("auth-toggle-active", !!currentUser);
 
-  // Bounce back to Quiz if the tab we were on just got hidden out from under us.
-  const activeHiddenTab = [...accountGatedTabButtons, adminCodesTabButton].find(
-    (btn) => btn && btn.hidden && btn.classList.contains("active")
-  );
-  if (activeHiddenTab) goToTab("quiz");
+  // Bounce back to Quiz if we're sitting on a tab that just became off-limits
+  // (signed out while on an account-gated tab, or lost admin on admincodes).
+  const activeOffLimitsTab = [
+    ...(canUseAccountFeatures() ? [] : accountGatedTabButtons),
+    ...(serverAdmin ? [] : [adminCodesTabButton]),
+  ].find((btn) => btn && btn.classList.contains("active"));
+  if (activeOffLimitsTab) goToTab("quiz");
 }
 
 function setAuthMode(mode) {
@@ -1459,6 +1521,58 @@ signupForm.addEventListener("submit", async (e) => {
     const code = err && err.data && err.data.error;
     signupError.textContent = t(SIGNUP_ERROR_KEYS[code] || "authSignupErrorGeneric");
     signupError.hidden = false;
+  }
+});
+
+/* ---------- Upgrade to paid (an existing free account redeems a code) ---------- */
+const upgradeOverlay = document.getElementById("upgrade-overlay");
+const upgradeForm = document.getElementById("upgrade-form");
+const upgradeCodeInput = document.getElementById("upgrade-code-input");
+const upgradeError = document.getElementById("upgrade-error");
+const upgradeCancelBtn = document.getElementById("upgrade-cancel-btn");
+
+function openUpgradeOverlay() {
+  upgradeCodeInput.value = "";
+  upgradeError.hidden = true;
+  upgradeOverlay.hidden = false;
+  upgradeCodeInput.focus();
+}
+
+function closeUpgradeOverlay() {
+  upgradeOverlay.hidden = true;
+}
+
+upgradeCancelBtn.addEventListener("click", closeUpgradeOverlay);
+upgradeOverlay.addEventListener("click", (e) => {
+  if (e.target === upgradeOverlay) closeUpgradeOverlay();
+});
+
+const UPGRADE_ERROR_KEYS = {
+  invalid_code: "authSignupErrorCode",
+  not_eligible: "upgradeErrorNotEligible",
+};
+
+upgradeForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const specialCode = upgradeCodeInput.value.trim();
+  upgradeError.hidden = true;
+  if (!specialCode) {
+    upgradeError.textContent = t("authSignupErrorCode");
+    upgradeError.hidden = false;
+    return;
+  }
+  try {
+    const { user } = await api("/auth/upgrade", { method: "POST", body: JSON.stringify({ specialCode }) });
+    currentUser = user;
+    closeUpgradeOverlay();
+    updateAdminUI();
+    renderGoalStepper("quiz");
+    renderGoalStepper("spelling");
+    refreshSharedWords();
+  } catch (err) {
+    const code = err && err.data && err.data.error;
+    upgradeError.textContent = t(UPGRADE_ERROR_KEYS[code] || "authSignupErrorGeneric");
+    upgradeError.hidden = false;
   }
 });
 
@@ -1864,10 +1978,21 @@ function buildQuizQuestions() {
   if (cat === "synonyms") pool = buildSynonymQuestions(currentLevel);
   else if (cat === "homophones") pool = buildHomophoneQuestions(currentLevel);
   else pool = buildVocabQuestions(currentLevel);
+
+  // The stepper can't be dragged past what's actually available, but the
+  // pool itself can shrink out from under a stored preference (switching
+  // category/level, or words disappearing) — clamp down here too so
+  // "Number of Questions" and the Score denominator never disagree.
+  if (pool.length >= GOAL_MIN && goals.quiz > pool.length) {
+    goals.quiz = pool.length;
+    saveGoals();
+  }
+
   quizQuestions = shuffle(pool).slice(0, goals.quiz);
   quizIndex = 0;
   quizScore = 0;
   quizAnswered = false;
+  renderGoalStepper("quiz");
   renderQuizQuestion();
 }
 
@@ -1956,11 +2081,17 @@ quizGoalMinusBtn.addEventListener("click", () => {
 });
 
 quizGoalPlusBtn.addEventListener("click", () => {
+  const poolMax = quizPoolSizeForCurrentCategory();
+  if (goals.quiz >= poolMax) return; // no more questions available at all, regardless of tier
   if (!currentUser && goals.quiz >= GOAL_MAX_ANONYMOUS) {
     promptSignupForMoreQuestions();
     return;
   }
-  goals.quiz = Math.min(goalMaxFor(), goals.quiz + GOAL_STEP);
+  if (currentUser && currentUser.role === "free" && goals.quiz >= GOAL_MAX_FREE) {
+    openUpgradeOverlay();
+    return;
+  }
+  goals.quiz = Math.min(goalMaxFor(), poolMax, goals.quiz + GOAL_STEP);
   saveGoals();
   renderGoalStepper("quiz");
   buildQuizQuestions();
@@ -2012,7 +2143,11 @@ let spellingWrongThisRound = new Set(); // this round only — word had >=1 wron
 let spellingSessionWrongWords = new Map(); // word -> {word, meaning} — for the end-of-round report
 let spellingCurrentChecked = false; // has the current word passed a "Check Answer" yet — gates the Next button
 
-function buildSpellingDeck() {
+// resetScreen: false is used when the round is being resized in place (the
+// Number of Questions stepper) rather than freshly entered — it keeps
+// whichever screen (start / practice) was already showing instead of
+// bouncing back to "Start the first word".
+function buildSpellingDeck({ resetScreen = true } = {}) {
   spellingGoalBanner.hidden = true;
   spellingGoalCelebrated = false;
   const pool = getSpellingPool(currentLevel);
@@ -2020,19 +2155,34 @@ function buildSpellingDeck() {
   const wrongWords = pool.filter((w) => status[w.word] === "wrong");
   const untriedWords = pool.filter((w) => !(w.word in status));
   const doneWords = pool.filter((w) => status[w.word] === "correct");
+
+  // The stepper can't be dragged past what's actually available, but the
+  // pool itself can shrink out from under a stored preference (switching
+  // level, or words disappearing) — clamp down here too so "Number of
+  // Questions" and the Score denominator never disagree.
+  if (pool.length >= GOAL_MIN && goals.spelling > pool.length) {
+    goals.spelling = pool.length;
+    saveGoals();
+  }
+
   spellingDeck = [...shuffle(wrongWords), ...shuffle(untriedWords), ...shuffle(doneWords)].slice(0, goals.spelling);
   spellingIndex = 0;
   spellingScore = { correct: 0, total: 0 };
   spellingTotalCountedWords = new Set();
   spellingWrongThisRound = new Set();
   spellingSessionWrongWords = new Map();
+  renderGoalStepper("spelling");
   updateSpellingScoreLabel();
   spellingInput.value = "";
   spellingInput.className = "";
   spellingFeedback.innerHTML = "";
-  spellingStartScreen.hidden = false;
-  spellingPractice.hidden = true;
-  spellingReport.hidden = true;
+  if (resetScreen) {
+    spellingStartScreen.hidden = false;
+    spellingPractice.hidden = true;
+    spellingReport.hidden = true;
+  } else if (!spellingPractice.hidden) {
+    loadSpellingWord();
+  }
 }
 
 spellingStartBtn.addEventListener("click", () => {
@@ -2225,19 +2375,23 @@ spellingReportRestartBtn.addEventListener("click", () => {
 spellingGoalMinusBtn.addEventListener("click", () => {
   goals.spelling = Math.max(GOAL_MIN, goals.spelling - GOAL_STEP);
   saveGoals();
-  renderGoalStepper("spelling");
-  buildSpellingDeck();
+  buildSpellingDeck({ resetScreen: false });
 });
 
 spellingGoalPlusBtn.addEventListener("click", () => {
+  const poolMax = spellingPoolSize();
+  if (goals.spelling >= poolMax) return; // no more words available at all, regardless of tier
   if (!currentUser && goals.spelling >= GOAL_MAX_ANONYMOUS) {
     promptSignupForMoreQuestions();
     return;
   }
-  goals.spelling = Math.min(goalMaxFor(), goals.spelling + GOAL_STEP);
+  if (currentUser && currentUser.role === "free" && goals.spelling >= GOAL_MAX_FREE) {
+    openUpgradeOverlay();
+    return;
+  }
+  goals.spelling = Math.min(goalMaxFor(), poolMax, goals.spelling + GOAL_STEP);
   saveGoals();
-  renderGoalStepper("spelling");
-  buildSpellingDeck();
+  buildSpellingDeck({ resetScreen: false });
 });
 
 spellingGoalDismissBtn.addEventListener("click", () => {
