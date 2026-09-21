@@ -1885,7 +1885,10 @@ function attemptSpellingNext() {
 }
 
 function updateSpellingScoreLabel() {
-  spellingScoreEl.textContent = t("scoreLabel", spellingScore.correct, spellingScore.total);
+  // The denominator is the round's planned word count (the deck built for
+  // it, capped to the chosen number of questions), not how many words have
+  // been attempted so far — so it reads correctly from the very first word.
+  spellingScoreEl.textContent = t("scoreLabel", spellingScore.correct, spellingDeck.length);
 }
 
 spellingNextBtn.addEventListener("click", attemptSpellingNext);
