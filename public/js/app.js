@@ -192,6 +192,12 @@ const TRANSLATIONS = {
     sortMissing: "⚠️ Missing meaning first",
     deleteSelectedBtn: "🗑️ Delete Selected",
     deleteSelectedConfirm: (n) => `Delete ${n} selected word(s)?`,
+    mergeDuplicatesBtn: "🧹 Merge Duplicates",
+    noDuplicatesFound: "No duplicate words found — your list is clean!",
+    mergeDuplicatesConfirm: (groups, extra) =>
+      `Found ${groups} duplicate word${groups === 1 ? "" : "s"} (${extra} extra ${extra === 1 ? "entry" : "entries"}). Merge them into one entry each?`,
+    mergeDuplicatesDone: (groups, removed) =>
+      `Merged ${groups} duplicate word${groups === 1 ? "" : "s"} — removed ${removed} extra ${removed === 1 ? "entry" : "entries"}.`,
     changeLevelPlaceholder: "📚 Change level",
     changeLevelConfirm: (n, level) => `Move ${n} selected word(s) to ${level}?`,
     changeLevelDone: (n, level) => `Moved ${n} word(s) to ${level}.`,
@@ -387,6 +393,10 @@ const TRANSLATIONS = {
     sortMissing: "⚠️ 뜻 없는 단어 먼저",
     deleteSelectedBtn: "🗑️ 선택 삭제",
     deleteSelectedConfirm: (n) => `선택한 단어 ${n}개를 삭제할까요?`,
+    mergeDuplicatesBtn: "🧹 중복 단어 정리",
+    noDuplicatesFound: "중복된 단어가 없어요 — 목록이 깨끗해요!",
+    mergeDuplicatesConfirm: (groups, extra) => `중복된 단어 ${groups}개(여분 ${extra}개)를 찾았어요. 각각 하나로 합칠까요?`,
+    mergeDuplicatesDone: (groups, removed) => `중복 단어 ${groups}개를 하나로 합치고, 여분 항목 ${removed}개를 삭제했어요.`,
     changeLevelPlaceholder: "📚 레벨 변경",
     changeLevelConfirm: (n, level) => `선택한 단어 ${n}개를 ${level} 레벨로 옮길까요?`,
     changeLevelDone: (n, level) => `${n}개를 ${level} 레벨로 옮겼어요.`,
@@ -890,6 +900,19 @@ function allKnownWordsLowercase() {
 function findCustomWordByText(word) {
   const target = word.trim().toLowerCase();
   return customWords.find((w) => w.word.trim().toLowerCase() === target) || null;
+}
+
+// Groups customWords by text (case-insensitive, trimmed) and returns only the
+// groups with more than one entry — leftover duplicates from before the
+// duplicate check existed on Single/Multiple word add.
+function findDuplicateCustomWordGroups() {
+  const groups = new Map();
+  customWords.forEach((w) => {
+    const key = w.word.trim().toLowerCase();
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(w);
+  });
+  return Array.from(groups.values()).filter((group) => group.length > 1);
 }
 
 /* ================= TRANSLATION APPLICATION ================= */
@@ -2576,6 +2599,7 @@ const customSortSelect = document.getElementById("custom-sort");
 const customWordsCountEl = document.getElementById("custom-words-count");
 const CUSTOM_SORTS = ["recent", "oldest", "az", "za", "missing"];
 const customDeleteSelectedBtn = document.getElementById("custom-delete-selected-btn");
+const customMergeDuplicatesBtn = document.getElementById("custom-merge-duplicates-btn");
 const customUploadBtn = document.getElementById("custom-upload-btn");
 const customLevelSelect = document.getElementById("custom-level-select");
 const customStorageNote = document.getElementById("custom-words-storage-note");
@@ -3130,6 +3154,50 @@ customDeleteSelectedBtn.addEventListener("click", () => {
   saveCustomWords();
   renderCustomWords();
   renderWordList();
+  removeSharedWords(removedRemoteIds);
+});
+
+// Merges every group of duplicate words (same text, case-insensitive) into a
+// single entry: the oldest entry in each group is kept and filled in with
+// whatever fields (definitions, example, level) the newer duplicates have
+// that it's missing, and the rest are removed.
+customMergeDuplicatesBtn.addEventListener("click", () => {
+  const groups = findDuplicateCustomWordGroups();
+  if (groups.length === 0) {
+    customWordsStatus.textContent = t("noDuplicatesFound");
+    return;
+  }
+  const extraCount = groups.reduce((sum, g) => sum + g.length - 1, 0);
+  if (!confirm(t("mergeDuplicatesConfirm", groups.length, extraCount))) return;
+
+  const removedIds = new Set();
+  const removedRemoteIds = [];
+  const mergedKeepers = [];
+
+  groups.forEach((group) => {
+    const sorted = group.slice().sort((a, b) => a.createdAt - b.createdAt);
+    const keeper = sorted[0];
+    sorted.slice(1).forEach((dup) => {
+      if (!keeper.definitionEn && dup.definitionEn) keeper.definitionEn = dup.definitionEn;
+      if (!keeper.definitionKo && dup.definitionKo) keeper.definitionKo = dup.definitionKo;
+      if (!keeper.example && dup.example) keeper.example = dup.example;
+      if (!keeper.levelEn && dup.levelEn) keeper.levelEn = dup.levelEn;
+      if (!keeper.levelKo && dup.levelKo) keeper.levelKo = dup.levelKo;
+      removedIds.add(dup.id);
+      if (dup.remote) removedRemoteIds.push(dup.id);
+    });
+    keeper.noDefinitionEn = !keeper.definitionEn;
+    keeper.noDefinitionKo = !keeper.definitionKo;
+    mergedKeepers.push(keeper);
+  });
+
+  customWords = customWords.filter((w) => !removedIds.has(w.id));
+  selectedCustomWordIds.clear();
+  saveCustomWords();
+  customWordsStatus.textContent = t("mergeDuplicatesDone", groups.length, removedIds.size);
+  renderCustomWords();
+  renderWordList();
+  pushSharedWords(mergedKeepers.filter((w) => w.remote));
   removeSharedWords(removedRemoteIds);
 });
 
