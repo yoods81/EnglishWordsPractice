@@ -229,14 +229,27 @@ const TRANSLATIONS = {
     resetBtn: "Reset all progress",
     resetConfirm: "This will erase all your saved progress. Are you sure?",
     footerText: "Made for Australian primary students learning English vocabulary. 🇦🇺",
-    adminLoginBtn: "🔒 Admin",
-    adminLogoutBtn: "🔓 Logout",
-    adminLoginTitle: "🔒 Admin Login",
-    adminUsernameLabel: "Username",
-    adminPasswordLabel: "Password",
-    adminLoginSubmitBtn: "Login",
-    adminLoginCancelBtn: "Cancel",
-    adminLoginErrorText: "Incorrect username or password.",
+    authHeaderLoginBtn: "🔑 Log In",
+    authLogoutBtn: "Logout",
+    authModeLogin: "Log In",
+    authModeSignup: "Sign Up",
+    authUsernameLabel: "Username",
+    authUsernameHint: "3-20 characters: letters, numbers, underscore.",
+    authPasswordLabel: "Password",
+    authPasswordHint: "At least 8 characters.",
+    authCodeLabel: "Special code (optional, for a paid account)",
+    authCancelBtn: "Cancel",
+    authLoginBtn: "Login",
+    authSignupBtn: "Sign Up",
+    authLoginErrorText: "Incorrect username or password.",
+    authSignupErrorTaken: "That username is already taken.",
+    authSignupErrorCode: "That special code isn't valid, or has already been used.",
+    authSignupErrorUsername: "Username must be 3-20 characters: letters, numbers, underscore.",
+    authSignupErrorPassword: "Password must be at least 8 characters.",
+    authSignupErrorGeneric: "Sign up failed — please try again.",
+    roleAdmin: "Admin",
+    rolePaid: "Paid",
+    roleFree: "Free",
   },
   ko: {
     appTitle: "필수 영어 단어 연습",
@@ -428,14 +441,27 @@ const TRANSLATIONS = {
     resetBtn: "전체 진행상황 초기화",
     resetConfirm: "저장된 모든 진행상황이 사라져요. 계속할까요?",
     footerText: "영어 필수 단어를 공부하는 학생들을 위해 만들었어요. 🇰🇷",
-    adminLoginBtn: "🔒 관리자",
-    adminLogoutBtn: "🔓 로그아웃",
-    adminLoginTitle: "🔒 관리자 로그인",
-    adminUsernameLabel: "아이디",
-    adminPasswordLabel: "비밀번호",
-    adminLoginSubmitBtn: "로그인",
-    adminLoginCancelBtn: "취소",
-    adminLoginErrorText: "아이디 또는 비밀번호가 올바르지 않아요.",
+    authHeaderLoginBtn: "🔑 로그인",
+    authLogoutBtn: "로그아웃",
+    authModeLogin: "로그인",
+    authModeSignup: "회원가입",
+    authUsernameLabel: "아이디",
+    authUsernameHint: "3~20자: 영문, 숫자, 밑줄(_)만 가능해요.",
+    authPasswordLabel: "비밀번호",
+    authPasswordHint: "8자 이상 입력해주세요.",
+    authCodeLabel: "특별 코드 (선택, 유료 계정 가입 시 입력)",
+    authCancelBtn: "취소",
+    authLoginBtn: "로그인",
+    authSignupBtn: "회원가입",
+    authLoginErrorText: "아이디 또는 비밀번호가 올바르지 않아요.",
+    authSignupErrorTaken: "이미 사용 중인 아이디예요.",
+    authSignupErrorCode: "특별 코드가 올바르지 않거나 이미 사용됐어요.",
+    authSignupErrorUsername: "아이디는 3~20자의 영문/숫자/밑줄(_)만 가능해요.",
+    authSignupErrorPassword: "비밀번호는 8자 이상이어야 해요.",
+    authSignupErrorGeneric: "회원가입에 실패했어요 — 다시 시도해주세요.",
+    roleAdmin: "관리자",
+    rolePaid: "유료",
+    roleFree: "무료",
   },
 };
 
@@ -934,12 +960,7 @@ function applyStaticTranslations() {
   document.getElementById("lang-toggle").textContent = t("langToggle");
   document.getElementById("level-overlay-title").textContent = t("levelOverlayTitle");
   document.getElementById("level-overlay-desc").textContent = t("levelOverlayDesc");
-  document.getElementById("admin-login-title").textContent = t("adminLoginTitle");
-  document.getElementById("admin-username-label").textContent = t("adminUsernameLabel");
-  document.getElementById("admin-password-label").textContent = t("adminPasswordLabel");
-  document.getElementById("admin-login-submit").textContent = t("adminLoginSubmitBtn");
-  document.getElementById("admin-login-cancel").textContent = t("adminLoginCancelBtn");
-  document.getElementById("admin-toggle").textContent = t(isAdmin ? "adminLogoutBtn" : "adminLoginBtn");
+  updateAdminUI();
   document.documentElement.lang = currentLang === "ko" ? "ko" : "en";
   populateCustomSortSelect();
   renderGoalStepper("quiz");
@@ -1099,6 +1120,11 @@ async function api(path, options = {}) {
   if (!res.ok) {
     const error = new Error(`api ${path} failed: ${res.status}`);
     error.status = res.status;
+    try {
+      error.data = await res.json();
+    } catch (e) {
+      error.data = null;
+    }
     throw error;
   }
   return res.json();
@@ -1141,111 +1167,183 @@ async function removeSharedWords(ids) {
   }
 }
 
-/* ---------- Admin login ---------- */
+/* ---------- Auth: sign up / log in ---------- */
+// currentUser mirrors the server's account (id/username/role) once the
+// server confirms a session; isAdmin is the derived gate the rest of the app
+// checks, true either because currentUser.role === "admin" or via the
+// offline-only fallback below (unlocks *this browser's own* word edits when
+// the API can't be reached at all — it never creates a real account).
+let currentUser = null;
 let isAdmin = sessionStorage.getItem(ADMIN_KEY) === "1";
-const adminToggleBtn = document.getElementById("admin-toggle");
-const adminLoginOverlay = document.getElementById("admin-login-overlay");
-const adminLoginForm = document.getElementById("admin-login-form");
-const adminUsernameInput = document.getElementById("admin-username-input");
-const adminPasswordInput = document.getElementById("admin-password-input");
-const adminLoginError = document.getElementById("admin-login-error");
-const adminLoginCancelBtn = document.getElementById("admin-login-cancel");
+const authToggleBtn = document.getElementById("auth-toggle");
+const authOverlay = document.getElementById("auth-overlay");
+const authTitle = document.getElementById("auth-title");
+const authModeLoginBtn = document.getElementById("auth-mode-login-btn");
+const authModeSignupBtn = document.getElementById("auth-mode-signup-btn");
+const loginForm = document.getElementById("login-form");
+const loginUsernameInput = document.getElementById("login-username-input");
+const loginPasswordInput = document.getElementById("login-password-input");
+const loginError = document.getElementById("login-error");
+const loginCancelBtn = document.getElementById("login-cancel-btn");
+const signupForm = document.getElementById("signup-form");
+const signupUsernameInput = document.getElementById("signup-username-input");
+const signupPasswordInput = document.getElementById("signup-password-input");
+const signupCodeInput = document.getElementById("signup-code-input");
+const signupError = document.getElementById("signup-error");
+const signupCancelBtn = document.getElementById("signup-cancel-btn");
 
 function updateAdminUI() {
   if (addwordTabButton) addwordTabButton.hidden = !isAdmin;
-  adminToggleBtn.textContent = t(isAdmin ? "adminLogoutBtn" : "adminLoginBtn");
-  adminToggleBtn.classList.toggle("admin-toggle-active", isAdmin);
+  authToggleBtn.textContent = currentUser ? `👤 ${currentUser.username} · ${t("authLogoutBtn")}` : t("authHeaderLoginBtn");
+  authToggleBtn.classList.toggle("auth-toggle-active", !!currentUser);
   if (!isAdmin && addwordTabButton && addwordTabButton.classList.contains("active")) {
     goToTab("quiz");
   }
 }
 
-function openAdminLogin() {
-  adminUsernameInput.value = "";
-  adminPasswordInput.value = "";
-  adminLoginError.hidden = true;
-  adminLoginOverlay.hidden = false;
-  adminUsernameInput.focus();
+function setAuthMode(mode) {
+  const login = mode !== "signup";
+  authTitle.textContent = t(login ? "authModeLogin" : "authModeSignup");
+  loginForm.hidden = !login;
+  signupForm.hidden = login;
+  authModeLoginBtn.classList.toggle("primary", login);
+  authModeLoginBtn.classList.toggle("neutral", !login);
+  authModeSignupBtn.classList.toggle("primary", !login);
+  authModeSignupBtn.classList.toggle("neutral", login);
+  loginError.hidden = true;
+  signupError.hidden = true;
 }
 
-function closeAdminLogin() {
-  adminLoginOverlay.hidden = true;
+function openAuthOverlay(mode) {
+  loginUsernameInput.value = "";
+  loginPasswordInput.value = "";
+  signupUsernameInput.value = "";
+  signupPasswordInput.value = "";
+  signupCodeInput.value = "";
+  setAuthMode(mode);
+  authOverlay.hidden = false;
+  (mode === "signup" ? signupUsernameInput : loginUsernameInput).focus();
 }
 
-adminToggleBtn.addEventListener("click", async () => {
-  if (isAdmin) {
+function closeAuthOverlay() {
+  authOverlay.hidden = true;
+}
+
+authToggleBtn.addEventListener("click", async () => {
+  if (currentUser) {
+    currentUser = null;
     isAdmin = false;
     serverAdmin = false;
     sessionStorage.removeItem(ADMIN_KEY);
     updateAdminUI();
     try {
-      await api("/admin/logout", { method: "POST" });
+      await api("/auth/logout", { method: "POST" });
     } catch (e) {
       /* nothing to end server-side */
     }
+    refreshSharedWords();
   } else {
-    openAdminLogin();
+    openAuthOverlay("login");
   }
 });
 
-adminLoginCancelBtn.addEventListener("click", closeAdminLogin);
+authModeLoginBtn.addEventListener("click", () => setAuthMode("login"));
+authModeSignupBtn.addEventListener("click", () => setAuthMode("signup"));
+loginCancelBtn.addEventListener("click", closeAuthOverlay);
+signupCancelBtn.addEventListener("click", closeAuthOverlay);
 
-adminLoginOverlay.addEventListener("click", (e) => {
-  if (e.target === adminLoginOverlay) closeAdminLogin();
+authOverlay.addEventListener("click", (e) => {
+  if (e.target === authOverlay) closeAuthOverlay();
 });
 
-adminLoginForm.addEventListener("submit", async (e) => {
+loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const username = adminUsernameInput.value;
-  const password = adminPasswordInput.value;
+  const username = loginUsernameInput.value.trim();
+  const password = loginPasswordInput.value;
+  loginError.hidden = true;
 
-  // The server is the real check: the password lives in a Worker secret and
-  // is never sent to the browser.
+  // The server is the real check: passwords are hashed there and never
+  // travel back to the browser.
   let serverRejected = false;
   try {
-    await api("/admin/login", { method: "POST", body: JSON.stringify({ password }) });
-    serverAdmin = true;
-    isAdmin = true;
+    const { user } = await api("/auth/login", { method: "POST", body: JSON.stringify({ username, password }) });
+    currentUser = user;
+    serverAdmin = user.role === "admin";
+    if (serverAdmin) isAdmin = true;
   } catch (err) {
-    // 401 means the server answered and the password was wrong. Anything else
-    // (no API deployed yet, offline, misconfigured) means we couldn't ask it.
+    // 401 means the server answered and the credentials were wrong. Anything
+    // else (no API deployed yet, offline, misconfigured) means we couldn't ask.
     serverRejected = err && err.status === 401;
   }
 
-  // Only when the server couldn't answer do we fall back to the in-page check,
-  // which unlocks editing this browser's own words and nothing more.
-  if (!isAdmin && !serverRejected) {
+  // Only when the server couldn't answer at all does the offline fallback
+  // apply, and only for the one reserved admin username — it unlocks editing
+  // this browser's own words, not a real account.
+  if (!currentUser && !isAdmin && !serverRejected) {
     const enteredHash = await sha256Hex(password);
     if (username === ADMIN_USERNAME && enteredHash === ADMIN_PASSWORD_HASH) isAdmin = true;
   }
 
-  if (!isAdmin) {
-    adminLoginError.textContent = t("adminLoginErrorText");
-    adminLoginError.hidden = false;
+  if (!currentUser && !isAdmin) {
+    loginError.textContent = t("authLoginErrorText");
+    loginError.hidden = false;
     return;
   }
 
-  sessionStorage.setItem(ADMIN_KEY, "1");
-  closeAdminLogin();
+  if (isAdmin) sessionStorage.setItem(ADMIN_KEY, "1");
+  closeAuthOverlay();
   updateAdminUI();
   if (serverAdmin) refreshSharedWords();
 });
 
-// A session cookie outlives a page reload, so ask the server whether this
-// browser is still signed in before deciding what the admin may change.
-async function restoreServerAdmin() {
+const SIGNUP_ERROR_KEYS = {
+  username_taken: "authSignupErrorTaken",
+  invalid_code: "authSignupErrorCode",
+  invalid_username: "authSignupErrorUsername",
+  invalid_password: "authSignupErrorPassword",
+  reserved_username: "authSignupErrorUsername",
+};
+
+signupForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const username = signupUsernameInput.value.trim();
+  const password = signupPasswordInput.value;
+  const specialCode = signupCodeInput.value.trim();
+  signupError.hidden = true;
+
   try {
-    const { admin } = await api("/admin/session");
-    serverAdmin = !!admin;
+    const { user } = await api("/auth/signup", {
+      method: "POST",
+      body: JSON.stringify(specialCode ? { username, password, specialCode } : { username, password }),
+    });
+    currentUser = user;
+    closeAuthOverlay();
+    updateAdminUI();
+    refreshSharedWords();
+  } catch (err) {
+    const code = err && err.data && err.data.error;
+    signupError.textContent = t(SIGNUP_ERROR_KEYS[code] || "authSignupErrorGeneric");
+    signupError.hidden = false;
+  }
+});
+
+// A session cookie outlives a page reload, so ask the server who (if anyone)
+// this browser is still signed in as before deciding what it may see or change.
+async function restoreSession() {
+  try {
+    const { user } = await api("/auth/me");
+    currentUser = user;
+    serverAdmin = !!user && user.role === "admin";
     if (serverAdmin) isAdmin = true;
   } catch (e) {
+    currentUser = null;
     serverAdmin = false;
   }
   updateAdminUI();
 }
 
 updateAdminUI();
-restoreServerAdmin();
+restoreSession();
 refreshSharedWords();
 
 /* ================= FLASHCARDS ================= */

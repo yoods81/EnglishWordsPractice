@@ -7,7 +7,9 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "db:init": "wrangler d1 execute englishwordspractice --remote --file=./schema.sql",
-    "db:init:local": "wrangler d1 execute englishwordspractice --local --file=./schema.sql"
+    "db:init:local": "wrangler d1 execute englishwordspractice --local --file=./schema.sql",
+    "db:migrate:users": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0001_users_and_word_ownership.sql",
+    "db:migrate:users:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0001_users_and_word_ownership.sql"
   },
   "devDependencies": {
     "wrangler": "^4.42.0"

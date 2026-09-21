@@ -17,26 +17,47 @@
     </div>
   </div>
 
-  <!-- Admin login overlay -->
-  <div id="admin-login-overlay" class="admin-login-overlay" hidden>
-    <div class="admin-login-card">
-      <h2 id="admin-login-title">🔒 Admin Login</h2>
-      <form id="admin-login-form">
-        <label id="admin-username-label" for="admin-username-input">Username</label>
-        <input id="admin-username-input" type="text" autocomplete="username" />
-        <label id="admin-password-label" for="admin-password-input">Password</label>
-        <input id="admin-password-input" type="password" autocomplete="current-password" />
-        <p id="admin-login-error" class="admin-login-error" hidden></p>
-        <div class="admin-login-actions">
-          <button type="button" id="admin-login-cancel" class="pill neutral">Cancel</button>
-          <button type="submit" id="admin-login-submit" class="pill primary">Login</button>
+  <!-- Account overlay: log in or sign up -->
+  <div id="auth-overlay" class="auth-overlay" hidden>
+    <div class="auth-card">
+      <h2 id="auth-title">🔑 Log In</h2>
+      <div class="add-mode-toggle">
+        <button type="button" class="pill primary" id="auth-mode-login-btn" data-i18n="authModeLogin">Log In</button>
+        <button type="button" class="pill neutral" id="auth-mode-signup-btn" data-i18n="authModeSignup">Sign Up</button>
+      </div>
+
+      <form id="login-form" class="auth-form">
+        <label id="login-username-label" for="login-username-input" data-i18n="authUsernameLabel">Username</label>
+        <input id="login-username-input" type="text" autocomplete="username" />
+        <label id="login-password-label" for="login-password-input" data-i18n="authPasswordLabel">Password</label>
+        <input id="login-password-input" type="password" autocomplete="current-password" />
+        <p id="login-error" class="auth-error" hidden></p>
+        <div class="auth-actions">
+          <button type="button" id="login-cancel-btn" class="pill neutral" data-i18n="authCancelBtn">Cancel</button>
+          <button type="submit" id="login-submit-btn" class="pill primary" data-i18n="authLoginBtn">Login</button>
+        </div>
+      </form>
+
+      <form id="signup-form" class="auth-form" hidden>
+        <label id="signup-username-label" for="signup-username-input" data-i18n="authUsernameLabel">Username</label>
+        <input id="signup-username-input" type="text" autocomplete="username" />
+        <p class="auth-hint" data-i18n="authUsernameHint">3-20 characters: letters, numbers, underscore.</p>
+        <label id="signup-password-label" for="signup-password-input" data-i18n="authPasswordLabel">Password</label>
+        <input id="signup-password-input" type="password" autocomplete="new-password" />
+        <p class="auth-hint" data-i18n="authPasswordHint">At least 8 characters.</p>
+        <label id="signup-code-label" for="signup-code-input" data-i18n="authCodeLabel">Special code (optional, for a paid account)</label>
+        <input id="signup-code-input" type="text" autocomplete="off" />
+        <p id="signup-error" class="auth-error" hidden></p>
+        <div class="auth-actions">
+          <button type="button" id="signup-cancel-btn" class="pill neutral" data-i18n="authCancelBtn">Cancel</button>
+          <button type="submit" id="signup-submit-btn" class="pill primary" data-i18n="authSignupBtn">Sign Up</button>
         </div>
       </form>
     </div>
   </div>
 
   <header>
-    <button id="admin-toggle" class="admin-toggle" type="button">🔒 Admin</button>
+    <button id="auth-toggle" class="auth-toggle" type="button">🔑 Log In</button>
     <button id="lang-toggle" class="lang-toggle" type="button">한국어</button>
     <h1><span class="emoji">📚</span> <span id="app-title">Aussie English Word Practice</span></h1>
     <p id="app-subtitle">Build your vocabulary, spelling and word skills!</p>
