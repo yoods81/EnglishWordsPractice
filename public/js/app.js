@@ -149,6 +149,9 @@ const TRANSLATIONS = {
     bulkAddSaveBtn: "Save words",
     bulkNoWords: "Please enter at least one word.",
     bulkAddedStatus: (n) => `Added ${n} word${n === 1 ? "" : "s"}!`,
+    bulkAddedWithSkipped: (added, skipped) =>
+      `Added ${added} word${added === 1 ? "" : "s"}. Skipped ${skipped} — already in your list.`,
+    duplicateWordFound: (word) => `"${word}" is already in your word list — use Edit to update it instead.`,
     labelWord: "Word *",
     labelMeaning: "Meaning *",
     labelExample: "Example sentence",
@@ -342,6 +345,8 @@ const TRANSLATIONS = {
     bulkAddSaveBtn: "단어 저장하기",
     bulkNoWords: "단어를 최소 1개 이상 입력해주세요.",
     bulkAddedStatus: (n) => `${n}개의 단어를 추가했어요!`,
+    bulkAddedWithSkipped: (added, skipped) => `${added}개의 단어를 추가했어요. ${skipped}개는 이미 있어서 건너뛰었어요.`,
+    duplicateWordFound: (word) => `"${word}"은(는) 이미 내 단어 목록에 있어요 — 수정하려면 Edit을 눌러주세요.`,
     labelWord: "단어 *",
     labelMeaning: "뜻 *",
     labelExample: "예문",
@@ -877,6 +882,14 @@ function allKnownWordsLowercase() {
   (bank.homophones || []).forEach((p) => p.pair.forEach((w) => set.add(w.toLowerCase())));
   customWords.forEach((w) => set.add(w.word.toLowerCase()));
   return set;
+}
+
+// Finds an existing custom word by text (case-insensitive, trimmed), ignoring
+// the app's own built-in word lists — used to stop the same word being saved
+// as a second, separate entry under a new id.
+function findCustomWordByText(word) {
+  const target = word.trim().toLowerCase();
+  return customWords.find((w) => w.word.trim().toLowerCase() === target) || null;
 }
 
 /* ================= TRANSLATION APPLICATION ================= */
@@ -2550,6 +2563,7 @@ const manualExampleInput = document.getElementById("manual-example");
 const manualLevelSelect = document.getElementById("manual-level");
 const manualSaveBtn = document.getElementById("manual-save-btn");
 const manualCancelBtn = document.getElementById("manual-cancel-btn");
+const manualAddStatus = document.getElementById("manual-add-status");
 const customWordsGrid = document.getElementById("custom-words-grid");
 const customWordsEmpty = document.getElementById("custom-words-empty");
 const customWordsFailedBanner = document.getElementById("custom-words-failed-banner");
@@ -2632,7 +2646,7 @@ addModeSingleBtn.addEventListener("click", () => setAddMode("single"));
 addModeBulkBtn.addEventListener("click", () => setAddMode("bulk"));
 
 bulkAddSaveBtn.addEventListener("click", async () => {
-  const words = Array.from(
+  const allWords = Array.from(
     new Set(
       bulkWordsInput.value
         .split(/[\n,]+/)
@@ -2640,41 +2654,50 @@ bulkAddSaveBtn.addEventListener("click", async () => {
         .filter((w) => /^[a-z']{2,}$/.test(w))
     )
   );
-  if (words.length === 0) {
+  if (allWords.length === 0) {
     bulkAddStatus.textContent = t("bulkNoWords");
     return;
   }
 
+  // Words already saved in customWords are dropped before the lookup step,
+  // so they never cost an unnecessary dictionary API call.
+  const words = allWords.filter((w) => !findCustomWordByText(w));
+  const skipped = allWords.length - words.length;
+
   bulkAddSaveBtn.disabled = true;
-  bulkAddStatus.textContent = t("ocrAddingStatus", words.length);
 
-  const infos = await mapWithConcurrency(words, 4, (w) => fetchWordInfo(w), (done, total) => {
-    bulkAddStatus.textContent = t("ocrAddingProgress", done, total);
-  });
+  let added = [];
+  if (words.length > 0) {
+    bulkAddStatus.textContent = t("ocrAddingStatus", words.length);
 
-  const added = words.map((word, i) => {
-    const info = infos[i];
-    const newWord = {
-      id: genId(),
-      word,
-      example: (info && info.example) || "",
-      definitionEn: (info && info.definitionEn) || null,
-      definitionKo: (info && info.definitionKo) || null,
-      levelEn: guessLevelForWord(word, "en"),
-      levelKo: guessLevelForWord(word, "ko"),
-      noDefinitionEn: !(info && info.definitionEn),
-      noDefinitionKo: !(info && info.definitionKo),
-      source: "bulk",
-      createdAt: Date.now(),
-      remote: serverAdmin,
-    };
-    customWords.push(newWord);
-    return newWord;
-  });
-  saveCustomWords();
-  await pushSharedWords(added);
+    const infos = await mapWithConcurrency(words, 4, (w) => fetchWordInfo(w), (done, total) => {
+      bulkAddStatus.textContent = t("ocrAddingProgress", done, total);
+    });
 
-  bulkAddStatus.textContent = t("bulkAddedStatus", words.length);
+    added = words.map((word, i) => {
+      const info = infos[i];
+      const newWord = {
+        id: genId(),
+        word,
+        example: (info && info.example) || "",
+        definitionEn: (info && info.definitionEn) || null,
+        definitionKo: (info && info.definitionKo) || null,
+        levelEn: guessLevelForWord(word, "en"),
+        levelKo: guessLevelForWord(word, "ko"),
+        noDefinitionEn: !(info && info.definitionEn),
+        noDefinitionKo: !(info && info.definitionKo),
+        source: "bulk",
+        createdAt: Date.now(),
+        remote: serverAdmin,
+      };
+      customWords.push(newWord);
+      return newWord;
+    });
+    saveCustomWords();
+    await pushSharedWords(added);
+  }
+
+  bulkAddStatus.textContent = skipped > 0 ? t("bulkAddedWithSkipped", added.length, skipped) : t("bulkAddedStatus", added.length);
   bulkWordsInput.value = "";
   bulkAddSaveBtn.disabled = false;
   renderCustomWords();
@@ -2743,6 +2766,13 @@ manualForm.addEventListener("submit", (e) => {
   if (!word || !definition) return;
 
   const editId = manualEditId.value;
+
+  if (!editId && findCustomWordByText(word)) {
+    manualAddStatus.textContent = t("duplicateWordFound", word);
+    return;
+  }
+  manualAddStatus.textContent = "";
+
   let newWord = null;
   let editedWord = null;
   if (editId) {
@@ -2799,6 +2829,7 @@ function resetManualForm() {
   if (manualLevelSelect.options.length) manualLevelSelect.value = currentLevel;
   manualCancelBtn.style.display = "none";
   manualSaveBtn.textContent = t("saveWordBtn");
+  manualAddStatus.textContent = "";
 }
 
 function startEditCustomWord(id) {
@@ -2811,6 +2842,7 @@ function startEditCustomWord(id) {
   manualLevelSelect.value = cwLevel(w);
   manualCancelBtn.style.display = "inline-block";
   manualSaveBtn.textContent = t("updateWordBtn");
+  manualAddStatus.textContent = "";
   manualWordInput.focus();
 }
 
