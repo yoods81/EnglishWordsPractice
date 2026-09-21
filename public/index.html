@@ -70,6 +70,18 @@
           <button type="submit" id="upgrade-submit-btn" class="pill primary" data-i18n="upgradeSubmitBtn">Upgrade</button>
         </div>
       </form>
+      <p class="auth-hint" id="upgrade-no-code-hint" data-i18n="upgradeNoCodeHint">Don't have a code yet?</p>
+      <button type="button" class="pill neutral" id="upgrade-request-btn" data-i18n="upgradeRequestBtn">📨 Request an upgrade from admin</button>
+
+      <div id="upgrade-request-pending" hidden>
+        <p class="auth-hint" data-i18n="upgradeRequestPendingMsg">Your request is in — waiting for admin to approve it. Check back later.</p>
+        <button type="button" class="pill neutral" id="upgrade-request-pending-close-btn" data-i18n="authCancelBtn">Cancel</button>
+      </div>
+
+      <div id="upgrade-request-fulfilled" hidden>
+        <p class="auth-hint" data-i18n="upgradeRequestFulfilledMsg">Admin sent you an upgrade code — activate it now.</p>
+        <button type="button" class="pill primary" id="upgrade-request-claim-btn" data-i18n="upgradeRequestClaimBtn">✅ Activate now</button>
+      </div>
     </div>
   </div>
 
@@ -80,6 +92,8 @@
     <p id="app-subtitle">Build your vocabulary, spelling and word skills!</p>
     <button id="level-badge" class="level-badge" title="Change level">Level: Year 4 ▾</button>
   </header>
+
+  <button type="button" id="upgrade-ready-banner" class="upgrade-ready-banner" hidden data-i18n="upgradeReadyBanner">⭐ Your upgrade code has arrived — tap to activate!</button>
 
   <main>
     <nav class="tabs">
@@ -447,8 +461,25 @@
       </div>
     </section>
 
-    <!-- Special (paid signup) codes — admin only -->
+    <!-- Admin panel: upgrade requests, user accounts, paid signup codes -->
     <section id="view-admincodes" class="view">
+      <div class="card">
+        <h3 data-i18n="adminRequestsTitle">📨 Upgrade Requests</h3>
+        <p class="muted" data-i18n="adminRequestsDesc">A free account asked to be upgraded. Approve one to generate a code bound to that account — they'll see it waiting for them next time they open the app.</p>
+        <p class="muted wordlist-count" id="admin-requests-count"></p>
+        <div class="wordlist-grid" id="admin-requests-grid"></div>
+        <p class="muted" id="admin-requests-empty" hidden data-i18n="adminRequestsEmpty">No pending requests.</p>
+      </div>
+
+      <div class="card">
+        <h3 data-i18n="adminUsersTitle">👥 User Accounts</h3>
+        <p class="muted" data-i18n="adminUsersDesc">Search for an account and change its role directly.</p>
+        <input type="text" id="admin-users-search" data-i18n-placeholder="adminUsersSearchPlaceholder" placeholder="Search by username" />
+        <p class="muted wordlist-count" id="admin-users-count"></p>
+        <div class="wordlist-grid" id="admin-users-grid"></div>
+        <p class="muted" id="admin-users-empty" hidden data-i18n="adminUsersEmpty">No accounts found.</p>
+      </div>
+
       <div class="card">
         <h3 data-i18n="adminCodesTitle">🎟️ Paid Signup Codes</h3>
         <p class="muted" data-i18n="adminCodesDesc">Generate a one-time code and send it to someone so they can sign up as a paid account instead of free.</p>

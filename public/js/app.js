@@ -54,7 +54,7 @@ const TRANSLATIONS = {
     navWordlist: "📖 Word List",
     navAddword: "➕ Add Word",
     navStats: "📊 My Progress",
-    navAdminCodes: "🎟️ Codes",
+    navAdminCodes: "🛠️ Admin",
     adminCodesTitle: "🎟️ Paid Signup Codes",
     adminCodesDesc: "Generate a one-time code and send it to someone so they can sign up as a paid account instead of free.",
     adminCodesGenerateBtn: "🎲 Generate New Code",
@@ -65,6 +65,32 @@ const TRANSLATIONS = {
     adminCodeCopyBtn: "Copy",
     adminCodeCopiedBtn: "Copied!",
     adminCodeGenerateFailed: "Could not generate a code — please try again.",
+    adminRequestsTitle: "📨 Upgrade Requests",
+    adminRequestsDesc: "A free account asked to be upgraded. Approve one to generate a code bound to that account — they'll see it waiting for them next time they open the app.",
+    adminRequestsEmpty: "No pending requests.",
+    adminRequestsCount: (n) => `${n} pending request${n === 1 ? "" : "s"}`,
+    adminRequestedAt: (when) => `Requested ${when}`,
+    adminRequestApproveBtn: "✅ Approve",
+    adminRequestDismissBtn: "Dismiss",
+    adminRequestActionFailed: "That didn't work — please try again.",
+    adminUsersTitle: "👥 User Accounts",
+    adminUsersDesc: "Search for an account and change its role directly.",
+    adminUsersSearchPlaceholder: "Search by username",
+    adminUsersEmpty: "No accounts found.",
+    adminUserCreatedAt: (when) => `Joined ${when}`,
+    adminUserYou: "(you)",
+    adminUserApplyRoleBtn: "Apply",
+    adminUserConfirmRoleChange: (username, role) => `Change ${username}'s role to ${role}?`,
+    adminRole_free: "Free",
+    adminRole_paid: "Paid",
+    adminRole_admin: "Admin",
+    upgradeNoCodeHint: "Don't have a code yet?",
+    upgradeRequestBtn: "📨 Request an upgrade from admin",
+    upgradeRequestFailed: "Could not send the request — please try again.",
+    upgradeRequestPendingMsg: "Your request is in — waiting for admin to approve it. Check back later.",
+    upgradeRequestFulfilledMsg: "Admin sent you an upgrade code — activate it now.",
+    upgradeRequestClaimBtn: "✅ Activate now",
+    upgradeReadyBanner: "⭐ Your upgrade code has arrived — tap to activate!",
     typeGameTitle: "⌨️ Typing Game",
     typeGameDesc: "Type each word before it reaches the bottom!",
     typeGameStartBtn: "▶ Start Game",
@@ -169,6 +195,8 @@ const TRANSLATIONS = {
     bulkAddedStatus: (n) => `Added ${n} word${n === 1 ? "" : "s"}!`,
     bulkAddedWithSkipped: (added, skipped) =>
       `Added ${added} word${added === 1 ? "" : "s"}. Skipped ${skipped} — already in your list.`,
+    bulkAddedWithFailures: (saved, failed) =>
+      `Saved ${saved} word${saved === 1 ? "" : "s"}, but ${failed} couldn't reach the server — check your connection and try adding them again.`,
     duplicateWordFound: (word) => `"${word}" is already in your word list — use Edit to update it instead.`,
     labelWord: "Word *",
     labelMeaning: "Meaning *",
@@ -290,7 +318,7 @@ const TRANSLATIONS = {
     navWordlist: "📖 단어장",
     navAddword: "➕ 단어 추가",
     navStats: "📊 내 진행상황",
-    navAdminCodes: "🎟️ 코드 관리",
+    navAdminCodes: "🛠️ 관리자",
     adminCodesTitle: "🎟️ 유료 가입 코드",
     adminCodesDesc: "1회용 코드를 생성해서 전달하면, 받은 사람이 무료 대신 유료 계정으로 가입할 수 있어요.",
     adminCodesGenerateBtn: "🎲 새 코드 생성",
@@ -301,6 +329,32 @@ const TRANSLATIONS = {
     adminCodeCopyBtn: "복사",
     adminCodeCopiedBtn: "복사됨!",
     adminCodeGenerateFailed: "코드를 생성하지 못했어요 — 다시 시도해주세요.",
+    adminRequestsTitle: "📨 업그레이드 요청",
+    adminRequestsDesc: "무료 사용자가 업그레이드를 요청했어요. 승인하면 그 계정 전용 코드가 생성되고, 다음에 앱을 열 때 사용자에게 표시돼요.",
+    adminRequestsEmpty: "대기 중인 요청이 없어요.",
+    adminRequestsCount: (n) => `대기 중인 요청 ${n}개`,
+    adminRequestedAt: (when) => `요청 시각: ${when}`,
+    adminRequestApproveBtn: "✅ 승인",
+    adminRequestDismissBtn: "거절",
+    adminRequestActionFailed: "처리하지 못했어요 — 다시 시도해주세요.",
+    adminUsersTitle: "👥 사용자 계정",
+    adminUsersDesc: "계정을 검색하고 역할을 직접 변경할 수 있어요.",
+    adminUsersSearchPlaceholder: "사용자명으로 검색",
+    adminUsersEmpty: "계정을 찾을 수 없어요.",
+    adminUserCreatedAt: (when) => `가입일: ${when}`,
+    adminUserYou: "(나)",
+    adminUserApplyRoleBtn: "적용",
+    adminUserConfirmRoleChange: (username, role) => `${username}님의 역할을 ${role}(으)로 변경할까요?`,
+    adminRole_free: "무료",
+    adminRole_paid: "유료",
+    adminRole_admin: "관리자",
+    upgradeNoCodeHint: "아직 코드가 없으신가요?",
+    upgradeRequestBtn: "📨 관리자에게 업그레이드 요청하기",
+    upgradeRequestFailed: "요청을 보내지 못했어요 — 다시 시도해주세요.",
+    upgradeRequestPendingMsg: "요청을 보냈어요. 관리자 승인을 기다리는 중이에요. 나중에 다시 확인해주세요.",
+    upgradeRequestFulfilledMsg: "관리자가 업그레이드 코드를 보냈어요 — 지금 활성화하세요.",
+    upgradeRequestClaimBtn: "✅ 지금 활성화",
+    upgradeReadyBanner: "⭐ 업그레이드 코드가 도착했어요 — 눌러서 활성화하세요!",
     typeGameTitle: "⌨️ 타이핑 게임",
     typeGameDesc: "단어가 바닥에 닿기 전에 타이핑하세요!",
     typeGameStartBtn: "▶ 게임 시작",
@@ -404,6 +458,8 @@ const TRANSLATIONS = {
     bulkNoWords: "단어를 최소 1개 이상 입력해주세요.",
     bulkAddedStatus: (n) => `${n}개의 단어를 추가했어요!`,
     bulkAddedWithSkipped: (added, skipped) => `${added}개의 단어를 추가했어요. ${skipped}개는 이미 있어서 건너뛰었어요.`,
+    bulkAddedWithFailures: (saved, failed) =>
+      `${saved}개는 저장했지만 ${failed}개는 서버에 저장하지 못했어요 — 인터넷 연결을 확인하고 다시 추가해주세요.`,
     duplicateWordFound: (word) => `"${word}"은(는) 이미 내 단어 목록에 있어요 — 수정하려면 Edit을 눌러주세요.`,
     labelWord: "단어 *",
     labelMeaning: "뜻 *",
@@ -521,8 +577,8 @@ const _KO_LEVELS = typeof KO_LEVELS !== "undefined" ? KO_LEVELS : [];
 const _WORD_BANK_KO = typeof WORD_BANK_KO !== "undefined" ? WORD_BANK_KO : { vocabulary: [] };
 
 const SYSTEMS = {
-  en: { levels: LEVELS, bank: WORD_BANK, hasSynonyms: true, hasHomophones: true, hasSpelling: true, speechLang: "en-AU" },
-  ko: { levels: _KO_LEVELS, bank: _WORD_BANK_KO, hasSynonyms: false, hasHomophones: false, hasSpelling: false, speechLang: "en-US" },
+  en: { levels: LEVELS, bank: WORD_BANK, hasSynonyms: true, hasHomophones: true, speechLang: "en-AU" },
+  ko: { levels: _KO_LEVELS, bank: _WORD_BANK_KO, hasSynonyms: false, hasHomophones: false, speechLang: "en-US" },
 };
 
 function currentSystem() {
@@ -967,24 +1023,32 @@ function speak(text) {
 /* ================= LEVEL POOLS ================= */
 
 function getVocabPool(level) {
-  const builtIn = currentSystem().bank.vocabulary.filter((w) => w.level === level);
   const custom = customWords
     .filter((w) => cwLevel(w) === level)
     .map((w) => ({ word: w.word, definition: cwDefinition(w) || t("ocrNoDefFound"), example: w.example || "", custom: true }));
-  return builtIn.concat(custom);
+  // Once admin has shared at least one managed word at this level, the DB is
+  // the single source of truth for it — the old hardcoded bank stops
+  // contributing entirely, so a deliberate admin deletion stays deleted
+  // instead of the hardcoded word quietly reappearing behind it. Until then
+  // (a level admin hasn't touched yet, or the one-time seed migration hasn't
+  // run) the hardcoded bank still provides bootstrap content.
+  const adminManagesLevel = customWords.some((w) => cwLevel(w) === level && w.remote && !w.ownerId);
+  if (adminManagesLevel) return custom;
+
+  const builtIn = currentSystem().bank.vocabulary.filter((w) => w.level === level);
+  const customLower = new Set(custom.map((w) => w.word.toLowerCase()));
+  const dedupedBuiltIn = builtIn.filter((w) => !customLower.has(w.word.toLowerCase()));
+  return dedupedBuiltIn.concat(custom);
 }
 
+// Spelling now draws from the exact same pool as the Vocabulary quiz
+// category — a spelling round's hint is just that word's definition. This
+// used to be a separate hardcoded list of mnemonic tips for the English
+// track, but keeping two parallel word lists in sync (and making sure every
+// word in both had a real definition) wasn't sustainable, so both
+// categories were merged into one managed pool.
 function getSpellingPool(level) {
-  if (!currentSystem().hasSpelling) {
-    // No dedicated spelling list for this system — practise spelling the vocabulary
-    // words themselves, using their meaning as a hint.
-    return getVocabPool(level).map((w) => ({ word: w.word, tip: t("hintPrefix", w.definition), custom: !!w.custom }));
-  }
-  const builtIn = currentSystem().bank.spelling.filter((w) => w.level === level);
-  const custom = customWords
-    .filter((w) => cwLevel(w) === level)
-    .map((w) => ({ word: w.word, tip: t("hintPrefix", cwDefinition(w) || "a word you added yourself"), custom: true }));
-  return builtIn.concat(custom);
+  return getVocabPool(level).map((w) => ({ word: w.word, tip: t("hintPrefix", w.definition), custom: !!w.custom }));
 }
 
 function getSynonymPool(level) {
@@ -1190,7 +1254,11 @@ function refreshView(view) {
   if (view === "wordlist") renderWordList();
   if (view === "addword") renderCustomWords();
   if (view === "stats") renderStats();
-  if (view === "admincodes") loadAdminCodes();
+  if (view === "admincodes") {
+    loadAdminCodes();
+    loadAdminUpgradeRequests();
+    loadAdminUsers();
+  }
 }
 
 function goToTab(view) {
@@ -1326,16 +1394,29 @@ async function refreshSharedWords() {
   }
 }
 
+// Must stay <= the worker's own MAX_WORDS_PER_REQUEST (worker/index.js) — a
+// request over that limit is rejected outright (413) with nothing saved, so
+// a big bulk-add has to be split into chunks this size or smaller.
+const WORDS_PER_REQUEST_CHUNK = 200;
+
 // Best-effort writes: the local list is already updated by the caller, so a
 // failure here means the change didn't reach other devices, not that it was
-// lost.
+// lost. Returns the words that failed to save (empty if everything made it),
+// so a caller doing a big bulk add can tell the user when some didn't stick
+// instead of the failure silently vanishing on the next server refresh.
 async function pushSharedWords(words) {
-  if (!canWriteServerWords() || words.length === 0) return;
-  try {
-    await api("/words", { method: "PUT", body: JSON.stringify({ words }) });
-  } catch (e) {
-    console.warn("Could not save words to the server", e);
+  if (!canWriteServerWords() || words.length === 0) return { failed: [] };
+  const failed = [];
+  for (let i = 0; i < words.length; i += WORDS_PER_REQUEST_CHUNK) {
+    const chunk = words.slice(i, i + WORDS_PER_REQUEST_CHUNK);
+    try {
+      await api("/words", { method: "PUT", body: JSON.stringify({ words: chunk }) });
+    } catch (e) {
+      console.warn("Could not save words to the server", e);
+      failed.push(...chunk);
+    }
   }
+  return { failed };
 }
 
 async function removeSharedWords(ids) {
@@ -1428,11 +1509,13 @@ authToggleBtn.addEventListener("click", async () => {
     currentUser = null;
     isAdmin = false;
     serverAdmin = false;
+    pendingUpgradeRequest = null;
     sessionStorage.removeItem(ADMIN_KEY);
     // A free account's words only ever existed in memory for that session —
     // they don't carry over once you sign out.
     customWords = customWords.filter((w) => !w.volatile);
     updateAdminUI();
+    renderUpgradeReadyBanner();
     try {
       await api("/auth/logout", { method: "POST" });
     } catch (e) {
@@ -1463,10 +1546,14 @@ loginForm.addEventListener("submit", async (e) => {
   // travel back to the browser.
   let serverRejected = false;
   try {
-    const { user } = await api("/auth/login", { method: "POST", body: JSON.stringify({ username, password }) });
+    const { user, pendingUpgradeRequest: pending } = await api("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+    });
     currentUser = user;
     serverAdmin = user.role === "admin";
     if (serverAdmin) isAdmin = true;
+    pendingUpgradeRequest = pending || null;
   } catch (err) {
     // 401 means the server answered and the credentials were wrong. Anything
     // else (no API deployed yet, offline, misconfigured) means we couldn't ask.
@@ -1490,6 +1577,7 @@ loginForm.addEventListener("submit", async (e) => {
   if (isAdmin) sessionStorage.setItem(ADMIN_KEY, "1");
   closeAuthOverlay();
   updateAdminUI();
+  renderUpgradeReadyBanner();
   if (currentUser) refreshSharedWords();
 });
 
@@ -1524,18 +1612,46 @@ signupForm.addEventListener("submit", async (e) => {
   }
 });
 
-/* ---------- Upgrade to paid (an existing free account redeems a code) ---------- */
+/* ---------- Upgrade to paid (an existing free account redeems a code, or requests one from admin) ---------- */
 const upgradeOverlay = document.getElementById("upgrade-overlay");
 const upgradeForm = document.getElementById("upgrade-form");
 const upgradeCodeInput = document.getElementById("upgrade-code-input");
 const upgradeError = document.getElementById("upgrade-error");
 const upgradeCancelBtn = document.getElementById("upgrade-cancel-btn");
+const upgradeNoCodeHint = document.getElementById("upgrade-no-code-hint");
+const upgradeRequestBtn = document.getElementById("upgrade-request-btn");
+const upgradeRequestPending = document.getElementById("upgrade-request-pending");
+const upgradeRequestPendingCloseBtn = document.getElementById("upgrade-request-pending-close-btn");
+const upgradeRequestFulfilled = document.getElementById("upgrade-request-fulfilled");
+const upgradeRequestClaimBtn = document.getElementById("upgrade-request-claim-btn");
+const upgradeReadyBanner = document.getElementById("upgrade-ready-banner");
+
+// Set from /auth/me, /auth/login and /auth/upgrade-request's responses —
+// null for anyone but a free account, or once dismissed/redeemed.
+let pendingUpgradeRequest = null;
+
+function renderUpgradeReadyBanner() {
+  upgradeReadyBanner.hidden = !(pendingUpgradeRequest && pendingUpgradeRequest.status === "fulfilled");
+}
+
+// The overlay has three mutually exclusive states: enter-a-code (the
+// default), a request already pending admin review, or a request admin has
+// fulfilled with a code ready to activate in one tap.
+function renderUpgradeOverlayState() {
+  const status = pendingUpgradeRequest && pendingUpgradeRequest.status;
+  upgradeForm.hidden = status === "pending" || status === "fulfilled";
+  upgradeNoCodeHint.hidden = upgradeForm.hidden;
+  upgradeRequestBtn.hidden = upgradeForm.hidden;
+  upgradeRequestPending.hidden = status !== "pending";
+  upgradeRequestFulfilled.hidden = status !== "fulfilled";
+}
 
 function openUpgradeOverlay() {
   upgradeCodeInput.value = "";
   upgradeError.hidden = true;
+  renderUpgradeOverlayState();
   upgradeOverlay.hidden = false;
-  upgradeCodeInput.focus();
+  if (!upgradeForm.hidden) upgradeCodeInput.focus();
 }
 
 function closeUpgradeOverlay() {
@@ -1543,6 +1659,8 @@ function closeUpgradeOverlay() {
 }
 
 upgradeCancelBtn.addEventListener("click", closeUpgradeOverlay);
+upgradeRequestPendingCloseBtn.addEventListener("click", closeUpgradeOverlay);
+upgradeReadyBanner.addEventListener("click", openUpgradeOverlay);
 upgradeOverlay.addEventListener("click", (e) => {
   if (e.target === upgradeOverlay) closeUpgradeOverlay();
 });
@@ -1551,6 +1669,18 @@ const UPGRADE_ERROR_KEYS = {
   invalid_code: "authSignupErrorCode",
   not_eligible: "upgradeErrorNotEligible",
 };
+
+async function redeemUpgradeCode(specialCode) {
+  const { user } = await api("/auth/upgrade", { method: "POST", body: JSON.stringify({ specialCode }) });
+  currentUser = user;
+  pendingUpgradeRequest = null;
+  closeUpgradeOverlay();
+  renderUpgradeReadyBanner();
+  updateAdminUI();
+  renderGoalStepper("quiz");
+  renderGoalStepper("spelling");
+  refreshSharedWords();
+}
 
 upgradeForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -1562,13 +1692,7 @@ upgradeForm.addEventListener("submit", async (e) => {
     return;
   }
   try {
-    const { user } = await api("/auth/upgrade", { method: "POST", body: JSON.stringify({ specialCode }) });
-    currentUser = user;
-    closeUpgradeOverlay();
-    updateAdminUI();
-    renderGoalStepper("quiz");
-    renderGoalStepper("spelling");
-    refreshSharedWords();
+    await redeemUpgradeCode(specialCode);
   } catch (err) {
     const code = err && err.data && err.data.error;
     upgradeError.textContent = t(UPGRADE_ERROR_KEYS[code] || "authSignupErrorGeneric");
@@ -1576,19 +1700,46 @@ upgradeForm.addEventListener("submit", async (e) => {
   }
 });
 
+upgradeRequestBtn.addEventListener("click", async () => {
+  upgradeRequestBtn.disabled = true;
+  try {
+    const { request } = await api("/auth/upgrade-request", { method: "POST" });
+    pendingUpgradeRequest = request;
+    renderUpgradeOverlayState();
+    renderUpgradeReadyBanner();
+  } catch (e) {
+    alert(t("upgradeRequestFailed"));
+  }
+  upgradeRequestBtn.disabled = false;
+});
+
+upgradeRequestClaimBtn.addEventListener("click", async () => {
+  if (!pendingUpgradeRequest || !pendingUpgradeRequest.code) return;
+  upgradeRequestClaimBtn.disabled = true;
+  try {
+    await redeemUpgradeCode(pendingUpgradeRequest.code);
+  } catch (err) {
+    alert(t("authSignupErrorGeneric"));
+  }
+  upgradeRequestClaimBtn.disabled = false;
+});
+
 // A session cookie outlives a page reload, so ask the server who (if anyone)
 // this browser is still signed in as before deciding what it may see or change.
 async function restoreSession() {
   try {
-    const { user } = await api("/auth/me");
+    const { user, pendingUpgradeRequest: pending } = await api("/auth/me");
     currentUser = user;
     serverAdmin = !!user && user.role === "admin";
     if (serverAdmin) isAdmin = true;
+    pendingUpgradeRequest = pending || null;
   } catch (e) {
     currentUser = null;
     serverAdmin = false;
+    pendingUpgradeRequest = null;
   }
   updateAdminUI();
+  renderUpgradeReadyBanner();
 }
 
 updateAdminUI();
@@ -3122,6 +3273,7 @@ bulkAddSaveBtn.addEventListener("click", async () => {
   bulkAddSaveBtn.disabled = true;
 
   let added = [];
+  let failedCount = 0;
   if (words.length > 0) {
     bulkAddStatus.textContent = t("ocrAddingStatus", words.length);
 
@@ -3149,10 +3301,18 @@ bulkAddSaveBtn.addEventListener("click", async () => {
       return newWord;
     });
     saveCustomWords();
-    await pushSharedWords(added);
+    const pushResult = await pushSharedWords(added);
+    failedCount = pushResult.failed.length;
   }
 
-  bulkAddStatus.textContent = skipped > 0 ? t("bulkAddedWithSkipped", added.length, skipped) : t("bulkAddedStatus", added.length);
+  const savedCount = added.length - failedCount;
+  if (failedCount > 0) {
+    bulkAddStatus.textContent = t("bulkAddedWithFailures", savedCount, failedCount);
+  } else if (skipped > 0) {
+    bulkAddStatus.textContent = t("bulkAddedWithSkipped", added.length, skipped);
+  } else {
+    bulkAddStatus.textContent = t("bulkAddedStatus", added.length);
+  }
   bulkWordsInput.value = "";
   bulkAddSaveBtn.disabled = false;
   renderCustomWords();
@@ -3729,6 +3889,199 @@ adminCodesGenerateBtn.addEventListener("click", async () => {
   adminCodesGenerateBtn.disabled = false;
 });
 
+/* ---------- Admin: upgrade requests from free accounts ---------- */
+const adminRequestsGrid = document.getElementById("admin-requests-grid");
+const adminRequestsCountEl = document.getElementById("admin-requests-count");
+const adminRequestsEmpty = document.getElementById("admin-requests-empty");
+let adminUpgradeRequests = [];
+
+async function loadAdminUpgradeRequests() {
+  if (!serverAdmin) return;
+  try {
+    const { requests } = await api("/admin/upgrade-requests?status=pending");
+    adminUpgradeRequests = requests;
+  } catch (e) {
+    console.warn("Could not load upgrade requests", e);
+  }
+  renderAdminUpgradeRequests();
+}
+
+function renderAdminUpgradeRequests() {
+  adminRequestsGrid.innerHTML = "";
+  if (adminUpgradeRequests.length === 0) {
+    adminRequestsEmpty.hidden = false;
+    adminRequestsCountEl.textContent = "";
+    return;
+  }
+  adminRequestsEmpty.hidden = true;
+  adminRequestsCountEl.textContent = t("adminRequestsCount", adminUpgradeRequests.length);
+
+  adminUpgradeRequests.forEach((r) => {
+    const row = document.createElement("div");
+    row.className = "wordlist-item";
+
+    const left = document.createElement("div");
+    const nameEl = document.createElement("div");
+    nameEl.className = "w";
+    nameEl.textContent = r.username;
+    left.appendChild(nameEl);
+    const whenEl = document.createElement("div");
+    whenEl.className = "d";
+    whenEl.textContent = t("adminRequestedAt", new Date(r.requestedAt).toLocaleString());
+    left.appendChild(whenEl);
+    row.appendChild(left);
+
+    const right = document.createElement("div");
+    const btnRow = document.createElement("div");
+    btnRow.style.display = "flex";
+    btnRow.style.gap = "6px";
+
+    const approveBtn = document.createElement("button");
+    approveBtn.className = "edit-btn";
+    approveBtn.textContent = t("adminRequestApproveBtn");
+    approveBtn.addEventListener("click", async () => {
+      approveBtn.disabled = true;
+      try {
+        await api("/admin/upgrade-requests/approve", { method: "POST", body: JSON.stringify({ requestId: r.id }) });
+        adminUpgradeRequests = adminUpgradeRequests.filter((x) => x.id !== r.id);
+        renderAdminUpgradeRequests();
+      } catch (e) {
+        alert(t("adminRequestActionFailed"));
+        approveBtn.disabled = false;
+      }
+    });
+    btnRow.appendChild(approveBtn);
+
+    const dismissBtn = document.createElement("button");
+    dismissBtn.className = "delete-btn";
+    dismissBtn.textContent = t("adminRequestDismissBtn");
+    dismissBtn.addEventListener("click", async () => {
+      dismissBtn.disabled = true;
+      try {
+        await api("/admin/upgrade-requests/dismiss", { method: "POST", body: JSON.stringify({ requestId: r.id }) });
+        adminUpgradeRequests = adminUpgradeRequests.filter((x) => x.id !== r.id);
+        renderAdminUpgradeRequests();
+      } catch (e) {
+        alert(t("adminRequestActionFailed"));
+        dismissBtn.disabled = false;
+      }
+    });
+    btnRow.appendChild(dismissBtn);
+
+    right.appendChild(btnRow);
+    row.appendChild(right);
+    adminRequestsGrid.appendChild(row);
+  });
+}
+
+/* ---------- Admin: user accounts ---------- */
+const adminUsersSearch = document.getElementById("admin-users-search");
+const adminUsersGrid = document.getElementById("admin-users-grid");
+const adminUsersCountEl = document.getElementById("admin-users-count");
+const adminUsersEmpty = document.getElementById("admin-users-empty");
+let adminUsers = [];
+const ADMIN_ROLE_OPTIONS = ["free", "paid", "admin"];
+
+async function loadAdminUsers(query) {
+  if (!serverAdmin) return;
+  try {
+    const q = query ? `?q=${encodeURIComponent(query)}` : "";
+    const { users } = await api(`/admin/users${q}`);
+    adminUsers = users;
+  } catch (e) {
+    console.warn("Could not load users", e);
+  }
+  renderAdminUsers();
+}
+
+function renderAdminUsers() {
+  adminUsersGrid.innerHTML = "";
+  if (adminUsers.length === 0) {
+    adminUsersEmpty.hidden = false;
+    adminUsersCountEl.textContent = "";
+    return;
+  }
+  adminUsersEmpty.hidden = true;
+  adminUsersCountEl.textContent = t("wordlistCount", adminUsers.length);
+
+  adminUsers.forEach((u) => {
+    const row = document.createElement("div");
+    row.className = "wordlist-item";
+
+    const left = document.createElement("div");
+    const nameEl = document.createElement("div");
+    nameEl.className = "w";
+    nameEl.textContent = u.username;
+    left.appendChild(nameEl);
+    const whenEl = document.createElement("div");
+    whenEl.className = "d";
+    whenEl.textContent = t("adminUserCreatedAt", new Date(u.createdAt).toLocaleDateString());
+    left.appendChild(whenEl);
+    row.appendChild(left);
+
+    const right = document.createElement("div");
+    const btnRow = document.createElement("div");
+    btnRow.style.display = "flex";
+    btnRow.style.gap = "6px";
+    btnRow.style.alignItems = "center";
+
+    // admin's own account can't be re-roled from here — no lockout risk.
+    const isSelf = currentUser && u.id === currentUser.id;
+    if (isSelf) {
+      const meLabel = document.createElement("span");
+      meLabel.className = "mastery";
+      meLabel.textContent = roleLabel(u.role) + " · " + t("adminUserYou");
+      btnRow.appendChild(meLabel);
+    } else {
+      const roleSelect = document.createElement("select");
+      ADMIN_ROLE_OPTIONS.forEach((role) => {
+        const opt = document.createElement("option");
+        opt.value = role;
+        opt.textContent = roleLabel(role);
+        if (role === u.role) opt.selected = true;
+        roleSelect.appendChild(opt);
+      });
+      btnRow.appendChild(roleSelect);
+
+      const applyBtn = document.createElement("button");
+      applyBtn.className = "edit-btn";
+      applyBtn.textContent = t("adminUserApplyRoleBtn");
+      applyBtn.addEventListener("click", async () => {
+        const newRole = roleSelect.value;
+        if (newRole === u.role) return;
+        if (!confirm(t("adminUserConfirmRoleChange", u.username, roleLabel(newRole)))) return;
+        applyBtn.disabled = true;
+        try {
+          const { user } = await api("/admin/users/set-role", {
+            method: "POST",
+            body: JSON.stringify({ userId: u.id, role: newRole }),
+          });
+          u.role = user.role;
+          renderAdminUsers();
+        } catch (e) {
+          alert(t("adminRequestActionFailed"));
+          applyBtn.disabled = false;
+        }
+      });
+      btnRow.appendChild(applyBtn);
+    }
+
+    right.appendChild(btnRow);
+    row.appendChild(right);
+    adminUsersGrid.appendChild(row);
+  });
+}
+
+function roleLabel(role) {
+  return t(`adminRole_${role}`) || role;
+}
+
+let adminUsersSearchTimer = null;
+adminUsersSearch.addEventListener("input", () => {
+  clearTimeout(adminUsersSearchTimer);
+  adminUsersSearchTimer = setTimeout(() => loadAdminUsers(adminUsersSearch.value.trim()), 300);
+});
+
 /* ---------- OCR: extract words from a photo ---------- */
 const ocrChooseBtn = document.getElementById("ocr-choose-btn");
 const ocrFileNameEl = document.getElementById("ocr-file-name");
@@ -4105,9 +4458,12 @@ ocrAddBtn.addEventListener("click", async () => {
     return newWord;
   });
   saveCustomWords();
-  await pushSharedWords(added);
+  const pushResult = await pushSharedWords(added);
 
-  ocrStatus.textContent = t("ocrAddedStatus", selected.length, levelLabel(level));
+  ocrStatus.textContent =
+    pushResult.failed.length > 0
+      ? t("bulkAddedWithFailures", selected.length - pushResult.failed.length, pushResult.failed.length)
+      : t("ocrAddedStatus", selected.length, levelLabel(level));
   ocrSelectedWords = new Set();
   ocrCandidateWords = [];
   ocrCandidateChips = new Map();

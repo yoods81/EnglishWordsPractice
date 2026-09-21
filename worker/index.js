@@ -182,6 +182,18 @@ function cleanWord(raw) {
   };
 }
 
+// A free account may have an upgrade request in flight — null for anyone
+// else, or once it's been dismissed.
+async function fetchPendingUpgradeRequest(env, userId, role) {
+  if (role !== "free") return null;
+  const reqRow = await env.DB.prepare(
+    "SELECT id, status, code FROM upgrade_requests WHERE user_id = ? AND status != 'dismissed' ORDER BY requested_at DESC LIMIT 1"
+  )
+    .bind(userId)
+    .first();
+  return reqRow ? { id: reqRow.id, status: reqRow.status, code: reqRow.code || null } : null;
+}
+
 /* ---------- API ---------- */
 
 async function handleApi(request, env, url) {
@@ -206,7 +218,9 @@ async function handleApi(request, env, url) {
     const session = await getSessionUser(request, env);
     if (!session) return json({ user: null });
     const row = await env.DB.prepare("SELECT id, username, role FROM users WHERE id = ?").bind(session.id).first();
-    return json({ user: row || null });
+    if (!row) return json({ user: null });
+    const pendingUpgradeRequest = await fetchPendingUpgradeRequest(env, row.id, row.role);
+    return json({ user: row, pendingUpgradeRequest });
   }
 
   if (route === "/auth/signup" && request.method === "POST") {
@@ -231,7 +245,12 @@ async function handleApi(request, env, url) {
     let role = "free";
     let redeemedCode = null;
     if (specialCode) {
-      const codeRow = await env.DB.prepare("SELECT code FROM special_codes WHERE code = ? AND redeemed_by IS NULL")
+      // A code targeted at a specific user's upgrade request presumes an
+      // account that already exists — signup only accepts a general,
+      // untargeted code.
+      const codeRow = await env.DB.prepare(
+        "SELECT code FROM special_codes WHERE code = ? AND redeemed_by IS NULL AND target_user_id IS NULL"
+      )
         .bind(specialCode)
         .first();
       if (!codeRow) return json({ error: "invalid_code" }, 400);
@@ -302,8 +321,9 @@ async function handleApi(request, env, url) {
     }
 
     const token = await makeSessionToken(env, user.id, user.role);
+    const pendingUpgradeRequest = await fetchPendingUpgradeRequest(env, user.id, user.role);
     return json(
-      { user: { id: user.id, username: user.username, role: user.role } },
+      { user: { id: user.id, username: user.username, role: user.role }, pendingUpgradeRequest },
       200,
       { "set-cookie": sessionCookie(token, SESSION_TTL_MS / 1000) }
     );
@@ -330,8 +350,12 @@ async function handleApi(request, env, url) {
     const specialCode = typeof body?.specialCode === "string" ? body.specialCode.trim() : "";
     if (!specialCode) return json({ error: "invalid_code" }, 400);
 
-    const codeRow = await env.DB.prepare("SELECT code FROM special_codes WHERE code = ? AND redeemed_by IS NULL")
-      .bind(specialCode)
+    // A general code (no target) redeems for anyone; a code targeted at a
+    // specific user's upgrade request only redeems for that one account.
+    const codeRow = await env.DB.prepare(
+      "SELECT code FROM special_codes WHERE code = ? AND redeemed_by IS NULL AND (target_user_id IS NULL OR target_user_id = ?)"
+    )
+      .bind(specialCode, session.id)
       .first();
     if (!codeRow) return json({ error: "invalid_code" }, 400);
 
@@ -344,6 +368,27 @@ async function handleApi(request, env, url) {
     const user = await env.DB.prepare("SELECT id, username, role FROM users WHERE id = ?").bind(session.id).first();
     const token = await makeSessionToken(env, user.id, user.role);
     return json({ user }, 200, { "set-cookie": sessionCookie(token, SESSION_TTL_MS / 1000) });
+  }
+
+  // A free account asks to be upgraded — admin will see this in the pending
+  // requests list and, on approval, generate a code bound to this account.
+  // Idempotent: re-requesting while one is already pending just returns it.
+  if (route === "/auth/upgrade-request" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session) return json({ error: "unauthorized" }, 401);
+    if (session.role !== "free") return json({ error: "not_eligible" }, 400);
+
+    const existing = await env.DB.prepare("SELECT id, status, code FROM upgrade_requests WHERE user_id = ? AND status = 'pending'")
+      .bind(session.id)
+      .first();
+    if (existing) return json({ request: existing });
+
+    const id = genId();
+    const now = Date.now();
+    await env.DB.prepare("INSERT INTO upgrade_requests (id, user_id, status, requested_at) VALUES (?, ?, 'pending', ?)")
+      .bind(id, session.id, now)
+      .run();
+    return json({ request: { id, status: "pending", code: null } });
   }
 
   if (route === "/admin/codes" && request.method === "GET") {
@@ -374,6 +419,124 @@ async function handleApi(request, env, url) {
       .bind(code, session.id, now)
       .run();
     return json({ code: { code, createdAt: now, redeemedAt: null, redeemedByUsername: null } });
+  }
+
+  const VALID_ROLES = ["free", "paid", "admin"];
+
+  if (route === "/admin/users" && request.method === "GET") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    const q = (url.searchParams.get("q") || "").trim();
+    const query = q
+      ? env.DB.prepare("SELECT id, username, role, created_at FROM users WHERE username LIKE ? ORDER BY created_at DESC")
+          .bind(`%${q}%`)
+      : env.DB.prepare("SELECT id, username, role, created_at FROM users ORDER BY created_at DESC");
+    const { results } = await query.all();
+    return json({
+      users: (results || []).map((r) => ({ id: r.id, username: r.username, role: r.role, createdAt: r.created_at })),
+    });
+  }
+
+  if (route === "/admin/users/set-role" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const userId = typeof body?.userId === "string" ? body.userId : "";
+    const role = typeof body?.role === "string" ? body.role : "";
+    if (!userId || !VALID_ROLES.includes(role)) return json({ error: "bad_request" }, 400);
+    if (userId === session.id) return json({ error: "cannot_change_own_role" }, 400);
+
+    const target = await env.DB.prepare("SELECT id FROM users WHERE id = ?").bind(userId).first();
+    if (!target) return json({ error: "not_found" }, 404);
+
+    await env.DB.prepare("UPDATE users SET role = ? WHERE id = ?").bind(role, userId).run();
+    const updated = await env.DB.prepare("SELECT id, username, role, created_at FROM users WHERE id = ?").bind(userId).first();
+    return json({ user: { id: updated.id, username: updated.username, role: updated.role, createdAt: updated.created_at } });
+  }
+
+  if (route === "/admin/upgrade-requests" && request.method === "GET") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    const status = url.searchParams.get("status");
+    const query = status
+      ? env.DB.prepare(
+          `SELECT ur.id, ur.user_id, ur.status, ur.requested_at, ur.fulfilled_at, ur.code, u.username
+           FROM upgrade_requests ur JOIN users u ON ur.user_id = u.id
+           WHERE ur.status = ? ORDER BY ur.requested_at DESC`
+        ).bind(status)
+      : env.DB.prepare(
+          `SELECT ur.id, ur.user_id, ur.status, ur.requested_at, ur.fulfilled_at, ur.code, u.username
+           FROM upgrade_requests ur JOIN users u ON ur.user_id = u.id
+           ORDER BY ur.requested_at DESC`
+        );
+    const { results } = await query.all();
+    return json({
+      requests: (results || []).map((r) => ({
+        id: r.id,
+        userId: r.user_id,
+        username: r.username,
+        status: r.status,
+        requestedAt: r.requested_at,
+        fulfilledAt: r.fulfilled_at || null,
+        code: r.code || null,
+      })),
+    });
+  }
+
+  // Approves a pending upgrade request: generates a fresh special code bound
+  // to that one requester (target_user_id) and stores it on the request row
+  // so the requester's own /auth/me response can surface it as "ready to
+  // redeem" — no separate delivery channel needed.
+  if (route === "/admin/upgrade-requests/approve" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const requestId = typeof body?.requestId === "string" ? body.requestId : "";
+    if (!requestId) return json({ error: "bad_request" }, 400);
+
+    const reqRow = await env.DB.prepare("SELECT id, user_id, status FROM upgrade_requests WHERE id = ?").bind(requestId).first();
+    if (!reqRow) return json({ error: "not_found" }, 404);
+    if (reqRow.status !== "pending") return json({ error: "not_pending" }, 400);
+
+    const code = genSpecialCode();
+    const now = Date.now();
+    await env.DB.prepare("INSERT INTO special_codes (code, created_by, created_at, target_user_id) VALUES (?, ?, ?, ?)")
+      .bind(code, session.id, now, reqRow.user_id)
+      .run();
+    await env.DB.prepare("UPDATE upgrade_requests SET status = 'fulfilled', fulfilled_at = ?, code = ? WHERE id = ?")
+      .bind(now, code, requestId)
+      .run();
+    return json({ request: { id: requestId, status: "fulfilled", code, fulfilledAt: now } });
+  }
+
+  if (route === "/admin/upgrade-requests/dismiss" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const requestId = typeof body?.requestId === "string" ? body.requestId : "";
+    if (!requestId) return json({ error: "bad_request" }, 400);
+
+    const reqRow = await env.DB.prepare("SELECT id, status FROM upgrade_requests WHERE id = ?").bind(requestId).first();
+    if (!reqRow) return json({ error: "not_found" }, 404);
+    if (reqRow.status !== "pending") return json({ error: "not_pending" }, 400);
+
+    await env.DB.prepare("UPDATE upgrade_requests SET status = 'dismissed' WHERE id = ?").bind(requestId).run();
+    return json({ ok: true });
   }
 
   if (route === "/words" && (request.method === "PUT" || request.method === "DELETE")) {
