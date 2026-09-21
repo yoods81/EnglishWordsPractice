@@ -119,7 +119,8 @@ const TRANSLATIONS = {
     spellingStartBtn: "▶ Start the first word",
     spellingBackBtn: "⬅ Back",
     spellingNextBtn: "Next ➡",
-    spellingSkipBtn: "Skip ➡",
+    spellingCheckBtn: "✅ Check Answer",
+    spellingCorrectPrompt: "✅ Correct! Press Next to continue.",
     spellingWrongPrompt: "Please enter the correct spelling to go to the next word",
     spellingEmpty: (lvl) => `No ${lvl} spelling words yet. Add some in "Add Word"!`,
     spellingFinishBtn: "🏁 Finish",
@@ -321,7 +322,8 @@ const TRANSLATIONS = {
     spellingStartBtn: "▶ 첫 단어 시작하기",
     spellingBackBtn: "⬅ 이전",
     spellingNextBtn: "다음 ➡",
-    spellingSkipBtn: "건너뛰기 ➡",
+    spellingCheckBtn: "✅ 정답 확인",
+    spellingCorrectPrompt: "✅ 정답이에요! Next를 눌러 다음 단어로 넘어가세요.",
     spellingWrongPrompt: "정확한 철자를 입력해야 다음 단어로 넘어갈 수 있어요.",
     spellingEmpty: (lvl) => `${lvl} 레벨에는 아직 스펠링 연습 단어가 없어요. "단어 추가"에서 추가해보세요!`,
     spellingFinishBtn: "🏁 종료",
@@ -1154,7 +1156,7 @@ function updateAdminUI() {
   adminToggleBtn.textContent = t(isAdmin ? "adminLogoutBtn" : "adminLoginBtn");
   adminToggleBtn.classList.toggle("admin-toggle-active", isAdmin);
   if (!isAdmin && addwordTabButton && addwordTabButton.classList.contains("active")) {
-    goToTab("flashcards");
+    goToTab("quiz");
   }
 }
 
@@ -1747,7 +1749,7 @@ const spellingSpeakBtn = document.getElementById("spelling-speak");
 const spellingInput = document.getElementById("spelling-input");
 const spellingFeedback = document.getElementById("spelling-feedback");
 const spellingBackBtn = document.getElementById("spelling-back");
-const spellingSkipBtn = document.getElementById("spelling-skip");
+const spellingCheckBtn = document.getElementById("spelling-check");
 const spellingNextBtn = document.getElementById("spelling-next");
 const spellingScoreEl = document.getElementById("spelling-score");
 const spellingGoalValueEl = document.getElementById("spelling-goal-value");
@@ -1771,6 +1773,7 @@ let spellingScore = { correct: 0, total: 0 };
 let spellingTotalCountedWords = new Set(); // this round only — stops a retried word double-counting "total"
 let spellingWrongThisRound = new Set(); // this round only — word had >=1 wrong attempt, so it can't earn "correct" credit this round
 let spellingSessionWrongWords = new Map(); // word -> {word, meaning} — for the end-of-round report
+let spellingCurrentChecked = false; // has the current word passed a "Check Answer" yet — gates the Next button
 
 function buildSpellingDeck() {
   spellingGoalBanner.hidden = true;
@@ -1805,6 +1808,8 @@ function loadSpellingWord() {
   spellingInput.value = "";
   spellingInput.className = "";
   spellingFeedback.innerHTML = "";
+  spellingCurrentChecked = false;
+  spellingNextBtn.disabled = true;
   if (spellingDeck.length === 0) {
     spellingFeedback.textContent = t("spellingEmpty", levelLabel(currentLevel));
     spellingBackBtn.disabled = true;
@@ -1841,7 +1846,18 @@ function showSpellingWrongFeedback(current) {
   }
 }
 
-function attemptSpellingNext() {
+function showSpellingCorrectFeedback() {
+  spellingFeedback.innerHTML = "";
+  const line = document.createElement("div");
+  line.className = "spelling-correct-line";
+  line.textContent = t("spellingCorrectPrompt");
+  spellingFeedback.appendChild(line);
+}
+
+// Checks the current guess against the word, but stays on the same word —
+// advancing only happens via goToNextSpellingWord(), and only once a check
+// here has confirmed the guess is correct.
+function checkSpellingAnswer() {
   if (spellingDeck.length === 0) return;
   const current = spellingDeck[spellingIndex];
   const guess = spellingInput.value.trim().toLowerCase();
@@ -1857,7 +1873,7 @@ function attemptSpellingNext() {
   if (correct) {
     // Only credit "correct" if this word was spelled right on the first try this
     // round — a word that was ever wrong this round stays counted as wrong, even
-    // though you still move on to the next word once you get it right.
+    // though it now passes the check and can be advanced past.
     if (!spellingWrongThisRound.has(current.word)) {
       spellingScore.correct++;
       progress.spelling.correct++;
@@ -1865,8 +1881,10 @@ function attemptSpellingNext() {
     }
     saveProgress();
     updateSpellingScoreLabel();
-    spellingIndex++;
-    loadSpellingWord();
+    spellingInput.className = "correct";
+    showSpellingCorrectFeedback();
+    spellingCurrentChecked = true;
+    spellingNextBtn.disabled = false;
 
     const goal = goals.spelling;
     if (goal && !spellingGoalCelebrated && spellingScore.correct >= goal) {
@@ -1881,7 +1899,15 @@ function attemptSpellingNext() {
     updateSpellingScoreLabel();
     spellingInput.className = "incorrect";
     showSpellingWrongFeedback(current);
+    spellingCurrentChecked = false;
+    spellingNextBtn.disabled = true;
   }
+}
+
+function goToNextSpellingWord() {
+  if (!spellingCurrentChecked) return;
+  spellingIndex++;
+  loadSpellingWord();
 }
 
 function updateSpellingScoreLabel() {
@@ -1891,14 +1917,21 @@ function updateSpellingScoreLabel() {
   spellingScoreEl.textContent = t("scoreLabel", spellingScore.correct, spellingDeck.length);
 }
 
-spellingNextBtn.addEventListener("click", attemptSpellingNext);
+spellingCheckBtn.addEventListener("click", checkSpellingAnswer);
+spellingNextBtn.addEventListener("click", goToNextSpellingWord);
 spellingInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") attemptSpellingNext();
+  if (e.key !== "Enter") return;
+  if (spellingCurrentChecked) goToNextSpellingWord();
+  else checkSpellingAnswer();
 });
-
-spellingSkipBtn.addEventListener("click", () => {
-  spellingIndex++;
-  loadSpellingWord();
+spellingInput.addEventListener("input", () => {
+  // Editing the guess after a correct check invalidates it — require another
+  // check before Next works again, so a stale "correct" state can't be used
+  // to skip past a word that was quietly changed.
+  if (spellingCurrentChecked) {
+    spellingCurrentChecked = false;
+    spellingNextBtn.disabled = true;
+  }
 });
 
 spellingBackBtn.addEventListener("click", () => {

@@ -704,7 +704,10 @@ button.pill:disabled {
 
 /* Spelling */
 #spelling-word-audio {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 #spelling-input {
@@ -748,6 +751,12 @@ button.pill:disabled {
   color: var(--text);
   font-size: 0.85rem;
   margin-top: 6px;
+}
+
+.spelling-correct-line {
+  color: var(--success);
+  font-weight: 700;
+  font-size: 0.95rem;
 }
 
 /* Word list */

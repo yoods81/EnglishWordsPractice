@@ -45,17 +45,17 @@
 
   <main>
     <nav class="tabs">
-      <button data-view="quiz" data-i18n="navQuiz">❓ Quiz</button>
+      <button data-view="quiz" class="active" data-i18n="navQuiz">❓ Quiz</button>
       <button data-view="spelling" data-i18n="navSpelling">✏️ Spelling</button>
       <button data-view="typegame" data-i18n="navTypeGame">⌨️ Typing Game</button>
-      <button data-view="flashcards" class="active" data-i18n="navFlashcards">🃏 Flashcards</button>
+      <button data-view="flashcards" data-i18n="navFlashcards">🃏 Flashcards</button>
       <button data-view="wordlist" data-i18n="navWordlist">📖 Word List</button>
       <button data-view="addword" data-i18n="navAddword">➕ Add Word</button>
       <button data-view="stats" data-i18n="navStats">📊 My Progress</button>
     </nav>
 
     <!-- Flashcards -->
-    <section id="view-flashcards" class="view active">
+    <section id="view-flashcards" class="view">
       <div class="card">
         <div class="setting-row setting-row-nowrap">
           <label for="flash-category" data-i18n="categoryLabel">Category</label>
@@ -155,7 +155,7 @@
     </section>
 
     <!-- Quiz -->
-    <section id="view-quiz" class="view">
+    <section id="view-quiz" class="view active">
       <div class="card">
         <div class="setting-row">
           <label for="quiz-category" data-i18n="categoryLabel">Category</label>
@@ -213,13 +213,13 @@
         <div id="spelling-practice" hidden>
           <div id="spelling-word-audio">
             <button class="pill green" id="spelling-speak" data-i18n="spellingHearBtn">🔊 Hear the word</button>
+            <button class="pill accent" id="spelling-check" data-i18n="spellingCheckBtn">✅ Check Answer</button>
           </div>
           <input type="text" id="spelling-input" data-i18n-placeholder="spellingPlaceholder" placeholder="Type what you hear..." autocomplete="off" autocapitalize="off" spellcheck="false" />
           <div class="spelling-tip" id="spelling-feedback"></div>
           <div class="flash-controls">
             <button class="pill dark" id="spelling-back" data-i18n="spellingBackBtn">⬅ Back</button>
-            <button class="pill neutral" id="spelling-skip" data-i18n="spellingSkipBtn">Skip ➡</button>
-            <button class="pill primary" id="spelling-next" data-i18n="spellingNextBtn">Next ➡</button>
+            <button class="pill primary" id="spelling-next" data-i18n="spellingNextBtn" disabled>Next ➡</button>
           </div>
           <div class="quiz-footer">
             <span class="score-tag" id="spelling-score">Score: 0 / 0</span>
