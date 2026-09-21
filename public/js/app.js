@@ -205,9 +205,11 @@ const TRANSLATIONS = {
     uploadLocalBtn: (n) => `☁️ Upload ${n} to server`,
     uploadLocalConfirm: (n) =>
       `Upload ${n} word(s) saved in this browser to the server, so they show up on every device?`,
-    uploadLocalDone: (n) => `Uploaded ${n} word(s) — they're now shared with every device.`,
+    uploadLocalDone: (n) => `Uploaded ${n} word(s) to the server.`,
     uploadLocalFailed: "Could not reach the server. The words are still saved in this browser.",
     storageNoteShared: "Words you add here are saved on the server and show up on every device.",
+    storageNotePrivate: "Words you add here are saved to your account and only visible to you.",
+    storageNoteVolatile: "Words you add here are kept only in this browser tab — they'll disappear when you close it or leave the site.",
     storageNoteLocal: "Not signed in to the server — words you add are saved in this browser only.",
     editBtn: "Edit",
     deleteBtn: "Delete",
@@ -417,9 +419,11 @@ const TRANSLATIONS = {
     changeLevelDone: (n, level) => `${n}개를 ${level} 레벨로 옮겼어요.`,
     uploadLocalBtn: (n) => `☁️ ${n}개 서버로 올리기`,
     uploadLocalConfirm: (n) => `이 브라우저에 저장된 단어 ${n}개를 서버로 올릴까요? 모든 기기에서 보이게 됩니다.`,
-    uploadLocalDone: (n) => `${n}개를 올렸어요 — 이제 모든 기기에서 보여요.`,
+    uploadLocalDone: (n) => `${n}개를 서버로 올렸어요.`,
     uploadLocalFailed: "서버에 연결하지 못했어요. 단어는 이 브라우저에 그대로 있어요.",
     storageNoteShared: "여기서 추가한 단어는 서버에 저장되어 모든 기기에서 보여요.",
+    storageNotePrivate: "여기서 추가한 단어는 내 계정에 저장되고 나에게만 보여요.",
+    storageNoteVolatile: "여기서 추가한 단어는 이 브라우저 탭에만 보관돼요 — 탭을 닫거나 사이트를 나가면 사라져요.",
     storageNoteLocal: "서버에 로그인되지 않아, 추가한 단어가 이 브라우저에만 저장돼요.",
     editBtn: "수정",
     deleteBtn: "삭제",
@@ -543,7 +547,9 @@ function loadSharedWordsCache() {
 
 function saveCustomWords() {
   try {
-    localStorage.setItem(CUSTOM_WORDS_KEY, JSON.stringify(customWords.filter((w) => !w.remote)));
+    // A free account's words are deliberately volatile — they must never
+    // reach localStorage, so they vanish the moment the tab or site closes.
+    localStorage.setItem(CUSTOM_WORDS_KEY, JSON.stringify(customWords.filter((w) => !w.remote && !w.volatile)));
     localStorage.setItem(SHARED_WORDS_CACHE_KEY, JSON.stringify(customWords.filter((w) => w.remote)));
   } catch (e) {
     console.warn("Could not save custom words", e);
@@ -935,7 +941,9 @@ function findCustomWordByText(word) {
 // duplicate check existed on Single/Multiple word add.
 function findDuplicateCustomWordGroups() {
   const groups = new Map();
-  customWords.forEach((w) => {
+  // Only merge within words this account actually manages — never an admin's
+  // shared word with a paid account's private one, or vice versa.
+  myCustomWords().forEach((w) => {
     const key = w.word.trim().toLowerCase();
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(w);
@@ -1098,18 +1106,66 @@ const addwordTabButton = document.querySelector('nav.tabs button[data-view="addw
 
 tabButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    if (btn.dataset.view === "addword" && !isAdmin) return;
+    if (btn.dataset.view === "addword" && !canAddWords()) return;
     goToTab(btn.dataset.view);
   });
 });
 
 /* ---------- Shared word list API ---------- */
-// serverAdmin means the Worker accepted the password and issued a session, so
-// this browser may change the shared list. isAdmin only unlocks the Add Word
-// UI — when the API is unreachable it falls back to the in-page password check
-// below, which unlocks editing this browser's own words and nothing more.
+// serverAdmin means the Worker confirmed an admin session, so this browser
+// may change the *shared* pool. isAdmin covers that plus the offline,
+// in-page password fallback below (server unreachable), which only unlocks
+// editing this browser's own words. canAddWords(), not isAdmin, is what
+// actually gates the Add Word tab — any signed-in role may open it.
 let serverAdmin = false;
 let sharedWordsAvailable = false;
+
+// Anyone signed in (any role) may open the Add Word tab; what happens to a
+// word they add from there depends on the role (see newWordStorageFlags()).
+function canAddWords() {
+  return !!currentUser || isAdmin;
+}
+
+// Admin and paid accounts are the only roles whose words are ever written to
+// the server — admin into the shared pool, paid into their own private slice.
+function canWriteServerWords() {
+  return serverAdmin || (currentUser && currentUser.role === "paid");
+}
+
+// Where a newly added word should live, based on the signed-in account:
+// - admin: pushed to the server, shared with everyone (owner_id NULL)
+// - paid: pushed to the server, visible only to this account (owner_id = self)
+// - free (signed in): kept only in this tab's memory — never written to
+//   localStorage or the server, gone the moment the tab or site is closed
+// - offline admin fallback (server unreachable): the old local-storage
+//   behaviour, uploadable later once the server is back
+function newWordStorageFlags() {
+  // ownerId is set here purely so the word renders under "My added words"
+  // right away, before any server round-trip — the server derives the real
+  // owner_id from the session itself and ignores whatever the client sends.
+  if (serverAdmin) return { remote: true, volatile: false, ownerId: null };
+  if (currentUser && currentUser.role === "paid") return { remote: true, volatile: false, ownerId: currentUser.id };
+  if (currentUser && currentUser.role === "free") return { remote: false, volatile: true };
+  return { remote: false, volatile: false };
+}
+
+// "My added words" should only list words this account can actually manage:
+// an admin manages the shared pool, a paid account its own private words,
+// and anything not yet synced (local-pending or this tab's volatile words)
+// always belongs to whoever is looking at it.
+function isMyCustomWord(w) {
+  if (!w.remote) return true;
+  if (currentUser && currentUser.role === "admin") return !w.ownerId;
+  if (currentUser && currentUser.role === "paid") return w.ownerId === currentUser.id;
+  return false;
+}
+
+function storageNoteKey() {
+  if (serverAdmin) return "storageNoteShared";
+  if (currentUser && currentUser.role === "paid") return "storageNotePrivate";
+  if (currentUser && currentUser.role === "free") return "storageNoteVolatile";
+  return "storageNoteLocal";
+}
 
 async function api(path, options = {}) {
   const res = await fetch(`/api${path}`, {
@@ -1150,7 +1206,7 @@ async function refreshSharedWords() {
 // failure here means the change didn't reach other devices, not that it was
 // lost.
 async function pushSharedWords(words) {
-  if (!serverAdmin || words.length === 0) return;
+  if (!canWriteServerWords() || words.length === 0) return;
   try {
     await api("/words", { method: "PUT", body: JSON.stringify({ words }) });
   } catch (e) {
@@ -1159,7 +1215,7 @@ async function pushSharedWords(words) {
 }
 
 async function removeSharedWords(ids) {
-  if (!serverAdmin || ids.length === 0) return;
+  if (!canWriteServerWords() || ids.length === 0) return;
   try {
     await api("/words", { method: "DELETE", body: JSON.stringify({ ids }) });
   } catch (e) {
@@ -1193,10 +1249,10 @@ const signupError = document.getElementById("signup-error");
 const signupCancelBtn = document.getElementById("signup-cancel-btn");
 
 function updateAdminUI() {
-  if (addwordTabButton) addwordTabButton.hidden = !isAdmin;
+  if (addwordTabButton) addwordTabButton.hidden = !canAddWords();
   authToggleBtn.textContent = currentUser ? `👤 ${currentUser.username} · ${t("authLogoutBtn")}` : t("authHeaderLoginBtn");
   authToggleBtn.classList.toggle("auth-toggle-active", !!currentUser);
-  if (!isAdmin && addwordTabButton && addwordTabButton.classList.contains("active")) {
+  if (!canAddWords() && addwordTabButton && addwordTabButton.classList.contains("active")) {
     goToTab("quiz");
   }
 }
@@ -1235,6 +1291,9 @@ authToggleBtn.addEventListener("click", async () => {
     isAdmin = false;
     serverAdmin = false;
     sessionStorage.removeItem(ADMIN_KEY);
+    // A free account's words only ever existed in memory for that session —
+    // they don't carry over once you sign out.
+    customWords = customWords.filter((w) => !w.volatile);
     updateAdminUI();
     try {
       await api("/auth/logout", { method: "POST" });
@@ -1293,7 +1352,7 @@ loginForm.addEventListener("submit", async (e) => {
   if (isAdmin) sessionStorage.setItem(ADMIN_KEY, "1");
   closeAuthOverlay();
   updateAdminUI();
-  if (serverAdmin) refreshSharedWords();
+  if (currentUser) refreshSharedWords();
 });
 
 const SIGNUP_ERROR_KEYS = {
@@ -2846,7 +2905,7 @@ bulkAddSaveBtn.addEventListener("click", async () => {
         noDefinitionKo: !(info && info.definitionKo),
         source: "bulk",
         createdAt: Date.now(),
-        remote: serverAdmin,
+        ...newWordStorageFlags(),
       };
       customWords.push(newWord);
       return newWord;
@@ -2945,7 +3004,7 @@ manualForm.addEventListener("submit", (e) => {
     }
   } else {
     const other = otherLang(currentLang);
-    newWord = { id: genId(), word, example, source: "manual", createdAt: Date.now(), remote: serverAdmin };
+    newWord = { id: genId(), word, example, source: "manual", createdAt: Date.now(), ...newWordStorageFlags() };
     newWord[defKey(currentLang)] = definition;
     newWord[levelKey(currentLang)] = level;
     newWord[noDefKey(currentLang)] = false;
@@ -3043,7 +3102,7 @@ async function retrySingleWord(id) {
 }
 
 async function retryAllFailedWords() {
-  const failed = customWords.filter((w) => cwNoDefinition(w));
+  const failed = myCustomWords().filter((w) => cwNoDefinition(w));
   if (failed.length === 0) return;
   customRetryAllBtn.disabled = true;
   customDeleteFailedBtn.disabled = true;
@@ -3069,7 +3128,7 @@ async function retryAllFailedWords() {
 }
 
 function deleteAllFailedWords() {
-  const failed = customWords.filter((w) => cwNoDefinition(w));
+  const failed = myCustomWords().filter((w) => cwNoDefinition(w));
   if (failed.length === 0) return;
   if (!confirm(t("deleteAllFailedConfirm", failed.length))) return;
   const failedIds = new Set(failed.map((w) => w.id));
@@ -3086,14 +3145,25 @@ function updateDeleteSelectedBtn() {
   customLevelSelect.disabled = selectedCustomWordIds.size === 0;
 }
 
+// The words this section manages — an admin's own shared additions, a paid
+// account's own private words, or anything not yet synced/volatile — never
+// someone else's shared or private words that merely got merged into
+// customWords for practice purposes (Quiz/Spelling/Word List still use the
+// full customWords, unfiltered).
+function myCustomWords() {
+  return customWords.filter(isMyCustomWord);
+}
+
 function renderCustomWords() {
+  const mine = myCustomWords();
+
   // Drop selection for any word that no longer exists (e.g. deleted elsewhere).
-  const liveIds = new Set(customWords.map((w) => w.id));
+  const liveIds = new Set(mine.map((w) => w.id));
   selectedCustomWordIds.forEach((id) => {
     if (!liveIds.has(id)) selectedCustomWordIds.delete(id);
   });
 
-  const failedWords = customWords.filter((w) => cwNoDefinition(w));
+  const failedWords = mine.filter((w) => cwNoDefinition(w));
   if (failedWords.length > 0) {
     customWordsFailedBanner.hidden = false;
     customWordsFailedText.textContent = t("failedWordsBanner", failedWords.length);
@@ -3103,15 +3173,15 @@ function renderCustomWords() {
 
   updateDeleteSelectedBtn();
 
-  // Words still held only in this browser can be pushed up to the shared list.
-  const localOnly = customWords.filter((w) => !w.remote);
-  customUploadBtn.hidden = !(serverAdmin && localOnly.length > 0);
+  // Words still held only in this browser can be pushed up to the server.
+  const localOnly = mine.filter((w) => !w.remote && !w.volatile);
+  customUploadBtn.hidden = !(canWriteServerWords() && localOnly.length > 0);
   customUploadBtn.textContent = t("uploadLocalBtn", localOnly.length);
   customStorageNote.hidden = false;
-  customStorageNote.textContent = t(serverAdmin ? "storageNoteShared" : "storageNoteLocal");
+  customStorageNote.textContent = t(storageNoteKey());
 
   customWordsGrid.innerHTML = "";
-  if (customWords.length === 0) {
+  if (mine.length === 0) {
     customWordsEmpty.hidden = false;
     customWordsCountEl.textContent = "";
     return;
@@ -3120,7 +3190,7 @@ function renderCustomWords() {
 
   const query = customSearchInput.value.trim().toLowerCase();
   const sort = customSortSelect.value || "recent";
-  const shown = customWords.filter((w) => {
+  const shown = mine.filter((w) => {
     if (!query) return true;
     const meaning = cwDefinition(w) || "";
     return w.word.toLowerCase().includes(query) || meaning.toLowerCase().includes(query);
@@ -3255,7 +3325,7 @@ customLevelSelect.addEventListener("change", () => {
 });
 
 customUploadBtn.addEventListener("click", async () => {
-  const localOnly = customWords.filter((w) => !w.remote);
+  const localOnly = customWords.filter((w) => !w.remote && !w.volatile);
   if (localOnly.length === 0) return;
   if (!confirm(t("uploadLocalConfirm", localOnly.length))) return;
   customUploadBtn.disabled = true;
@@ -3703,7 +3773,7 @@ ocrAddBtn.addEventListener("click", async () => {
       noDefinitionKo: !(info && info.definitionKo),
       source: "ocr",
       createdAt: Date.now(),
-      remote: serverAdmin,
+      ...newWordStorageFlags(),
     };
     newWord[levelKey(currentLang)] = level;
     newWord[levelKey(other)] = guessLevelForWord(word, other);

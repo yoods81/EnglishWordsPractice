@@ -137,6 +137,7 @@ function rowToWord(row) {
     noDefinitionEn: !!row.no_definition_en,
     noDefinitionKo: !!row.no_definition_ko,
     source: row.source,
+    ownerId: row.owner_id || null,
     createdAt: row.created_at,
   };
 }
@@ -175,9 +176,17 @@ async function handleApi(request, env, url) {
   const route = url.pathname.slice("/api".length);
 
   if (route === "/words" && request.method === "GET") {
-    const { results } = await env.DB.prepare(
-      "SELECT * FROM shared_words ORDER BY created_at DESC"
-    ).all();
+    // Admin-shared words (owner_id NULL) are visible to everyone, signed in
+    // or not. A paid account additionally sees its own private words — no
+    // one else's, and a free/anonymous visitor never sees any private words.
+    const session = await getSessionUser(request, env);
+    const query =
+      session && session.role === "paid"
+        ? env.DB.prepare("SELECT * FROM shared_words WHERE owner_id IS NULL OR owner_id = ? ORDER BY created_at DESC").bind(
+            session.id
+          )
+        : env.DB.prepare("SELECT * FROM shared_words WHERE owner_id IS NULL ORDER BY created_at DESC");
+    const { results } = await query.all();
     return json({ words: (results || []).map(rowToWord) });
   }
 
@@ -294,7 +303,13 @@ async function handleApi(request, env, url) {
 
   if (route === "/words" && (request.method === "PUT" || request.method === "DELETE")) {
     const session = await getSessionUser(request, env);
-    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    if (!session || (session.role !== "admin" && session.role !== "paid")) {
+      return json({ error: "unauthorized" }, 401);
+    }
+    // Admin writes land in the shared pool (owner_id NULL, visible to
+    // everyone); a paid account's writes are scoped to its own owner_id and
+    // never touch anyone else's words, admin's shared pool included.
+    const ownerId = session.role === "admin" ? null : session.id;
 
     let body;
     try {
@@ -308,7 +323,11 @@ async function handleApi(request, env, url) {
       if (ids.length === 0) return json({ error: "bad_request" }, 400);
       if (ids.length > MAX_WORDS_PER_REQUEST) return json({ error: "too_many" }, 413);
       await env.DB.batch(
-        ids.map((id) => env.DB.prepare("DELETE FROM shared_words WHERE id = ?").bind(id))
+        ids.map((id) =>
+          ownerId === null
+            ? env.DB.prepare("DELETE FROM shared_words WHERE id = ? AND owner_id IS NULL").bind(id)
+            : env.DB.prepare("DELETE FROM shared_words WHERE id = ? AND owner_id = ?").bind(id, ownerId)
+        )
       );
       return json({ deleted: ids.length });
     }
@@ -323,8 +342,8 @@ async function handleApi(request, env, url) {
         env.DB.prepare(
           `INSERT INTO shared_words
              (id, word, definition_en, definition_ko, level_en, level_ko, example,
-              no_definition_en, no_definition_ko, source, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              no_definition_en, no_definition_ko, source, owner_id, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT(id) DO UPDATE SET
              word = excluded.word,
              definition_en = excluded.definition_en,
@@ -335,7 +354,8 @@ async function handleApi(request, env, url) {
              no_definition_en = excluded.no_definition_en,
              no_definition_ko = excluded.no_definition_ko,
              source = excluded.source,
-             updated_at = excluded.updated_at`
+             updated_at = excluded.updated_at
+           WHERE shared_words.owner_id IS excluded.owner_id`
         ).bind(
           w.id,
           w.word,
@@ -347,6 +367,7 @@ async function handleApi(request, env, url) {
           w.no_definition_en,
           w.no_definition_ko,
           w.source,
+          ownerId,
           w.created_at,
           now
         )
