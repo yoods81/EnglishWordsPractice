@@ -73,6 +73,7 @@
       <button data-view="wordlist" data-i18n="navWordlist">📖 Word List</button>
       <button data-view="addword" data-i18n="navAddword">➕ Add Word</button>
       <button data-view="stats" data-i18n="navStats">📊 My Progress</button>
+      <button data-view="admincodes" data-i18n="navAdminCodes" hidden>🎟️ Codes</button>
     </nav>
 
     <!-- Flashcards -->
@@ -426,6 +427,18 @@
       <div class="card">
         <div class="stats-grid" id="stats-grid"></div>
         <button class="reset-btn" id="reset-progress" data-i18n="resetBtn">Reset all progress</button>
+      </div>
+    </section>
+
+    <!-- Special (paid signup) codes — admin only -->
+    <section id="view-admincodes" class="view">
+      <div class="card">
+        <h3 data-i18n="adminCodesTitle">🎟️ Paid Signup Codes</h3>
+        <p class="muted" data-i18n="adminCodesDesc">Generate a one-time code and send it to someone so they can sign up as a paid account instead of free.</p>
+        <button type="button" class="pill primary" id="admin-codes-generate-btn" data-i18n="adminCodesGenerateBtn">🎲 Generate New Code</button>
+        <p class="muted wordlist-count" id="admin-codes-count"></p>
+        <div class="wordlist-grid" id="admin-codes-grid"></div>
+        <p class="muted" id="admin-codes-empty" hidden data-i18n="adminCodesEmpty">No codes generated yet.</p>
       </div>
     </section>
   </main>

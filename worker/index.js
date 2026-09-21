@@ -123,6 +123,18 @@ function genId() {
   return crypto.randomUUID();
 }
 
+// A special code an admin generates and hands to someone directly (no email
+// step) so they can sign up as a paid account. Readable groups, no visually
+// ambiguous characters (0/O, 1/I/L) since it may be typed by hand.
+function genSpecialCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const group = () =>
+    Array.from(crypto.getRandomValues(new Uint8Array(4)))
+      .map((b) => chars[b % chars.length])
+      .join("");
+  return `${group()}-${group()}-${group()}-${group()}`;
+}
+
 /* ---------- word shape ---------- */
 
 function rowToWord(row) {
@@ -299,6 +311,36 @@ async function handleApi(request, env, url) {
 
   if (route === "/auth/logout" && request.method === "POST") {
     return json({ ok: true }, 200, { "set-cookie": sessionCookie("", 0) });
+  }
+
+  if (route === "/admin/codes" && request.method === "GET") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    const { results } = await env.DB.prepare(
+      `SELECT sc.code, sc.created_at, sc.redeemed_at, u.username AS redeemed_by_username
+       FROM special_codes sc
+       LEFT JOIN users u ON sc.redeemed_by = u.id
+       ORDER BY sc.created_at DESC`
+    ).all();
+    return json({
+      codes: (results || []).map((r) => ({
+        code: r.code,
+        createdAt: r.created_at,
+        redeemedAt: r.redeemed_at || null,
+        redeemedByUsername: r.redeemed_by_username || null,
+      })),
+    });
+  }
+
+  if (route === "/admin/codes" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    const code = genSpecialCode();
+    const now = Date.now();
+    await env.DB.prepare("INSERT INTO special_codes (code, created_by, created_at) VALUES (?, ?, ?)")
+      .bind(code, session.id, now)
+      .run();
+    return json({ code: { code, createdAt: now, redeemedAt: null, redeemedByUsername: null } });
   }
 
   if (route === "/words" && (request.method === "PUT" || request.method === "DELETE")) {

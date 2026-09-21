@@ -49,6 +49,17 @@ const TRANSLATIONS = {
     navWordlist: "📖 Word List",
     navAddword: "➕ Add Word",
     navStats: "📊 My Progress",
+    navAdminCodes: "🎟️ Codes",
+    adminCodesTitle: "🎟️ Paid Signup Codes",
+    adminCodesDesc: "Generate a one-time code and send it to someone so they can sign up as a paid account instead of free.",
+    adminCodesGenerateBtn: "🎲 Generate New Code",
+    adminCodesEmpty: "No codes generated yet.",
+    adminCodesCount: (n) => `${n} code${n === 1 ? "" : "s"}`,
+    adminCodeUsedBy: (username) => `Used by ${username}`,
+    adminCodeUnused: "Not used yet",
+    adminCodeCopyBtn: "Copy",
+    adminCodeCopiedBtn: "Copied!",
+    adminCodeGenerateFailed: "Could not generate a code — please try again.",
     typeGameTitle: "⌨️ Typing Game",
     typeGameDesc: "Type each word before it reaches the bottom!",
     typeGameStartBtn: "▶ Start Game",
@@ -267,6 +278,17 @@ const TRANSLATIONS = {
     navWordlist: "📖 단어장",
     navAddword: "➕ 단어 추가",
     navStats: "📊 내 진행상황",
+    navAdminCodes: "🎟️ 코드 관리",
+    adminCodesTitle: "🎟️ 유료 가입 코드",
+    adminCodesDesc: "1회용 코드를 생성해서 전달하면, 받은 사람이 무료 대신 유료 계정으로 가입할 수 있어요.",
+    adminCodesGenerateBtn: "🎲 새 코드 생성",
+    adminCodesEmpty: "아직 생성된 코드가 없어요.",
+    adminCodesCount: (n) => `코드 ${n}개`,
+    adminCodeUsedBy: (username) => `${username}님이 사용함`,
+    adminCodeUnused: "아직 사용 안 됨",
+    adminCodeCopyBtn: "복사",
+    adminCodeCopiedBtn: "복사됨!",
+    adminCodeGenerateFailed: "코드를 생성하지 못했어요 — 다시 시도해주세요.",
     typeGameTitle: "⌨️ 타이핑 게임",
     typeGameDesc: "단어가 바닥에 닿기 전에 타이핑하세요!",
     typeGameStartBtn: "▶ 게임 시작",
@@ -1088,6 +1110,7 @@ function refreshView(view) {
   if (view === "wordlist") renderWordList();
   if (view === "addword") renderCustomWords();
   if (view === "stats") renderStats();
+  if (view === "admincodes") loadAdminCodes();
 }
 
 function goToTab(view) {
@@ -1103,10 +1126,12 @@ function goToTab(view) {
 }
 
 const addwordTabButton = document.querySelector('nav.tabs button[data-view="addword"]');
+const adminCodesTabButton = document.querySelector('nav.tabs button[data-view="admincodes"]');
 
 tabButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
     if (btn.dataset.view === "addword" && !canAddWords()) return;
+    if (btn.dataset.view === "admincodes" && !serverAdmin) return;
     goToTab(btn.dataset.view);
   });
 });
@@ -1250,9 +1275,13 @@ const signupCancelBtn = document.getElementById("signup-cancel-btn");
 
 function updateAdminUI() {
   if (addwordTabButton) addwordTabButton.hidden = !canAddWords();
+  if (adminCodesTabButton) adminCodesTabButton.hidden = !serverAdmin;
   authToggleBtn.textContent = currentUser ? `👤 ${currentUser.username} · ${t("authLogoutBtn")}` : t("authHeaderLoginBtn");
   authToggleBtn.classList.toggle("auth-toggle-active", !!currentUser);
   if (!canAddWords() && addwordTabButton && addwordTabButton.classList.contains("active")) {
+    goToTab("quiz");
+  }
+  if (!serverAdmin && adminCodesTabButton && adminCodesTabButton.classList.contains("active")) {
     goToTab("quiz");
   }
 }
@@ -3403,6 +3432,92 @@ customMergeDuplicatesBtn.addEventListener("click", () => {
   renderWordList();
   pushSharedWords(mergedKeepers.filter((w) => w.remote));
   removeSharedWords(removedRemoteIds);
+});
+
+/* ---------- Admin: paid-signup special codes ---------- */
+const adminCodesGenerateBtn = document.getElementById("admin-codes-generate-btn");
+const adminCodesGrid = document.getElementById("admin-codes-grid");
+const adminCodesCountEl = document.getElementById("admin-codes-count");
+const adminCodesEmpty = document.getElementById("admin-codes-empty");
+let adminCodes = [];
+
+async function loadAdminCodes() {
+  if (!serverAdmin) return;
+  try {
+    const { codes } = await api("/admin/codes");
+    adminCodes = codes;
+  } catch (e) {
+    console.warn("Could not load special codes", e);
+  }
+  renderAdminCodes();
+}
+
+function renderAdminCodes() {
+  adminCodesGrid.innerHTML = "";
+  if (adminCodes.length === 0) {
+    adminCodesEmpty.hidden = false;
+    adminCodesCountEl.textContent = "";
+    return;
+  }
+  adminCodesEmpty.hidden = true;
+  adminCodesCountEl.textContent = t("adminCodesCount", adminCodes.length);
+
+  adminCodes.forEach((c) => {
+    const row = document.createElement("div");
+    row.className = "wordlist-item";
+
+    const left = document.createElement("div");
+    const codeEl = document.createElement("div");
+    codeEl.className = "w admin-code-text";
+    codeEl.textContent = c.code;
+    left.appendChild(codeEl);
+
+    const statusEl = document.createElement("div");
+    statusEl.className = "d";
+    statusEl.textContent = c.redeemedByUsername
+      ? t("adminCodeUsedBy", c.redeemedByUsername)
+      : t("adminCodeUnused");
+    left.appendChild(statusEl);
+    row.appendChild(left);
+
+    const right = document.createElement("div");
+    const btnRow = document.createElement("div");
+    btnRow.style.display = "flex";
+    btnRow.style.gap = "6px";
+
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "edit-btn";
+    copyBtn.textContent = t("adminCodeCopyBtn");
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(c.code);
+        copyBtn.textContent = t("adminCodeCopiedBtn");
+        setTimeout(() => {
+          copyBtn.textContent = t("adminCodeCopyBtn");
+        }, 1500);
+      } catch (e) {
+        // Clipboard API unavailable (e.g. insecure context) — the code is
+        // right there on screen to select and copy by hand instead.
+      }
+    });
+    btnRow.appendChild(copyBtn);
+    right.appendChild(btnRow);
+    row.appendChild(right);
+
+    adminCodesGrid.appendChild(row);
+  });
+}
+
+adminCodesGenerateBtn.addEventListener("click", async () => {
+  adminCodesGenerateBtn.disabled = true;
+  try {
+    const { code } = await api("/admin/codes", { method: "POST" });
+    adminCodes.unshift(code);
+    renderAdminCodes();
+  } catch (e) {
+    alert(t("adminCodeGenerateFailed"));
+  }
+  adminCodesGenerateBtn.disabled = false;
 });
 
 /* ---------- OCR: extract words from a photo ---------- */
