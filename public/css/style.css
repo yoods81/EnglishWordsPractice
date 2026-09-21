@@ -775,6 +775,52 @@ button.pill:disabled {
   font-size: 0.8rem;
 }
 
+.goal-stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 1 auto;
+}
+
+.goal-stepper-label {
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.goal-step-btn {
+  border: none;
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  background: #e6e9f4;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.goal-step-btn:active {
+  transform: scale(0.9);
+}
+
+.goal-step-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+}
+
+.goal-stepper-value {
+  min-width: 1.6em;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
 .goal-banner {
   background: #e4f8ef;
   border: 1px solid #a8e2c7;

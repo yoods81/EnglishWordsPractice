@@ -164,7 +164,12 @@
             <option value="synonyms" data-i18n="optSynonyms">Synonyms &amp; Antonyms</option>
             <option value="homophones" data-i18n="optHomophones">Homophones</option>
           </select>
-          <select id="quiz-goal" class="wordlist-level-select" data-i18n-aria-label="goalLabel" aria-label="Target score"></select>
+          <div class="goal-stepper" id="quiz-goal-stepper">
+            <span class="goal-stepper-label" data-i18n="goalLabel">Number of Questions</span>
+            <button type="button" class="goal-step-btn" id="quiz-goal-minus" data-i18n-aria-label="goalDecreaseLabel" aria-label="Decrease">−</button>
+            <span class="goal-stepper-value" id="quiz-goal-value">10</span>
+            <button type="button" class="goal-step-btn" id="quiz-goal-plus" data-i18n-aria-label="goalIncreaseLabel" aria-label="Increase">+</button>
+          </div>
           <button class="pill primary" id="quiz-restart" style="margin-left:auto;" data-i18n="newQuizBtn">🔄 New Quiz</button>
         </div>
         <div class="goal-banner" id="quiz-goal-banner" hidden>
@@ -188,8 +193,12 @@
     <section id="view-spelling" class="view">
       <div class="card">
         <div class="setting-row setting-row-nowrap">
-          <label for="spelling-goal" data-i18n="goalLabel">Target score</label>
-          <select id="spelling-goal" class="wordlist-level-select"></select>
+          <div class="goal-stepper" id="spelling-goal-stepper">
+            <span class="goal-stepper-label" data-i18n="goalLabel">Number of Questions</span>
+            <button type="button" class="goal-step-btn" id="spelling-goal-minus" data-i18n-aria-label="goalDecreaseLabel" aria-label="Decrease">−</button>
+            <span class="goal-stepper-value" id="spelling-goal-value">10</span>
+            <button type="button" class="goal-step-btn" id="spelling-goal-plus" data-i18n-aria-label="goalIncreaseLabel" aria-label="Increase">+</button>
+          </div>
         </div>
         <div class="goal-banner" id="spelling-goal-banner" hidden>
           <p class="goal-message" id="spelling-goal-message"></p>

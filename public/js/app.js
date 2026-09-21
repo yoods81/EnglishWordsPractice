@@ -9,7 +9,9 @@ const CUSTOM_WORDS_KEY = "ywp_custom_words_v1";
 const SHARED_WORDS_CACHE_KEY = "ywp_shared_words_cache_v1";
 const MY_DECK_KEY = "ywp_my_deck_v1";
 const GOALS_KEY = "ywp_goals_v1";
-const GOAL_CHOICES = [5, 10, 15, 20];
+const GOAL_MIN = 5;
+const GOAL_MAX = 50;
+const GOAL_STEP = 5;
 const LEVELS_KEY = "ywp_levels_v1"; // { en: "year4", ko: "kr_elem6" }
 const LANG_KEY = "ywp_lang_v1";
 const ADMIN_KEY = "ywp_admin_v1";
@@ -98,9 +100,9 @@ const TRANSLATIONS = {
     flashKnowIt: "😀 I know this!",
     flashEmptyWord: "No words yet",
     flashEmptyDef: (lvl) => `Add some ${lvl} words first!`,
-    goalLabel: "Target score",
-    goalOff: "🎯 No target",
-    goalOption: (n) => `🎯 ${n} correct`,
+    goalLabel: "Number of Questions",
+    goalDecreaseLabel: "Fewer questions",
+    goalIncreaseLabel: "More questions",
     goalReached: (score, level) => `🎉 ${score} correct — you've hit your target for ${level}!`,
     goalReachedTop: (score, level) => `🎉 ${score} correct on ${level} — that's the highest level. Brilliant!`,
     goalNextLevelBtn: "🚀 Try the next level",
@@ -291,9 +293,9 @@ const TRANSLATIONS = {
     flashKnowIt: "😀 알고 있어요!",
     flashEmptyWord: "단어가 없어요",
     flashEmptyDef: (lvl) => `먼저 ${lvl} 단어를 추가해주세요!`,
-    goalLabel: "목표 점수",
-    goalOff: "🎯 목표 없음",
-    goalOption: (n) => `🎯 ${n}개 맞히기`,
+    goalLabel: "문제들의 수",
+    goalDecreaseLabel: "문제 수 줄이기",
+    goalIncreaseLabel: "문제 수 늘리기",
     goalReached: (score, level) => `🎉 ${score}개 정답 — ${level} 목표를 달성했어요!`,
     goalReachedTop: (score, level) => `🎉 ${level}에서 ${score}개 정답 — 가장 높은 레벨이에요. 정말 잘했어요!`,
     goalNextLevelBtn: "🚀 다음 레벨 도전",
@@ -729,19 +731,13 @@ function nextLevelId() {
   return next || null;
 }
 
-function populateGoalSelect(select, mode) {
-  select.innerHTML = "";
-  const off = document.createElement("option");
-  off.value = "0";
-  off.textContent = t("goalOff");
-  select.appendChild(off);
-  GOAL_CHOICES.forEach((n) => {
-    const opt = document.createElement("option");
-    opt.value = String(n);
-    opt.textContent = t("goalOption", n);
-    select.appendChild(opt);
-  });
-  select.value = String(goals[mode] || 0);
+function renderGoalStepper(mode) {
+  const valueEl = mode === "quiz" ? quizGoalValueEl : spellingGoalValueEl;
+  const minusBtn = mode === "quiz" ? quizGoalMinusBtn : spellingGoalMinusBtn;
+  const plusBtn = mode === "quiz" ? quizGoalPlusBtn : spellingGoalPlusBtn;
+  valueEl.textContent = String(goals[mode]);
+  minusBtn.disabled = goals[mode] <= GOAL_MIN;
+  plusBtn.disabled = goals[mode] >= GOAL_MAX;
 }
 
 // Shows the congratulations panel once a round's correct count reaches the
@@ -908,8 +904,8 @@ function applyStaticTranslations() {
   document.getElementById("admin-toggle").textContent = t(isAdmin ? "adminLogoutBtn" : "adminLoginBtn");
   document.documentElement.lang = currentLang === "ko" ? "ko" : "en";
   populateCustomSortSelect();
-  populateGoalSelect(quizGoalSelect, "quiz");
-  populateGoalSelect(spellingGoalSelect, "spelling");
+  renderGoalStepper("quiz");
+  renderGoalStepper("spelling");
   updateCategoryOptionVisibility();
   // These two show state (not static copy), so re-derive them after the
   // generic data-i18n sweep above may have reset them to their default text.
@@ -1533,7 +1529,9 @@ myDeckClearBtn.addEventListener("click", () => {
 /* ================= QUIZ ================= */
 const quizCategorySel = document.getElementById("quiz-category");
 const quizRestartBtn = document.getElementById("quiz-restart");
-const quizGoalSelect = document.getElementById("quiz-goal");
+const quizGoalValueEl = document.getElementById("quiz-goal-value");
+const quizGoalMinusBtn = document.getElementById("quiz-goal-minus");
+const quizGoalPlusBtn = document.getElementById("quiz-goal-plus");
 const quizGoalBanner = document.getElementById("quiz-goal-banner");
 const quizGoalMessage = document.getElementById("quiz-goal-message");
 const quizGoalNextLevelBtn = document.getElementById("quiz-goal-next-level");
@@ -1545,7 +1543,6 @@ const quizScoreEl = document.getElementById("quiz-score");
 const quizNextBtn = document.getElementById("quiz-next");
 const quizProgressFill = document.getElementById("quiz-progress-fill");
 
-const QUIZ_LENGTH = 10;
 const MIN_POOL_FOR_QUIZ = 4;
 let quizQuestions = [];
 let quizIndex = 0;
@@ -1596,7 +1593,7 @@ function buildQuizQuestions() {
   if (cat === "synonyms") pool = buildSynonymQuestions(currentLevel);
   else if (cat === "homophones") pool = buildHomophoneQuestions(currentLevel);
   else pool = buildVocabQuestions(currentLevel);
-  quizQuestions = shuffle(pool).slice(0, QUIZ_LENGTH);
+  quizQuestions = shuffle(pool).slice(0, goals.quiz);
   quizIndex = 0;
   quizScore = 0;
   quizAnswered = false;
@@ -1680,11 +1677,18 @@ quizQuestionEl.addEventListener("click", () => speak(quizQuestionEl.textContent)
 quizRestartBtn.addEventListener("click", buildQuizQuestions);
 quizCategorySel.addEventListener("change", buildQuizQuestions);
 
-quizGoalSelect.addEventListener("change", () => {
-  goals.quiz = Number(quizGoalSelect.value);
+quizGoalMinusBtn.addEventListener("click", () => {
+  goals.quiz = Math.max(GOAL_MIN, goals.quiz - GOAL_STEP);
   saveGoals();
-  quizGoalBanner.hidden = true;
-  quizGoalCelebrated = false;
+  renderGoalStepper("quiz");
+  buildQuizQuestions();
+});
+
+quizGoalPlusBtn.addEventListener("click", () => {
+  goals.quiz = Math.min(GOAL_MAX, goals.quiz + GOAL_STEP);
+  saveGoals();
+  renderGoalStepper("quiz");
+  buildQuizQuestions();
 });
 
 quizGoalDismissBtn.addEventListener("click", () => {
@@ -1710,7 +1714,9 @@ const spellingBackBtn = document.getElementById("spelling-back");
 const spellingSkipBtn = document.getElementById("spelling-skip");
 const spellingNextBtn = document.getElementById("spelling-next");
 const spellingScoreEl = document.getElementById("spelling-score");
-const spellingGoalSelect = document.getElementById("spelling-goal");
+const spellingGoalValueEl = document.getElementById("spelling-goal-value");
+const spellingGoalMinusBtn = document.getElementById("spelling-goal-minus");
+const spellingGoalPlusBtn = document.getElementById("spelling-goal-plus");
 const spellingGoalBanner = document.getElementById("spelling-goal-banner");
 const spellingGoalMessage = document.getElementById("spelling-goal-message");
 const spellingGoalNextLevelBtn = document.getElementById("spelling-goal-next-level");
@@ -1738,7 +1744,7 @@ function buildSpellingDeck() {
   const wrongWords = pool.filter((w) => status[w.word] === "wrong");
   const untriedWords = pool.filter((w) => !(w.word in status));
   const doneWords = pool.filter((w) => status[w.word] === "correct");
-  spellingDeck = [...shuffle(wrongWords), ...shuffle(untriedWords), ...shuffle(doneWords)];
+  spellingDeck = [...shuffle(wrongWords), ...shuffle(untriedWords), ...shuffle(doneWords)].slice(0, goals.spelling);
   spellingIndex = 0;
   spellingScore = { correct: 0, total: 0 };
   spellingTotalCountedWords = new Set();
@@ -1907,11 +1913,18 @@ spellingReportRestartBtn.addEventListener("click", () => {
   buildSpellingDeck();
 });
 
-spellingGoalSelect.addEventListener("change", () => {
-  goals.spelling = Number(spellingGoalSelect.value);
+spellingGoalMinusBtn.addEventListener("click", () => {
+  goals.spelling = Math.max(GOAL_MIN, goals.spelling - GOAL_STEP);
   saveGoals();
-  spellingGoalBanner.hidden = true;
-  spellingGoalCelebrated = false;
+  renderGoalStepper("spelling");
+  buildSpellingDeck();
+});
+
+spellingGoalPlusBtn.addEventListener("click", () => {
+  goals.spelling = Math.min(GOAL_MAX, goals.spelling + GOAL_STEP);
+  saveGoals();
+  renderGoalStepper("spelling");
+  buildSpellingDeck();
 });
 
 spellingGoalDismissBtn.addEventListener("click", () => {
