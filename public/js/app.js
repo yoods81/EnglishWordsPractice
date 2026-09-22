@@ -81,6 +81,7 @@ const TRANSLATIONS = {
     adminUsersSortJoined: "Join date",
     adminUsersSortAz: "Username (A→Z)",
     adminUsersSortRole: "Role",
+    adminUsersCount: (n) => `${n} account${n === 1 ? "" : "s"}`,
     adminUsersEmpty: "No accounts found.",
     adminUserCreatedAt: (when) => `Joined ${when}`,
     adminUserUpgradedAt: (when) => `Upgraded ${when}`,
@@ -254,6 +255,9 @@ const TRANSLATIONS = {
       `Found ${groups} duplicate word${groups === 1 ? "" : "s"} (${extra} extra ${extra === 1 ? "entry" : "entries"}). Merge them into one entry each?`,
     mergeDuplicatesDone: (groups, removed) =>
       `Merged ${groups} duplicate word${groups === 1 ? "" : "s"} — removed ${removed} extra ${removed === 1 ? "entry" : "entries"}.`,
+    cleanTextBtn: "🧼 Clean Corrupted Text",
+    cleanTextNoneFound: "No corrupted text found.",
+    cleanTextDone: (n) => `Cleaned up ${n} word${n === 1 ? "" : "s"}.`,
     changeLevelPlaceholder: "📚 Change level",
     changeLevelConfirm: (n, level) => `Move ${n} selected word(s) to ${level}?`,
     changeLevelDone: (n, level) => `Moved ${n} word(s) to ${level}.`,
@@ -368,6 +372,7 @@ const TRANSLATIONS = {
     adminUsersSortJoined: "가입일",
     adminUsersSortAz: "사용자명 (A→Z)",
     adminUsersSortRole: "역할",
+    adminUsersCount: (n) => `계정 ${n}개`,
     adminUsersEmpty: "계정을 찾을 수 없어요.",
     adminUserCreatedAt: (when) => `가입일: ${when}`,
     adminUserUpgradedAt: (when) => `업그레이드: ${when}`,
@@ -538,6 +543,9 @@ const TRANSLATIONS = {
     noDuplicatesFound: "중복된 단어가 없어요 — 목록이 깨끗해요!",
     mergeDuplicatesConfirm: (groups, extra) => `중복된 단어 ${groups}개(여분 ${extra}개)를 찾았어요. 각각 하나로 합칠까요?`,
     mergeDuplicatesDone: (groups, removed) => `중복 단어 ${groups}개를 하나로 합치고, 여분 항목 ${removed}개를 삭제했어요.`,
+    cleanTextBtn: "🧼 손상된 텍스트 정리",
+    cleanTextNoneFound: "손상된 텍스트를 찾지 못했어요.",
+    cleanTextDone: (n) => `${n}개 단어를 정리했어요.`,
     changeLevelPlaceholder: "📚 레벨 변경",
     changeLevelConfirm: (n, level) => `선택한 단어 ${n}개를 ${level} 레벨로 옮길까요?`,
     changeLevelDone: (n, level) => `${n}개를 ${level} 레벨로 옮겼어요.`,
@@ -3315,6 +3323,7 @@ const customWordsCountEl = document.getElementById("custom-words-count");
 const CUSTOM_SORTS = ["recent", "oldest", "az", "za", "missing"];
 const customDeleteSelectedBtn = document.getElementById("custom-delete-selected-btn");
 const customMergeDuplicatesBtn = document.getElementById("custom-merge-duplicates-btn");
+const customCleanTextBtn = document.getElementById("custom-clean-text-btn");
 const customUploadBtn = document.getElementById("custom-upload-btn");
 const customLevelSelect = document.getElementById("custom-level-select");
 const customStorageNote = document.getElementById("custom-words-storage-note");
@@ -3956,6 +3965,46 @@ customMergeDuplicatesBtn.addEventListener("click", () => {
   removeSharedWords(removedRemoteIds);
 });
 
+// Cleans up a definition/example that already has leaked Wiktionary CSS
+// baked into it from before stripHtml() learned to strip <style> blocks —
+// that fix only stops it happening to new lookups, so anything imported
+// earlier still has the raw rule sitting in the text (e.g. "...not
+// defective or faulty. .mw-parser-output .defdate{font-size:smaller}").
+function sanitizeLeakedMarkup(text) {
+  if (!text) return text;
+  return text
+    .replace(/\s*\.mw-parser-output\b[^{}]*\{[^{}]*\}\s*/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+customCleanTextBtn.addEventListener("click", async () => {
+  const cleaned = [];
+  myCustomWords().forEach((w) => {
+    const definitionEn = sanitizeLeakedMarkup(w.definitionEn);
+    const definitionKo = sanitizeLeakedMarkup(w.definitionKo);
+    const example = sanitizeLeakedMarkup(w.example);
+    if (definitionEn !== w.definitionEn || definitionKo !== w.definitionKo || example !== w.example) {
+      w.definitionEn = definitionEn;
+      w.definitionKo = definitionKo;
+      w.example = example;
+      cleaned.push(w);
+    }
+  });
+  if (cleaned.length === 0) {
+    customWordsStatus.textContent = t("cleanTextNoneFound");
+    return;
+  }
+  saveCustomWords();
+  renderCustomWords();
+  renderWordList();
+  const pushResult = await pushSharedWords(cleaned.filter((w) => w.remote));
+  customWordsStatus.textContent =
+    pushResult.failed.length > 0
+      ? t("bulkAddedWithFailures", cleaned.length - pushResult.failed.length, pushResult.failed.length)
+      : t("cleanTextDone", cleaned.length);
+});
+
 /* ---------- Admin: paid-signup special codes ---------- */
 const adminCodesGenerateBtn = document.getElementById("admin-codes-generate-btn");
 const adminCodesSort = document.getElementById("admin-codes-sort");
@@ -4117,7 +4166,7 @@ function renderAdminUsers() {
     return;
   }
   adminUsersEmpty.hidden = true;
-  adminUsersCountEl.textContent = t("wordlistCount", adminUsers.length);
+  adminUsersCountEl.textContent = t("adminUsersCount", adminUsers.length);
 
   sortedAdminUsers().forEach((u) => {
     const row = document.createElement("div");
