@@ -399,6 +399,7 @@ button.pill:disabled {
   align-items: flex-start;
   flex-wrap: wrap;
   gap: 8px;
+  margin-bottom: 14px;
 }
 
 .level-bulk-select {
