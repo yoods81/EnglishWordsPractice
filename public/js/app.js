@@ -188,6 +188,7 @@ const TRANSLATIONS = {
     wordlistAllLevels: "📚 All levels",
     addToMyDeckBtn: "⭐ Add to my flashcards",
     clearSelectionBtn: "Clear selection",
+    selectAllBtn: "☑️ Select All",
     addedToMyDeck: (added, picked) =>
       added === picked
         ? `Added ${added} word${added === 1 ? "" : "s"} to your flashcards.`
@@ -481,6 +482,7 @@ const TRANSLATIONS = {
     wordlistAllLevels: "📚 전체 레벨",
     addToMyDeckBtn: "⭐ 내 플래시카드에 추가",
     clearSelectionBtn: "선택 해제",
+    selectAllBtn: "☑️ 전체 선택",
     addedToMyDeck: (added, picked) =>
       added === picked
         ? `${added}개를 내 플래시카드에 추가했어요.`
@@ -3156,8 +3158,26 @@ const wordlistLevelSelect = document.getElementById("wordlist-level");
 const wordlistCountEl = document.getElementById("wordlist-count");
 const wordlistAddDeckBtn = document.getElementById("wordlist-add-deck-btn");
 const wordlistClearSelectionBtn = document.getElementById("wordlist-clear-selection-btn");
+const wordlistSelectAllBtn = document.getElementById("wordlist-select-all-btn");
 // Keyed by word, since the same word can be reached under several levels.
 const selectedWordlistWords = new Map();
+
+// Shared by both word-list views: toggles every checkbox currently rendered
+// in the grid (i.e. the currently filtered/visible rows, not the whole
+// underlying set) — select-all when anything is unchecked, clear when
+// everything already is, driven through each checkbox's own change handler
+// so the selection state it maintains stays correct either way.
+function toggleSelectAllInGrid(grid) {
+  const checkboxes = Array.from(grid.querySelectorAll(".cw-select"));
+  if (checkboxes.length === 0) return;
+  const shouldSelect = !checkboxes.every((cb) => cb.checked);
+  checkboxes.forEach((cb) => {
+    if (cb.checked !== shouldSelect) {
+      cb.checked = shouldSelect;
+      cb.dispatchEvent(new Event("change"));
+    }
+  });
+}
 
 function updateWordlistSelectionButtons() {
   const none = selectedWordlistWords.size === 0;
@@ -3203,6 +3223,7 @@ function buildWordRow(w) {
   const defEl = document.createElement("div");
   defEl.className = "d";
   defEl.textContent = w.definition;
+  defEl.title = w.definition;
   left.appendChild(defEl);
 
   if (w.example) {
@@ -3263,7 +3284,7 @@ function renderWordList() {
     });
   });
 
-  wordlistCountEl.textContent = t("wordlistCount", words.length);
+  wordlistCountEl.textContent = t("customWordsCount", words.length);
   updateWordlistSelectionButtons();
   if (words.length === 0) {
     const p = document.createElement("p");
@@ -3288,6 +3309,8 @@ wordlistAddDeckBtn.addEventListener("click", () => {
   // After the re-render, so it isn't overwritten by the count.
   wordlistCountEl.textContent = t("addedToMyDeck", added, picked.length);
 });
+
+wordlistSelectAllBtn.addEventListener("click", () => toggleSelectAllInGrid(wordlistGrid));
 
 wordlistClearSelectionBtn.addEventListener("click", () => {
   selectedWordlistWords.clear();
@@ -3316,6 +3339,7 @@ const customSortSelect = document.getElementById("custom-sort");
 const customWordsCountEl = document.getElementById("custom-words-count");
 const CUSTOM_SORTS = ["recent", "oldest", "az", "za", "missing"];
 const customDeleteSelectedBtn = document.getElementById("custom-delete-selected-btn");
+const customSelectAllBtn = document.getElementById("custom-select-all-btn");
 const customMergeDuplicatesBtn = document.getElementById("custom-merge-duplicates-btn");
 const customCleanTextBtn = document.getElementById("custom-clean-text-btn");
 const customUploadBtn = document.getElementById("custom-upload-btn");
@@ -3788,7 +3812,9 @@ function renderCustomWords() {
 
       const defEl = document.createElement("div");
       defEl.className = "d";
-      defEl.textContent = cwDefinition(w) || t("ocrNoDefFound");
+      const definitionText = cwDefinition(w) || t("ocrNoDefFound");
+      defEl.textContent = definitionText;
+      defEl.title = definitionText;
       left.appendChild(defEl);
 
       if (w.example) {
@@ -3915,6 +3941,8 @@ customDeleteSelectedBtn.addEventListener("click", () => {
   removeSharedWords(removedRemoteIds);
 });
 
+customSelectAllBtn.addEventListener("click", () => toggleSelectAllInGrid(customWordsGrid));
+
 // Merges every group of duplicate words (same text, case-insensitive) into a
 // single entry: the oldest entry in each group is kept and filled in with
 // whatever fields (definitions, example, level) the newer duplicates have
@@ -3968,6 +3996,9 @@ function sanitizeLeakedMarkup(text) {
   if (!text) return text;
   return text
     .replace(/\s*\.mw-parser-output\b[^{}]*\{[^{}]*\}\s*/g, " ")
+    // Wiktionary editorial notes meant for its own contributors, not for
+    // someone reading the definition — never useful content on its own.
+    .replace(/\(Discuss this sense\)\s*/gi, "")
     .replace(/\s{2,}/g, " ")
     .trim();
 }
@@ -4611,7 +4642,7 @@ async function fetchWiktionaryDefinition(word) {
     const sections = (data && data.en) || []; // English-language senses only
     for (const section of sections) {
       for (const entry of section.definitions || []) {
-        const definition = stripHtml(entry.definition || "");
+        const definition = sanitizeLeakedMarkup(stripHtml(entry.definition || ""));
         if (definition.length < 8) continue; // skip stubs and bare cross-references
         const rawExample = entry.examples && entry.examples[0];
         return { definition, example: rawExample ? stripHtml(rawExample) : "" };

@@ -994,6 +994,14 @@ button.pill:disabled {
 .wordlist-item .d {
   color: var(--muted);
   font-size: 0.8rem;
+  /* Some fetched definitions run to 4+ lines while most are 1 — clamping
+     keeps row heights from swinging wildly and looking jagged next to each
+     other; the full text is still there in the title tooltip and via Edit. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .admin-pending-badge {
