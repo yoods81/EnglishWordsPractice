@@ -877,6 +877,16 @@ button.pill:disabled {
   max-width: 33%;
 }
 
+.admin-panel-sort-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* Pushes this group (and only this group) to the row's right edge,
+     regardless of how much room the search box / generate button to its
+     left is taking up. */
+  margin-left: auto;
+}
+
 @media (max-width: 480px) {
   .admin-panel-search-inline {
     max-width: none;

@@ -478,12 +478,14 @@
         <p class="muted" data-i18n="adminUsersDesc">Search for an account, change its role or password, or approve a pending upgrade request — a user waiting on one is pinned to the top.</p>
         <div class="admin-panel-toolbar">
           <input type="text" id="admin-users-search" class="wordlist-search admin-panel-search-inline" data-i18n-placeholder="adminUsersSearchPlaceholder" placeholder="Search by username" />
-          <label for="admin-users-sort" data-i18n="adminUsersSortLabel">Sort by</label>
-          <select id="admin-users-sort">
-            <option value="joined" data-i18n="adminUsersSortJoined">Join date</option>
-            <option value="az" data-i18n="adminUsersSortAz">Username (A→Z)</option>
-            <option value="role" data-i18n="adminUsersSortRole">Role</option>
-          </select>
+          <div class="admin-panel-sort-group">
+            <label for="admin-users-sort" data-i18n="adminUsersSortLabel">Sort by</label>
+            <select id="admin-users-sort">
+              <option value="joined" data-i18n="adminUsersSortJoined">Join date</option>
+              <option value="az" data-i18n="adminUsersSortAz">Username (A→Z)</option>
+              <option value="role" data-i18n="adminUsersSortRole">Role</option>
+            </select>
+          </div>
         </div>
         <p class="muted wordlist-count" id="admin-users-count"></p>
         <div class="wordlist-grid" id="admin-users-grid"></div>
@@ -495,12 +497,14 @@
         <p class="muted" data-i18n="adminCodesDesc">Generate a one-time code and send it to someone so they can sign up as a paid account instead of free.</p>
         <div class="admin-panel-toolbar">
           <button type="button" class="pill primary" id="admin-codes-generate-btn" data-i18n="adminCodesGenerateBtn">🎲 Generate New Code</button>
-          <label for="admin-codes-sort" data-i18n="adminCodesSortLabel">Sort by</label>
-          <select id="admin-codes-sort">
-            <option value="newest" data-i18n="adminCodesSortNewest">Newest</option>
-            <option value="unused" data-i18n="adminCodesSortUnused">Not used first</option>
-            <option value="used" data-i18n="adminCodesSortUsed">Used first</option>
-          </select>
+          <div class="admin-panel-sort-group">
+            <label for="admin-codes-sort" data-i18n="adminCodesSortLabel">Sort by</label>
+            <select id="admin-codes-sort">
+              <option value="newest" data-i18n="adminCodesSortNewest">Newest</option>
+              <option value="unused" data-i18n="adminCodesSortUnused">Not used first</option>
+              <option value="used" data-i18n="adminCodesSortUsed">Used first</option>
+            </select>
+          </div>
         </div>
         <p class="muted wordlist-count" id="admin-codes-count"></p>
         <div class="wordlist-grid" id="admin-codes-grid"></div>
