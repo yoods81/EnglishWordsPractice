@@ -1213,12 +1213,18 @@ const levelOverlay = document.getElementById("level-overlay");
 const levelBadge = document.getElementById("level-badge");
 const levelChoicesEl = document.getElementById("level-choices");
 const LEVEL_DESCRIPTIONS = {
-  en: { year4: "Foundation vocabulary", year5: "Intermediate vocabulary", year6: "Advanced / GATE-style vocabulary" },
+  en: {
+    year4: "Foundation vocabulary",
+    year5: "Intermediate vocabulary",
+    year6: "Advanced / GATE-style vocabulary",
+    year7: "Secondary school vocabulary",
+  },
   ko: {
     kr_elem6: "초등 기초 필수 어휘",
     kr_mid1: "중1 필수 어휘",
     kr_mid2: "중2 필수 어휘",
     kr_mid3: "중3 필수 어휘 (심화)",
+    kr_high: "고등학교 필수 어휘",
   },
 };
 
@@ -3389,11 +3395,13 @@ function guessLevelForWord(word, lang) {
     if (len <= 4) return levelIds[0];
     if (len <= 6) return levelIds[1];
     if (len <= 8) return levelIds[2];
-    return levelIds[3];
+    if (len <= 10) return levelIds[3];
+    return levelIds[4];
   }
   if (len <= 6) return levelIds[0];
   if (len <= 9) return levelIds[1];
-  return levelIds[2];
+  if (len <= 12) return levelIds[2];
+  return levelIds[3];
 }
 
 function setAddMode(mode) {

@@ -9,6 +9,7 @@ const KO_LEVELS = [
   { id: "kr_mid1", label: "중학교 1학년" },
   { id: "kr_mid2", label: "중학교 2학년" },
   { id: "kr_mid3", label: "중학교 3학년" },
+  { id: "kr_high", label: "고등학교" },
 ];
 
 const WORD_BANK_KO = {

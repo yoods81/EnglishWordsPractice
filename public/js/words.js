@@ -6,6 +6,7 @@ const LEVELS = [
   { id: "year4", label: "Year 4" },
   { id: "year5", label: "Year 5" },
   { id: "year6", label: "Year 6" },
+  { id: "year7", label: "Year 7 Above" },
 ];
 
 const WORD_BANK = {
