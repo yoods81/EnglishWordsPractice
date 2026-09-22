@@ -2037,6 +2037,7 @@ function renderMyDeck() {
       row.className = "wordlist-item";
 
       const left = document.createElement("div");
+      left.className = "wordlist-item-main";
       const wordEl = document.createElement("div");
       wordEl.className = "w speakable-line";
       wordEl.title = "Tap to hear";
@@ -2114,6 +2115,7 @@ function renderMyDeckSearch() {
     row.className = "wordlist-item";
 
     const left = document.createElement("div");
+    left.className = "wordlist-item-main";
     const wordEl = document.createElement("div");
     wordEl.className = "w";
     wordEl.textContent = w.word;
@@ -2629,6 +2631,7 @@ function renderSpellingReport() {
     row.className = "wordlist-item";
 
     const left = document.createElement("div");
+    left.className = "wordlist-item-main";
     const wordEl = document.createElement("div");
     wordEl.className = "w speakable-line";
     wordEl.title = "Tap to hear";
@@ -3212,6 +3215,7 @@ function buildWordRow(w) {
   row.appendChild(checkbox);
 
   const left = document.createElement("div");
+  left.className = "wordlist-item-main";
 
   const wordEl = document.createElement("div");
   wordEl.className = "w speakable-line";
@@ -3803,6 +3807,7 @@ function renderCustomWords() {
       row.appendChild(checkbox);
 
       const left = document.createElement("div");
+      left.className = "wordlist-item-main";
       const wordEl = document.createElement("div");
       wordEl.className = "w speakable-line";
       wordEl.title = "Tap to hear";
@@ -4073,6 +4078,7 @@ function renderAdminCodes() {
     row.className = "wordlist-item";
 
     const left = document.createElement("div");
+    left.className = "wordlist-item-main";
     const codeEl = document.createElement("div");
     codeEl.className = "w admin-code-text";
     codeEl.textContent = c.code;
@@ -4198,6 +4204,7 @@ function renderAdminUsers() {
     row.className = "wordlist-item";
 
     const left = document.createElement("div");
+    left.className = "wordlist-item-main";
     const nameEl = document.createElement("div");
     nameEl.className = "w";
     nameEl.textContent = u.username;

@@ -987,6 +987,20 @@ button.pill:disabled {
   gap: 8px;
 }
 
+.wordlist-item-main {
+  /* The real bug behind "some rows look centered, some left-aligned": this
+     block sat between the checkbox and the badges with no explicit width,
+     so justify-content: space-between on .wordlist-item centered it in
+     whatever room was left over whenever its own content was narrower than
+     that space, instead of pinning it flush to the checkbox. flex: 1 makes
+     it claim all the remaining width every time, so its own text — which
+     is left-aligned by default — always starts in the same place.
+     min-width: 0 lets it actually shrink below its content's natural width
+     so long words/definitions wrap instead of overflowing the row. */
+  flex: 1;
+  min-width: 0;
+}
+
 .wordlist-item .w {
   font-weight: 700;
   font-size: 0.92rem;
