@@ -861,15 +861,26 @@ button.pill:disabled {
   font-size: 0.9rem;
 }
 
-.admin-panel-search {
-  display: block;
-  width: 100%;
-  margin: 6px 0 16px;
+.admin-panel-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 16px;
 }
 
-.admin-panel-sort-row {
-  margin-top: 4px;
-  margin-bottom: 16px;
+.admin-panel-search-inline {
+  flex: 1 1 0;
+  /* About a third of the row on a normal-width screen — grows a little on
+     very narrow ones instead of shrinking to nothing. */
+  min-width: 110px;
+  max-width: 33%;
+}
+
+@media (max-width: 480px) {
+  .admin-panel-search-inline {
+    max-width: none;
+  }
 }
 
 .wordlist-level-select {
@@ -1168,6 +1179,19 @@ footer {
   border-color: var(--primary);
 }
 
+/* Only for forms sitting in a full-width card (like My Account), not the
+   narrow ~320px login/signup overlay where 100% width is already right. */
+.auth-form-input-narrow {
+  max-width: 33%;
+  min-width: 160px;
+}
+
+@media (max-width: 480px) {
+  .auth-form-input-narrow {
+    max-width: none;
+  }
+}
+
 .auth-hint {
   color: var(--muted);
   font-size: 0.72rem;
@@ -1182,23 +1206,6 @@ footer {
 
 .auth-error[hidden] {
   display: none;
-}
-
-.my-account-status {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 6px 14px;
-  font-size: 0.85rem;
-}
-
-.my-account-status dt {
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.my-account-status dd {
-  margin: 0;
-  font-weight: 700;
 }
 
 .auth-actions {

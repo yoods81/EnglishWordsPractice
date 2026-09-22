@@ -1621,7 +1621,6 @@ function formatDate(ms) {
 
 async function renderMyAccount() {
   if (!currentUser) return;
-  myAccountStatusEl.innerHTML = "";
   let account = currentUser;
   try {
     const { user } = await api("/auth/me");
@@ -1630,22 +1629,17 @@ async function renderMyAccount() {
     // Fall back to the cached currentUser fields if the server can't be reached.
   }
 
-  const dl = document.createElement("dl");
-  const rows = [
-    [t("myAccountUsername"), account.username],
-    [t("myAccountRole"), roleLabel(account.role)],
-    [t("myAccountJoined"), formatDate(account.createdAt)],
-    [t("myAccountUpgraded"), formatDate(account.upgradedAt)],
+  // Same stat-tile look as My Progress, so the account's own status reads
+  // as one more "at a glance" summary instead of a plain label/value list.
+  const tiles = [
+    { num: account.username, lbl: t("myAccountUsername") },
+    { num: roleLabel(account.role), lbl: t("myAccountRole") },
+    { num: formatDate(account.createdAt), lbl: t("myAccountJoined") },
+    { num: formatDate(account.upgradedAt), lbl: t("myAccountUpgraded") },
   ];
-  rows.forEach(([label, value]) => {
-    const dt = document.createElement("dt");
-    dt.textContent = label;
-    const dd = document.createElement("dd");
-    dd.textContent = value;
-    dl.appendChild(dt);
-    dl.appendChild(dd);
-  });
-  myAccountStatusEl.appendChild(dl);
+  myAccountStatusEl.innerHTML = tiles
+    .map((s) => `<div class="stat-box"><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div></div>`)
+    .join("");
 }
 
 myAccountPasswordForm.addEventListener("submit", async (e) => {

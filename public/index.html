@@ -476,8 +476,8 @@
       <div class="card">
         <h3 data-i18n="adminUsersTitle">👥 User Accounts</h3>
         <p class="muted" data-i18n="adminUsersDesc">Search for an account, change its role or password, or approve a pending upgrade request — a user waiting on one is pinned to the top.</p>
-        <input type="text" id="admin-users-search" class="wordlist-search admin-panel-search" data-i18n-placeholder="adminUsersSearchPlaceholder" placeholder="Search by username" />
-        <div class="setting-row setting-row-nowrap admin-panel-sort-row">
+        <div class="admin-panel-toolbar">
+          <input type="text" id="admin-users-search" class="wordlist-search admin-panel-search-inline" data-i18n-placeholder="adminUsersSearchPlaceholder" placeholder="Search by username" />
           <label for="admin-users-sort" data-i18n="adminUsersSortLabel">Sort by</label>
           <select id="admin-users-sort">
             <option value="joined" data-i18n="adminUsersSortJoined">Join date</option>
@@ -493,8 +493,8 @@
       <div class="card">
         <h3 data-i18n="adminCodesTitle">🎟️ Paid Signup Codes</h3>
         <p class="muted" data-i18n="adminCodesDesc">Generate a one-time code and send it to someone so they can sign up as a paid account instead of free.</p>
-        <button type="button" class="pill primary" id="admin-codes-generate-btn" data-i18n="adminCodesGenerateBtn">🎲 Generate New Code</button>
-        <div class="setting-row setting-row-nowrap admin-panel-sort-row">
+        <div class="admin-panel-toolbar">
+          <button type="button" class="pill primary" id="admin-codes-generate-btn" data-i18n="adminCodesGenerateBtn">🎲 Generate New Code</button>
           <label for="admin-codes-sort" data-i18n="adminCodesSortLabel">Sort by</label>
           <select id="admin-codes-sort">
             <option value="newest" data-i18n="adminCodesSortNewest">Newest</option>
@@ -512,15 +512,15 @@
     <section id="view-myaccount" class="view">
       <div class="card">
         <h3 data-i18n="myAccountTitle">👤 My Account</h3>
-        <div id="my-account-status" class="my-account-status"></div>
+        <div id="my-account-status" class="stats-grid"></div>
       </div>
       <div class="card">
         <h3 data-i18n="myAccountChangePasswordTitle">🔒 Change Password</h3>
         <form id="my-account-password-form" class="auth-form">
           <label for="my-account-current-password" data-i18n="myAccountCurrentPasswordLabel">Current password</label>
-          <input id="my-account-current-password" type="password" autocomplete="current-password" />
+          <input id="my-account-current-password" class="auth-form-input-narrow" type="password" autocomplete="current-password" />
           <label for="my-account-new-password" data-i18n="myAccountNewPasswordLabel">New password</label>
-          <input id="my-account-new-password" type="password" autocomplete="new-password" />
+          <input id="my-account-new-password" class="auth-form-input-narrow" type="password" autocomplete="new-password" />
           <p id="my-account-password-error" class="auth-error" hidden></p>
           <p id="my-account-password-success" class="auth-hint" hidden data-i18n="myAccountPasswordChanged">Password updated.</p>
           <div class="auth-actions">
