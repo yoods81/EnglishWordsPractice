@@ -474,8 +474,8 @@
       <div class="card">
         <h3 data-i18n="adminUsersTitle">👥 User Accounts</h3>
         <p class="muted" data-i18n="adminUsersDesc">Search for an account, change its role or password, or approve a pending upgrade request — a user waiting on one is pinned to the top.</p>
-        <input type="text" id="admin-users-search" data-i18n-placeholder="adminUsersSearchPlaceholder" placeholder="Search by username" />
-        <div class="setting-row setting-row-nowrap">
+        <input type="text" id="admin-users-search" class="wordlist-search admin-panel-search" data-i18n-placeholder="adminUsersSearchPlaceholder" placeholder="Search by username" />
+        <div class="setting-row setting-row-nowrap admin-panel-sort-row">
           <label for="admin-users-sort" data-i18n="adminUsersSortLabel">Sort by</label>
           <select id="admin-users-sort">
             <option value="joined" data-i18n="adminUsersSortJoined">Join date</option>
@@ -492,7 +492,7 @@
         <h3 data-i18n="adminCodesTitle">🎟️ Paid Signup Codes</h3>
         <p class="muted" data-i18n="adminCodesDesc">Generate a one-time code and send it to someone so they can sign up as a paid account instead of free.</p>
         <button type="button" class="pill primary" id="admin-codes-generate-btn" data-i18n="adminCodesGenerateBtn">🎲 Generate New Code</button>
-        <div class="setting-row setting-row-nowrap">
+        <div class="setting-row setting-row-nowrap admin-panel-sort-row">
           <label for="admin-codes-sort" data-i18n="adminCodesSortLabel">Sort by</label>
           <select id="admin-codes-sort">
             <option value="newest" data-i18n="adminCodesSortNewest">Newest</option>

@@ -8,7 +8,6 @@ const STORAGE_KEY = "ywp_progress_v1";
 const CUSTOM_WORDS_KEY = "ywp_custom_words_v1";
 const SHARED_WORDS_CACHE_KEY = "ywp_shared_words_cache_v1";
 const MY_DECK_KEY = "ywp_my_deck_v1";
-const GOALS_KEY = "ywp_goals_v1";
 const GOAL_MIN = 5;
 // Three tiers of question-count ceiling: signed-out visitors are capped at
 // 50 (going further nudges them to sign up), a free account at 100 (going
@@ -92,6 +91,8 @@ const TRANSLATIONS = {
     adminUserResetPasswordBtn: "Reset password",
     adminUserResetPasswordPrompt: (username) => `New password for ${username} (min. 8 characters):`,
     adminUserResetPasswordDone: (username) => `${username}'s password has been reset.`,
+    adminUserDeleteBtn: "Delete account",
+    adminUserConfirmDelete: (username) => `Permanently delete ${username}'s account? This also deletes their own private words. This can't be undone.`,
     adminRole_free: "Free",
     adminRole_paid: "Paid",
     adminRole_admin: "Admin",
@@ -383,6 +384,8 @@ const TRANSLATIONS = {
     adminUserResetPasswordBtn: "비밀번호 재설정",
     adminUserResetPasswordPrompt: (username) => `${username}님의 새 비밀번호 (최소 8자):`,
     adminUserResetPasswordDone: (username) => `${username}님의 비밀번호를 재설정했어요.`,
+    adminUserDeleteBtn: "계정 삭제",
+    adminUserConfirmDelete: (username) => `${username}님의 계정을 영구적으로 삭제할까요? 그 계정의 개인 단어도 함께 삭제되고, 되돌릴 수 없어요.`,
     adminRole_free: "무료",
     adminRole_paid: "유료",
     adminRole_admin: "관리자",
@@ -851,26 +854,17 @@ function addToMyDeck(entries) {
   return added;
 }
 
-// sessionStorage, not localStorage: the chosen question count should stick
-// around for reloads within the same browser session (so it survives a tab
-// refresh or switching tabs and back), but reset to the default once the
-// browser is closed and reopened, rather than accumulating forever.
+// Deliberately not persisted anywhere (no localStorage, no sessionStorage):
+// Number of Questions always starts at 10 on a fresh page load, full stop —
+// no "session" semantics to get confused about. It can still be adjusted
+// freely while the page stays open (switching tabs within the app doesn't
+// reload it), but a refresh or reopening the site resets it every time.
 function loadGoals() {
-  try {
-    const raw = sessionStorage.getItem(GOALS_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch (e) {
-    console.warn("Could not read saved goals", e);
-  }
   return { quiz: 10, spelling: 10 };
 }
 
 function saveGoals() {
-  try {
-    sessionStorage.setItem(GOALS_KEY, JSON.stringify(goals));
-  } catch (e) {
-    console.warn("Could not save goals", e);
-  }
+  // No-op — see loadGoals().
 }
 
 function loadLevels() {
@@ -4304,6 +4298,23 @@ function renderAdminUsers() {
         resetPasswordBtn.disabled = false;
       });
       btnRow.appendChild(resetPasswordBtn);
+
+      const deleteUserBtn = document.createElement("button");
+      deleteUserBtn.className = "delete-btn";
+      deleteUserBtn.textContent = t("adminUserDeleteBtn");
+      deleteUserBtn.addEventListener("click", async () => {
+        if (!confirm(t("adminUserConfirmDelete", u.username))) return;
+        deleteUserBtn.disabled = true;
+        try {
+          await api("/admin/users/delete", { method: "POST", body: JSON.stringify({ userId: u.id }) });
+          adminUsers = adminUsers.filter((x) => x.id !== u.id);
+          renderAdminUsers();
+        } catch (e) {
+          alert(t("adminRequestActionFailed"));
+          deleteUserBtn.disabled = false;
+        }
+      });
+      btnRow.appendChild(deleteUserBtn);
     }
 
     right.appendChild(btnRow);

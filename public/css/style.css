@@ -860,6 +860,17 @@ button.pill:disabled {
   font-size: 0.9rem;
 }
 
+.admin-panel-search {
+  display: block;
+  width: 100%;
+  margin: 6px 0 16px;
+}
+
+.admin-panel-sort-row {
+  margin-top: 4px;
+  margin-bottom: 16px;
+}
+
 .wordlist-level-select {
   flex: 0 1 auto;
   min-width: 0;

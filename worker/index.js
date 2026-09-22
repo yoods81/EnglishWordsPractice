@@ -555,6 +555,35 @@ async function handleApi(request, env, url) {
     return json({ ok: true });
   }
 
+  if (route === "/admin/users/delete" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const userId = typeof body?.userId === "string" ? body.userId : "";
+    if (!userId) return json({ error: "bad_request" }, 400);
+    if (userId === session.id) return json({ error: "cannot_delete_self" }, 400);
+
+    const target = await env.DB.prepare("SELECT id FROM users WHERE id = ?").bind(userId).first();
+    if (!target) return json({ error: "not_found" }, 404);
+
+    // A deleted account's own private words (owner_id = them) go with it —
+    // admin-shared words (owner_id NULL) are never touched by this, since
+    // they don't belong to any one account. Pending requests go too; a
+    // redeemed code's redeemed_by is left as-is, a harmless dangling
+    // reference kept for the audit trail rather than erased.
+    await env.DB.batch([
+      env.DB.prepare("DELETE FROM shared_words WHERE owner_id = ?").bind(userId),
+      env.DB.prepare("DELETE FROM upgrade_requests WHERE user_id = ?").bind(userId),
+      env.DB.prepare("DELETE FROM users WHERE id = ?").bind(userId),
+    ]);
+    return json({ ok: true });
+  }
+
   if (route === "/admin/upgrade-requests" && request.method === "GET") {
     const session = await getSessionUser(request, env);
     if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
