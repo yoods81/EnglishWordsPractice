@@ -4741,11 +4741,17 @@ async function fetchTranslation(text, langpair) {
   if (translationQuotaExceeded) return null;
   try {
     const res = await fetchWithTimeout(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langpair}`);
+    // A blocked/over-quota request can come back as an HTTP 429 instead of a
+    // 200 with a warning string in the body — same cause, different shape.
+    if (res.status === 429) {
+      translationQuotaExceeded = true;
+      return null;
+    }
     if (!res.ok) return null;
     const data = await res.json();
     const translated = data && data.responseData && data.responseData.translatedText;
     if (!translated) return null;
-    if (/mymemory warning/i.test(translated)) {
+    if (/mymemory warning/i.test(translated) || data.responseStatus === 403) {
       translationQuotaExceeded = true;
       return null;
     }
