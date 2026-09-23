@@ -264,6 +264,7 @@ const TRANSLATIONS = {
     checkKoreanNoneFound: "No bad Korean meanings found.",
     checkKoreanDone: (n) =>
       `Flagged ${n} word${n === 1 ? "" : "s"} with no real Korean meaning — sort by "Missing meaning first" or tap Retry All below.`,
+    translationQuotaExceeded: "⚠️ The free translation service has hit its daily limit — please try again tomorrow.",
     changeLevelPlaceholder: "📚 Change level",
     changeLevelConfirm: (n, level) => `Move ${n} selected word(s) to ${level}?`,
     changeLevelDone: (n, level) => `Moved ${n} word(s) to ${level}.`,
@@ -558,6 +559,7 @@ const TRANSLATIONS = {
     checkKoreanBtn: "🔎 한국어 뜻 검사",
     checkKoreanNoneFound: "잘못된 한국어 뜻을 찾지 못했어요.",
     checkKoreanDone: (n) => `제대로 된 한국어 뜻이 없는 단어 ${n}개를 찾았어요 — '뜻 없는 단어 먼저'로 정렬하거나 아래 전체 재검색을 눌러보세요.`,
+    translationQuotaExceeded: "⚠️ 무료 번역 서비스의 하루 사용 한도를 초과했어요 — 내일 다시 시도해주세요.",
     changeLevelPlaceholder: "📚 레벨 변경",
     changeLevelConfirm: (n, level) => `선택한 단어 ${n}개를 ${level} 레벨로 옮길까요?`,
     changeLevelDone: (n, level) => `${n}개를 ${level} 레벨로 옮겼어요.`,
@@ -3517,11 +3519,11 @@ bulkAddSaveBtn.addEventListener("click", async () => {
 
   const savedCount = added.length - failedCount;
   if (failedCount > 0) {
-    bulkAddStatus.textContent = t("bulkAddedWithFailures", savedCount, failedCount);
+    bulkAddStatus.textContent = withQuotaNote(t("bulkAddedWithFailures", savedCount, failedCount));
   } else if (skipped > 0) {
-    bulkAddStatus.textContent = t("bulkAddedWithSkipped", added.length, skipped);
+    bulkAddStatus.textContent = withQuotaNote(t("bulkAddedWithSkipped", added.length, skipped));
   } else {
-    bulkAddStatus.textContent = t("bulkAddedStatus", added.length);
+    bulkAddStatus.textContent = withQuotaNote(t("bulkAddedStatus", added.length));
   }
   bulkWordsInput.value = "";
   bulkAddSaveBtn.disabled = false;
@@ -3696,6 +3698,13 @@ function applyFetchedInfo(w, info) {
   if (info.example && !w.example) w.example = info.example;
 }
 
+// Appends a plain-language note to a status message when the free
+// translation API's daily quota is why a Korean meaning didn't come back,
+// so it doesn't just look like every retry silently failed.
+function withQuotaNote(message) {
+  return translationQuotaExceeded ? `${message} ${t("translationQuotaExceeded")}` : message;
+}
+
 async function retrySingleWord(id) {
   const w = customWords.find((cw) => cw.id === id);
   if (!w) return;
@@ -3703,7 +3712,7 @@ async function retrySingleWord(id) {
   const info = await fetchWordInfo(w.word);
   applyFetchedInfo(w, info);
   saveCustomWords();
-  customWordsStatus.textContent = t("retryResult", cwNoDefinition(w) ? 0 : 1, 1);
+  customWordsStatus.textContent = withQuotaNote(t("retryResult", cwNoDefinition(w) ? 0 : 1, 1));
   renderCustomWords();
   renderWordList();
   if (w.remote) pushSharedWords([w]);
@@ -3727,7 +3736,7 @@ async function retryAllFailedWords() {
   });
   saveCustomWords();
 
-  customWordsStatus.textContent = t("retryResult", foundCount, failed.length);
+  customWordsStatus.textContent = withQuotaNote(t("retryResult", foundCount, failed.length));
   customRetryAllBtn.disabled = false;
   customDeleteFailedBtn.disabled = false;
   renderCustomWords();
@@ -4714,17 +4723,32 @@ async function fetchWiktionaryDefinition(word) {
   }
 }
 
+// The free MyMemory API enforces its own daily translation quota (shared by
+// every visitor's browser, not per word registered in this app) and, once
+// hit, returns the same "MYMEMORY WARNING..." text instead of a translation
+// for the rest of the day. There's no point paying the network round trip
+// for every remaining word once we've seen that once, and the retry UI
+// should say plainly why nothing is coming back instead of just "not
+// found". This resets on page reload, which is fine — worst case it costs
+// one wasted request to notice the quota is still exceeded.
+let translationQuotaExceeded = false;
+
 // Best-effort translation of arbitrary text via the free MyMemory API. Used
 // both to get a Korean meaning for an English word (langpair "en|ko") and,
 // as a fallback, to translate an English definition we already have into
 // Korean when the direct word lookup came up empty.
 async function fetchTranslation(text, langpair) {
+  if (translationQuotaExceeded) return null;
   try {
     const res = await fetchWithTimeout(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langpair}`);
     if (!res.ok) return null;
     const data = await res.json();
     const translated = data && data.responseData && data.responseData.translatedText;
-    if (!translated || /mymemory warning/i.test(translated)) return null;
+    if (!translated) return null;
+    if (/mymemory warning/i.test(translated)) {
+      translationQuotaExceeded = true;
+      return null;
+    }
     return translated.trim();
   } catch (e) {
     return null;
@@ -4815,10 +4839,11 @@ ocrAddBtn.addEventListener("click", async () => {
   saveCustomWords();
   const pushResult = await pushSharedWords(added);
 
-  ocrStatus.textContent =
+  ocrStatus.textContent = withQuotaNote(
     pushResult.failed.length > 0
       ? t("bulkAddedWithFailures", selected.length - pushResult.failed.length, pushResult.failed.length)
-      : t("ocrAddedStatus", selected.length, levelLabel(level));
+      : t("ocrAddedStatus", selected.length, levelLabel(level))
+  );
   ocrSelectedWords = new Set();
   ocrCandidateWords = [];
   ocrCandidateChips = new Map();
