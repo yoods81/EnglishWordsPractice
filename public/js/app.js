@@ -3383,7 +3383,10 @@ const customCheckKoreanBtn = document.getElementById("custom-check-korean-btn");
 const customUploadBtn = document.getElementById("custom-upload-btn");
 const customLevelSelect = document.getElementById("custom-level-select");
 const customStorageNote = document.getElementById("custom-words-storage-note");
+const customLevelFilterEl = document.getElementById("custom-level-filter");
 let selectedCustomWordIds = new Set();
+// "" means no level filter (show every level).
+let customLevelFilter = "";
 
 function populateCustomSortSelect() {
   const previous = customSortSelect.value || "recent";
@@ -3553,6 +3556,37 @@ function populateLevelSelects() {
   });
   populateBulkLevelSelect();
   populateWordlistLevelSelect();
+  renderCustomLevelFilter();
+}
+
+// One button per level (plus "All levels") above My Added Words, so tapping
+// one shows just that level's words. Rebuilt whenever the level list can
+// change (language switch, a new level added) — if the current filter no
+// longer matches a real level in this track (e.g. it was set on the other
+// language's levels), it silently resets to "All" instead of showing zero
+// results with no obvious way out.
+function renderCustomLevelFilter() {
+  if (!customLevelFilterEl) return;
+  const levelIds = currentSystem().levels.map((lv) => lv.id);
+  if (customLevelFilter && !levelIds.includes(customLevelFilter)) customLevelFilter = "";
+
+  customLevelFilterEl.innerHTML = "";
+  const makeBtn = (id, label) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pill small";
+    btn.classList.add(customLevelFilter === id ? "primary" : "neutral");
+    btn.textContent = label;
+    btn.addEventListener("click", () => {
+      customLevelFilter = id;
+      renderCustomLevelFilter();
+      renderCustomWords();
+    });
+    customLevelFilterEl.appendChild(btn);
+  };
+
+  makeBtn("", t("wordlistAllLevels"));
+  currentSystem().levels.forEach((lv) => makeBtn(lv.id, lv.label));
 }
 
 // Follows the level you're practising, unless you've deliberately switched
@@ -3816,6 +3850,7 @@ function renderCustomWords() {
   const query = customSearchInput.value.trim().toLowerCase();
   const sort = customSortSelect.value || "recent";
   const shown = mine.filter((w) => {
+    if (customLevelFilter && cwLevel(w) !== customLevelFilter) return false;
     if (!query) return true;
     const meaning = cwDefinition(w) || "";
     return w.word.toLowerCase().includes(query) || meaning.toLowerCase().includes(query);
