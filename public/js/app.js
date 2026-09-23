@@ -1,8 +1,8 @@
 // Aussie English Word Practice — app logic
-// Everything is stored locally in the browser (localStorage). No backend needed,
-// except for two optional network calls: OCR word extraction uses Tesseract.js
-// (loaded from a CDN) and best-effort definition lookup uses the free
-// dictionaryapi.dev service when you add words extracted from a photo.
+// Word extraction from a photo uses Tesseract.js, from a PDF uses pdf.js, and
+// from a Word document uses mammoth.js — all loaded from a CDN, client-side
+// only. Best-effort definition lookup uses the free dictionaryapi.dev service
+// when you add words extracted this way.
 
 const STORAGE_KEY = "ywp_progress_v1";
 const CUSTOM_WORDS_KEY = "ywp_custom_words_v1";
@@ -221,11 +221,12 @@ const TRANSLATIONS = {
     saveWordBtn: "Save word",
     updateWordBtn: "Update word",
     cancelEditBtn: "Cancel edit",
-    ocrTitle: "📷 Extract words from a photo",
-    ocrDesc: "Take a photo of a book page, or upload a screenshot of an online passage. We'll read the text and pull out candidate words you can add to your word list.",
-    ocrChooseBtn: "📁 Choose Photo",
+    ocrTitle: "📷 Extract words from a photo or files",
+    ocrDesc: "Take a photo of a book page, upload a screenshot, or upload a text, Word or PDF file. We'll read the text and pull out candidate words you can add to your word list.",
+    ocrChooseBtn: "📁 Choose Photo or File",
     ocrNoFileChosen: "No file chosen",
     ocrProgressDefault: "Reading image...",
+    ocrProgressReadingFile: "Reading file...",
     ocrProgressStatus: (status, pct) => `${status} (${pct}%)`,
     ocrReviewHintDefault: "Tap the words you'd like to add:",
     ocrSelectAll: "Select All",
@@ -234,6 +235,9 @@ const TRANSLATIONS = {
     ocrAddBtn: "Add selected words",
     ocrNoTesseract: "The photo-reading tool couldn't load (check your internet connection) and can't be used right now.",
     ocrFailRead: "Sorry, we couldn't read text from that image. Try a clearer, well-lit photo.",
+    ocrNoDocReader: "The file-reading tool couldn't load (check your internet connection) and can't be used right now.",
+    ocrFailReadFile: "Sorry, we couldn't read text from that file — it may be corrupted, empty, or password-protected.",
+    ocrUnsupportedFile: "That file type isn't supported. Please choose a photo, or a .txt, .pdf or .docx file.",
     ocrNoCandidates: "We couldn't find any new candidate words in that image (they may already be in your word list).",
     ocrFoundCandidates: (n) => `Found ${n} candidate words — tap the ones you want to add:`,
     ocrSelectAtLeastOne: "Please select at least one word first.",
@@ -519,11 +523,12 @@ const TRANSLATIONS = {
     saveWordBtn: "단어 저장",
     updateWordBtn: "단어 수정",
     cancelEditBtn: "수정 취소",
-    ocrTitle: "📷 사진에서 단어 추출하기",
-    ocrDesc: "책 페이지를 촬영하거나 온라인 지문을 캡처한 이미지를 올려보세요. 텍스트를 읽어서 단어장에 추가할 후보 단어를 찾아드려요.",
-    ocrChooseBtn: "📁 사진 선택하기",
+    ocrTitle: "📷 사진 또는 파일에서 단어 추출하기",
+    ocrDesc: "책 페이지를 촬영하거나 온라인 지문을 캡처한 이미지, 또는 텍스트·Word·PDF 파일을 올려보세요. 텍스트를 읽어서 단어장에 추가할 후보 단어를 찾아드려요.",
+    ocrChooseBtn: "📁 사진 또는 파일 선택하기",
     ocrNoFileChosen: "선택된 파일 없음",
     ocrProgressDefault: "이미지를 읽는 중...",
+    ocrProgressReadingFile: "파일을 읽는 중...",
     ocrProgressStatus: (status, pct) => `${status} (${pct}%)`,
     ocrReviewHintDefault: "추가하고 싶은 단어를 탭하세요:",
     ocrSelectAll: "전체 선택",
@@ -532,6 +537,9 @@ const TRANSLATIONS = {
     ocrAddBtn: "선택한 단어 추가하기",
     ocrNoTesseract: "사진 읽기 기능을 불러오지 못했어요 (인터넷 연결을 확인해주세요). 지금은 사용할 수 없어요.",
     ocrFailRead: "이미지에서 글자를 읽지 못했어요. 더 선명하고 밝은 사진으로 다시 시도해보세요.",
+    ocrNoDocReader: "파일 읽기 기능을 불러오지 못했어요 (인터넷 연결을 확인해주세요). 지금은 사용할 수 없어요.",
+    ocrFailReadFile: "그 파일에서 텍스트를 읽지 못했어요 — 파일이 손상되었거나, 비어 있거나, 암호로 보호되어 있을 수 있어요.",
+    ocrUnsupportedFile: "지원하지 않는 파일 형식이에요. 사진 또는 .txt, .pdf, .docx 파일을 선택해주세요.",
     ocrNoCandidates: "이 이미지에서 새로운 후보 단어를 찾지 못했어요 (이미 단어장에 있는 단어일 수 있어요).",
     ocrFoundCandidates: (n) => `${n}개의 후보 단어를 찾았어요 — 추가하고 싶은 단어를 탭하세요:`,
     ocrSelectAtLeastOne: "먼저 단어를 하나 이상 선택해주세요.",
@@ -4457,6 +4465,53 @@ let ocrCandidateWords = [];
 let ocrCandidateChips = new Map();
 let ocrLastFileName = null;
 
+// pdf.js needs a worker script URL before its first use; the library itself
+// is loaded (or not, on a flaky connection) as a plain CDN <script> tag same
+// as Tesseract, so this only does anything once that has actually landed.
+if (typeof pdfjsLib !== "undefined") {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+}
+
+// Sniffs a chosen file's kind from its MIME type, falling back to the file
+// extension since some browsers report an empty or generic type for .docx.
+function ocrFileKind(file) {
+  const name = (file.name || "").toLowerCase();
+  const type = file.type || "";
+  if (type.startsWith("image/")) return "image";
+  if (type === "application/pdf" || name.endsWith(".pdf")) return "pdf";
+  if (type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || name.endsWith(".docx")) {
+    return "docx";
+  }
+  if (type === "text/plain" || name.endsWith(".txt")) return "text";
+  return "unsupported";
+}
+
+// Extracts plain text from a non-image file so it can go through the same
+// processOcrText() candidate pipeline photos already use.
+async function extractTextFromFile(file, kind) {
+  if (kind === "text") return file.text();
+
+  if (kind === "pdf") {
+    const buffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+    let text = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map((item) => item.str).join(" ") + "\n";
+    }
+    return text;
+  }
+
+  if (kind === "docx") {
+    const buffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer: buffer });
+    return result.value || "";
+  }
+
+  return "";
+}
+
 ocrChooseBtn.addEventListener("click", () => ocrFileInput.click());
 
 ocrFileInput.addEventListener("change", async (e) => {
@@ -4478,36 +4533,72 @@ ocrFileInput.addEventListener("change", async (e) => {
   ocrSelectAllBtn.hidden = true;
   ocrLevelSelect.value = currentLevel;
 
-  if (typeof Tesseract === "undefined") {
-    ocrStatus.textContent = t("ocrNoTesseract");
+  const kind = ocrFileKind(file);
+
+  if (kind === "unsupported") {
+    ocrStatus.textContent = t("ocrUnsupportedFile");
     ocrReview.hidden = false;
+    ocrFileInput.value = "";
+    return;
+  }
+
+  if (kind === "image") {
+    if (typeof Tesseract === "undefined") {
+      ocrStatus.textContent = t("ocrNoTesseract");
+      ocrReview.hidden = false;
+      return;
+    }
+
+    ocrProgress.hidden = false;
+    ocrProgressFill.style.width = "0%";
+    ocrProgressLabel.textContent = t("ocrProgressDefault");
+
+    try {
+      const result = await Tesseract.recognize(file, "eng", {
+        logger: (m) => {
+          if (m.progress != null) {
+            const pct = Math.round(m.progress * 100);
+            ocrProgressFill.style.width = `${pct}%`;
+            ocrProgressLabel.textContent = t("ocrProgressStatus", m.status, pct);
+          }
+        },
+      });
+      ocrProgress.hidden = true;
+      processOcrText(result.data.text || "");
+    } catch (err) {
+      console.error(err);
+      ocrProgress.hidden = true;
+      ocrStatus.textContent = t("ocrFailRead");
+      ocrReview.hidden = false;
+    } finally {
+      // Reset the underlying input (not the visible filename label) so choosing
+      // the same file again still fires a "change" event.
+      ocrFileInput.value = "";
+    }
+    return;
+  }
+
+  if ((kind === "pdf" && typeof pdfjsLib === "undefined") || (kind === "docx" && typeof mammoth === "undefined")) {
+    ocrStatus.textContent = t("ocrNoDocReader");
+    ocrReview.hidden = false;
+    ocrFileInput.value = "";
     return;
   }
 
   ocrProgress.hidden = false;
-  ocrProgressFill.style.width = "0%";
-  ocrProgressLabel.textContent = t("ocrProgressDefault");
+  ocrProgressFill.style.width = "50%";
+  ocrProgressLabel.textContent = t("ocrProgressReadingFile");
 
   try {
-    const result = await Tesseract.recognize(file, "eng", {
-      logger: (m) => {
-        if (m.progress != null) {
-          const pct = Math.round(m.progress * 100);
-          ocrProgressFill.style.width = `${pct}%`;
-          ocrProgressLabel.textContent = t("ocrProgressStatus", m.status, pct);
-        }
-      },
-    });
+    const text = await extractTextFromFile(file, kind);
     ocrProgress.hidden = true;
-    processOcrText(result.data.text || "");
+    processOcrText(text);
   } catch (err) {
     console.error(err);
     ocrProgress.hidden = true;
-    ocrStatus.textContent = t("ocrFailRead");
+    ocrStatus.textContent = t("ocrFailReadFile");
     ocrReview.hidden = false;
   } finally {
-    // Reset the underlying input (not the visible filename label) so choosing
-    // the same file again still fires a "change" event.
     ocrFileInput.value = "";
   }
 });
