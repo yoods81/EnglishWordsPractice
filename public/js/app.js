@@ -175,6 +175,7 @@ const TRANSLATIONS = {
     spellingNextBtn: "Next ➡",
     spellingCheckBtn: "✅ Check Answer",
     spellingCorrectPrompt: "✅ Correct! Press Next to continue.",
+    spellingCorrectNoCreditPrompt: "✅ Correct! (This one already counted as wrong earlier this round, so it won't add to your score.) Press Next to continue.",
     spellingWrongPrompt: "Please enter the correct spelling to go to the next word",
     spellingEmpty: (lvl) => `No ${lvl} spelling words yet. Add some in "Add Word"!`,
     spellingFinishBtn: "🏁 Finish",
@@ -478,6 +479,7 @@ const TRANSLATIONS = {
     spellingNextBtn: "다음 ➡",
     spellingCheckBtn: "✅ 정답 확인",
     spellingCorrectPrompt: "✅ 정답이에요! Next를 눌러 다음 단어로 넘어가세요.",
+    spellingCorrectNoCreditPrompt: "✅ 정답이에요! (이 단어는 이번 라운드에서 이미 한 번 틀려서 점수에는 반영되지 않아요.) Next를 눌러 다음 단어로 넘어가세요.",
     spellingWrongPrompt: "정확한 철자를 입력해야 다음 단어로 넘어갈 수 있어요.",
     spellingEmpty: (lvl) => `${lvl} 레벨에는 아직 스펠링 연습 단어가 없어요. "단어 추가"에서 추가해보세요!`,
     spellingFinishBtn: "🏁 종료",
@@ -2463,6 +2465,7 @@ let spellingIndex = 0;
 let spellingScore = { correct: 0, total: 0 };
 let spellingTotalCountedWords = new Set(); // this round only — stops a retried word double-counting "total"
 let spellingWrongThisRound = new Set(); // this round only — word had >=1 wrong attempt, so it can't earn "correct" credit this round
+let spellingCreditedWords = new Set(); // this round only — word already earned "correct" credit, so a duplicate/re-submitted check can't award it twice
 let spellingSessionWrongWords = new Map(); // word -> {word, meaning} — for the end-of-round report
 let spellingCurrentChecked = false; // has the current word passed a "Check Answer" yet — gates the Next button
 
@@ -2493,6 +2496,7 @@ function buildSpellingDeck({ resetScreen = true } = {}) {
   spellingScore = { correct: 0, total: 0 };
   spellingTotalCountedWords = new Set();
   spellingWrongThisRound = new Set();
+  spellingCreditedWords = new Set();
   spellingSessionWrongWords = new Map();
   renderGoalStepper("spelling");
   updateSpellingScoreLabel();
@@ -2556,11 +2560,11 @@ function showSpellingWrongFeedback(current) {
   }
 }
 
-function showSpellingCorrectFeedback() {
+function showSpellingCorrectFeedback(earnedCredit) {
   spellingFeedback.innerHTML = "";
   const line = document.createElement("div");
   line.className = "spelling-correct-line";
-  line.textContent = t("spellingCorrectPrompt");
+  line.textContent = earnedCredit ? t("spellingCorrectPrompt") : t("spellingCorrectNoCreditPrompt");
   spellingFeedback.appendChild(line);
 }
 
@@ -2583,8 +2587,14 @@ function checkSpellingAnswer() {
   if (correct) {
     // Only credit "correct" if this word was spelled right on the first try this
     // round — a word that was ever wrong this round stays counted as wrong, even
-    // though it now passes the check and can be advanced past.
-    if (!spellingWrongThisRound.has(current.word)) {
+    // though it now passes the check and can be advanced past. The
+    // spellingCreditedWords check on top of that stops a duplicate/re-submitted
+    // check on an already-credited word (e.g. a fast double-click, or a held
+    // Enter key firing Check twice before the UI updates) from double-counting
+    // the score.
+    const earnsCredit = !spellingWrongThisRound.has(current.word) && !spellingCreditedWords.has(current.word);
+    if (earnsCredit) {
+      spellingCreditedWords.add(current.word);
       spellingScore.correct++;
       progress.spelling.correct++;
       progress.spellingStatus[current.word] = "correct";
@@ -2592,7 +2602,7 @@ function checkSpellingAnswer() {
     saveProgress();
     updateSpellingScoreLabel();
     spellingInput.className = "correct";
-    showSpellingCorrectFeedback();
+    showSpellingCorrectFeedback(earnsCredit);
     spellingCurrentChecked = true;
     spellingNextBtn.disabled = false;
 
