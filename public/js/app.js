@@ -260,6 +260,10 @@ const TRANSLATIONS = {
     cleanTextBtn: "🧼 Clean Corrupted Text",
     cleanTextNoneFound: "No corrupted text found.",
     cleanTextDone: (n) => `Cleaned up ${n} word${n === 1 ? "" : "s"}.`,
+    checkKoreanBtn: "🔎 Check Korean Meanings",
+    checkKoreanNoneFound: "No bad Korean meanings found.",
+    checkKoreanDone: (n) =>
+      `Flagged ${n} word${n === 1 ? "" : "s"} with no real Korean meaning — sort by "Missing meaning first" or tap Retry All below.`,
     changeLevelPlaceholder: "📚 Change level",
     changeLevelConfirm: (n, level) => `Move ${n} selected word(s) to ${level}?`,
     changeLevelDone: (n, level) => `Moved ${n} word(s) to ${level}.`,
@@ -551,6 +555,9 @@ const TRANSLATIONS = {
     cleanTextBtn: "🧼 손상된 텍스트 정리",
     cleanTextNoneFound: "손상된 텍스트를 찾지 못했어요.",
     cleanTextDone: (n) => `${n}개 단어를 정리했어요.`,
+    checkKoreanBtn: "🔎 한국어 뜻 검사",
+    checkKoreanNoneFound: "잘못된 한국어 뜻을 찾지 못했어요.",
+    checkKoreanDone: (n) => `제대로 된 한국어 뜻이 없는 단어 ${n}개를 찾았어요 — '뜻 없는 단어 먼저'로 정렬하거나 아래 전체 재검색을 눌러보세요.`,
     changeLevelPlaceholder: "📚 레벨 변경",
     changeLevelConfirm: (n, level) => `선택한 단어 ${n}개를 ${level} 레벨로 옮길까요?`,
     changeLevelDone: (n, level) => `${n}개를 ${level} 레벨로 옮겼어요.`,
@@ -755,6 +762,22 @@ function isUselessMeaning(word, meaning, requirePhrase) {
   return requirePhrase && !/\s/.test(text);
 }
 
+function hasHangul(text) {
+  return /[가-힣]/.test(text || "");
+}
+
+// A "Korean meaning" with no Korean characters in it at all (the free
+// translation API sometimes echoes English text back, or returns an
+// unrelated Latin-script fragment) explains nothing to a Korean-speaking
+// learner, even though it isn't empty.
+function isBadKoreanMeaning(word, meaning) {
+  if (!meaning) return false;
+  const text = meaning.trim();
+  if (!text) return false;
+  if (text.toLowerCase() === word.toLowerCase()) return true;
+  return !hasHangul(text);
+}
+
 // Clears those out so they show as missing and get picked up by Retry /
 // "Missing meaning first" instead of sitting there looking answered. Meanings
 // the user typed in by hand are never touched.
@@ -767,7 +790,7 @@ function clearUselessMeanings(list) {
       w.noDefinitionEn = true;
       changed = true;
     }
-    if (isUselessMeaning(w.word, w.definitionKo, false)) {
+    if (isBadKoreanMeaning(w.word, w.definitionKo)) {
       w.definitionKo = null;
       w.noDefinitionKo = true;
       changed = true;
@@ -3346,6 +3369,7 @@ const customDeleteSelectedBtn = document.getElementById("custom-delete-selected-
 const customSelectAllBtn = document.getElementById("custom-select-all-btn");
 const customMergeDuplicatesBtn = document.getElementById("custom-merge-duplicates-btn");
 const customCleanTextBtn = document.getElementById("custom-clean-text-btn");
+const customCheckKoreanBtn = document.getElementById("custom-check-korean-btn");
 const customUploadBtn = document.getElementById("custom-upload-btn");
 const customLevelSelect = document.getElementById("custom-level-select");
 const customStorageNote = document.getElementById("custom-words-storage-note");
@@ -4037,6 +4061,32 @@ customCleanTextBtn.addEventListener("click", async () => {
       : t("cleanTextDone", cleaned.length);
 });
 
+// Finds words whose stored Korean meaning isn't actually Korean (the free
+// translation lookup sometimes returns English text, or just echoes the
+// word back) and re-flags them as missing so "Missing meaning first" surfaces
+// them and Retry (single or All) can fetch a real one. Meanings typed in by
+// hand are left alone.
+customCheckKoreanBtn.addEventListener("click", async () => {
+  const flagged = [];
+  myCustomWords().forEach((w) => {
+    if (w.source === "manual") return;
+    if (isBadKoreanMeaning(w.word, w.definitionKo)) {
+      w.definitionKo = null;
+      w.noDefinitionKo = true;
+      flagged.push(w);
+    }
+  });
+  if (flagged.length === 0) {
+    customWordsStatus.textContent = t("checkKoreanNoneFound");
+    return;
+  }
+  saveCustomWords();
+  renderCustomWords();
+  renderWordList();
+  await pushSharedWords(flagged.filter((w) => w.remote));
+  customWordsStatus.textContent = t("checkKoreanDone", flagged.length);
+});
+
 /* ---------- Admin: paid-signup special codes ---------- */
 const adminCodesGenerateBtn = document.getElementById("admin-codes-generate-btn");
 const adminCodesSort = document.getElementById("admin-codes-sort");
@@ -4703,7 +4753,10 @@ function fetchKoreanTranslationWithRetry(word) {
 async function fetchWordInfo(word) {
   const [enEntry, koMeaning] = await Promise.all([fetchDefinitionWithRetry(word), fetchKoreanTranslationWithRetry(word)]);
   let definitionEn = (enEntry && enEntry.definition) || null;
-  let definitionKo = koMeaning || null;
+  // The free translation API occasionally echoes English text back instead
+  // of actually translating — that's not a Korean meaning, so it doesn't
+  // count as "found" here.
+  let definitionKo = hasHangul(koMeaning) ? koMeaning : null;
   let example = (enEntry && enEntry.example) || "";
 
   if (!definitionEn) {
@@ -4714,9 +4767,11 @@ async function fetchWordInfo(word) {
     }
   }
   // Translating a full English definition into Korean does read as a meaning,
-  // so this direction stays.
+  // so this direction stays — but only keep it if it actually came back in
+  // Korean.
   if (!definitionKo && definitionEn) {
-    definitionKo = await fetchTranslationWithRetry(definitionEn, "en|ko");
+    const translated = await fetchTranslationWithRetry(definitionEn, "en|ko");
+    if (hasHangul(translated)) definitionKo = translated;
   }
 
   if (!definitionEn && !definitionKo) return null;
