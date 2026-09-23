@@ -677,15 +677,21 @@ function loadProgress() {
     quiz: { correct: 0, total: 0 },
     spelling: { correct: 0, total: 0 },
     spellingStatus: {}, // word -> "wrong" | "correct" — persists so wrong words are re-served first next time
+    srs: {}, // word (lowercase) -> { box: 0-4, dueAt: timestamp } — spaced-repetition schedule, see recordSrsResult()
+    updatedAt: 0,
   };
 }
 
 function saveProgress() {
+  progress.updatedAt = Date.now();
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
   } catch (e) {
     console.warn("Could not save progress", e);
   }
+  // Admin/paid accounts also keep a server copy so this survives logging out
+  // and back in (or switching devices) — free/anonymous stays local-only.
+  if (canWriteServerWords()) scheduleProgressSync();
 }
 
 function recordResult(word, isCorrect) {
@@ -694,6 +700,47 @@ function recordResult(word, isCorrect) {
   else stats.incorrect++;
   progress.wordStats[word] = stats;
   saveProgress();
+}
+
+// A Leitner-box-style spaced-repetition schedule, shared across Quiz,
+// Spelling and Typing Game (keyed by the word alone, lowercase — level and
+// language aren't part of the key, matching how a word's identity works
+// everywhere else in the app). Correct answers push a word further out
+// (longer until it's due again); any wrong answer drops it straight back to
+// the shortest interval. This is deliberately separate from
+// progress.spellingStatus/progress.wordStats — those are untouched and keep
+// driving whatever they already drove (mastery badges, etc.) — this is a new
+// signal purely for deciding what to show next (see pickWordsForSession).
+const SRS_INTERVALS_MS = [0, 1, 3, 7, 14].map((days) => days * 24 * 60 * 60 * 1000);
+const SRS_MAX_BOX = SRS_INTERVALS_MS.length - 1;
+
+function recordSrsResult(word, isCorrect) {
+  const key = word.toLowerCase();
+  const entry = progress.srs[key] || { box: 0, dueAt: 0 };
+  entry.box = isCorrect ? Math.min(entry.box + 1, SRS_MAX_BOX) : 0;
+  entry.dueAt = Date.now() + SRS_INTERVALS_MS[entry.box];
+  progress.srs[key] = entry;
+  saveProgress();
+}
+
+// Orders a pool for one practice round: words overdue for review first
+// (most-overdue first), then words never seen before, then words not due
+// yet — capped to `count`. `keyFn` extracts the word string from a pool item
+// (Spelling/Typing Game items already have a `.word` field; Quiz's question
+// objects use `.target` instead, so they pass their own keyFn).
+function pickWordsForSession(pool, count, keyFn = (item) => (typeof item === "string" ? item : item.word)) {
+  const now = Date.now();
+  const overdue = [];
+  const brandNew = [];
+  const notDue = [];
+  pool.forEach((item) => {
+    const entry = progress.srs[keyFn(item).toLowerCase()];
+    if (!entry) brandNew.push(item);
+    else if (entry.dueAt <= now) overdue.push(item);
+    else notDue.push(item);
+  });
+  overdue.sort((a, b) => progress.srs[keyFn(a).toLowerCase()].dueAt - progress.srs[keyFn(b).toLowerCase()].dueAt);
+  return [...overdue, ...shuffle(brandNew), ...shuffle(notDue)].slice(0, count);
 }
 
 function loadCustomWords() {
@@ -940,6 +987,8 @@ function saveLang(lang) {
 
 let progress = loadProgress();
 if (!progress.spellingStatus) progress.spellingStatus = {}; // back-compat for progress saved before this existed
+if (!progress.srs) progress.srs = {}; // back-compat for progress saved before the SRS schedule existed
+if (!progress.updatedAt) progress.updatedAt = 0;
 let customWords = migrateCustomWords(loadCustomWords()).concat(
   loadSharedWordsCache().map((w) => ({ ...w, remote: true }))
 );
@@ -1415,6 +1464,57 @@ function canWriteServerWords() {
   return serverAdmin || (currentUser && currentUser.role === "paid");
 }
 
+// Admin/paid learning progress (word stats, SRS schedule) syncs to the
+// server under the same accounts that can write words — a free/anonymous
+// visitor never triggers any of these calls, staying 100% localStorage like
+// before. This only ever reads/writes that account's own row (see
+// /api/progress in worker/index.js) — it has nothing to do with, and grants
+// no access to, admin's shared word pool.
+let progressSyncTimer = null;
+const PROGRESS_SYNC_DEBOUNCE_MS = 4000;
+
+// Called from saveProgress() on every change — coalesces rapid-fire saves
+// (e.g. answering several quiz questions in a row) into one request instead
+// of a PUT per answer.
+function scheduleProgressSync() {
+  clearTimeout(progressSyncTimer);
+  progressSyncTimer = setTimeout(() => {
+    progressSyncTimer = null;
+    pushProgressToServer();
+  }, PROGRESS_SYNC_DEBOUNCE_MS);
+}
+
+async function pushProgressToServer() {
+  try {
+    await api("/progress", { method: "PUT", body: JSON.stringify({ progress }) });
+  } catch (e) {
+    console.warn("Could not sync progress to server", e);
+  }
+}
+
+// Called once right after a login/page-load confirms an admin/paid session.
+// Whichever side (this device's localStorage, or the server) was updated
+// more recently wins — so a word correctly answered on one device/session
+// isn't asked again from scratch after signing back in somewhere else.
+async function syncProgressOnLogin() {
+  try {
+    const { progress: serverProgress, updatedAt } = await api("/progress");
+    if (serverProgress && typeof updatedAt === "number" && updatedAt > (progress.updatedAt || 0)) {
+      progress = serverProgress;
+      if (!progress.srs) progress.srs = {};
+      if (!progress.spellingStatus) progress.spellingStatus = {};
+      if (!progress.updatedAt) progress.updatedAt = updatedAt;
+      saveProgress();
+      renderStats();
+      renderWordList();
+    } else {
+      pushProgressToServer();
+    }
+  } catch (e) {
+    console.warn("Could not check server progress", e);
+  }
+}
+
 // Where a newly added word should live, based on the signed-in account:
 // - admin: pushed to the server, shared with everyone (owner_id NULL)
 // - paid: pushed to the server, visible only to this account (owner_id = self)
@@ -1607,6 +1707,37 @@ function closeAuthMenu() {
 }
 
 async function logOut() {
+  const wasSyncable = canWriteServerWords();
+  if (wasSyncable) {
+    // Flush one last time before the session that authenticates this write
+    // goes away — otherwise anything since the last debounced sync is lost.
+    clearTimeout(progressSyncTimer);
+    progressSyncTimer = null;
+    await pushProgressToServer();
+
+    // This browser's in-memory/local progress belonged to the account that
+    // just signed out — clear it (localStorage too) so it can't leak into
+    // whichever account, if any, signs into this same browser next. It's
+    // safe on the server and comes straight back the moment *this* account
+    // signs in again (syncProgressOnLogin() pulls it down). A free account
+    // never reaches this branch, so its local-only stats are untouched by
+    // logging out, same as before this feature existed.
+    progress = {
+      wordStats: {},
+      flashKnown: {},
+      quiz: { correct: 0, total: 0 },
+      spelling: { correct: 0, total: 0 },
+      spellingStatus: {},
+      srs: {},
+      updatedAt: 0,
+    };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    } catch (e) {
+      console.warn("Could not clear local progress on logout", e);
+    }
+  }
+
   currentUser = null;
   isAdmin = false;
   serverAdmin = false;
@@ -1759,6 +1890,7 @@ loginForm.addEventListener("submit", async (e) => {
   updateAdminUI();
   renderUpgradeReadyBanner();
   if (currentUser) refreshSharedWords();
+  if (canWriteServerWords()) syncProgressOnLogin();
 });
 
 const SIGNUP_ERROR_KEYS = {
@@ -1785,6 +1917,7 @@ signupForm.addEventListener("submit", async (e) => {
     closeAuthOverlay();
     updateAdminUI();
     refreshSharedWords();
+    if (canWriteServerWords()) syncProgressOnLogin();
   } catch (err) {
     const code = err && err.data && err.data.error;
     signupError.textContent = t(SIGNUP_ERROR_KEYS[code] || "authSignupErrorGeneric");
@@ -1863,6 +1996,7 @@ async function redeemUpgradeCode(specialCode) {
   renderGoalStepper("quiz");
   renderGoalStepper("spelling");
   refreshSharedWords();
+  if (canWriteServerWords()) syncProgressOnLogin();
 }
 
 upgradeForm.addEventListener("submit", async (e) => {
@@ -1912,6 +2046,7 @@ async function restoreSession() {
   }
   updateAdminUI();
   renderUpgradeReadyBanner();
+  if (canWriteServerWords()) syncProgressOnLogin();
 }
 
 updateAdminUI();
@@ -2313,7 +2448,7 @@ function buildQuizQuestions() {
     saveGoals();
   }
 
-  quizQuestions = shuffle(pool).slice(0, goals.quiz);
+  quizQuestions = pickWordsForSession(pool, goals.quiz, (q) => q.target);
   quizIndex = 0;
   quizScore = 0;
   quizAnswered = false;
@@ -2366,6 +2501,7 @@ function handleQuizAnswer(btn, chosen, q) {
   progress.quiz.total++;
   if (correct) progress.quiz.correct++;
   recordResult(q.target, correct);
+  recordSrsResult(q.target, correct);
   saveProgress();
 
   Array.from(quizOptionsEl.children).forEach((b) => {
@@ -2477,10 +2613,6 @@ function buildSpellingDeck({ resetScreen = true } = {}) {
   spellingGoalBanner.hidden = true;
   spellingGoalCelebrated = false;
   const pool = getSpellingPool(currentLevel);
-  const status = progress.spellingStatus;
-  const wrongWords = pool.filter((w) => status[w.word] === "wrong");
-  const untriedWords = pool.filter((w) => !(w.word in status));
-  const doneWords = pool.filter((w) => status[w.word] === "correct");
 
   // The stepper can't be dragged past what's actually available, but the
   // pool itself can shrink out from under a stored preference (switching
@@ -2491,7 +2623,12 @@ function buildSpellingDeck({ resetScreen = true } = {}) {
     saveGoals();
   }
 
-  spellingDeck = [...shuffle(wrongWords), ...shuffle(untriedWords), ...shuffle(doneWords)].slice(0, goals.spelling);
+  // Overdue-for-review words first (most overdue first), then never-seen
+  // words, then words not due yet — see pickWordsForSession(). This
+  // replaces the old wrong/untried/done split with a real spaced-repetition
+  // schedule; progress.spellingStatus itself is untouched and keeps driving
+  // whatever else already reads it (e.g. the mastery badge).
+  spellingDeck = pickWordsForSession(pool, goals.spelling);
   spellingIndex = 0;
   spellingScore = { correct: 0, total: 0 };
   spellingTotalCountedWords = new Set();
@@ -2577,6 +2714,7 @@ function checkSpellingAnswer() {
   const guess = spellingInput.value.trim().toLowerCase();
   const correct = guess === current.word.toLowerCase();
   recordResult(current.word, correct);
+  recordSrsResult(current.word, correct);
 
   if (!spellingTotalCountedWords.has(current.word)) {
     spellingTotalCountedWords.add(current.word);
@@ -2788,6 +2926,10 @@ let typeGameSpawnTimer = null;
 let typeGameRafId = null;
 let typeGameLastTs = null;
 let typeGameTypoTimer = null;
+// This round's SRS-priority words to spawn before falling back to the
+// existing random pool — see startTypeGame()/spawnTypeGameWord().
+let typeGameSrsQueue = [];
+const TYPEGAME_SRS_QUEUE_SIZE = 30;
 
 function loadTypeGameHighScores() {
   try {
@@ -2884,6 +3026,11 @@ function startTypeGame() {
   typeGameInput.focus();
   updateTypeGameHud();
 
+  // This round's falling words prefer overdue-for-review/new words first —
+  // same spaced-repetition schedule Quiz and Spelling use — falling back to
+  // the plain random pool once this queue runs out.
+  typeGameSrsQueue = pickWordsForSession(typeGameWordPool, TYPEGAME_SRS_QUEUE_SIZE);
+
   spawnTypeGameWord();
   scheduleTypeGameSpawn();
   typeGameLastTs = null;
@@ -2928,13 +3075,28 @@ function spawnTypeGameWord() {
   // Prefer a word that doesn't share a prefix with one already falling, so
   // typing never has to guess which of two words is meant; if every word in
   // the pool conflicts right now, just fall back to any random one.
-  const candidates = shuffle(typeGameWordPool).filter(
-    (w) =>
-      !typeGameActive.some(
-        (a) => a.text.toLowerCase().startsWith(w.toLowerCase()) || w.toLowerCase().startsWith(a.text.toLowerCase())
-      )
-  );
-  const word = candidates[0] || shuffle(typeGameWordPool)[0];
+  const noPrefixCollision = (w) =>
+    !typeGameActive.some(
+      (a) => a.text.toLowerCase().startsWith(w.toLowerCase()) || w.toLowerCase().startsWith(a.text.toLowerCase())
+    );
+
+  // This round's SRS priority queue (built once in startTypeGame()) goes
+  // first — same collision check applies, a queued word that collides right
+  // now is just skipped rather than re-queued, since the random fallback
+  // below has plenty of other words to try.
+  let word = null;
+  while (typeGameSrsQueue.length > 0) {
+    const candidate = typeGameSrsQueue.shift();
+    if (noPrefixCollision(candidate)) {
+      word = candidate;
+      break;
+    }
+  }
+
+  if (!word) {
+    const candidates = shuffle(typeGameWordPool).filter(noPrefixCollision);
+    word = candidates[0] || shuffle(typeGameWordPool)[0];
+  }
   if (!word) return;
 
   const el = document.createElement("div");
@@ -2967,14 +3129,18 @@ function typeGameLoop(ts) {
     if (w.top > stageHeight - 30) {
       w.el.remove();
       typeGameActive.splice(i, 1);
-      loseTypeGameLife();
+      loseTypeGameLife(w.text);
     }
   }
 
   if (typeGameRunning) typeGameRafId = requestAnimationFrame(typeGameLoop);
 }
 
-function loseTypeGameLife() {
+function loseTypeGameLife(missedWord) {
+  if (missedWord) {
+    recordSrsResult(missedWord, false);
+    recordResult(missedWord, false);
+  }
   typeGameLives--;
   updateTypeGameHud();
   typeGameStage.classList.remove("typegame-shake");
@@ -2993,6 +3159,8 @@ function clearTypeGameHighlights() {
 }
 
 function clearTypeGameWord(word) {
+  recordSrsResult(word.text, true);
+  recordResult(word.text, true);
   word.el.classList.add("tw-cleared");
   setTimeout(() => word.el.remove(), 150);
   typeGameActive = typeGameActive.filter((w) => w !== word);
@@ -5070,6 +5238,8 @@ resetProgressBtn.addEventListener("click", () => {
     quiz: { correct: 0, total: 0 },
     spelling: { correct: 0, total: 0 },
     spellingStatus: {},
+    srs: {},
+    updatedAt: 0,
   };
   saveProgress();
   renderStats();

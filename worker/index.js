@@ -8,6 +8,7 @@ const SESSION_COOKIE = "ywp_session";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 const MAX_WORDS_PER_REQUEST = 200;
 const MAX_FIELD_LENGTH = 2000;
+const MAX_PROGRESS_JSON_LENGTH = 500000;
 const PBKDF2_ITERATIONS = 100000;
 const ADMIN_BOOTSTRAP_USERNAME = "admin";
 
@@ -662,6 +663,56 @@ async function handleApi(request, env, url) {
 
     await env.DB.prepare("UPDATE upgrade_requests SET status = 'dismissed' WHERE id = ?").bind(requestId).run();
     return json({ ok: true });
+  }
+
+  // Per-account learning progress (word stats, spaced-repetition schedule) —
+  // admin and paid accounts only, same role gate as writing shared words
+  // below. account_key is just the session's own user id, so an account can
+  // only ever read or write its own row; this has nothing to do with, and
+  // grants no access to, the shared_words table admin manages.
+  if (route === "/progress" && request.method === "GET") {
+    const session = await getSessionUser(request, env);
+    if (!session || (session.role !== "admin" && session.role !== "paid")) {
+      return json({ error: "unauthorized" }, 401);
+    }
+    const row = await env.DB.prepare("SELECT progress_json, updated_at FROM user_progress WHERE account_key = ?")
+      .bind(session.id)
+      .first();
+    if (!row) return json({ progress: null, updatedAt: null });
+    let progress;
+    try {
+      progress = JSON.parse(row.progress_json);
+    } catch (e) {
+      return json({ progress: null, updatedAt: null });
+    }
+    return json({ progress, updatedAt: row.updated_at });
+  }
+
+  if (route === "/progress" && request.method === "PUT") {
+    const session = await getSessionUser(request, env);
+    if (!session || (session.role !== "admin" && session.role !== "paid")) {
+      return json({ error: "unauthorized" }, 401);
+    }
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    if (!body || typeof body.progress !== "object" || body.progress === null) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const progressJson = JSON.stringify(body.progress);
+    if (progressJson.length > MAX_PROGRESS_JSON_LENGTH) return json({ error: "too_large" }, 413);
+
+    const now = Date.now();
+    await env.DB.prepare(
+      `INSERT INTO user_progress (account_key, progress_json, updated_at) VALUES (?, ?, ?)
+       ON CONFLICT(account_key) DO UPDATE SET progress_json = excluded.progress_json, updated_at = excluded.updated_at`
+    )
+      .bind(session.id, progressJson, now)
+      .run();
+    return json({ ok: true, updatedAt: now });
   }
 
   if (route === "/words" && (request.method === "PUT" || request.method === "DELETE")) {
