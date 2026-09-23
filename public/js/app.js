@@ -3411,10 +3411,60 @@ function genId() {
   return `cw_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+// Rough syllable count via contiguous vowel-group counting (treats y as a
+// vowel, drops a trailing silent e first). Not linguistically exact, but
+// good enough as one difficulty signal.
+function countSyllables(word) {
+  const w = word.replace(/e$/, "");
+  const groups = w.match(/[aeiouy]+/g);
+  return groups ? groups.length : 1;
+}
+
+// Endings/beginnings common in academic/Latinate vocabulary (-tion, un-,
+// etc). A prefix only counts if what's left after it is at least 3 letters
+// — otherwise short, unrelated words that merely start with the same two or
+// three letters (e.g. "resilient" starting with "re") would false-positive.
+const ACADEMIC_SUFFIX = /(tion|sion|ity|ology|ance|ence|ism|ive|ous|ize|ify)$/;
+const ACADEMIC_PREFIX = /^(inter|trans|sub|anti|pre|un|re|dis)/;
+
+// A word's difficulty, 0 (easiest) to 1 (hardest), from its shape alone —
+// syllable count (weighted most), letter length (a weaker, secondary
+// signal), and whether it carries an academic-vocabulary affix. Pure
+// function, no network calls, so it works the same for a word that's never
+// been looked up anywhere. It only ever sees words missing from our curated
+// banks (see guessLevelForWord below) — a word's real-world familiarity
+// ("aluminium" is long but common; "yield" is short but abstract) isn't
+// something word SHAPE can tell you; those stay best fixed by adding the
+// word to WORD_BANK/WORD_BANK_KO with an explicit level.
+function wordDifficultyScore(word) {
+  const w = word.toLowerCase().replace(/[^a-z]/g, "");
+  if (!w) return 0;
+
+  const syllables = countSyllables(w);
+  const len = w.length;
+  const prefixMatch = w.match(ACADEMIC_PREFIX);
+  const hasPrefix = !!prefixMatch && w.length - prefixMatch[0].length >= 3;
+  const hasAffix = hasPrefix || ACADEMIC_SUFFIX.test(w);
+
+  const syllableScore = Math.min(syllables / 4, 1);
+  const lengthScore = Math.min(len / 12, 1);
+  const affixScore = hasAffix ? 1 : 0;
+
+  const score = 0.5 * syllableScore + 0.2 * lengthScore + 0.3 * affixScore;
+  return Math.max(0, Math.min(1, score));
+}
+
+// Maps a 0-1 score onto one of N level ids by splitting the range into N
+// equal buckets — works the same whether a track has 3 levels or 5.
+function scoreToLevel(score, levelIds) {
+  const idx = Math.min(levelIds.length - 1, Math.floor(score * levelIds.length));
+  return levelIds[idx];
+}
+
 // Best-effort automatic level for a word, for a given language track (defaults
 // to the currently active one): reuse the level already assigned to it in our
 // own curated word banks when it's a known word; otherwise fall back to a
-// rough word-length heuristic. This is an estimate, not a real difficulty
+// shape-based difficulty score. This is an estimate, not a real difficulty
 // assessment — users can always fix it via Edit.
 function guessLevelForWord(word, lang) {
   lang = lang || currentLang;
@@ -3427,18 +3477,7 @@ function guessLevelForWord(word, lang) {
   if (hit) return hit.level;
 
   const levelIds = sys.levels.map((lv) => lv.id);
-  const len = w.replace(/[^a-z]/g, "").length;
-  if (lang === "ko") {
-    if (len <= 4) return levelIds[0];
-    if (len <= 6) return levelIds[1];
-    if (len <= 8) return levelIds[2];
-    if (len <= 10) return levelIds[3];
-    return levelIds[4];
-  }
-  if (len <= 6) return levelIds[0];
-  if (len <= 9) return levelIds[1];
-  if (len <= 12) return levelIds[2];
-  return levelIds[3];
+  return scoreToLevel(wordDifficultyScore(w), levelIds);
 }
 
 function setAddMode(mode) {
