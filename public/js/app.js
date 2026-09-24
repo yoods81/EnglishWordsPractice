@@ -277,7 +277,7 @@ const TRANSLATIONS = {
         ? `Added ${added} word${added === 1 ? "" : "s"} from Excel. Skipped ${skipped} — already in your list or missing a word.`
         : `Added ${added} word${added === 1 ? "" : "s"} from Excel.`,
     excelLookingUpMissing: (n) => `Looking up ${n} missing meaning(s)...`,
-    exportExcelBtn: "📥 Export to Excel",
+    exportExcelBtn: "📥 Export",
     exportExcelNoWords: "You don't have any words to export yet.",
     exportExcelDone: (n) => `Exported ${n} word${n === 1 ? "" : "s"} to Excel.`,
     myAddedWordsTitle: "📝 My added words",
@@ -290,6 +290,10 @@ const TRANSLATIONS = {
     sortMissing: "⚠️ Missing meaning first",
     deleteSelectedBtn: "🗑️ Delete Selected",
     deleteSelectedConfirm: (n) => `Delete ${n} selected word(s)?`,
+    selectIncompleteBtn: "⚠️ Select Incomplete",
+    selectIncompleteNoneFound: "Every word here already has a meaning and an example.",
+    selectIncompleteDone: (n) => `Selected ${n} word${n === 1 ? "" : "s"} missing a meaning or example.`,
+    wordManagementLabel: "🛠️ Word Management",
     mergeDuplicatesBtn: "🧹 Merge Duplicates",
     noDuplicatesFound: "No duplicate words found — your list is clean!",
     mergeDuplicatesConfirm: (groups, extra) =>
@@ -614,7 +618,7 @@ const TRANSLATIONS = {
         ? `엑셀에서 단어 ${added}개를 추가했어요. ${skipped}개는 건너뛰었어요 — 이미 있거나 단어 칸이 비어 있어요.`
         : `엑셀에서 단어 ${added}개를 추가했어요.`,
     excelLookingUpMissing: (n) => `${n}개의 빠진 의미를 찾는 중...`,
-    exportExcelBtn: "📥 엑셀로 내보내기",
+    exportExcelBtn: "📥 내보내기",
     exportExcelNoWords: "아직 내보낼 단어가 없어요.",
     exportExcelDone: (n) => `단어 ${n}개를 엑셀로 내보냈어요.`,
     myAddedWordsTitle: "📝 내가 추가한 단어",
@@ -627,6 +631,10 @@ const TRANSLATIONS = {
     sortMissing: "⚠️ 뜻 없는 단어 먼저",
     deleteSelectedBtn: "🗑️ 선택 삭제",
     deleteSelectedConfirm: (n) => `선택한 단어 ${n}개를 삭제할까요?`,
+    selectIncompleteBtn: "⚠️ 미완성 단어 선택",
+    selectIncompleteNoneFound: "모든 단어에 뜻과 예문이 있어요.",
+    selectIncompleteDone: (n) => `뜻이나 예문이 빠진 단어 ${n}개를 선택했어요.`,
+    wordManagementLabel: "🛠️ 단어 관리",
     mergeDuplicatesBtn: "🧹 중복 단어 정리",
     noDuplicatesFound: "중복된 단어가 없어요 — 목록이 깨끗해요!",
     mergeDuplicatesConfirm: (groups, extra) => `중복된 단어 ${groups}개(여분 ${extra}개)를 찾았어요. 각각 하나로 합칠까요?`,
@@ -4462,9 +4470,8 @@ const customWordsCountEl = document.getElementById("custom-words-count");
 const CUSTOM_SORTS = ["recent", "oldest", "az", "za", "missing"];
 const customDeleteSelectedBtn = document.getElementById("custom-delete-selected-btn");
 const customSelectAllBtn = document.getElementById("custom-select-all-btn");
-const customMergeDuplicatesBtn = document.getElementById("custom-merge-duplicates-btn");
-const customCleanTextBtn = document.getElementById("custom-clean-text-btn");
-const customCheckKoreanBtn = document.getElementById("custom-check-korean-btn");
+const customSelectIncompleteBtn = document.getElementById("custom-select-incomplete-btn");
+const customWordMgmtSelect = document.getElementById("custom-word-mgmt-select");
 const customExportBtn = document.getElementById("custom-export-btn");
 const customUploadBtn = document.getElementById("custom-upload-btn");
 const customLevelSelect = document.getElementById("custom-level-select");
@@ -4938,6 +4945,23 @@ function myCustomWords() {
   return customWords.filter(isMyCustomWord);
 }
 
+// The current search + level-filter view of a word set — shared by the grid
+// render below and any action (like "Select Incomplete") that should only
+// touch what's actually visible right now, same as "Select All" already does.
+function visibleCustomWords(mine) {
+  const query = customSearchInput.value.trim().toLowerCase();
+  return mine.filter((w) => {
+    if (customLevelFilter && cwLevel(w) !== customLevelFilter) return false;
+    if (!query) return true;
+    const meaning = cwDefinition(w) || "";
+    return w.word.toLowerCase().includes(query) || meaning.toLowerCase().includes(query);
+  });
+}
+
+function isIncompleteCustomWord(w) {
+  return cwNoDefinition(w) || !w.example;
+}
+
 function renderCustomWords() {
   const mine = myCustomWords();
 
@@ -4972,14 +4996,8 @@ function renderCustomWords() {
   }
   customWordsEmpty.hidden = true;
 
-  const query = customSearchInput.value.trim().toLowerCase();
   const sort = customSortSelect.value || "recent";
-  const shown = mine.filter((w) => {
-    if (customLevelFilter && cwLevel(w) !== customLevelFilter) return false;
-    if (!query) return true;
-    const meaning = cwDefinition(w) || "";
-    return w.word.toLowerCase().includes(query) || meaning.toLowerCase().includes(query);
-  });
+  const shown = visibleCustomWords(mine);
 
   shown.sort((a, b) => {
     if (sort === "az") return a.word.localeCompare(b.word);
@@ -5151,11 +5169,25 @@ customDeleteSelectedBtn.addEventListener("click", () => {
 
 customSelectAllBtn.addEventListener("click", () => toggleSelectAllInGrid(customWordsGrid));
 
+// Selects exactly the currently-visible (search/level-filtered) words that
+// are missing a meaning or an example — works the same in either language,
+// since cwNoDefinition() already resolves against whichever is active.
+customSelectIncompleteBtn.addEventListener("click", () => {
+  const incomplete = visibleCustomWords(myCustomWords()).filter(isIncompleteCustomWord);
+  if (incomplete.length === 0) {
+    customWordsStatus.textContent = t("selectIncompleteNoneFound");
+    return;
+  }
+  selectedCustomWordIds = new Set(incomplete.map((w) => w.id));
+  customWordsStatus.textContent = t("selectIncompleteDone", incomplete.length);
+  renderCustomWords();
+});
+
 // Merges every group of duplicate words (same text, case-insensitive) into a
 // single entry: the oldest entry in each group is kept and filled in with
 // whatever fields (definitions, example, level) the newer duplicates have
 // that it's missing, and the rest are removed.
-customMergeDuplicatesBtn.addEventListener("click", () => {
+function mergeDuplicateCustomWords() {
   const groups = findDuplicateCustomWordGroups();
   if (groups.length === 0) {
     customWordsStatus.textContent = t("noDuplicatesFound");
@@ -5193,7 +5225,7 @@ customMergeDuplicatesBtn.addEventListener("click", () => {
   renderWordList();
   pushSharedWords(mergedKeepers.filter((w) => w.remote));
   removeSharedWords(removedRemoteIds);
-});
+}
 
 /* ---------- Excel export/import for My Added Words ----------
    Fixed English column headers (not localized) so a file exported in one
@@ -5267,7 +5299,7 @@ function sanitizeLeakedMarkup(text) {
     .trim();
 }
 
-customCleanTextBtn.addEventListener("click", async () => {
+async function cleanCorruptedCustomWordsText() {
   const cleaned = [];
   myCustomWords().forEach((w) => {
     const definitionEn = sanitizeLeakedMarkup(w.definitionEn);
@@ -5292,14 +5324,14 @@ customCleanTextBtn.addEventListener("click", async () => {
     pushResult.failed.length > 0
       ? t("bulkAddedWithFailures", cleaned.length - pushResult.failed.length, pushResult.failed.length)
       : t("cleanTextDone", cleaned.length);
-});
+}
 
 // Finds words whose stored Korean meaning isn't actually Korean (the free
 // translation lookup sometimes returns English text, or just echoes the
 // word back) and re-flags them as missing so "Missing meaning first" surfaces
 // them and Retry (single or All) can fetch a real one. Meanings typed in by
 // hand are left alone.
-customCheckKoreanBtn.addEventListener("click", async () => {
+async function checkKoreanMeaningsForCustomWords() {
   const flagged = [];
   myCustomWords().forEach((w) => {
     if (w.source === "manual") return;
@@ -5318,6 +5350,16 @@ customCheckKoreanBtn.addEventListener("click", async () => {
   renderWordList();
   await pushSharedWords(flagged.filter((w) => w.remote));
   customWordsStatus.textContent = t("checkKoreanDone", flagged.length);
+}
+
+// The "Word Management" dropdown sits on a placeholder and snaps back to it
+// after each use — same pattern as the "Change level" action-select above.
+customWordMgmtSelect.addEventListener("change", async () => {
+  const action = customWordMgmtSelect.value;
+  customWordMgmtSelect.value = "";
+  if (action === "merge") mergeDuplicateCustomWords();
+  else if (action === "clean") await cleanCorruptedCustomWordsText();
+  else if (action === "checkKorean") await checkKoreanMeaningsForCustomWords();
 });
 
 /* ---------- Admin: paid-signup special codes ---------- */
