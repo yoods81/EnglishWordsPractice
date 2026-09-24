@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aussie English Word Practice</title>
+  <title>OZ Words & Math Practice</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -95,8 +95,8 @@
       </div>
     </div>
     <button id="lang-toggle" class="lang-toggle" type="button">한국어</button>
-    <h1><span class="emoji">📚</span> <span id="app-title">Aussie English Word Practice</span></h1>
-    <p id="app-subtitle">Build your vocabulary, spelling and word skills!</p>
+    <h1><span class="emoji">📚</span> <span id="app-title">OZ Words & Math Practice</span></h1>
+    <p id="app-subtitle">Build your vocabulary, spelling, times tables and word skills!</p>
     <button id="level-badge" class="level-badge" title="Change level">Level: Year 4 ▾</button>
   </header>
 
@@ -107,6 +107,7 @@
       <button data-view="quiz" class="active" data-i18n="navQuiz">❓ Quiz</button>
       <button data-view="spelling" data-i18n="navSpelling">✏️ Spelling</button>
       <button data-view="typegame" data-i18n="navTypeGame">⌨️ Typing Game</button>
+      <button data-view="timestable" data-i18n="navTimesTable">🔢 Times Table</button>
       <button data-view="flashcards" data-i18n="navFlashcards">🃏 Flashcards</button>
       <button data-view="wordlist" data-i18n="navWordlist">📖 Word List</button>
       <button data-view="addword" data-i18n="navAddword">➕ Add Word</button>
@@ -338,6 +339,54 @@
         <p class="typegame-typo-msg" id="typegame-typo-msg" hidden data-i18n="typeGameTypoMsg">❌ No matching word — try again!</p>
         <input type="text" id="typegame-input" class="typegame-input" data-i18n-placeholder="typeGameInputPlaceholder" placeholder="Type here..." autocomplete="off" autocapitalize="off" spellcheck="false" disabled />
         <p class="hint" data-i18n="typeGameHint">Just start typing — the matching falling word locks on automatically. Press Enter to check a guess.</p>
+      </div>
+    </section>
+
+    <!-- Times Table (falling equations, same format as Typing Game) -->
+    <section id="view-timestable" class="view">
+      <div class="card">
+        <div class="setting-row setting-row-nowrap">
+          <span class="score-tag" id="timestable-score">Score: 0</span>
+          <span class="typegame-lives" id="timestable-lives" style="margin-left:auto;"></span>
+        </div>
+
+        <div class="typegame-stage" id="timestable-stage">
+          <div class="typegame-sky" aria-hidden="true">
+            <span class="typegame-cloud typegame-cloud-1">☁️</span>
+            <span class="typegame-cloud typegame-cloud-2">☁️</span>
+            <span class="typegame-cloud typegame-cloud-3">☁️</span>
+            <span class="typegame-star typegame-star-1">✨</span>
+            <span class="typegame-star typegame-star-2">⭐</span>
+          </div>
+
+          <button type="button" class="typegame-mute-btn" id="timestable-mute-btn" data-i18n-aria-label="timesTableMute" aria-label="Mute music">🔊</button>
+
+          <div class="typegame-words" id="timestable-words"></div>
+
+          <div class="typegame-overlay" id="timestable-start-overlay">
+            <h3 data-i18n="timesTableTitle">🔢 Times Table</h3>
+            <p id="timestable-start-message" data-i18n="timesTableDesc">Type the whole fact — like "8 2 16" for 8 × 2 — before it reaches the bottom!</p>
+            <div class="goal-stepper" id="timestable-maxtable-stepper">
+              <span class="goal-stepper-label" data-i18n="timesTableMaxTableLabel">Practice tables up to</span>
+              <button type="button" class="goal-step-btn" id="timestable-maxtable-minus" data-i18n-aria-label="goalDecreaseLabel" aria-label="Decrease">−</button>
+              <span class="goal-stepper-value" id="timestable-maxtable-value">9</span>
+              <button type="button" class="goal-step-btn" id="timestable-maxtable-plus" data-i18n-aria-label="goalIncreaseLabel" aria-label="Increase">+</button>
+            </div>
+            <button class="pill primary" id="timestable-start-btn" data-i18n="timesTableStartBtn">▶ Start Game</button>
+          </div>
+
+          <div class="typegame-overlay" id="timestable-over-overlay" hidden>
+            <h3 data-i18n="timesTableOverTitle">💥 Game Over</h3>
+            <p id="timestable-final-score"></p>
+            <p id="timestable-high-score"></p>
+            <p id="timestable-limit-msg" class="timestable-limit-msg" hidden></p>
+            <button class="pill primary" id="timestable-restart-btn" data-i18n="timesTableRestartBtn">🔄 Play Again</button>
+          </div>
+        </div>
+
+        <p class="typegame-typo-msg" id="timestable-typo-msg" hidden data-i18n="timesTableTypoMsg">❌ No matching fact — try again!</p>
+        <input type="text" id="timestable-input" class="typegame-input" inputmode="numeric" data-i18n-placeholder="timesTableInputPlaceholder" placeholder="Type here..." autocomplete="off" autocapitalize="off" spellcheck="false" disabled />
+        <p class="hint" data-i18n="timesTableHint">Type the two numbers and the answer, together or with spaces — like "8 2 16" for 8 × 2 = 16 — then keep going, no need to press Enter.</p>
       </div>
     </section>
 

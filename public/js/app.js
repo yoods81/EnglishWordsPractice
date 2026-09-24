@@ -40,8 +40,8 @@ async function sha256Hex(text) {
 /* ================= TRANSLATIONS ================= */
 const TRANSLATIONS = {
   en: {
-    appTitle: "Aussie English Word Practice",
-    appSubtitle: "Build your vocabulary, spelling and word skills!",
+    appTitle: "OZ Words & Math Practice",
+    appSubtitle: "Build your vocabulary, spelling, times tables and word skills!",
     langToggle: "한국어",
     levelBadgePrefix: "Level",
     levelOverlayTitle: "📚 Choose your level",
@@ -50,6 +50,7 @@ const TRANSLATIONS = {
     navQuiz: "❓ Quiz",
     navSpelling: "✏️ Spelling",
     navTypeGame: "⌨️ Typing Game",
+    navTimesTable: "🔢 Times Table",
     navWordlist: "📖 Word List",
     navAddword: "➕ Add Word",
     navStats: "📊 My Progress",
@@ -117,6 +118,23 @@ const TRANSLATIONS = {
     typeGameHighScore: (score) => `Best score: ${score}`,
     typeGameNewHighScore: "🎉 New best score!",
     typeGameRestartBtn: "🔄 Play Again",
+    timesTableTitle: "🔢 Times Table",
+    timesTableDesc: 'Type the whole fact — like "8 2 16" for 8 × 2 — before it reaches the bottom!',
+    timesTableMaxTableLabel: "Practice tables up to",
+    timesTableStartBtn: "▶ Start Game",
+    timesTableHint: 'Type the two numbers and the answer, together or with spaces — like "8 2 16" for 8 × 2 = 16 — then keep going, no need to press Enter.',
+    timesTableTypoMsg: "❌ No matching fact — try again!",
+    timesTableMute: "Mute music",
+    timesTableUnmute: "Unmute music",
+    timesTableInputPlaceholder: "Type here...",
+    timesTableScoreLabel: (score) => `Score: ${score}`,
+    timesTableOverTitle: "💥 Game Over",
+    timesTableFinalScore: (score) => `Final score: ${score}`,
+    timesTableHighScore: (score) => `Best score: ${score}`,
+    timesTableNewHighScore: "🎉 New best score!",
+    timesTableRestartBtn: "🔄 Play Again",
+    timesTableLimitReachedAnonymous: "You've reached the 50-problem limit for visitors — sign up (it's free!) to keep going.",
+    timesTableLimitReachedFree: "You've reached the 100-problem limit for General accounts — upgrade to Premium for unlimited play.",
     categoryLabel: "Category",
     optVocabulary: "Vocabulary",
     optSynonyms: "Synonyms & Antonyms",
@@ -344,8 +362,8 @@ const TRANSLATIONS = {
     roleFree: "General",
   },
   ko: {
-    appTitle: "필수 영어 단어 연습",
-    appSubtitle: "영어 어휘력과 스펠링 실력을 키워보세요!",
+    appTitle: "OZ 영어 단어 & 구구단 연습",
+    appSubtitle: "영어 어휘력, 스펠링, 구구단 실력을 함께 키워보세요!",
     langToggle: "English",
     levelBadgePrefix: "레벨",
     levelOverlayTitle: "📚 레벨을 선택하세요",
@@ -354,6 +372,7 @@ const TRANSLATIONS = {
     navQuiz: "❓ 퀴즈",
     navSpelling: "✏️ 스펠링",
     navTypeGame: "⌨️ 타이핑 게임",
+    navTimesTable: "🔢 구구단",
     navWordlist: "📖 단어장",
     navAddword: "➕ 단어 추가",
     navStats: "📊 내 진행상황",
@@ -421,6 +440,23 @@ const TRANSLATIONS = {
     typeGameHighScore: (score) => `최고 점수: ${score}`,
     typeGameNewHighScore: "🎉 최고 기록 달성!",
     typeGameRestartBtn: "🔄 다시 하기",
+    timesTableTitle: "🔢 구구단",
+    timesTableDesc: "식 전체를 타이핑하세요 — 8 × 2라면 \"8 2 16\"처럼 — 바닥에 닿기 전에!",
+    timesTableMaxTableLabel: "몇 단까지 연습할까요",
+    timesTableStartBtn: "▶ 게임 시작",
+    timesTableHint: "두 숫자와 답을 이어서, 또는 띄어서 입력하세요 — 8 × 2 = 16이면 \"8 2 16\"처럼 — 계속 입력하면 돼요, Enter는 필요 없어요.",
+    timesTableTypoMsg: "❌ 일치하는 식이 없어요 — 다시 시도해보세요!",
+    timesTableMute: "음악 끄기",
+    timesTableUnmute: "음악 켜기",
+    timesTableInputPlaceholder: "여기에 입력하세요...",
+    timesTableScoreLabel: (score) => `점수: ${score}`,
+    timesTableOverTitle: "💥 게임 종료",
+    timesTableFinalScore: (score) => `최종 점수: ${score}`,
+    timesTableHighScore: (score) => `최고 점수: ${score}`,
+    timesTableNewHighScore: "🎉 최고 기록 달성!",
+    timesTableRestartBtn: "🔄 다시 하기",
+    timesTableLimitReachedAnonymous: "비회원은 50문제까지 풀 수 있어요 — 가입하면(무료예요!) 계속 할 수 있어요.",
+    timesTableLimitReachedFree: "일반 계정은 100문제까지 풀 수 있어요 — 프리미엄으로 업그레이드하면 무제한으로 할 수 있어요.",
     categoryLabel: "카테고리",
     optVocabulary: "어휘",
     optSynonyms: "동의어 & 반의어",
@@ -1391,6 +1427,7 @@ function refreshView(view) {
   if (view === "quiz") buildQuizQuestions();
   if (view === "spelling") buildSpellingDeck();
   if (view === "typegame") enterTypeGameTab();
+  if (view === "timestable") enterTimesTableTab();
   if (view === "wordlist") renderWordList();
   if (view === "addword") renderCustomWords();
   if (view === "stats") renderStats();
@@ -1407,6 +1444,7 @@ function goToTab(view) {
   // Leaving mid-round freezes the game in place rather than ending it, so
   // switching tabs to check something doesn't cost the player their score.
   if (previousView === "typegame" && view !== "typegame") pauseTypeGame();
+  if (previousView === "timestable" && view !== "timestable") pauseTimesTable();
 
   tabButtons.forEach((b) => b.classList.toggle("active", b.dataset.view === view));
   views.forEach((v) => v.classList.toggle("active", v.id === `view-${view}`));
@@ -3364,6 +3402,574 @@ typeGameMuteBtn.addEventListener("click", () => {
 });
 
 updateTypeGameMuteBtn();
+
+/* ================= TIMES TABLE (falling equations) =================
+   Same falling-and-type format as the Typing Game above, but each falling
+   item is a multiplication fact ("8 × 2 = ?") instead of a word. Typing is
+   matched against the EXPECTED ANSWER STRING — the two operands and the
+   product concatenated with no spaces ("8" + "2" + "16" = "8216") — not the
+   displayed text, so "8216", "82 16" and "8 2 16" all check out identical
+   once whitespace is stripped. Every TIMESTABLE_PROBLEMS_PER_STAGE correct
+   answers advances a "stage": fall speed/spawn rate step up a notch and the
+   background tune cycles to the next of five. Anonymous/General accounts
+   are capped at a total number of problems per round (reusing the same
+   GOAL_MAX_ANONYMOUS/GOAL_MAX_FREE ceilings Quiz/Spelling use); Premium and
+   admin play until they run out of lives, same as Typing Game. */
+const TIMESTABLE_LIVES = 5;
+const TIMESTABLE_BASE_SPEED = 6; // px/sec — slower than Typing Game's 10: reading + solving a fact takes longer than reading a known word
+const TIMESTABLE_MAX_SPEED = 40; // px/sec — lower ceiling than Typing Game's 70, typing 3-4 digits accurately under pressure is harder for young kids
+const TIMESTABLE_SPEED_STEP = 3; // px/sec added per stage
+const TIMESTABLE_SPAWN_START = 4200; // ms between spawns at the start
+const TIMESTABLE_SPAWN_MIN = 1800; // ms — fastest spawn rate
+const TIMESTABLE_SPAWN_STEP = 200; // ms shaved off per stage
+const TIMESTABLE_PROBLEMS_PER_STAGE = 10; // correct answers needed per stage (also the music-track cadence)
+const TIMESTABLE_POINTS_PER_CORRECT = 10; // flat score per correct answer
+const TIMESTABLE_MIN_TABLE = 2;
+const TIMESTABLE_MAX_TABLE_CAP = 20;
+const TIMESTABLE_DEFAULT_MAX_TABLE = 9;
+const TIMESTABLE_MULTIPLIER_MAX = 9; // each table's ×1 .. ×9, the standard 구구단 shape
+const TIMESTABLE_SRS_QUEUE_SIZE = 30;
+const TIMESTABLE_HIGH_SCORE_KEY = "ywp_timestable_highscores_v1";
+const TIMESTABLE_MUTE_KEY = "ywp_timestable_muted_v1";
+const TIMESTABLE_MAXTABLE_KEY = "ywp_timestable_maxtable_v1";
+
+const timesTableScoreEl = document.getElementById("timestable-score");
+const timesTableLivesEl = document.getElementById("timestable-lives");
+const timesTableStage = document.getElementById("timestable-stage");
+const timesTableWordsEl = document.getElementById("timestable-words");
+const timesTableStartOverlay = document.getElementById("timestable-start-overlay");
+const timesTableStartBtn = document.getElementById("timestable-start-btn");
+const timesTableOverOverlay = document.getElementById("timestable-over-overlay");
+const timesTableFinalScoreEl = document.getElementById("timestable-final-score");
+const timesTableHighScoreEl = document.getElementById("timestable-high-score");
+const timesTableLimitMsgEl = document.getElementById("timestable-limit-msg");
+const timesTableRestartBtn = document.getElementById("timestable-restart-btn");
+const timesTableInput = document.getElementById("timestable-input");
+const timesTableTypoMsg = document.getElementById("timestable-typo-msg");
+const timesTableMuteBtn = document.getElementById("timestable-mute-btn");
+const timesTableMaxTableMinusBtn = document.getElementById("timestable-maxtable-minus");
+const timesTableMaxTablePlusBtn = document.getElementById("timestable-maxtable-plus");
+const timesTableMaxTableValueEl = document.getElementById("timestable-maxtable-value");
+
+let timesTableRunning = false;
+let timesTablePaused = false;
+let timesTableActive = []; // { display, expected, key, el, top }
+let timesTableProblemPool = []; // { a, b, product }
+let timesTableScore = 0;
+let timesTableCorrectCount = 0; // drives stage progression, separate from score
+let timesTableProblemsShown = 0; // this round's total, checked against the role cap
+let timesTableStageIndex = 0;
+let timesTableLives = TIMESTABLE_LIVES;
+let timesTableSpeed = TIMESTABLE_BASE_SPEED;
+let timesTableSpawnInterval = TIMESTABLE_SPAWN_START;
+let timesTableSpawnTimer = null;
+let timesTableRafId = null;
+let timesTableLastTs = null;
+let timesTableTypoTimer = null;
+// This round's SRS-priority facts to spawn before falling back to the
+// random pool — same spaced-repetition schedule Quiz/Spelling/Typing Game
+// share, keyed by "{a}x{b}" (see recordSrsResult()/pickWordsForSession()).
+let timesTableSrsQueue = [];
+
+function loadTimesTableHighScores() {
+  try {
+    const raw = localStorage.getItem(TIMESTABLE_HIGH_SCORE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    console.warn("Could not read Times Table high scores", e);
+  }
+  return {};
+}
+
+function saveTimesTableHighScores() {
+  try {
+    localStorage.setItem(TIMESTABLE_HIGH_SCORE_KEY, JSON.stringify(timesTableHighScores));
+  } catch (e) {
+    console.warn("Could not save Times Table high scores", e);
+  }
+}
+
+let timesTableHighScores = loadTimesTableHighScores();
+
+// Kept per language + "practice up to" table, since a 2-9 round and a
+// 2-20 round aren't really comparable.
+function timesTableHighScoreKey() {
+  return `${currentLang}_${timesTableMaxTable}`;
+}
+
+function loadTimesTableMaxTable() {
+  try {
+    const raw = localStorage.getItem(TIMESTABLE_MAXTABLE_KEY);
+    const n = raw ? parseInt(raw, 10) : NaN;
+    if (Number.isFinite(n) && n >= TIMESTABLE_MIN_TABLE && n <= TIMESTABLE_MAX_TABLE_CAP) return n;
+  } catch (e) {
+    /* fall through to default */
+  }
+  return TIMESTABLE_DEFAULT_MAX_TABLE;
+}
+
+function saveTimesTableMaxTable() {
+  try {
+    localStorage.setItem(TIMESTABLE_MAXTABLE_KEY, String(timesTableMaxTable));
+  } catch (e) {
+    console.warn("Could not save Times Table max-table setting", e);
+  }
+}
+
+let timesTableMaxTable = loadTimesTableMaxTable();
+
+function updateTimesTableMaxTableUI() {
+  timesTableMaxTableValueEl.textContent = String(timesTableMaxTable);
+  timesTableMaxTableMinusBtn.disabled = timesTableMaxTable <= TIMESTABLE_MIN_TABLE;
+  timesTableMaxTablePlusBtn.disabled = timesTableMaxTable >= TIMESTABLE_MAX_TABLE_CAP;
+}
+
+timesTableMaxTableMinusBtn.addEventListener("click", () => {
+  if (timesTableMaxTable <= TIMESTABLE_MIN_TABLE) return;
+  timesTableMaxTable--;
+  saveTimesTableMaxTable();
+  updateTimesTableMaxTableUI();
+});
+
+timesTableMaxTablePlusBtn.addEventListener("click", () => {
+  if (timesTableMaxTable >= TIMESTABLE_MAX_TABLE_CAP) return;
+  timesTableMaxTable++;
+  saveTimesTableMaxTable();
+  updateTimesTableMaxTableUI();
+});
+
+// Every {a}×{b} fact for tables TIMESTABLE_MIN_TABLE..maxTable, each ×1
+// through ×9 (the standard 구구단 shape) — "몇 단" only changes the first
+// operand's range, matching how the times tables are actually taught.
+function buildTimesTableProblemPool(maxTable) {
+  const pool = [];
+  for (let a = TIMESTABLE_MIN_TABLE; a <= maxTable; a++) {
+    for (let b = 1; b <= TIMESTABLE_MULTIPLIER_MAX; b++) {
+      pool.push({ a, b, product: a * b });
+    }
+  }
+  return pool;
+}
+
+function timesTableDisplay(p) {
+  return `${p.a} × ${p.b} = ?`;
+}
+function timesTableExpected(p) {
+  return `${p.a}${p.b}${p.product}`;
+}
+function timesTableKey(p) {
+  return `${p.a}x${p.b}`;
+}
+
+// Anonymous/General accounts get a per-round problem ceiling (reusing the
+// same numbers Quiz/Spelling already nudge signup/upgrade at); Premium and
+// admin have no ceiling here — their round only ends by running out of
+// lives, the same as Typing Game.
+function timesTableMaxProblems() {
+  if (!currentUser) return GOAL_MAX_ANONYMOUS;
+  if (currentUser.role === "free") return GOAL_MAX_FREE;
+  return Infinity;
+}
+
+function updateTimesTableHud() {
+  timesTableScoreEl.textContent = t("timesTableScoreLabel", timesTableScore);
+  const full = "❤️".repeat(Math.max(timesTableLives, 0));
+  const empty = "🖤".repeat(Math.max(TIMESTABLE_LIVES - timesTableLives, 0));
+  timesTableLivesEl.textContent = full + empty;
+}
+
+// Called whenever this tab becomes active: resumes a round that was frozen
+// by switching tabs, or — if there's no round in progress — shows a fresh
+// start screen.
+function enterTimesTableTab() {
+  if (timesTablePaused) {
+    resumeTimesTable();
+  } else if (!timesTableRunning) {
+    resetTimesTable();
+  }
+}
+
+function resetTimesTable() {
+  timesTableActive.forEach((w) => w.el.remove());
+  timesTableActive = [];
+  timesTableScore = 0;
+  timesTableCorrectCount = 0;
+  timesTableProblemsShown = 0;
+  timesTableStageIndex = 0;
+  timesTableLives = TIMESTABLE_LIVES;
+  timesTableSpeed = TIMESTABLE_BASE_SPEED;
+  timesTableSpawnInterval = TIMESTABLE_SPAWN_START;
+  timesTableInput.value = "";
+  timesTableInput.disabled = true;
+  hideTimesTableTypo();
+  updateTimesTableHud();
+
+  timesTableProblemPool = buildTimesTableProblemPool(timesTableMaxTable);
+  updateTimesTableMaxTableUI();
+  timesTableOverOverlay.hidden = true;
+  timesTableStartOverlay.hidden = false;
+}
+
+function startTimesTable() {
+  timesTableProblemPool = buildTimesTableProblemPool(timesTableMaxTable);
+  if (timesTableProblemPool.length === 0) return;
+  timesTableRunning = true;
+  timesTablePaused = false;
+  timesTableScore = 0;
+  timesTableCorrectCount = 0;
+  timesTableProblemsShown = 0;
+  timesTableStageIndex = 0;
+  timesTableLives = TIMESTABLE_LIVES;
+  timesTableSpeed = TIMESTABLE_BASE_SPEED;
+  timesTableSpawnInterval = TIMESTABLE_SPAWN_START;
+  timesTableActive.forEach((w) => w.el.remove());
+  timesTableActive = [];
+  timesTableStartOverlay.hidden = true;
+  timesTableOverOverlay.hidden = true;
+  timesTableInput.disabled = false;
+  timesTableInput.value = "";
+  hideTimesTableTypo();
+  timesTableInput.focus();
+  updateTimesTableHud();
+
+  timesTableSrsQueue = pickWordsForSession(timesTableProblemPool, TIMESTABLE_SRS_QUEUE_SIZE, (p) => timesTableKey(p));
+
+  spawnTimesTableProblem();
+  scheduleTimesTableSpawn();
+  timesTableLastTs = null;
+  timesTableRafId = requestAnimationFrame(timesTableLoop);
+  startTimesTableMusic();
+}
+
+function pauseTimesTable() {
+  if (!timesTableRunning) return;
+  timesTableRunning = false;
+  timesTablePaused = true;
+  cancelAnimationFrame(timesTableRafId);
+  clearTimeout(timesTableSpawnTimer);
+  timesTableInput.disabled = true;
+  timesTableInput.value = "";
+  hideTimesTableTypo();
+  clearTimesTableHighlights();
+  stopTimesTableMusic();
+}
+
+function resumeTimesTable() {
+  timesTablePaused = false;
+  timesTableRunning = true;
+  timesTableInput.disabled = false;
+  timesTableLastTs = null;
+  timesTableRafId = requestAnimationFrame(timesTableLoop);
+  scheduleTimesTableSpawn();
+  timesTableInput.focus();
+  startTimesTableMusic();
+}
+
+function scheduleTimesTableSpawn() {
+  clearTimeout(timesTableSpawnTimer);
+  if (timesTableProblemsShown >= timesTableMaxProblems()) return;
+  timesTableSpawnTimer = setTimeout(() => {
+    if (!timesTableRunning) return;
+    spawnTimesTableProblem();
+    scheduleTimesTableSpawn();
+  }, timesTableSpawnInterval);
+}
+
+function spawnTimesTableProblem() {
+  if (timesTableProblemsShown >= timesTableMaxProblems()) return;
+
+  const noExpectedCollision = (expected) =>
+    !timesTableActive.some((item) => item.expected.startsWith(expected) || expected.startsWith(item.expected));
+
+  let problem = null;
+  while (timesTableSrsQueue.length > 0) {
+    const candidate = timesTableSrsQueue.shift();
+    if (noExpectedCollision(timesTableExpected(candidate))) {
+      problem = candidate;
+      break;
+    }
+  }
+  if (!problem) {
+    const candidates = shuffle(timesTableProblemPool).filter((p) => noExpectedCollision(timesTableExpected(p)));
+    problem = candidates[0] || shuffle(timesTableProblemPool)[0];
+  }
+  if (!problem) return;
+  timesTableProblemsShown++;
+
+  const el = document.createElement("div");
+  el.className = "typegame-word timestable-eq";
+  el.textContent = timesTableDisplay(problem);
+  el.style.left = `${6 + Math.random() * 82}%`;
+  el.style.top = "-30px";
+  timesTableWordsEl.appendChild(el);
+
+  timesTableActive.push({
+    display: timesTableDisplay(problem),
+    expected: timesTableExpected(problem),
+    key: timesTableKey(problem),
+    el,
+    top: -30,
+  });
+}
+
+function timesTableLoop(ts) {
+  if (!timesTableRunning) return;
+  if (timesTableLastTs == null) timesTableLastTs = ts;
+  const dt = (ts - timesTableLastTs) / 1000;
+  timesTableLastTs = ts;
+
+  const stageHeight = timesTableStage.clientHeight;
+  for (let i = timesTableActive.length - 1; i >= 0; i--) {
+    const w = timesTableActive[i];
+    w.top += timesTableSpeed * dt;
+    w.el.style.top = `${w.top}px`;
+    if (w.top > stageHeight - 30) {
+      w.el.remove();
+      timesTableActive.splice(i, 1);
+      loseTimesTableLife(w.key);
+    }
+  }
+
+  if (timesTableRunning) timesTableRafId = requestAnimationFrame(timesTableLoop);
+}
+
+function loseTimesTableLife(missedKey) {
+  if (missedKey) {
+    recordSrsResult(missedKey, false);
+    recordResult(missedKey, false);
+  }
+  timesTableLives--;
+  updateTimesTableHud();
+  timesTableStage.classList.remove("typegame-shake");
+  void timesTableStage.offsetWidth; // force reflow so the shake restarts if still playing
+  timesTableStage.classList.add("typegame-shake");
+  if (timesTableLives <= 0) {
+    endTimesTableRound("lives");
+  } else if (timesTableProblemsShown >= timesTableMaxProblems() && timesTableActive.length === 0) {
+    endTimesTableRound("limit");
+  }
+}
+
+function clearTimesTableHighlights() {
+  timesTableActive.forEach((w) => w.el.classList.remove("tw-lock"));
+}
+
+function clearTimesTableProblem(item) {
+  recordSrsResult(item.key, true);
+  recordResult(item.key, true);
+  item.el.classList.add("tw-cleared");
+  setTimeout(() => item.el.remove(), 150);
+  timesTableActive = timesTableActive.filter((w) => w !== item);
+
+  timesTableScore += TIMESTABLE_POINTS_PER_CORRECT;
+  timesTableCorrectCount++;
+  updateTimesTableHud();
+
+  const stage = Math.floor(timesTableCorrectCount / TIMESTABLE_PROBLEMS_PER_STAGE);
+  timesTableSpeed = Math.min(TIMESTABLE_BASE_SPEED + stage * TIMESTABLE_SPEED_STEP, TIMESTABLE_MAX_SPEED);
+  timesTableSpawnInterval = Math.max(TIMESTABLE_SPAWN_MIN, TIMESTABLE_SPAWN_START - stage * TIMESTABLE_SPAWN_STEP);
+  if (stage !== timesTableStageIndex) {
+    timesTableStageIndex = stage;
+    timesTableMelodyIndex = stage % TIMESTABLE_MELODIES.length;
+    timesTableMusicNoteIndex = 0;
+  }
+
+  if (timesTableProblemsShown >= timesTableMaxProblems() && timesTableActive.length === 0) {
+    endTimesTableRound("limit");
+  }
+}
+
+function endTimesTableRound(reason) {
+  timesTableRunning = false;
+  timesTablePaused = false;
+  cancelAnimationFrame(timesTableRafId);
+  clearTimeout(timesTableSpawnTimer);
+  timesTableInput.disabled = true;
+  timesTableInput.value = "";
+  hideTimesTableTypo();
+  timesTableActive.forEach((w) => w.el.remove());
+  timesTableActive = [];
+  stopTimesTableMusic();
+
+  const key = timesTableHighScoreKey();
+  const prevBest = timesTableHighScores[key] || 0;
+  const isNewBest = timesTableScore > prevBest;
+  if (isNewBest) {
+    timesTableHighScores[key] = timesTableScore;
+    saveTimesTableHighScores();
+  }
+  timesTableFinalScoreEl.textContent = t("timesTableFinalScore", timesTableScore);
+  timesTableHighScoreEl.textContent = isNewBest
+    ? t("timesTableNewHighScore")
+    : t("timesTableHighScore", Math.max(prevBest, timesTableScore));
+
+  if (reason === "limit") {
+    timesTableLimitMsgEl.textContent = t(
+      currentUser ? "timesTableLimitReachedFree" : "timesTableLimitReachedAnonymous"
+    );
+    timesTableLimitMsgEl.hidden = false;
+  } else {
+    timesTableLimitMsgEl.hidden = true;
+  }
+  timesTableOverOverlay.hidden = false;
+}
+
+function showTimesTableTypo() {
+  timesTableInput.classList.add("typegame-input-error");
+  timesTableTypoMsg.hidden = false;
+  clearTimeout(timesTableTypoTimer);
+  timesTableTypoTimer = setTimeout(hideTimesTableTypo, 1800);
+}
+
+function hideTimesTableTypo() {
+  clearTimeout(timesTableTypoTimer);
+  timesTableInput.classList.remove("typegame-input-error");
+  timesTableTypoMsg.hidden = true;
+}
+
+// Matches whatever's been typed (spaces stripped) against every falling
+// fact's expected answer string, the same "type to auto-lock onto the right
+// falling item" feel Typing Game has — just matching a computed answer
+// string instead of the displayed word itself.
+timesTableInput.addEventListener("input", () => {
+  if (!timesTableRunning) return;
+  hideTimesTableTypo();
+  const val = timesTableInput.value.replace(/\s+/g, "");
+
+  let match = null;
+  if (val) {
+    timesTableActive.forEach((item) => {
+      if (item.expected.startsWith(val) && (!match || item.top > match.top)) match = item;
+    });
+  }
+  timesTableActive.forEach((item) => item.el.classList.toggle("tw-lock", item === match));
+
+  if (match && val.length === match.expected.length) {
+    clearTimesTableProblem(match);
+    timesTableInput.value = "";
+  }
+});
+
+timesTableInput.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" || !timesTableRunning) return;
+  e.preventDefault();
+  const val = timesTableInput.value.replace(/\s+/g, "");
+  if (!val) return;
+  const isValidPrefix = timesTableActive.some((item) => item.expected.startsWith(val));
+  if (!isValidPrefix) {
+    showTimesTableTypo();
+    timesTableInput.value = "";
+    clearTimesTableHighlights();
+  }
+});
+
+timesTableStartBtn.addEventListener("click", startTimesTable);
+timesTableRestartBtn.addEventListener("click", startTimesTable);
+
+/* ---------- Times Table background music ----------
+   Same Web-Audio-synthesised approach as Typing Game's music, but five
+   short melodies instead of one — each stage transition (every
+   TIMESTABLE_PROBLEMS_PER_STAGE correct answers) advances to the next tune
+   (cycling back to the first after the fifth), generally a little brighter/
+   higher-pitched than the last, echoing the speed ramp-up. */
+const TIMESTABLE_MELODIES = [
+  [523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 659.25, 783.99, 880.0, 783.99, 659.25],
+  [587.33, 659.25, 783.99, 880.0, 783.99, 659.25, 587.33, 783.99, 880.0, 987.77, 880.0, 783.99],
+  [659.25, 783.99, 880.0, 1046.5, 880.0, 783.99, 659.25, 880.0, 1046.5, 1174.66, 1046.5, 880.0],
+  [523.25, 659.25, 783.99, 1046.5, 783.99, 659.25, 523.25, 783.99, 1046.5, 1318.51, 1046.5, 783.99],
+  [440.0, 523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 440.0, 523.25, 587.33, 659.25],
+];
+const TIMESTABLE_NOTE_DURATION = 0.22; // seconds per note
+
+let timesTableAudioCtx = null;
+let timesTableMelodyIndex = 0;
+let timesTableMusicNoteIndex = 0;
+let timesTableNextNoteTime = 0;
+let timesTableMusicSchedulerId = null;
+
+function loadTimesTableMuted() {
+  try {
+    return localStorage.getItem(TIMESTABLE_MUTE_KEY) === "1";
+  } catch (e) {
+    return false;
+  }
+}
+
+function saveTimesTableMuted() {
+  try {
+    localStorage.setItem(TIMESTABLE_MUTE_KEY, timesTableMuted ? "1" : "0");
+  } catch (e) {
+    console.warn("Could not save Times Table mute setting", e);
+  }
+}
+
+let timesTableMuted = loadTimesTableMuted();
+
+function updateTimesTableMuteBtn() {
+  timesTableMuteBtn.textContent = timesTableMuted ? "🔇" : "🔊";
+  const label = t(timesTableMuted ? "timesTableUnmute" : "timesTableMute");
+  timesTableMuteBtn.setAttribute("aria-label", label);
+  timesTableMuteBtn.title = label;
+}
+
+function ensureTimesTableAudioCtx() {
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if (!Ctx) return null;
+  if (!timesTableAudioCtx) timesTableAudioCtx = new Ctx();
+  if (timesTableAudioCtx.state === "suspended") timesTableAudioCtx.resume();
+  return timesTableAudioCtx;
+}
+
+function playTimesTableNote(freq, when) {
+  const ctx = timesTableAudioCtx;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = "triangle";
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0, when);
+  gain.gain.linearRampToValueAtTime(0.05, when + 0.02);
+  gain.gain.linearRampToValueAtTime(0, when + TIMESTABLE_NOTE_DURATION);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(when);
+  osc.stop(when + TIMESTABLE_NOTE_DURATION + 0.02);
+}
+
+function scheduleTimesTableMusic() {
+  if (timesTableMuted || !timesTableRunning || !timesTableAudioCtx) return;
+  const melody = TIMESTABLE_MELODIES[timesTableMelodyIndex % TIMESTABLE_MELODIES.length];
+  while (timesTableNextNoteTime < timesTableAudioCtx.currentTime + 0.5) {
+    playTimesTableNote(melody[timesTableMusicNoteIndex % melody.length], timesTableNextNoteTime);
+    timesTableMusicNoteIndex++;
+    timesTableNextNoteTime += TIMESTABLE_NOTE_DURATION;
+  }
+  timesTableMusicSchedulerId = setTimeout(scheduleTimesTableMusic, 150);
+}
+
+function startTimesTableMusic() {
+  stopTimesTableMusic();
+  if (timesTableMuted) return;
+  const ctx = ensureTimesTableAudioCtx();
+  if (!ctx) return;
+  timesTableMusicNoteIndex = 0;
+  timesTableNextNoteTime = ctx.currentTime + 0.05;
+  scheduleTimesTableMusic();
+}
+
+function stopTimesTableMusic() {
+  clearTimeout(timesTableMusicSchedulerId);
+  timesTableMusicSchedulerId = null;
+}
+
+timesTableMuteBtn.addEventListener("click", () => {
+  timesTableMuted = !timesTableMuted;
+  saveTimesTableMuted();
+  updateTimesTableMuteBtn();
+  if (timesTableMuted) stopTimesTableMusic();
+  else if (timesTableRunning) startTimesTableMusic();
+});
+
+updateTimesTableMuteBtn();
+updateTimesTableMaxTableUI();
 
 /* ================= WORD LIST ================= */
 const wordlistSearch = document.getElementById("wordlist-search");

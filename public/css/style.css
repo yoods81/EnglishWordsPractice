@@ -609,6 +609,21 @@ button.pill:disabled {
   max-width: 280px;
 }
 
+/* The Number-of-Questions-style stepper reads fine on a light card, but its
+   label uses a muted grey meant for that background — override just the
+   label color here so it's legible against the Times Table start screen's
+   dark overlay. */
+.typegame-overlay .goal-stepper-label {
+  color: #dbe3f7;
+}
+
+.timestable-limit-msg {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #ffe2a8;
+  max-width: 280px;
+}
+
 .typegame-input {
   width: 100%;
   padding: 10px 14px;
