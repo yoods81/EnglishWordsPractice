@@ -245,7 +245,7 @@ const TRANSLATIONS = {
     updateWordBtn: "Update word",
     cancelEditBtn: "Cancel edit",
     ocrTitle: "📷 Extract words from a photo or files",
-    ocrDesc: "Take a photo of a book page, upload a screenshot, or upload a text, Word or PDF file. We'll read the text and pull out candidate words you can add to your word list.",
+    ocrDesc: "Take a photo of a book page, upload a screenshot, or upload a text, Word, PDF or Excel file. We'll read the text and pull out candidate words you can add to your word list — or, for an Excel file, add each row's word straight in with its meaning, example and level already filled in.",
     ocrChooseBtn: "📁 Choose Photo or File",
     ocrNoFileChosen: "No file chosen",
     ocrProgressDefault: "Reading image...",
@@ -260,7 +260,7 @@ const TRANSLATIONS = {
     ocrFailRead: "Sorry, we couldn't read text from that image. Try a clearer, well-lit photo.",
     ocrNoDocReader: "The file-reading tool couldn't load (check your internet connection) and can't be used right now.",
     ocrFailReadFile: "Sorry, we couldn't read text from that file — it may be corrupted, empty, or password-protected.",
-    ocrUnsupportedFile: "That file type isn't supported. Please choose a photo, or a .txt, .pdf or .docx file.",
+    ocrUnsupportedFile: "That file type isn't supported. Please choose a photo, or a .txt, .pdf, .docx or .xlsx file.",
     ocrNoCandidates: "We couldn't find any new candidate words in that image (they may already be in your word list).",
     ocrFoundCandidates: (n) => `Found ${n} candidate words — tap the ones you want to add:`,
     ocrSelectAtLeastOne: "Please select at least one word first.",
@@ -268,6 +268,18 @@ const TRANSLATIONS = {
     ocrAddingProgress: (done, total) => `Looking up meanings... ${done} / ${total}`,
     ocrAddedStatus: (n, lvl) => `Added ${n} word(s) to ${lvl}!`,
     ocrNoDefFound: "(No definition found — tap Edit to add one.)",
+    excelReadingStatus: "Reading Excel file...",
+    excelNoWordColumn: "Couldn't find a \"Word\" column in that file — please check the column headers and try again.",
+    excelNoRows: "That Excel file didn't have any words in it.",
+    excelToolUnavailable: "The Excel tool couldn't load (check your internet connection) and can't be used right now.",
+    excelImportedStatus: (added, skipped) =>
+      skipped > 0
+        ? `Added ${added} word${added === 1 ? "" : "s"} from Excel. Skipped ${skipped} — already in your list or missing a word.`
+        : `Added ${added} word${added === 1 ? "" : "s"} from Excel.`,
+    excelLookingUpMissing: (n) => `Looking up ${n} missing meaning(s)...`,
+    exportExcelBtn: "📥 Export to Excel",
+    exportExcelNoWords: "You don't have any words to export yet.",
+    exportExcelDone: (n) => `Exported ${n} word${n === 1 ? "" : "s"} to Excel.`,
     myAddedWordsTitle: "📝 My added words",
     myAddedWordsEmpty: "You haven't added any words yet.",
     customSearchPlaceholder: "🔍 Search added words...",
@@ -570,7 +582,7 @@ const TRANSLATIONS = {
     updateWordBtn: "단어 수정",
     cancelEditBtn: "수정 취소",
     ocrTitle: "📷 사진 또는 파일에서 단어 추출하기",
-    ocrDesc: "책 페이지를 촬영하거나 온라인 지문을 캡처한 이미지, 또는 텍스트·Word·PDF 파일을 올려보세요. 텍스트를 읽어서 단어장에 추가할 후보 단어를 찾아드려요.",
+    ocrDesc: "책 페이지를 촬영하거나 온라인 지문을 캡처한 이미지, 또는 텍스트·Word·PDF·엑셀 파일을 올려보세요. 텍스트를 읽어서 단어장에 추가할 후보 단어를 찾아드려요 — 엑셀 파일의 경우, 각 행의 단어를 뜻·예문·레벨까지 그대로 채워서 바로 추가해드려요.",
     ocrChooseBtn: "📁 사진 또는 파일 선택하기",
     ocrNoFileChosen: "선택된 파일 없음",
     ocrProgressDefault: "이미지를 읽는 중...",
@@ -585,7 +597,7 @@ const TRANSLATIONS = {
     ocrFailRead: "이미지에서 글자를 읽지 못했어요. 더 선명하고 밝은 사진으로 다시 시도해보세요.",
     ocrNoDocReader: "파일 읽기 기능을 불러오지 못했어요 (인터넷 연결을 확인해주세요). 지금은 사용할 수 없어요.",
     ocrFailReadFile: "그 파일에서 텍스트를 읽지 못했어요 — 파일이 손상되었거나, 비어 있거나, 암호로 보호되어 있을 수 있어요.",
-    ocrUnsupportedFile: "지원하지 않는 파일 형식이에요. 사진 또는 .txt, .pdf, .docx 파일을 선택해주세요.",
+    ocrUnsupportedFile: "지원하지 않는 파일 형식이에요. 사진 또는 .txt, .pdf, .docx, .xlsx 파일을 선택해주세요.",
     ocrNoCandidates: "이 이미지에서 새로운 후보 단어를 찾지 못했어요 (이미 단어장에 있는 단어일 수 있어요).",
     ocrFoundCandidates: (n) => `${n}개의 후보 단어를 찾았어요 — 추가하고 싶은 단어를 탭하세요:`,
     ocrSelectAtLeastOne: "먼저 단어를 하나 이상 선택해주세요.",
@@ -593,6 +605,18 @@ const TRANSLATIONS = {
     ocrAddingProgress: (done, total) => `의미를 찾는 중... ${done} / ${total}`,
     ocrAddedStatus: (n, lvl) => `${lvl}에 ${n}개의 단어를 추가했어요!`,
     ocrNoDefFound: "(뜻을 찾지 못했어요 — Edit 버튼으로 직접 입력해주세요.)",
+    excelReadingStatus: "엑셀 파일을 읽는 중...",
+    excelNoWordColumn: "파일에서 \"Word\" 열을 찾을 수 없어요 — 열 제목을 확인하고 다시 시도해주세요.",
+    excelNoRows: "그 엑셀 파일에 단어가 없어요.",
+    excelToolUnavailable: "엑셀 처리 기능을 불러오지 못했어요 (인터넷 연결을 확인해주세요). 지금은 사용할 수 없어요.",
+    excelImportedStatus: (added, skipped) =>
+      skipped > 0
+        ? `엑셀에서 단어 ${added}개를 추가했어요. ${skipped}개는 건너뛰었어요 — 이미 있거나 단어 칸이 비어 있어요.`
+        : `엑셀에서 단어 ${added}개를 추가했어요.`,
+    excelLookingUpMissing: (n) => `${n}개의 빠진 의미를 찾는 중...`,
+    exportExcelBtn: "📥 엑셀로 내보내기",
+    exportExcelNoWords: "아직 내보낼 단어가 없어요.",
+    exportExcelDone: (n) => `단어 ${n}개를 엑셀로 내보냈어요.`,
     myAddedWordsTitle: "📝 내가 추가한 단어",
     myAddedWordsEmpty: "아직 추가한 단어가 없어요.",
     customSearchPlaceholder: "🔍 추가한 단어 검색...",
@@ -4441,6 +4465,7 @@ const customSelectAllBtn = document.getElementById("custom-select-all-btn");
 const customMergeDuplicatesBtn = document.getElementById("custom-merge-duplicates-btn");
 const customCleanTextBtn = document.getElementById("custom-clean-text-btn");
 const customCheckKoreanBtn = document.getElementById("custom-check-korean-btn");
+const customExportBtn = document.getElementById("custom-export-btn");
 const customUploadBtn = document.getElementById("custom-upload-btn");
 const customLevelSelect = document.getElementById("custom-level-select");
 const customStorageNote = document.getElementById("custom-words-storage-note");
@@ -5170,6 +5195,62 @@ customMergeDuplicatesBtn.addEventListener("click", () => {
   removeSharedWords(removedRemoteIds);
 });
 
+/* ---------- Excel export/import for My Added Words ----------
+   Fixed English column headers (not localized) so a file exported in one
+   language round-trips through import regardless of which language the
+   session happens to be in at the time. */
+const EXCEL_COL_WORD = "Word";
+const EXCEL_COL_DEF_EN = "Definition (English)";
+const EXCEL_COL_DEF_KO = "Definition (Korean)";
+const EXCEL_COL_EXAMPLE = "Example";
+const EXCEL_COL_LEVEL_EN = "Level (English)";
+const EXCEL_COL_LEVEL_KO = "Level (Korean)";
+const EXCEL_COLUMNS = [EXCEL_COL_WORD, EXCEL_COL_DEF_EN, EXCEL_COL_DEF_KO, EXCEL_COL_EXAMPLE, EXCEL_COL_LEVEL_EN, EXCEL_COL_LEVEL_KO];
+
+function levelLabelIn(levelId, levels) {
+  const lv = levels.find((l) => l.id === levelId);
+  return lv ? lv.label : levelId || "";
+}
+
+// Matches a cell's text against a level system's ids or labels — accepts
+// either "year4" or "Year 4", case-insensitively — so a hand-edited sheet
+// doesn't have to use the exact internal id.
+function parseLevelValue(raw, levels) {
+  const s = String(raw == null ? "" : raw).trim();
+  if (!s) return null;
+  const lower = s.toLowerCase();
+  const match = levels.find((lv) => lv.id.toLowerCase() === lower || lv.label.toLowerCase() === lower);
+  return match ? match.id : null;
+}
+
+customExportBtn.addEventListener("click", () => {
+  if (typeof XLSX === "undefined") {
+    customWordsStatus.textContent = t("excelToolUnavailable");
+    return;
+  }
+  const mine = myCustomWords();
+  const rows = selectedCustomWordIds.size > 0 ? mine.filter((w) => selectedCustomWordIds.has(w.id)) : mine;
+  if (rows.length === 0) {
+    customWordsStatus.textContent = t("exportExcelNoWords");
+    return;
+  }
+
+  const sheetRows = rows.map((w) => ({
+    [EXCEL_COL_WORD]: w.word,
+    [EXCEL_COL_DEF_EN]: w.definitionEn || "",
+    [EXCEL_COL_DEF_KO]: w.definitionKo || "",
+    [EXCEL_COL_EXAMPLE]: w.example || "",
+    [EXCEL_COL_LEVEL_EN]: levelLabelIn(w.levelEn, LEVELS),
+    [EXCEL_COL_LEVEL_KO]: levelLabelIn(w.levelKo, KO_LEVELS),
+  }));
+  const ws = XLSX.utils.json_to_sheet(sheetRows, { header: EXCEL_COLUMNS });
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Words");
+  const dateStr = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `my-added-words-${dateStr}.xlsx`);
+  customWordsStatus.textContent = t("exportExcelDone", rows.length);
+});
+
 // Cleans up a definition/example that already has leaked Wiktionary CSS
 // baked into it from before stripHtml() learned to strip <style> blocks —
 // that fix only stops it happening to new lookups, so anything imported
@@ -5586,6 +5667,7 @@ const ocrLevelSelect = document.getElementById("ocr-level");
 const ocrAddBtn = document.getElementById("ocr-add-btn");
 const ocrStatus = document.getElementById("ocr-status");
 const ocrReviewHintEl = document.getElementById("ocr-review-hint");
+const ocrExcelStatus = document.getElementById("ocr-excel-status");
 
 const STOPWORDS = new Set(
   ("the and for that with have this from they were been their said each which she does how out many then them these" +
@@ -5617,6 +5699,9 @@ function ocrFileKind(file) {
   if (type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || name.endsWith(".docx")) {
     return "docx";
   }
+  if (type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || name.endsWith(".xlsx")) {
+    return "xlsx";
+  }
   if (type === "text/plain" || name.endsWith(".txt")) return "text";
   return "unsupported";
 }
@@ -5647,6 +5732,100 @@ async function extractTextFromFile(file, kind) {
   return "";
 }
 
+// Unlike photo/text/PDF/Word files (plain text → candidate words that still
+// need a dictionary lookup), an Excel file is structured: each row's Word
+// goes straight into My Added Words with whatever meaning/example/level that
+// row already supplies (see EXCEL_COL_* in the My Added Words section below
+// for the exact columns this reads), bypassing the candidate-review UI
+// entirely. Only a side a row didn't supply gets looked up afterward.
+async function processExcelFile(file) {
+  const buffer = await file.arrayBuffer();
+  const workbook = XLSX.read(buffer, { type: "array" });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+  if (rows.length === 0) {
+    ocrExcelStatus.hidden = false;
+    ocrExcelStatus.textContent = t("excelNoRows");
+    return;
+  }
+
+  // Header matching is trimmed/case-insensitive, so "word" or " Word " still
+  // lines up with the expected "Word" column.
+  const firstRowKeys = Object.keys(rows[0]);
+  const findKey = (target) => firstRowKeys.find((k) => k.trim().toLowerCase() === target.toLowerCase());
+  const wordKey = findKey(EXCEL_COL_WORD);
+  if (!wordKey) {
+    ocrExcelStatus.hidden = false;
+    ocrExcelStatus.textContent = t("excelNoWordColumn");
+    return;
+  }
+  const defEnKey = findKey(EXCEL_COL_DEF_EN);
+  const defKoKey = findKey(EXCEL_COL_DEF_KO);
+  const exampleKey = findKey(EXCEL_COL_EXAMPLE);
+  const levelEnKey = findKey(EXCEL_COL_LEVEL_EN);
+  const levelKoKey = findKey(EXCEL_COL_LEVEL_KO);
+
+  const added = [];
+  let skipped = 0;
+  rows.forEach((row) => {
+    const word = String(row[wordKey] || "").trim();
+    const isDuplicate = word && (findCustomWordByText(word) || added.some((w) => w.word.toLowerCase() === word.toLowerCase()));
+    if (!word || isDuplicate) {
+      if (word) skipped++;
+      return;
+    }
+
+    const definitionEn = defEnKey ? String(row[defEnKey] || "").trim() || null : null;
+    const definitionKo = defKoKey ? String(row[defKoKey] || "").trim() || null : null;
+    const example = exampleKey ? String(row[exampleKey] || "").trim() : "";
+    const levelEn = (levelEnKey && parseLevelValue(row[levelEnKey], LEVELS)) || guessLevelForWord(word, "en");
+    const levelKo = (levelKoKey && parseLevelValue(row[levelKoKey], KO_LEVELS)) || guessLevelForWord(word, "ko");
+
+    const newWord = {
+      id: genId(),
+      word,
+      example,
+      definitionEn,
+      definitionKo,
+      levelEn,
+      levelKo,
+      noDefinitionEn: !definitionEn,
+      noDefinitionKo: !definitionKo,
+      source: "excel",
+      createdAt: Date.now(),
+      ...newWordStorageFlags(),
+    };
+    customWords.push(newWord);
+    added.push(newWord);
+  });
+
+  ocrExcelStatus.hidden = false;
+  if (added.length === 0) {
+    ocrExcelStatus.textContent = t("excelImportedStatus", 0, skipped);
+    return;
+  }
+
+  saveCustomWords();
+  renderCustomWords();
+  renderWordList();
+  ocrExcelStatus.textContent = t("excelImportedStatus", added.length, skipped);
+  await pushSharedWords(added.filter((w) => w.remote));
+
+  // Fill in whichever side (EN or KO) a row's spreadsheet data didn't
+  // already supply — same background auto-fill manual/bulk add already do.
+  const stillMissing = added.filter((w) => w.noDefinitionEn || w.noDefinitionKo);
+  if (stillMissing.length > 0) {
+    ocrExcelStatus.textContent = `${t("excelImportedStatus", added.length, skipped)} ${t("excelLookingUpMissing", stillMissing.length)}`;
+    const infos = await mapWithConcurrency(stillMissing, 4, (w) => fetchWordInfo(w.word));
+    stillMissing.forEach((w, i) => applyFetchedInfo(w, infos[i]));
+    saveCustomWords();
+    renderCustomWords();
+    await pushSharedWords(stillMissing.filter((w) => w.remote));
+    ocrExcelStatus.textContent = withQuotaNote(t("excelImportedStatus", added.length, skipped));
+  }
+}
+
 ocrChooseBtn.addEventListener("click", () => ocrFileInput.click());
 
 ocrFileInput.addEventListener("change", async (e) => {
@@ -5661,6 +5840,8 @@ ocrFileInput.addEventListener("change", async (e) => {
   ocrFileNameEl.textContent = file.name;
   ocrReview.hidden = true;
   ocrStatus.textContent = "";
+  ocrExcelStatus.hidden = true;
+  ocrExcelStatus.textContent = "";
   ocrSelectedWords = new Set();
   ocrCandidateWords = [];
   ocrCandidateChips = new Map();
@@ -5674,6 +5855,29 @@ ocrFileInput.addEventListener("change", async (e) => {
     ocrStatus.textContent = t("ocrUnsupportedFile");
     ocrReview.hidden = false;
     ocrFileInput.value = "";
+    return;
+  }
+
+  if (kind === "xlsx") {
+    if (typeof XLSX === "undefined") {
+      ocrExcelStatus.hidden = false;
+      ocrExcelStatus.textContent = t("excelToolUnavailable");
+      ocrFileInput.value = "";
+      return;
+    }
+    ocrProgress.hidden = false;
+    ocrProgressFill.style.width = "50%";
+    ocrProgressLabel.textContent = t("excelReadingStatus");
+    try {
+      await processExcelFile(file);
+    } catch (err) {
+      console.error(err);
+      ocrExcelStatus.hidden = false;
+      ocrExcelStatus.textContent = t("ocrFailReadFile");
+    } finally {
+      ocrProgress.hidden = true;
+      ocrFileInput.value = "";
+    }
     return;
   }
 
