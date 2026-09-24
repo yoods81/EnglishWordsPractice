@@ -287,7 +287,7 @@ const TRANSLATIONS = {
     sortOldest: "🕒 Oldest first",
     sortAz: "🔤 A → Z",
     sortZa: "🔤 Z → A",
-    sortMissing: "⚠️ Missing meaning first",
+    sortMissing: "⚠️ Incomplete words first",
     deleteSelectedBtn: "🗑️ Delete Selected",
     deleteSelectedConfirm: (n) => `Delete ${n} selected word(s)?`,
     selectIncompleteBtn: "⚠️ Select Incomplete",
@@ -628,7 +628,7 @@ const TRANSLATIONS = {
     sortOldest: "🕒 오래된 순",
     sortAz: "🔤 ㄱ/A → Z",
     sortZa: "🔤 Z → A/ㄱ",
-    sortMissing: "⚠️ 뜻 없는 단어 먼저",
+    sortMissing: "⚠️ 미완성 단어 먼저",
     deleteSelectedBtn: "🗑️ 선택 삭제",
     deleteSelectedConfirm: (n) => `선택한 단어 ${n}개를 삭제할까요?`,
     selectIncompleteBtn: "⚠️ 미완성 단어 선택",
@@ -5004,8 +5004,8 @@ function renderCustomWords() {
     if (sort === "za") return b.word.localeCompare(a.word);
     if (sort === "oldest") return a.createdAt - b.createdAt;
     if (sort === "missing") {
-      const aMissing = cwNoDefinition(a) ? 0 : 1;
-      const bMissing = cwNoDefinition(b) ? 0 : 1;
+      const aMissing = isIncompleteCustomWord(a) ? 0 : 1;
+      const bMissing = isIncompleteCustomWord(b) ? 0 : 1;
       if (aMissing !== bMissing) return aMissing - bMissing;
     }
     return b.createdAt - a.createdAt;
