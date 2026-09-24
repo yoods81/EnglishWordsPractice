@@ -306,6 +306,7 @@
       <div class="card">
         <div class="setting-row setting-row-nowrap">
           <span class="score-tag" id="typegame-score">Score: 0</span>
+          <span class="stage-tag" id="typegame-stage-tag"></span>
           <span class="typegame-lives" id="typegame-lives" style="margin-left:auto;"></span>
         </div>
 
@@ -319,6 +320,11 @@
           </div>
 
           <button type="button" class="typegame-mute-btn" id="typegame-mute-btn" data-i18n-aria-label="typeGameMute" aria-label="Mute music">🔊</button>
+          <button type="button" class="typegame-pause-btn" id="typegame-pause-btn" data-i18n-aria-label="typeGamePauseLabel" aria-label="Pause" hidden>⏸️</button>
+
+          <div class="typegame-stage-banner" id="typegame-stage-banner" hidden aria-hidden="true">
+            <span id="typegame-stage-banner-text"></span>
+          </div>
 
           <div class="typegame-words" id="typegame-words"></div>
 
@@ -332,6 +338,7 @@
             <h3 data-i18n="typeGameOverTitle">💥 Game Over</h3>
             <p id="typegame-final-score"></p>
             <p id="typegame-high-score"></p>
+            <p id="typegame-encourage-msg" class="typegame-encourage-msg" hidden></p>
             <button class="pill primary" id="typegame-restart-btn" data-i18n="typeGameRestartBtn">🔄 Play Again</button>
           </div>
         </div>
@@ -347,6 +354,7 @@
       <div class="card">
         <div class="setting-row setting-row-nowrap">
           <span class="score-tag" id="timestable-score">Score: 0</span>
+          <span class="stage-tag" id="timestable-stage-tag"></span>
           <span class="typegame-lives" id="timestable-lives" style="margin-left:auto;"></span>
         </div>
 
@@ -360,6 +368,11 @@
           </div>
 
           <button type="button" class="typegame-mute-btn" id="timestable-mute-btn" data-i18n-aria-label="timesTableMute" aria-label="Mute music">🔊</button>
+          <button type="button" class="typegame-pause-btn" id="timestable-pause-btn" data-i18n-aria-label="timesTablePauseLabel" aria-label="Pause" hidden>⏸️</button>
+
+          <div class="typegame-stage-banner" id="timestable-stage-banner" hidden aria-hidden="true">
+            <span id="timestable-stage-banner-text"></span>
+          </div>
 
           <div class="typegame-words" id="timestable-words"></div>
 
@@ -380,6 +393,7 @@
             <p id="timestable-final-score"></p>
             <p id="timestable-high-score"></p>
             <p id="timestable-limit-msg" class="timestable-limit-msg" hidden></p>
+            <p id="timestable-encourage-msg" class="typegame-encourage-msg" hidden></p>
             <button class="pill primary" id="timestable-restart-btn" data-i18n="timesTableRestartBtn">🔄 Play Again</button>
           </div>
         </div>

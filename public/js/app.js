@@ -118,6 +118,8 @@ const TRANSLATIONS = {
     typeGameHighScore: (score) => `Best score: ${score}`,
     typeGameNewHighScore: "🎉 New best score!",
     typeGameRestartBtn: "🔄 Play Again",
+    typeGamePauseLabel: "Pause",
+    typeGameStageLabel: (n) => `Stage ${n}`,
     timesTableTitle: "🔢 Times Table",
     timesTableDesc: 'Type the whole fact — like "8 2 16" for 8 × 2 — before it reaches the bottom!',
     timesTableMaxTableLabel: "Practice tables up to",
@@ -135,6 +137,8 @@ const TRANSLATIONS = {
     timesTableRestartBtn: "🔄 Play Again",
     timesTableLimitReachedAnonymous: "You've reached the 50-problem limit for visitors — sign up (it's free!) to keep going.",
     timesTableLimitReachedFree: "You've reached the 100-problem limit for General accounts — upgrade to Premium for unlimited play.",
+    timesTablePauseLabel: "Pause",
+    timesTableStageLabel: (n) => `Stage ${n}`,
     categoryLabel: "Category",
     optVocabulary: "Vocabulary",
     optSynonyms: "Synonyms & Antonyms",
@@ -440,6 +444,8 @@ const TRANSLATIONS = {
     typeGameHighScore: (score) => `최고 점수: ${score}`,
     typeGameNewHighScore: "🎉 최고 기록 달성!",
     typeGameRestartBtn: "🔄 다시 하기",
+    typeGamePauseLabel: "일시정지",
+    typeGameStageLabel: (n) => `스테이지 ${n}`,
     timesTableTitle: "🔢 구구단",
     timesTableDesc: "식 전체를 타이핑하세요 — 8 × 2라면 \"8 2 16\"처럼 — 바닥에 닿기 전에!",
     timesTableMaxTableLabel: "몇 단까지 연습할까요",
@@ -457,6 +463,8 @@ const TRANSLATIONS = {
     timesTableRestartBtn: "🔄 다시 하기",
     timesTableLimitReachedAnonymous: "비회원은 50문제까지 풀 수 있어요 — 가입하면(무료예요!) 계속 할 수 있어요.",
     timesTableLimitReachedFree: "일반 계정은 100문제까지 풀 수 있어요 — 프리미엄으로 업그레이드하면 무제한으로 할 수 있어요.",
+    timesTablePauseLabel: "일시정지",
+    timesTableStageLabel: (n) => `스테이지 ${n}`,
     categoryLabel: "카테고리",
     optVocabulary: "어휘",
     optSynonyms: "동의어 & 반의어",
@@ -2950,6 +2958,11 @@ const typeGameRestartBtn = document.getElementById("typegame-restart-btn");
 const typeGameInput = document.getElementById("typegame-input");
 const typeGameTypoMsg = document.getElementById("typegame-typo-msg");
 const typeGameMuteBtn = document.getElementById("typegame-mute-btn");
+const typeGamePauseBtn = document.getElementById("typegame-pause-btn");
+const typeGameStageTagEl = document.getElementById("typegame-stage-tag");
+const typeGameStageBanner = document.getElementById("typegame-stage-banner");
+const typeGameStageBannerText = document.getElementById("typegame-stage-banner-text");
+const typeGameEncourageMsg = document.getElementById("typegame-encourage-msg");
 
 let typeGameRunning = false;
 let typeGamePaused = false;
@@ -2960,10 +2973,12 @@ let typeGameWordsCleared = 0;
 let typeGameLives = TYPEGAME_LIVES;
 let typeGameSpeed = TYPEGAME_BASE_SPEED;
 let typeGameSpawnInterval = TYPEGAME_SPAWN_START;
+let typeGameStageIndex = 0; // advances every TYPEGAME_WORDS_PER_SPEEDUP correct words
 let typeGameSpawnTimer = null;
 let typeGameRafId = null;
 let typeGameLastTs = null;
 let typeGameTypoTimer = null;
+let typeGameStageBannerTimer = null;
 // This round's SRS-priority words to spawn before falling back to the
 // existing random pool — see startTypeGame()/spawnTypeGameWord().
 let typeGameSrsQueue = [];
@@ -3008,9 +3023,39 @@ function buildTypeGameWordPool() {
 
 function updateTypeGameHud() {
   typeGameScoreEl.textContent = t("typeGameScoreLabel", typeGameScore);
+  typeGameStageTagEl.textContent = t("typeGameStageLabel", typeGameStageIndex + 1);
   const full = "❤️".repeat(Math.max(typeGameLives, 0));
   const empty = "🖤".repeat(Math.max(TYPEGAME_LIVES - typeGameLives, 0));
   typeGameLivesEl.textContent = full + empty;
+}
+
+// A short, non-blocking celebration shown on every stage-up — pointer-events
+// are disabled on the banner (see CSS) so it never steals focus from the
+// input, and it auto-hides itself; no pause, no disabled input.
+const TYPEGAME_STAGE_MESSAGES = {
+  en: ["Great job!", "You're on fire!", "Keep it up!", "Awesome work!", "Fantastic pace!"],
+  ko: ["잘하고 있어요!", "최고예요!", "계속 가요!", "정말 멋져요!", "속도가 대단해요!"],
+};
+
+function showTypeGameStageBanner(stageNumber) {
+  const messages = TYPEGAME_STAGE_MESSAGES[currentLang] || TYPEGAME_STAGE_MESSAGES.en;
+  const msg = messages[Math.floor(Math.random() * messages.length)];
+  typeGameStageBannerText.textContent = `${t("typeGameStageLabel", stageNumber)} — ${msg}`;
+  typeGameStageBanner.hidden = false;
+  // Force the pop-in/out keyframe to restart even if a previous banner is
+  // still fading out.
+  typeGameStageBanner.style.animation = "none";
+  void typeGameStageBanner.offsetWidth;
+  typeGameStageBanner.style.animation = "";
+  clearTimeout(typeGameStageBannerTimer);
+  typeGameStageBannerTimer = setTimeout(() => {
+    typeGameStageBanner.hidden = true;
+  }, 1800);
+}
+
+function hideTypeGameStageBanner() {
+  clearTimeout(typeGameStageBannerTimer);
+  typeGameStageBanner.hidden = true;
 }
 
 // Called whenever this tab becomes active: resumes a round that was frozen
@@ -3032,9 +3077,12 @@ function resetTypeGame() {
   typeGameLives = TYPEGAME_LIVES;
   typeGameSpeed = TYPEGAME_BASE_SPEED;
   typeGameSpawnInterval = TYPEGAME_SPAWN_START;
+  typeGameStageIndex = 0;
   typeGameInput.value = "";
   typeGameInput.disabled = true;
   hideTypeGameTypo();
+  hideTypeGameStageBanner();
+  typeGamePauseBtn.hidden = true;
   updateTypeGameHud();
 
   typeGameWordPool = buildTypeGameWordPool();
@@ -3054,6 +3102,7 @@ function startTypeGame() {
   typeGameLives = TYPEGAME_LIVES;
   typeGameSpeed = TYPEGAME_BASE_SPEED;
   typeGameSpawnInterval = TYPEGAME_SPAWN_START;
+  typeGameStageIndex = 0;
   typeGameActive.forEach((w) => w.el.remove());
   typeGameActive = [];
   typeGameStartOverlay.hidden = true;
@@ -3061,6 +3110,8 @@ function startTypeGame() {
   typeGameInput.disabled = false;
   typeGameInput.value = "";
   hideTypeGameTypo();
+  hideTypeGameStageBanner();
+  typeGamePauseBtn.hidden = false;
   typeGameInput.focus();
   updateTypeGameHud();
 
@@ -3098,6 +3149,20 @@ function resumeTypeGame() {
   scheduleTypeGameSpawn();
   typeGameInput.focus();
   startTypeGameMusic();
+}
+
+// The on-screen Pause button — distinct from pauseTypeGame() above, which
+// only freezes the round for a tab switch and expects resumeTypeGame() to
+// pick it back up. This one is a deliberate exit: it ends the current round
+// outright and returns to the same start screen a fresh visit would show.
+function pauseTypeGameToStart() {
+  if (!typeGameRunning) return;
+  typeGameRunning = false;
+  typeGamePaused = false;
+  cancelAnimationFrame(typeGameRafId);
+  clearTimeout(typeGameSpawnTimer);
+  stopTypeGameMusic();
+  resetTypeGame();
 }
 
 function scheduleTypeGameSpawn() {
@@ -3181,6 +3246,7 @@ function loseTypeGameLife(missedWord) {
   }
   typeGameLives--;
   updateTypeGameHud();
+  playTypeGameLifeLostSfx();
   typeGameStage.classList.remove("typegame-shake");
   // Force a reflow so the shake animation restarts if it's still playing.
   void typeGameStage.offsetWidth;
@@ -3196,16 +3262,31 @@ function clearTypeGameHighlights() {
   });
 }
 
+// A small expanding/fading ring spawned at a cleared item's position, on top
+// of that item's own scale-and-vanish (see .tw-cleared in CSS) — together
+// they read as the falling bubble "popping" rather than just disappearing.
+function spawnTypeGamePopFx(el) {
+  const rect = el.getBoundingClientRect();
+  const containerRect = typeGameWordsEl.getBoundingClientRect();
+  const fx = document.createElement("div");
+  fx.className = "typegame-pop-fx";
+  fx.style.left = `${rect.left - containerRect.left + rect.width / 2}px`;
+  fx.style.top = `${rect.top - containerRect.top + rect.height / 2}px`;
+  typeGameWordsEl.appendChild(fx);
+  setTimeout(() => fx.remove(), 500);
+}
+
 function clearTypeGameWord(word) {
   recordSrsResult(word.text, true);
   recordResult(word.text, true);
+  spawnTypeGamePopFx(word.el);
   word.el.classList.add("tw-cleared");
-  setTimeout(() => word.el.remove(), 150);
+  setTimeout(() => word.el.remove(), 300);
   typeGameActive = typeGameActive.filter((w) => w !== word);
 
   typeGameScore += word.text.length * 10;
   typeGameWordsCleared++;
-  updateTypeGameHud();
+  playTypeGameCorrectSfx();
 
   // Speed ramps up by how many words have been typed correctly, not by
   // score, so a beginner spelling out long words isn't punished with a
@@ -3214,7 +3295,25 @@ function clearTypeGameWord(word) {
   const speedUps = Math.floor(typeGameWordsCleared / TYPEGAME_WORDS_PER_SPEEDUP);
   typeGameSpeed = Math.min(TYPEGAME_BASE_SPEED + speedUps * TYPEGAME_SPEED_STEP, TYPEGAME_MAX_SPEED);
   typeGameSpawnInterval = Math.max(TYPEGAME_SPAWN_MIN, TYPEGAME_SPAWN_START - speedUps * TYPEGAME_SPAWN_STEP);
+  if (speedUps !== typeGameStageIndex) {
+    typeGameStageIndex = speedUps;
+    showTypeGameStageBanner(typeGameStageIndex + 1);
+  }
+  updateTypeGameHud();
 }
+
+const TYPEGAME_ENCOURAGE_MESSAGES = {
+  en: [
+    "Aw, so close! Every try makes you faster — go again!",
+    "Don't worry — mistakes help you learn. Ready for another round?",
+    "Almost had it! You're getting better every time.",
+  ],
+  ko: [
+    "아깝다! 다시 도전하면 더 잘할 수 있어요!",
+    "괜찮아요, 실수하면서 배우는 거예요. 한 번 더 해볼까요?",
+    "거의 다 왔어요! 할수록 더 잘하고 있어요.",
+  ],
+};
 
 function endTypeGame() {
   typeGameRunning = false;
@@ -3224,6 +3323,8 @@ function endTypeGame() {
   typeGameInput.disabled = true;
   typeGameInput.value = "";
   hideTypeGameTypo();
+  hideTypeGameStageBanner();
+  typeGamePauseBtn.hidden = true;
   typeGameActive.forEach((w) => w.el.remove());
   typeGameActive = [];
   stopTypeGameMusic();
@@ -3237,12 +3338,16 @@ function endTypeGame() {
   }
   typeGameFinalScoreEl.textContent = t("typeGameFinalScore", typeGameScore);
   typeGameHighScoreEl.textContent = isNewBest ? t("typeGameNewHighScore") : t("typeGameHighScore", Math.max(prevBest, typeGameScore));
+  const encourageMessages = TYPEGAME_ENCOURAGE_MESSAGES[currentLang] || TYPEGAME_ENCOURAGE_MESSAGES.en;
+  typeGameEncourageMsg.textContent = encourageMessages[Math.floor(Math.random() * encourageMessages.length)];
+  typeGameEncourageMsg.hidden = false;
   typeGameOverOverlay.hidden = false;
 }
 
 function showTypeGameTypo() {
   typeGameInput.classList.add("typegame-input-error");
   typeGameTypoMsg.hidden = false;
+  playTypeGameWrongSfx();
   clearTimeout(typeGameTypoTimer);
   typeGameTypoTimer = setTimeout(hideTypeGameTypo, 1800);
 }
@@ -3303,6 +3408,7 @@ typeGameInput.addEventListener("keydown", (e) => {
 
 typeGameStartBtn.addEventListener("click", startTypeGame);
 typeGameRestartBtn.addEventListener("click", startTypeGame);
+typeGamePauseBtn.addEventListener("click", pauseTypeGameToStart);
 
 /* ---------- Typing Game background music ----------
    A short, cheerful loop generated entirely with the Web Audio API (a
@@ -3393,6 +3499,46 @@ function stopTypeGameMusic() {
   typeGameMusicSchedulerId = null;
 }
 
+/* ---------- Typing Game sound effects ----------
+   Short one-off tones — separate from the background-music scheduler above,
+   played immediately against the audio context's current time rather than
+   queued into the melody's lookahead schedule. */
+function playTypeGameTone(freq, startOffset, duration, type, peakGain) {
+  const ctx = typeGameAudioCtx;
+  if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  const when = ctx.currentTime + startOffset;
+  gain.gain.setValueAtTime(0, when);
+  gain.gain.linearRampToValueAtTime(peakGain, when + 0.015);
+  gain.gain.linearRampToValueAtTime(0, when + duration);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(when);
+  osc.stop(when + duration + 0.02);
+}
+
+function playTypeGameCorrectSfx() {
+  if (typeGameMuted) return;
+  if (!ensureTypeGameAudioCtx()) return;
+  playTypeGameTone(880, 0, 0.1, "triangle", 0.08);
+  playTypeGameTone(1318.51, 0.08, 0.14, "triangle", 0.08);
+}
+
+function playTypeGameWrongSfx() {
+  if (typeGameMuted) return;
+  if (!ensureTypeGameAudioCtx()) return;
+  playTypeGameTone(180, 0, 0.18, "sawtooth", 0.07);
+}
+
+function playTypeGameLifeLostSfx() {
+  if (typeGameMuted) return;
+  if (!ensureTypeGameAudioCtx()) return;
+  playTypeGameTone(220, 0, 0.16, "square", 0.08);
+  playTypeGameTone(140, 0.13, 0.24, "square", 0.08);
+}
+
 typeGameMuteBtn.addEventListener("click", () => {
   typeGameMuted = !typeGameMuted;
   saveTypeGameMuted();
@@ -3447,6 +3593,11 @@ const timesTableRestartBtn = document.getElementById("timestable-restart-btn");
 const timesTableInput = document.getElementById("timestable-input");
 const timesTableTypoMsg = document.getElementById("timestable-typo-msg");
 const timesTableMuteBtn = document.getElementById("timestable-mute-btn");
+const timesTablePauseBtn = document.getElementById("timestable-pause-btn");
+const timesTableStageTagEl = document.getElementById("timestable-stage-tag");
+const timesTableStageBanner = document.getElementById("timestable-stage-banner");
+const timesTableStageBannerText = document.getElementById("timestable-stage-banner-text");
+const timesTableEncourageMsg = document.getElementById("timestable-encourage-msg");
 const timesTableMaxTableMinusBtn = document.getElementById("timestable-maxtable-minus");
 const timesTableMaxTablePlusBtn = document.getElementById("timestable-maxtable-plus");
 const timesTableMaxTableValueEl = document.getElementById("timestable-maxtable-value");
@@ -3466,6 +3617,7 @@ let timesTableSpawnTimer = null;
 let timesTableRafId = null;
 let timesTableLastTs = null;
 let timesTableTypoTimer = null;
+let timesTableStageBannerTimer = null;
 // This round's SRS-priority facts to spawn before falling back to the
 // random pool — same spaced-repetition schedule Quiz/Spelling/Typing Game
 // share, keyed by "{a}x{b}" (see recordSrsResult()/pickWordsForSession()).
@@ -3573,9 +3725,38 @@ function timesTableMaxProblems() {
 
 function updateTimesTableHud() {
   timesTableScoreEl.textContent = t("timesTableScoreLabel", timesTableScore);
+  timesTableStageTagEl.textContent = t("timesTableStageLabel", timesTableStageIndex + 1);
   const full = "❤️".repeat(Math.max(timesTableLives, 0));
   const empty = "🖤".repeat(Math.max(TIMESTABLE_LIVES - timesTableLives, 0));
   timesTableLivesEl.textContent = full + empty;
+}
+
+// Same non-blocking stage-up celebration as Typing Game (see there for why
+// it's pointer-events:none and self-dismisses) — kept as its own copy rather
+// than a shared helper, matching how this module's music/SFX code is
+// independent of Typing Game's throughout.
+const TIMESTABLE_STAGE_MESSAGES = {
+  en: ["Great job!", "You're on fire!", "Keep it up!", "Awesome work!", "Fantastic pace!"],
+  ko: ["잘하고 있어요!", "최고예요!", "계속 가요!", "정말 멋져요!", "속도가 대단해요!"],
+};
+
+function showTimesTableStageBanner(stageNumber) {
+  const messages = TIMESTABLE_STAGE_MESSAGES[currentLang] || TIMESTABLE_STAGE_MESSAGES.en;
+  const msg = messages[Math.floor(Math.random() * messages.length)];
+  timesTableStageBannerText.textContent = `${t("timesTableStageLabel", stageNumber)} — ${msg}`;
+  timesTableStageBanner.hidden = false;
+  timesTableStageBanner.style.animation = "none";
+  void timesTableStageBanner.offsetWidth;
+  timesTableStageBanner.style.animation = "";
+  clearTimeout(timesTableStageBannerTimer);
+  timesTableStageBannerTimer = setTimeout(() => {
+    timesTableStageBanner.hidden = true;
+  }, 1800);
+}
+
+function hideTimesTableStageBanner() {
+  clearTimeout(timesTableStageBannerTimer);
+  timesTableStageBanner.hidden = true;
 }
 
 // Called whenever this tab becomes active: resumes a round that was frozen
@@ -3602,6 +3783,8 @@ function resetTimesTable() {
   timesTableInput.value = "";
   timesTableInput.disabled = true;
   hideTimesTableTypo();
+  hideTimesTableStageBanner();
+  timesTablePauseBtn.hidden = true;
   updateTimesTableHud();
 
   timesTableProblemPool = buildTimesTableProblemPool(timesTableMaxTable);
@@ -3629,6 +3812,8 @@ function startTimesTable() {
   timesTableInput.disabled = false;
   timesTableInput.value = "";
   hideTimesTableTypo();
+  hideTimesTableStageBanner();
+  timesTablePauseBtn.hidden = false;
   timesTableInput.focus();
   updateTimesTableHud();
 
@@ -3663,6 +3848,18 @@ function resumeTimesTable() {
   scheduleTimesTableSpawn();
   timesTableInput.focus();
   startTimesTableMusic();
+}
+
+// The on-screen Pause button — see pauseTypeGameToStart() for why this is a
+// deliberate exit distinct from pauseTimesTable()'s tab-switch freeze.
+function pauseTimesTableToStart() {
+  if (!timesTableRunning) return;
+  timesTableRunning = false;
+  timesTablePaused = false;
+  cancelAnimationFrame(timesTableRafId);
+  clearTimeout(timesTableSpawnTimer);
+  stopTimesTableMusic();
+  resetTimesTable();
 }
 
 function scheduleTimesTableSpawn() {
@@ -3740,6 +3937,7 @@ function loseTimesTableLife(missedKey) {
   }
   timesTableLives--;
   updateTimesTableHud();
+  playTimesTableLifeLostSfx();
   timesTableStage.classList.remove("typegame-shake");
   void timesTableStage.offsetWidth; // force reflow so the shake restarts if still playing
   timesTableStage.classList.add("typegame-shake");
@@ -3754,16 +3952,30 @@ function clearTimesTableHighlights() {
   timesTableActive.forEach((w) => w.el.classList.remove("tw-lock"));
 }
 
+// A small expanding/fading ring spawned at a cleared item's position — see
+// spawnTypeGamePopFx() in the Typing Game module for the same trick.
+function spawnTimesTablePopFx(el) {
+  const rect = el.getBoundingClientRect();
+  const containerRect = timesTableWordsEl.getBoundingClientRect();
+  const fx = document.createElement("div");
+  fx.className = "typegame-pop-fx";
+  fx.style.left = `${rect.left - containerRect.left + rect.width / 2}px`;
+  fx.style.top = `${rect.top - containerRect.top + rect.height / 2}px`;
+  timesTableWordsEl.appendChild(fx);
+  setTimeout(() => fx.remove(), 500);
+}
+
 function clearTimesTableProblem(item) {
   recordSrsResult(item.key, true);
   recordResult(item.key, true);
+  spawnTimesTablePopFx(item.el);
   item.el.classList.add("tw-cleared");
-  setTimeout(() => item.el.remove(), 150);
+  setTimeout(() => item.el.remove(), 300);
   timesTableActive = timesTableActive.filter((w) => w !== item);
 
   timesTableScore += TIMESTABLE_POINTS_PER_CORRECT;
   timesTableCorrectCount++;
-  updateTimesTableHud();
+  playTimesTableCorrectSfx();
 
   const stage = Math.floor(timesTableCorrectCount / TIMESTABLE_PROBLEMS_PER_STAGE);
   timesTableSpeed = Math.min(TIMESTABLE_BASE_SPEED + stage * TIMESTABLE_SPEED_STEP, TIMESTABLE_MAX_SPEED);
@@ -3772,12 +3984,27 @@ function clearTimesTableProblem(item) {
     timesTableStageIndex = stage;
     timesTableMelodyIndex = stage % TIMESTABLE_MELODIES.length;
     timesTableMusicNoteIndex = 0;
+    showTimesTableStageBanner(timesTableStageIndex + 1);
   }
+  updateTimesTableHud();
 
   if (timesTableProblemsShown >= timesTableMaxProblems() && timesTableActive.length === 0) {
     endTimesTableRound("limit");
   }
 }
+
+const TIMESTABLE_ENCOURAGE_MESSAGES = {
+  en: [
+    "Aw, so close! Every try makes you faster — go again!",
+    "Don't worry — mistakes help you learn. Ready for another round?",
+    "Almost had it! You're getting better every time.",
+  ],
+  ko: [
+    "아깝다! 다시 도전하면 더 잘할 수 있어요!",
+    "괜찮아요, 실수하면서 배우는 거예요. 한 번 더 해볼까요?",
+    "거의 다 왔어요! 할수록 더 잘하고 있어요.",
+  ],
+};
 
 function endTimesTableRound(reason) {
   timesTableRunning = false;
@@ -3787,6 +4014,8 @@ function endTimesTableRound(reason) {
   timesTableInput.disabled = true;
   timesTableInput.value = "";
   hideTimesTableTypo();
+  hideTimesTableStageBanner();
+  timesTablePauseBtn.hidden = true;
   timesTableActive.forEach((w) => w.el.remove());
   timesTableActive = [];
   stopTimesTableMusic();
@@ -3811,12 +4040,21 @@ function endTimesTableRound(reason) {
   } else {
     timesTableLimitMsgEl.hidden = true;
   }
+
+  if (reason === "lives") {
+    const encourageMessages = TIMESTABLE_ENCOURAGE_MESSAGES[currentLang] || TIMESTABLE_ENCOURAGE_MESSAGES.en;
+    timesTableEncourageMsg.textContent = encourageMessages[Math.floor(Math.random() * encourageMessages.length)];
+    timesTableEncourageMsg.hidden = false;
+  } else {
+    timesTableEncourageMsg.hidden = true;
+  }
   timesTableOverOverlay.hidden = false;
 }
 
 function showTimesTableTypo() {
   timesTableInput.classList.add("typegame-input-error");
   timesTableTypoMsg.hidden = false;
+  playTimesTableWrongSfx();
   clearTimeout(timesTableTypoTimer);
   timesTableTypoTimer = setTimeout(hideTimesTableTypo, 1800);
 }
@@ -3865,6 +4103,7 @@ timesTableInput.addEventListener("keydown", (e) => {
 
 timesTableStartBtn.addEventListener("click", startTimesTable);
 timesTableRestartBtn.addEventListener("click", startTimesTable);
+timesTablePauseBtn.addEventListener("click", pauseTimesTableToStart);
 
 /* ---------- Times Table background music ----------
    Same Web-Audio-synthesised approach as Typing Game's music, but five
@@ -3958,6 +4197,44 @@ function startTimesTableMusic() {
 function stopTimesTableMusic() {
   clearTimeout(timesTableMusicSchedulerId);
   timesTableMusicSchedulerId = null;
+}
+
+/* ---------- Times Table sound effects ----------
+   Short one-off tones — see playTypeGameTone() for the same approach. */
+function playTimesTableTone(freq, startOffset, duration, type, peakGain) {
+  const ctx = timesTableAudioCtx;
+  if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  const when = ctx.currentTime + startOffset;
+  gain.gain.setValueAtTime(0, when);
+  gain.gain.linearRampToValueAtTime(peakGain, when + 0.015);
+  gain.gain.linearRampToValueAtTime(0, when + duration);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(when);
+  osc.stop(when + duration + 0.02);
+}
+
+function playTimesTableCorrectSfx() {
+  if (timesTableMuted) return;
+  if (!ensureTimesTableAudioCtx()) return;
+  playTimesTableTone(880, 0, 0.1, "triangle", 0.08);
+  playTimesTableTone(1318.51, 0.08, 0.14, "triangle", 0.08);
+}
+
+function playTimesTableWrongSfx() {
+  if (timesTableMuted) return;
+  if (!ensureTimesTableAudioCtx()) return;
+  playTimesTableTone(180, 0, 0.18, "sawtooth", 0.07);
+}
+
+function playTimesTableLifeLostSfx() {
+  if (timesTableMuted) return;
+  if (!ensureTimesTableAudioCtx()) return;
+  playTimesTableTone(220, 0, 0.16, "square", 0.08);
+  playTimesTableTone(140, 0.13, 0.24, "square", 0.08);
 }
 
 timesTableMuteBtn.addEventListener("click", () => {
