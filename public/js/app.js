@@ -212,6 +212,7 @@ const TRANSLATIONS = {
     addToMyDeckBtn: "⭐ Add to my flashcards",
     clearSelectionBtn: "Clear selection",
     selectAllBtn: "☑️ Select All",
+    allLabel: "All",
     addedToMyDeck: (added, picked) =>
       added === picked
         ? `Added ${added} word${added === 1 ? "" : "s"} to your flashcards.`
@@ -272,10 +273,14 @@ const TRANSLATIONS = {
     excelNoWordColumn: "Couldn't find a \"Word\" column in that file — please check the column headers and try again.",
     excelNoRows: "That Excel file didn't have any words in it.",
     excelToolUnavailable: "The Excel tool couldn't load (check your internet connection) and can't be used right now.",
-    excelImportedStatus: (added, skipped) =>
-      skipped > 0
-        ? `Added ${added} word${added === 1 ? "" : "s"} from Excel. Skipped ${skipped} — already in your list or missing a word.`
-        : `Added ${added} word${added === 1 ? "" : "s"} from Excel.`,
+    excelOverwriteLabel: "Excel file: overwrite existing words' data instead of skipping them",
+    excelImportedStatus: (added, updated, skipped) => {
+      const parts = [];
+      if (added > 0) parts.push(`added ${added} word${added === 1 ? "" : "s"}`);
+      if (updated > 0) parts.push(`updated ${updated} word${updated === 1 ? "" : "s"}`);
+      const summary = parts.length > 0 ? `Excel import: ${parts.join(", ")}.` : "Excel import: nothing new.";
+      return skipped > 0 ? `${summary} Skipped ${skipped} — already in your list or missing a word.` : summary;
+    },
     excelLookingUpMissing: (n) => `Looking up ${n} missing meaning(s)...`,
     exportExcelBtn: "📥 Export",
     exportExcelNoWords: "You don't have any words to export yet.",
@@ -288,12 +293,12 @@ const TRANSLATIONS = {
     sortAz: "🔤 A → Z",
     sortZa: "🔤 Z → A",
     sortMissing: "⚠️ Incomplete words first",
-    deleteSelectedBtn: "🗑️ Delete Selected",
+    deleteSelectedBtn: "🗑️ Delete",
     deleteSelectedConfirm: (n) => `Delete ${n} selected word(s)?`,
-    selectIncompleteBtn: "⚠️ Select Incomplete",
     selectIncompleteNoneFound: "Every word here already has a meaning and an example.",
     selectIncompleteDone: (n) => `Selected ${n} word${n === 1 ? "" : "s"} missing a meaning or example.`,
     wordManagementLabel: "🛠️ Word Management",
+    sortFilterLabel: "🔽 Sort & Filter",
     mergeDuplicatesBtn: "🧹 Merge Duplicates",
     noDuplicatesFound: "No duplicate words found — your list is clean!",
     mergeDuplicatesConfirm: (groups, extra) =>
@@ -554,6 +559,7 @@ const TRANSLATIONS = {
     addToMyDeckBtn: "⭐ 내 플래시카드에 추가",
     clearSelectionBtn: "선택 해제",
     selectAllBtn: "☑️ 전체 선택",
+    allLabel: "전체",
     addedToMyDeck: (added, picked) =>
       added === picked
         ? `${added}개를 내 플래시카드에 추가했어요.`
@@ -613,10 +619,14 @@ const TRANSLATIONS = {
     excelNoWordColumn: "파일에서 \"Word\" 열을 찾을 수 없어요 — 열 제목을 확인하고 다시 시도해주세요.",
     excelNoRows: "그 엑셀 파일에 단어가 없어요.",
     excelToolUnavailable: "엑셀 처리 기능을 불러오지 못했어요 (인터넷 연결을 확인해주세요). 지금은 사용할 수 없어요.",
-    excelImportedStatus: (added, skipped) =>
-      skipped > 0
-        ? `엑셀에서 단어 ${added}개를 추가했어요. ${skipped}개는 건너뛰었어요 — 이미 있거나 단어 칸이 비어 있어요.`
-        : `엑셀에서 단어 ${added}개를 추가했어요.`,
+    excelOverwriteLabel: "엑셀 파일: 건너뛰지 않고 기존 단어의 정보를 덮어쓰기",
+    excelImportedStatus: (added, updated, skipped) => {
+      const parts = [];
+      if (added > 0) parts.push(`${added}개 추가`);
+      if (updated > 0) parts.push(`${updated}개 수정`);
+      const summary = parts.length > 0 ? `엑셀 가져오기: ${parts.join(", ")}.` : "엑셀 가져오기: 새로운 내용이 없어요.";
+      return skipped > 0 ? `${summary} ${skipped}개는 건너뛰었어요 — 이미 있거나 단어 칸이 비어 있어요.` : summary;
+    },
     excelLookingUpMissing: (n) => `${n}개의 빠진 의미를 찾는 중...`,
     exportExcelBtn: "📥 내보내기",
     exportExcelNoWords: "아직 내보낼 단어가 없어요.",
@@ -629,12 +639,12 @@ const TRANSLATIONS = {
     sortAz: "🔤 ㄱ/A → Z",
     sortZa: "🔤 Z → A/ㄱ",
     sortMissing: "⚠️ 미완성 단어 먼저",
-    deleteSelectedBtn: "🗑️ 선택 삭제",
+    deleteSelectedBtn: "🗑️ 삭제",
     deleteSelectedConfirm: (n) => `선택한 단어 ${n}개를 삭제할까요?`,
-    selectIncompleteBtn: "⚠️ 미완성 단어 선택",
     selectIncompleteNoneFound: "모든 단어에 뜻과 예문이 있어요.",
     selectIncompleteDone: (n) => `뜻이나 예문이 빠진 단어 ${n}개를 선택했어요.`,
     wordManagementLabel: "🛠️ 단어 관리",
+    sortFilterLabel: "🔽 정렬 및 필터",
     mergeDuplicatesBtn: "🧹 중복 단어 정리",
     noDuplicatesFound: "중복된 단어가 없어요 — 목록이 깨끗해요!",
     mergeDuplicatesConfirm: (groups, extra) => `중복된 단어 ${groups}개(여분 ${extra}개)를 찾았어요. 각각 하나로 합칠까요?`,
@@ -1346,7 +1356,6 @@ function applyStaticTranslations() {
   document.getElementById("level-overlay-desc").textContent = t("levelOverlayDesc");
   updateAdminUI();
   document.documentElement.lang = currentLang === "ko" ? "ko" : "en";
-  populateCustomSortSelect();
   renderGoalStepper("quiz");
   renderGoalStepper("spelling");
   updateCategoryOptionVisibility();
@@ -4286,32 +4295,35 @@ const wordlistGrid = document.getElementById("wordlist-grid");
 const wordlistLevelSelect = document.getElementById("wordlist-level");
 const wordlistCountEl = document.getElementById("wordlist-count");
 const wordlistAddDeckBtn = document.getElementById("wordlist-add-deck-btn");
-const wordlistClearSelectionBtn = document.getElementById("wordlist-clear-selection-btn");
-const wordlistSelectAllBtn = document.getElementById("wordlist-select-all-btn");
+const wordlistSelectAllCheckbox = document.getElementById("wordlist-select-all-checkbox");
 // Keyed by word, since the same word can be reached under several levels.
 const selectedWordlistWords = new Map();
 
-// Shared by both word-list views: toggles every checkbox currently rendered
-// in the grid (i.e. the currently filtered/visible rows, not the whole
-// underlying set) — select-all when anything is unchecked, clear when
-// everything already is, driven through each checkbox's own change handler
-// so the selection state it maintains stays correct either way.
-function toggleSelectAllInGrid(grid) {
+// Shared "All" checkbox behavior for both word-list-style grids: checking it
+// selects every checkbox currently rendered (the filtered/visible rows, not
+// the whole underlying set — same scoping the old Select All button had);
+// unchecking it clears the ENTIRE selection, including anything selected
+// under a different search/filter that isn't currently visible (same as the
+// old, now-removed, Clear Selection button did).
+function selectAllInGrid(grid) {
   const checkboxes = Array.from(grid.querySelectorAll(".cw-select"));
-  if (checkboxes.length === 0) return;
-  const shouldSelect = !checkboxes.every((cb) => cb.checked);
   checkboxes.forEach((cb) => {
-    if (cb.checked !== shouldSelect) {
-      cb.checked = shouldSelect;
+    if (!cb.checked) {
+      cb.checked = true;
       cb.dispatchEvent(new Event("change"));
     }
   });
 }
 
+function updateSelectAllCheckboxState(checkbox, grid) {
+  const checkboxes = Array.from(grid.querySelectorAll(".cw-select"));
+  checkbox.checked = checkboxes.length > 0 && checkboxes.every((cb) => cb.checked);
+}
+
 function updateWordlistSelectionButtons() {
   const none = selectedWordlistWords.size === 0;
   wordlistAddDeckBtn.disabled = none;
-  wordlistClearSelectionBtn.disabled = none;
+  updateSelectAllCheckboxState(wordlistSelectAllCheckbox, wordlistGrid);
 }
 
 function masteryLabel(word) {
@@ -4415,15 +4427,17 @@ function renderWordList() {
   });
 
   wordlistCountEl.textContent = t("customWordsCount", words.length);
-  updateWordlistSelectionButtons();
+  wordlistAddDeckBtn.disabled = selectedWordlistWords.size === 0;
   if (words.length === 0) {
     const p = document.createElement("p");
     p.className = "muted";
     p.textContent = t("wordlistEmpty");
     wordlistGrid.appendChild(p);
+    updateSelectAllCheckboxState(wordlistSelectAllCheckbox, wordlistGrid);
     return;
   }
   words.forEach((w) => wordlistGrid.appendChild(buildWordRow(w)));
+  updateSelectAllCheckboxState(wordlistSelectAllCheckbox, wordlistGrid);
 }
 
 wordlistSearch.addEventListener("input", renderWordList);
@@ -4440,11 +4454,13 @@ wordlistAddDeckBtn.addEventListener("click", () => {
   wordlistCountEl.textContent = t("addedToMyDeck", added, picked.length);
 });
 
-wordlistSelectAllBtn.addEventListener("click", () => toggleSelectAllInGrid(wordlistGrid));
-
-wordlistClearSelectionBtn.addEventListener("click", () => {
-  selectedWordlistWords.clear();
-  renderWordList();
+wordlistSelectAllCheckbox.addEventListener("change", () => {
+  if (wordlistSelectAllCheckbox.checked) {
+    selectAllInGrid(wordlistGrid);
+  } else {
+    selectedWordlistWords.clear();
+    renderWordList();
+  }
 });
 
 /* ================= ADD WORD (manual + OCR) ================= */
@@ -4465,33 +4481,29 @@ const customWordsStatus = document.getElementById("custom-words-status");
 const customRetryAllBtn = document.getElementById("custom-retry-all-btn");
 const customDeleteFailedBtn = document.getElementById("custom-delete-failed-btn");
 const customSearchInput = document.getElementById("custom-search");
-const customSortSelect = document.getElementById("custom-sort");
 const customWordsCountEl = document.getElementById("custom-words-count");
-const CUSTOM_SORTS = ["recent", "oldest", "az", "za", "missing"];
 const customDeleteSelectedBtn = document.getElementById("custom-delete-selected-btn");
-const customSelectAllBtn = document.getElementById("custom-select-all-btn");
-const customSelectIncompleteBtn = document.getElementById("custom-select-incomplete-btn");
+const customSelectAllCheckbox = document.getElementById("custom-select-all-checkbox");
 const customWordMgmtSelect = document.getElementById("custom-word-mgmt-select");
 const customExportBtn = document.getElementById("custom-export-btn");
 const customUploadBtn = document.getElementById("custom-upload-btn");
 const customLevelSelect = document.getElementById("custom-level-select");
 const customStorageNote = document.getElementById("custom-words-storage-note");
-const customLevelFilterEl = document.getElementById("custom-level-filter");
+const customFilterDropdown = document.getElementById("custom-filter-dropdown");
+const customFilterToggleBtn = document.getElementById("custom-filter-toggle-btn");
+const customFilterPanel = document.getElementById("custom-filter-panel");
+const customFilterLevelGroup = document.getElementById("custom-filter-level-group");
 let selectedCustomWordIds = new Set();
-// "" means no level filter (show every level).
-let customLevelFilter = "";
+// Empty set means no level filter (show every level) — "All levels" is
+// represented implicitly rather than as a sentinel member of the set.
+let customLevelFilterSet = new Set();
+// Which of "recent"/"oldest"/"az"/"za"/"missing" are checked in the combined
+// sort/filter dropdown — recent/oldest are mutually exclusive with each
+// other, az/za likewise, but any of those can combine with "missing" (and
+// with each other across pairs) as successive tiebreakers; see the
+// comparator in renderCustomWords().
+let customSortFlags = new Set(["recent"]);
 
-function populateCustomSortSelect() {
-  const previous = customSortSelect.value || "recent";
-  customSortSelect.innerHTML = "";
-  CUSTOM_SORTS.forEach((id) => {
-    const opt = document.createElement("option");
-    opt.value = id;
-    opt.textContent = t(`sort${id.charAt(0).toUpperCase()}${id.slice(1)}`);
-    customSortSelect.appendChild(opt);
-  });
-  customSortSelect.value = previous;
-}
 const ocrLevelSelectEl = document.getElementById("ocr-level");
 const addModeSingleBtn = document.getElementById("add-mode-single-btn");
 const addModeBulkBtn = document.getElementById("add-mode-bulk-btn");
@@ -4691,34 +4703,46 @@ function populateLevelSelects() {
   renderCustomLevelFilter();
 }
 
-// One button per level (plus "All levels") above My Added Words, so tapping
-// one shows just that level's words. Rebuilt whenever the level list can
-// change (language switch, a new level added) — if the current filter no
-// longer matches a real level in this track (e.g. it was set on the other
-// language's levels), it silently resets to "All" instead of showing zero
-// results with no obvious way out.
+// One checkbox per level (plus "All levels") in the combined sort/filter
+// dropdown's level group. Rebuilt whenever the level list can change
+// (language switch, a new level added) — any filter level that no longer
+// exists in this track (e.g. it was set on the other language's levels)
+// is dropped instead of silently showing zero results with no obvious way
+// out. "All levels" and any specific level are mutually exclusive; multiple
+// specific levels can be checked together (shows the union).
 function renderCustomLevelFilter() {
-  if (!customLevelFilterEl) return;
+  if (!customFilterLevelGroup) return;
   const levelIds = currentSystem().levels.map((lv) => lv.id);
-  if (customLevelFilter && !levelIds.includes(customLevelFilter)) customLevelFilter = "";
+  customLevelFilterSet.forEach((id) => {
+    if (!levelIds.includes(id)) customLevelFilterSet.delete(id);
+  });
 
-  customLevelFilterEl.innerHTML = "";
-  const makeBtn = (id, label) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "pill small";
-    btn.classList.add(customLevelFilter === id ? "primary" : "neutral");
-    btn.textContent = label;
-    btn.addEventListener("click", () => {
-      customLevelFilter = id;
+  customFilterLevelGroup.innerHTML = "";
+  const makeCheckbox = (id, label, isAllLevels) => {
+    const wrapLabel = document.createElement("label");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = isAllLevels ? customLevelFilterSet.size === 0 : customLevelFilterSet.has(id);
+    cb.addEventListener("change", () => {
+      if (isAllLevels) {
+        customLevelFilterSet.clear();
+      } else if (cb.checked) {
+        customLevelFilterSet.add(id);
+      } else {
+        customLevelFilterSet.delete(id);
+      }
       renderCustomLevelFilter();
       renderCustomWords();
     });
-    customLevelFilterEl.appendChild(btn);
+    const span = document.createElement("span");
+    span.textContent = label;
+    wrapLabel.appendChild(cb);
+    wrapLabel.appendChild(span);
+    customFilterLevelGroup.appendChild(wrapLabel);
   };
 
-  makeBtn("", t("wordlistAllLevels"));
-  currentSystem().levels.forEach((lv) => makeBtn(lv.id, lv.label));
+  makeCheckbox("", t("wordlistAllLevels"), true);
+  currentSystem().levels.forEach((lv) => makeCheckbox(lv.id, lv.label, false));
 }
 
 // Follows the level you're practising, unless you've deliberately switched
@@ -4951,7 +4975,7 @@ function myCustomWords() {
 function visibleCustomWords(mine) {
   const query = customSearchInput.value.trim().toLowerCase();
   return mine.filter((w) => {
-    if (customLevelFilter && cwLevel(w) !== customLevelFilter) return false;
+    if (customLevelFilterSet.size > 0 && !customLevelFilterSet.has(cwLevel(w))) return false;
     if (!query) return true;
     const meaning = cwDefinition(w) || "";
     return w.word.toLowerCase().includes(query) || meaning.toLowerCase().includes(query);
@@ -4963,6 +4987,10 @@ function isIncompleteCustomWord(w) {
 }
 
 function renderCustomWords() {
+  // Any highlight from a previous "Incomplete words first" selection is
+  // cleared on every re-render; the checkbox handler that sets it re-applies
+  // it after calling this function, so it isn't wiped by its own render.
+  customWordsStatus.classList.remove("status-highlight");
   const mine = myCustomWords();
 
   // Drop selection for any word that no longer exists (e.g. deleted elsewhere).
@@ -4985,29 +5013,41 @@ function renderCustomWords() {
   const localOnly = mine.filter((w) => !w.remote && !w.volatile);
   customUploadBtn.hidden = !(canWriteServerWords() && localOnly.length > 0);
   customUploadBtn.textContent = t("uploadLocalBtn", localOnly.length);
-  customStorageNote.hidden = false;
+  // Kept computed (for later use) but not shown — the "saved on the
+  // server"/"private to your account" note was more clutter than help.
+  customStorageNote.hidden = true;
   customStorageNote.textContent = t(storageNoteKey());
 
   customWordsGrid.innerHTML = "";
   if (mine.length === 0) {
     customWordsEmpty.hidden = false;
     customWordsCountEl.textContent = "";
+    updateSelectAllCheckboxState(customSelectAllCheckbox, customWordsGrid);
     return;
   }
   customWordsEmpty.hidden = true;
 
-  const sort = customSortSelect.value || "recent";
   const shown = visibleCustomWords(mine);
 
+  // Each checked flag is applied in this fixed priority order as a
+  // successive tiebreaker (incomplete-first, then alphabetical, then
+  // recency), so combinations like "Incomplete words first" + "A → Z" sort
+  // incomplete words first and alphabetically within each group.
   shown.sort((a, b) => {
-    if (sort === "az") return a.word.localeCompare(b.word);
-    if (sort === "za") return b.word.localeCompare(a.word);
-    if (sort === "oldest") return a.createdAt - b.createdAt;
-    if (sort === "missing") {
+    if (customSortFlags.has("missing")) {
       const aMissing = isIncompleteCustomWord(a) ? 0 : 1;
       const bMissing = isIncompleteCustomWord(b) ? 0 : 1;
       if (aMissing !== bMissing) return aMissing - bMissing;
     }
+    if (customSortFlags.has("az")) {
+      const c = a.word.localeCompare(b.word);
+      if (c !== 0) return c;
+    }
+    if (customSortFlags.has("za")) {
+      const c = b.word.localeCompare(a.word);
+      if (c !== 0) return c;
+    }
+    if (customSortFlags.has("oldest")) return a.createdAt - b.createdAt;
     return b.createdAt - a.createdAt;
   });
 
@@ -5024,6 +5064,7 @@ function renderCustomWords() {
         if (checkbox.checked) selectedCustomWordIds.add(w.id);
         else selectedCustomWordIds.delete(w.id);
         updateDeleteSelectedBtn();
+        updateSelectAllCheckboxState(customSelectAllCheckbox, customWordsGrid);
       });
       row.appendChild(checkbox);
 
@@ -5100,13 +5141,13 @@ function renderCustomWords() {
       row.appendChild(right);
       customWordsGrid.appendChild(row);
     });
+  updateSelectAllCheckboxState(customSelectAllCheckbox, customWordsGrid);
 }
 
 customRetryAllBtn.addEventListener("click", retryAllFailedWords);
 customDeleteFailedBtn.addEventListener("click", deleteAllFailedWords);
 
 customSearchInput.addEventListener("input", renderCustomWords);
-customSortSelect.addEventListener("change", renderCustomWords);
 
 // Bulk levels are set for the language track you're looking at; the other
 // track keeps the level that was guessed for it, the same as editing one word.
@@ -5167,20 +5208,61 @@ customDeleteSelectedBtn.addEventListener("click", () => {
   removeSharedWords(removedRemoteIds);
 });
 
-customSelectAllBtn.addEventListener("click", () => toggleSelectAllInGrid(customWordsGrid));
-
-// Selects exactly the currently-visible (search/level-filtered) words that
-// are missing a meaning or an example — works the same in either language,
-// since cwNoDefinition() already resolves against whichever is active.
-customSelectIncompleteBtn.addEventListener("click", () => {
-  const incomplete = visibleCustomWords(myCustomWords()).filter(isIncompleteCustomWord);
-  if (incomplete.length === 0) {
-    customWordsStatus.textContent = t("selectIncompleteNoneFound");
-    return;
+customSelectAllCheckbox.addEventListener("change", () => {
+  if (customSelectAllCheckbox.checked) {
+    selectAllInGrid(customWordsGrid);
+  } else {
+    selectedCustomWordIds.clear();
+    renderCustomWords();
   }
-  selectedCustomWordIds = new Set(incomplete.map((w) => w.id));
-  customWordsStatus.textContent = t("selectIncompleteDone", incomplete.length);
-  renderCustomWords();
+});
+
+/* ---------- Combined sort/filter dropdown ---------- */
+customFilterToggleBtn.addEventListener("click", () => {
+  customFilterPanel.hidden = !customFilterPanel.hidden;
+});
+
+document.addEventListener("click", (e) => {
+  if (!customFilterPanel.hidden && !customFilterDropdown.contains(e.target)) {
+    customFilterPanel.hidden = true;
+  }
+});
+
+const CUSTOM_SORT_OPPOSITE = { recent: "oldest", oldest: "recent", az: "za", za: "az" };
+
+document.querySelectorAll('#custom-filter-panel [data-sort-flag]').forEach((cb) => {
+  cb.addEventListener("change", () => {
+    const flag = cb.dataset.sortFlag;
+    let incompleteSelection = null;
+    if (cb.checked) {
+      customSortFlags.add(flag);
+      const opposite = CUSTOM_SORT_OPPOSITE[flag];
+      if (opposite) {
+        customSortFlags.delete(opposite);
+        const oppositeCb = document.getElementById(`custom-sort-${opposite}`);
+        if (oppositeCb) oppositeCb.checked = false;
+      }
+      // Selecting "Incomplete words first" also selects every currently
+      // visible incomplete word right away — replaces the old dedicated
+      // Select Incomplete button.
+      if (flag === "missing") {
+        const incomplete = visibleCustomWords(myCustomWords()).filter(isIncompleteCustomWord);
+        if (incomplete.length > 0) selectedCustomWordIds = new Set(incomplete.map((w) => w.id));
+        incompleteSelection = incomplete.length;
+      }
+    } else {
+      customSortFlags.delete(flag);
+    }
+    renderCustomWords();
+    // Applied after renderCustomWords() (which always clears any previous
+    // highlight) so this one actually sticks instead of being wiped by its
+    // own render pass.
+    if (incompleteSelection != null) {
+      customWordsStatus.textContent =
+        incompleteSelection > 0 ? t("selectIncompleteDone", incompleteSelection) : t("selectIncompleteNoneFound");
+      customWordsStatus.classList.toggle("status-highlight", incompleteSelection > 0);
+    }
+  });
 });
 
 // Merges every group of duplicate words (same text, case-insensitive) into a
@@ -5710,6 +5792,7 @@ const ocrAddBtn = document.getElementById("ocr-add-btn");
 const ocrStatus = document.getElementById("ocr-status");
 const ocrReviewHintEl = document.getElementById("ocr-review-hint");
 const ocrExcelStatus = document.getElementById("ocr-excel-status");
+const excelOverwriteCheckbox = document.getElementById("excel-overwrite-checkbox");
 
 const STOPWORDS = new Set(
   ("the and for that with have this from they were been their said each which she does how out many then them these" +
@@ -5807,23 +5890,53 @@ async function processExcelFile(file) {
   const exampleKey = findKey(EXCEL_COL_EXAMPLE);
   const levelEnKey = findKey(EXCEL_COL_LEVEL_EN);
   const levelKoKey = findKey(EXCEL_COL_LEVEL_KO);
+  const overwrite = excelOverwriteCheckbox.checked;
 
   const added = [];
+  const updated = [];
   let skipped = 0;
   rows.forEach((row) => {
     const word = String(row[wordKey] || "").trim();
-    const isDuplicate = word && (findCustomWordByText(word) || added.some((w) => w.word.toLowerCase() === word.toLowerCase()));
-    if (!word || isDuplicate) {
-      if (word) skipped++;
+    if (!word) return;
+    // A word repeated within this same file is always skipped (not treated
+    // as an overwrite target) — overwrite only applies to a word that
+    // already existed before this import.
+    if (added.some((w) => w.word.toLowerCase() === word.toLowerCase())) {
+      skipped++;
       return;
     }
 
     const definitionEn = defEnKey ? String(row[defEnKey] || "").trim() || null : null;
     const definitionKo = defKoKey ? String(row[defKoKey] || "").trim() || null : null;
     const example = exampleKey ? String(row[exampleKey] || "").trim() : "";
-    const levelEn = (levelEnKey && parseLevelValue(row[levelEnKey], LEVELS)) || guessLevelForWord(word, "en");
-    const levelKo = (levelKoKey && parseLevelValue(row[levelKoKey], KO_LEVELS)) || guessLevelForWord(word, "ko");
+    const levelEnRaw = levelEnKey ? parseLevelValue(row[levelEnKey], LEVELS) : null;
+    const levelKoRaw = levelKoKey ? parseLevelValue(row[levelKoKey], KO_LEVELS) : null;
 
+    const existing = findCustomWordByText(word);
+    if (existing) {
+      if (!overwrite) {
+        skipped++;
+        return;
+      }
+      // Only overwrite fields this row actually supplied — a blank cell
+      // never blanks out data the word already has.
+      if (definitionEn) {
+        existing.definitionEn = definitionEn;
+        existing.noDefinitionEn = false;
+      }
+      if (definitionKo) {
+        existing.definitionKo = definitionKo;
+        existing.noDefinitionKo = false;
+      }
+      if (example) existing.example = example;
+      if (levelEnRaw) existing.levelEn = levelEnRaw;
+      if (levelKoRaw) existing.levelKo = levelKoRaw;
+      updated.push(existing);
+      return;
+    }
+
+    const levelEn = levelEnRaw || guessLevelForWord(word, "en");
+    const levelKo = levelKoRaw || guessLevelForWord(word, "ko");
     const newWord = {
       id: genId(),
       word,
@@ -5843,28 +5956,29 @@ async function processExcelFile(file) {
   });
 
   ocrExcelStatus.hidden = false;
-  if (added.length === 0) {
-    ocrExcelStatus.textContent = t("excelImportedStatus", 0, skipped);
+  const touched = added.concat(updated);
+  if (touched.length === 0) {
+    ocrExcelStatus.textContent = t("excelImportedStatus", 0, 0, skipped);
     return;
   }
 
   saveCustomWords();
   renderCustomWords();
   renderWordList();
-  ocrExcelStatus.textContent = t("excelImportedStatus", added.length, skipped);
-  await pushSharedWords(added.filter((w) => w.remote));
+  ocrExcelStatus.textContent = t("excelImportedStatus", added.length, updated.length, skipped);
+  await pushSharedWords(touched.filter((w) => w.remote));
 
   // Fill in whichever side (EN or KO) a row's spreadsheet data didn't
   // already supply — same background auto-fill manual/bulk add already do.
-  const stillMissing = added.filter((w) => w.noDefinitionEn || w.noDefinitionKo);
+  const stillMissing = touched.filter((w) => w.noDefinitionEn || w.noDefinitionKo);
   if (stillMissing.length > 0) {
-    ocrExcelStatus.textContent = `${t("excelImportedStatus", added.length, skipped)} ${t("excelLookingUpMissing", stillMissing.length)}`;
+    ocrExcelStatus.textContent = `${t("excelImportedStatus", added.length, updated.length, skipped)} ${t("excelLookingUpMissing", stillMissing.length)}`;
     const infos = await mapWithConcurrency(stillMissing, 4, (w) => fetchWordInfo(w.word));
     stillMissing.forEach((w, i) => applyFetchedInfo(w, infos[i]));
     saveCustomWords();
     renderCustomWords();
     await pushSharedWords(stillMissing.filter((w) => w.remote));
-    ocrExcelStatus.textContent = withQuotaNote(t("excelImportedStatus", added.length, skipped));
+    ocrExcelStatus.textContent = withQuotaNote(t("excelImportedStatus", added.length, updated.length, skipped));
   }
 }
 

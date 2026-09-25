@@ -412,9 +412,11 @@
           <select id="wordlist-level" class="wordlist-level-select"></select>
         </div>
         <div class="my-added-words-header-actions">
-          <button type="button" class="pill neutral small" id="wordlist-select-all-btn" data-i18n="selectAllBtn">☑️ Select All</button>
+          <label class="select-all-toggle" for="wordlist-select-all-checkbox">
+            <input type="checkbox" id="wordlist-select-all-checkbox" />
+            <span data-i18n="allLabel">All</span>
+          </label>
           <button type="button" class="pill accent small" id="wordlist-add-deck-btn" data-i18n="addToMyDeckBtn" disabled>⭐ Add to my flashcards</button>
-          <button type="button" class="pill neutral small" id="wordlist-clear-selection-btn" data-i18n="clearSelectionBtn" disabled>Clear selection</button>
         </div>
         <p class="muted wordlist-count" id="wordlist-count"></p>
         <div class="wordlist-grid" id="wordlist-grid"></div>
@@ -424,8 +426,12 @@
     <!-- Add Word -->
     <section id="view-addword" class="view">
       <div class="card">
-        <h3 data-i18n="ocrTitle">📷 Extract words from a photo or files</h3>
-        <p class="muted" data-i18n="ocrDesc">Take a photo of a book page, upload a screenshot, or upload a text, Word, PDF or Excel file. We'll read the text and pull out candidate words you can add to your word list — or, for an Excel file, add each row's word straight in with its meaning, example and level already filled in.</p>
+        <h3 class="section-title-with-info">
+          <span data-i18n="ocrTitle">📷 Extract words from a photo or files</span>
+          <span class="info-icon" tabindex="0">?
+            <span class="info-tooltip" data-i18n="ocrDesc">Take a photo of a book page, upload a screenshot, or upload a text, Word, PDF or Excel file. We'll read the text and pull out candidate words you can add to your word list — or, for an Excel file, add each row's word straight in with its meaning, example and level already filled in.</span>
+          </span>
+        </h3>
         <div class="file-picker-row">
           <button type="button" class="pill primary" id="ocr-choose-btn" data-i18n="ocrChooseBtn">📁 Choose Photo or File</button>
           <span class="file-picker-name" id="ocr-file-name" data-i18n="ocrNoFileChosen">No file chosen</span>
@@ -436,6 +442,10 @@
             hidden
           />
         </div>
+        <label class="excel-overwrite-toggle">
+          <input type="checkbox" id="excel-overwrite-checkbox" />
+          <span data-i18n="excelOverwriteLabel">Excel file: overwrite existing words' data instead of skipping them</span>
+        </label>
         <div id="ocr-progress" class="ocr-progress" hidden>
           <div class="progress-bar"><div class="progress-bar-fill" id="ocr-progress-fill"></div></div>
           <div id="ocr-progress-label" data-i18n="ocrProgressDefault">Reading image...</div>
@@ -454,9 +464,9 @@
           <div id="ocr-status" class="spelling-tip"></div>
         </div>
         <div id="ocr-excel-status" class="spelling-tip" hidden></div>
-      </div>
 
-      <div class="card">
+        <hr class="card-divider" />
+
         <h3 data-i18n="addWordManualTitle">➕ Add a word manually</h3>
         <div class="add-mode-toggle">
           <button type="button" class="pill primary" id="add-mode-single-btn" data-i18n="addModeSingle">Single word</button>
@@ -505,8 +515,11 @@
         <div class="my-added-words-header">
           <h3 data-i18n="myAddedWordsTitle">📝 My added words</h3>
           <div class="my-added-words-header-actions">
-            <button type="button" class="pill neutral small" id="custom-select-all-btn" data-i18n="selectAllBtn">☑️ Select All</button>
-            <button type="button" class="pill neutral small" id="custom-select-incomplete-btn" data-i18n="selectIncompleteBtn">⚠️ Select Incomplete</button>
+            <label class="select-all-toggle" for="custom-select-all-checkbox">
+              <input type="checkbox" id="custom-select-all-checkbox" />
+              <span data-i18n="allLabel">All</span>
+            </label>
+            <button type="button" class="pill neutral small" id="custom-delete-selected-btn" data-i18n="deleteSelectedBtn" disabled>🗑️ Delete</button>
             <select id="custom-word-mgmt-select" class="level-bulk-select">
               <option value="" data-i18n="wordManagementLabel">🛠️ Word Management</option>
               <option value="merge" data-i18n="mergeDuplicatesBtn">🧹 Merge Duplicates</option>
@@ -516,12 +529,7 @@
             <button type="button" class="pill neutral small" id="custom-export-btn" data-i18n="exportExcelBtn">📥 Export</button>
             <button type="button" class="pill accent small" id="custom-upload-btn" hidden>☁️ Upload</button>
             <select id="custom-level-select" class="level-bulk-select" disabled></select>
-            <button type="button" class="pill neutral small" id="custom-delete-selected-btn" data-i18n="deleteSelectedBtn" disabled>🗑️ Delete Selected</button>
           </div>
-        </div>
-        <div class="wordlist-filters">
-          <input type="text" class="wordlist-search" id="custom-search" data-i18n-placeholder="customSearchPlaceholder" placeholder="🔍 Search added words..." />
-          <select id="custom-sort" class="wordlist-level-select"></select>
         </div>
         <p class="muted wordlist-count" id="custom-words-count"></p>
         <p class="muted" id="custom-words-storage-note" hidden></p>
@@ -533,7 +541,26 @@
           </div>
         </div>
         <div id="custom-words-status" class="spelling-tip"></div>
-        <div class="level-filter-row" id="custom-level-filter"></div>
+        <div class="custom-controls-row">
+          <div class="filter-dropdown" id="custom-filter-dropdown">
+            <button type="button" class="pill neutral small" id="custom-filter-toggle-btn" data-i18n="sortFilterLabel">🔽 Sort &amp; Filter</button>
+            <div class="filter-dropdown-panel" id="custom-filter-panel" hidden>
+              <div class="filter-dropdown-group" id="custom-filter-level-group"></div>
+              <hr class="filter-dropdown-divider" />
+              <div class="filter-dropdown-group">
+                <label><input type="checkbox" id="custom-sort-recent" data-sort-flag="recent" checked /><span data-i18n="sortRecent">🕒 Newest first</span></label>
+                <label><input type="checkbox" id="custom-sort-oldest" data-sort-flag="oldest" /><span data-i18n="sortOldest">🕒 Oldest first</span></label>
+                <label><input type="checkbox" id="custom-sort-az" data-sort-flag="az" /><span data-i18n="sortAz">🔤 A → Z</span></label>
+                <label><input type="checkbox" id="custom-sort-za" data-sort-flag="za" /><span data-i18n="sortZa">🔤 Z → A</span></label>
+              </div>
+              <hr class="filter-dropdown-divider" />
+              <div class="filter-dropdown-group">
+                <label><input type="checkbox" id="custom-sort-missing" data-sort-flag="missing" /><span data-i18n="sortMissing">⚠️ Incomplete words first</span></label>
+              </div>
+            </div>
+          </div>
+          <input type="text" class="wordlist-search custom-search-half" id="custom-search" data-i18n-placeholder="customSearchPlaceholder" placeholder="🔍 Search added words..." />
+        </div>
         <div class="wordlist-grid" id="custom-words-grid"></div>
         <p class="muted" id="custom-words-empty" hidden data-i18n="myAddedWordsEmpty">You haven't added any words yet.</p>
       </div>

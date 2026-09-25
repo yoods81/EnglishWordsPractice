@@ -221,6 +221,64 @@ nav.tabs button.active {
   font-size: 1rem;
 }
 
+.card-divider {
+  border: none;
+  border-top: 1px solid #eef0f6;
+  margin: 16px 0;
+}
+
+.section-title-with-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* A "?" icon that reveals its description on hover/focus instead of it
+   always taking up a line of its own — used to shrink the Extract Words
+   section now that it shares a card with Add a word manually. */
+.info-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #e6e9f4;
+  color: var(--primary-dark);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: help;
+}
+
+.info-icon .info-tooltip {
+  position: absolute;
+  top: 130%;
+  right: 0;
+  z-index: 5;
+  width: 260px;
+  max-width: min(260px, calc(100vw - 32px));
+  background: #1f2430;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 400;
+  line-height: 1.4;
+  padding: 8px 10px;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease;
+}
+
+.info-icon:hover .info-tooltip,
+.info-icon:focus .info-tooltip,
+.info-icon:focus-within .info-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
 .setting-row {
   display: flex;
   flex-wrap: wrap;
@@ -423,6 +481,28 @@ button.pill:disabled {
   width: 18px;
   height: 18px;
   flex: 0 0 auto;
+  cursor: pointer;
+}
+
+/* The "All" select-all/clear-all toggle — same visual weight as the
+   pill.neutral.small buttons it sits beside, just built from a real
+   checkbox+label so its own checked state reflects the grid's selection. */
+.select-all-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #e6e9f4;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.select-all-toggle input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
   cursor: pointer;
 }
 
@@ -949,6 +1029,14 @@ button.pill:disabled {
   min-height: 18px;
 }
 
+/* Calls out the "Incomplete words first" auto-selection message so it
+   doesn't blend in with the other, more routine status text above the
+   grid. */
+.spelling-tip.status-highlight {
+  color: var(--accent);
+  font-weight: 700;
+}
+
 #spelling-start-screen {
   text-align: center;
   padding: 30px 10px;
@@ -1027,6 +1115,80 @@ button.pill:disabled {
   justify-content: flex-start;
   gap: 8px;
   margin: 4px 0 14px;
+}
+
+/* Holds the combined sort/level filter dropdown on the left and a half-width
+   search box pinned to the right, on the row where the old level-filter
+   buttons used to sit. */
+.custom-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 14px;
+}
+
+.custom-search-half {
+  flex: 1 1 0;
+  max-width: 50%;
+  margin-left: auto;
+}
+
+.filter-dropdown {
+  position: relative;
+}
+
+.filter-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 6;
+  min-width: 220px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 10px 12px;
+  border: 1px solid #e6e9f4;
+}
+
+.filter-dropdown-panel[hidden] {
+  display: none;
+}
+
+.filter-dropdown-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-dropdown-group label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.filter-dropdown-group input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.filter-dropdown-divider {
+  border: none;
+  border-top: 1px solid #eef0f6;
+  margin: 8px 0;
+}
+
+@media (max-width: 480px) {
+  .custom-search-half {
+    max-width: none;
+  }
+
+  .custom-controls-row {
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1514,6 +1676,23 @@ footer {
   color: var(--muted);
   font-size: 0.82rem;
   overflow-wrap: anywhere;
+}
+
+.excel-overwrite-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  cursor: pointer;
+  margin: -4px 0 8px;
+}
+
+.excel-overwrite-toggle input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  cursor: pointer;
 }
 
 .ocr-progress {
