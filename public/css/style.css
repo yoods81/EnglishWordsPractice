@@ -227,6 +227,51 @@ nav.tabs button.active {
   margin: 16px 0;
 }
 
+/* Extract-words / Add-a-word tabs: stacked full-width, one above the other
+   (a "vertical" tab pair, as opposed to a side-by-side horizontal pair) —
+   only the active tab's panel is shown, which is what actually saves the
+   vertical space combining these two sections was meant to. */
+.addword-tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+.addword-tab-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.addword-tab-row .addword-tab {
+  margin-bottom: 0;
+  flex: 1 1 auto;
+}
+
+.addword-tab {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: #eef2fb;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 12px 14px;
+  cursor: pointer;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.addword-tab.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.addword-tab-panel[hidden] {
+  display: none;
+}
+
 .section-title-with-info {
   display: flex;
   align-items: center;
@@ -475,6 +520,9 @@ button.pill:disabled {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+  /* Forces this row onto its own line under the title, rather than sharing
+     the title's line whenever there happens to be room for both. */
+  flex-basis: 100%;
 }
 
 .wordlist-item .cw-select {
@@ -1137,6 +1185,38 @@ button.pill:disabled {
   position: relative;
 }
 
+/* Styled to read as a dropdown trigger (select-like border/background) with
+   a chevron that flips to show open/closed state, rather than a plain pill
+   button that gives no hint it opens something. */
+.filter-dropdown-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #fff;
+  color: var(--text);
+  border: 1px solid #d9deec;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-dropdown-toggle:hover {
+  border-color: var(--primary);
+}
+
+.filter-dropdown-chevron {
+  font-size: 0.7rem;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+
+.filter-dropdown-toggle.open .filter-dropdown-chevron {
+  transform: rotate(180deg);
+}
+
 .filter-dropdown-panel {
   position: absolute;
   top: calc(100% + 6px);
@@ -1678,22 +1758,6 @@ footer {
   overflow-wrap: anywhere;
 }
 
-.excel-overwrite-toggle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--muted);
-  font-size: 0.78rem;
-  cursor: pointer;
-  margin: -4px 0 8px;
-}
-
-.excel-overwrite-toggle input[type="checkbox"] {
-  width: 15px;
-  height: 15px;
-  flex: 0 0 auto;
-  cursor: pointer;
-}
 
 .ocr-progress {
   margin-top: 14px;

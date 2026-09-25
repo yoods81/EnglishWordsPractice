@@ -219,6 +219,7 @@ const TRANSLATIONS = {
         : `Added ${added} of ${picked} — the rest were already in your flashcards.`,
     wordlistCount: (n) => `${n} word${n === 1 ? "" : "s"}`,
     customWordsCount: (n) => `Total ${n} word${n === 1 ? "" : "s"}`,
+    wordlistSelectedCount: (n, total) => `${n} word${n === 1 ? "" : "s"} selected / ${t("customWordsCount", total)}`,
     masteryNew: "New",
     masteryPct: (pct) => `${pct}% mastered`,
     addWordManualTitle: "➕ Add a word manually",
@@ -248,6 +249,7 @@ const TRANSLATIONS = {
     ocrTitle: "📷 Extract words from a photo or files",
     ocrDesc: "Take a photo of a book page, upload a screenshot, or upload a text, Word, PDF or Excel file. We'll read the text and pull out candidate words you can add to your word list — or, for an Excel file, add each row's word straight in with its meaning, example and level already filled in.",
     ocrChooseBtn: "📁 Choose Photo or File",
+    ocrExtractBtn: "🔍 Extract",
     ocrNoFileChosen: "No file chosen",
     ocrProgressDefault: "Reading image...",
     ocrProgressReadingFile: "Reading file...",
@@ -273,7 +275,7 @@ const TRANSLATIONS = {
     excelNoWordColumn: "Couldn't find a \"Word\" column in that file — please check the column headers and try again.",
     excelNoRows: "That Excel file didn't have any words in it.",
     excelToolUnavailable: "The Excel tool couldn't load (check your internet connection) and can't be used right now.",
-    excelOverwriteLabel: "Excel file: overwrite existing words' data instead of skipping them",
+    excelOverwriteConfirm: "If this Excel file includes words you already have, overwrite their existing data with what's in the file? (Choose Cancel to only add new words and leave existing ones untouched.)",
     excelImportedStatus: (added, updated, skipped) => {
       const parts = [];
       if (added > 0) parts.push(`added ${added} word${added === 1 ? "" : "s"}`);
@@ -298,7 +300,7 @@ const TRANSLATIONS = {
     selectIncompleteNoneFound: "Every word here already has a meaning and an example.",
     selectIncompleteDone: (n) => `Selected ${n} word${n === 1 ? "" : "s"} missing a meaning or example.`,
     wordManagementLabel: "🛠️ Word Management",
-    sortFilterLabel: "🔽 Sort & Filter",
+    sortFilterLabel: "Sort & Filter",
     mergeDuplicatesBtn: "🧹 Merge Duplicates",
     noDuplicatesFound: "No duplicate words found — your list is clean!",
     mergeDuplicatesConfirm: (groups, extra) =>
@@ -566,6 +568,7 @@ const TRANSLATIONS = {
         : `${picked}개 중 ${added}개를 추가했어요 — 나머지는 이미 들어있어요.`,
     wordlistCount: (n) => `단어 ${n}개`,
     customWordsCount: (n) => `총 ${n}개 단어`,
+    wordlistSelectedCount: (n, total) => `${n}개 선택됨 / ${t("customWordsCount", total)}`,
     masteryNew: "신규",
     masteryPct: (pct) => `${pct}% 숙달`,
     addWordManualTitle: "➕ 단어 직접 추가하기",
@@ -594,6 +597,7 @@ const TRANSLATIONS = {
     ocrTitle: "📷 사진 또는 파일에서 단어 추출하기",
     ocrDesc: "책 페이지를 촬영하거나 온라인 지문을 캡처한 이미지, 또는 텍스트·Word·PDF·엑셀 파일을 올려보세요. 텍스트를 읽어서 단어장에 추가할 후보 단어를 찾아드려요 — 엑셀 파일의 경우, 각 행의 단어를 뜻·예문·레벨까지 그대로 채워서 바로 추가해드려요.",
     ocrChooseBtn: "📁 사진 또는 파일 선택하기",
+    ocrExtractBtn: "🔍 추출하기",
     ocrNoFileChosen: "선택된 파일 없음",
     ocrProgressDefault: "이미지를 읽는 중...",
     ocrProgressReadingFile: "파일을 읽는 중...",
@@ -619,7 +623,7 @@ const TRANSLATIONS = {
     excelNoWordColumn: "파일에서 \"Word\" 열을 찾을 수 없어요 — 열 제목을 확인하고 다시 시도해주세요.",
     excelNoRows: "그 엑셀 파일에 단어가 없어요.",
     excelToolUnavailable: "엑셀 처리 기능을 불러오지 못했어요 (인터넷 연결을 확인해주세요). 지금은 사용할 수 없어요.",
-    excelOverwriteLabel: "엑셀 파일: 건너뛰지 않고 기존 단어의 정보를 덮어쓰기",
+    excelOverwriteConfirm: "이 엑셀 파일에 이미 있는 단어가 포함되어 있다면, 파일 내용으로 기존 정보를 덮어쓸까요? (취소를 누르면 새 단어만 추가되고 기존 단어는 그대로 유지돼요.)",
     excelImportedStatus: (added, updated, skipped) => {
       const parts = [];
       if (added > 0) parts.push(`${added}개 추가`);
@@ -644,7 +648,7 @@ const TRANSLATIONS = {
     selectIncompleteNoneFound: "모든 단어에 뜻과 예문이 있어요.",
     selectIncompleteDone: (n) => `뜻이나 예문이 빠진 단어 ${n}개를 선택했어요.`,
     wordManagementLabel: "🛠️ 단어 관리",
-    sortFilterLabel: "🔽 정렬 및 필터",
+    sortFilterLabel: "정렬 및 필터",
     mergeDuplicatesBtn: "🧹 중복 단어 정리",
     noDuplicatesFound: "중복된 단어가 없어요 — 목록이 깨끗해요!",
     mergeDuplicatesConfirm: (groups, extra) => `중복된 단어 ${groups}개(여분 ${extra}개)를 찾았어요. 각각 하나로 합칠까요?`,
@@ -4320,10 +4324,23 @@ function updateSelectAllCheckboxState(checkbox, grid) {
   checkbox.checked = checkboxes.length > 0 && checkboxes.every((cb) => cb.checked);
 }
 
+// The total from the most recent renderWordList() pass, so the count label
+// can be refreshed from a single checkbox toggle without redoing the whole
+// filter/search pass just to know the total again.
+let wordlistLastTotal = 0;
+
+function updateWordlistCountLabel() {
+  wordlistCountEl.textContent =
+    selectedWordlistWords.size > 0
+      ? t("wordlistSelectedCount", selectedWordlistWords.size, wordlistLastTotal)
+      : t("customWordsCount", wordlistLastTotal);
+}
+
 function updateWordlistSelectionButtons() {
   const none = selectedWordlistWords.size === 0;
   wordlistAddDeckBtn.disabled = none;
   updateSelectAllCheckboxState(wordlistSelectAllCheckbox, wordlistGrid);
+  updateWordlistCountLabel();
 }
 
 function masteryLabel(word) {
@@ -4426,7 +4443,8 @@ function renderWordList() {
     });
   });
 
-  wordlistCountEl.textContent = t("customWordsCount", words.length);
+  wordlistLastTotal = words.length;
+  updateWordlistCountLabel();
   wordlistAddDeckBtn.disabled = selectedWordlistWords.size === 0;
   if (words.length === 0) {
     const p = document.createElement("p");
@@ -4503,6 +4521,23 @@ let customLevelFilterSet = new Set();
 // with each other across pairs) as successive tiebreakers; see the
 // comparator in renderCustomWords().
 let customSortFlags = new Set(["recent"]);
+
+/* ---------- Extract-words / Add-a-word vertical tabs ---------- */
+const addwordTabExtract = document.getElementById("addword-tab-extract");
+const addwordTabManual = document.getElementById("addword-tab-manual");
+const addwordPanelExtract = document.getElementById("addword-panel-extract");
+const addwordPanelManual = document.getElementById("addword-panel-manual");
+
+function showAddwordTab(tab) {
+  const isExtract = tab === "extract";
+  addwordTabExtract.classList.toggle("active", isExtract);
+  addwordTabManual.classList.toggle("active", !isExtract);
+  addwordPanelExtract.hidden = !isExtract;
+  addwordPanelManual.hidden = isExtract;
+}
+
+addwordTabExtract.addEventListener("click", () => showAddwordTab("extract"));
+addwordTabManual.addEventListener("click", () => showAddwordTab("manual"));
 
 const ocrLevelSelectEl = document.getElementById("ocr-level");
 const addModeSingleBtn = document.getElementById("add-mode-single-btn");
@@ -5218,13 +5253,18 @@ customSelectAllCheckbox.addEventListener("change", () => {
 });
 
 /* ---------- Combined sort/filter dropdown ---------- */
+function setCustomFilterPanelOpen(open) {
+  customFilterPanel.hidden = !open;
+  customFilterToggleBtn.classList.toggle("open", open);
+}
+
 customFilterToggleBtn.addEventListener("click", () => {
-  customFilterPanel.hidden = !customFilterPanel.hidden;
+  setCustomFilterPanelOpen(customFilterPanel.hidden);
 });
 
 document.addEventListener("click", (e) => {
   if (!customFilterPanel.hidden && !customFilterDropdown.contains(e.target)) {
-    customFilterPanel.hidden = true;
+    setCustomFilterPanelOpen(false);
   }
 });
 
@@ -5792,7 +5832,13 @@ const ocrAddBtn = document.getElementById("ocr-add-btn");
 const ocrStatus = document.getElementById("ocr-status");
 const ocrReviewHintEl = document.getElementById("ocr-review-hint");
 const ocrExcelStatus = document.getElementById("ocr-excel-status");
-const excelOverwriteCheckbox = document.getElementById("excel-overwrite-checkbox");
+const ocrExtractBtn = document.getElementById("ocr-extract-btn");
+// The file the user picked, held here between selection and the Extract
+// button click that actually processes it (see the ocrFileInput "change"
+// and ocrExtractBtn "click" handlers below).
+let ocrPendingFile = null;
+let ocrPendingKind = null;
+let ocrPendingOverwrite = false;
 
 const STOPWORDS = new Set(
   ("the and for that with have this from they were been their said each which she does how out many then them these" +
@@ -5863,7 +5909,7 @@ async function extractTextFromFile(file, kind) {
 // row already supplies (see EXCEL_COL_* in the My Added Words section below
 // for the exact columns this reads), bypassing the candidate-review UI
 // entirely. Only a side a row didn't supply gets looked up afterward.
-async function processExcelFile(file) {
+async function processExcelFile(file, overwrite) {
   const buffer = await file.arrayBuffer();
   const workbook = XLSX.read(buffer, { type: "array" });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -5890,7 +5936,6 @@ async function processExcelFile(file) {
   const exampleKey = findKey(EXCEL_COL_EXAMPLE);
   const levelEnKey = findKey(EXCEL_COL_LEVEL_EN);
   const levelKoKey = findKey(EXCEL_COL_LEVEL_KO);
-  const overwrite = excelOverwriteCheckbox.checked;
 
   const added = [];
   const updated = [];
@@ -5984,8 +6029,20 @@ async function processExcelFile(file) {
 
 ocrChooseBtn.addEventListener("click", () => ocrFileInput.click());
 
-ocrFileInput.addEventListener("change", async (e) => {
+// Picking a file only stages it — nothing is read or processed until the
+// Extract button (revealed here) is actually clicked. A tool that's
+// missing (CDN didn't load) or a fundamentally unsupported file type is
+// still reported immediately, since there's nothing Extract could do about
+// either. An Excel file's overwrite-or-skip choice is asked right here too,
+// before any of its rows have been read — see excelOverwriteConfirm's
+// wording, which doesn't presuppose the file actually contains a duplicate.
+ocrFileInput.addEventListener("change", (e) => {
   const file = e.target.files && e.target.files[0];
+  ocrExtractBtn.hidden = true;
+  ocrPendingFile = null;
+  ocrPendingKind = null;
+  ocrPendingOverwrite = false;
+
   if (!file) {
     ocrLastFileName = null;
     ocrFileNameEl.textContent = t("ocrNoFileChosen");
@@ -6013,19 +6070,46 @@ ocrFileInput.addEventListener("change", async (e) => {
     ocrFileInput.value = "";
     return;
   }
+  if (kind === "image" && typeof Tesseract === "undefined") {
+    ocrStatus.textContent = t("ocrNoTesseract");
+    ocrReview.hidden = false;
+    return;
+  }
+  if ((kind === "pdf" && typeof pdfjsLib === "undefined") || (kind === "docx" && typeof mammoth === "undefined")) {
+    ocrStatus.textContent = t("ocrNoDocReader");
+    ocrReview.hidden = false;
+    ocrFileInput.value = "";
+    return;
+  }
+  if (kind === "xlsx" && typeof XLSX === "undefined") {
+    ocrExcelStatus.hidden = false;
+    ocrExcelStatus.textContent = t("excelToolUnavailable");
+    ocrFileInput.value = "";
+    return;
+  }
 
   if (kind === "xlsx") {
-    if (typeof XLSX === "undefined") {
-      ocrExcelStatus.hidden = false;
-      ocrExcelStatus.textContent = t("excelToolUnavailable");
-      ocrFileInput.value = "";
-      return;
-    }
+    ocrPendingOverwrite = confirm(t("excelOverwriteConfirm"));
+  }
+
+  ocrPendingFile = file;
+  ocrPendingKind = kind;
+  ocrExtractBtn.hidden = false;
+});
+
+ocrExtractBtn.addEventListener("click", async () => {
+  const file = ocrPendingFile;
+  const kind = ocrPendingKind;
+  const overwrite = ocrPendingOverwrite;
+  if (!file || !kind) return;
+  ocrExtractBtn.hidden = true;
+
+  if (kind === "xlsx") {
     ocrProgress.hidden = false;
     ocrProgressFill.style.width = "50%";
     ocrProgressLabel.textContent = t("excelReadingStatus");
     try {
-      await processExcelFile(file);
+      await processExcelFile(file, overwrite);
     } catch (err) {
       console.error(err);
       ocrExcelStatus.hidden = false;
@@ -6038,12 +6122,6 @@ ocrFileInput.addEventListener("change", async (e) => {
   }
 
   if (kind === "image") {
-    if (typeof Tesseract === "undefined") {
-      ocrStatus.textContent = t("ocrNoTesseract");
-      ocrReview.hidden = false;
-      return;
-    }
-
     ocrProgress.hidden = false;
     ocrProgressFill.style.width = "0%";
     ocrProgressLabel.textContent = t("ocrProgressDefault");
@@ -6070,13 +6148,6 @@ ocrFileInput.addEventListener("change", async (e) => {
       // the same file again still fires a "change" event.
       ocrFileInput.value = "";
     }
-    return;
-  }
-
-  if ((kind === "pdf" && typeof pdfjsLib === "undefined") || (kind === "docx" && typeof mammoth === "undefined")) {
-    ocrStatus.textContent = t("ocrNoDocReader");
-    ocrReview.hidden = false;
-    ocrFileInput.value = "";
     return;
   }
 

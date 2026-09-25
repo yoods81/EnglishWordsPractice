@@ -426,12 +426,14 @@
     <!-- Add Word -->
     <section id="view-addword" class="view">
       <div class="card">
-        <h3 class="section-title-with-info">
-          <span data-i18n="ocrTitle">📷 Extract words from a photo or files</span>
+        <div class="addword-tabs">
+        <div class="addword-tab-row">
+          <button type="button" class="addword-tab active" id="addword-tab-extract" data-i18n="ocrTitle">📷 Extract words from a photo or files</button>
           <span class="info-icon" tabindex="0">?
             <span class="info-tooltip" data-i18n="ocrDesc">Take a photo of a book page, upload a screenshot, or upload a text, Word, PDF or Excel file. We'll read the text and pull out candidate words you can add to your word list — or, for an Excel file, add each row's word straight in with its meaning, example and level already filled in.</span>
           </span>
-        </h3>
+        </div>
+        <div id="addword-panel-extract" class="addword-tab-panel">
         <div class="file-picker-row">
           <button type="button" class="pill primary" id="ocr-choose-btn" data-i18n="ocrChooseBtn">📁 Choose Photo or File</button>
           <span class="file-picker-name" id="ocr-file-name" data-i18n="ocrNoFileChosen">No file chosen</span>
@@ -441,11 +443,8 @@
             accept="image/*,.txt,text/plain,.pdf,application/pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             hidden
           />
+          <button type="button" class="pill accent" id="ocr-extract-btn" data-i18n="ocrExtractBtn" hidden>🔍 Extract</button>
         </div>
-        <label class="excel-overwrite-toggle">
-          <input type="checkbox" id="excel-overwrite-checkbox" />
-          <span data-i18n="excelOverwriteLabel">Excel file: overwrite existing words' data instead of skipping them</span>
-        </label>
         <div id="ocr-progress" class="ocr-progress" hidden>
           <div class="progress-bar"><div class="progress-bar-fill" id="ocr-progress-fill"></div></div>
           <div id="ocr-progress-label" data-i18n="ocrProgressDefault">Reading image...</div>
@@ -464,10 +463,10 @@
           <div id="ocr-status" class="spelling-tip"></div>
         </div>
         <div id="ocr-excel-status" class="spelling-tip" hidden></div>
+        </div>
 
-        <hr class="card-divider" />
-
-        <h3 data-i18n="addWordManualTitle">➕ Add a word manually</h3>
+        <button type="button" class="addword-tab" id="addword-tab-manual" data-i18n="addWordManualTitle">➕ Add a word manually</button>
+        <div id="addword-panel-manual" class="addword-tab-panel" hidden>
         <div class="add-mode-toggle">
           <button type="button" class="pill primary" id="add-mode-single-btn" data-i18n="addModeSingle">Single word</button>
           <button type="button" class="pill neutral" id="add-mode-bulk-btn" data-i18n="addModeBulk">Multiple words</button>
@@ -509,6 +508,8 @@
           </div>
           <div id="bulk-add-status" class="spelling-tip"></div>
         </div>
+        </div>
+        </div>
       </div>
 
       <div class="card">
@@ -528,7 +529,6 @@
             </select>
             <button type="button" class="pill neutral small" id="custom-export-btn" data-i18n="exportExcelBtn">📥 Export</button>
             <button type="button" class="pill accent small" id="custom-upload-btn" hidden>☁️ Upload</button>
-            <select id="custom-level-select" class="level-bulk-select" disabled></select>
           </div>
         </div>
         <p class="muted wordlist-count" id="custom-words-count"></p>
@@ -543,7 +543,10 @@
         <div id="custom-words-status" class="spelling-tip"></div>
         <div class="custom-controls-row">
           <div class="filter-dropdown" id="custom-filter-dropdown">
-            <button type="button" class="pill neutral small" id="custom-filter-toggle-btn" data-i18n="sortFilterLabel">🔽 Sort &amp; Filter</button>
+            <button type="button" class="filter-dropdown-toggle" id="custom-filter-toggle-btn">
+              <span data-i18n="sortFilterLabel">Sort &amp; Filter</span>
+              <span class="filter-dropdown-chevron" id="custom-filter-chevron">▾</span>
+            </button>
             <div class="filter-dropdown-panel" id="custom-filter-panel" hidden>
               <div class="filter-dropdown-group" id="custom-filter-level-group"></div>
               <hr class="filter-dropdown-divider" />
@@ -559,6 +562,7 @@
               </div>
             </div>
           </div>
+          <select id="custom-level-select" class="level-bulk-select" disabled></select>
           <input type="text" class="wordlist-search custom-search-half" id="custom-search" data-i18n-placeholder="customSearchPlaceholder" placeholder="🔍 Search added words..." />
         </div>
         <div class="wordlist-grid" id="custom-words-grid"></div>
