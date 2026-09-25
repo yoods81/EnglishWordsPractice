@@ -227,6 +227,41 @@ nav.tabs button.active {
   margin: 16px 0;
 }
 
+/* A card locked behind a paid account: its own controls are dimmed and
+   inert (pointer-events cascades to every descendant), and a transparent
+   overlay sits on top to catch the click and show the upgrade prompt. */
+.card.premium-gate {
+  position: relative;
+}
+.card.premium-gate > *:not(.premium-gate-overlay) {
+  opacity: 0.4;
+  pointer-events: none;
+  user-select: none;
+}
+.premium-gate-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px;
+  cursor: pointer;
+  background: transparent;
+  border-radius: var(--radius);
+}
+.premium-gate-label {
+  background: var(--card-bg);
+  border: 1px solid var(--accent);
+  color: var(--text);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+}
+
 .section-title-with-info {
   display: flex;
   align-items: center;

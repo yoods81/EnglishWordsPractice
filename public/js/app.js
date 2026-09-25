@@ -384,6 +384,9 @@ const TRANSLATIONS = {
     upgradeSubmitBtn: "Upgrade",
     upgradeErrorNotEligible: "This account can't be upgraded from here.",
     anonymousFeatureSignupPrompt: "This feature is for signed-in accounts. Sign up (it's free!) to unlock it?",
+    anonymousPremiumFeaturePrompt: "This feature is for premium accounts. Sign up (it's free!), then upgrade to unlock it?",
+    premiumGateLabel: "🔒 Sign up or upgrade to use this",
+    customDeleteOthersBlocked: "You can only delete words you added yourself.",
     roleAdmin: "Admin",
     rolePaid: "Premium",
     roleFree: "General",
@@ -728,6 +731,9 @@ const TRANSLATIONS = {
     upgradeSubmitBtn: "업그레이드",
     upgradeErrorNotEligible: "이 계정은 여기서 업그레이드할 수 없어요.",
     anonymousFeatureSignupPrompt: "이 기능은 로그인한 계정만 사용할 수 있어요. 가입하고(무료예요!) 사용해보시겠어요?",
+    anonymousPremiumFeaturePrompt: "이 기능은 프리미엄 계정만 사용할 수 있어요. 가입하고(무료예요!) 업그레이드해서 사용해보시겠어요?",
+    premiumGateLabel: "🔒 가입 또는 업그레이드가 필요해요",
+    customDeleteOthersBlocked: "본인이 추가한 단어만 삭제 가능합니다.",
     roleAdmin: "관리자",
     rolePaid: "프리미엄",
     roleFree: "일반",
@@ -1509,8 +1515,8 @@ const adminCodesTabButton = document.querySelector('nav.tabs button[data-view="a
 // Add Word / Flashcards / Word List / My Progress are all open to anyone to
 // browse — Quiz/Spelling/Typing Game already were. Only the account-specific
 // *actions* inside them (saving a word, building a custom flashcard deck,
-// etc.) are gated, each at its own point of use via promptSignupForFeature();
-// see canUseAccountFeatures()'s call sites. admincodes keeps its own,
+// etc.) are gated, each at its own point of use — see canUsePaidFeatures()/
+// promptUpgradeForFeature()'s call sites. admincodes keeps its own,
 // stricter admin-only gate here.
 tabButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -1524,6 +1530,34 @@ function promptSignupForFeature() {
     openAuthOverlay("signup");
   }
 }
+
+// A step above canUseAccountFeatures(): word-adding (photo/manual/OCR),
+// managing My Added Words, and building the "My cards" flashcard deck are
+// premium features — a free (signed-in) account doesn't clear this any more
+// than an anonymous visitor does, only paid and admin do.
+function canUsePaidFeatures() {
+  return isAdmin || (currentUser && currentUser.role === "paid");
+}
+
+// A signed-in free account is sent straight to the upgrade overlay it
+// already knows from the goal-cap prompts (openUpgradeOverlay, see Quiz/
+// Spelling); an anonymous visitor has no account yet to upgrade, so gets a
+// plain confirm pointing at signup instead.
+function promptUpgradeForFeature() {
+  if (currentUser && currentUser.role === "free") {
+    openUpgradeOverlay();
+    return;
+  }
+  if (confirm(t("anonymousPremiumFeaturePrompt"))) {
+    openAuthOverlay("signup");
+  }
+}
+
+// Set once the Add Word section further down this file has its own DOM
+// elements ready (see updatePaidFeatureGates()). Called as a hook, rather
+// than directly, so the updateAdminUI() call at module init below — which
+// runs before that section's consts exist — doesn't throw.
+let refreshPaidFeatureGates = null;
 
 /* ---------- Shared word list API ---------- */
 // serverAdmin means the Worker confirmed an admin session, so this browser
@@ -1751,6 +1785,8 @@ function updateAdminUI() {
   const activeOffLimitsTab = !serverAdmin && adminCodesTabButton && adminCodesTabButton.classList.contains("active");
   const onMyAccountSignedOut = !currentUser && document.getElementById("view-myaccount").classList.contains("active");
   if (activeOffLimitsTab || onMyAccountSignedOut) goToTab("quiz");
+
+  if (refreshPaidFeatureGates) refreshPaidFeatureGates();
 }
 
 function setAuthMode(mode) {
@@ -2273,9 +2309,9 @@ flashDontKnowBtn.addEventListener("click", () => {
 flashCategorySel.addEventListener("change", buildFlashDeck);
 flashFrontModeSel.addEventListener("change", renderFlashcard);
 flashSourceSel.addEventListener("change", () => {
-  if (flashSourceSel.value === "mine" && !canUseAccountFeatures()) {
+  if (flashSourceSel.value === "mine" && !canUsePaidFeatures()) {
     flashSourceSel.value = "auto";
-    promptSignupForFeature();
+    promptUpgradeForFeature();
     return;
   }
   buildFlashDeck();
@@ -4461,8 +4497,8 @@ wordlistSearch.addEventListener("input", renderWordList);
 wordlistLevelSelect.addEventListener("change", renderWordList);
 
 wordlistAddDeckBtn.addEventListener("click", () => {
-  if (!canUseAccountFeatures()) {
-    promptSignupForFeature();
+  if (!canUsePaidFeatures()) {
+    promptUpgradeForFeature();
     return;
   }
   const picked = Array.from(selectedWordlistWords.values());
@@ -4620,8 +4656,8 @@ addModeSingleBtn.addEventListener("click", () => setAddMode("single"));
 addModeBulkBtn.addEventListener("click", () => setAddMode("bulk"));
 
 bulkAddSaveBtn.addEventListener("click", async () => {
-  if (!canUseAccountFeatures()) {
-    promptSignupForFeature();
+  if (!canUsePaidFeatures()) {
+    promptUpgradeForFeature();
     return;
   }
   const allWords = Array.from(
@@ -4809,8 +4845,8 @@ function populateBulkLevelSelect() {
 
 manualForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  if (!canUseAccountFeatures()) {
-    promptSignupForFeature();
+  if (!canUsePaidFeatures()) {
+    promptUpgradeForFeature();
     return;
   }
   const word = manualWordInput.value.trim();
@@ -5225,11 +5261,25 @@ customUploadBtn.addEventListener("click", async () => {
 
 customDeleteSelectedBtn.addEventListener("click", () => {
   if (selectedCustomWordIds.size === 0) return;
-  if (!confirm(t("deleteSelectedConfirm", selectedCustomWordIds.size))) return;
-  const removedRemoteIds = customWords
-    .filter((w) => selectedCustomWordIds.has(w.id) && w.remote)
-    .map((w) => w.id);
-  customWords = customWords.filter((w) => !selectedCustomWordIds.has(w.id));
+  const selected = customWords.filter((w) => selectedCustomWordIds.has(w.id));
+  // myCustomWords() (what this grid actually lists) already keeps a paid
+  // account down to its own words, so this only ever trips on a stale
+  // selection — but a paid account should never be able to delete a shared,
+  // admin-owned word regardless.
+  const blocked = new Set(
+    currentUser && currentUser.role === "paid"
+      ? selected.filter((w) => w.remote && w.ownerId !== currentUser.id).map((w) => w.id)
+      : []
+  );
+  const deletable = selected.filter((w) => !blocked.has(w.id));
+  if (blocked.size > 0) {
+    alert(t("customDeleteOthersBlocked"));
+    if (deletable.length === 0) return;
+  }
+  if (!confirm(t("deleteSelectedConfirm", deletable.length))) return;
+  const deletableIds = new Set(deletable.map((w) => w.id));
+  const removedRemoteIds = deletable.filter((w) => w.remote).map((w) => w.id);
+  customWords = customWords.filter((w) => !deletableIds.has(w.id));
   selectedCustomWordIds.clear();
   saveCustomWords();
   renderCustomWords();
@@ -5834,6 +5884,55 @@ let ocrPendingFile = null;
 let ocrPendingKind = null;
 let ocrPendingOverwrite = false;
 
+/* ---------- Paid-feature gating: Extract words, Add manually, My added words ---------- */
+const addwordExtractCard = document.getElementById("addword-extract-card");
+const addwordManualCard = document.getElementById("addword-manual-card");
+const myAddedWordsCard = document.getElementById("my-added-words-card");
+const ocrPremiumOverlay = document.getElementById("ocr-premium-overlay");
+const manualPremiumOverlay = document.getElementById("manual-premium-overlay");
+const customPremiumOverlay = document.getElementById("custom-premium-overlay");
+
+function setPremiumGate(card, overlay, locked) {
+  card.classList.toggle("premium-gate", locked);
+  overlay.hidden = !locked;
+}
+
+[ocrPremiumOverlay, manualPremiumOverlay, customPremiumOverlay].forEach((overlay) => {
+  overlay.addEventListener("click", promptUpgradeForFeature);
+});
+
+// Extract-words, Add-manually and My-added-words are all paid features: the
+// whole card is dimmed and an overlay catches every click (including a
+// programmatic one, like Enter submitting a form) and shows the upgrade/
+// signup prompt instead. My Added Words additionally hides the admin-style
+// bulk-maintenance tools for a plain paid account once it's unlocked — those
+// stay for admin, who's the one actually maintaining the shared pool.
+function updatePaidFeatureGates() {
+  const locked = !canUsePaidFeatures();
+  setPremiumGate(addwordExtractCard, ocrPremiumOverlay, locked);
+  setPremiumGate(addwordManualCard, manualPremiumOverlay, locked);
+  setPremiumGate(myAddedWordsCard, customPremiumOverlay, locked);
+
+  // The premium-gate overlay blocks a mouse/touch click on everything under
+  // it, but pointer-events:none doesn't stop a keyboard-focused control from
+  // being activated — disabling these directly closes that gap. (Delete/
+  // change-level already end up disabled whenever locked, since the grid is
+  // always empty with nothing addable to it — see updateDeleteSelectedBtn().)
+  [manualWordInput, manualDefinitionInput, manualExampleInput, manualLevelSelect, bulkWordsInput].forEach((el) => {
+    el.disabled = locked;
+  });
+  [customSearchInput, customFilterToggleBtn, customSelectAllCheckbox, customWordMgmtSelect, customExportBtn].forEach((el) => {
+    el.disabled = locked;
+  });
+
+  const paidNotAdmin = !!currentUser && currentUser.role === "paid" && !isAdmin;
+  customWordMgmtSelect.hidden = paidNotAdmin;
+  customExportBtn.hidden = paidNotAdmin;
+}
+
+refreshPaidFeatureGates = updatePaidFeatureGates;
+updatePaidFeatureGates();
+
 const STOPWORDS = new Set(
   ("the and for that with have this from they were been their said each which she does how out many then them these" +
     " some her would make like into time look more write number could people water than first been call word about" +
@@ -6021,7 +6120,17 @@ async function processExcelFile(file, overwrite) {
   }
 }
 
-ocrChooseBtn.addEventListener("click", () => ocrFileInput.click());
+ocrChooseBtn.addEventListener("click", () => {
+  // The premium-gate overlay on top of this card catches a mouse/touch
+  // click before it ever reaches this button, but pointer-events:none
+  // doesn't stop a keyboard-focused button from being activated — this is
+  // the backstop for that path.
+  if (!canUsePaidFeatures()) {
+    promptUpgradeForFeature();
+    return;
+  }
+  ocrFileInput.click();
+});
 
 // Picking a file only stages it — nothing is read or processed until the
 // Extract button (revealed here) is actually clicked. A tool that's
@@ -6099,9 +6208,9 @@ ocrExtractBtn.addEventListener("click", async () => {
   // An Excel file's data goes straight into My Added Words with no separate
   // "Add selected words" step to gate afterward (unlike the photo/PDF/text
   // candidate-review flow below), so this is where that write needs its own
-  // sign-in check.
-  if (kind === "xlsx" && !canUseAccountFeatures()) {
-    promptSignupForFeature();
+  // paid-account check.
+  if (kind === "xlsx" && !canUsePaidFeatures()) {
+    promptUpgradeForFeature();
     return;
   }
   ocrExtractBtn.hidden = true;
@@ -6468,8 +6577,8 @@ async function fetchWordInfo(word) {
 }
 
 ocrAddBtn.addEventListener("click", async () => {
-  if (!canUseAccountFeatures()) {
-    promptSignupForFeature();
+  if (!canUsePaidFeatures()) {
+    promptUpgradeForFeature();
     return;
   }
   const selected = Array.from(ocrSelectedWords);

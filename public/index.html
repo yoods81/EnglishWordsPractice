@@ -425,7 +425,7 @@
 
     <!-- Add Word -->
     <section id="view-addword" class="view">
-      <div class="card">
+      <div class="card" id="addword-extract-card">
         <h3 class="section-title-with-info">
           <span data-i18n="ocrTitle">📷 Extract words from a photo or files</span>
           <span class="info-icon" tabindex="0">?
@@ -461,9 +461,12 @@
           <div id="ocr-status" class="spelling-tip"></div>
         </div>
         <div id="ocr-excel-status" class="spelling-tip" hidden></div>
+        <div class="premium-gate-overlay" id="ocr-premium-overlay" hidden>
+          <span class="premium-gate-label" data-i18n="premiumGateLabel">🔒 Sign up or upgrade to use this</span>
+        </div>
       </div>
 
-      <div class="card">
+      <div class="card" id="addword-manual-card">
         <h3 data-i18n="addWordManualTitle">➕ Add a word manually</h3>
         <div class="add-mode-toggle">
           <button type="button" class="pill primary" id="add-mode-single-btn" data-i18n="addModeSingle">Single word</button>
@@ -506,9 +509,12 @@
           </div>
           <div id="bulk-add-status" class="spelling-tip"></div>
         </div>
+        <div class="premium-gate-overlay" id="manual-premium-overlay" hidden>
+          <span class="premium-gate-label" data-i18n="premiumGateLabel">🔒 Sign up or upgrade to use this</span>
+        </div>
       </div>
 
-      <div class="card">
+      <div class="card" id="my-added-words-card">
         <div class="my-added-words-header">
           <h3 data-i18n="myAddedWordsTitle">📝 My added words</h3>
           <div class="my-added-words-header-actions">
@@ -563,6 +569,9 @@
         </div>
         <div class="wordlist-grid" id="custom-words-grid"></div>
         <p class="muted" id="custom-words-empty" hidden data-i18n="myAddedWordsEmpty">You haven't added any words yet.</p>
+        <div class="premium-gate-overlay" id="custom-premium-overlay" hidden>
+          <span class="premium-gate-label" data-i18n="premiumGateLabel">🔒 Sign up or upgrade to use this</span>
+        </div>
       </div>
     </section>
 
