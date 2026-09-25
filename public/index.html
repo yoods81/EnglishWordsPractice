@@ -425,6 +425,7 @@
 
     <!-- Add Word -->
     <section id="view-addword" class="view">
+      <div class="addword-top-row">
       <div class="card" id="addword-extract-card">
         <h3 class="section-title-with-info">
           <span data-i18n="ocrTitle">📷 Extract words from a photo or files</span>
@@ -511,8 +512,14 @@
           <div id="bulk-add-status" class="spelling-tip"></div>
         </div>
         <div class="premium-gate-overlay" id="manual-premium-overlay" hidden>
-          <span class="premium-gate-label" data-i18n="premiumGateLabel">🔒 Sign up or upgrade to use this</span>
+          <div class="premium-gate-label">
+            <div class="premium-gate-label-title" data-i18n="premiumGateTitle">🔒 Premium feature</div>
+            <div class="premium-gate-label-desc" data-i18n="premiumGateDesc">
+              Adding and managing your own words needs a premium account. Sign up — it's free — then upgrade to unlock it.
+            </div>
+          </div>
         </div>
+      </div>
       </div>
 
       <div class="card" id="my-added-words-card">

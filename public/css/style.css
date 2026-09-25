@@ -264,14 +264,41 @@ nav.tabs button.active {
   border-radius: var(--radius);
 }
 .premium-gate-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   background: var(--card-bg);
-  border: 1px solid var(--accent);
+  border: 2px solid var(--accent);
   color: var(--text);
-  padding: 8px 16px;
-  border-radius: 999px;
-  font-weight: 600;
-  font-size: 0.85rem;
+  padding: 18px 22px;
+  border-radius: 14px;
   box-shadow: var(--shadow);
+  max-width: min(320px, 90%);
+}
+.premium-gate-label-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+.premium-gate-label-desc {
+  font-weight: 400;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+/* Add Word: Extract-words and Add-manually side by side on a wide enough
+   screen, My Added Words full-width underneath; stacks to one column below
+   the shared 480px mobile breakpoint (see that media query). */
+.addword-top-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.addword-top-row > .card {
+  flex: 1 1 0;
+  min-width: 0;
+  margin-bottom: 0;
 }
 
 .section-title-with-info {
@@ -908,6 +935,7 @@ button.pill:disabled {
 }
 
 @media (max-width: 480px) {
+  .addword-top-row { flex-direction: column; }
   .options { grid-template-columns: 1fr; }
 
   .flash-side-btn {
