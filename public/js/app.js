@@ -4522,23 +4522,6 @@ let customLevelFilterSet = new Set();
 // comparator in renderCustomWords().
 let customSortFlags = new Set(["recent"]);
 
-/* ---------- Extract-words / Add-a-word vertical tabs ---------- */
-const addwordTabExtract = document.getElementById("addword-tab-extract");
-const addwordTabManual = document.getElementById("addword-tab-manual");
-const addwordPanelExtract = document.getElementById("addword-panel-extract");
-const addwordPanelManual = document.getElementById("addword-panel-manual");
-
-function showAddwordTab(tab) {
-  const isExtract = tab === "extract";
-  addwordTabExtract.classList.toggle("active", isExtract);
-  addwordTabManual.classList.toggle("active", !isExtract);
-  addwordPanelExtract.hidden = !isExtract;
-  addwordPanelManual.hidden = isExtract;
-}
-
-addwordTabExtract.addEventListener("click", () => showAddwordTab("extract"));
-addwordTabManual.addEventListener("click", () => showAddwordTab("manual"));
-
 const ocrLevelSelectEl = document.getElementById("ocr-level");
 const addModeSingleBtn = document.getElementById("add-mode-single-btn");
 const addModeBulkBtn = document.getElementById("add-mode-bulk-btn");

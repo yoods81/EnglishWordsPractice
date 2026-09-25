@@ -426,14 +426,12 @@
     <!-- Add Word -->
     <section id="view-addword" class="view">
       <div class="card">
-        <div class="addword-tabs">
-        <div class="addword-tab-row">
-          <button type="button" class="addword-tab active" id="addword-tab-extract" data-i18n="ocrTitle">📷 Extract words from a photo or files</button>
+        <h3 class="section-title-with-info">
+          <span data-i18n="ocrTitle">📷 Extract words from a photo or files</span>
           <span class="info-icon" tabindex="0">?
             <span class="info-tooltip" data-i18n="ocrDesc">Take a photo of a book page, upload a screenshot, or upload a text, Word, PDF or Excel file. We'll read the text and pull out candidate words you can add to your word list — or, for an Excel file, add each row's word straight in with its meaning, example and level already filled in.</span>
           </span>
-        </div>
-        <div id="addword-panel-extract" class="addword-tab-panel">
+        </h3>
         <div class="file-picker-row">
           <button type="button" class="pill primary" id="ocr-choose-btn" data-i18n="ocrChooseBtn">📁 Choose Photo or File</button>
           <span class="file-picker-name" id="ocr-file-name" data-i18n="ocrNoFileChosen">No file chosen</span>
@@ -463,10 +461,10 @@
           <div id="ocr-status" class="spelling-tip"></div>
         </div>
         <div id="ocr-excel-status" class="spelling-tip" hidden></div>
-        </div>
+      </div>
 
-        <button type="button" class="addword-tab" id="addword-tab-manual" data-i18n="addWordManualTitle">➕ Add a word manually</button>
-        <div id="addword-panel-manual" class="addword-tab-panel" hidden>
+      <div class="card">
+        <h3 data-i18n="addWordManualTitle">➕ Add a word manually</h3>
         <div class="add-mode-toggle">
           <button type="button" class="pill primary" id="add-mode-single-btn" data-i18n="addModeSingle">Single word</button>
           <button type="button" class="pill neutral" id="add-mode-bulk-btn" data-i18n="addModeBulk">Multiple words</button>
@@ -507,8 +505,6 @@
             <button type="button" class="pill primary" id="bulk-add-save-btn" data-i18n="bulkAddSaveBtn">Save words</button>
           </div>
           <div id="bulk-add-status" class="spelling-tip"></div>
-        </div>
-        </div>
         </div>
       </div>
 
