@@ -1504,21 +1504,16 @@ function goToTab(view) {
   refreshView(view);
 }
 
-const addwordTabButton = document.querySelector('nav.tabs button[data-view="addword"]');
 const adminCodesTabButton = document.querySelector('nav.tabs button[data-view="admincodes"]');
-const flashcardsTabButton = document.querySelector('nav.tabs button[data-view="flashcards"]');
-const wordlistTabButton = document.querySelector('nav.tabs button[data-view="wordlist"]');
-const statsTabButton = document.querySelector('nav.tabs button[data-view="stats"]');
-// Tabs gated behind being signed in (any role) — Quiz/Spelling/Typing Game
-// stay open to everyone, admincodes has its own, stricter admin-only gate.
-const accountGatedTabButtons = [addwordTabButton, flashcardsTabButton, wordlistTabButton, statsTabButton];
 
+// Add Word / Flashcards / Word List / My Progress are all open to anyone to
+// browse — Quiz/Spelling/Typing Game already were. Only the account-specific
+// *actions* inside them (saving a word, building a custom flashcard deck,
+// etc.) are gated, each at its own point of use via promptSignupForFeature();
+// see canUseAccountFeatures()'s call sites. admincodes keeps its own,
+// stricter admin-only gate here.
 tabButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    if (accountGatedTabButtons.includes(btn) && !canUseAccountFeatures()) {
-      promptSignupForFeature();
-      return;
-    }
     if (btn.dataset.view === "admincodes" && !serverAdmin) return;
     goToTab(btn.dataset.view);
   });
@@ -1750,13 +1745,10 @@ function updateAdminUI() {
   authToggleBtn.classList.toggle("auth-toggle-active", !!currentUser);
   if (!currentUser) closeAuthMenu();
 
-  // Bounce back to Quiz if we're sitting on a tab that just became off-limits
-  // (signed out while on an account-gated tab, or lost admin on admincodes),
-  // or on My Account (no nav button of its own) after signing out.
-  const activeOffLimitsTab = [
-    ...(canUseAccountFeatures() ? [] : accountGatedTabButtons),
-    ...(serverAdmin ? [] : [adminCodesTabButton]),
-  ].find((btn) => btn && btn.classList.contains("active"));
+  // Bounce back to Quiz if we're sitting on admincodes and just lost admin,
+  // or on My Account (no nav button of its own) after signing out — every
+  // other tab stays browsable regardless of sign-in state.
+  const activeOffLimitsTab = !serverAdmin && adminCodesTabButton && adminCodesTabButton.classList.contains("active");
   const onMyAccountSignedOut = !currentUser && document.getElementById("view-myaccount").classList.contains("active");
   if (activeOffLimitsTab || onMyAccountSignedOut) goToTab("quiz");
 }
@@ -2280,7 +2272,14 @@ flashDontKnowBtn.addEventListener("click", () => {
 
 flashCategorySel.addEventListener("change", buildFlashDeck);
 flashFrontModeSel.addEventListener("change", renderFlashcard);
-flashSourceSel.addEventListener("change", buildFlashDeck);
+flashSourceSel.addEventListener("change", () => {
+  if (flashSourceSel.value === "mine" && !canUseAccountFeatures()) {
+    flashSourceSel.value = "auto";
+    promptSignupForFeature();
+    return;
+  }
+  buildFlashDeck();
+});
 
 function renderMyDeck() {
   // Keeps the "in your cards" tags honest when the deck changes underneath.
@@ -4462,6 +4461,10 @@ wordlistSearch.addEventListener("input", renderWordList);
 wordlistLevelSelect.addEventListener("change", renderWordList);
 
 wordlistAddDeckBtn.addEventListener("click", () => {
+  if (!canUseAccountFeatures()) {
+    promptSignupForFeature();
+    return;
+  }
   const picked = Array.from(selectedWordlistWords.values());
   if (picked.length === 0) return;
   const added = addToMyDeck(picked);
@@ -4617,6 +4620,10 @@ addModeSingleBtn.addEventListener("click", () => setAddMode("single"));
 addModeBulkBtn.addEventListener("click", () => setAddMode("bulk"));
 
 bulkAddSaveBtn.addEventListener("click", async () => {
+  if (!canUseAccountFeatures()) {
+    promptSignupForFeature();
+    return;
+  }
   const allWords = Array.from(
     new Set(
       bulkWordsInput.value
@@ -4802,6 +4809,10 @@ function populateBulkLevelSelect() {
 
 manualForm.addEventListener("submit", (e) => {
   e.preventDefault();
+  if (!canUseAccountFeatures()) {
+    promptSignupForFeature();
+    return;
+  }
   const word = manualWordInput.value.trim();
   const definition = manualDefinitionInput.value.trim();
   const example = manualExampleInput.value.trim();
@@ -6085,6 +6096,14 @@ ocrExtractBtn.addEventListener("click", async () => {
   const kind = ocrPendingKind;
   const overwrite = ocrPendingOverwrite;
   if (!file || !kind) return;
+  // An Excel file's data goes straight into My Added Words with no separate
+  // "Add selected words" step to gate afterward (unlike the photo/PDF/text
+  // candidate-review flow below), so this is where that write needs its own
+  // sign-in check.
+  if (kind === "xlsx" && !canUseAccountFeatures()) {
+    promptSignupForFeature();
+    return;
+  }
   ocrExtractBtn.hidden = true;
 
   if (kind === "xlsx") {
@@ -6449,6 +6468,10 @@ async function fetchWordInfo(word) {
 }
 
 ocrAddBtn.addEventListener("click", async () => {
+  if (!canUseAccountFeatures()) {
+    promptSignupForFeature();
+    return;
+  }
   const selected = Array.from(ocrSelectedWords);
   if (selected.length === 0) {
     ocrStatus.textContent = t("ocrSelectAtLeastOne");
