@@ -229,14 +229,26 @@ nav.tabs button.active {
 
 /* A card locked behind a paid account: its own controls are dimmed and
    inert (pointer-events cascades to every descendant), and a transparent
-   overlay sits on top to catch the click and show the upgrade prompt. */
-.card.premium-gate {
+   overlay sits on top to catch the click and show the upgrade prompt.
+   position:relative lives on the specific cards (not gated behind the
+   .premium-gate class) so the overlay's position:absolute always resolves
+   against its own card — never escaping to some far-off positioned
+   ancestor (which, when unlocked, swallowed clicks across the whole page,
+   including the header's logout button). [hidden] is forced with
+   !important so it always wins over the display:flex below, regardless of
+   author-rule order — an unlocked card must never show this at all. */
+#addword-extract-card,
+#addword-manual-card,
+#my-added-words-card {
   position: relative;
 }
 .card.premium-gate > *:not(.premium-gate-overlay) {
   opacity: 0.4;
   pointer-events: none;
   user-select: none;
+}
+.premium-gate-overlay[hidden] {
+  display: none !important;
 }
 .premium-gate-overlay {
   position: absolute;

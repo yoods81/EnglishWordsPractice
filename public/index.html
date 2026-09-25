@@ -461,9 +461,10 @@
           <div id="ocr-status" class="spelling-tip"></div>
         </div>
         <div id="ocr-excel-status" class="spelling-tip" hidden></div>
-        <div class="premium-gate-overlay" id="ocr-premium-overlay" hidden>
-          <span class="premium-gate-label" data-i18n="premiumGateLabel">🔒 Sign up or upgrade to use this</span>
-        </div>
+        <!-- Dimmed + click-to-prompt like the other two locked cards, but with no
+             label of its own — one lock message (on the middle, manual-add card)
+             is enough when all 3 cards lock together. -->
+        <div class="premium-gate-overlay" id="ocr-premium-overlay" hidden></div>
       </div>
 
       <div class="card" id="addword-manual-card">
@@ -569,9 +570,8 @@
         </div>
         <div class="wordlist-grid" id="custom-words-grid"></div>
         <p class="muted" id="custom-words-empty" hidden data-i18n="myAddedWordsEmpty">You haven't added any words yet.</p>
-        <div class="premium-gate-overlay" id="custom-premium-overlay" hidden>
-          <span class="premium-gate-label" data-i18n="premiumGateLabel">🔒 Sign up or upgrade to use this</span>
-        </div>
+        <!-- No label here either — see the extract-words card's overlay comment. -->
+        <div class="premium-gate-overlay" id="custom-premium-overlay" hidden></div>
       </div>
     </section>
 
