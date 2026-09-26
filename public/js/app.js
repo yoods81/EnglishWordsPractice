@@ -3160,6 +3160,14 @@ let typeGameStageBannerTimer = null;
 let typeGameSrsQueue = [];
 const TYPEGAME_SRS_QUEUE_SIZE = 30;
 
+// Words correctly typed in THIS round, for maybeOfferTypeGameLevelChallenge()
+// — deliberately separate from progress.wordStats (which is lifetime and
+// drives SRS scheduling/mastery elsewhere): gating the level-up prompt on
+// lifetime history meant a well-practiced account had already "cleared"
+// most of a newly-unlocked level from earlier sessions, so the prompt kept
+// re-firing after almost every answer instead of after a real round of play.
+let typeGameRoundSolved = new Set();
+
 function loadTypeGameHighScores() {
   try {
     const raw = localStorage.getItem(TYPEGAME_HIGH_SCORE_KEY);
@@ -3295,6 +3303,7 @@ function resetTypeGame() {
   typeGameActive = [];
   typeGameScore = 0;
   typeGameWordsCleared = 0;
+  typeGameRoundSolved = new Set();
   typeGameLives = TYPEGAME_LIVES;
   typeGameSpeedLevel = TYPEGAME_SPEED_LEVEL_MIN;
   updateTypeGameSpeedUI();
@@ -3325,6 +3334,7 @@ function startTypeGame() {
   typeGamePaused = false;
   typeGameScore = 0;
   typeGameWordsCleared = 0;
+  typeGameRoundSolved = new Set();
   typeGameLives = TYPEGAME_LIVES;
   typeGameSpeedLevel = TYPEGAME_SPEED_LEVEL_MIN;
   updateTypeGameSpeedUI();
@@ -3515,6 +3525,7 @@ function spawnTypeGamePopFx(el) {
 function clearTypeGameWord(word) {
   recordSrsResult(word.text, true);
   recordResult(word.text, true);
+  typeGameRoundSolved.add(word.text);
   spawnTypeGamePopFx(word.el);
   word.el.classList.add("tw-cleared");
   setTimeout(() => word.el.remove(), 300);
@@ -3559,10 +3570,11 @@ function maybeOfferTypeGameLevelChallenge() {
   progress.typeGameLevelChallengeShown = progress.typeGameLevelChallengeShown || {};
   if (progress.typeGameLevelChallengeShown[currentLevel]) return;
   if (typeGameWordPool.length === 0) return;
-  const allCleared = typeGameWordPool.every((w) => {
-    const stats = progress.wordStats[w];
-    return stats && stats.correct >= 1;
-  });
+  // Checked against THIS round's own solved-words, not lifetime wordStats —
+  // an account with a lot of history had already "cleared" most words in
+  // whatever level it next unlocked, which fired this prompt again almost
+  // every other answer instead of once per real round of play.
+  const allCleared = typeGameWordPool.every((w) => typeGameRoundSolved.has(w));
   if (!allCleared) return;
 
   progress.typeGameLevelChallengeShown[currentLevel] = true;
@@ -3956,6 +3968,11 @@ let timesTableStageBannerTimer = null;
 // share, keyed by "{a}x{b}" (see recordSrsResult()/pickWordsForSession()).
 let timesTableSrsQueue = [];
 
+// Facts correctly answered in THIS round, for maybeOfferTimesTableChallenge()
+// — see typeGameRoundSolved's comment for why this can't just check
+// progress.wordStats (lifetime history) instead.
+let timesTableRoundSolved = new Set();
+
 function loadTimesTableHighScores() {
   try {
     const raw = localStorage.getItem(TIMESTABLE_HIGH_SCORE_KEY);
@@ -4149,6 +4166,7 @@ function resetTimesTable() {
   timesTableCorrectCount = 0;
   timesTableProblemsShown = 0;
   timesTableStageIndex = 0;
+  timesTableRoundSolved = new Set();
   timesTableLives = TIMESTABLE_LIVES;
   timesTableSpeedLevel = TIMESTABLE_SPEED_LEVEL_MIN;
   updateTimesTableSpeedUI();
@@ -4179,6 +4197,7 @@ function startTimesTable() {
   timesTableCorrectCount = 0;
   timesTableProblemsShown = 0;
   timesTableStageIndex = 0;
+  timesTableRoundSolved = new Set();
   timesTableLives = TIMESTABLE_LIVES;
   timesTableSpeedLevel = TIMESTABLE_SPEED_LEVEL_MIN;
   updateTimesTableSpeedUI();
@@ -4355,6 +4374,7 @@ function spawnTimesTablePopFx(el) {
 function clearTimesTableProblem(item) {
   recordSrsResult(item.key, true);
   recordResult(item.key, true);
+  timesTableRoundSolved.add(item.key);
   spawnTimesTablePopFx(item.el);
   item.el.classList.add("tw-cleared");
   setTimeout(() => item.el.remove(), 300);
@@ -4388,19 +4408,22 @@ function clearTimesTableProblem(item) {
 }
 
 // Once every fact up to the current max table has been answered correctly
-// at least once (progress.wordStats is shared across modes, same reasoning
-// as Typing Game's version), offer to extend one table higher. Shown at
-// most once per max-table setting (persisted, so declining sticks).
+// in THIS round, offer to extend one table higher. Shown at most once per
+// max-table setting (persisted, so declining sticks).
+//
+// Checked against timesTableRoundSolved, not lifetime progress.wordStats:
+// an account with a lot of play history had usually already answered most
+// facts in whatever table this next unlocked at some point in the past, so
+// gating on lifetime history made this prompt refire after almost every
+// single answer instead of once per real round of grinding through the
+// current table range.
 function maybeOfferTimesTableChallenge() {
   if (timesTableMaxTable >= TIMESTABLE_MAX_TABLE_CAP) return;
   progress.timesTableChallengeShown = progress.timesTableChallengeShown || {};
   const shownKey = `${currentLang}_${timesTableMaxTable}`;
   if (progress.timesTableChallengeShown[shownKey]) return;
   if (timesTableProblemPool.length === 0) return;
-  const allCleared = timesTableProblemPool.every((p) => {
-    const stats = progress.wordStats[timesTableKey(p)];
-    return stats && stats.correct >= 1;
-  });
+  const allCleared = timesTableProblemPool.every((p) => timesTableRoundSolved.has(timesTableKey(p)));
   if (!allCleared) return;
 
   progress.timesTableChallengeShown[shownKey] = true;
