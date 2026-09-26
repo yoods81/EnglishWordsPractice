@@ -117,7 +117,7 @@ const TRANSLATIONS = {
     typeGameFinalScore: (score) => `Final score: ${score}`,
     typeGameHighScore: (score) => `Best score: ${score}`,
     typeGameNewHighScore: "🎉 New best score!",
-    typeGameRestartBtn: "🔄 Play Again",
+    typeGameRestartBtn: "Play Again",
     typeGamePauseLabel: "Pause",
     typeGameEndLabel: "End game",
     typeGameStageLabel: (n) => `Stage ${n}`,
@@ -138,7 +138,7 @@ const TRANSLATIONS = {
     timesTableFinalScore: (score) => `Final score: ${score}`,
     timesTableHighScore: (score) => `Best score: ${score}`,
     timesTableNewHighScore: "🎉 New best score!",
-    timesTableRestartBtn: "🔄 Play Again",
+    timesTableRestartBtn: "Play Again",
     timesTableLimitReachedAnonymous: "You've reached the 50-problem limit for visitors — sign up (it's free!) to keep going.",
     timesTableLimitReachedFree: "You've reached the 100-problem limit for General accounts — upgrade to Premium for unlimited play.",
     timesTablePauseLabel: "Pause",
@@ -189,7 +189,7 @@ const TRANSLATIONS = {
     goalReachedTop: (score, level) => `🎉 ${score} correct on ${level} — that's the highest level. Brilliant!`,
     goalNextLevelBtn: "🚀 Try the next level",
     goalKeepGoingBtn: "Keep going",
-    newQuizBtn: "↻ New Quiz",
+    newQuizBtn: "New Quiz",
     nextQuestionBtn: "Next Question ➡",
     scoreLabel: (c, t) => `Score: ${c} / ${t}`,
     quizNotEnough: (lvl) => `Not enough ${lvl} words for this quiz yet. Try another category or add more words!`,
@@ -484,7 +484,7 @@ const TRANSLATIONS = {
     typeGameFinalScore: (score) => `최종 점수: ${score}`,
     typeGameHighScore: (score) => `최고 점수: ${score}`,
     typeGameNewHighScore: "🎉 최고 기록 달성!",
-    typeGameRestartBtn: "🔄 다시 하기",
+    typeGameRestartBtn: "다시 하기",
     typeGamePauseLabel: "일시정지",
     typeGameEndLabel: "게임 종료",
     typeGameStageLabel: (n) => `스테이지 ${n}`,
@@ -505,7 +505,7 @@ const TRANSLATIONS = {
     timesTableFinalScore: (score) => `최종 점수: ${score}`,
     timesTableHighScore: (score) => `최고 점수: ${score}`,
     timesTableNewHighScore: "🎉 최고 기록 달성!",
-    timesTableRestartBtn: "🔄 다시 하기",
+    timesTableRestartBtn: "다시 하기",
     timesTableLimitReachedAnonymous: "비회원은 50문제까지 풀 수 있어요 — 가입하면(무료예요!) 계속 할 수 있어요.",
     timesTableLimitReachedFree: "일반 계정은 100문제까지 풀 수 있어요 — 프리미엄으로 업그레이드하면 무제한으로 할 수 있어요.",
     timesTablePauseLabel: "일시정지",
@@ -556,7 +556,7 @@ const TRANSLATIONS = {
     goalReachedTop: (score, level) => `🎉 ${level}에서 ${score}개 정답 — 가장 높은 레벨이에요. 정말 잘했어요!`,
     goalNextLevelBtn: "🚀 다음 레벨 도전",
     goalKeepGoingBtn: "계속하기",
-    newQuizBtn: "↻ 새 퀴즈",
+    newQuizBtn: "새 퀴즈",
     nextQuestionBtn: "다음 문제 ➡",
     scoreLabel: (c, t) => `점수: ${c} / ${t}`,
     quizNotEnough: (lvl) => `${lvl} 레벨에는 아직 퀴즈를 만들 단어가 부족해요. 다른 카테고리를 선택하거나 단어를 더 추가해보세요!`,
@@ -2859,7 +2859,10 @@ function buildSpellingDeck({ resetScreen = true } = {}) {
     spellingPractice.hidden = true;
     spellingReport.hidden = true;
   } else if (!spellingPractice.hidden) {
-    loadSpellingWord();
+    // Adjusting the question-count stepper mid-session rebuilds the deck,
+    // but the player didn't ask to hear word 1 again for every click —
+    // only reset the UI, don't re-trigger its audio.
+    loadSpellingWord(false);
   }
 }
 
@@ -2869,7 +2872,7 @@ spellingStartBtn.addEventListener("click", () => {
   loadSpellingWord();
 });
 
-function loadSpellingWord() {
+function loadSpellingWord(speakAloud = true) {
   spellingInput.value = "";
   spellingInput.className = "";
   spellingFeedback.innerHTML = "";
@@ -2885,7 +2888,7 @@ function loadSpellingWord() {
     spellingIndex = 0;
   }
   spellingBackBtn.disabled = spellingIndex === 0;
-  speak(spellingDeck[spellingIndex].word);
+  if (speakAloud) speak(spellingDeck[spellingIndex].word);
   spellingInput.focus();
 }
 

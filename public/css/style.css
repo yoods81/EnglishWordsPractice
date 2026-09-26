@@ -548,6 +548,28 @@ button.pill:disabled {
   transform: none;
 }
 
+/* A vector "refresh" glyph drawn with a CSS mask instead of a font
+   character — the old ↻/🔄 read as an illegible blob at button-text size
+   on some platforms. A mask always renders the same crisp shape and
+   picks up the button's own text color via currentColor. */
+.icon-refresh::before {
+  content: "";
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
+  margin-right: 6px;
+  vertical-align: -0.15em;
+  background-color: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M17.65 6.35A7.958 7.958 0 0 0 12 4a8 8 0 1 0 7.44 10.6h-2.13A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M17.65 6.35A7.958 7.958 0 0 0 12 4a8 8 0 1 0 7.44 10.6h-2.13A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
 .my-added-words-header {
   display: flex;
   justify-content: space-between;
@@ -707,6 +729,28 @@ button.pill:disabled {
   50% { opacity: 0.7; transform: scale(1.15); }
 }
 
+/* Shared look for the round icon buttons scattered over the falling-word
+   games (mute, pause, end) — gradient fill, soft tinted shadow, and a
+   playful scale+spin on hover/press. Each button's own class still owns
+   its position, size, and gradient color. */
+.round-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.round-icon-btn:hover {
+  transform: scale(1.12) rotate(90deg);
+}
+
+.round-icon-btn:active {
+  transform: scale(0.9) rotate(90deg);
+}
+
 .typegame-mute-btn {
   position: absolute;
   top: 8px;
@@ -714,19 +758,13 @@ button.pill:disabled {
   z-index: 3;
   width: 32px;
   height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow: var(--shadow);
+  background: linear-gradient(145deg, #6f96ff, var(--primary));
+  box-shadow: 0 3px 10px rgba(58, 111, 247, 0.5);
   font-size: 1rem;
-  cursor: pointer;
 }
 
 .typegame-mute-btn:hover {
-  background: #fff;
+  background: linear-gradient(145deg, #86a6ff, var(--primary-dark));
 }
 
 .typegame-pause-btn {
@@ -736,19 +774,13 @@ button.pill:disabled {
   z-index: 3;
   width: 32px;
   height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow: var(--shadow);
+  background: linear-gradient(145deg, #ffc48a, var(--accent));
+  box-shadow: 0 3px 10px rgba(255, 159, 64, 0.5);
   font-size: 1rem;
-  cursor: pointer;
 }
 
 .typegame-pause-btn:hover {
-  background: #fff;
+  background: linear-gradient(145deg, #ffd29e, #e6862c);
 }
 
 .typegame-pause-btn[hidden] {
@@ -762,42 +794,19 @@ button.pill:disabled {
   z-index: 3;
   width: 36px;
   height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 50%;
   background: linear-gradient(145deg, #ff7b7b, var(--error));
   color: #fff;
-  box-shadow: 0 3px 10px rgba(239, 87, 87, 0.55), 0 0 0 0 rgba(239, 87, 87, 0.5);
+  box-shadow: 0 3px 10px rgba(239, 87, 87, 0.55);
   font-size: 0.95rem;
   font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-  animation: typegame-end-btn-pulse 2.4s ease-in-out infinite;
 }
 
 .typegame-end-btn:hover {
   background: linear-gradient(145deg, #ff9494, #e14646);
-  transform: scale(1.12) rotate(90deg);
-  animation-play-state: paused;
-}
-
-.typegame-end-btn:active {
-  transform: scale(0.9) rotate(90deg);
 }
 
 .typegame-end-btn[hidden] {
   display: none;
-}
-
-@keyframes typegame-end-btn-pulse {
-  0%, 100% {
-    box-shadow: 0 3px 10px rgba(239, 87, 87, 0.55), 0 0 0 0 rgba(239, 87, 87, 0.45);
-  }
-  50% {
-    box-shadow: 0 3px 10px rgba(239, 87, 87, 0.55), 0 0 0 8px rgba(239, 87, 87, 0);
-  }
 }
 
 .typegame-stage.typegame-shake {
