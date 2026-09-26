@@ -126,7 +126,7 @@ const TRANSLATIONS = {
     timesTableInstrLine2: "Enter one of {{FMT}}",
     timesTableMaxTableLabel: "Practice tables up to",
     timesTableStartBtn: "▶ Start Game",
-    timesTableHint: 'Type the two numbers and the answer, together or with spaces — like "8 2 16" for 8 × 2 = 16 — then keep going, no need to press Enter.',
+    timesTableHint: "How to answer when the problem is 8 × 2: enter one of 8216 / 82 16 / 8 2 16, then keep going — no need to press Enter.",
     timesTableTypoMsg: "❌ No matching fact — try again!",
     timesTableMute: "Mute music",
     timesTableUnmute: "Unmute music",
@@ -392,6 +392,7 @@ const TRANSLATIONS = {
     kidConfirmCancelBtn: "Not now",
     gamePausedTitle: "⏸️ Paused",
     gameResumeBtn: "▶ Resume",
+    gameSpeedLabel: "Game speed",
     gameSpeedDecreaseLabel: "Slower",
     gameSpeedIncreaseLabel: "Faster",
     customDeleteOthersBlocked: "You can only delete words you added yourself.",
@@ -486,7 +487,7 @@ const TRANSLATIONS = {
     timesTableInstrLine2: "{{FMT}} 셋 중 하나를 입력",
     timesTableMaxTableLabel: "몇 단까지 연습할까요",
     timesTableStartBtn: "▶ 게임 시작",
-    timesTableHint: "두 숫자와 답을 이어서, 또는 띄어서 입력하세요 — 8 × 2 = 16이면 \"8 2 16\"처럼 — 계속 입력하면 돼요, Enter는 필요 없어요.",
+    timesTableHint: "문제가 8 × 2 일 때 정답 입력 방법: 8216 / 82 16 / 8 2 16 셋 중 하나를 입력 — 계속 입력하면 돼요, Enter는 필요 없어요.",
     timesTableTypoMsg: "❌ 일치하는 식이 없어요 — 다시 시도해보세요!",
     timesTableMute: "음악 끄기",
     timesTableUnmute: "음악 켜기",
@@ -747,6 +748,7 @@ const TRANSLATIONS = {
     kidConfirmCancelBtn: "다음에요",
     gamePausedTitle: "⏸️ 일시정지",
     gameResumeBtn: "▶ 계속하기",
+    gameSpeedLabel: "게임 속도",
     gameSpeedDecreaseLabel: "느리게",
     gameSpeedIncreaseLabel: "빠르게",
     customDeleteOthersBlocked: "본인이 추가한 단어만 삭제 가능합니다.",
@@ -4101,7 +4103,6 @@ function resetTimesTable() {
   timesTableSpeed = TIMESTABLE_BASE_SPEED;
   timesTableSpawnInterval = TIMESTABLE_SPAWN_START;
   timesTableInput.value = "";
-  timesTableLastRawInputValue = "";
   timesTableInput.disabled = true;
   hideTimesTableTypo();
   hideTimesTableStageBanner();
@@ -4135,7 +4136,6 @@ function startTimesTable() {
   timesTableOverOverlay.hidden = true;
   timesTableInput.disabled = false;
   timesTableInput.value = "";
-  timesTableLastRawInputValue = "";
   hideTimesTableTypo();
   hideTimesTableStageBanner();
   timesTablePauseBtn.hidden = false;
@@ -4163,7 +4163,6 @@ function pauseTimesTable() {
   clearTimeout(timesTableSpawnTimer);
   timesTableInput.disabled = true;
   timesTableInput.value = "";
-  timesTableLastRawInputValue = "";
   hideTimesTableTypo();
   clearTimesTableHighlights();
   stopTimesTableMusic();
@@ -4350,7 +4349,6 @@ function endTimesTableRound(reason) {
   clearTimeout(timesTableSpawnTimer);
   timesTableInput.disabled = true;
   timesTableInput.value = "";
-  timesTableLastRawInputValue = "";
   hideTimesTableTypo();
   hideTimesTableStageBanner();
   timesTablePauseBtn.hidden = true;
@@ -4403,57 +4401,18 @@ function hideTimesTableTypo() {
   timesTableTypoMsg.hidden = true;
 }
 
-// Reads each digit back as it's typed — "eight... two... one... six" — as
-// immediate confirmation of what was actually entered, independent of the
-// word-pronunciation speak() function (which follows the *vocabulary*
-// language, always English for the Korean track too — digit reading follows
-// the UI language instead, since these are just numbers, not English words
-// being taught).
-const TIMESTABLE_DIGIT_WORDS = {
-  en: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"],
-  ko: ["영", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"],
-};
-
-function speakTimesTableDigit(ch) {
-  if (timesTableMuted || !("speechSynthesis" in window)) return;
-  const n = parseInt(ch, 10);
-  if (Number.isNaN(n)) return;
-  const words = TIMESTABLE_DIGIT_WORDS[currentLang] || TIMESTABLE_DIGIT_WORDS.en;
-  const word = words[n];
-  if (!word) return;
-  const lang = currentLang === "ko" ? "ko-KR" : "en-AU";
-  const utter = new SpeechSynthesisUtterance(word);
-  utter.lang = lang;
-  const voice = pickVoice(lang);
-  if (voice) utter.voice = voice;
-  utter.rate = 1.05;
-  utter.pitch = 1.05;
-  // Deliberately not cancelling any utterance already in flight (unlike
-  // speak()) — digits typed in quick succession should queue and read back
-  // in order, not cut each other off mid-word.
-  window.speechSynthesis.speak(utter);
-}
-
-// Tracks the input box's raw (unstripped) value between keystrokes so only
-// newly *appended* characters get spoken — a backspace, paste-over, or the
-// auto-clear on a correct answer shouldn't replay anything.
-let timesTableLastRawInputValue = "";
-
 // Matches whatever's been typed (spaces stripped) against every falling
 // fact's expected answer string, the same "type to auto-lock onto the right
 // falling item" feel Typing Game has — just matching a computed answer
-// string instead of the displayed word itself.
+// string instead of the displayed word itself. Correct/wrong feedback is a
+// sound effect only (clearTimesTableProblem()/showTimesTableTypo()) — an
+// earlier version also read each digit aloud via speechSynthesis, but the
+// TTS latency made it lag noticeably behind the actual keystrokes, so it
+// was dropped in favor of the same instant SFX approach Typing Game uses.
 timesTableInput.addEventListener("input", () => {
   if (!timesTableRunning) return;
   hideTimesTableTypo();
-  const rawVal = timesTableInput.value;
-  const val = rawVal.replace(/\s+/g, "");
-
-  if (rawVal.length > timesTableLastRawInputValue.length && rawVal.startsWith(timesTableLastRawInputValue)) {
-    const added = rawVal.slice(timesTableLastRawInputValue.length);
-    for (const ch of added) speakTimesTableDigit(ch);
-  }
-  timesTableLastRawInputValue = rawVal;
+  const val = timesTableInput.value.replace(/\s+/g, "");
 
   let match = null;
   if (val) {
@@ -4466,7 +4425,6 @@ timesTableInput.addEventListener("input", () => {
   if (match && val.length === match.expected.length) {
     clearTimesTableProblem(match);
     timesTableInput.value = "";
-    timesTableLastRawInputValue = "";
   }
 });
 
@@ -4479,7 +4437,6 @@ timesTableInput.addEventListener("keydown", (e) => {
   if (!isValidPrefix) {
     showTimesTableTypo();
     timesTableInput.value = "";
-    timesTableLastRawInputValue = "";
     clearTimesTableHighlights();
   }
 });
