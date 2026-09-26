@@ -767,9 +767,10 @@ button.pill:disabled {
   justify-content: center;
   border: none;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--error);
+  color: #fff;
   box-shadow: var(--shadow);
-  font-size: 1rem;
+  font-size: 0.85rem;
   cursor: pointer;
 }
 
@@ -1114,12 +1115,6 @@ button.pill:disabled {
     font-size: 0.8rem;
     min-width: 1.2em;
   }
-
-  /* Too narrow a row for the label text too — the −/+ buttons' own
-     aria-labels still cover accessibility. */
-  .game-speed-label {
-    display: none;
-  }
 }
 
 .option-btn {
@@ -1422,6 +1417,29 @@ button.pill:disabled {
   flex: 0 1 auto;
 }
 
+/* Centers the label+stepper in the Quiz setting row, in the space left after
+   the category select and the right-pinned New Quiz button. */
+#quiz-goal-stepper {
+  margin: 0 auto;
+}
+
+/* Extra breathing room in the Quiz tab: roughly a line's gap on either side
+   of the progress bar, so the setting row / progress bar / question don't
+   feel cramped together. */
+#view-quiz .setting-row {
+  margin-bottom: 30px;
+}
+
+#view-quiz .progress-bar {
+  margin-bottom: 30px;
+}
+
+#view-quiz #quiz-restart {
+  padding: 7px 11px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
 /* The falling-game speed control, sitting between the stage tag and the
    lives display in the score row. Auto margins on both sides center it in
    whatever space is left after the lives display's own margin-left:auto
@@ -1435,12 +1453,6 @@ button.pill:disabled {
   margin: 0 auto;
 }
 
-.game-speed-label {
-  font-weight: 600;
-  color: var(--muted);
-  font-size: 0.8rem;
-  white-space: nowrap;
-}
 
 .goal-stepper-label {
   font-weight: 600;
@@ -1740,10 +1752,16 @@ footer {
 }
 
 .kid-modal-message {
-  font-family: "Fredoka", "Gaegu", "Segoe UI", sans-serif;
+  /* No Gaegu here — its Hangul glyphs are drawn much wider-set than the
+     Latin fallback, which read as excessively loose tracking on a full
+     sentence. Fredoka still covers the Latin case; Korean falls through to
+     the system UI font, which is tighter and more legible at paragraph
+     length. */
+  font-family: "Fredoka", "Segoe UI", sans-serif;
   font-weight: 500;
   font-size: 1.3rem;
   line-height: 1.5;
+  letter-spacing: -0.02em;
   color: var(--text);
   margin: 0 0 20px;
 }
@@ -1754,9 +1772,10 @@ footer {
   gap: 10px;
 }
 
-.kid-modal-btn {
-  font-family: "Fredoka", "Gaegu", "Segoe UI", sans-serif;
-  font-size: 1.05rem;
+button.kid-modal-btn {
+  font-family: "Fredoka", "Segoe UI", sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
   padding: 12px;
   width: 100%;
 }

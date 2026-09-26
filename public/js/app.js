@@ -189,7 +189,7 @@ const TRANSLATIONS = {
     goalReachedTop: (score, level) => `🎉 ${score} correct on ${level} — that's the highest level. Brilliant!`,
     goalNextLevelBtn: "🚀 Try the next level",
     goalKeepGoingBtn: "Keep going",
-    newQuizBtn: "🔄 New Quiz",
+    newQuizBtn: "↻ New Quiz",
     nextQuestionBtn: "Next Question ➡",
     scoreLabel: (c, t) => `Score: ${c} / ${t}`,
     quizNotEnough: (lvl) => `Not enough ${lvl} words for this quiz yet. Try another category or add more words!`,
@@ -398,7 +398,6 @@ const TRANSLATIONS = {
     challengeNoBtn: "Not yet",
     gamePausedTitle: "⏸️ Paused",
     gameResumeBtn: "▶ Resume",
-    gameSpeedLabel: "Game speed",
     gameSpeedDecreaseLabel: "Slower",
     gameSpeedIncreaseLabel: "Faster",
     customDeleteOthersBlocked: "You can only delete words you added yourself.",
@@ -548,7 +547,7 @@ const TRANSLATIONS = {
     flashKnowIt: "😀 알고 있어요!",
     flashEmptyWord: "단어가 없어요",
     flashEmptyDef: (lvl) => `먼저 ${lvl} 단어를 추가해주세요!`,
-    goalLabel: "문제들의 수",
+    goalLabel: "문제수",
     goalDecreaseLabel: "문제 수 줄이기",
     goalIncreaseLabel: "문제 수 늘리기",
     anonymousQuestionCapPrompt: "더 많은 문제와 모든 기능을 사용하려면 무료로 가입해보세요!",
@@ -556,7 +555,7 @@ const TRANSLATIONS = {
     goalReachedTop: (score, level) => `🎉 ${level}에서 ${score}개 정답 — 가장 높은 레벨이에요. 정말 잘했어요!`,
     goalNextLevelBtn: "🚀 다음 레벨 도전",
     goalKeepGoingBtn: "계속하기",
-    newQuizBtn: "🔄 새 퀴즈",
+    newQuizBtn: "↻ 새 퀴즈",
     nextQuestionBtn: "다음 문제 ➡",
     scoreLabel: (c, t) => `점수: ${c} / ${t}`,
     quizNotEnough: (lvl) => `${lvl} 레벨에는 아직 퀴즈를 만들 단어가 부족해요. 다른 카테고리를 선택하거나 단어를 더 추가해보세요!`,
@@ -760,7 +759,6 @@ const TRANSLATIONS = {
     challengeNoBtn: "다음에요",
     gamePausedTitle: "⏸️ 일시정지",
     gameResumeBtn: "▶ 계속하기",
-    gameSpeedLabel: "게임 속도",
     gameSpeedDecreaseLabel: "느리게",
     gameSpeedIncreaseLabel: "빠르게",
     customDeleteOthersBlocked: "본인이 추가한 단어만 삭제 가능합니다.",
@@ -3145,7 +3143,6 @@ let typeGameWordPool = [];
 let typeGameScore = 0;
 let typeGameWordsCleared = 0;
 let typeGameLives = TYPEGAME_LIVES;
-let typeGameSpeed = TYPEGAME_BASE_SPEED;
 let typeGameSpawnInterval = TYPEGAME_SPAWN_START;
 let typeGameStageIndex = 0; // advances every TYPEGAME_WORDS_PER_SPEEDUP correct words
 let typeGameSpawnTimer = null;
@@ -3204,38 +3201,19 @@ function updateTypeGameHud() {
 }
 
 /* ---------- Live fall-speed control ----------
-   Independent of the automatic stage-based ramp-up (typeGameSpeed itself) —
-   this is a player-chosen multiplier on top of it, adjustable mid-round, so
-   a round that's speeding up too fast for a beginner (or too slow for a
-   confident typist) can be dialed in on the fly rather than restarted. */
-const TYPEGAME_SPEED_LEVEL_KEY = "ywp_typegame_speedlevel_v1";
+   The stepper's number IS the current game speed — it starts at 1 every
+   round, climbs by 1 on its own each time the stage-based ramp-up advances
+   (see clearTypeGameWord()), and the player can also nudge it up/down
+   mid-round with the −/+ buttons at any time; either way, whatever it reads
+   right now is what typeGameEffectiveSpeed() actually falls at. Not
+   persisted across rounds — it always starts back at 1. */
 const TYPEGAME_SPEED_LEVEL_MIN = 1;
-const TYPEGAME_SPEED_LEVEL_MAX = 9;
-const TYPEGAME_SPEED_LEVEL_DEFAULT = 5; // level 5 = the normal (1x) speed
+const TYPEGAME_SPEED_LEVEL_MAX = 20;
 
-function loadTypeGameSpeedLevel() {
-  try {
-    const raw = localStorage.getItem(TYPEGAME_SPEED_LEVEL_KEY);
-    const n = raw ? parseInt(raw, 10) : NaN;
-    if (Number.isFinite(n) && n >= TYPEGAME_SPEED_LEVEL_MIN && n <= TYPEGAME_SPEED_LEVEL_MAX) return n;
-  } catch (e) {
-    /* fall through to default */
-  }
-  return TYPEGAME_SPEED_LEVEL_DEFAULT;
-}
+let typeGameSpeedLevel = TYPEGAME_SPEED_LEVEL_MIN;
 
-function saveTypeGameSpeedLevel() {
-  try {
-    localStorage.setItem(TYPEGAME_SPEED_LEVEL_KEY, String(typeGameSpeedLevel));
-  } catch (e) {
-    console.warn("Could not save Typing Game speed setting", e);
-  }
-}
-
-let typeGameSpeedLevel = loadTypeGameSpeedLevel();
-
-function typeGameSpeedMultiplier() {
-  return typeGameSpeedLevel / TYPEGAME_SPEED_LEVEL_DEFAULT;
+function typeGameEffectiveSpeed() {
+  return Math.min(TYPEGAME_BASE_SPEED + (typeGameSpeedLevel - 1) * TYPEGAME_SPEED_STEP, TYPEGAME_MAX_SPEED);
 }
 
 function updateTypeGameSpeedUI() {
@@ -3247,14 +3225,12 @@ function updateTypeGameSpeedUI() {
 typeGameSpeedMinusBtn.addEventListener("click", () => {
   if (typeGameSpeedLevel <= TYPEGAME_SPEED_LEVEL_MIN) return;
   typeGameSpeedLevel--;
-  saveTypeGameSpeedLevel();
   updateTypeGameSpeedUI();
 });
 
 typeGameSpeedPlusBtn.addEventListener("click", () => {
   if (typeGameSpeedLevel >= TYPEGAME_SPEED_LEVEL_MAX) return;
   typeGameSpeedLevel++;
-  saveTypeGameSpeedLevel();
   updateTypeGameSpeedUI();
 });
 
@@ -3315,7 +3291,8 @@ function resetTypeGame() {
   typeGameScore = 0;
   typeGameWordsCleared = 0;
   typeGameLives = TYPEGAME_LIVES;
-  typeGameSpeed = TYPEGAME_BASE_SPEED;
+  typeGameSpeedLevel = TYPEGAME_SPEED_LEVEL_MIN;
+  updateTypeGameSpeedUI();
   typeGameSpawnInterval = TYPEGAME_SPAWN_START;
   typeGameStageIndex = 0;
   typeGameInput.value = "";
@@ -3344,7 +3321,8 @@ function startTypeGame() {
   typeGameScore = 0;
   typeGameWordsCleared = 0;
   typeGameLives = TYPEGAME_LIVES;
-  typeGameSpeed = TYPEGAME_BASE_SPEED;
+  typeGameSpeedLevel = TYPEGAME_SPEED_LEVEL_MIN;
+  updateTypeGameSpeedUI();
   typeGameSpawnInterval = TYPEGAME_SPAWN_START;
   typeGameStageIndex = 0;
   typeGameActive.forEach((w) => w.el.remove());
@@ -3480,7 +3458,7 @@ function typeGameLoop(ts) {
   const stageHeight = typeGameStage.clientHeight;
   for (let i = typeGameActive.length - 1; i >= 0; i--) {
     const w = typeGameActive[i];
-    w.top += typeGameSpeed * typeGameSpeedMultiplier() * dt;
+    w.top += typeGameEffectiveSpeed() * dt;
     w.el.style.top = `${w.top}px`;
     if (w.top > stageHeight - 30) {
       w.el.remove();
@@ -3546,10 +3524,14 @@ function clearTypeGameWord(word) {
   // faster game — the pace only picks up once they've clearly got the hang
   // of it.
   const speedUps = Math.floor(typeGameWordsCleared / TYPEGAME_WORDS_PER_SPEEDUP);
-  typeGameSpeed = Math.min(TYPEGAME_BASE_SPEED + speedUps * TYPEGAME_SPEED_STEP, TYPEGAME_MAX_SPEED);
   typeGameSpawnInterval = Math.max(TYPEGAME_SPAWN_MIN, TYPEGAME_SPAWN_START - speedUps * TYPEGAME_SPAWN_STEP);
   if (speedUps !== typeGameStageIndex) {
     typeGameStageIndex = speedUps;
+    // A relative +1 (not recomputed from the stage index) so a manual
+    // adjustment the player already made isn't overwritten by the
+    // automatic ramp-up — the stepper stays the single source of truth.
+    typeGameSpeedLevel = Math.min(typeGameSpeedLevel + 1, TYPEGAME_SPEED_LEVEL_MAX);
+    updateTypeGameSpeedUI();
     typeGameMelodyIndex = typeGameStageIndex % TYPEGAME_MELODIES.length;
     typeGameMusicIndex = 0;
     updateTypeGameStageScene();
@@ -3958,7 +3940,6 @@ let timesTableCorrectCount = 0; // drives stage progression, separate from score
 let timesTableProblemsShown = 0; // this round's total, checked against the role cap
 let timesTableStageIndex = 0;
 let timesTableLives = TIMESTABLE_LIVES;
-let timesTableSpeed = TIMESTABLE_BASE_SPEED;
 let timesTableSpawnInterval = TIMESTABLE_SPAWN_START;
 let timesTableSpawnTimer = null;
 let timesTableRafId = null;
@@ -4079,36 +4060,17 @@ function updateTimesTableHud() {
 }
 
 /* ---------- Live fall-speed control ----------
-   Same player-chosen multiplier on top of the automatic stage ramp-up as
-   Typing Game's — see there for why. */
-const TIMESTABLE_SPEED_LEVEL_KEY = "ywp_timestable_speedlevel_v1";
+   Same design as Typing Game's — see there for why: the stepper's number IS
+   the current speed, starts at 1 every round, climbs by 1 on its own each
+   stage-up, and the player can nudge it directly at any time. Not persisted
+   across rounds. */
 const TIMESTABLE_SPEED_LEVEL_MIN = 1;
-const TIMESTABLE_SPEED_LEVEL_MAX = 9;
-const TIMESTABLE_SPEED_LEVEL_DEFAULT = 5; // level 5 = the normal (1x) speed
+const TIMESTABLE_SPEED_LEVEL_MAX = 20;
 
-function loadTimesTableSpeedLevel() {
-  try {
-    const raw = localStorage.getItem(TIMESTABLE_SPEED_LEVEL_KEY);
-    const n = raw ? parseInt(raw, 10) : NaN;
-    if (Number.isFinite(n) && n >= TIMESTABLE_SPEED_LEVEL_MIN && n <= TIMESTABLE_SPEED_LEVEL_MAX) return n;
-  } catch (e) {
-    /* fall through to default */
-  }
-  return TIMESTABLE_SPEED_LEVEL_DEFAULT;
-}
+let timesTableSpeedLevel = TIMESTABLE_SPEED_LEVEL_MIN;
 
-function saveTimesTableSpeedLevel() {
-  try {
-    localStorage.setItem(TIMESTABLE_SPEED_LEVEL_KEY, String(timesTableSpeedLevel));
-  } catch (e) {
-    console.warn("Could not save Times Table speed setting", e);
-  }
-}
-
-let timesTableSpeedLevel = loadTimesTableSpeedLevel();
-
-function timesTableSpeedMultiplier() {
-  return timesTableSpeedLevel / TIMESTABLE_SPEED_LEVEL_DEFAULT;
+function timesTableEffectiveSpeed() {
+  return Math.min(TIMESTABLE_BASE_SPEED + (timesTableSpeedLevel - 1) * TIMESTABLE_SPEED_STEP, TIMESTABLE_MAX_SPEED);
 }
 
 function updateTimesTableSpeedUI() {
@@ -4120,14 +4082,12 @@ function updateTimesTableSpeedUI() {
 timesTableSpeedMinusBtn.addEventListener("click", () => {
   if (timesTableSpeedLevel <= TIMESTABLE_SPEED_LEVEL_MIN) return;
   timesTableSpeedLevel--;
-  saveTimesTableSpeedLevel();
   updateTimesTableSpeedUI();
 });
 
 timesTableSpeedPlusBtn.addEventListener("click", () => {
   if (timesTableSpeedLevel >= TIMESTABLE_SPEED_LEVEL_MAX) return;
   timesTableSpeedLevel++;
-  saveTimesTableSpeedLevel();
   updateTimesTableSpeedUI();
 });
 
@@ -4185,7 +4145,8 @@ function resetTimesTable() {
   timesTableProblemsShown = 0;
   timesTableStageIndex = 0;
   timesTableLives = TIMESTABLE_LIVES;
-  timesTableSpeed = TIMESTABLE_BASE_SPEED;
+  timesTableSpeedLevel = TIMESTABLE_SPEED_LEVEL_MIN;
+  updateTimesTableSpeedUI();
   timesTableSpawnInterval = TIMESTABLE_SPAWN_START;
   timesTableInput.value = "";
   timesTableInput.disabled = true;
@@ -4214,7 +4175,8 @@ function startTimesTable() {
   timesTableProblemsShown = 0;
   timesTableStageIndex = 0;
   timesTableLives = TIMESTABLE_LIVES;
-  timesTableSpeed = TIMESTABLE_BASE_SPEED;
+  timesTableSpeedLevel = TIMESTABLE_SPEED_LEVEL_MIN;
+  updateTimesTableSpeedUI();
   timesTableSpawnInterval = TIMESTABLE_SPAWN_START;
   timesTableActive.forEach((w) => w.el.remove());
   timesTableActive = [];
@@ -4338,7 +4300,7 @@ function timesTableLoop(ts) {
   const stageHeight = timesTableStage.clientHeight;
   for (let i = timesTableActive.length - 1; i >= 0; i--) {
     const w = timesTableActive[i];
-    w.top += timesTableSpeed * timesTableSpeedMultiplier() * dt;
+    w.top += timesTableEffectiveSpeed() * dt;
     w.el.style.top = `${w.top}px`;
     if (w.top > stageHeight - 30) {
       w.el.remove();
@@ -4398,10 +4360,14 @@ function clearTimesTableProblem(item) {
   playTimesTableCorrectSfx();
 
   const stage = Math.floor(timesTableCorrectCount / TIMESTABLE_PROBLEMS_PER_STAGE);
-  timesTableSpeed = Math.min(TIMESTABLE_BASE_SPEED + stage * TIMESTABLE_SPEED_STEP, TIMESTABLE_MAX_SPEED);
   timesTableSpawnInterval = Math.max(TIMESTABLE_SPAWN_MIN, TIMESTABLE_SPAWN_START - stage * TIMESTABLE_SPAWN_STEP);
   if (stage !== timesTableStageIndex) {
     timesTableStageIndex = stage;
+    // A relative +1 (not recomputed from the stage index) so a manual
+    // adjustment the player already made isn't overwritten by the
+    // automatic ramp-up — the stepper stays the single source of truth.
+    timesTableSpeedLevel = Math.min(timesTableSpeedLevel + 1, TIMESTABLE_SPEED_LEVEL_MAX);
+    updateTimesTableSpeedUI();
     timesTableMelodyIndex = stage % TIMESTABLE_MELODIES.length;
     timesTableMusicNoteIndex = 0;
     updateTimesTableStageScene();
