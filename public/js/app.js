@@ -144,7 +144,7 @@ const TRANSLATIONS = {
     timesTablePauseLabel: "Pause",
     timesTableEndLabel: "End game",
     timesTableStageLabel: (n) => `Stage ${n}`,
-    timesTableChallengePrompt: "Ready to try the next times table level?",
+    timesTableChallengePrompt: (table) => `Ready to try the ${table} times table?`,
     categoryLabel: "Category",
     optVocabulary: "Vocabulary",
     optSynonyms: "Synonyms & Antonyms",
@@ -511,7 +511,7 @@ const TRANSLATIONS = {
     timesTablePauseLabel: "일시정지",
     timesTableEndLabel: "게임 종료",
     timesTableStageLabel: (n) => `스테이지 ${n}`,
-    timesTableChallengePrompt: "다음 단수에 도전하시겠습니까?",
+    timesTableChallengePrompt: (table) => `${table}단에 도전하시겠습니까?`,
     categoryLabel: "카테고리",
     optVocabulary: "어휘",
     optSynonyms: "동의어 & 반의어",
@@ -4406,7 +4406,8 @@ function maybeOfferTimesTableChallenge() {
   progress.timesTableChallengeShown[shownKey] = true;
   saveProgress();
   pauseTimesTable();
-  kidConfirm(t("timesTableChallengePrompt"), t("challengeYesBtn"), t("challengeNoBtn")).then((ok) => {
+  const nextTable = Math.min(timesTableMaxTable + 1, TIMESTABLE_MAX_TABLE_CAP);
+  kidConfirm(t("timesTableChallengePrompt", nextTable), t("challengeYesBtn"), t("challengeNoBtn")).then((ok) => {
     if (ok) {
       timesTableMaxTable = Math.min(timesTableMaxTable + 1, TIMESTABLE_MAX_TABLE_CAP);
       saveTimesTableMaxTable();
