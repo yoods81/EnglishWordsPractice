@@ -342,8 +342,9 @@
             <span class="typegame-star typegame-star-2">⭐</span>
           </div>
 
-          <button type="button" class="typegame-mute-btn round-icon-btn" id="typegame-mute-btn" data-i18n-aria-label="typeGameMute" aria-label="Mute music">🔊</button>
           <button type="button" class="typegame-pause-btn round-icon-btn" id="typegame-pause-btn" data-i18n-aria-label="typeGamePauseLabel" aria-label="Pause" hidden>⏸️</button>
+          <button type="button" class="typegame-mute-btn round-icon-btn" id="typegame-mute-btn" data-i18n-aria-label="typeGameMute" aria-label="Mute music">🔊</button>
+          <button type="button" class="typegame-expand-btn round-icon-btn" id="typegame-expand-btn" data-i18n-aria-label="typeGameExpand" aria-label="Expand game area">⇕</button>
           <button type="button" class="typegame-end-btn round-icon-btn" id="typegame-end-btn" data-i18n-aria-label="typeGameEndLabel" aria-label="End game" hidden>✕</button>
 
           <div class="typegame-stage-banner" id="typegame-stage-banner" hidden aria-hidden="true">
@@ -402,8 +403,9 @@
             <span class="typegame-star typegame-star-2">⭐</span>
           </div>
 
-          <button type="button" class="typegame-mute-btn round-icon-btn" id="timestable-mute-btn" data-i18n-aria-label="timesTableMute" aria-label="Mute music">🔊</button>
           <button type="button" class="typegame-pause-btn round-icon-btn" id="timestable-pause-btn" data-i18n-aria-label="timesTablePauseLabel" aria-label="Pause" hidden>⏸️</button>
+          <button type="button" class="typegame-mute-btn round-icon-btn" id="timestable-mute-btn" data-i18n-aria-label="timesTableMute" aria-label="Mute music">🔊</button>
+          <button type="button" class="typegame-expand-btn round-icon-btn" id="timestable-expand-btn" data-i18n-aria-label="timesTableExpand" aria-label="Expand game area">⇕</button>
           <button type="button" class="typegame-end-btn round-icon-btn" id="timestable-end-btn" data-i18n-aria-label="timesTableEndLabel" aria-label="End game" hidden>✕</button>
 
           <div class="typegame-stage-banner" id="timestable-stage-banner" hidden aria-hidden="true">
@@ -430,6 +432,12 @@
             <p id="timestable-high-score"></p>
             <p id="timestable-limit-msg" class="timestable-limit-msg" hidden></p>
             <p id="timestable-encourage-msg" class="typegame-encourage-msg" hidden></p>
+            <div class="goal-stepper" id="timestable-over-maxtable-stepper">
+              <span class="goal-stepper-label" data-i18n="timesTableMaxTableLabel">Practice tables up to</span>
+              <button type="button" class="goal-step-btn" id="timestable-over-maxtable-minus" data-i18n-aria-label="goalDecreaseLabel" aria-label="Decrease">−</button>
+              <span class="goal-stepper-value" id="timestable-over-maxtable-value">9</span>
+              <button type="button" class="goal-step-btn" id="timestable-over-maxtable-plus" data-i18n-aria-label="goalIncreaseLabel" aria-label="Increase">+</button>
+            </div>
             <button class="pill primary icon-refresh" id="timestable-restart-btn" data-i18n="timesTableRestartBtn">Play Again</button>
           </div>
 

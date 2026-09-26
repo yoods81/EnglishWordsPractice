@@ -751,10 +751,12 @@ button.pill:disabled {
   transform: scale(0.9) rotate(90deg);
 }
 
+/* Mute sits directly under Pause, both stacked on the left; Expand takes
+   the top-right spot mute used to have. */
 .typegame-mute-btn {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 48px;
+  left: 8px;
   z-index: 3;
   width: 32px;
   height: 32px;
@@ -785,6 +787,29 @@ button.pill:disabled {
 
 .typegame-pause-btn[hidden] {
   display: none;
+}
+
+.typegame-expand-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(145deg, #6be3b8, var(--success));
+  box-shadow: 0 3px 10px rgba(47, 179, 128, 0.5);
+  font-size: 1rem;
+}
+
+.typegame-expand-btn:hover {
+  background: linear-gradient(145deg, #86edc4, #24925f);
+}
+
+/* A taller play area — see typegame-expand-btn's click handler — while
+   keeping the score row and input/hint below it in normal document flow,
+   so both stay visible and usable, just further down the page. */
+.typegame-stage.typegame-stage-expanded {
+  height: 600px;
 }
 
 .typegame-end-btn {
@@ -1125,6 +1150,10 @@ button.pill:disabled {
 
   .typegame-stage {
     height: 260px;
+  }
+
+  .typegame-stage.typegame-stage-expanded {
+    height: 460px;
   }
 
   .typegame-word {

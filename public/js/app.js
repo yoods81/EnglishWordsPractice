@@ -120,6 +120,8 @@ const TRANSLATIONS = {
     typeGameRestartBtn: "Play Again",
     typeGamePauseLabel: "Pause",
     typeGameEndLabel: "End game",
+    typeGameExpand: "Expand game area",
+    typeGameCollapse: "Collapse game area",
     typeGameStageLabel: (n) => `Stage ${n}`,
     typeGameLevelChallengePrompt: (level) => `Ready to try ${level}?`,
     timesTableTitle: "🔢 Times Table",
@@ -143,6 +145,8 @@ const TRANSLATIONS = {
     timesTableLimitReachedFree: "You've reached the 100-problem limit for General accounts — upgrade to Premium for unlimited play.",
     timesTablePauseLabel: "Pause",
     timesTableEndLabel: "End game",
+    timesTableExpand: "Expand game area",
+    timesTableCollapse: "Collapse game area",
     timesTableStageLabel: (n) => `Stage ${n}`,
     timesTableChallengePrompt: (table) => `Ready to try the ${table} times table?`,
     categoryLabel: "Category",
@@ -487,6 +491,8 @@ const TRANSLATIONS = {
     typeGameRestartBtn: "다시 하기",
     typeGamePauseLabel: "일시정지",
     typeGameEndLabel: "게임 종료",
+    typeGameExpand: "화면 확장",
+    typeGameCollapse: "화면 축소",
     typeGameStageLabel: (n) => `스테이지 ${n}`,
     typeGameLevelChallengePrompt: (level) => `${level}에 도전하시겠습니까?`,
     timesTableTitle: "🔢 구구단",
@@ -510,6 +516,8 @@ const TRANSLATIONS = {
     timesTableLimitReachedFree: "일반 계정은 100문제까지 풀 수 있어요 — 프리미엄으로 업그레이드하면 무제한으로 할 수 있어요.",
     timesTablePauseLabel: "일시정지",
     timesTableEndLabel: "게임 종료",
+    timesTableExpand: "화면 확장",
+    timesTableCollapse: "화면 축소",
     timesTableStageLabel: (n) => `스테이지 ${n}`,
     timesTableChallengePrompt: (table) => `${table}단에 도전하시겠습니까?`,
     categoryLabel: "카테고리",
@@ -1449,7 +1457,12 @@ function applyStaticTranslations() {
     el.placeholder = t(el.dataset.i18nPlaceholder);
   });
   document.querySelectorAll("[data-i18n-aria-label]").forEach((el) => {
-    el.setAttribute("aria-label", t(el.dataset.i18nAriaLabel));
+    const label = t(el.dataset.i18nAriaLabel);
+    el.setAttribute("aria-label", label);
+    // These are all icon-only controls (pause/end/mute, +/- steppers) with
+    // no visible text of their own — the same label doubles as a native
+    // hover tooltip so a mouse user can tell what the icon does too.
+    el.setAttribute("title", label);
   });
   document.getElementById("app-title").textContent = t("appTitle");
   document.getElementById("app-subtitle").textContent = t("appSubtitle");
@@ -3131,6 +3144,7 @@ const typeGameTypoMsg = document.getElementById("typegame-typo-msg");
 const typeGameMuteBtn = document.getElementById("typegame-mute-btn");
 const typeGamePauseBtn = document.getElementById("typegame-pause-btn");
 const typeGameEndBtn = document.getElementById("typegame-end-btn");
+const typeGameExpandBtn = document.getElementById("typegame-expand-btn");
 const typeGameStageTagEl = document.getElementById("typegame-stage-tag");
 const typeGameStageBanner = document.getElementById("typegame-stage-banner");
 const typeGameStageBannerText = document.getElementById("typegame-stage-banner-text");
@@ -3711,6 +3725,17 @@ typeGameEndBtn.addEventListener("click", () => {
   endTypeGame();
 });
 
+// Toggles the play area between its normal and a taller height — purely a
+// display preference, so it doesn't touch typeGameRunning/pause state.
+// The falling-word boundary check already reads the stage's live
+// clientHeight every frame, so the drop distance adapts on its own.
+typeGameExpandBtn.addEventListener("click", () => {
+  const expanded = typeGameStage.classList.toggle("typegame-stage-expanded");
+  const label = t(expanded ? "typeGameCollapse" : "typeGameExpand");
+  typeGameExpandBtn.setAttribute("aria-label", label);
+  typeGameExpandBtn.setAttribute("title", label);
+});
+
 // Cycles the stage's visual theme (day/sunset/dusk/space/underwater — see
 // the .stage-scene-N rules in style.css) alongside the music, so a stage-up
 // reads as "somewhere new" rather than just a faster falling rate.
@@ -3919,6 +3944,7 @@ const timesTableTypoMsg = document.getElementById("timestable-typo-msg");
 const timesTableMuteBtn = document.getElementById("timestable-mute-btn");
 const timesTablePauseBtn = document.getElementById("timestable-pause-btn");
 const timesTableEndBtn = document.getElementById("timestable-end-btn");
+const timesTableExpandBtn = document.getElementById("timestable-expand-btn");
 const timesTableStageTagEl = document.getElementById("timestable-stage-tag");
 const timesTableStageBanner = document.getElementById("timestable-stage-banner");
 const timesTableStageBannerText = document.getElementById("timestable-stage-banner-text");
@@ -3926,6 +3952,11 @@ const timesTableEncourageMsg = document.getElementById("timestable-encourage-msg
 const timesTableMaxTableMinusBtn = document.getElementById("timestable-maxtable-minus");
 const timesTableMaxTablePlusBtn = document.getElementById("timestable-maxtable-plus");
 const timesTableMaxTableValueEl = document.getElementById("timestable-maxtable-value");
+// Same stepper, duplicated onto the game-over screen so the max table can be
+// changed there too, without a trip back to the pre-game start screen.
+const timesTableOverMaxTableMinusBtn = document.getElementById("timestable-over-maxtable-minus");
+const timesTableOverMaxTablePlusBtn = document.getElementById("timestable-over-maxtable-plus");
+const timesTableOverMaxTableValueEl = document.getElementById("timestable-over-maxtable-value");
 const timesTableSpeedMinusBtn = document.getElementById("timestable-speed-minus");
 const timesTableSpeedPlusBtn = document.getElementById("timestable-speed-plus");
 const timesTableSpeedValueEl = document.getElementById("timestable-speed-value");
@@ -4024,21 +4055,23 @@ function updateTimesTableMaxTableUI() {
   timesTableMaxTableValueEl.textContent = String(timesTableMaxTable);
   timesTableMaxTableMinusBtn.disabled = timesTableMaxTable <= TIMESTABLE_MIN_TABLE;
   timesTableMaxTablePlusBtn.disabled = timesTableMaxTable >= TIMESTABLE_MAX_TABLE_CAP;
+  timesTableOverMaxTableValueEl.textContent = String(timesTableMaxTable);
+  timesTableOverMaxTableMinusBtn.disabled = timesTableMaxTable <= TIMESTABLE_MIN_TABLE;
+  timesTableOverMaxTablePlusBtn.disabled = timesTableMaxTable >= TIMESTABLE_MAX_TABLE_CAP;
 }
 
-timesTableMaxTableMinusBtn.addEventListener("click", () => {
-  if (timesTableMaxTable <= TIMESTABLE_MIN_TABLE) return;
-  timesTableMaxTable--;
+function changeTimesTableMaxTable(delta) {
+  const next = timesTableMaxTable + delta;
+  if (next < TIMESTABLE_MIN_TABLE || next > TIMESTABLE_MAX_TABLE_CAP) return;
+  timesTableMaxTable = next;
   saveTimesTableMaxTable();
   updateTimesTableMaxTableUI();
-});
+}
 
-timesTableMaxTablePlusBtn.addEventListener("click", () => {
-  if (timesTableMaxTable >= TIMESTABLE_MAX_TABLE_CAP) return;
-  timesTableMaxTable++;
-  saveTimesTableMaxTable();
-  updateTimesTableMaxTableUI();
-});
+timesTableMaxTableMinusBtn.addEventListener("click", () => changeTimesTableMaxTable(-1));
+timesTableMaxTablePlusBtn.addEventListener("click", () => changeTimesTableMaxTable(1));
+timesTableOverMaxTableMinusBtn.addEventListener("click", () => changeTimesTableMaxTable(-1));
+timesTableOverMaxTablePlusBtn.addEventListener("click", () => changeTimesTableMaxTable(1));
 
 // Every {a}×{b} fact for tables TIMESTABLE_MIN_TABLE..maxTable, each ×1
 // through ×9 (the standard 구구단 shape) — "몇 단" only changes the first
@@ -4563,6 +4596,15 @@ timesTableResumeBtn.addEventListener("click", resumeTimesTableManual);
 timesTableEndBtn.addEventListener("click", () => {
   if (!timesTableRunning && !timesTableManuallyPaused) return;
   endTimesTableRound("manual");
+});
+
+// Same display-only toggle as Typing Game's — see there for why it doesn't
+// touch timesTableRunning/pause state.
+timesTableExpandBtn.addEventListener("click", () => {
+  const expanded = timesTableStage.classList.toggle("typegame-stage-expanded");
+  const label = t(expanded ? "timesTableCollapse" : "timesTableExpand");
+  timesTableExpandBtn.setAttribute("aria-label", label);
+  timesTableExpandBtn.setAttribute("title", label);
 });
 
 // Cycles the stage's visual theme (day/sunset/dusk/space/underwater — see
