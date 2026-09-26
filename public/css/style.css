@@ -755,6 +755,32 @@ button.pill:disabled {
   display: none;
 }
 
+.typegame-end-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 3;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: var(--shadow);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.typegame-end-btn:hover {
+  background: #fff;
+}
+
+.typegame-end-btn[hidden] {
+  display: none;
+}
+
 .typegame-stage.typegame-shake {
   animation: typegame-shake 0.3s ease;
 }

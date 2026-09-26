@@ -119,7 +119,9 @@ const TRANSLATIONS = {
     typeGameNewHighScore: "🎉 New best score!",
     typeGameRestartBtn: "🔄 Play Again",
     typeGamePauseLabel: "Pause",
+    typeGameEndLabel: "End game",
     typeGameStageLabel: (n) => `Stage ${n}`,
+    typeGameLevelChallengePrompt: (level) => `Ready to try ${level}?`,
     timesTableTitle: "🔢 Times Table",
     timesTableDesc: 'Type the whole fact — like "8 2 16" for 8 × 2 — before it reaches the bottom!',
     timesTableInstrLine1: "When the problem is {{EX}}, here's how to answer:",
@@ -140,7 +142,9 @@ const TRANSLATIONS = {
     timesTableLimitReachedAnonymous: "You've reached the 50-problem limit for visitors — sign up (it's free!) to keep going.",
     timesTableLimitReachedFree: "You've reached the 100-problem limit for General accounts — upgrade to Premium for unlimited play.",
     timesTablePauseLabel: "Pause",
+    timesTableEndLabel: "End game",
     timesTableStageLabel: (n) => `Stage ${n}`,
+    timesTableChallengePrompt: "Ready to try the next times table level?",
     categoryLabel: "Category",
     optVocabulary: "Vocabulary",
     optSynonyms: "Synonyms & Antonyms",
@@ -390,6 +394,8 @@ const TRANSLATIONS = {
     premiumGateDesc: "You'll need to sign up and upgrade to premium to use this feature!",
     kidConfirmOkBtn: "🎉 Sign me up!",
     kidConfirmCancelBtn: "Not now",
+    challengeYesBtn: "🚀 Let's go!",
+    challengeNoBtn: "Not yet",
     gamePausedTitle: "⏸️ Paused",
     gameResumeBtn: "▶ Resume",
     gameSpeedLabel: "Game speed",
@@ -480,7 +486,9 @@ const TRANSLATIONS = {
     typeGameNewHighScore: "🎉 최고 기록 달성!",
     typeGameRestartBtn: "🔄 다시 하기",
     typeGamePauseLabel: "일시정지",
+    typeGameEndLabel: "게임 종료",
     typeGameStageLabel: (n) => `스테이지 ${n}`,
+    typeGameLevelChallengePrompt: (level) => `${level}에 도전하시겠습니까?`,
     timesTableTitle: "🔢 구구단",
     timesTableDesc: "식 전체를 타이핑하세요 — 8 × 2라면 \"8 2 16\"처럼 — 바닥에 닿기 전에!",
     timesTableInstrLine1: "문제가 {{EX}} 일 때 정답 입력 방법",
@@ -501,7 +509,9 @@ const TRANSLATIONS = {
     timesTableLimitReachedAnonymous: "비회원은 50문제까지 풀 수 있어요 — 가입하면(무료예요!) 계속 할 수 있어요.",
     timesTableLimitReachedFree: "일반 계정은 100문제까지 풀 수 있어요 — 프리미엄으로 업그레이드하면 무제한으로 할 수 있어요.",
     timesTablePauseLabel: "일시정지",
+    timesTableEndLabel: "게임 종료",
     timesTableStageLabel: (n) => `스테이지 ${n}`,
+    timesTableChallengePrompt: "다음 단수에 도전하시겠습니까?",
     categoryLabel: "카테고리",
     optVocabulary: "어휘",
     optSynonyms: "동의어 & 반의어",
@@ -746,6 +756,8 @@ const TRANSLATIONS = {
     premiumGateDesc: "이 기능을 사용하시려면 가입 후 프리미엄 회원으로 업그레이드 하셔야 해요!",
     kidConfirmOkBtn: "🎉 가입할래요!",
     kidConfirmCancelBtn: "다음에요",
+    challengeYesBtn: "🚀 도전할래요!",
+    challengeNoBtn: "다음에요",
     gamePausedTitle: "⏸️ 일시정지",
     gameResumeBtn: "▶ 계속하기",
     gameSpeedLabel: "게임 속도",
@@ -792,6 +804,8 @@ function loadProgress() {
     spelling: { correct: 0, total: 0 },
     spellingStatus: {}, // word -> "wrong" | "correct" — persists so wrong words are re-served first next time
     srs: {}, // word (lowercase) -> { box: 0-4, dueAt: timestamp } — spaced-repetition schedule, see recordSrsResult()
+    typeGameLevelChallengeShown: {}, // levelId -> true, see maybeOfferTypeGameLevelChallenge()
+    timesTableChallengeShown: {}, // "{lang}_{maxTable}" -> true, see maybeOfferTimesTableChallenge()
     updatedAt: 0,
   };
 }
@@ -1200,9 +1214,14 @@ const kidConfirmOkBtn = document.getElementById("kid-confirm-ok-btn");
 const kidConfirmCancelBtn = document.getElementById("kid-confirm-cancel-btn");
 let kidConfirmResolve = null;
 
-function kidConfirm(message) {
+// Button labels default to the signup-nudge wording (this modal's original
+// use); pass okLabel/cancelLabel to fit a different prompt — "Sign me up!"
+// makes no sense on the level-up challenge, for instance.
+function kidConfirm(message, okLabel, cancelLabel) {
   return new Promise((resolve) => {
     kidConfirmMessage.textContent = message;
+    kidConfirmOkBtn.textContent = okLabel || t("kidConfirmOkBtn");
+    kidConfirmCancelBtn.textContent = cancelLabel || t("kidConfirmCancelBtn");
     kidConfirmResolve = resolve;
     kidConfirmOverlay.hidden = false;
     // Restart the pop-in animation even if a previous prompt is still fading.
@@ -1225,6 +1244,25 @@ kidConfirmCancelBtn.addEventListener("click", () => closeKidConfirm(false));
 kidConfirmOverlay.addEventListener("click", (e) => {
   if (e.target === kidConfirmOverlay) closeKidConfirm(false);
 });
+// Enter confirms, Escape cancels — captured ahead of whatever's focused
+// underneath (e.g. a falling-game input, which has its own Enter handling)
+// so the modal always gets first say while it's open.
+document.addEventListener(
+  "keydown",
+  (e) => {
+    if (kidConfirmOverlay.hidden) return;
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+      closeKidConfirm(true);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      e.stopPropagation();
+      closeKidConfirm(false);
+    }
+  },
+  true
+);
 
 function promptSignupForMoreQuestions() {
   kidConfirm(t("anonymousQuestionCapPrompt")).then((ok) => {
@@ -3089,6 +3127,7 @@ const typeGameInput = document.getElementById("typegame-input");
 const typeGameTypoMsg = document.getElementById("typegame-typo-msg");
 const typeGameMuteBtn = document.getElementById("typegame-mute-btn");
 const typeGamePauseBtn = document.getElementById("typegame-pause-btn");
+const typeGameEndBtn = document.getElementById("typegame-end-btn");
 const typeGameStageTagEl = document.getElementById("typegame-stage-tag");
 const typeGameStageBanner = document.getElementById("typegame-stage-banner");
 const typeGameStageBannerText = document.getElementById("typegame-stage-banner-text");
@@ -3284,6 +3323,7 @@ function resetTypeGame() {
   hideTypeGameTypo();
   hideTypeGameStageBanner();
   typeGamePauseBtn.hidden = true;
+  typeGameEndBtn.hidden = true;
   typeGameManuallyPaused = false;
   typeGamePauseOverlay.hidden = true;
   updateTypeGameStageScene();
@@ -3316,6 +3356,7 @@ function startTypeGame() {
   hideTypeGameTypo();
   hideTypeGameStageBanner();
   typeGamePauseBtn.hidden = false;
+  typeGameEndBtn.hidden = false;
   typeGameManuallyPaused = false;
   typeGamePauseOverlay.hidden = true;
   typeGameMelodyIndex = 0;
@@ -3515,6 +3556,44 @@ function clearTypeGameWord(word) {
     showTypeGameStageBanner(typeGameStageIndex + 1);
   }
   updateTypeGameHud();
+  maybeOfferTypeGameLevelChallenge();
+}
+
+// Once every word in the current level's pool has been typed correctly at
+// least once (progress.wordStats is shared across every mode, so a word
+// solved via Quiz/Spelling counts too — this is "have you ever gotten this
+// right", not "only in Typing Game"), offer to jump up to the next level.
+// Shown at most once per level (persisted, so declining sticks) — a plain
+// mid-round freeze (pauseTypeGame(), not the manual-pause overlay) holds the
+// round in place while the player decides.
+function maybeOfferTypeGameLevelChallenge() {
+  const next = nextLevelId();
+  if (!next) return;
+  progress.typeGameLevelChallengeShown = progress.typeGameLevelChallengeShown || {};
+  if (progress.typeGameLevelChallengeShown[currentLevel]) return;
+  if (typeGameWordPool.length === 0) return;
+  const allCleared = typeGameWordPool.every((w) => {
+    const stats = progress.wordStats[w];
+    return stats && stats.correct >= 1;
+  });
+  if (!allCleared) return;
+
+  progress.typeGameLevelChallengeShown[currentLevel] = true;
+  saveProgress();
+  pauseTypeGame();
+  kidConfirm(t("typeGameLevelChallengePrompt", levelLabel(next)), t("challengeYesBtn"), t("challengeNoBtn")).then((ok) => {
+    if (ok) {
+      currentLevel = next;
+      savedLevels[currentLang] = next;
+      saveLevels();
+      updateLevelBadge();
+      populateLevelSelects();
+      typeGameWordPool = buildTypeGameWordPool();
+      startTypeGame();
+    } else {
+      resumeTypeGame();
+    }
+  });
 }
 
 const TYPEGAME_ENCOURAGE_MESSAGES = {
@@ -3542,6 +3621,7 @@ function endTypeGame() {
   hideTypeGameTypo();
   hideTypeGameStageBanner();
   typeGamePauseBtn.hidden = true;
+  typeGameEndBtn.hidden = true;
   typeGameActive.forEach((w) => w.el.remove());
   typeGameActive = [];
   stopTypeGameMusic();
@@ -3627,6 +3707,10 @@ typeGameStartBtn.addEventListener("click", startTypeGame);
 typeGameRestartBtn.addEventListener("click", startTypeGame);
 typeGamePauseBtn.addEventListener("click", pauseTypeGameManual);
 typeGameResumeBtn.addEventListener("click", resumeTypeGameManual);
+typeGameEndBtn.addEventListener("click", () => {
+  if (!typeGameRunning && !typeGameManuallyPaused) return;
+  endTypeGame();
+});
 
 // Cycles the stage's visual theme (day/sunset/dusk/space/underwater — see
 // the .stage-scene-N rules in style.css) alongside the music, so a stage-up
@@ -3835,6 +3919,7 @@ const timesTableInput = document.getElementById("timestable-input");
 const timesTableTypoMsg = document.getElementById("timestable-typo-msg");
 const timesTableMuteBtn = document.getElementById("timestable-mute-btn");
 const timesTablePauseBtn = document.getElementById("timestable-pause-btn");
+const timesTableEndBtn = document.getElementById("timestable-end-btn");
 const timesTableStageTagEl = document.getElementById("timestable-stage-tag");
 const timesTableStageBanner = document.getElementById("timestable-stage-banner");
 const timesTableStageBannerText = document.getElementById("timestable-stage-banner-text");
@@ -4107,6 +4192,7 @@ function resetTimesTable() {
   hideTimesTableTypo();
   hideTimesTableStageBanner();
   timesTablePauseBtn.hidden = true;
+  timesTableEndBtn.hidden = true;
   timesTableManuallyPaused = false;
   timesTablePauseOverlay.hidden = true;
   updateTimesTableStageScene();
@@ -4139,6 +4225,7 @@ function startTimesTable() {
   hideTimesTableTypo();
   hideTimesTableStageBanner();
   timesTablePauseBtn.hidden = false;
+  timesTableEndBtn.hidden = false;
   timesTableManuallyPaused = false;
   timesTablePauseOverlay.hidden = true;
   timesTableMelodyIndex = 0;
@@ -4324,7 +4411,39 @@ function clearTimesTableProblem(item) {
 
   if (timesTableProblemsShown >= timesTableMaxProblems() && timesTableActive.length === 0) {
     endTimesTableRound("limit");
+  } else {
+    maybeOfferTimesTableChallenge();
   }
+}
+
+// Once every fact up to the current max table has been answered correctly
+// at least once (progress.wordStats is shared across modes, same reasoning
+// as Typing Game's version), offer to extend one table higher. Shown at
+// most once per max-table setting (persisted, so declining sticks).
+function maybeOfferTimesTableChallenge() {
+  if (timesTableMaxTable >= TIMESTABLE_MAX_TABLE_CAP) return;
+  progress.timesTableChallengeShown = progress.timesTableChallengeShown || {};
+  const shownKey = `${currentLang}_${timesTableMaxTable}`;
+  if (progress.timesTableChallengeShown[shownKey]) return;
+  if (timesTableProblemPool.length === 0) return;
+  const allCleared = timesTableProblemPool.every((p) => {
+    const stats = progress.wordStats[timesTableKey(p)];
+    return stats && stats.correct >= 1;
+  });
+  if (!allCleared) return;
+
+  progress.timesTableChallengeShown[shownKey] = true;
+  saveProgress();
+  pauseTimesTable();
+  kidConfirm(t("timesTableChallengePrompt"), t("challengeYesBtn"), t("challengeNoBtn")).then((ok) => {
+    if (ok) {
+      timesTableMaxTable = Math.min(timesTableMaxTable + 1, TIMESTABLE_MAX_TABLE_CAP);
+      saveTimesTableMaxTable();
+      startTimesTable();
+    } else {
+      resumeTimesTable();
+    }
+  });
 }
 
 const TIMESTABLE_ENCOURAGE_MESSAGES = {
@@ -4352,6 +4471,7 @@ function endTimesTableRound(reason) {
   hideTimesTableTypo();
   hideTimesTableStageBanner();
   timesTablePauseBtn.hidden = true;
+  timesTableEndBtn.hidden = true;
   timesTableActive.forEach((w) => w.el.remove());
   timesTableActive = [];
   stopTimesTableMusic();
@@ -4445,6 +4565,10 @@ timesTableStartBtn.addEventListener("click", startTimesTable);
 timesTableRestartBtn.addEventListener("click", startTimesTable);
 timesTablePauseBtn.addEventListener("click", pauseTimesTableManual);
 timesTableResumeBtn.addEventListener("click", resumeTimesTableManual);
+timesTableEndBtn.addEventListener("click", () => {
+  if (!timesTableRunning && !timesTableManuallyPaused) return;
+  endTimesTableRound("manual");
+});
 
 // Cycles the stage's visual theme (day/sunset/dusk/space/underwater — see
 // the .stage-scene-N rules in style.css) alongside the music, so a stage-up
