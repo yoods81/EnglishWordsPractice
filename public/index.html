@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OZ Words & Math Practice</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Gaegu:wght@700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -83,6 +86,20 @@
       </form>
       <p class="auth-hint" id="upgrade-no-code-hint" data-i18n="upgradeNoCodeHint">Don't have a code yet?</p>
       <button type="button" class="pill neutral" id="upgrade-request-btn" data-i18n="upgradeRequestBtn">📨 Request an upgrade from admin</button>
+    </div>
+  </div>
+
+  <!-- Friendly, branded stand-in for window.confirm() on the signup/upgrade nudges — a
+       real browser confirm() shows the raw URL and can't be styled or animated. -->
+  <div id="kid-confirm-overlay" class="kid-modal-overlay" hidden>
+    <div class="kid-modal-card">
+      <div class="kid-modal-icon" aria-hidden="true">📚</div>
+      <div class="kid-modal-brand">OZ Words &amp; Math Practice</div>
+      <p class="kid-modal-message" id="kid-confirm-message"></p>
+      <div class="kid-modal-actions">
+        <button type="button" class="pill primary kid-modal-btn" id="kid-confirm-ok-btn" data-i18n="kidConfirmOkBtn">🎉 Sign me up!</button>
+        <button type="button" class="pill neutral kid-modal-btn" id="kid-confirm-cancel-btn" data-i18n="kidConfirmCancelBtn">Not now</button>
+      </div>
     </div>
   </div>
 
@@ -307,6 +324,11 @@
         <div class="setting-row setting-row-nowrap">
           <span class="score-tag" id="typegame-score">Score: 0</span>
           <span class="stage-tag" id="typegame-stage-tag"></span>
+          <span class="game-speed-control" id="typegame-speed-control">
+            <button type="button" class="goal-step-btn" id="typegame-speed-minus" data-i18n-aria-label="gameSpeedDecreaseLabel" aria-label="Slower">−</button>
+            <span class="goal-stepper-value" id="typegame-speed-value">5</span>
+            <button type="button" class="goal-step-btn" id="typegame-speed-plus" data-i18n-aria-label="gameSpeedIncreaseLabel" aria-label="Faster">+</button>
+          </span>
           <span class="typegame-lives" id="typegame-lives" style="margin-left:auto;"></span>
         </div>
 
@@ -341,6 +363,11 @@
             <p id="typegame-encourage-msg" class="typegame-encourage-msg" hidden></p>
             <button class="pill primary" id="typegame-restart-btn" data-i18n="typeGameRestartBtn">🔄 Play Again</button>
           </div>
+
+          <div class="typegame-overlay" id="typegame-pause-overlay" hidden>
+            <h3 data-i18n="gamePausedTitle">⏸️ Paused</h3>
+            <button class="pill primary" id="typegame-resume-btn" data-i18n="gameResumeBtn">▶ Resume</button>
+          </div>
         </div>
 
         <p class="typegame-typo-msg" id="typegame-typo-msg" hidden data-i18n="typeGameTypoMsg">❌ No matching word — try again!</p>
@@ -355,6 +382,11 @@
         <div class="setting-row setting-row-nowrap">
           <span class="score-tag" id="timestable-score">Score: 0</span>
           <span class="stage-tag" id="timestable-stage-tag"></span>
+          <span class="game-speed-control" id="timestable-speed-control">
+            <button type="button" class="goal-step-btn" id="timestable-speed-minus" data-i18n-aria-label="gameSpeedDecreaseLabel" aria-label="Slower">−</button>
+            <span class="goal-stepper-value" id="timestable-speed-value">5</span>
+            <button type="button" class="goal-step-btn" id="timestable-speed-plus" data-i18n-aria-label="gameSpeedIncreaseLabel" aria-label="Faster">+</button>
+          </span>
           <span class="typegame-lives" id="timestable-lives" style="margin-left:auto;"></span>
         </div>
 
@@ -378,7 +410,7 @@
 
           <div class="typegame-overlay" id="timestable-start-overlay">
             <h3 data-i18n="timesTableTitle">🔢 Times Table</h3>
-            <p id="timestable-start-message" data-i18n="timesTableDesc">Type the whole fact — like "8 2 16" for 8 × 2 — before it reaches the bottom!</p>
+            <p id="timestable-start-message" class="timestable-instructions"></p>
             <div class="goal-stepper" id="timestable-maxtable-stepper">
               <span class="goal-stepper-label" data-i18n="timesTableMaxTableLabel">Practice tables up to</span>
               <button type="button" class="goal-step-btn" id="timestable-maxtable-minus" data-i18n-aria-label="goalDecreaseLabel" aria-label="Decrease">−</button>
@@ -395,6 +427,11 @@
             <p id="timestable-limit-msg" class="timestable-limit-msg" hidden></p>
             <p id="timestable-encourage-msg" class="typegame-encourage-msg" hidden></p>
             <button class="pill primary" id="timestable-restart-btn" data-i18n="timesTableRestartBtn">🔄 Play Again</button>
+          </div>
+
+          <div class="typegame-overlay" id="timestable-pause-overlay" hidden>
+            <h3 data-i18n="gamePausedTitle">⏸️ Paused</h3>
+            <button class="pill primary" id="timestable-resume-btn" data-i18n="gameResumeBtn">▶ Resume</button>
           </div>
         </div>
 
@@ -425,6 +462,18 @@
 
     <!-- Add Word -->
     <section id="view-addword" class="view">
+      <!-- Fixed to the viewport (not any one card) so it's centered on the page and
+           stays in place while scrolling; clicking it also opens the signup/upgrade
+           prompt. Only relevant while this tab is active — an ancestor display:none
+           hides it along with everything else in the tab when it isn't. -->
+      <div class="premium-lock-banner" id="addword-lock-banner" hidden>
+        <div class="premium-gate-label">
+          <div class="premium-gate-label-title" data-i18n="premiumGateTitle">🔒 Premium feature</div>
+          <div class="premium-gate-label-desc" data-i18n="premiumGateDesc">
+            You'll need to sign up and upgrade to premium to use this feature!
+          </div>
+        </div>
+      </div>
       <div class="addword-top-row">
       <div class="card" id="addword-extract-card">
         <h3 class="section-title-with-info">
@@ -511,14 +560,11 @@
           </div>
           <div id="bulk-add-status" class="spelling-tip"></div>
         </div>
-        <div class="premium-gate-overlay" id="manual-premium-overlay" hidden>
-          <div class="premium-gate-label">
-            <div class="premium-gate-label-title" data-i18n="premiumGateTitle">🔒 Premium feature</div>
-            <div class="premium-gate-label-desc" data-i18n="premiumGateDesc">
-              Adding and managing your own words needs a premium account. Sign up — it's free — then upgrade to unlock it.
-            </div>
-          </div>
-        </div>
+        <!-- Same plain click-catcher as the other two locked cards — see the
+             extract-words card's overlay comment. The visible message lives in
+             #addword-lock-banner below, fixed to the viewport instead of any
+             one card, so it's centered on the page and stays put while scrolling. -->
+        <div class="premium-gate-overlay" id="manual-premium-overlay" hidden></div>
       </div>
       </div>
 

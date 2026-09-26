@@ -122,6 +122,8 @@ const TRANSLATIONS = {
     typeGameStageLabel: (n) => `Stage ${n}`,
     timesTableTitle: "🔢 Times Table",
     timesTableDesc: 'Type the whole fact — like "8 2 16" for 8 × 2 — before it reaches the bottom!',
+    timesTableInstrLine1: "When the problem is {{EX}}, here's how to answer:",
+    timesTableInstrLine2: "Enter one of {{FMT}}",
     timesTableMaxTableLabel: "Practice tables up to",
     timesTableStartBtn: "▶ Start Game",
     timesTableHint: 'Type the two numbers and the answer, together or with spaces — like "8 2 16" for 8 × 2 = 16 — then keep going, no need to press Enter.',
@@ -178,7 +180,7 @@ const TRANSLATIONS = {
     goalLabel: "Number of Questions",
     goalDecreaseLabel: "Fewer questions",
     goalIncreaseLabel: "More questions",
-    anonymousQuestionCapPrompt: "Signed-out practice is capped at 50 questions. Sign up (it's free!) to unlock more questions and the rest of the app?",
+    anonymousQuestionCapPrompt: "Sign up for free to unlock more questions and the whole app!",
     goalReached: (score, level) => `🎉 ${score} correct — you've hit your target for ${level}!`,
     goalReachedTop: (score, level) => `🎉 ${score} correct on ${level} — that's the highest level. Brilliant!`,
     goalNextLevelBtn: "🚀 Try the next level",
@@ -383,10 +385,15 @@ const TRANSLATIONS = {
     upgradeDesc: "General accounts are capped at 100 questions per round. Enter a special code from the admin to unlock more questions and your own private word list.",
     upgradeSubmitBtn: "Upgrade",
     upgradeErrorNotEligible: "This account can't be upgraded from here.",
-    anonymousFeatureSignupPrompt: "This feature is for signed-in accounts. Sign up (it's free!) to unlock it?",
-    anonymousPremiumFeaturePrompt: "This feature is for premium accounts. Sign up (it's free!), then upgrade to unlock it?",
+    anonymousPremiumFeaturePrompt: "Sign up and upgrade to premium to unlock this feature!",
     premiumGateTitle: "🔒 Premium feature",
-    premiumGateDesc: "Adding and managing your own words needs a premium account. Sign up — it's free — then upgrade to unlock it.",
+    premiumGateDesc: "You'll need to sign up and upgrade to premium to use this feature!",
+    kidConfirmOkBtn: "🎉 Sign me up!",
+    kidConfirmCancelBtn: "Not now",
+    gamePausedTitle: "⏸️ Paused",
+    gameResumeBtn: "▶ Resume",
+    gameSpeedDecreaseLabel: "Slower",
+    gameSpeedIncreaseLabel: "Faster",
     customDeleteOthersBlocked: "You can only delete words you added yourself.",
     roleAdmin: "Admin",
     rolePaid: "Premium",
@@ -475,6 +482,8 @@ const TRANSLATIONS = {
     typeGameStageLabel: (n) => `스테이지 ${n}`,
     timesTableTitle: "🔢 구구단",
     timesTableDesc: "식 전체를 타이핑하세요 — 8 × 2라면 \"8 2 16\"처럼 — 바닥에 닿기 전에!",
+    timesTableInstrLine1: "문제가 {{EX}} 일 때 정답 입력 방법",
+    timesTableInstrLine2: "{{FMT}} 셋 중 하나를 입력",
     timesTableMaxTableLabel: "몇 단까지 연습할까요",
     timesTableStartBtn: "▶ 게임 시작",
     timesTableHint: "두 숫자와 답을 이어서, 또는 띄어서 입력하세요 — 8 × 2 = 16이면 \"8 2 16\"처럼 — 계속 입력하면 돼요, Enter는 필요 없어요.",
@@ -531,7 +540,7 @@ const TRANSLATIONS = {
     goalLabel: "문제들의 수",
     goalDecreaseLabel: "문제 수 줄이기",
     goalIncreaseLabel: "문제 수 늘리기",
-    anonymousQuestionCapPrompt: "가입 전에는 문제 수가 최대 50개로 제한돼요. 가입하고(무료예요!) 더 많은 문제와 나머지 기능도 사용해보시겠어요?",
+    anonymousQuestionCapPrompt: "더 많은 문제와 모든 기능을 사용하려면 무료로 가입해보세요!",
     goalReached: (score, level) => `🎉 ${score}개 정답 — ${level} 목표를 달성했어요!`,
     goalReachedTop: (score, level) => `🎉 ${level}에서 ${score}개 정답 — 가장 높은 레벨이에요. 정말 잘했어요!`,
     goalNextLevelBtn: "🚀 다음 레벨 도전",
@@ -731,10 +740,15 @@ const TRANSLATIONS = {
     upgradeDesc: "일반 계정은 한 라운드에 최대 100문제까지만 가능해요. admin에게 받은 특별 코드를 입력하면 더 많은 문제와 나만의 단어장을 사용할 수 있어요.",
     upgradeSubmitBtn: "업그레이드",
     upgradeErrorNotEligible: "이 계정은 여기서 업그레이드할 수 없어요.",
-    anonymousFeatureSignupPrompt: "이 기능은 로그인한 계정만 사용할 수 있어요. 가입하고(무료예요!) 사용해보시겠어요?",
-    anonymousPremiumFeaturePrompt: "이 기능은 프리미엄 계정만 사용할 수 있어요. 가입하고(무료예요!) 업그레이드해서 사용해보시겠어요?",
+    anonymousPremiumFeaturePrompt: "이 기능을 사용하려면 가입 후 프리미엄으로 업그레이드해야 해요!",
     premiumGateTitle: "🔒 프리미엄 전용 기능",
-    premiumGateDesc: "나만의 단어를 추가하고 관리하려면 프리미엄 계정이 필요해요. 가입은 무료이고, 이후 업그레이드하면 사용할 수 있어요.",
+    premiumGateDesc: "이 기능을 사용하시려면 가입 후 프리미엄 회원으로 업그레이드 하셔야 해요!",
+    kidConfirmOkBtn: "🎉 가입할래요!",
+    kidConfirmCancelBtn: "다음에요",
+    gamePausedTitle: "⏸️ 일시정지",
+    gameResumeBtn: "▶ 계속하기",
+    gameSpeedDecreaseLabel: "느리게",
+    gameSpeedIncreaseLabel: "빠르게",
     customDeleteOthersBlocked: "본인이 추가한 단어만 삭제 가능합니다.",
     roleAdmin: "관리자",
     rolePaid: "프리미엄",
@@ -1173,10 +1187,47 @@ function renderGoalStepper(mode) {
   plusBtn.disabled = goals[mode] >= hardCeiling;
 }
 
+/* ---------- Kid-friendly confirm modal ----------
+   A branded, animated stand-in for window.confirm() on the signup/upgrade
+   nudges — a real confirm() shows the raw URL, can't be styled, and reads
+   as a scary "this site says" browser chrome dialog to a young kid. Resolves
+   true/false the same way confirm() would, just asynchronously. */
+const kidConfirmOverlay = document.getElementById("kid-confirm-overlay");
+const kidConfirmMessage = document.getElementById("kid-confirm-message");
+const kidConfirmOkBtn = document.getElementById("kid-confirm-ok-btn");
+const kidConfirmCancelBtn = document.getElementById("kid-confirm-cancel-btn");
+let kidConfirmResolve = null;
+
+function kidConfirm(message) {
+  return new Promise((resolve) => {
+    kidConfirmMessage.textContent = message;
+    kidConfirmResolve = resolve;
+    kidConfirmOverlay.hidden = false;
+    // Restart the pop-in animation even if a previous prompt is still fading.
+    const card = kidConfirmOverlay.querySelector(".kid-modal-card");
+    card.style.animation = "none";
+    void card.offsetWidth;
+    card.style.animation = "";
+  });
+}
+
+function closeKidConfirm(result) {
+  kidConfirmOverlay.hidden = true;
+  const resolve = kidConfirmResolve;
+  kidConfirmResolve = null;
+  if (resolve) resolve(result);
+}
+
+kidConfirmOkBtn.addEventListener("click", () => closeKidConfirm(true));
+kidConfirmCancelBtn.addEventListener("click", () => closeKidConfirm(false));
+kidConfirmOverlay.addEventListener("click", (e) => {
+  if (e.target === kidConfirmOverlay) closeKidConfirm(false);
+});
+
 function promptSignupForMoreQuestions() {
-  if (confirm(t("anonymousQuestionCapPrompt"))) {
-    openAuthOverlay("signup");
-  }
+  kidConfirm(t("anonymousQuestionCapPrompt")).then((ok) => {
+    if (ok) openAuthOverlay("signup");
+  });
 }
 
 // Shows the congratulations panel once a round's correct count reaches the
@@ -1460,6 +1511,7 @@ function switchLanguage(lang) {
   updateLevelBadge();
   resetManualForm();
   renderLevelChoices();
+  renderTimesTableInstructions();
 
   if (savedLevels[lang]) {
     populateLevelSelects();
@@ -1527,12 +1579,6 @@ tabButtons.forEach((btn) => {
   });
 });
 
-function promptSignupForFeature() {
-  if (confirm(t("anonymousFeatureSignupPrompt"))) {
-    openAuthOverlay("signup");
-  }
-}
-
 // A step above canUseAccountFeatures(): word-adding (photo/manual/OCR),
 // managing My Added Words, and building the "My cards" flashcard deck are
 // premium features — a free (signed-in) account doesn't clear this any more
@@ -1550,9 +1596,9 @@ function promptUpgradeForFeature() {
     openUpgradeOverlay();
     return;
   }
-  if (confirm(t("anonymousPremiumFeaturePrompt"))) {
-    openAuthOverlay("signup");
-  }
+  kidConfirm(t("anonymousPremiumFeaturePrompt")).then((ok) => {
+    if (ok) openAuthOverlay("signup");
+  });
 }
 
 // Set once the Add Word section further down this file has its own DOM
@@ -3045,6 +3091,11 @@ const typeGameStageTagEl = document.getElementById("typegame-stage-tag");
 const typeGameStageBanner = document.getElementById("typegame-stage-banner");
 const typeGameStageBannerText = document.getElementById("typegame-stage-banner-text");
 const typeGameEncourageMsg = document.getElementById("typegame-encourage-msg");
+const typeGameSpeedMinusBtn = document.getElementById("typegame-speed-minus");
+const typeGameSpeedPlusBtn = document.getElementById("typegame-speed-plus");
+const typeGameSpeedValueEl = document.getElementById("typegame-speed-value");
+const typeGamePauseOverlay = document.getElementById("typegame-pause-overlay");
+const typeGameResumeBtn = document.getElementById("typegame-resume-btn");
 
 let typeGameRunning = false;
 let typeGamePaused = false;
@@ -3111,6 +3162,63 @@ function updateTypeGameHud() {
   typeGameLivesEl.textContent = full + empty;
 }
 
+/* ---------- Live fall-speed control ----------
+   Independent of the automatic stage-based ramp-up (typeGameSpeed itself) —
+   this is a player-chosen multiplier on top of it, adjustable mid-round, so
+   a round that's speeding up too fast for a beginner (or too slow for a
+   confident typist) can be dialed in on the fly rather than restarted. */
+const TYPEGAME_SPEED_LEVEL_KEY = "ywp_typegame_speedlevel_v1";
+const TYPEGAME_SPEED_LEVEL_MIN = 1;
+const TYPEGAME_SPEED_LEVEL_MAX = 9;
+const TYPEGAME_SPEED_LEVEL_DEFAULT = 5; // level 5 = the normal (1x) speed
+
+function loadTypeGameSpeedLevel() {
+  try {
+    const raw = localStorage.getItem(TYPEGAME_SPEED_LEVEL_KEY);
+    const n = raw ? parseInt(raw, 10) : NaN;
+    if (Number.isFinite(n) && n >= TYPEGAME_SPEED_LEVEL_MIN && n <= TYPEGAME_SPEED_LEVEL_MAX) return n;
+  } catch (e) {
+    /* fall through to default */
+  }
+  return TYPEGAME_SPEED_LEVEL_DEFAULT;
+}
+
+function saveTypeGameSpeedLevel() {
+  try {
+    localStorage.setItem(TYPEGAME_SPEED_LEVEL_KEY, String(typeGameSpeedLevel));
+  } catch (e) {
+    console.warn("Could not save Typing Game speed setting", e);
+  }
+}
+
+let typeGameSpeedLevel = loadTypeGameSpeedLevel();
+
+function typeGameSpeedMultiplier() {
+  return typeGameSpeedLevel / TYPEGAME_SPEED_LEVEL_DEFAULT;
+}
+
+function updateTypeGameSpeedUI() {
+  typeGameSpeedValueEl.textContent = String(typeGameSpeedLevel);
+  typeGameSpeedMinusBtn.disabled = typeGameSpeedLevel <= TYPEGAME_SPEED_LEVEL_MIN;
+  typeGameSpeedPlusBtn.disabled = typeGameSpeedLevel >= TYPEGAME_SPEED_LEVEL_MAX;
+}
+
+typeGameSpeedMinusBtn.addEventListener("click", () => {
+  if (typeGameSpeedLevel <= TYPEGAME_SPEED_LEVEL_MIN) return;
+  typeGameSpeedLevel--;
+  saveTypeGameSpeedLevel();
+  updateTypeGameSpeedUI();
+});
+
+typeGameSpeedPlusBtn.addEventListener("click", () => {
+  if (typeGameSpeedLevel >= TYPEGAME_SPEED_LEVEL_MAX) return;
+  typeGameSpeedLevel++;
+  saveTypeGameSpeedLevel();
+  updateTypeGameSpeedUI();
+});
+
+updateTypeGameSpeedUI();
+
 // A short, non-blocking celebration shown on every stage-up — pointer-events
 // are disabled on the banner (see CSS) so it never steals focus from the
 // input, and it auto-hides itself; no pause, no disabled input.
@@ -3140,10 +3248,19 @@ function hideTypeGameStageBanner() {
   typeGameStageBanner.hidden = true;
 }
 
+// True once the player has hit the on-screen Pause button — separate from
+// typeGamePaused, which pauseTypeGame()/resumeTypeGame() also use for the
+// tab-switch freeze, so a manual pause isn't auto-resumed by a tab switch
+// (see enterTypeGameTab() below) and a tab switch doesn't dismiss the pause
+// overlay behind the player's back.
+let typeGameManuallyPaused = false;
+
 // Called whenever this tab becomes active: resumes a round that was frozen
 // by switching tabs, or — if there's no round in progress — shows a fresh
-// start screen for the current level.
+// start screen for the current level. A manual pause is left exactly as the
+// player left it either way.
 function enterTypeGameTab() {
+  if (typeGameManuallyPaused) return;
   if (typeGamePaused) {
     resumeTypeGame();
   } else if (!typeGameRunning) {
@@ -3165,6 +3282,9 @@ function resetTypeGame() {
   hideTypeGameTypo();
   hideTypeGameStageBanner();
   typeGamePauseBtn.hidden = true;
+  typeGameManuallyPaused = false;
+  typeGamePauseOverlay.hidden = true;
+  updateTypeGameStageScene();
   updateTypeGameHud();
 
   typeGameWordPool = buildTypeGameWordPool();
@@ -3194,6 +3314,10 @@ function startTypeGame() {
   hideTypeGameTypo();
   hideTypeGameStageBanner();
   typeGamePauseBtn.hidden = false;
+  typeGameManuallyPaused = false;
+  typeGamePauseOverlay.hidden = true;
+  typeGameMelodyIndex = 0;
+  updateTypeGameStageScene();
   typeGameInput.focus();
   updateTypeGameHud();
 
@@ -3233,18 +3357,22 @@ function resumeTypeGame() {
   startTypeGameMusic();
 }
 
-// The on-screen Pause button — distinct from pauseTypeGame() above, which
-// only freezes the round for a tab switch and expects resumeTypeGame() to
-// pick it back up. This one is a deliberate exit: it ends the current round
-// outright and returns to the same start screen a fresh visit would show.
-function pauseTypeGameToStart() {
+// The on-screen Pause button: a true freeze, reusing pauseTypeGame()'s
+// tab-switch-freeze machinery (falling words keep their exact positions,
+// score/lives/speed are untouched) rather than resetting the round — a
+// visible pause overlay with its own Resume button stands in for the
+// start/game-over overlays while it's up.
+function pauseTypeGameManual() {
   if (!typeGameRunning) return;
-  typeGameRunning = false;
-  typeGamePaused = false;
-  cancelAnimationFrame(typeGameRafId);
-  clearTimeout(typeGameSpawnTimer);
-  stopTypeGameMusic();
-  resetTypeGame();
+  typeGameManuallyPaused = true;
+  pauseTypeGame();
+  typeGamePauseOverlay.hidden = false;
+}
+
+function resumeTypeGameManual() {
+  typeGameManuallyPaused = false;
+  typeGamePauseOverlay.hidden = true;
+  resumeTypeGame();
 }
 
 function scheduleTypeGameSpawn() {
@@ -3309,7 +3437,7 @@ function typeGameLoop(ts) {
   const stageHeight = typeGameStage.clientHeight;
   for (let i = typeGameActive.length - 1; i >= 0; i--) {
     const w = typeGameActive[i];
-    w.top += typeGameSpeed * dt;
+    w.top += typeGameSpeed * typeGameSpeedMultiplier() * dt;
     w.el.style.top = `${w.top}px`;
     if (w.top > stageHeight - 30) {
       w.el.remove();
@@ -3379,6 +3507,9 @@ function clearTypeGameWord(word) {
   typeGameSpawnInterval = Math.max(TYPEGAME_SPAWN_MIN, TYPEGAME_SPAWN_START - speedUps * TYPEGAME_SPAWN_STEP);
   if (speedUps !== typeGameStageIndex) {
     typeGameStageIndex = speedUps;
+    typeGameMelodyIndex = typeGameStageIndex % TYPEGAME_MELODIES.length;
+    typeGameMusicIndex = 0;
+    updateTypeGameStageScene();
     showTypeGameStageBanner(typeGameStageIndex + 1);
   }
   updateTypeGameHud();
@@ -3400,6 +3531,8 @@ const TYPEGAME_ENCOURAGE_MESSAGES = {
 function endTypeGame() {
   typeGameRunning = false;
   typeGamePaused = false;
+  typeGameManuallyPaused = false;
+  typeGamePauseOverlay.hidden = true;
   cancelAnimationFrame(typeGameRafId);
   clearTimeout(typeGameSpawnTimer);
   typeGameInput.disabled = true;
@@ -3490,18 +3623,40 @@ typeGameInput.addEventListener("keydown", (e) => {
 
 typeGameStartBtn.addEventListener("click", startTypeGame);
 typeGameRestartBtn.addEventListener("click", startTypeGame);
-typeGamePauseBtn.addEventListener("click", pauseTypeGameToStart);
+typeGamePauseBtn.addEventListener("click", pauseTypeGameManual);
+typeGameResumeBtn.addEventListener("click", resumeTypeGameManual);
+
+// Cycles the stage's visual theme (day/sunset/dusk/space/underwater — see
+// the .stage-scene-N rules in style.css) alongside the music, so a stage-up
+// reads as "somewhere new" rather than just a faster falling rate.
+function updateTypeGameStageScene() {
+  const scene = typeGameStageIndex % 5;
+  for (let i = 0; i < 5; i++) typeGameStage.classList.toggle(`stage-scene-${i}`, i === scene);
+}
 
 /* ---------- Typing Game background music ----------
-   A short, cheerful loop generated entirely with the Web Audio API (a
-   handful of oscillator notes on a pentatonic scale) rather than a shipped
-   audio file, so there's nothing to download and no licensing to worry
-   about. It only ever starts from a click (Start/Play Again, or returning
-   to a paused round), which satisfies browsers' autoplay restrictions. */
-const TYPEGAME_MELODY_HZ = [523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 659.25, 783.99, 880.0, 783.99, 659.25];
+   Short, cheerful loops generated entirely with the Web Audio API rather
+   than shipped audio files, so there's nothing to download and no
+   licensing to worry about. It only ever starts from a click (Start/Play
+   Again, or returning to a paused round), which satisfies browsers'
+   autoplay restrictions. Five genuinely different tunes (not the same
+   shape transposed) cycle with the stage, matching Times Table's. */
+const TYPEGAME_MELODIES = [
+  // 1. Bright bounce — wide up/down leaps.
+  [523.25, 659.25, 783.99, 1046.5, 783.99, 659.25, 523.25, 392.0],
+  // 2. Skip-along — a plain rising scale run.
+  [523.25, 587.33, 659.25, 698.46, 783.99, 880.0, 987.77, 1046.5],
+  // 3. Bouncy repeats — paired repeated notes, a syncopated feel.
+  [659.25, 659.25, 783.99, 587.33, 587.33, 698.46, 523.25, 523.25, 659.25],
+  // 4. Playful descent — a falling broken-chord figure, repeated.
+  [1046.5, 880.0, 698.46, 587.33, 1046.5, 880.0, 698.46, 587.33],
+  // 5. Fanfare — a bugle-call style register jump.
+  [392.0, 523.25, 659.25, 783.99, 1046.5, 783.99, 659.25, 523.25],
+];
 const TYPEGAME_NOTE_DURATION = 0.22; // seconds per note
 
 let typeGameAudioCtx = null;
+let typeGameMelodyIndex = 0;
 let typeGameMusicIndex = 0;
 let typeGameNextNoteTime = 0;
 let typeGameMusicSchedulerId = null;
@@ -3558,8 +3713,9 @@ function playTypeGameNote(freq, when) {
 // even if this timer occasionally fires a bit late.
 function scheduleTypeGameMusic() {
   if (typeGameMuted || !typeGameRunning || !typeGameAudioCtx) return;
+  const melody = TYPEGAME_MELODIES[typeGameMelodyIndex % TYPEGAME_MELODIES.length];
   while (typeGameNextNoteTime < typeGameAudioCtx.currentTime + 0.5) {
-    playTypeGameNote(TYPEGAME_MELODY_HZ[typeGameMusicIndex % TYPEGAME_MELODY_HZ.length], typeGameNextNoteTime);
+    playTypeGameNote(melody[typeGameMusicIndex % melody.length], typeGameNextNoteTime);
     typeGameMusicIndex++;
     typeGameNextNoteTime += TYPEGAME_NOTE_DURATION;
   }
@@ -3666,6 +3822,7 @@ const timesTableLivesEl = document.getElementById("timestable-lives");
 const timesTableStage = document.getElementById("timestable-stage");
 const timesTableWordsEl = document.getElementById("timestable-words");
 const timesTableStartOverlay = document.getElementById("timestable-start-overlay");
+const timesTableStartMessage = document.getElementById("timestable-start-message");
 const timesTableStartBtn = document.getElementById("timestable-start-btn");
 const timesTableOverOverlay = document.getElementById("timestable-over-overlay");
 const timesTableFinalScoreEl = document.getElementById("timestable-final-score");
@@ -3683,6 +3840,27 @@ const timesTableEncourageMsg = document.getElementById("timestable-encourage-msg
 const timesTableMaxTableMinusBtn = document.getElementById("timestable-maxtable-minus");
 const timesTableMaxTablePlusBtn = document.getElementById("timestable-maxtable-plus");
 const timesTableMaxTableValueEl = document.getElementById("timestable-maxtable-value");
+const timesTableSpeedMinusBtn = document.getElementById("timestable-speed-minus");
+const timesTableSpeedPlusBtn = document.getElementById("timestable-speed-plus");
+const timesTableSpeedValueEl = document.getElementById("timestable-speed-value");
+const timesTablePauseOverlay = document.getElementById("timestable-pause-overlay");
+const timesTableResumeBtn = document.getElementById("timestable-resume-btn");
+
+// Built rather than left to the generic data-i18n text swap, so the example
+// numbers can be bold/colored — {{EX}} and {{FMT}} are plain substring
+// markers in the translated sentence, not template syntax. Called once at
+// startup and again on every language switch (see switchLanguage()).
+function renderTimesTableInstructions() {
+  const exHtml = `<span class="ti-highlight">8 × 2</span>`;
+  const fmtHtml =
+    `<span class="ti-highlight">8216</span> / ` +
+    `<span class="ti-highlight">82 16</span> / ` +
+    `<span class="ti-highlight">8 2 16</span>`;
+  const line1 = t("timesTableInstrLine1").replace("{{EX}}", exHtml);
+  const line2 = t("timesTableInstrLine2").replace("{{FMT}}", fmtHtml);
+  timesTableStartMessage.innerHTML = `<span class="ti-line">${line1}</span><span class="ti-line">${line2}</span>`;
+}
+renderTimesTableInstructions();
 
 let timesTableRunning = false;
 let timesTablePaused = false;
@@ -3813,6 +3991,61 @@ function updateTimesTableHud() {
   timesTableLivesEl.textContent = full + empty;
 }
 
+/* ---------- Live fall-speed control ----------
+   Same player-chosen multiplier on top of the automatic stage ramp-up as
+   Typing Game's — see there for why. */
+const TIMESTABLE_SPEED_LEVEL_KEY = "ywp_timestable_speedlevel_v1";
+const TIMESTABLE_SPEED_LEVEL_MIN = 1;
+const TIMESTABLE_SPEED_LEVEL_MAX = 9;
+const TIMESTABLE_SPEED_LEVEL_DEFAULT = 5; // level 5 = the normal (1x) speed
+
+function loadTimesTableSpeedLevel() {
+  try {
+    const raw = localStorage.getItem(TIMESTABLE_SPEED_LEVEL_KEY);
+    const n = raw ? parseInt(raw, 10) : NaN;
+    if (Number.isFinite(n) && n >= TIMESTABLE_SPEED_LEVEL_MIN && n <= TIMESTABLE_SPEED_LEVEL_MAX) return n;
+  } catch (e) {
+    /* fall through to default */
+  }
+  return TIMESTABLE_SPEED_LEVEL_DEFAULT;
+}
+
+function saveTimesTableSpeedLevel() {
+  try {
+    localStorage.setItem(TIMESTABLE_SPEED_LEVEL_KEY, String(timesTableSpeedLevel));
+  } catch (e) {
+    console.warn("Could not save Times Table speed setting", e);
+  }
+}
+
+let timesTableSpeedLevel = loadTimesTableSpeedLevel();
+
+function timesTableSpeedMultiplier() {
+  return timesTableSpeedLevel / TIMESTABLE_SPEED_LEVEL_DEFAULT;
+}
+
+function updateTimesTableSpeedUI() {
+  timesTableSpeedValueEl.textContent = String(timesTableSpeedLevel);
+  timesTableSpeedMinusBtn.disabled = timesTableSpeedLevel <= TIMESTABLE_SPEED_LEVEL_MIN;
+  timesTableSpeedPlusBtn.disabled = timesTableSpeedLevel >= TIMESTABLE_SPEED_LEVEL_MAX;
+}
+
+timesTableSpeedMinusBtn.addEventListener("click", () => {
+  if (timesTableSpeedLevel <= TIMESTABLE_SPEED_LEVEL_MIN) return;
+  timesTableSpeedLevel--;
+  saveTimesTableSpeedLevel();
+  updateTimesTableSpeedUI();
+});
+
+timesTableSpeedPlusBtn.addEventListener("click", () => {
+  if (timesTableSpeedLevel >= TIMESTABLE_SPEED_LEVEL_MAX) return;
+  timesTableSpeedLevel++;
+  saveTimesTableSpeedLevel();
+  updateTimesTableSpeedUI();
+});
+
+updateTimesTableSpeedUI();
+
 // Same non-blocking stage-up celebration as Typing Game (see there for why
 // it's pointer-events:none and self-dismisses) — kept as its own copy rather
 // than a shared helper, matching how this module's music/SFX code is
@@ -3841,10 +4074,15 @@ function hideTimesTableStageBanner() {
   timesTableStageBanner.hidden = true;
 }
 
+// True once the player has hit the on-screen Pause button — see
+// typeGameManuallyPaused for why this is kept separate from timesTablePaused.
+let timesTableManuallyPaused = false;
+
 // Called whenever this tab becomes active: resumes a round that was frozen
 // by switching tabs, or — if there's no round in progress — shows a fresh
-// start screen.
+// start screen. A manual pause is left exactly as the player left it either way.
 function enterTimesTableTab() {
+  if (timesTableManuallyPaused) return;
   if (timesTablePaused) {
     resumeTimesTable();
   } else if (!timesTableRunning) {
@@ -3863,10 +4101,14 @@ function resetTimesTable() {
   timesTableSpeed = TIMESTABLE_BASE_SPEED;
   timesTableSpawnInterval = TIMESTABLE_SPAWN_START;
   timesTableInput.value = "";
+  timesTableLastRawInputValue = "";
   timesTableInput.disabled = true;
   hideTimesTableTypo();
   hideTimesTableStageBanner();
   timesTablePauseBtn.hidden = true;
+  timesTableManuallyPaused = false;
+  timesTablePauseOverlay.hidden = true;
+  updateTimesTableStageScene();
   updateTimesTableHud();
 
   timesTableProblemPool = buildTimesTableProblemPool(timesTableMaxTable);
@@ -3893,9 +4135,14 @@ function startTimesTable() {
   timesTableOverOverlay.hidden = true;
   timesTableInput.disabled = false;
   timesTableInput.value = "";
+  timesTableLastRawInputValue = "";
   hideTimesTableTypo();
   hideTimesTableStageBanner();
   timesTablePauseBtn.hidden = false;
+  timesTableManuallyPaused = false;
+  timesTablePauseOverlay.hidden = true;
+  timesTableMelodyIndex = 0;
+  updateTimesTableStageScene();
   timesTableInput.focus();
   updateTimesTableHud();
 
@@ -3916,6 +4163,7 @@ function pauseTimesTable() {
   clearTimeout(timesTableSpawnTimer);
   timesTableInput.disabled = true;
   timesTableInput.value = "";
+  timesTableLastRawInputValue = "";
   hideTimesTableTypo();
   clearTimesTableHighlights();
   stopTimesTableMusic();
@@ -3932,16 +4180,20 @@ function resumeTimesTable() {
   startTimesTableMusic();
 }
 
-// The on-screen Pause button — see pauseTypeGameToStart() for why this is a
-// deliberate exit distinct from pauseTimesTable()'s tab-switch freeze.
-function pauseTimesTableToStart() {
+// The on-screen Pause button: a true freeze — see pauseTypeGameManual() for
+// why this reuses pauseTimesTable()'s tab-switch-freeze machinery instead of
+// resetting the round.
+function pauseTimesTableManual() {
   if (!timesTableRunning) return;
-  timesTableRunning = false;
-  timesTablePaused = false;
-  cancelAnimationFrame(timesTableRafId);
-  clearTimeout(timesTableSpawnTimer);
-  stopTimesTableMusic();
-  resetTimesTable();
+  timesTableManuallyPaused = true;
+  pauseTimesTable();
+  timesTablePauseOverlay.hidden = false;
+}
+
+function resumeTimesTableManual() {
+  timesTableManuallyPaused = false;
+  timesTablePauseOverlay.hidden = true;
+  resumeTimesTable();
 }
 
 function scheduleTimesTableSpawn() {
@@ -4000,7 +4252,7 @@ function timesTableLoop(ts) {
   const stageHeight = timesTableStage.clientHeight;
   for (let i = timesTableActive.length - 1; i >= 0; i--) {
     const w = timesTableActive[i];
-    w.top += timesTableSpeed * dt;
+    w.top += timesTableSpeed * timesTableSpeedMultiplier() * dt;
     w.el.style.top = `${w.top}px`;
     if (w.top > stageHeight - 30) {
       w.el.remove();
@@ -4066,6 +4318,7 @@ function clearTimesTableProblem(item) {
     timesTableStageIndex = stage;
     timesTableMelodyIndex = stage % TIMESTABLE_MELODIES.length;
     timesTableMusicNoteIndex = 0;
+    updateTimesTableStageScene();
     showTimesTableStageBanner(timesTableStageIndex + 1);
   }
   updateTimesTableHud();
@@ -4091,10 +4344,13 @@ const TIMESTABLE_ENCOURAGE_MESSAGES = {
 function endTimesTableRound(reason) {
   timesTableRunning = false;
   timesTablePaused = false;
+  timesTableManuallyPaused = false;
+  timesTablePauseOverlay.hidden = true;
   cancelAnimationFrame(timesTableRafId);
   clearTimeout(timesTableSpawnTimer);
   timesTableInput.disabled = true;
   timesTableInput.value = "";
+  timesTableLastRawInputValue = "";
   hideTimesTableTypo();
   hideTimesTableStageBanner();
   timesTablePauseBtn.hidden = true;
@@ -4147,6 +4403,42 @@ function hideTimesTableTypo() {
   timesTableTypoMsg.hidden = true;
 }
 
+// Reads each digit back as it's typed — "eight... two... one... six" — as
+// immediate confirmation of what was actually entered, independent of the
+// word-pronunciation speak() function (which follows the *vocabulary*
+// language, always English for the Korean track too — digit reading follows
+// the UI language instead, since these are just numbers, not English words
+// being taught).
+const TIMESTABLE_DIGIT_WORDS = {
+  en: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"],
+  ko: ["영", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"],
+};
+
+function speakTimesTableDigit(ch) {
+  if (timesTableMuted || !("speechSynthesis" in window)) return;
+  const n = parseInt(ch, 10);
+  if (Number.isNaN(n)) return;
+  const words = TIMESTABLE_DIGIT_WORDS[currentLang] || TIMESTABLE_DIGIT_WORDS.en;
+  const word = words[n];
+  if (!word) return;
+  const lang = currentLang === "ko" ? "ko-KR" : "en-AU";
+  const utter = new SpeechSynthesisUtterance(word);
+  utter.lang = lang;
+  const voice = pickVoice(lang);
+  if (voice) utter.voice = voice;
+  utter.rate = 1.05;
+  utter.pitch = 1.05;
+  // Deliberately not cancelling any utterance already in flight (unlike
+  // speak()) — digits typed in quick succession should queue and read back
+  // in order, not cut each other off mid-word.
+  window.speechSynthesis.speak(utter);
+}
+
+// Tracks the input box's raw (unstripped) value between keystrokes so only
+// newly *appended* characters get spoken — a backspace, paste-over, or the
+// auto-clear on a correct answer shouldn't replay anything.
+let timesTableLastRawInputValue = "";
+
 // Matches whatever's been typed (spaces stripped) against every falling
 // fact's expected answer string, the same "type to auto-lock onto the right
 // falling item" feel Typing Game has — just matching a computed answer
@@ -4154,7 +4446,14 @@ function hideTimesTableTypo() {
 timesTableInput.addEventListener("input", () => {
   if (!timesTableRunning) return;
   hideTimesTableTypo();
-  const val = timesTableInput.value.replace(/\s+/g, "");
+  const rawVal = timesTableInput.value;
+  const val = rawVal.replace(/\s+/g, "");
+
+  if (rawVal.length > timesTableLastRawInputValue.length && rawVal.startsWith(timesTableLastRawInputValue)) {
+    const added = rawVal.slice(timesTableLastRawInputValue.length);
+    for (const ch of added) speakTimesTableDigit(ch);
+  }
+  timesTableLastRawInputValue = rawVal;
 
   let match = null;
   if (val) {
@@ -4167,6 +4466,7 @@ timesTableInput.addEventListener("input", () => {
   if (match && val.length === match.expected.length) {
     clearTimesTableProblem(match);
     timesTableInput.value = "";
+    timesTableLastRawInputValue = "";
   }
 });
 
@@ -4179,26 +4479,41 @@ timesTableInput.addEventListener("keydown", (e) => {
   if (!isValidPrefix) {
     showTimesTableTypo();
     timesTableInput.value = "";
+    timesTableLastRawInputValue = "";
     clearTimesTableHighlights();
   }
 });
 
 timesTableStartBtn.addEventListener("click", startTimesTable);
 timesTableRestartBtn.addEventListener("click", startTimesTable);
-timesTablePauseBtn.addEventListener("click", pauseTimesTableToStart);
+timesTablePauseBtn.addEventListener("click", pauseTimesTableManual);
+timesTableResumeBtn.addEventListener("click", resumeTimesTableManual);
+
+// Cycles the stage's visual theme (day/sunset/dusk/space/underwater — see
+// the .stage-scene-N rules in style.css) alongside the music, so a stage-up
+// reads as "somewhere new" rather than just a faster falling rate.
+function updateTimesTableStageScene() {
+  const scene = timesTableStageIndex % 5;
+  for (let i = 0; i < 5; i++) timesTableStage.classList.toggle(`stage-scene-${i}`, i === scene);
+}
 
 /* ---------- Times Table background music ----------
    Same Web-Audio-synthesised approach as Typing Game's music, but five
-   short melodies instead of one — each stage transition (every
-   TIMESTABLE_PROBLEMS_PER_STAGE correct answers) advances to the next tune
-   (cycling back to the first after the fifth), generally a little brighter/
-   higher-pitched than the last, echoing the speed ramp-up. */
+   genuinely different short tunes — not the same shape transposed — so a
+   stage transition (every TIMESTABLE_PROBLEMS_PER_STAGE correct answers)
+   actually sounds like new music, not just a pitch shift. Cycles back to
+   the first after the fifth. */
 const TIMESTABLE_MELODIES = [
-  [523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 659.25, 783.99, 880.0, 783.99, 659.25],
-  [587.33, 659.25, 783.99, 880.0, 783.99, 659.25, 587.33, 783.99, 880.0, 987.77, 880.0, 783.99],
-  [659.25, 783.99, 880.0, 1046.5, 880.0, 783.99, 659.25, 880.0, 1046.5, 1174.66, 1046.5, 880.0],
-  [523.25, 659.25, 783.99, 1046.5, 783.99, 659.25, 523.25, 783.99, 1046.5, 1318.51, 1046.5, 783.99],
-  [440.0, 523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 440.0, 523.25, 587.33, 659.25],
+  // 1. Bright bounce — wide up/down leaps.
+  [523.25, 659.25, 783.99, 1046.5, 783.99, 659.25, 523.25, 392.0],
+  // 2. Skip-along — a plain rising scale run.
+  [523.25, 587.33, 659.25, 698.46, 783.99, 880.0, 987.77, 1046.5],
+  // 3. Bouncy repeats — paired repeated notes, a syncopated feel.
+  [659.25, 659.25, 783.99, 587.33, 587.33, 698.46, 523.25, 523.25, 659.25],
+  // 4. Playful descent — a falling broken-chord figure, repeated.
+  [1046.5, 880.0, 698.46, 587.33, 1046.5, 880.0, 698.46, 587.33],
+  // 5. Fanfare — a bugle-call style register jump.
+  [392.0, 523.25, 659.25, 783.99, 1046.5, 783.99, 659.25, 523.25],
 ];
 const TIMESTABLE_NOTE_DURATION = 0.22; // seconds per note
 
@@ -5893,27 +6208,33 @@ const myAddedWordsCard = document.getElementById("my-added-words-card");
 const ocrPremiumOverlay = document.getElementById("ocr-premium-overlay");
 const manualPremiumOverlay = document.getElementById("manual-premium-overlay");
 const customPremiumOverlay = document.getElementById("custom-premium-overlay");
+const addwordLockBanner = document.getElementById("addword-lock-banner");
 
 function setPremiumGate(card, overlay, locked) {
   card.classList.toggle("premium-gate", locked);
   overlay.hidden = !locked;
 }
 
-[ocrPremiumOverlay, manualPremiumOverlay, customPremiumOverlay].forEach((overlay) => {
+[ocrPremiumOverlay, manualPremiumOverlay, customPremiumOverlay, addwordLockBanner].forEach((overlay) => {
   overlay.addEventListener("click", promptUpgradeForFeature);
 });
 
 // Extract-words, Add-manually and My-added-words are all paid features: the
 // whole card is dimmed and an overlay catches every click (including a
 // programmatic one, like Enter submitting a form) and shows the upgrade/
-// signup prompt instead. My Added Words additionally hides the admin-style
-// bulk-maintenance tools for a plain paid account once it's unlocked — those
-// stay for admin, who's the one actually maintaining the shared pool.
+// signup prompt instead. The one visible "Premium feature" message lives in
+// addwordLockBanner — fixed to the viewport rather than any one card, so it
+// stays centered on the page regardless of which card it's "about" or how
+// far the page is scrolled — the three overlays above stay invisible click
+// catchers only. My Added Words additionally hides the admin-style
+// bulk-maintenance tools unless this is genuinely an admin account — a paid
+// account manages only its own words and never needs them.
 function updatePaidFeatureGates() {
   const locked = !canUsePaidFeatures();
   setPremiumGate(addwordExtractCard, ocrPremiumOverlay, locked);
   setPremiumGate(addwordManualCard, manualPremiumOverlay, locked);
   setPremiumGate(myAddedWordsCard, customPremiumOverlay, locked);
+  addwordLockBanner.hidden = !locked;
 
   // The premium-gate overlay blocks a mouse/touch click on everything under
   // it, but pointer-events:none doesn't stop a keyboard-focused control from
@@ -5927,9 +6248,8 @@ function updatePaidFeatureGates() {
     el.disabled = locked;
   });
 
-  const paidNotAdmin = !!currentUser && currentUser.role === "paid" && !isAdmin;
-  customWordMgmtSelect.hidden = paidNotAdmin;
-  customExportBtn.hidden = paidNotAdmin;
+  customWordMgmtSelect.hidden = !isAdmin;
+  customExportBtn.hidden = !isAdmin;
 }
 
 refreshPaidFeatureGates = updatePaidFeatureGates;

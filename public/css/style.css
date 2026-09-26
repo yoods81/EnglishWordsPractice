@@ -286,6 +286,29 @@ nav.tabs button.active {
   color: var(--muted);
 }
 
+/* Fixed to the viewport rather than any one card — centered on the page and
+   stays put while scrolling. Sits above ordinary content but well below the
+   true modals (auth/upgrade overlays at z-index 1100+). Only the label
+   itself is clickable — the transparent backdrop lets clicks on whatever's
+   underneath (each card's own invisible overlay) still register. */
+.premium-lock-banner {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  pointer-events: none;
+}
+.premium-lock-banner[hidden] {
+  display: none;
+}
+.premium-lock-banner .premium-gate-label {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
 /* Add Word: Extract-words and Add-manually side by side on a wide enough
    screen, My Added Words full-width underneath; stacks to one column below
    the shared 480px mobile breakpoint (see that media query). */
@@ -625,6 +648,24 @@ button.pill:disabled {
   margin-bottom: 10px;
   background: linear-gradient(180deg, #dfe9ff 0%, #f4f7fb 100%);
   box-shadow: inset 0 0 0 2px #d9e2f7;
+  transition: background 0.6s ease;
+}
+
+/* Five distinct scenes cycling with the stage counter — day (the default
+   background above, stage-scene-0 needs no override), sunset, dusk, deep
+   space, and underwater — so a stage-up reads as "somewhere new" rather
+   than just a faster falling rate. CSS-only (no external image assets). */
+.typegame-stage.stage-scene-1 {
+  background: linear-gradient(180deg, #ffd9a8 0%, #ffb199 55%, #ff8a80 100%);
+}
+.typegame-stage.stage-scene-2 {
+  background: linear-gradient(180deg, #232a52 0%, #333f7d 55%, #4c56a0 100%);
+}
+.typegame-stage.stage-scene-3 {
+  background: linear-gradient(180deg, #0b0f2e 0%, #1c1450 55%, #341a6b 100%);
+}
+.typegame-stage.stage-scene-4 {
+  background: linear-gradient(180deg, #9be8f2 0%, #4fb8d6 55%, #1f7fa8 100%);
 }
 
 /* A slow, low-opacity cloud/star drift — just enough movement to feel alive
@@ -815,6 +856,22 @@ button.pill:disabled {
   font-size: 0.85rem;
   color: #dbe3f7;
   max-width: 280px;
+}
+
+/* Times Table start screen: a two-line "how to answer" example, built by JS
+   (not the generic data-i18n text swap) so the example numbers can be bold
+   and colored. Both lines are centered, per how the rest of this overlay
+   already lays out. */
+.timestable-instructions {
+  max-width: 300px;
+  line-height: 1.6;
+}
+.timestable-instructions .ti-line {
+  display: block;
+}
+.timestable-instructions .ti-highlight {
+  color: var(--accent);
+  font-weight: 700;
 }
 
 /* The Number-of-Questions-style stepper reads fine on a light card, but its
@@ -1019,6 +1076,17 @@ button.pill:disabled {
   .typegame-word {
     font-size: 0.85rem;
     padding: 4px 9px;
+  }
+
+  .game-speed-control .goal-step-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 0.85rem;
+  }
+
+  .game-speed-control .goal-stepper-value {
+    font-size: 0.8rem;
+    min-width: 1.2em;
   }
 }
 
@@ -1322,6 +1390,19 @@ button.pill:disabled {
   flex: 0 1 auto;
 }
 
+/* The falling-game speed control, sitting between the stage tag and the
+   lives display in the score row. Auto margins on both sides center it in
+   whatever space is left after the lives display's own margin-left:auto
+   claims the right edge — a live control, unlike the pre-game max-table
+   stepper it otherwise matches visually. */
+.game-speed-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  margin: 0 auto;
+}
+
 .goal-stepper-label {
   font-weight: 600;
   color: var(--muted);
@@ -1562,6 +1643,83 @@ footer {
 
 .auth-overlay[hidden] {
   display: none;
+}
+
+/* Kid-friendly stand-in for window.confirm() — see #kid-confirm-overlay's
+   comment in index.html for why a real confirm() doesn't work here. Sits
+   above the auth/upgrade overlays since it's usually what leads into them. */
+.kid-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 28, 55, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 16px;
+}
+
+.kid-modal-overlay[hidden] {
+  display: none;
+}
+
+.kid-modal-card {
+  background: #fff;
+  border: 4px solid var(--accent);
+  border-radius: 28px;
+  padding: 26px 22px;
+  max-width: 340px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  animation: kid-modal-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes kid-modal-pop {
+  0% { transform: scale(0.55) rotate(-5deg); opacity: 0; }
+  65% { transform: scale(1.06) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+.kid-modal-icon {
+  font-size: 2.6rem;
+  line-height: 1;
+  animation: kid-modal-bounce 1.3s ease-in-out infinite;
+}
+
+@keyframes kid-modal-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.kid-modal-brand {
+  font-family: "Fredoka", "Gaegu", "Segoe UI", sans-serif;
+  font-weight: 700;
+  color: var(--primary-dark);
+  font-size: 1rem;
+  margin: 8px 0 14px;
+}
+
+.kid-modal-message {
+  font-family: "Fredoka", "Gaegu", "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: 1.3rem;
+  line-height: 1.5;
+  color: var(--text);
+  margin: 0 0 20px;
+}
+
+.kid-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kid-modal-btn {
+  font-family: "Fredoka", "Gaegu", "Segoe UI", sans-serif;
+  font-size: 1.05rem;
+  padding: 12px;
+  width: 100%;
 }
 
 .auth-card {
