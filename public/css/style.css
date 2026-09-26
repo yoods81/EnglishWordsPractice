@@ -757,29 +757,47 @@ button.pill:disabled {
 
 .typegame-end-btn {
   position: absolute;
-  bottom: 8px;
-  right: 8px;
+  bottom: 10px;
+  right: 10px;
   z-index: 3;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: none;
   border-radius: 50%;
-  background: var(--error);
+  background: linear-gradient(145deg, #ff7b7b, var(--error));
   color: #fff;
-  box-shadow: var(--shadow);
-  font-size: 0.85rem;
+  box-shadow: 0 3px 10px rgba(239, 87, 87, 0.55), 0 0 0 0 rgba(239, 87, 87, 0.5);
+  font-size: 0.95rem;
+  font-weight: 700;
   cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  animation: typegame-end-btn-pulse 2.4s ease-in-out infinite;
 }
 
 .typegame-end-btn:hover {
-  background: #fff;
+  background: linear-gradient(145deg, #ff9494, #e14646);
+  transform: scale(1.12) rotate(90deg);
+  animation-play-state: paused;
+}
+
+.typegame-end-btn:active {
+  transform: scale(0.9) rotate(90deg);
 }
 
 .typegame-end-btn[hidden] {
   display: none;
+}
+
+@keyframes typegame-end-btn-pulse {
+  0%, 100% {
+    box-shadow: 0 3px 10px rgba(239, 87, 87, 0.55), 0 0 0 0 rgba(239, 87, 87, 0.45);
+  }
+  50% {
+    box-shadow: 0 3px 10px rgba(239, 87, 87, 0.55), 0 0 0 8px rgba(239, 87, 87, 0);
+  }
 }
 
 .typegame-stage.typegame-shake {
@@ -1114,6 +1132,10 @@ button.pill:disabled {
   .game-speed-control .goal-stepper-value {
     font-size: 0.8rem;
     min-width: 1.2em;
+  }
+
+  .game-speed-label {
+    display: none;
   }
 }
 
@@ -1453,6 +1475,13 @@ button.pill:disabled {
   margin: 0 auto;
 }
 
+.game-speed-label {
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
 
 .goal-stepper-label {
   font-weight: 600;
@@ -1778,6 +1807,12 @@ button.kid-modal-btn {
   letter-spacing: -0.02em;
   padding: 12px;
   width: 100%;
+}
+
+/* English labels ("Sign me up!", "Not now") read as too cramped at the
+   Korean-tuned -0.02em tracking; only Korean needs it pulled in. */
+html[lang="en"] button.kid-modal-btn {
+  letter-spacing: 0.02em;
 }
 
 .auth-card {
