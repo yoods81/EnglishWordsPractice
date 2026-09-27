@@ -319,6 +319,80 @@ nav.tabs button.tab-btn-highlight.active {
   color: #fff;
 }
 
+/* "Study" (Quiz/Spelling/Flashcards) and "Game" (Times Table/Typing Game)
+   nav groups — a trigger button that reveals a small dropdown of the real
+   destinations on hover (desktop) or tap (touch, since hover doesn't fire
+   reliably there), rather than adding three more permanent buttons to an
+   already-crowded nav row. The trigger deliberately isn't a .tab-btn (it has
+   no data-view and shouldn't itself navigate anywhere) — see the tabGroups
+   wiring in app.js for the open/close and has-active logic. */
+.tab-group {
+  position: relative;
+  display: inline-flex;
+}
+
+.tab-group-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.tab-caret {
+  font-size: 0.65em;
+  opacity: 0.7;
+  transition: transform 0.15s ease;
+}
+
+.tab-group.open .tab-caret {
+  transform: rotate(180deg);
+}
+
+/* Mirrors nav.tabs button.active — the trigger reads as "selected" whenever
+   the currently-open view belongs to its group, even though the trigger
+   itself never carries the ordinary .active class (that's reserved for an
+   exact data-view match, which the trigger doesn't have). */
+.tab-group-trigger.has-active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary-dark);
+  box-shadow: 0 3px 0 var(--primary-dark);
+}
+
+/* Positioned with `position: fixed` and explicit top/bottom/left set by
+   app.js's positionDropdown(), not by any CSS anchoring rule — nav.tabs
+   needs overflow-x: auto for its horizontal-scroll fallback, which forces
+   overflow-y to auto as an unavoidable side effect (see the box-shadow vs.
+   border comment on nav.tabs button.tab-btn-highlight above for the same
+   quirk elsewhere), and a dropdown left positioned relative to its trigger
+   would just get clipped by that. app.js moves each dropdown out to <body>
+   once, on first use, entirely sidestepping the issue. */
+.tab-dropdown {
+  background: #fff;
+  border: 3px solid var(--outline);
+  border-radius: 16px;
+  box-shadow: 0 4px 0 var(--outline);
+  padding: 6px;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 165px;
+  z-index: 2000;
+}
+
+.tab-dropdown.open {
+  display: flex;
+}
+
+.tab-dropdown-item {
+  width: 100%;
+  justify-content: flex-start !important;
+  text-align: left;
+}
+
+.bottom-tab-group {
+  position: relative;
+}
+
 .nav-badge {
   display: inline-block;
   margin-left: 3px;
@@ -1518,6 +1592,25 @@ button.speak-btn-hero.speak-btn-active {
     transition: color 0.15s ease, background 0.15s ease;
   }
 
+  /* The Study/Game trigger's wrapper is the actual flex child of .bottom-tabs
+     now (so it can also anchor the upward dropdown) — it takes over the
+     equal-width sizing .bottom-tab-btn normally gets directly, and its
+     trigger button fills the wrapper. */
+  .bottom-tabs .tab-group {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+  }
+
+  .bottom-tabs .tab-group .tab-group-trigger {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .tab-dropdown-up .tab-dropdown-item {
+    font-size: 0.68rem;
+  }
+
   .bottom-tab-icon {
     font-size: 1.25rem;
     line-height: 1;
@@ -1768,6 +1861,46 @@ button.speak-btn-hero.speak-btn-active {
 #spelling-input.correct { border-color: var(--success); background: #e4f8ef; }
 #spelling-input.incorrect { border-color: var(--error); background: #fdeaea; }
 
+/* A scrambled tray of the current word's own letters (plus a decoy or two)
+   under the input — a lighter hint than reading the word's spelling aloud
+   letter-by-letter. Tapping a tile appends it to the input; a tile fades
+   once tapped so it's clear which ones have already been used. */
+.spelling-hint-tray {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+
+.spelling-hint-tile {
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--outline);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--outline);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, opacity 0.15s ease;
+}
+
+.spelling-hint-tile:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--outline);
+}
+
+.spelling-hint-tile-used {
+  opacity: 0.35;
+  cursor: default;
+  box-shadow: none;
+  transform: translateY(3px);
+}
+
 .spelling-tip {
   color: var(--muted);
   text-align: center;
@@ -2013,6 +2146,39 @@ button.speak-btn-hero.speak-btn-active {
   font-weight: 600;
 }
 
+/* The New Quiz button's icon used to be a plain 🔄 emoji glyph — its own
+   fixed, multi-color rendering that never matched the button's own accent
+   fill and read as small/muddy on some platforms. A currentColor SVG inside
+   a small circular badge instead always matches the button's text color and
+   stays crisp at any size. */
+.new-quiz-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.new-quiz-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  flex: 0 0 auto;
+}
+
+.new-quiz-icon svg {
+  width: 13px;
+  height: 13px;
+  color: #fff;
+}
+
+.new-quiz-btn:active .new-quiz-icon svg {
+  transform: rotate(-40deg);
+  transition: transform 0.2s ease;
+}
+
 /* The falling-game speed control, sitting between the stage tag and the
    lives display in the score row. Auto margins on both sides center it in
    whatever space is left after the lives display's own margin-left:auto
@@ -2042,28 +2208,31 @@ button.speak-btn-hero.speak-btn-active {
 }
 
 .goal-step-btn {
-  border: none;
+  border: 2px solid var(--primary-dark);
   border-radius: 999px;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   flex: 0 0 auto;
-  background: #e6e9f4;
-  color: var(--text);
-  font-size: 1rem;
+  background: var(--primary);
+  color: #fff;
+  font-size: 1.05rem;
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
-  transition: transform 0.1s ease;
+  box-shadow: 0 2px 0 var(--primary-dark);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .goal-step-btn:active {
-  transform: scale(0.9);
+  transform: translateY(2px) scale(0.96);
+  box-shadow: 0 0 0 var(--primary-dark);
 }
 
 .goal-step-btn:disabled {
   opacity: 0.4;
   cursor: default;
   transform: none;
+  box-shadow: 0 2px 0 var(--primary-dark);
 }
 
 .goal-stepper-value {
@@ -2073,13 +2242,74 @@ button.speak-btn-hero.speak-btn-active {
   font-size: 0.9rem;
 }
 
+/* The "Number of Questions" steppers (Quiz/Spelling) get an extra playful
+   treatment — a little target chip around the number, rather than the plain
+   bare digit the other steppers (game speed, times-table ceiling) still use;
+   those didn't come up as looking dull, so they keep the plainer number and
+   just inherit the friendlier step buttons above. */
+.goal-stepper-value-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff4e5;
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  padding: 3px 10px 3px 6px;
+}
+
+.goal-stepper-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.goal-stepper-fun .goal-stepper-value {
+  color: var(--accent-dark);
+  font-size: 1rem;
+}
+
+/* The goal-reached banner used to be a plain green box of bold text — this
+   gives it a little mascot (a bouncing party emoji, since it needs no new
+   artwork and still reads as an original, generic celebration rather than
+   any specific character) plus a confetti-pop entrance, so hitting a goal
+   feels like a small event rather than a status update. */
 .goal-banner {
-  background: #e4f8ef;
-  border: 1px solid #a8e2c7;
-  border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 12px;
+  background: linear-gradient(135deg, #fff8e5, #e4f8ef);
+  border: 3px solid var(--success-dark);
+  border-radius: 20px;
+  padding: 16px 14px 14px;
+  margin-bottom: 14px;
   text-align: center;
+  box-shadow: 0 4px 0 var(--success-dark);
+  animation: goal-banner-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.goal-banner::before {
+  content: "🎉";
+  display: block;
+  font-size: 2.1rem;
+  line-height: 1;
+  margin-bottom: 4px;
+  animation: goal-banner-bounce 1s ease-in-out infinite;
+}
+
+@keyframes goal-banner-pop {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes goal-banner-bounce {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(-8deg);
+  }
 }
 
 .goal-banner[hidden] {
@@ -2090,7 +2320,7 @@ button.speak-btn-hero.speak-btn-active {
   margin: 0 0 10px;
   font-weight: 700;
   color: #1c7a55;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .goal-actions {
@@ -2098,6 +2328,35 @@ button.speak-btn-hero.speak-btn-active {
   gap: 8px;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+/* A small, reusable "good news" card — a friendly mascot plus a short line —
+   for empty/success states that used to be a single flat sentence (e.g. the
+   spelling report's "no mistakes today"). Anywhere else in the app that
+   shows a similar one-line congratulations can reuse this instead of adding
+   another plain <p class="muted">. */
+.celebration-card {
+  text-align: center;
+  background: linear-gradient(135deg, #fff8e5, #eef4ff);
+  border: 3px solid var(--primary-dark);
+  border-radius: 18px;
+  padding: 16px 14px;
+  margin: 10px 0;
+}
+
+.celebration-card-icon {
+  display: block;
+  font-size: 2.4rem;
+  line-height: 1;
+  margin-bottom: 6px;
+  animation: goal-banner-bounce 1.4s ease-in-out infinite;
+}
+
+.celebration-card-text {
+  margin: 0;
+  font-weight: 700;
+  color: var(--primary-dark);
+  font-size: 0.95rem;
 }
 
 .wordlist-count {

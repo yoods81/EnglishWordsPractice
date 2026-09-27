@@ -56,6 +56,12 @@ const TRANSLATIONS = {
     navStats: "📊 My Progress",
     navHome: "🏠 Home",
     navAdminCodes: "🛠️ Admin",
+    // The persistent nav row groups Quiz/Spelling/Flashcards under one
+    // "Study" trigger, and Times Table/Typing Game under one "Game" trigger
+    // (each opens a small dropdown on hover/tap) — see .tab-group in
+    // style.css and the tabGroups wiring in app.js.
+    navStudy: "📖 Study",
+    navGame: "🎮 Game",
     // Short, icon-free labels for the mobile bottom tab bar, whose icon is
     // its own separate element (see .bottom-tab-icon) — these just need a
     // one-word caption underneath it.
@@ -64,6 +70,8 @@ const TRANSLATIONS = {
     navStatsShort: "Progress",
     navAddwordShort: "Add Word",
     navHomeShort: "Home",
+    navStudyShort: "Study",
+    navGameShort: "Game",
     // Landing-page tile subtitles (see #view-landing) — one short line under
     // each tile's title, in the same top-to-bottom importance order as the
     // tiles themselves.
@@ -218,7 +226,7 @@ const TRANSLATIONS = {
     goalReachedTop: (score, level) => `🎉 ${score} correct on ${level} — that's the highest level. Brilliant!`,
     goalNextLevelBtn: "🚀 Try the next level",
     goalKeepGoingBtn: "Keep going",
-    newQuizBtn: "🔄 New Quiz",
+    newQuizBtn: "New Quiz",
     nextQuestionBtn: "Next Question ➡",
     scoreLabel: (c, t) => `Score: ${c} / ${t}`,
     quizNotEnough: (lvl) => `Not enough ${lvl} words for this quiz yet. Try another category or add more words!`,
@@ -453,11 +461,15 @@ const TRANSLATIONS = {
     navStats: "📊 내 진행상황",
     navHome: "🏠 홈",
     navAdminCodes: "🛠️ 관리자",
+    navStudy: "📖 학습",
+    navGame: "🎮 게임",
     navQuizShort: "퀴즈",
     navTimesTableShort: "구구단",
     navStatsShort: "진행상황",
     navAddwordShort: "단어 추가",
     navHomeShort: "홈",
+    navStudyShort: "학습",
+    navGameShort: "게임",
     landingDescStats: "지금까지의 학습 진행상황 보기",
     landingDescAddword: "나만의 단어 목록 만들기",
     landingDescQuiz: "단어 하나하나 테스트해보기",
@@ -609,7 +621,7 @@ const TRANSLATIONS = {
     goalReachedTop: (score, level) => `🎉 ${level}에서 ${score}개 정답 — 가장 높은 레벨이에요. 정말 잘했어요!`,
     goalNextLevelBtn: "🚀 다음 레벨 도전",
     goalKeepGoingBtn: "계속하기",
-    newQuizBtn: "🔄 새 퀴즈",
+    newQuizBtn: "새 퀴즈",
     nextQuestionBtn: "다음 문제 ➡",
     scoreLabel: (c, t) => `점수: ${c} / ${t}`,
     quizNotEnough: (lvl) => `${lvl} 레벨에는 아직 퀴즈를 만들 단어가 부족해요. 다른 카테고리를 선택하거나 단어를 더 추가해보세요!`,
@@ -1274,11 +1286,20 @@ function clampGoalsForRole() {
   }
 }
 
+// Tracks each stepper's last-rendered value purely so a real change (as
+// opposed to every other, unrelated reason renderGoalStepper() gets called —
+// a language switch, a level change, ...) can play a little bounce, rather
+// than the number just flatly updating.
+const goalStepperLastValue = { quiz: null, spelling: null };
+
 function renderGoalStepper(mode) {
   const valueEl = mode === "quiz" ? quizGoalValueEl : spellingGoalValueEl;
   const minusBtn = mode === "quiz" ? quizGoalMinusBtn : spellingGoalMinusBtn;
   const plusBtn = mode === "quiz" ? quizGoalPlusBtn : spellingGoalPlusBtn;
+  const changed = goalStepperLastValue[mode] !== null && goalStepperLastValue[mode] !== goals[mode];
   valueEl.textContent = String(goals[mode]);
+  if (changed) pulseScoreTag(valueEl, "option-btn-bounce");
+  goalStepperLastValue[mode] = goals[mode];
   minusBtn.disabled = goals[mode] <= GOAL_MIN;
 
   const poolMax = goalPoolSize(mode);
@@ -1740,6 +1761,108 @@ langToggleBtn.addEventListener("click", () => {
 const tabButtons = document.querySelectorAll(".tab-btn");
 const views = document.querySelectorAll(".view");
 
+// "Study" (Quiz/Spelling/Flashcards) and "Game" (Times Table/Typing Game)
+// nav groups — see .tab-group in style.css. Each group's trigger has no
+// data-view of its own (it shouldn't navigate anywhere by itself), so it's
+// deliberately excluded from `tabButtons` above; its open/close state and
+// its has-active highlighting (does the currently-open view belong to this
+// group?) are handled separately here.
+const tabGroups = document.querySelectorAll(".tab-group");
+
+// Each group's dropdown panel is moved out to <body> once, up front, and
+// from then on positioned with `position: fixed` computed from its own
+// trigger's bounding box (see positionDropdown()) rather than anchored to it
+// with ordinary CSS. nav.tabs needs overflow-x: auto for its horizontal-
+// scroll fallback, which forces overflow-y to auto as an unavoidable side
+// effect — a dropdown left positioned inside that box would simply get
+// clipped by it the moment it tried to pop out below the pill row.
+const groupDropdowns = new Map();
+tabGroups.forEach((group) => {
+  const dropdown = group.querySelector(".tab-dropdown");
+  if (dropdown) {
+    document.body.appendChild(dropdown);
+    groupDropdowns.set(group, dropdown);
+  }
+});
+
+function positionDropdown(group) {
+  const trigger = group.querySelector(".tab-group-trigger");
+  const dropdown = groupDropdowns.get(group);
+  if (!trigger || !dropdown) return;
+  const rect = trigger.getBoundingClientRect();
+  const isUp = dropdown.classList.contains("tab-dropdown-up");
+  dropdown.style.position = "fixed";
+  const dw = dropdown.offsetWidth;
+  let left = rect.left + rect.width / 2 - dw / 2;
+  left = Math.max(8, Math.min(left, window.innerWidth - dw - 8));
+  dropdown.style.left = `${left}px`;
+  if (isUp) {
+    dropdown.style.bottom = `${window.innerHeight - rect.top + 8}px`;
+    dropdown.style.top = "auto";
+  } else {
+    dropdown.style.top = `${rect.bottom + 6}px`;
+    dropdown.style.bottom = "auto";
+  }
+}
+
+function closeAllTabGroups() {
+  tabGroups.forEach((group) => {
+    group.classList.remove("open");
+    const trigger = group.querySelector(".tab-group-trigger");
+    if (trigger) trigger.setAttribute("aria-expanded", "false");
+  });
+  groupDropdowns.forEach((dropdown) => dropdown.classList.remove("open"));
+}
+
+function openTabGroup(group) {
+  const dropdown = groupDropdowns.get(group);
+  if (!dropdown) return;
+  closeAllTabGroups();
+  group.classList.add("open");
+  dropdown.classList.add("open");
+  positionDropdown(group);
+  const trigger = group.querySelector(".tab-group-trigger");
+  if (trigger) trigger.setAttribute("aria-expanded", "true");
+}
+
+function syncTabGroupActiveStates(view) {
+  tabGroups.forEach((group) => {
+    const groupViews = (group.dataset.groupViews || "").split(",");
+    const trigger = group.querySelector(".tab-group-trigger");
+    if (trigger) trigger.classList.toggle("has-active", groupViews.includes(view));
+  });
+}
+
+const hoverCapable = window.matchMedia && window.matchMedia("(hover: hover)").matches;
+
+tabGroups.forEach((group) => {
+  const trigger = group.querySelector(".tab-group-trigger");
+  if (!trigger) return;
+  trigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (group.classList.contains("open")) closeAllTabGroups();
+    else openTabGroup(group);
+  });
+  // Hover support for desktop mouse users. This can no longer be plain CSS
+  // :hover once the dropdown lives outside the group in the DOM (see
+  // groupDropdowns above), so it's driven from JS instead — gated on a real
+  // hover-capable pointer so a touch tap's synthetic hover doesn't also
+  // trigger it.
+  if (hoverCapable) {
+    group.addEventListener("mouseenter", () => openTabGroup(group));
+    group.addEventListener("mouseleave", () => closeAllTabGroups());
+  }
+});
+
+// Closes any open dropdown after picking an item inside it (its click also
+// bubbles here after goToTab() has already run) or after any other click
+// anywhere outside a trigger (whose own listener above stops the bubble).
+document.addEventListener("click", closeAllTabGroups);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeAllTabGroups();
+});
+window.addEventListener("resize", closeAllTabGroups);
+
 function refreshCurrentView() {
   const active = document.querySelector(".tab-btn.active");
   if (active) refreshView(active.dataset.view);
@@ -1770,6 +1893,7 @@ function goToTab(view) {
   if (previousView === "timestable" && view !== "timestable") pauseTimesTable();
 
   tabButtons.forEach((b) => b.classList.toggle("active", b.dataset.view === view));
+  syncTabGroupActiveStates(view);
   views.forEach((v) => v.classList.toggle("active", v.id === `view-${view}`));
   // The persistent nav row (top nav.tabs / bottom .bottom-tabs) is only
   // useful once you're already inside a section — on the landing tile grid
@@ -2871,6 +2995,10 @@ function renderQuizQuestion() {
   quizNextBtn.style.display = "none";
   quizAnswered = false;
   const total = quizQuestions.length;
+  // Only the "round complete" state below styles quiz-question as a
+  // celebration card — every other branch clears it back to a plain
+  // question line first.
+  quizQuestionEl.classList.remove("celebration-card", "quiz-complete-card");
 
   if (total === 0) {
     quizProgressFill.style.width = "0%";
@@ -2883,7 +3011,17 @@ function renderQuizQuestion() {
   quizProgressFill.style.width = `${(quizIndex / total) * 100}%`;
 
   if (quizIndex >= total) {
-    quizQuestionEl.textContent = t("quizComplete", quizScore, total);
+    quizQuestionEl.classList.add("celebration-card", "quiz-complete-card");
+    quizQuestionEl.innerHTML = "";
+    const icon = document.createElement("span");
+    icon.className = "celebration-card-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = "🏆";
+    const text = document.createElement("span");
+    text.className = "celebration-card-text";
+    text.textContent = t("quizComplete", quizScore, total);
+    quizQuestionEl.appendChild(icon);
+    quizQuestionEl.appendChild(text);
     quizOptionsEl.innerHTML = "";
     quizProgressFill.style.width = "100%";
     updateQuizScoreLabel();
@@ -3081,6 +3219,7 @@ function loadSpellingWord(speakAloud = true) {
   if (spellingDeck.length === 0) {
     spellingFeedback.textContent = t("spellingEmpty", levelLabel(currentLevel));
     spellingBackBtn.disabled = true;
+    renderSpellingLetterHints(null);
     return;
   }
   if (spellingIndex >= spellingDeck.length) {
@@ -3089,7 +3228,50 @@ function loadSpellingWord(speakAloud = true) {
   }
   spellingBackBtn.disabled = spellingIndex === 0;
   if (speakAloud) speak(spellingDeck[spellingIndex].word);
+  renderSpellingLetterHints(spellingDeck[spellingIndex].word);
   spellingInput.focus();
+}
+
+// A scrambled tray of the current word's own letters, plus one or two decoy
+// letters that don't belong in it — a lighter-touch hint than spelling the
+// whole thing out, and enough of a nudge for a stuck speller without
+// removing the typing itself. Tapping a tile appends that letter to the
+// input rather than replacing it, so it works alongside typing, not instead
+// of it.
+const spellingHintTray = document.getElementById("spelling-hint-tray");
+const SPELLING_DECOY_POOL = "abcdefghijklmnopqrstuvwxyz";
+
+function renderSpellingLetterHints(word) {
+  if (!spellingHintTray) return;
+  spellingHintTray.innerHTML = "";
+  if (!word) return;
+  const letters = word.toLowerCase().split("").filter((ch) => /[a-z]/.test(ch));
+  if (!letters.length) return;
+  const decoyCount = Math.random() < 0.5 ? 1 : 2;
+  const decoys = [];
+  let guard = 0;
+  while (decoys.length < decoyCount && guard < 100) {
+    guard++;
+    const candidate = SPELLING_DECOY_POOL[Math.floor(Math.random() * SPELLING_DECOY_POOL.length)];
+    // A decoy that's just another copy of a letter already in the word
+    // wouldn't actually mislead anyone — it'd just look like a spare correct
+    // tile, so it's skipped in favor of a letter genuinely not needed.
+    if (!letters.includes(candidate)) decoys.push(candidate);
+  }
+  shuffle([...letters, ...decoys]).forEach((letter) => {
+    const tile = document.createElement("button");
+    tile.type = "button";
+    tile.className = "spelling-hint-tile";
+    tile.textContent = letter;
+    tile.setAttribute("aria-label", `${letter}`);
+    tile.addEventListener("click", () => {
+      spellingInput.value += letter;
+      spellingInput.focus();
+      tile.disabled = true;
+      tile.classList.add("spelling-hint-tile-used");
+    });
+    spellingHintTray.appendChild(tile);
+  });
 }
 
 spellingSpeakBtn.addEventListener("click", () => {
