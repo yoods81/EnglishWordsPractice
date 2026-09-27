@@ -364,6 +364,7 @@ const TRANSLATIONS = {
     resetConfirm: "This will erase all your saved progress. Are you sure?",
     footerText: "Made for Australian primary students learning English vocabulary. 🇦🇺",
     authHeaderLoginBtn: "🔑 Log In",
+    authToggleLoggedOutHint: "Sign in to save your progress",
     authLogoutBtn: "Logout",
     myAccountMenuItem: "👤 My Account",
     myAccountTitle: "👤 My Account",
@@ -735,6 +736,7 @@ const TRANSLATIONS = {
     resetConfirm: "저장된 모든 진행상황이 사라져요. 계속할까요?",
     footerText: "영어 필수 단어를 공부하는 학생들을 위해 만들었어요. 🇰🇷",
     authHeaderLoginBtn: "🔑 로그인",
+    authToggleLoggedOutHint: "로그인하면 학습 진행 상황이 저장돼요",
     authLogoutBtn: "로그아웃",
     myAccountMenuItem: "👤 내 계정",
     myAccountTitle: "👤 내 계정",
@@ -1919,7 +1921,9 @@ function updateAdminUI() {
   // title for space on narrow screens — the full "tap to log out" meaning
   // lives in the tooltip and the green "signed in" coloring instead.
   authToggleBtn.textContent = currentUser ? `👤 ${currentUser.username}` : t("authHeaderLoginBtn");
-  authToggleBtn.title = currentUser ? t("myAccountMenuItem") : t("authHeaderLoginBtn");
+  // Signed out, the tooltip carries the actual reason to bother — "why
+  // would I sign in?" — rather than repeating the button's own label back.
+  authToggleBtn.title = currentUser ? t("myAccountMenuItem") : t("authToggleLoggedOutHint");
   authToggleBtn.classList.toggle("auth-toggle-active", !!currentUser);
   if (!currentUser) closeAuthMenu();
 
@@ -2654,6 +2658,20 @@ const quizGoalDismissBtn = document.getElementById("quiz-goal-dismiss");
 let quizGoalCelebrated = false;
 const quizQuestionEl = document.getElementById("quiz-question");
 const quizOptionsEl = document.getElementById("quiz-options");
+// Shared by every ".score-tag" (Quiz, Spelling, Typing Game, Times Table):
+// a quick scale+color pulse each time the label's text changes, so scoring
+// a point actually feels like something instead of a number silently
+// ticking over. Restarting the animation on an element that's mid-pulse
+// needs the class removed and re-added on the next frame — toggling it
+// straight back on with the same class already present is a no-op in CSS.
+function pulseScoreTag(el) {
+  if (!el) return;
+  el.classList.remove("score-tag-pulse");
+  // eslint-disable-next-line no-unused-expressions
+  void el.offsetWidth; // force reflow so the removed class actually "sticks" before re-adding it
+  el.classList.add("score-tag-pulse");
+}
+
 const quizScoreEl = document.getElementById("quiz-score");
 const quizNextBtn = document.getElementById("quiz-next");
 const quizProgressFill = document.getElementById("quiz-progress-fill");
@@ -2792,6 +2810,7 @@ function handleQuizAnswer(btn, chosen, q) {
 
 function updateQuizScoreLabel() {
   quizScoreEl.textContent = t("scoreLabel", quizScore, quizQuestions.length);
+  pulseScoreTag(quizScoreEl);
 }
 
 quizNextBtn.addEventListener("click", () => {
@@ -3046,6 +3065,7 @@ function updateSpellingScoreLabel() {
   // it, capped to the chosen number of questions), not how many words have
   // been attempted so far — so it reads correctly from the very first word.
   spellingScoreEl.textContent = t("scoreLabel", spellingScore.correct, spellingDeck.length);
+  pulseScoreTag(spellingScoreEl);
 }
 
 spellingCheckBtn.addEventListener("click", checkSpellingAnswer);
