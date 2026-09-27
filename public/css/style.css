@@ -1,15 +1,26 @@
 :root {
-  --bg: #f4f7fb;
+  /* Redesign pass, referencing Duolingo/Kahoot-style kids-learning UI: one
+     saturated "point" color (accent) carries every primary action and
+     score/badge everywhere, so it's never ambiguous what the point color
+     is; brand blue steps back to an identity/secondary role (logo, active
+     tab, links). Every action color now has a "-dark" shade one step
+     darker, used only for the pressed-button 3D edge below (see
+     button.pill) — the tactile, satisfying-to-tap look these apps are
+     known for, not just a flat rectangle. */
+  --bg: #fff7ec;
   --card-bg: #ffffff;
-  --primary: #3a6ff7;
-  --primary-dark: #2451c7;
-  --accent: #ff9f40;
-  --success: #2fb380;
-  --error: #ef5757;
-  --text: #22293b;
-  --muted: #6b7385;
+  --primary: #2d6cff;
+  --primary-dark: #1e4fcc;
+  --accent: #ff7a33;
+  --accent-dark: #d85e17;
+  --success: #22c55e;
+  --success-dark: #159647;
+  --error: #ff4b4b;
+  --error-dark: #d93434;
+  --text: #3a3630;
+  --muted: #8a8178;
   --radius: 16px;
-  --shadow: 0 8px 24px rgba(30, 40, 80, 0.08);
+  --shadow: 0 8px 24px rgba(60, 40, 10, 0.08);
   /* Fredoka is the kid-friendly, rounded display face for anything short —
      titles, buttons, labels, numbers. Its Latin glyphs are wide-set and
      read as loose/awkward across a full sentence or Hangul text, so body
@@ -32,7 +43,10 @@ html {
 body {
   margin: 0;
   font-family: var(--font-body);
-  background: linear-gradient(180deg, #eaf1ff 0%, var(--bg) 320px);
+  /* A warm glow behind the header instead of the old cool blue-gray wash —
+     the point color (accent) now sets the mood even before you reach a
+     button. */
+  background: radial-gradient(1100px 520px at 50% -12%, #ffe3c4 0%, var(--bg) 60%);
   color: var(--text);
   min-height: 100vh;
 }
@@ -65,16 +79,17 @@ header {
   display: none;
 }
 
+/* Back to opposite corners (left = language, right = sign-in) — stacking
+   both in one corner read as clutter. Log In gets the real visual weight
+   (filled point color, its own drop shadow) since it's the one worth
+   noticing; language is a quiet, muted utility toggle. */
 .lang-toggle {
   position: absolute;
-  /* Sits below the Log In button now that both live in the top-right
-     corner — Log In gets the more prominent top slot since signing in is
-     the thing worth noticing, language is just a standing preference. */
-  top: 42px;
-  right: 12px;
+  top: 10px;
+  left: 12px;
   border: none;
   background: #fff;
-  color: var(--primary-dark);
+  color: var(--muted);
   font-weight: 700;
   padding: 5px 12px;
   font-size: 0.75rem;
@@ -83,10 +98,6 @@ header {
   box-shadow: var(--shadow);
 }
 
-/* Moved from the top-left to sit right above .lang-toggle: signing in (to
-   save progress, and to reach the premium features the nav now flags) is
-   worth more visual weight than it had as a small muted-gray pill easy to
-   miss in the corner. */
 .auth-toggle-wrap {
   position: absolute;
   top: 10px;
@@ -94,25 +105,32 @@ header {
 }
 
 .auth-toggle {
-  border: 2px solid var(--accent);
-  background: #fff;
-  color: var(--primary-dark);
+  border: none;
+  background: var(--accent);
+  color: #fff;
   font-weight: 700;
-  padding: 4px 12px;
+  padding: 6px 14px;
   font-size: 0.75rem;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: var(--shadow);
+  /* The same pressed-button "3D" edge as button.pill (see below) — a solid
+     shade-darker rim along the bottom rather than a diffuse shadow, so it
+     reads as a real tappable button, not just a colored label. */
+  box-shadow: 0 3px 0 var(--accent-dark);
   max-width: 45vw;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.auth-toggle:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--accent-dark);
+}
+
 .auth-toggle.auth-toggle-active {
-  border-color: var(--success);
   background: var(--success);
-  color: #fff;
+  box-shadow: 0 3px 0 var(--success-dark);
 }
 
 .auth-menu {
@@ -235,14 +253,24 @@ nav.tabs button.active {
 /* Add Word / My Progress are the two tabs the monetization plan leans on —
    Add Word gates custom words behind a paid account already (see the
    premium-gate cards below), and My Progress is where the paid-only
-   "Premium Insights" teaser lives. A thin accent ring makes both easy to
-   spot among the other, purely-free tabs without changing their size or
-   pushing the row wider. */
+   "Premium Insights" teaser lives. A real border (not a box-shadow ring)
+   marks both — nav.tabs needs overflow-x:auto for its horizontal-scroll
+   fallback, which forces its overflow-y to auto as a side effect (a CSS
+   quirk: only one axis can stay "visible"), so anything drawn outside an
+   element's own border box — a box-shadow ring included — risked getting
+   clipped there. A border is part of the box itself and is never clipped
+   this way; padding below is trimmed by the border's own width so the
+   pill's overall size still matches its unhighlighted neighbors. */
 nav.tabs button.tab-btn-highlight {
-  box-shadow: var(--shadow), 0 0 0 2px var(--accent);
+  background: #ffefe0;
+  border: 2px solid var(--accent);
+  padding: 5px 9px;
+  color: var(--accent-dark);
 }
 nav.tabs button.tab-btn-highlight.active {
-  box-shadow: 0 0 0 2px var(--accent);
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 
 .nav-badge {
@@ -654,60 +682,52 @@ select {
   flex-wrap: wrap;
 }
 
+/* Every pill button gets the same "pressed" look: a solid shade-darker rim
+   along the bottom edge (a flat box-shadow, not a blur) that the button
+   sinks into on tap — the tactile, satisfying-to-press style familiar from
+   Duolingo/Kahoot-style kids' apps, instead of a flat colored rectangle.
+   Each color variant only needs to set --pill-shadow to its own "-dark"
+   token; the shape/animation lives here once. */
 button.pill {
+  --pill-shadow: rgba(0, 0, 0, 0.18);
   border: none;
   border-radius: 999px;
-  padding: 8px 16px;
+  padding: 9px 18px;
   font-family: var(--font-heading);
   font-weight: 600;
   cursor: pointer;
   font-size: 0.85rem;
-  transition: transform 0.1s ease;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  box-shadow: 0 4px 0 var(--pill-shadow);
 }
 
 button.pill:active {
-  transform: scale(0.96);
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--pill-shadow);
 }
 
-button.pill.primary { background: var(--primary); color: #fff; }
-button.pill.success { background: var(--success); color: #fff; }
-button.pill.error { background: var(--error); color: #fff; }
-button.pill.neutral { background: #e6e9f4; color: var(--text); }
-button.pill.accent { background: var(--accent); color: #fff; }
-button.pill.dark { background: #1f2430; color: #fff; }
-button.pill.green { background: #2bb673; color: #fff; }
+button.pill.primary { background: var(--primary); color: #fff; --pill-shadow: var(--primary-dark); }
+button.pill.success { background: var(--success); color: #fff; --pill-shadow: var(--success-dark); }
+button.pill.error { background: var(--error); color: #fff; --pill-shadow: var(--error-dark); }
+button.pill.neutral { background: #eef0f6; color: var(--text); --pill-shadow: #d7dbe8; }
+button.pill.accent { background: var(--accent); color: #fff; --pill-shadow: var(--accent-dark); }
+button.pill.dark { background: #1f2430; color: #fff; --pill-shadow: #0d0f14; }
+button.pill.green { background: #2bb673; color: #fff; --pill-shadow: #1d8a56; }
 
 button.pill.small {
-  padding: 5px 11px;
+  padding: 6px 12px;
   font-size: 0.72rem;
+  box-shadow: 0 3px 0 var(--pill-shadow);
+}
+
+button.pill.small:active {
+  box-shadow: 0 1px 0 var(--pill-shadow);
 }
 
 button.pill:disabled {
   opacity: 0.5;
   cursor: default;
   transform: none;
-}
-
-/* A vector "refresh" glyph drawn with a CSS mask instead of a font
-   character — the old ↻/🔄 read as an illegible blob at button-text size
-   on some platforms. A mask always renders the same crisp shape and
-   picks up the button's own text color via currentColor. */
-.icon-refresh::before {
-  content: "";
-  display: inline-block;
-  width: 0.95em;
-  height: 0.95em;
-  margin-right: 6px;
-  vertical-align: -0.15em;
-  background-color: currentColor;
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M17.65 6.35A7.958 7.958 0 0 0 12 4a8 8 0 1 0 7.44 10.6h-2.13A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z'/%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M17.65 6.35A7.958 7.958 0 0 0 12 4a8 8 0 1 0 7.44 10.6h-2.13A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z'/%3E%3C/svg%3E");
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  -webkit-mask-size: contain;
-  mask-size: contain;
 }
 
 .my-added-words-header {
@@ -1236,10 +1256,7 @@ button.pill:disabled {
   }
 
   header {
-    /* Both corner buttons now stack in the top-right (see .auth-toggle-wrap/
-       .lang-toggle), so only the right side needs clearance for the title
-       to stay centered without overlapping them. */
-    padding-left: 16px;
+    padding-left: 92px;
     padding-right: 92px;
   }
 
@@ -1379,19 +1396,29 @@ button.pill:disabled {
   transition: width 0.25s ease;
 }
 
-/* Was plain bold text easy to miss next to the round's other controls —
-   now a real badge (accent-colored, bigger) so progress is the one thing
-   your eye catches first. */
+/* Was plain bold text easy to miss next to the round's other controls — now
+   a real chip, reusing the app's own card language (white surface, a
+   flat-color rim rather than a diffuse shadow) instead of inventing a new,
+   unrelated floating-pill style. A trophy leads it so it reads as
+   "progress" at a glance, not just a random number. */
 .score-tag {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 1.15rem;
-  color: #fff;
-  background: linear-gradient(135deg, var(--accent), #ffb35c);
-  padding: 4px 14px;
+  font-size: 1rem;
+  color: var(--accent-dark);
+  background: #fff;
+  border: 2px solid #ffe1c2;
+  padding: 6px 16px;
   border-radius: 999px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 3px 0 #ffe1c2;
+}
+
+.score-tag::before {
+  content: "🏆";
+  font-size: 0.95em;
 }
 
 .score-tag-pulse {
@@ -1875,7 +1902,7 @@ button.pill:disabled {
   font-family: var(--font-heading);
   font-size: 1.3rem;
   font-weight: 700;
-  color: var(--primary);
+  color: var(--accent-dark);
 }
 
 .stat-box .lbl {
@@ -2157,15 +2184,20 @@ html[lang="en"] button.kid-modal-btn {
 .level-badge {
   margin-top: 6px;
   border: none;
-  background: #fff;
-  color: var(--primary-dark);
+  background: var(--primary);
+  color: #fff;
   font-family: var(--font-heading);
   font-weight: 700;
-  padding: 4px 14px;
+  padding: 5px 14px;
   font-size: 0.78rem;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: var(--shadow);
+  box-shadow: 0 3px 0 var(--primary-dark);
+}
+
+.level-badge:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--primary-dark);
 }
 
 /* Speakable lines (click to hear via speech synthesis) */
