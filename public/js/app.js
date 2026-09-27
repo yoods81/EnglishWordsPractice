@@ -54,7 +54,7 @@ const TRANSLATIONS = {
     navWordlist: "📖 Word List",
     navAddword: "➕ Add Word",
     navStats: "📊 My Progress",
-    navMore: "⋯ More",
+    navHome: "🏠 Home",
     navAdminCodes: "🛠️ Admin",
     // Short, icon-free labels for the mobile bottom tab bar, whose icon is
     // its own separate element (see .bottom-tab-icon) — these just need a
@@ -63,7 +63,18 @@ const TRANSLATIONS = {
     navTimesTableShort: "Times",
     navStatsShort: "Progress",
     navAddwordShort: "Add Word",
-    navMoreShort: "More",
+    navHomeShort: "Home",
+    // Landing-page tile subtitles (see #view-landing) — one short line under
+    // each tile's title, in the same top-to-bottom importance order as the
+    // tiles themselves.
+    landingDescStats: "See how far you've come",
+    landingDescAddword: "Build your own word list",
+    landingDescQuiz: "Test yourself, word by word",
+    landingDescTimesTable: "Practise your times tables",
+    landingDescSpelling: "Type each word from memory",
+    landingDescTypeGame: "Catch the falling words",
+    landingDescFlashcards: "Flip through and review",
+    landingDescWordlist: "Browse every word you have",
     statsInsightsTitle: "✨ Premium Insights",
     statsInsightsBullet1: "📧 Weekly progress email reports",
     statsInsightsBullet2: "🎯 Category-by-category accuracy breakdown",
@@ -439,13 +450,21 @@ const TRANSLATIONS = {
     navWordlist: "📖 단어장",
     navAddword: "➕ 단어 추가",
     navStats: "📊 내 진행상황",
-    navMore: "⋯ 더보기",
+    navHome: "🏠 홈",
     navAdminCodes: "🛠️ 관리자",
     navQuizShort: "퀴즈",
     navTimesTableShort: "구구단",
     navStatsShort: "진행상황",
     navAddwordShort: "단어 추가",
-    navMoreShort: "더보기",
+    navHomeShort: "홈",
+    landingDescStats: "지금까지의 학습 진행상황 보기",
+    landingDescAddword: "나만의 단어 목록 만들기",
+    landingDescQuiz: "단어 하나하나 테스트해보기",
+    landingDescTimesTable: "구구단 연습하기",
+    landingDescSpelling: "기억으로 단어 철자 쓰기",
+    landingDescTypeGame: "떨어지는 단어 받아치기",
+    landingDescFlashcards: "카드 넘기며 복습하기",
+    landingDescWordlist: "가지고 있는 모든 단어 보기",
     statsInsightsTitle: "✨ 프리미엄 인사이트",
     statsInsightsBullet1: "📧 주간 학습 리포트 이메일",
     statsInsightsBullet2: "🎯 카테고리별 정확도 분석",
@@ -1605,26 +1624,13 @@ langToggleBtn.addEventListener("click", () => {
 });
 
 /* ---------- Tab navigation ---------- */
-// ".tab-btn" (rather than scoping to nav.tabs) picks up every real view
-// button — the primary row in nav.tabs *and* the ones tucked inside the
-// "More" dropdown panel, which is a sibling of nav.tabs, not a descendant
-// (see .tabs-bar in index.html/style.css) — while still excluding the
-// dropdown's own toggle button, which has no data-view and must never be
-// wired up as if it switched to a view.
+// ".tab-btn" picks up every button that switches views: the persistent
+// nav.tabs / .bottom-tabs rows *and* the landing-page tile grid (see
+// #view-landing in index.html) — a tile is just a bigger, richer-looking
+// tab-btn with the same data-view attribute, so it needs no separate click
+// wiring below; goToTab()'s active-state sync also covers it for free.
 const tabButtons = document.querySelectorAll(".tab-btn");
 const views = document.querySelectorAll(".view");
-const MORE_PANEL_VIEWS = ["spelling", "typegame", "flashcards", "wordlist"];
-const tabsMoreToggle = document.getElementById("tabs-more-toggle");
-const tabsMorePanel = document.getElementById("tabs-more-panel");
-const tabsMoreWrap = document.getElementById("tabs-more-wrap");
-// Mobile-only bottom tab bar (see .bottom-tabs in index.html/style.css) — its
-// four view buttons are plain .tab-btn elements with the same data-view as
-// the top nav's, so tabButtons/goToTab above already keep both rows in sync
-// with no extra code. Only its 5th "More" button needs its own wiring, since
-// it opens the very same #tabs-more-panel as a bottom sheet instead of the
-// desktop dropdown (see the mobile media query in style.css).
-const bottomMoreToggle = document.getElementById("bottom-more-toggle");
-const bottomSheetBackdrop = document.getElementById("bottom-sheet-backdrop");
 
 function refreshCurrentView() {
   const active = document.querySelector(".tab-btn.active");
@@ -1657,51 +1663,7 @@ function goToTab(view) {
 
   tabButtons.forEach((b) => b.classList.toggle("active", b.dataset.view === view));
   views.forEach((v) => v.classList.toggle("active", v.id === `view-${view}`));
-  // "More" shows its own highlight when the open tab is one of the ones
-  // tucked away inside its panel, since the real .active button is hidden
-  // from view while the panel is collapsed. Both the desktop toggle and the
-  // bottom bar's own "More" button need this — they're two separate buttons
-  // pointing at the one shared panel.
-  if (tabsMoreToggle) tabsMoreToggle.classList.toggle("has-active", MORE_PANEL_VIEWS.includes(view));
-  if (bottomMoreToggle) bottomMoreToggle.classList.toggle("has-active", MORE_PANEL_VIEWS.includes(view));
-  closeTabsMorePanel();
   refreshView(view);
-}
-
-function setTabsMorePanelOpen(open) {
-  tabsMorePanel.hidden = !open;
-  tabsMoreToggle.setAttribute("aria-expanded", String(open));
-  if (bottomMoreToggle) bottomMoreToggle.setAttribute("aria-expanded", String(open));
-  // The backdrop only actually renders on mobile (style.css), where the
-  // panel becomes a bottom sheet — on desktop it stays display:none
-  // regardless of [hidden], so toggling it here is a no-op there.
-  if (bottomSheetBackdrop) bottomSheetBackdrop.hidden = !open;
-}
-
-function closeTabsMorePanel() {
-  if (!tabsMorePanel || tabsMorePanel.hidden) return;
-  setTabsMorePanelOpen(false);
-}
-
-if (tabsMoreToggle) {
-  tabsMoreToggle.addEventListener("click", (e) => {
-    e.stopPropagation();
-    setTabsMorePanelOpen(tabsMorePanel.hidden);
-  });
-  document.addEventListener("click", (e) => {
-    if (!tabsMorePanel.hidden && tabsMoreWrap && !tabsMoreWrap.contains(e.target)) closeTabsMorePanel();
-  });
-}
-
-if (bottomMoreToggle) {
-  bottomMoreToggle.addEventListener("click", (e) => {
-    e.stopPropagation();
-    setTabsMorePanelOpen(tabsMorePanel.hidden);
-  });
-}
-
-if (bottomSheetBackdrop) {
-  bottomSheetBackdrop.addEventListener("click", closeTabsMorePanel);
 }
 
 const adminCodesTabButton = document.querySelector('.tab-btn[data-view="admincodes"]');
@@ -1969,12 +1931,13 @@ function updateAdminUI() {
   authToggleBtn.classList.toggle("auth-toggle-active", !!currentUser);
   if (!currentUser) closeAuthMenu();
 
-  // Bounce back to Quiz if we're sitting on admincodes and just lost admin,
-  // or on My Account (no nav button of its own) after signing out — every
-  // other tab stays browsable regardless of sign-in state.
+  // Bounce back to the landing tile grid if we're sitting on admincodes and
+  // just lost admin, or on My Account (no nav button of its own) after
+  // signing out — every other tab stays browsable regardless of sign-in
+  // state.
   const activeOffLimitsTab = !serverAdmin && adminCodesTabButton && adminCodesTabButton.classList.contains("active");
   const onMyAccountSignedOut = !currentUser && document.getElementById("view-myaccount").classList.contains("active");
-  if (activeOffLimitsTab || onMyAccountSignedOut) goToTab("quiz");
+  if (activeOffLimitsTab || onMyAccountSignedOut) goToTab("landing");
 
   if (refreshPaidFeatureGates) refreshPaidFeatureGates();
 }

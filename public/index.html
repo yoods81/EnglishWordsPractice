@@ -120,34 +120,92 @@
   <button type="button" id="upgrade-ready-banner" class="upgrade-ready-banner" hidden data-i18n="upgradeReadyBanner">⭐ Your upgrade code has arrived — tap to activate!</button>
 
   <main>
-    <!-- nav.tabs keeps its own overflow-x:auto (a horizontal-scroll fallback
-         if the primary row is ever too tight) but that same rule secretly
-         forces its overflow-y to "auto" too (a CSS quirk: whenever one axis
-         isn't "visible", the other can't stay "visible" either) — which
-         would clip the More dropdown's panel to nav's own height. Keeping
-         .tabs-more-wrap OUTSIDE nav.tabs, as a sibling in .tabs-bar, avoids
-         that clipping entirely. -->
+    <!-- The landing tile grid (below) is now the "home" a first-time visitor
+         sees; this persistent nav row exists so someone already inside a
+         section (Quiz, Spelling, ...) can jump straight to another primary
+         one without detouring back through the tiles first. It no longer
+         needs a "More" overflow — every menu lives on the landing tiles now
+         — so that slot became a "🏠 Home" button (data-view="landing") back
+         to the tile grid instead. -->
     <div class="tabs-bar">
       <nav class="tabs">
-        <button data-view="quiz" class="tab-btn active"><span data-i18n="navQuiz">❓ Quiz</span></button>
+        <button data-view="landing" class="tab-btn active" id="home-tab-btn"><span data-i18n="navHome">🏠 Home</span></button>
+        <button data-view="quiz" class="tab-btn"><span data-i18n="navQuiz">❓ Quiz</span></button>
         <button data-view="timestable" class="tab-btn"><span data-i18n="navTimesTable">🔢 Times Table</span></button>
         <button data-view="stats" class="tab-btn tab-btn-highlight"><span data-i18n="navStats">📊 My Progress</span><span class="nav-badge nav-badge-star" aria-hidden="true">⭐</span></button>
         <button data-view="addword" class="tab-btn tab-btn-highlight"><span data-i18n="navAddword">➕ Add Word</span><span class="nav-badge nav-badge-lock" aria-hidden="true">🔒</span></button>
         <button data-view="admincodes" class="tab-btn" data-i18n="navAdminCodes" hidden>🎟️ Codes</button>
       </nav>
-
-      <div class="tabs-more-wrap" id="tabs-more-wrap">
-        <button type="button" id="tabs-more-toggle" class="tabs-more-toggle" aria-haspopup="true" aria-expanded="false">
-          <span data-i18n="navMore">⋯ More</span>
-        </button>
-        <div class="tabs-more-panel" id="tabs-more-panel" hidden>
-          <button data-view="spelling" class="tab-btn"><span data-i18n="navSpelling">✏️ Spelling</span></button>
-          <button data-view="typegame" class="tab-btn"><span data-i18n="navTypeGame">⌨️ Typing Game</span></button>
-          <button data-view="flashcards" class="tab-btn"><span data-i18n="navFlashcards">🃏 Flashcards</span></button>
-          <button data-view="wordlist" class="tab-btn"><span data-i18n="navWordlist">📖 Word List</span></button>
-        </div>
-      </div>
     </div>
+
+    <!-- Landing / home screen: every menu as one tile grid, ordered by the
+         importance the user asked for (top = most important). Tiles are
+         plain .tab-btn elements with the same data-view attributes as the
+         nav buttons above, so the existing tabButtons/goToTab wiring in
+         app.js already handles clicks and active-state syncing here with no
+         extra JS — see the comment there. -->
+    <section id="view-landing" class="view active">
+      <div class="landing-tiles">
+        <button data-view="stats" class="tab-btn landing-tile landing-tile-highlight">
+          <span class="landing-tile-icon" aria-hidden="true">📊</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navStats">📊 My Progress</span>
+            <span class="landing-tile-desc" data-i18n="landingDescStats">See how far you've come</span>
+          </span>
+          <span class="nav-badge landing-tile-badge" aria-hidden="true">⭐</span>
+        </button>
+        <button data-view="addword" class="tab-btn landing-tile landing-tile-highlight">
+          <span class="landing-tile-icon" aria-hidden="true">➕</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navAddword">➕ Add Word</span>
+            <span class="landing-tile-desc" data-i18n="landingDescAddword">Build your own word list</span>
+          </span>
+          <span class="nav-badge landing-tile-badge" aria-hidden="true">🔒</span>
+        </button>
+        <button data-view="quiz" class="tab-btn landing-tile">
+          <span class="landing-tile-icon" aria-hidden="true">❓</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navQuiz">❓ Quiz</span>
+            <span class="landing-tile-desc" data-i18n="landingDescQuiz">Test yourself, word by word</span>
+          </span>
+        </button>
+        <button data-view="timestable" class="tab-btn landing-tile">
+          <span class="landing-tile-icon" aria-hidden="true">🔢</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navTimesTable">🔢 Times Table</span>
+            <span class="landing-tile-desc" data-i18n="landingDescTimesTable">Practise your times tables</span>
+          </span>
+        </button>
+        <button data-view="spelling" class="tab-btn landing-tile">
+          <span class="landing-tile-icon" aria-hidden="true">✏️</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navSpelling">✏️ Spelling</span>
+            <span class="landing-tile-desc" data-i18n="landingDescSpelling">Type each word from memory</span>
+          </span>
+        </button>
+        <button data-view="typegame" class="tab-btn landing-tile">
+          <span class="landing-tile-icon" aria-hidden="true">⌨️</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navTypeGame">⌨️ Typing Game</span>
+            <span class="landing-tile-desc" data-i18n="landingDescTypeGame">Catch the falling words</span>
+          </span>
+        </button>
+        <button data-view="flashcards" class="tab-btn landing-tile">
+          <span class="landing-tile-icon" aria-hidden="true">🃏</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navFlashcards">🃏 Flashcards</span>
+            <span class="landing-tile-desc" data-i18n="landingDescFlashcards">Flip through and review</span>
+          </span>
+        </button>
+        <button data-view="wordlist" class="tab-btn landing-tile">
+          <span class="landing-tile-icon" aria-hidden="true">📖</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navWordlist">📖 Word List</span>
+            <span class="landing-tile-desc" data-i18n="landingDescWordlist">Browse every word you have</span>
+          </span>
+        </button>
+      </div>
+    </section>
 
     <!-- Flashcards -->
     <section id="view-flashcards" class="view">
@@ -250,7 +308,7 @@
     </section>
 
     <!-- Quiz -->
-    <section id="view-quiz" class="view active">
+    <section id="view-quiz" class="view">
       <div class="card">
         <div class="setting-row">
           <label for="quiz-category" data-i18n="categoryLabel">Category</label>
@@ -757,11 +815,14 @@
        primary nav.tabs buttons one-for-one with the same data-view + tab-btn
        class, so app.js's existing tabButtons/goToTab logic wires these up
        automatically with no JS changes — the two rows just stay in sync.
-       The 5th button reuses the existing #tabs-more-panel as a bottom sheet
-       instead of a small dropdown, which only shows on this narrow layout. -->
-  <div class="bottom-sheet-backdrop" id="bottom-sheet-backdrop" hidden></div>
+       "More" is gone now that every menu lives on the landing tile grid; its
+       slot became a Home button back to that grid instead. -->
   <nav class="bottom-tabs" aria-label="Main navigation">
-    <button data-view="quiz" class="tab-btn bottom-tab-btn active">
+    <button data-view="landing" class="tab-btn bottom-tab-btn active" id="bottom-home-tab-btn">
+      <span class="bottom-tab-icon" aria-hidden="true">🏠</span>
+      <span class="bottom-tab-label" data-i18n="navHomeShort">Home</span>
+    </button>
+    <button data-view="quiz" class="tab-btn bottom-tab-btn">
       <span class="bottom-tab-icon" aria-hidden="true">❓</span>
       <span class="bottom-tab-label" data-i18n="navQuizShort">Quiz</span>
     </button>
@@ -778,10 +839,6 @@
       <span class="bottom-tab-icon" aria-hidden="true">➕</span>
       <span class="bottom-tab-label" data-i18n="navAddwordShort">Add Word</span>
       <span class="nav-badge bottom-tab-badge" aria-hidden="true">🔒</span>
-    </button>
-    <button type="button" id="bottom-more-toggle" class="bottom-tab-btn" aria-haspopup="true" aria-expanded="false">
-      <span class="bottom-tab-icon" aria-hidden="true">⋯</span>
-      <span class="bottom-tab-label" data-i18n="navMoreShort">More</span>
     </button>
   </nav>
 

@@ -303,83 +303,6 @@ nav.tabs button.tab-btn-highlight.active {
   vertical-align: -1px;
 }
 
-/* "More" dropdown: groups the lower-traffic practice modes so the primary
-   row (Quiz, Times Table, My Progress, Add Word) never needs to scroll. */
-.tabs-more-wrap {
-  position: relative;
-  flex: 0 0 auto;
-}
-
-.tabs-more-toggle {
-  border: 2px solid var(--outline);
-  background: var(--card-bg);
-  color: var(--text);
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-family: var(--font-heading);
-  font-size: 0.72rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 3px 0 var(--outline);
-  white-space: nowrap;
-  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, color 0.15s ease;
-}
-
-.tabs-more-toggle:hover {
-  transform: translateY(-1px);
-}
-
-.tabs-more-toggle:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--outline);
-}
-
-/* Set by JS whenever the active view lives inside the panel (Spelling,
-   Typing Game, Flashcards, Word List), so "More" still shows where you are
-   even while the panel itself is collapsed. */
-.tabs-more-toggle.has-active {
-  background: var(--primary);
-  color: #fff;
-}
-
-.tabs-more-panel {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  z-index: 20;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  background: var(--card-bg);
-  border: 2px solid var(--outline);
-  border-radius: 14px;
-  box-shadow: 0 4px 0 var(--outline);
-  padding: 6px;
-  min-width: 160px;
-}
-
-.tabs-more-panel[hidden] {
-  display: none;
-}
-
-.tabs-more-panel button.tab-btn {
-  width: 100%;
-  text-align: left;
-  border-radius: 8px;
-  box-shadow: none;
-  background: none;
-}
-
-.tabs-more-panel button.tab-btn:hover {
-  background: var(--bg);
-  transform: none;
-}
-
-.tabs-more-panel button.tab-btn.active {
-  background: var(--primary);
-  color: #fff;
-}
-
 .view {
   display: none;
 }
@@ -392,6 +315,133 @@ nav.tabs button.tab-btn-highlight.active {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Landing / home screen (#view-landing) — every menu as one tile list,
+   ordered top-to-bottom by importance instead of tucked behind a nav row +
+   "More" dropdown. Each tile is a .tab-btn (see app.js's tabButtons), just
+   styled as a full-width row instead of a small pill, in the same bold-
+   outline language as every other card/button. */
+.landing-tiles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.landing-tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  border: 3px solid var(--outline);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 4px 0 var(--outline);
+  padding: 12px 16px;
+  font-family: var(--font-body);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.landing-tile:hover {
+  transform: translateY(-1px);
+}
+
+.landing-tile:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--outline);
+}
+
+.landing-tile-icon {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border: 2px solid var(--outline);
+  border-radius: 14px;
+  background: var(--bg);
+  font-size: 1.5rem;
+}
+
+.landing-tile-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.landing-tile-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.landing-tile-desc {
+  font-size: 0.78rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* My Progress / Add Word — the two monetization-priority tiles — get the
+   same accent treatment as their nav-bar pills, so they still read as the
+   "important" ones even at the top of an already importance-ordered list. */
+.landing-tile-highlight {
+  border-color: var(--accent);
+  background: #fffaf3;
+  box-shadow: 0 4px 0 var(--accent-dark);
+}
+
+.landing-tile-highlight:active {
+  box-shadow: 0 1px 0 var(--accent-dark);
+}
+
+.landing-tile-highlight .landing-tile-icon {
+  border-color: var(--accent);
+  background: #ffefe0;
+}
+
+.landing-tile-badge {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  background: #fff;
+  border: 2px solid var(--outline);
+  border-radius: 50%;
+}
+
+@media (max-width: 480px) {
+  .landing-tile {
+    padding: 10px 12px;
+    gap: 11px;
+  }
+
+  .landing-tile-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.3rem;
+  }
+
+  .landing-tile-title {
+    font-size: 0.9rem;
+  }
+
+  .landing-tile-desc {
+    font-size: 0.74rem;
+  }
 }
 
 .card {
@@ -1308,49 +1358,13 @@ button.pill:disabled {
 
   /* Below 480px the top tab row is replaced by the fixed .bottom-tabs bar
      (see its own rules further down) — a mobile-app pattern that reads much
-     less "2000s webpage" than a wrapping row of pill buttons. Only the
-     trigger row (nav.tabs + its own More toggle) is hidden; .tabs-more-wrap
-     itself stays in the document so its panel (#tabs-more-panel) keeps
-     rendering when the bottom bar's own More button opens it as a bottom
-     sheet — hiding the wrap too would hide the panel with it, since a
-     display:none ancestor removes its descendants from rendering even when
-     the descendant's own [hidden] attribute is false. */
+     less "2000s webpage" than a wrapping row of pill buttons. */
   .tabs-bar {
     margin: 0;
   }
 
-  nav.tabs,
-  .tabs-more-toggle {
+  nav.tabs {
     display: none;
-  }
-
-  .tabs-more-wrap {
-    position: static;
-  }
-
-  /* Re-anchored from "a small dropdown under a toggle button" (the desktop
-     layout) to "a sheet pinned to the bottom of the screen" — the same
-     bottom-sheet pattern used for modals throughout the Spelly reference,
-     rather than a cramped floating menu on a small screen. */
-  .tabs-more-panel {
-    position: fixed;
-    top: auto;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 45;
-    min-width: 0;
-    max-width: none;
-    border-radius: 20px 20px 0 0;
-    border-width: 3px 3px 0;
-    box-shadow: 0 -8px 24px rgba(30, 20, 10, 0.22);
-    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-  }
-
-  .tabs-more-panel button.tab-btn {
-    padding: 12px 14px;
-    font-size: 0.85rem;
-    border-radius: 12px;
   }
 }
 
@@ -1361,23 +1375,11 @@ button.pill:disabled {
   display: none;
 }
 
-.bottom-sheet-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 44;
-  background: rgba(20, 28, 55, 0.45);
-  display: none;
-}
-
 @media (max-width: 480px) {
   body {
     /* Reserves room at the very bottom of the page so the fixed bar never
        overlaps the footer text above it. */
     padding-bottom: 74px;
-  }
-
-  .bottom-sheet-backdrop:not([hidden]) {
-    display: block;
   }
 
   .bottom-tabs {
