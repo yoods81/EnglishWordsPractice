@@ -118,7 +118,7 @@ header {
 }
 
 .auth-toggle {
-  border: 2px solid var(--outline);
+  border: 2px solid var(--accent-dark);
   background: var(--accent);
   color: #fff;
   font-weight: 700;
@@ -128,11 +128,11 @@ header {
   cursor: pointer;
   /* The same pressed-button "3D" edge as button.pill (see below) — a solid
      dark rim along the bottom rather than a diffuse shadow, so it reads as a
-     real tappable button, not just a colored label. The rim uses the same
-     shared --outline as every other button/card now, rather than a shade of
-     each button's own fill color, which is what makes the whole UI read as
-     one system instead of a pile of individually-styled widgets. */
-  box-shadow: 0 3px 0 var(--outline);
+     real tappable button, not just a colored label. The rim is this
+     button's own accent-dark (or success-dark once signed in, below) rather
+     than the shared --outline used on white surfaces — a filled button's rim
+     matches its own fill instead of a generic dark line sitting on it. */
+  box-shadow: 0 3px 0 var(--accent-dark);
   max-width: 45vw;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -141,11 +141,17 @@ header {
 
 .auth-toggle:active {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--outline);
+  box-shadow: 0 1px 0 var(--accent-dark);
 }
 
 .auth-toggle.auth-toggle-active {
   background: var(--success);
+  border-color: var(--success-dark);
+  box-shadow: 0 3px 0 var(--success-dark);
+}
+
+.auth-toggle.auth-toggle-active:active {
+  box-shadow: 0 1px 0 var(--success-dark);
 }
 
 .auth-menu {
@@ -210,15 +216,22 @@ main {
   padding: 10px 14px 20px;
 }
 
-/* Holds the scrollable primary nav.tabs row plus the "More" dropdown side
-   by side. The margin that used to live on nav.tabs itself moved here, now
-   that nav.tabs is one flex item among two rather than the whole row. */
 .tabs-bar {
   display: flex;
   align-items: flex-start;
   justify-content: center;
   gap: 5px;
   margin: 10px 0 14px;
+}
+
+/* The landing tile grid already lists every menu once — showing the
+   persistent nav row (and, on mobile, the bottom tab bar) on top of it would
+   just repeat the same menus a second time. body.on-landing is toggled by
+   goToTab() in app.js. Both bars come back the moment you open any section,
+   where they're the quick way to jump straight to another one. */
+body.on-landing .tabs-bar,
+body.on-landing .bottom-tabs {
+  display: none;
 }
 
 nav.tabs {
@@ -265,9 +278,19 @@ nav.tabs button:active {
   box-shadow: 0 1px 0 var(--outline);
 }
 
+/* A selected (blue-filled) tab keeps its rim in its own color rather than
+   the shared dark --outline used by the unselected white tabs around it —
+   the same "match the fill, not a generic dark line" rule as .landing-tile-
+   highlight and the colored button.pill variants. */
 nav.tabs button.active {
   background: var(--primary);
   color: #fff;
+  border-color: var(--primary-dark);
+  box-shadow: 0 3px 0 var(--primary-dark);
+}
+
+nav.tabs button.active:active {
+  box-shadow: 0 1px 0 var(--primary-dark);
 }
 
 /* Add Word / My Progress are the two tabs the monetization plan leans on —
@@ -292,7 +315,7 @@ nav.tabs button.tab-btn-highlight:active {
 }
 nav.tabs button.tab-btn-highlight.active {
   background: var(--accent);
-  border-color: var(--outline);
+  border-color: var(--accent-dark);
   color: #fff;
 }
 
@@ -317,30 +340,33 @@ nav.tabs button.tab-btn-highlight.active {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Landing / home screen (#view-landing) — every menu as one tile list,
-   ordered top-to-bottom by importance instead of tucked behind a nav row +
-   "More" dropdown. Each tile is a .tab-btn (see app.js's tabButtons), just
-   styled as a full-width row instead of a small pill, in the same bold-
-   outline language as every other card/button. */
+/* Landing / home screen (#view-landing) — every menu as one 3-column tile
+   grid ("바둑판식"), ordered by importance reading left-to-right then
+   top-to-bottom, instead of tucked behind a nav row + "More" dropdown. Each
+   tile is a .tab-btn (see app.js's tabButtons), just styled like a bigger
+   app-icon tile instead of a small pill, in the same bold-outline language
+   as every other card/button. */
 .landing-tiles {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
 .landing-tile {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 14px;
+  justify-content: flex-start;
+  gap: 6px;
   width: 100%;
   border: 3px solid var(--outline);
   border-radius: 18px;
   background: #fff;
   box-shadow: 0 4px 0 var(--outline);
-  padding: 12px 16px;
+  padding: 14px 6px 12px;
   font-family: var(--font-body);
-  text-align: left;
+  text-align: center;
   cursor: pointer;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
@@ -359,40 +385,46 @@ nav.tabs button.tab-btn-highlight.active {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   border: 2px solid var(--outline);
   border-radius: 14px;
   background: var(--bg);
-  font-size: 1.5rem;
+  font-size: 1.4rem;
 }
 
 .landing-tile-body {
   flex: 1 1 auto;
   min-width: 0;
+  width: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 2px;
 }
 
 .landing-tile-title {
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.8rem;
+  line-height: 1.2;
   color: var(--text);
 }
 
 .landing-tile-desc {
-  font-size: 0.78rem;
+  font-size: 0.66rem;
+  line-height: 1.25;
   color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /* My Progress / Add Word — the two monetization-priority tiles — get the
    same accent treatment as their nav-bar pills, so they still read as the
-   "important" ones even at the top of an already importance-ordered list. */
+   "important" ones even at the top of an already importance-ordered grid. */
 .landing-tile-highlight {
   border-color: var(--accent);
   background: #fffaf3;
@@ -410,37 +442,46 @@ nav.tabs button.tab-btn-highlight.active {
 
 .landing-tile-badge {
   position: absolute;
-  top: 10px;
-  right: 12px;
-  width: 22px;
-  height: 22px;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   background: #fff;
   border: 2px solid var(--outline);
   border-radius: 50%;
 }
 
 @media (max-width: 480px) {
+  .landing-tiles {
+    gap: 8px;
+  }
+
   .landing-tile {
-    padding: 10px 12px;
-    gap: 11px;
+    padding: 10px 4px 9px;
+    gap: 4px;
+    border-radius: 14px;
   }
 
   .landing-tile-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 1.3rem;
+    width: 36px;
+    height: 36px;
+    font-size: 1.15rem;
+    border-radius: 11px;
   }
 
   .landing-tile-title {
-    font-size: 0.9rem;
+    font-size: 0.68rem;
   }
 
+  /* Too little room left for a second line of body text once three tiles
+     share a 390px-wide screen — the title alone still identifies the menu,
+     same as an app icon's label. */
   .landing-tile-desc {
-    font-size: 0.74rem;
+    display: none;
   }
 }
 
@@ -790,13 +831,17 @@ button.pill:active {
   box-shadow: 0 1px 0 var(--pill-shadow);
 }
 
-button.pill.primary { background: var(--primary); color: #fff; }
-button.pill.success { background: var(--success); color: #fff; }
-button.pill.error { background: var(--error); color: #fff; }
+/* Only .neutral (white fill, dark text) keeps the shared --outline rim —
+   every solid-colored fill instead gets a border + shadow pulled from its
+   own "-dark" shade, so the rim always reads as part of that button's own
+   color rather than a mismatched dark line sitting on top of it. */
+button.pill.primary { background: var(--primary); color: #fff; border-color: var(--primary-dark); --pill-shadow: var(--primary-dark); }
+button.pill.success { background: var(--success); color: #fff; border-color: var(--success-dark); --pill-shadow: var(--success-dark); }
+button.pill.error { background: var(--error); color: #fff; border-color: var(--error-dark); --pill-shadow: var(--error-dark); }
 button.pill.neutral { background: #fff; color: var(--text); }
-button.pill.accent { background: var(--accent); color: #fff; }
-button.pill.dark { background: #1f2430; color: #fff; }
-button.pill.green { background: #2bb673; color: #fff; }
+button.pill.accent { background: var(--accent); color: #fff; border-color: var(--accent-dark); --pill-shadow: var(--accent-dark); }
+button.pill.dark { background: #1f2430; color: #fff; border-color: #0d0f14; --pill-shadow: #0d0f14; }
+button.pill.green { background: #2bb673; color: #fff; border-color: #1d8a56; --pill-shadow: #1d8a56; }
 
 button.pill.small {
   border-width: 2px;
@@ -2367,7 +2412,7 @@ html[lang="en"] button.kid-modal-btn {
 
 .level-badge {
   margin-top: 6px;
-  border: 2px solid var(--outline);
+  border: 2px solid var(--primary-dark);
   background: var(--primary);
   color: #fff;
   font-family: var(--font-heading);
@@ -2376,12 +2421,12 @@ html[lang="en"] button.kid-modal-btn {
   font-size: 0.78rem;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 3px 0 var(--outline);
+  box-shadow: 0 3px 0 var(--primary-dark);
 }
 
 .level-badge:active {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--outline);
+  box-shadow: 0 1px 0 var(--primary-dark);
 }
 
 /* Speakable lines (click to hear via speech synthesis) */

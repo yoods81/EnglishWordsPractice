@@ -1663,6 +1663,11 @@ function goToTab(view) {
 
   tabButtons.forEach((b) => b.classList.toggle("active", b.dataset.view === view));
   views.forEach((v) => v.classList.toggle("active", v.id === `view-${view}`));
+  // The persistent nav row (top nav.tabs / bottom .bottom-tabs) is only
+  // useful once you're already inside a section — on the landing tile grid
+  // itself it would just repeat every menu a second time. See the
+  // body.on-landing rules in style.css.
+  document.body.classList.toggle("on-landing", view === "landing");
   refreshView(view);
 }
 
