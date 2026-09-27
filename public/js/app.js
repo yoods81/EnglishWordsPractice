@@ -54,7 +54,12 @@ const TRANSLATIONS = {
     navWordlist: "📖 Word List",
     navAddword: "➕ Add Word",
     navStats: "📊 My Progress",
+    navMore: "⋯ More",
     navAdminCodes: "🛠️ Admin",
+    statsInsightsTitle: "✨ Premium Insights",
+    statsInsightsBullet1: "📧 Weekly progress email reports",
+    statsInsightsBullet2: "🎯 Category-by-category accuracy breakdown",
+    statsInsightsBullet3: "👨‍👩‍👧‍👦 Track multiple children in one account",
     adminCodesTitle: "🎟️ Premium Signup Codes",
     adminCodesDesc: "Generate a one-time code and send it to someone so they can sign up as a premium account instead of general.",
     adminCodesGenerateBtn: "🎲 Generate New Code",
@@ -425,7 +430,12 @@ const TRANSLATIONS = {
     navWordlist: "📖 단어장",
     navAddword: "➕ 단어 추가",
     navStats: "📊 내 진행상황",
+    navMore: "⋯ 더보기",
     navAdminCodes: "🛠️ 관리자",
+    statsInsightsTitle: "✨ 프리미엄 인사이트",
+    statsInsightsBullet1: "📧 주간 학습 리포트 이메일",
+    statsInsightsBullet2: "🎯 카테고리별 정확도 분석",
+    statsInsightsBullet3: "👨‍👩‍👧‍👦 여러 자녀 계정 함께 관리",
     adminCodesTitle: "🎟️ 프리미엄 가입 코드",
     adminCodesDesc: "1회용 코드를 생성해서 전달하면, 받은 사람이 일반 대신 프리미엄 계정으로 가입할 수 있어요.",
     adminCodesGenerateBtn: "🎲 새 코드 생성",
@@ -1580,11 +1590,21 @@ langToggleBtn.addEventListener("click", () => {
 });
 
 /* ---------- Tab navigation ---------- */
-const tabButtons = document.querySelectorAll("nav.tabs button");
+// ".tab-btn" (rather than scoping to nav.tabs) picks up every real view
+// button — the primary row in nav.tabs *and* the ones tucked inside the
+// "More" dropdown panel, which is a sibling of nav.tabs, not a descendant
+// (see .tabs-bar in index.html/style.css) — while still excluding the
+// dropdown's own toggle button, which has no data-view and must never be
+// wired up as if it switched to a view.
+const tabButtons = document.querySelectorAll(".tab-btn");
 const views = document.querySelectorAll(".view");
+const MORE_PANEL_VIEWS = ["spelling", "typegame", "flashcards", "wordlist"];
+const tabsMoreToggle = document.getElementById("tabs-more-toggle");
+const tabsMorePanel = document.getElementById("tabs-more-panel");
+const tabsMoreWrap = document.getElementById("tabs-more-wrap");
 
 function refreshCurrentView() {
-  const active = document.querySelector("nav.tabs button.active");
+  const active = document.querySelector(".tab-btn.active");
   if (active) refreshView(active.dataset.view);
 }
 
@@ -1605,7 +1625,7 @@ function refreshView(view) {
 }
 
 function goToTab(view) {
-  const previousBtn = document.querySelector("nav.tabs button.active");
+  const previousBtn = document.querySelector(".tab-btn.active");
   const previousView = previousBtn ? previousBtn.dataset.view : null;
   // Leaving mid-round freezes the game in place rather than ending it, so
   // switching tabs to check something doesn't cost the player their score.
@@ -1614,10 +1634,33 @@ function goToTab(view) {
 
   tabButtons.forEach((b) => b.classList.toggle("active", b.dataset.view === view));
   views.forEach((v) => v.classList.toggle("active", v.id === `view-${view}`));
+  // "More" shows its own highlight when the open tab is one of the ones
+  // tucked away inside its panel, since the real .active button is hidden
+  // from view while the panel is collapsed.
+  if (tabsMoreToggle) tabsMoreToggle.classList.toggle("has-active", MORE_PANEL_VIEWS.includes(view));
+  closeTabsMorePanel();
   refreshView(view);
 }
 
-const adminCodesTabButton = document.querySelector('nav.tabs button[data-view="admincodes"]');
+function closeTabsMorePanel() {
+  if (!tabsMorePanel || tabsMorePanel.hidden) return;
+  tabsMorePanel.hidden = true;
+  tabsMoreToggle.setAttribute("aria-expanded", "false");
+}
+
+if (tabsMoreToggle) {
+  tabsMoreToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const willOpen = tabsMorePanel.hidden;
+    tabsMorePanel.hidden = !willOpen;
+    tabsMoreToggle.setAttribute("aria-expanded", String(willOpen));
+  });
+  document.addEventListener("click", (e) => {
+    if (!tabsMorePanel.hidden && tabsMoreWrap && !tabsMoreWrap.contains(e.target)) closeTabsMorePanel();
+  });
+}
+
+const adminCodesTabButton = document.querySelector('.tab-btn[data-view="admincodes"]');
 
 // Add Word / Flashcards / Word List / My Progress are all open to anyone to
 // browse — Quiz/Spelling/Typing Game already were. Only the account-specific
@@ -6327,13 +6370,18 @@ const ocrPremiumOverlay = document.getElementById("ocr-premium-overlay");
 const manualPremiumOverlay = document.getElementById("manual-premium-overlay");
 const customPremiumOverlay = document.getElementById("custom-premium-overlay");
 const addwordLockBanner = document.getElementById("addword-lock-banner");
+// My Progress's "Premium Insights" teaser (weekly reports, category
+// breakdown, multi-child profiles) uses the exact same lock pattern as the
+// Add Word cards above — see updatePaidFeatureGates() below.
+const statsInsightsCard = document.getElementById("stats-insights-card");
+const statsPremiumOverlay = document.getElementById("stats-premium-overlay");
 
 function setPremiumGate(card, overlay, locked) {
   card.classList.toggle("premium-gate", locked);
   overlay.hidden = !locked;
 }
 
-[ocrPremiumOverlay, manualPremiumOverlay, customPremiumOverlay, addwordLockBanner].forEach((overlay) => {
+[ocrPremiumOverlay, manualPremiumOverlay, customPremiumOverlay, addwordLockBanner, statsPremiumOverlay].forEach((overlay) => {
   overlay.addEventListener("click", promptUpgradeForFeature);
 });
 
@@ -6353,6 +6401,7 @@ function updatePaidFeatureGates() {
   setPremiumGate(addwordManualCard, manualPremiumOverlay, locked);
   setPremiumGate(myAddedWordsCard, customPremiumOverlay, locked);
   addwordLockBanner.hidden = !locked;
+  setPremiumGate(statsInsightsCard, statsPremiumOverlay, locked);
 
   // The premium-gate overlay blocks a mouse/touch click on everything under
   // it, but pointer-events:none doesn't stop a keyboard-focused control from

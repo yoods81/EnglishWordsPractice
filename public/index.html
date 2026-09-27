@@ -120,17 +120,34 @@
   <button type="button" id="upgrade-ready-banner" class="upgrade-ready-banner" hidden data-i18n="upgradeReadyBanner">⭐ Your upgrade code has arrived — tap to activate!</button>
 
   <main>
-    <nav class="tabs">
-      <button data-view="quiz" class="active" data-i18n="navQuiz">❓ Quiz</button>
-      <button data-view="spelling" data-i18n="navSpelling">✏️ Spelling</button>
-      <button data-view="typegame" data-i18n="navTypeGame">⌨️ Typing Game</button>
-      <button data-view="timestable" data-i18n="navTimesTable">🔢 Times Table</button>
-      <button data-view="flashcards" data-i18n="navFlashcards">🃏 Flashcards</button>
-      <button data-view="wordlist" data-i18n="navWordlist">📖 Word List</button>
-      <button data-view="addword" data-i18n="navAddword">➕ Add Word</button>
-      <button data-view="stats" data-i18n="navStats">📊 My Progress</button>
-      <button data-view="admincodes" data-i18n="navAdminCodes" hidden>🎟️ Codes</button>
-    </nav>
+    <!-- nav.tabs keeps its own overflow-x:auto (a horizontal-scroll fallback
+         if the primary row is ever too tight) but that same rule secretly
+         forces its overflow-y to "auto" too (a CSS quirk: whenever one axis
+         isn't "visible", the other can't stay "visible" either) — which
+         would clip the More dropdown's panel to nav's own height. Keeping
+         .tabs-more-wrap OUTSIDE nav.tabs, as a sibling in .tabs-bar, avoids
+         that clipping entirely. -->
+    <div class="tabs-bar">
+      <nav class="tabs">
+        <button data-view="quiz" class="tab-btn active"><span data-i18n="navQuiz">❓ Quiz</span></button>
+        <button data-view="timestable" class="tab-btn"><span data-i18n="navTimesTable">🔢 Times Table</span></button>
+        <button data-view="stats" class="tab-btn tab-btn-highlight"><span data-i18n="navStats">📊 My Progress</span><span class="nav-badge nav-badge-star" aria-hidden="true">⭐</span></button>
+        <button data-view="addword" class="tab-btn tab-btn-highlight"><span data-i18n="navAddword">➕ Add Word</span><span class="nav-badge nav-badge-lock" aria-hidden="true">🔒</span></button>
+        <button data-view="admincodes" class="tab-btn" data-i18n="navAdminCodes" hidden>🎟️ Codes</button>
+      </nav>
+
+      <div class="tabs-more-wrap" id="tabs-more-wrap">
+        <button type="button" id="tabs-more-toggle" class="tabs-more-toggle" aria-haspopup="true" aria-expanded="false">
+          <span data-i18n="navMore">⋯ More</span>
+        </button>
+        <div class="tabs-more-panel" id="tabs-more-panel" hidden>
+          <button data-view="spelling" class="tab-btn"><span data-i18n="navSpelling">✏️ Spelling</span></button>
+          <button data-view="typegame" class="tab-btn"><span data-i18n="navTypeGame">⌨️ Typing Game</span></button>
+          <button data-view="flashcards" class="tab-btn"><span data-i18n="navFlashcards">🃏 Flashcards</span></button>
+          <button data-view="wordlist" class="tab-btn"><span data-i18n="navWordlist">📖 Word List</span></button>
+        </div>
+      </div>
+    </div>
 
     <!-- Flashcards -->
     <section id="view-flashcards" class="view">
@@ -645,6 +662,28 @@
       <div class="card">
         <div class="stats-grid" id="stats-grid"></div>
         <button class="reset-btn" id="reset-progress" data-i18n="resetBtn">Reset all progress</button>
+      </div>
+
+      <!-- Premium insights teaser: locked the same way as the Add Word
+           paid-feature cards (see #addword-extract-card etc.) — dimmed
+           content plus a click-catching overlay that opens the upgrade
+           prompt. Content here is a placeholder; the real report/analysis
+           logic isn't built yet. -->
+      <div class="card" id="stats-insights-card">
+        <h3 data-i18n="statsInsightsTitle">✨ Premium Insights</h3>
+        <ul class="premium-insights-list">
+          <li data-i18n="statsInsightsBullet1">📧 Weekly progress email reports</li>
+          <li data-i18n="statsInsightsBullet2">🎯 Category-by-category accuracy breakdown</li>
+          <li data-i18n="statsInsightsBullet3">👨‍👩‍👧‍👦 Track multiple children in one account</li>
+        </ul>
+        <div class="premium-gate-overlay" id="stats-premium-overlay" hidden>
+          <div class="premium-gate-label">
+            <div class="premium-gate-label-title" data-i18n="premiumGateTitle">🔒 Premium feature</div>
+            <div class="premium-gate-label-desc" data-i18n="premiumGateDesc">
+              You'll need to sign up and upgrade to premium to use this feature!
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 

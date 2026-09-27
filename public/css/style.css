@@ -156,15 +156,31 @@ main {
   padding: 10px 14px 20px;
 }
 
+/* Holds the scrollable primary nav.tabs row plus the "More" dropdown side
+   by side. The margin that used to live on nav.tabs itself moved here, now
+   that nav.tabs is one flex item among two rather than the whole row. */
+.tabs-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5px;
+  margin: 10px 0 14px;
+}
+
 nav.tabs {
   display: flex;
+  /* Shrinks (never grows) so it hugs its own buttons rather than stretching
+     to fill .tabs-bar and pushing the More button away from it — but it can
+     still shrink below its content width on a narrow screen, at which point
+     overflow-x below takes over as a horizontal-scroll fallback. */
+  flex: 0 1 auto;
+  min-width: 0;
   flex-wrap: nowrap;
   overflow-x: auto;
   gap: 5px;
   /* "safe" centers the row when it fits, but falls back to start-alignment
      when it overflows so the first tab never scrolls out of reach */
   justify-content: safe center;
-  margin: 10px 0 14px;
   padding-bottom: 2px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
@@ -190,6 +206,96 @@ nav.tabs button:hover {
 }
 
 nav.tabs button.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Add Word / My Progress are the two tabs the monetization plan leans on —
+   Add Word gates custom words behind a paid account already (see the
+   premium-gate cards below), and My Progress is where the paid-only
+   "Premium Insights" teaser lives. A thin accent ring makes both easy to
+   spot among the other, purely-free tabs without changing their size or
+   pushing the row wider. */
+nav.tabs button.tab-btn-highlight {
+  box-shadow: var(--shadow), 0 0 0 2px var(--accent);
+}
+nav.tabs button.tab-btn-highlight.active {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.nav-badge {
+  display: inline-block;
+  margin-left: 3px;
+  font-size: 0.85em;
+  vertical-align: -1px;
+}
+
+/* "More" dropdown: groups the lower-traffic practice modes so the primary
+   row (Quiz, Times Table, My Progress, Add Word) never needs to scroll. */
+.tabs-more-wrap {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.tabs-more-toggle {
+  border: none;
+  background: var(--card-bg);
+  color: var(--text);
+  padding: 7px 11px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  white-space: nowrap;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.tabs-more-toggle:hover {
+  transform: translateY(-1px);
+}
+
+/* Set by JS whenever the active view lives inside the panel (Spelling,
+   Typing Game, Flashcards, Word List), so "More" still shows where you are
+   even while the panel itself is collapsed. */
+.tabs-more-toggle.has-active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.tabs-more-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 6px;
+  min-width: 160px;
+}
+
+.tabs-more-panel[hidden] {
+  display: none;
+}
+
+.tabs-more-panel button.tab-btn {
+  width: 100%;
+  text-align: left;
+  border-radius: 8px;
+  box-shadow: none;
+  background: none;
+}
+
+.tabs-more-panel button.tab-btn:hover {
+  background: var(--bg);
+  transform: none;
+}
+
+.tabs-more-panel button.tab-btn.active {
   background: var(--primary);
   color: #fff;
 }
@@ -239,8 +345,16 @@ nav.tabs button.active {
    author-rule order — an unlocked card must never show this at all. */
 #addword-extract-card,
 #addword-manual-card,
-#my-added-words-card {
+#my-added-words-card,
+#stats-insights-card {
   position: relative;
+}
+
+.premium-insights-list {
+  margin: 0;
+  padding-left: 1.2em;
+  line-height: 1.9;
+  font-size: 0.9rem;
 }
 .card.premium-gate > *:not(.premium-gate-overlay) {
   opacity: 0.4;
@@ -1111,13 +1225,20 @@ button.pill:disabled {
     padding: 5px 8px;
   }
 
+  .tabs-bar {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
   nav.tabs {
+    flex: 1 1 auto;
     flex-wrap: wrap;
     overflow-x: visible;
     justify-content: center;
   }
 
-  nav.tabs button {
+  nav.tabs button,
+  .tabs-more-toggle {
     font-size: 0.66rem;
     padding: 6px 8px;
   }
