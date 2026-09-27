@@ -1835,11 +1835,29 @@ function syncTabGroupActiveStates(view) {
 
 const hoverCapable = window.matchMedia && window.matchMedia("(hover: hover)").matches;
 
+// The dropdown is a separate element out in <body> now (see groupDropdowns
+// above), not a DOM descendant of .tab-group any more — so the moment the
+// mouse travels from the trigger down into the dropdown itself, it's
+// genuinely leaving the group's own box, and a plain mouseleave->close would
+// slam the dropdown shut before a click on any item inside it could land.
+// A short delay on close, cancelled by re-entering *either* the group or the
+// dropdown, bridges that gap without needing hover to work across two
+// disconnected elements.
+let tabGroupCloseTimer = null;
+function cancelTabGroupClose() {
+  clearTimeout(tabGroupCloseTimer);
+}
+function scheduleTabGroupClose() {
+  clearTimeout(tabGroupCloseTimer);
+  tabGroupCloseTimer = setTimeout(closeAllTabGroups, 200);
+}
+
 tabGroups.forEach((group) => {
   const trigger = group.querySelector(".tab-group-trigger");
   if (!trigger) return;
   trigger.addEventListener("click", (e) => {
     e.stopPropagation();
+    cancelTabGroupClose();
     if (group.classList.contains("open")) closeAllTabGroups();
     else openTabGroup(group);
   });
@@ -1849,8 +1867,16 @@ tabGroups.forEach((group) => {
   // hover-capable pointer so a touch tap's synthetic hover doesn't also
   // trigger it.
   if (hoverCapable) {
-    group.addEventListener("mouseenter", () => openTabGroup(group));
-    group.addEventListener("mouseleave", () => closeAllTabGroups());
+    const dropdown = groupDropdowns.get(group);
+    group.addEventListener("mouseenter", () => {
+      cancelTabGroupClose();
+      openTabGroup(group);
+    });
+    group.addEventListener("mouseleave", scheduleTabGroupClose);
+    if (dropdown) {
+      dropdown.addEventListener("mouseenter", cancelTabGroupClose);
+      dropdown.addEventListener("mouseleave", scheduleTabGroupClose);
+    }
   }
 });
 
