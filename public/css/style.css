@@ -928,6 +928,63 @@ button.pill:disabled {
   font-size: 0.75rem;
 }
 
+/* The flashcard's pronunciation button — the one weak spot called out in
+   the reference app was that "hear it" was easy to miss and unclear whether
+   it had actually fired, so this is deliberately the biggest, most obvious
+   tappable thing on the card front, with its own always-visible label and a
+   pulse while audio is actually playing (see speak()'s onstart/onend). */
+.speak-btn-hero-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+button.speak-btn-hero {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--primary-dark);
+  border: 3px solid var(--primary-dark);
+  box-shadow: 0 4px 0 var(--primary-dark);
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+button.speak-btn-hero:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--primary-dark);
+}
+
+button.speak-btn-hero.speak-btn-active {
+  animation: speak-btn-pulse 0.6s ease-in-out infinite;
+}
+
+@keyframes speak-btn-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 0 var(--primary-dark);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 6px 0 var(--primary-dark);
+  }
+}
+
+.speak-btn-hero-label {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
 /* Quiz */
 #quiz-question {
   font-size: 1rem;
@@ -1618,6 +1675,41 @@ button.pill:disabled {
   height: 100%;
   background: var(--primary);
   transition: width 0.25s ease;
+}
+
+/* Milestone tick marks over the quiz's real per-question progress bar — a
+   thin vertical line every ~20% so progress reads in visible steps rather
+   than as one smooth, hard-to-judge fill. CSS-only (a repeating gradient),
+   so it needs no extra markup or JS bookkeeping of question counts. */
+#view-quiz .progress-bar {
+  position: relative;
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent calc(20% - 2px),
+    rgba(44, 35, 24, 0.35) calc(20% - 2px),
+    rgba(44, 35, 24, 0.35) 20%
+  );
+}
+
+/* A small scale-bounce played on whatever just got marked correct — the
+   right quiz option, a correctly-spelled word, or the flashcard "I know
+   this" button — reusing the same remove/reflow/re-add restart trick as
+   .score-tag-pulse (see pulseScoreTag()). */
+.option-btn-bounce {
+  animation: option-bounce 0.35s ease;
+}
+
+@keyframes option-bounce {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Was plain bold text easy to miss next to the round's other controls — now
@@ -2410,8 +2502,94 @@ html[lang="en"] button.kid-modal-btn {
   font-size: 0.78rem;
 }
 
-.level-badge {
+/* Bottom-sheet treatment for the app's true modals (log in/sign up + the
+   upgrade prompt, which both reuse .auth-overlay/.auth-card; the kid-friendly
+   confirm; and the level picker) on phones — a sheet anchored to the bottom
+   edge is easier to reach one-handed and feels native, versus a small card
+   floating in the middle of a cramped screen. Desktop keeps the original
+   centered-card layout untouched. */
+@media (max-width: 480px) {
+  .auth-overlay,
+  .kid-modal-overlay,
+  .level-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .auth-overlay .auth-card,
+  .kid-modal-overlay .kid-modal-card,
+  .level-overlay .level-overlay-card {
+    max-width: none;
+    width: 100%;
+    border-radius: 22px 22px 0 0;
+    border-width: 3px 0 0;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: sheet-slide-up 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+
+  /* The kid-modal's playful pop-in doesn't fit a sheet sliding up from the
+     edge, so it's swapped for the same slide-up as the other two on mobile. */
+  .kid-modal-overlay .kid-modal-card {
+    border: none;
+    border-top: 4px solid var(--accent);
+  }
+}
+
+@keyframes sheet-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.stat-bar {
   margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 2px solid var(--accent-dark);
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  padding: 4px 11px;
+  font-size: 0.78rem;
+  border-radius: 999px;
+  box-shadow: 0 3px 0 var(--accent-dark);
+}
+
+.stat-chip-icon {
+  font-size: 0.95em;
+}
+
+.stat-chip.stat-chip-pulse {
+  animation: stat-chip-pop 0.4s ease;
+}
+
+@keyframes stat-chip-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.level-badge {
+  margin-top: 0;
   border: 2px solid var(--primary-dark);
   background: var(--primary);
   color: #fff;

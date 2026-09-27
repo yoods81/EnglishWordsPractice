@@ -114,7 +114,13 @@
     <button id="lang-toggle" class="lang-toggle" type="button">한국어</button>
     <h1><span class="emoji">📚</span> <span id="app-title">OZ Words & Math Practice</span></h1>
     <p id="app-subtitle">Build your vocabulary, spelling, times tables and word skills!</p>
-    <button id="level-badge" class="level-badge" title="Change level">Level: Year 4 ▾</button>
+    <div class="stat-bar">
+      <button id="level-badge" class="level-badge" title="Change level">Level: Year 4 ▾</button>
+      <span id="streak-chip" class="stat-chip streak-chip" title="Daily streak">
+        <span class="stat-chip-icon" aria-hidden="true">🔥</span>
+        <span id="streak-count" class="stat-chip-value">0</span>
+      </span>
+    </div>
   </header>
 
   <button type="button" id="upgrade-ready-banner" class="upgrade-ready-banner" hidden data-i18n="upgradeReadyBanner">⭐ Your upgrade code has arrived — tap to activate!</button>
@@ -232,7 +238,10 @@
           <div id="flashcard-stage">
             <div class="flashcard" id="flashcard">
               <div class="flashcard-face flashcard-front">
-                <button class="speak-btn" id="flash-speak" title="Listen">🔊 Listen</button>
+                <div class="speak-btn-hero-wrap">
+                  <button class="speak-btn speak-btn-hero" id="flash-speak" type="button" title="Hear it" aria-label="Hear it">🔊</button>
+                  <span class="speak-btn-hero-label" data-i18n="hearItLabel">Hear it</span>
+                </div>
                 <div class="word" id="flash-word">word</div>
               </div>
               <div class="flashcard-face flashcard-back">

@@ -202,6 +202,7 @@ const TRANSLATIONS = {
     myDeckDuplicate: "That word is already in your cards.",
     flashFrontWord: "🔤 Word",
     flashFrontMeaning: "💡 Meaning",
+    hearItLabel: "Hear it",
     backLabel: "Back",
     nextLabel: "Next",
     flashHint: "Tap the card to flip it • Tap the meaning or example to hear it read aloud",
@@ -592,6 +593,7 @@ const TRANSLATIONS = {
     myDeckDuplicate: "이미 내 카드에 있는 단어예요.",
     flashFrontWord: "🔤 단어",
     flashFrontMeaning: "💡 뜻",
+    hearItLabel: "들어보기",
     backLabel: "이전",
     nextLabel: "다음",
     flashHint: "카드를 탭하면 뒤집혀요 • 뜻이나 예문을 탭하면 소리로 들을 수 있어요",
@@ -845,7 +847,13 @@ function currentSystem() {
 function loadProgress() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      // Older saves predate the daily-streak feature — backfill so the rest
+      // of the app can always assume progress.streak exists.
+      if (!parsed.streak) parsed.streak = { count: 0, lastDay: null };
+      return parsed;
+    }
   } catch (e) {
     console.warn("Could not read saved progress", e);
   }
@@ -858,8 +866,35 @@ function loadProgress() {
     srs: {}, // word (lowercase) -> { box: 0-4, dueAt: timestamp } — spaced-repetition schedule, see recordSrsResult()
     typeGameLevelChallengeShown: {}, // levelId -> true, see maybeOfferTypeGameLevelChallenge()
     timesTableChallengeShown: {}, // "{lang}_{maxTable}" -> true, see maybeOfferTimesTableChallenge()
+    streak: { count: 0, lastDay: null }, // daily practice streak, see bumpDailyStreak()
     updatedAt: 0,
   };
+}
+
+// ---- Daily practice streak ----
+// A simple "did you practice at all today" counter, independent of score or
+// mode: any correct/incorrect answer through recordResult() counts. Counts up
+// once per calendar day (local time); a missed day resets it to 1 on the next
+// practice instead of continuing to climb.
+function localDateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function bumpDailyStreak() {
+  if (!progress.streak) progress.streak = { count: 0, lastDay: null };
+  const today = localDateKey(new Date());
+  if (progress.streak.lastDay === today) return false; // already counted today
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const wasYesterday = progress.streak.lastDay === localDateKey(yesterday);
+  progress.streak.count = wasYesterday ? progress.streak.count + 1 : 1;
+  progress.streak.lastDay = today;
+  return true; // streak count changed just now
+}
+
+function renderStreakChip() {
+  if (!streakCountEl) return;
+  streakCountEl.textContent = String((progress.streak && progress.streak.count) || 0);
 }
 
 function saveProgress() {
@@ -879,7 +914,10 @@ function recordResult(word, isCorrect) {
   if (isCorrect) stats.correct++;
   else stats.incorrect++;
   progress.wordStats[word] = stats;
+  const streakChanged = bumpDailyStreak();
   saveProgress();
+  renderStreakChip();
+  if (streakChanged && streakChipEl) pulseScoreTag(streakChipEl, "stat-chip-pulse");
 }
 
 // A Leitner-box-style spaced-repetition schedule, shared across Quiz,
@@ -1381,18 +1419,86 @@ function pickVoice(lang) {
   return notMale[0] || pool[0];
 }
 
-function speak(text) {
-  if (!text || !("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
+// `opts.onstart`/`opts.onend` let a caller show pronunciation-in-progress UI
+// (e.g. the flashcard "Hear it" button below) without every caller having to
+// duplicate the Web Speech API's own event wiring.
+function speak(text, opts = {}) {
+  if (!text) return;
+  if (!("speechSynthesis" in window)) {
+    if (opts.onend) opts.onend();
+    return;
+  }
+  const synth = window.speechSynthesis;
+  // Chrome/Edge can leave the synthesizer stuck reporting speaking === true
+  // forever — after a tab is backgrounded, or a previous utterance errored
+  // out silently — which then blocks every later speak() call from doing
+  // anything at all. cancel() clears that stuck state before every attempt,
+  // not only to interrupt a genuinely in-progress one.
+  synth.cancel();
+
   const lang = currentSystem().speechLang;
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = lang;
-  const voice = pickVoice(lang);
-  if (voice) utter.voice = voice;
-  // Slightly brighter pitch/pace to read as a younger adult voice.
-  utter.rate = 0.95;
-  utter.pitch = 1.08;
-  window.speechSynthesis.speak(utter);
+
+  const speakNow = () => {
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = lang;
+    const voice = pickVoice(lang);
+    if (voice) utter.voice = voice;
+    // Slightly brighter pitch/pace to read as a younger adult voice.
+    utter.rate = 0.95;
+    utter.pitch = 1.08;
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      clearInterval(watchdog);
+      if (opts.onend) opts.onend();
+    };
+    utter.onstart = opts.onstart || null;
+    utter.onend = finish;
+    utter.onerror = (e) => {
+      // "interrupted"/"canceled" just mean a newer speak() call's cancel()
+      // cut this one off — routine, not a real failure worth logging.
+      if (e.error !== "interrupted" && e.error !== "canceled") {
+        console.warn("Speech synthesis failed:", e.error);
+      }
+      finish();
+    };
+    synth.speak(utter);
+
+    // Long-standing Chrome bug: an utterance can silently stop after ~15s
+    // unless something nudges the engine in the meantime. A harmless
+    // pause/resume every quarter-second keeps that from cutting off longer
+    // text (example sentences) partway through; capped so a genuinely stuck
+    // synth doesn't spin this forever.
+    let ticks = 0;
+    const watchdog = setInterval(() => {
+      if (!synth.speaking) {
+        clearInterval(watchdog);
+        return;
+      }
+      if (++ticks > 40) {
+        clearInterval(watchdog);
+        return;
+      }
+      synth.pause();
+      synth.resume();
+    }, 250);
+  };
+
+  // On a page's first pronunciation attempt, some browsers still have an
+  // empty getVoices() list — the real list only arrives later via the async
+  // voiceschanged event — so speaking immediately would silently fall back
+  // to whatever default system voice happens to already be loaded, ignoring
+  // the target language. Give the voice list one more chance to arrive
+  // first; this adds a barely-noticeable delay only on that first call.
+  if (!cachedVoices.length) {
+    refreshVoices();
+    if (!cachedVoices.length) {
+      setTimeout(speakNow, 80);
+      return;
+    }
+  }
+  speakNow();
 }
 
 /* ================= LEVEL POOLS ================= */
@@ -1540,6 +1646,8 @@ function updateCategoryOptionVisibility() {
 /* ================= LEVEL SELECT OVERLAY ================= */
 const levelOverlay = document.getElementById("level-overlay");
 const levelBadge = document.getElementById("level-badge");
+const streakChipEl = document.getElementById("streak-chip");
+const streakCountEl = document.getElementById("streak-count");
 const levelChoicesEl = document.getElementById("level-choices");
 const LEVEL_DESCRIPTIONS = {
   en: {
@@ -2422,7 +2530,11 @@ flashcardEl.addEventListener("click", (e) => {
 
 flashSpeakBtn.addEventListener("click", (e) => {
   e.stopPropagation();
-  if (flashDeck.length) speak(flashWordEl.textContent);
+  if (!flashDeck.length) return;
+  speak(flashWordEl.textContent, {
+    onstart: () => flashSpeakBtn.classList.add("speak-btn-active"),
+    onend: () => flashSpeakBtn.classList.remove("speak-btn-active"),
+  });
 });
 
 flashDefEl.addEventListener("click", (e) => {
@@ -2453,6 +2565,7 @@ flashKnowBtn.addEventListener("click", () => {
   const word = flashDeck[flashIndex].word;
   progress.flashKnown[word] = true;
   recordResult(word, true);
+  pulseScoreTag(flashKnowBtn, "option-btn-bounce");
   nextFlashcard();
 });
 
@@ -2674,12 +2787,12 @@ const quizOptionsEl = document.getElementById("quiz-options");
 // ticking over. Restarting the animation on an element that's mid-pulse
 // needs the class removed and re-added on the next frame — toggling it
 // straight back on with the same class already present is a no-op in CSS.
-function pulseScoreTag(el) {
+function pulseScoreTag(el, className = "score-tag-pulse") {
   if (!el) return;
-  el.classList.remove("score-tag-pulse");
+  el.classList.remove(className);
   // eslint-disable-next-line no-unused-expressions
   void el.offsetWidth; // force reflow so the removed class actually "sticks" before re-adding it
-  el.classList.add("score-tag-pulse");
+  el.classList.add(className);
 }
 
 const quizScoreEl = document.getElementById("quiz-score");
@@ -2804,8 +2917,10 @@ function handleQuizAnswer(btn, chosen, q) {
 
   Array.from(quizOptionsEl.children).forEach((b) => {
     b.disabled = true;
-    if (b.textContent === q.answer) b.classList.add("correct");
-    else if (b === btn) b.classList.add("incorrect");
+    if (b.textContent === q.answer) {
+      b.classList.add("correct");
+      if (correct) pulseScoreTag(b, "option-btn-bounce");
+    } else if (b === btn) b.classList.add("incorrect");
   });
 
   quizNextBtn.style.display = "inline-block";
@@ -3042,6 +3157,7 @@ function checkSpellingAnswer() {
     saveProgress();
     updateSpellingScoreLabel();
     spellingInput.className = "correct";
+    pulseScoreTag(spellingInput, "option-btn-bounce");
     showSpellingCorrectFeedback(earnsCredit);
     spellingCurrentChecked = true;
     spellingNextBtn.disabled = false;
@@ -7198,6 +7314,7 @@ resetProgressBtn.addEventListener("click", () => {
 applyStaticTranslations();
 renderLevelChoices();
 updateLevelBadge();
+renderStreakChip();
 populateLevelSelects();
 
 // Show the level-select overlay only if we don't yet have a saved level for this language.
