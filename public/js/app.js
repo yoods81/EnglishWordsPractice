@@ -56,6 +56,14 @@ const TRANSLATIONS = {
     navStats: "📊 My Progress",
     navMore: "⋯ More",
     navAdminCodes: "🛠️ Admin",
+    // Short, icon-free labels for the mobile bottom tab bar, whose icon is
+    // its own separate element (see .bottom-tab-icon) — these just need a
+    // one-word caption underneath it.
+    navQuizShort: "Quiz",
+    navTimesTableShort: "Times",
+    navStatsShort: "Progress",
+    navAddwordShort: "Add Word",
+    navMoreShort: "More",
     statsInsightsTitle: "✨ Premium Insights",
     statsInsightsBullet1: "📧 Weekly progress email reports",
     statsInsightsBullet2: "🎯 Category-by-category accuracy breakdown",
@@ -433,6 +441,11 @@ const TRANSLATIONS = {
     navStats: "📊 내 진행상황",
     navMore: "⋯ 더보기",
     navAdminCodes: "🛠️ 관리자",
+    navQuizShort: "퀴즈",
+    navTimesTableShort: "구구단",
+    navStatsShort: "진행상황",
+    navAddwordShort: "단어 추가",
+    navMoreShort: "더보기",
     statsInsightsTitle: "✨ 프리미엄 인사이트",
     statsInsightsBullet1: "📧 주간 학습 리포트 이메일",
     statsInsightsBullet2: "🎯 카테고리별 정확도 분석",
@@ -1604,6 +1617,14 @@ const MORE_PANEL_VIEWS = ["spelling", "typegame", "flashcards", "wordlist"];
 const tabsMoreToggle = document.getElementById("tabs-more-toggle");
 const tabsMorePanel = document.getElementById("tabs-more-panel");
 const tabsMoreWrap = document.getElementById("tabs-more-wrap");
+// Mobile-only bottom tab bar (see .bottom-tabs in index.html/style.css) — its
+// four view buttons are plain .tab-btn elements with the same data-view as
+// the top nav's, so tabButtons/goToTab above already keep both rows in sync
+// with no extra code. Only its 5th "More" button needs its own wiring, since
+// it opens the very same #tabs-more-panel as a bottom sheet instead of the
+// desktop dropdown (see the mobile media query in style.css).
+const bottomMoreToggle = document.getElementById("bottom-more-toggle");
+const bottomSheetBackdrop = document.getElementById("bottom-sheet-backdrop");
 
 function refreshCurrentView() {
   const active = document.querySelector(".tab-btn.active");
@@ -1638,28 +1659,49 @@ function goToTab(view) {
   views.forEach((v) => v.classList.toggle("active", v.id === `view-${view}`));
   // "More" shows its own highlight when the open tab is one of the ones
   // tucked away inside its panel, since the real .active button is hidden
-  // from view while the panel is collapsed.
+  // from view while the panel is collapsed. Both the desktop toggle and the
+  // bottom bar's own "More" button need this — they're two separate buttons
+  // pointing at the one shared panel.
   if (tabsMoreToggle) tabsMoreToggle.classList.toggle("has-active", MORE_PANEL_VIEWS.includes(view));
+  if (bottomMoreToggle) bottomMoreToggle.classList.toggle("has-active", MORE_PANEL_VIEWS.includes(view));
   closeTabsMorePanel();
   refreshView(view);
 }
 
+function setTabsMorePanelOpen(open) {
+  tabsMorePanel.hidden = !open;
+  tabsMoreToggle.setAttribute("aria-expanded", String(open));
+  if (bottomMoreToggle) bottomMoreToggle.setAttribute("aria-expanded", String(open));
+  // The backdrop only actually renders on mobile (style.css), where the
+  // panel becomes a bottom sheet — on desktop it stays display:none
+  // regardless of [hidden], so toggling it here is a no-op there.
+  if (bottomSheetBackdrop) bottomSheetBackdrop.hidden = !open;
+}
+
 function closeTabsMorePanel() {
   if (!tabsMorePanel || tabsMorePanel.hidden) return;
-  tabsMorePanel.hidden = true;
-  tabsMoreToggle.setAttribute("aria-expanded", "false");
+  setTabsMorePanelOpen(false);
 }
 
 if (tabsMoreToggle) {
   tabsMoreToggle.addEventListener("click", (e) => {
     e.stopPropagation();
-    const willOpen = tabsMorePanel.hidden;
-    tabsMorePanel.hidden = !willOpen;
-    tabsMoreToggle.setAttribute("aria-expanded", String(willOpen));
+    setTabsMorePanelOpen(tabsMorePanel.hidden);
   });
   document.addEventListener("click", (e) => {
     if (!tabsMorePanel.hidden && tabsMoreWrap && !tabsMoreWrap.contains(e.target)) closeTabsMorePanel();
   });
+}
+
+if (bottomMoreToggle) {
+  bottomMoreToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    setTabsMorePanelOpen(tabsMorePanel.hidden);
+  });
+}
+
+if (bottomSheetBackdrop) {
+  bottomSheetBackdrop.addEventListener("click", closeTabsMorePanel);
 }
 
 const adminCodesTabButton = document.querySelector('.tab-btn[data-view="admincodes"]');

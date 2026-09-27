@@ -21,6 +21,14 @@
   --muted: #8a8178;
   --radius: 16px;
   --shadow: 0 8px 24px rgba(60, 40, 10, 0.08);
+  /* The "bold outline cartoon" pass: every card/button/tab now gets a real
+     dark rim (this color) plus a flat, direction-only drop shadow in the
+     same color, instead of a diffuse blur — the tactile, illustrated look
+     kids' apps in this genre use, and the piece that was missing when only
+     colors/typography changed in earlier passes. One shared outline color
+     (rather than each element inventing its own border tint) is what makes
+     every card/button/tab read as one consistent system. */
+  --outline: #2c2318;
   /* Fredoka is the kid-friendly, rounded display face for anything short —
      titles, buttons, labels, numbers. Its Latin glyphs are wide-set and
      read as loose/awkward across a full sentence or Hangul text, so body
@@ -87,15 +95,20 @@ header {
   position: absolute;
   top: 10px;
   left: 12px;
-  border: none;
+  border: 2px solid var(--outline);
   background: #fff;
   color: var(--muted);
   font-weight: 700;
-  padding: 5px 12px;
+  padding: 4px 11px;
   font-size: 0.75rem;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: var(--shadow);
+  box-shadow: 0 3px 0 var(--outline);
+}
+
+.lang-toggle:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--outline);
 }
 
 .auth-toggle-wrap {
@@ -105,18 +118,21 @@ header {
 }
 
 .auth-toggle {
-  border: none;
+  border: 2px solid var(--outline);
   background: var(--accent);
   color: #fff;
   font-weight: 700;
-  padding: 6px 14px;
+  padding: 5px 13px;
   font-size: 0.75rem;
   border-radius: 999px;
   cursor: pointer;
   /* The same pressed-button "3D" edge as button.pill (see below) — a solid
-     shade-darker rim along the bottom rather than a diffuse shadow, so it
-     reads as a real tappable button, not just a colored label. */
-  box-shadow: 0 3px 0 var(--accent-dark);
+     dark rim along the bottom rather than a diffuse shadow, so it reads as a
+     real tappable button, not just a colored label. The rim uses the same
+     shared --outline as every other button/card now, rather than a shade of
+     each button's own fill color, which is what makes the whole UI read as
+     one system instead of a pile of individually-styled widgets. */
+  box-shadow: 0 3px 0 var(--outline);
   max-width: 45vw;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -125,12 +141,11 @@ header {
 
 .auth-toggle:active {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--accent-dark);
+  box-shadow: 0 1px 0 var(--outline);
 }
 
 .auth-toggle.auth-toggle-active {
   background: var(--success);
-  box-shadow: 0 3px 0 var(--success-dark);
 }
 
 .auth-menu {
@@ -226,23 +241,28 @@ nav.tabs {
 }
 
 nav.tabs button {
-  border: none;
+  border: 2px solid var(--outline);
   background: var(--card-bg);
   color: var(--text);
-  padding: 7px 11px;
+  padding: 6px 10px;
   border-radius: 999px;
   font-family: var(--font-heading);
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: var(--shadow);
+  box-shadow: 0 3px 0 var(--outline);
   white-space: nowrap;
   flex: 0 0 auto;
-  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, color 0.15s ease;
 }
 
 nav.tabs button:hover {
   transform: translateY(-1px);
+}
+
+nav.tabs button:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--outline);
 }
 
 nav.tabs button.active {
@@ -263,13 +283,16 @@ nav.tabs button.active {
    pill's overall size still matches its unhighlighted neighbors. */
 nav.tabs button.tab-btn-highlight {
   background: #ffefe0;
-  border: 2px solid var(--accent);
-  padding: 5px 9px;
+  border-color: var(--accent);
   color: var(--accent-dark);
+  box-shadow: 0 3px 0 var(--accent-dark);
+}
+nav.tabs button.tab-btn-highlight:active {
+  box-shadow: 0 1px 0 var(--accent-dark);
 }
 nav.tabs button.tab-btn-highlight.active {
   background: var(--accent);
-  border-color: var(--accent);
+  border-color: var(--outline);
   color: #fff;
 }
 
@@ -288,22 +311,27 @@ nav.tabs button.tab-btn-highlight.active {
 }
 
 .tabs-more-toggle {
-  border: none;
+  border: 2px solid var(--outline);
   background: var(--card-bg);
   color: var(--text);
-  padding: 7px 11px;
+  padding: 6px 10px;
   border-radius: 999px;
   font-family: var(--font-heading);
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: var(--shadow);
+  box-shadow: 0 3px 0 var(--outline);
   white-space: nowrap;
-  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, color 0.15s ease;
 }
 
 .tabs-more-toggle:hover {
   transform: translateY(-1px);
+}
+
+.tabs-more-toggle:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--outline);
 }
 
 /* Set by JS whenever the active view lives inside the panel (Spelling,
@@ -323,8 +351,9 @@ nav.tabs button.tab-btn-highlight.active {
   flex-direction: column;
   gap: 4px;
   background: var(--card-bg);
-  border-radius: 12px;
-  box-shadow: var(--shadow);
+  border: 2px solid var(--outline);
+  border-radius: 14px;
+  box-shadow: 0 4px 0 var(--outline);
   padding: 6px;
   min-width: 160px;
 }
@@ -367,10 +396,11 @@ nav.tabs button.tab-btn-highlight.active {
 
 .card {
   background: var(--card-bg);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  border: 3px solid var(--outline);
+  border-radius: 20px;
+  box-shadow: 0 4px 0 var(--outline);
   padding: 16px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .card h3 {
@@ -620,14 +650,15 @@ select {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
-  border-radius: var(--radius);
+  border: 3px solid var(--outline);
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 16px;
   text-align: center;
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 0 var(--outline);
 }
 
 .flashcard-front {
@@ -652,7 +683,6 @@ select {
 .flashcard-back {
   background: #fff;
   transform: rotateY(180deg);
-  border: 2px solid var(--primary);
 }
 
 .flashcard-back .definition {
@@ -688,11 +718,15 @@ select {
    Duolingo/Kahoot-style kids' apps, instead of a flat colored rectangle.
    Each color variant only needs to set --pill-shadow to its own "-dark"
    token; the shape/animation lives here once. */
+/* Every pill now shares one dark outline (border + flat shadow) regardless
+   of its fill color — that shared rim, not each variant's own darker shade,
+   is what reads as "one consistent button system" instead of a pile of
+   individually-colored rectangles. Only the fill changes between variants. */
 button.pill {
-  --pill-shadow: rgba(0, 0, 0, 0.18);
-  border: none;
+  --pill-shadow: var(--outline);
+  border: 3px solid var(--outline);
   border-radius: 999px;
-  padding: 9px 18px;
+  padding: 8px 17px;
   font-family: var(--font-heading);
   font-weight: 600;
   cursor: pointer;
@@ -706,15 +740,16 @@ button.pill:active {
   box-shadow: 0 1px 0 var(--pill-shadow);
 }
 
-button.pill.primary { background: var(--primary); color: #fff; --pill-shadow: var(--primary-dark); }
-button.pill.success { background: var(--success); color: #fff; --pill-shadow: var(--success-dark); }
-button.pill.error { background: var(--error); color: #fff; --pill-shadow: var(--error-dark); }
-button.pill.neutral { background: #eef0f6; color: var(--text); --pill-shadow: #d7dbe8; }
-button.pill.accent { background: var(--accent); color: #fff; --pill-shadow: var(--accent-dark); }
-button.pill.dark { background: #1f2430; color: #fff; --pill-shadow: #0d0f14; }
-button.pill.green { background: #2bb673; color: #fff; --pill-shadow: #1d8a56; }
+button.pill.primary { background: var(--primary); color: #fff; }
+button.pill.success { background: var(--success); color: #fff; }
+button.pill.error { background: var(--error); color: #fff; }
+button.pill.neutral { background: #fff; color: var(--text); }
+button.pill.accent { background: var(--accent); color: #fff; }
+button.pill.dark { background: #1f2430; color: #fff; }
+button.pill.green { background: #2bb673; color: #fff; }
 
 button.pill.small {
+  border-width: 2px;
   padding: 6px 12px;
   font-size: 0.72rem;
   box-shadow: 0 3px 0 var(--pill-shadow);
@@ -1271,22 +1306,156 @@ button.pill:disabled {
     padding: 5px 8px;
   }
 
+  /* Below 480px the top tab row is replaced by the fixed .bottom-tabs bar
+     (see its own rules further down) — a mobile-app pattern that reads much
+     less "2000s webpage" than a wrapping row of pill buttons. Only the
+     trigger row (nav.tabs + its own More toggle) is hidden; .tabs-more-wrap
+     itself stays in the document so its panel (#tabs-more-panel) keeps
+     rendering when the bottom bar's own More button opens it as a bottom
+     sheet — hiding the wrap too would hide the panel with it, since a
+     display:none ancestor removes its descendants from rendering even when
+     the descendant's own [hidden] attribute is false. */
   .tabs-bar {
-    flex-wrap: wrap;
-    justify-content: center;
+    margin: 0;
   }
 
-  nav.tabs {
-    flex: 1 1 auto;
-    flex-wrap: wrap;
-    overflow-x: visible;
-    justify-content: center;
-  }
-
-  nav.tabs button,
+  nav.tabs,
   .tabs-more-toggle {
-    font-size: 0.66rem;
-    padding: 6px 8px;
+    display: none;
+  }
+
+  .tabs-more-wrap {
+    position: static;
+  }
+
+  /* Re-anchored from "a small dropdown under a toggle button" (the desktop
+     layout) to "a sheet pinned to the bottom of the screen" — the same
+     bottom-sheet pattern used for modals throughout the Spelly reference,
+     rather than a cramped floating menu on a small screen. */
+  .tabs-more-panel {
+    position: fixed;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 45;
+    min-width: 0;
+    max-width: none;
+    border-radius: 20px 20px 0 0;
+    border-width: 3px 3px 0;
+    box-shadow: 0 -8px 24px rgba(30, 20, 10, 0.22);
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  }
+
+  .tabs-more-panel button.tab-btn {
+    padding: 12px 14px;
+    font-size: 0.85rem;
+    border-radius: 12px;
+  }
+}
+
+/* Mobile-only bottom tab bar — see index.html's .bottom-tabs markup. Hidden
+   entirely above the 480px breakpoint, where the top nav.tabs row is used
+   instead. */
+.bottom-tabs {
+  display: none;
+}
+
+.bottom-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 44;
+  background: rgba(20, 28, 55, 0.45);
+  display: none;
+}
+
+@media (max-width: 480px) {
+  body {
+    /* Reserves room at the very bottom of the page so the fixed bar never
+       overlaps the footer text above it. */
+    padding-bottom: 74px;
+  }
+
+  .bottom-sheet-backdrop:not([hidden]) {
+    display: block;
+  }
+
+  .bottom-tabs {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    background: var(--card-bg);
+    border-top: 3px solid var(--outline);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    gap: 2px;
+  }
+
+  .bottom-tab-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    border: none;
+    background: none;
+    color: var(--muted);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.62rem;
+    padding: 5px 2px;
+    border-radius: 12px;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+
+  .bottom-tab-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .bottom-tab-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .bottom-tab-btn.active,
+  .bottom-tab-btn.has-active {
+    color: var(--primary-dark);
+    background: #eaf1ff;
+  }
+
+  /* The two monetization tabs (My Progress / Add Word) keep their badge
+     visible in the bottom bar too, just repositioned to sit above the icon
+     rather than inline after the label — there isn't room for both on this
+     narrow a button. */
+  .bottom-tab-btn-highlight.active,
+  .bottom-tab-btn-highlight.has-active {
+    color: var(--accent-dark);
+    background: #ffefe0;
+  }
+
+  .bottom-tab-badge {
+    position: absolute;
+    top: 0;
+    right: 18%;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.55rem;
+    line-height: 1;
+    background: #fff;
+    border: 1.5px solid var(--outline);
+    border-radius: 50%;
   }
 
   .icon-btn .btn-label {
@@ -1345,28 +1514,36 @@ button.pill:disabled {
 }
 
 .option-btn {
-  border: 2px solid #e0e5f2;
+  border: 3px solid var(--outline);
   background: #fff;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 10px;
   font-size: 0.88rem;
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  box-shadow: 0 3px 0 var(--outline);
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.08s ease, box-shadow 0.08s ease;
 }
 
 .option-btn:hover {
   border-color: var(--primary);
 }
 
+.option-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--outline);
+}
+
 .option-btn.correct {
   background: #e4f8ef;
   border-color: var(--success);
+  box-shadow: 0 3px 0 var(--success-dark);
 }
 
 .option-btn.incorrect {
   background: #fdeaea;
   border-color: var(--error);
+  box-shadow: 0 3px 0 var(--error-dark);
 }
 
 .option-btn:disabled {
@@ -1805,9 +1982,10 @@ button.pill:disabled {
 
 .wordlist-item {
   background: #fff;
-  border-radius: 12px;
+  border: 2px solid var(--outline);
+  border-radius: 14px;
   padding: 9px 12px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 3px 0 var(--outline);
   display: flex;
   justify-content: space-between;
   /* flex-start rather than center: a row whose definition wraps onto a
@@ -1892,10 +2070,11 @@ button.pill:disabled {
 
 .stat-box {
   background: #fff;
-  border-radius: 12px;
+  border: 2px solid var(--outline);
+  border-radius: 14px;
   padding: 10px;
   text-align: center;
-  box-shadow: var(--shadow);
+  box-shadow: 0 3px 0 var(--outline);
 }
 
 .stat-box .num {
@@ -2053,6 +2232,7 @@ html[lang="en"] button.kid-modal-btn {
 
 .auth-card {
   background: #fff;
+  border: 3px solid var(--outline);
   border-radius: var(--radius);
   padding: 20px 18px;
   max-width: 320px;
@@ -2128,6 +2308,7 @@ html[lang="en"] button.kid-modal-btn {
 
 .level-overlay-card {
   background: #fff;
+  border: 3px solid var(--outline);
   border-radius: var(--radius);
   padding: 20px 18px;
   max-width: 380px;
@@ -2155,15 +2336,16 @@ html[lang="en"] button.kid-modal-btn {
 }
 
 .level-choice {
-  border: 2px solid #e0e5f2;
+  border: 2px solid var(--outline);
   background: #fff;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 10px 12px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  transition: border-color 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 3px 0 var(--outline);
+  transition: border-color 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .level-choice:hover {
@@ -2183,21 +2365,21 @@ html[lang="en"] button.kid-modal-btn {
 
 .level-badge {
   margin-top: 6px;
-  border: none;
+  border: 2px solid var(--outline);
   background: var(--primary);
   color: #fff;
   font-family: var(--font-heading);
   font-weight: 700;
-  padding: 5px 14px;
+  padding: 4px 13px;
   font-size: 0.78rem;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 3px 0 var(--primary-dark);
+  box-shadow: 0 3px 0 var(--outline);
 }
 
 .level-badge:active {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--primary-dark);
+  box-shadow: 0 1px 0 var(--outline);
 }
 
 /* Speakable lines (click to hear via speech synthesis) */

@@ -753,6 +753,38 @@
 
   <footer id="app-footer">Made for Australian primary students learning English vocabulary. 🇦🇺</footer>
 
+  <!-- Mobile-only bottom tab bar (see .bottom-tabs in style.css). Mirrors the
+       primary nav.tabs buttons one-for-one with the same data-view + tab-btn
+       class, so app.js's existing tabButtons/goToTab logic wires these up
+       automatically with no JS changes — the two rows just stay in sync.
+       The 5th button reuses the existing #tabs-more-panel as a bottom sheet
+       instead of a small dropdown, which only shows on this narrow layout. -->
+  <div class="bottom-sheet-backdrop" id="bottom-sheet-backdrop" hidden></div>
+  <nav class="bottom-tabs" aria-label="Main navigation">
+    <button data-view="quiz" class="tab-btn bottom-tab-btn active">
+      <span class="bottom-tab-icon" aria-hidden="true">❓</span>
+      <span class="bottom-tab-label" data-i18n="navQuizShort">Quiz</span>
+    </button>
+    <button data-view="timestable" class="tab-btn bottom-tab-btn">
+      <span class="bottom-tab-icon" aria-hidden="true">🔢</span>
+      <span class="bottom-tab-label" data-i18n="navTimesTableShort">Times</span>
+    </button>
+    <button data-view="stats" class="tab-btn bottom-tab-btn bottom-tab-btn-highlight">
+      <span class="bottom-tab-icon" aria-hidden="true">📊</span>
+      <span class="bottom-tab-label" data-i18n="navStatsShort">Progress</span>
+      <span class="nav-badge bottom-tab-badge" aria-hidden="true">⭐</span>
+    </button>
+    <button data-view="addword" class="tab-btn bottom-tab-btn bottom-tab-btn-highlight">
+      <span class="bottom-tab-icon" aria-hidden="true">➕</span>
+      <span class="bottom-tab-label" data-i18n="navAddwordShort">Add Word</span>
+      <span class="nav-badge bottom-tab-badge" aria-hidden="true">🔒</span>
+    </button>
+    <button type="button" id="bottom-more-toggle" class="bottom-tab-btn" aria-haspopup="true" aria-expanded="false">
+      <span class="bottom-tab-icon" aria-hidden="true">⋯</span>
+      <span class="bottom-tab-label" data-i18n="navMoreShort">More</span>
+    </button>
+  </nav>
+
   <script src="js/words.js"></script>
   <script src="js/words_ko.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
