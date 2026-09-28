@@ -95,7 +95,7 @@ header {
   position: absolute;
   top: 10px;
   left: 12px;
-  border: 2px solid var(--outline);
+  border: 1px solid var(--outline);
   background: #fff;
   color: var(--muted);
   font-weight: 700;
@@ -103,7 +103,7 @@ header {
   font-size: 0.75rem;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 1px 0 var(--outline);
+  box-shadow: 0 2px 0 var(--outline);
 }
 
 .lang-toggle:active {
@@ -118,7 +118,7 @@ header {
 }
 
 .auth-toggle {
-  border: 2px solid var(--accent-dark);
+  border: 1px solid var(--accent-dark);
   background: var(--accent);
   color: #fff;
   font-weight: 700;
@@ -132,7 +132,7 @@ header {
      button's own accent-dark (or success-dark once signed in, below) rather
      than the shared --outline used on white surfaces — a filled button's rim
      matches its own fill instead of a generic dark line sitting on it. */
-  box-shadow: 0 1px 0 var(--accent-dark);
+  box-shadow: 0 2px 0 var(--accent-dark);
   max-width: 45vw;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -147,7 +147,7 @@ header {
 .auth-toggle.auth-toggle-active {
   background: var(--success);
   border-color: var(--success-dark);
-  box-shadow: 0 1px 0 var(--success-dark);
+  box-shadow: 0 2px 0 var(--success-dark);
 }
 
 .auth-toggle.auth-toggle-active:active {
@@ -261,7 +261,7 @@ nav.tabs {
 }
 
 nav.tabs button {
-  border: 2px solid var(--outline);
+  border: 1px solid var(--outline);
   background: var(--card-bg);
   color: var(--text);
   padding: 6px 10px;
@@ -270,7 +270,7 @@ nav.tabs button {
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 1px 0 var(--outline);
+  box-shadow: 0 2px 0 var(--outline);
   white-space: nowrap;
   flex: 0 0 auto;
   transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, color 0.15s ease;
@@ -293,7 +293,7 @@ nav.tabs button.active {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary-dark);
-  box-shadow: 0 1px 0 var(--primary-dark);
+  box-shadow: 0 2px 0 var(--primary-dark);
 }
 
 nav.tabs button.active:active {
@@ -319,7 +319,7 @@ nav.tabs button.tab-btn-highlight.active {
   background: var(--accent);
   border-color: var(--accent-dark);
   color: #fff;
-  box-shadow: 0 1px 0 var(--accent-dark);
+  box-shadow: 0 2px 0 var(--accent-dark);
 }
 nav.tabs button.tab-btn-highlight.active:active {
   box-shadow: none;
@@ -361,7 +361,7 @@ nav.tabs button.tab-btn-highlight.active:active {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary-dark);
-  box-shadow: 0 1px 0 var(--primary-dark);
+  box-shadow: 0 2px 0 var(--primary-dark);
 }
 
 /* Positioned with `position: fixed` and explicit top/bottom/left set by
@@ -406,9 +406,9 @@ nav.tabs button.tab-btn-highlight.active:active {
   font-size: 0.78rem;
   color: var(--text);
   background: #fff;
-  border: 2px solid var(--outline);
+  border: 1px solid var(--outline);
   border-radius: 999px;
-  box-shadow: 0 1px 0 var(--outline);
+  box-shadow: 0 2px 0 var(--outline);
   padding: 7px 12px;
   cursor: pointer;
   transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
@@ -419,7 +419,7 @@ nav.tabs button.tab-btn-highlight.active:active {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary-dark);
-  box-shadow: 0 1px 0 var(--primary-dark);
+  box-shadow: 0 2px 0 var(--primary-dark);
 }
 
 .tab-dropdown-item:active {
@@ -866,6 +866,18 @@ select:active {
   box-shadow: 0 1px 0 var(--outline);
 }
 
+/* The Level dropdown on the "Single word" add form gets the same orange
+   as the Save word button right below it, instead of the shared neutral
+   outline color every other select uses — a visual pairing since they sit
+   in the same form and Save word is the form's main action. */
+#manual-level {
+  box-shadow: 0 3px 0 var(--accent);
+}
+
+#manual-level:active {
+  box-shadow: 0 1px 0 var(--accent);
+}
+
 select:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
@@ -991,7 +1003,11 @@ select:focus-visible {
    individually-colored rectangles. Only the fill changes between variants. */
 button.pill {
   --pill-shadow: var(--outline);
-  border: 2px solid var(--outline);
+  /* A thinner border than the shadow's offset (1px vs 2px below) is what
+     makes the shadow read as its own raised strip rather than just more
+     border — equal thicknesses made the whole rim blend into one flat
+     outline with no visible "lift". */
+  border: 1px solid var(--outline);
   border-radius: 999px;
   padding: 8px 17px;
   font-family: var(--font-heading);
@@ -1020,10 +1036,10 @@ button.pill.dark { background: #1f2430; color: #fff; border-color: #0d0f14; --pi
 button.pill.green { background: #2bb673; color: #fff; border-color: #1d8a56; --pill-shadow: #1d8a56; }
 
 button.pill.small {
-  border-width: 2px;
+  border-width: 1px;
   padding: 6px 12px;
   font-size: 0.72rem;
-  box-shadow: 0 1px 0 var(--pill-shadow);
+  box-shadow: 0 2px 0 var(--pill-shadow);
 }
 
 button.pill.small:active {
@@ -2387,7 +2403,7 @@ button.speak-btn-hero.speak-btn-active {
    instead of a filled blue circle, so it reads as "just another menu
    control" rather than a separate, differently-themed widget. */
 .goal-step-btn {
-  border: 2px solid var(--outline);
+  border: 1px solid var(--outline);
   border-radius: 999px;
   width: 30px;
   height: 30px;
@@ -2398,7 +2414,7 @@ button.speak-btn-hero.speak-btn-active {
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
-  box-shadow: 0 1px 0 var(--outline);
+  box-shadow: 0 2px 0 var(--outline);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
@@ -2411,7 +2427,7 @@ button.speak-btn-hero.speak-btn-active {
   opacity: 0.4;
   cursor: default;
   transform: none;
-  box-shadow: 0 1px 0 var(--outline);
+  box-shadow: 0 2px 0 var(--outline);
 }
 
 .goal-stepper-value {
@@ -2995,7 +3011,7 @@ html[lang="en"] button.kid-modal-btn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  border: 2px solid var(--accent-dark);
+  border: 1px solid var(--accent-dark);
   background: var(--accent);
   color: #fff;
   font-family: var(--font-heading);
@@ -3003,7 +3019,7 @@ html[lang="en"] button.kid-modal-btn {
   padding: 4px 11px;
   font-size: 0.78rem;
   border-radius: 999px;
-  box-shadow: 0 3px 0 var(--accent-dark);
+  box-shadow: 0 2px 0 var(--accent-dark);
 }
 
 .stat-chip-icon {
@@ -3028,7 +3044,7 @@ html[lang="en"] button.kid-modal-btn {
 
 .level-badge {
   margin-top: 0;
-  border: 2px solid var(--primary-dark);
+  border: 1px solid var(--primary-dark);
   background: var(--primary);
   color: #fff;
   font-family: var(--font-heading);
@@ -3037,12 +3053,12 @@ html[lang="en"] button.kid-modal-btn {
   font-size: 0.78rem;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 3px 0 var(--primary-dark);
+  box-shadow: 0 2px 0 var(--primary-dark);
 }
 
 .level-badge:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--primary-dark);
+  transform: translateY(1px);
+  box-shadow: none;
 }
 
 /* Speakable lines (click to hear via speech synthesis) */

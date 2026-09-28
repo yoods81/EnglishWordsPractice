@@ -3122,7 +3122,10 @@ quizNextBtn.addEventListener("click", () => {
 
 quizQuestionEl.addEventListener("click", () => speak(quizQuestionEl.textContent));
 
-quizRestartBtn.addEventListener("click", buildQuizQuestions);
+quizRestartBtn.addEventListener("click", () => {
+  pulseScoreTag(quizRestartBtn, "score-tag-pulse");
+  buildQuizQuestions();
+});
 quizCategorySel.addEventListener("change", buildQuizQuestions);
 
 quizGoalMinusBtn.addEventListener("click", () => {
@@ -6293,6 +6296,7 @@ function parseLevelValue(raw, levels) {
 }
 
 customExportBtn.addEventListener("click", () => {
+  pulseScoreTag(customExportBtn, "score-tag-pulse");
   if (typeof XLSX === "undefined") {
     customWordsStatus.textContent = t("excelToolUnavailable");
     return;
