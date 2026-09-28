@@ -505,6 +505,34 @@ nav.tabs button.tab-btn-highlight.active:active {
   font-size: 1.4rem;
 }
 
+/* Quiz's icon is a drawn circle-and-question-mark (see .quiz-icon-svg)
+   instead of an emoji glyph, so it needs an explicit ink color to sit on
+   this tile's own --bg fill — every other tile's icon is a colorful emoji
+   that doesn't need one. */
+.landing-tile-icon-quiz {
+  color: var(--outline);
+}
+
+.landing-tile-icon-quiz svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* Shared "circle + bold question mark" icon (replacing a plain ❓ emoji,
+   which read as an error/warning glyph rather than "Quiz") — drawn with
+   currentColor so it always matches whatever text color it sits next to:
+   dark on a plain nav tab, white once that tab is the active/selected
+   fill. Sized like an emoji (1em square) so it drops into running text
+   (nav label, dropdown item, section title) without its own layout rule
+   at each call site. */
+.quiz-icon-svg {
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+  vertical-align: -0.15em;
+  margin-right: 0.35em;
+}
+
 .landing-tile-body {
   flex: 1 1 auto;
   min-width: 0;
