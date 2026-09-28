@@ -148,9 +148,10 @@ header {
 }
 
 .auth-toggle.auth-toggle-active {
-  background: var(--success);
-  border-color: var(--success-dark);
-  box-shadow: 0 2px 0 var(--success-dark);
+  background: #dff5ee;
+  border-color: var(--accent);
+  color: var(--accent-dark);
+  box-shadow: 0 2px 0 var(--accent);
 }
 
 .auth-toggle.auth-toggle-active:active {
@@ -500,8 +501,24 @@ nav.tabs button[data-view="admincodes"]:active {
   transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
 
+/* Hovering a tile fills it with the same mint and rim as the Login button
+   (--accent / --accent-dark), rather than just lifting it — the icon tile
+   and text flip to white so they still read against the now-solid fill. */
 .landing-tile:hover {
   transform: translateY(-1px);
+  background: var(--accent);
+  border-color: var(--accent-dark);
+  box-shadow: 0 2px 0 var(--accent-dark);
+}
+
+.landing-tile:hover .landing-tile-icon {
+  background: #fff;
+  border-color: #fff;
+}
+
+.landing-tile:hover .landing-tile-title,
+.landing-tile:hover .landing-tile-desc {
+  color: #fff;
 }
 
 .landing-tile:active {
@@ -520,6 +537,7 @@ nav.tabs button[data-view="admincodes"]:active {
   border-radius: 14px;
   background: var(--bg);
   font-size: 1.4rem;
+  transition: background 0.08s ease, border-color 0.08s ease;
 }
 
 .landing-tile-body {
@@ -629,6 +647,15 @@ nav.tabs button[data-view="admincodes"]:active {
   font-size: 1rem;
 }
 
+/* My Progress and Admin specifically use the thinner "1px border / 2px
+   shadow" proportions (matching the Login button) instead of the site's
+   usual thicker 3px/4px card rim — everywhere else keeps the thicker look. */
+#view-stats .card,
+#view-admincodes .card {
+  border-width: 1px;
+  box-shadow: 0 2px 0 var(--outline);
+}
+
 /* Quiz/Spelling/Flashcards each now open with their own title so the card
    reads as a named section instead of jumping straight into controls — a
    full line-gap below (rather than .card h3's tighter 10px) so the title
@@ -723,6 +750,13 @@ nav.tabs button[data-view="admincodes"]:active {
   font-size: 0.95rem;
   line-height: 1.45;
   color: var(--muted);
+}
+
+/* My Progress's Premium Insights lock card matches the Login button's
+   thinner border/shadow proportions too (see #view-stats .card above). */
+#view-stats .premium-gate-label {
+  border-width: 1px;
+  box-shadow: 0 2px 0 var(--accent);
 }
 
 /* Fixed to the viewport rather than any one card — centered on the page and
@@ -1595,6 +1629,19 @@ button.speak-btn-hero.speak-btn-active {
 .typegame-overlay h3 {
   margin: 0;
   font-size: 1.2rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+/* The Game Over mascot — a little Australian-animal icon above the title,
+   matching the "friendly mascot + message" pattern the spelling report's
+   celebration-card already uses, so the screen reads as a fun beat rather
+   than a flat stop-sign moment. */
+.game-over-mascot {
+  display: block;
+  font-size: 2.6rem;
+  line-height: 1;
+  animation: goal-banner-bounce 1.4s ease-in-out infinite;
 }
 
 /* Just the Paused overlays get a mint-tinted heading (icon included, since
@@ -2680,8 +2727,8 @@ button.speak-btn-hero.speak-btn-active {
    another plain <p class="muted">. */
 .celebration-card {
   text-align: center;
-  background: linear-gradient(135deg, #eaf9f3, #eef4ff);
-  border: 3px solid var(--primary-dark);
+  background: linear-gradient(135deg, #eaf9f3, #dff5ee);
+  border: 3px solid var(--accent-dark);
   border-radius: 18px;
   padding: 16px 14px;
   margin: 10px 0;
@@ -2698,7 +2745,7 @@ button.speak-btn-hero.speak-btn-active {
 .celebration-card-text {
   margin: 0;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--accent-dark);
   font-size: 0.95rem;
 }
 
@@ -2811,11 +2858,11 @@ button.speak-btn-hero.speak-btn-active {
 
 .stat-box {
   background: #fff;
-  border: 2px solid var(--outline);
+  border: 1px solid var(--outline);
   border-radius: 14px;
   padding: 10px;
   text-align: center;
-  box-shadow: 0 3px 0 var(--outline);
+  box-shadow: 0 2px 0 var(--outline);
 }
 
 .stat-box .num {
@@ -3119,12 +3166,20 @@ html[lang="en"] button.kid-modal-btn {
   flex-direction: column;
   align-items: flex-start;
   box-shadow: 0 2px 0 var(--outline);
-  transition: border-color 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease, color 0.15s ease;
 }
 
+/* Same mint fill/rim as the Login button on hover, not just a border tint. */
 .level-choice:hover {
+  background: var(--accent);
   border-color: var(--accent-dark);
+  box-shadow: 0 2px 0 var(--accent-dark);
   transform: translateY(-1px);
+}
+
+.level-choice:hover .lv-title,
+.level-choice:hover .lv-desc {
+  color: #fff;
 }
 
 .level-choice .lv-title {
