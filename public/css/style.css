@@ -886,6 +886,48 @@ select:focus-visible {
   outline: none;
 }
 
+/* Newer Chrome versions can render a <select>'s open dropdown list using
+   the "customizable select" popup, which borrows box-model properties
+   (border-radius, background, shadow) from the select control itself
+   instead of drawing a plain OS list. Our select is a fully rounded
+   999px pill, meant for a single-line control — a taller popup with
+   several rows inheriting that same radius renders as an oversized,
+   mostly-blank rounded shape instead of a normal option list, which is
+   what was showing up as a stray white block covering nearby content.
+   @supports scopes this reset to only the browsers that actually have
+   this popup (so it's a no-op everywhere else), and gives the popup its
+   own sane, non-pill appearance: a small rounded rectangle with a
+   visible border, sized to fit its rows instead of the control's shape. */
+@supports selector(::picker(select)) {
+  select {
+    appearance: base-select;
+  }
+
+  select::picker(select) {
+    appearance: base-select;
+    border-radius: 12px;
+    border: 1px solid var(--outline);
+    background: #fff;
+    box-shadow: 0 6px 16px rgba(44, 35, 24, 0.18);
+    padding: 4px;
+    margin-top: 6px;
+  }
+
+  select::picker-icon {
+    display: none;
+  }
+
+  select option {
+    padding: 6px 10px;
+    border-radius: 8px;
+  }
+
+  select option:hover,
+  select option:focus {
+    background: #f3ede0;
+  }
+}
+
 /* Flashcards */
 .flashcard-row {
   display: flex;
