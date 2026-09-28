@@ -395,9 +395,11 @@ nav.tabs button[data-view="admincodes"]:active {
      dropdown panel reads as part of the app's frame rather than a
      generic browser-menu box. */
   background: var(--bg);
-  border: 3px solid var(--outline);
+  /* Matches the Login button's exact 1px border / 2px shadow-offset
+     thickness instead of the bulkier 3px/3px default. */
+  border: 1px solid var(--outline);
   border-radius: 16px;
-  box-shadow: 0 3px 0 var(--outline);
+  box-shadow: 0 2px 0 var(--outline);
   padding: 6px;
   display: none;
   flex-direction: column;
@@ -654,7 +656,10 @@ nav.tabs button[data-view="admincodes"]:active {
 #view-stats .card,
 #view-admincodes .card,
 #view-addword .card,
-#view-myaccount .card {
+#view-myaccount .card,
+#view-quiz .card,
+#view-spelling .card,
+#view-flashcards .card {
   border-width: 1px;
   box-shadow: 0 2px 0 var(--outline);
 }
@@ -1005,28 +1010,28 @@ select:focus-visible {
 
 /* Back and Next both start as plain white/black pills; on hover Back
    suggests "go back" with a neutral gray fill, while Next picks up the
-   same blue used for primary actions elsewhere, hinting it moves you
-   forward, without either button needing a permanent color of its own. */
+   Login button's own mint fill, hinting it moves you forward, without
+   either button needing a permanent color of its own. */
 #flash-prev:hover {
   background: #e7e7ec;
 }
 
 #flash-next:hover {
-  background: var(--primary);
+  background: var(--accent);
   color: #fff;
-  border-color: var(--primary-dark);
+  border-color: var(--accent-dark);
 }
 
 /* Spelling's Back/Next start white/black like Flashcards' pair, but once
    Next actually becomes pressable (the answer's been checked), both flip
-   color for the rest of that word — Next to blue as the obvious "go
-   forward" action, Back to gray alongside it — rather than only hinting at
-   it on hover. :has() lets Back react to its sibling Next's own state
-   without any extra class from JS. */
+   color for the rest of that word — Next to the Login button's own mint as
+   the obvious "go forward" action, Back to gray alongside it — rather than
+   only hinting at it on hover. :has() lets Back react to its sibling
+   Next's own state without any extra class from JS. */
 #spelling-next:not(:disabled) {
-  background: var(--primary);
+  background: var(--accent);
   color: #fff;
-  border-color: var(--primary-dark);
+  border-color: var(--accent-dark);
 }
 
 .flash-controls:has(#spelling-next:not(:disabled)) #spelling-back {
@@ -2233,6 +2238,11 @@ button.speak-btn-hero.speak-btn-active {
   margin: 20px 0 10px;
 }
 
+#spelling-input:focus {
+  outline: none;
+  border-color: var(--accent-dark);
+}
+
 #spelling-input.correct { border-color: var(--success); background: #e4f8ef; }
 #spelling-input.incorrect { border-color: var(--error); background: #fdeaea; }
 
@@ -2258,7 +2268,7 @@ button.speak-btn-hero.speak-btn-active {
   border: 3px solid var(--bg);
   border-radius: 10px;
   background: #fff;
-  color: var(--primary-dark);
+  color: var(--accent-dark);
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: 0.95rem;
@@ -2277,15 +2287,18 @@ button.speak-btn-hero.speak-btn-active {
   box-shadow: 0 1px 0 var(--bg);
 }
 
-/* A tapped tile flips to a success green and gives a little wobble, so
-   using a hint reads as a small win in the moment. It stays clickable
-   (cursor: pointer, not disabled) — tapping it again undoes that one
-   letter and turns the tile back off, in case of a mis-tap. */
+/* A tapped tile flips to the Login button's own mint fill and gives a
+   little wobble, so using a hint reads as a small win in the moment. Its
+   border also switches to the Login button's exact 1px/2px thickness
+   instead of the base tile's thicker 3px background-matching rim. It stays
+   clickable (cursor: pointer, not disabled) — tapping it again undoes that
+   one letter and turns the tile back off, in case of a mis-tap. */
 .spelling-hint-tile-used {
-  background: var(--success);
-  border-color: var(--success-dark);
+  background: var(--accent);
+  border-width: 1px;
+  border-color: var(--accent-dark);
   color: #fff;
-  box-shadow: 0 1px 0 var(--success-dark);
+  box-shadow: 0 2px 0 var(--accent-dark);
   cursor: pointer;
   animation: spelling-hint-used-wobble 0.45s ease forwards;
 }
