@@ -7,20 +7,20 @@
      darker, used only for the pressed-button 3D edge below (see
      button.pill) — the tactile, satisfying-to-tap look these apps are
      known for, not just a flat rectangle. */
-  --bg: #fff7ec;
+  --bg: #eef9f5;
   --card-bg: #ffffff;
   --primary: #2d6cff;
   --primary-dark: #1e4fcc;
-  --accent: #ff7a33;
-  --accent-dark: #d85e17;
+  --accent: #22c9a3;
+  --accent-dark: #0e9c7d;
   --success: #22c55e;
   --success-dark: #159647;
   --error: #ff4b4b;
   --error-dark: #d93434;
-  --text: #3a3630;
-  --muted: #8a8178;
+  --text: #333a37;
+  --muted: #7c8985;
   --radius: 16px;
-  --shadow: 0 8px 24px rgba(60, 40, 10, 0.08);
+  --shadow: 0 8px 24px rgba(10, 46, 38, 0.08);
   /* The "bold outline cartoon" pass: every card/button/tab now gets a real
      dark rim (this color) plus a flat, direction-only drop shadow in the
      same color, instead of a diffuse blur — the tactile, illustrated look
@@ -28,7 +28,7 @@
      colors/typography changed in earlier passes. One shared outline color
      (rather than each element inventing its own border tint) is what makes
      every card/button/tab read as one consistent system. */
-  --outline: #2c2318;
+  --outline: #1c2b27;
   /* Fredoka is the kid-friendly, rounded display face for anything short —
      titles, buttons, labels, numbers. Its Latin glyphs are wide-set and
      read as loose/awkward across a full sentence or Hangul text, so body
@@ -54,7 +54,7 @@ body {
   /* A warm glow behind the header instead of the old cool blue-gray wash —
      the point color (accent) now sets the mood even before you reach a
      button. */
-  background: radial-gradient(1100px 520px at 50% -12%, #ffe3c4 0%, var(--bg) 60%);
+  background: radial-gradient(1100px 520px at 50% -12%, #c9f2e6 0%, var(--bg) 60%);
   color: var(--text);
   min-height: 100vh;
 }
@@ -71,8 +71,8 @@ header {
   margin: 0 12px 10px;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(90deg, var(--accent), #ffcf7a);
-  color: #3a2400;
+  background: linear-gradient(90deg, var(--accent), #5fe0c2);
+  color: #0a2e26;
   font-weight: 700;
   font-size: 0.85rem;
   padding: 10px 14px;
@@ -539,7 +539,7 @@ nav.tabs button.tab-btn-highlight.active:active {
    "important" ones even at the top of an already importance-ordered grid. */
 .landing-tile-highlight {
   border-color: var(--accent);
-  background: #fffaf3;
+  background: #f2fbf8;
   box-shadow: 0 4px 0 var(--accent-dark);
 }
 
@@ -549,7 +549,7 @@ nav.tabs button.tab-btn-highlight.active:active {
 
 .landing-tile-highlight .landing-tile-icon {
   border-color: var(--accent);
-  background: #ffefe0;
+  background: #dff5ee;
 }
 
 .landing-tile-badge {
@@ -924,7 +924,7 @@ select:focus-visible {
 
   select option:hover,
   select option:focus {
-    background: #f3ede0;
+    background: #e4f3ee;
   }
 }
 
@@ -1602,7 +1602,7 @@ button.speak-btn-hero.speak-btn-active {
 .timestable-limit-msg {
   margin: 0;
   font-size: 0.8rem;
-  color: #ffe2a8;
+  color: #a8f0dc;
   max-width: 280px;
 }
 
@@ -1856,7 +1856,7 @@ button.speak-btn-hero.speak-btn-active {
   .bottom-tab-btn-highlight.active,
   .bottom-tab-btn-highlight.has-active {
     color: var(--accent-dark);
-    background: #ffefe0;
+    background: #dff5ee;
   }
 
   .bottom-tab-badge {
@@ -2053,10 +2053,10 @@ button.speak-btn-hero.speak-btn-active {
   font-size: 1rem;
   color: var(--accent-dark);
   background: #fff;
-  border: 1px solid #ffe1c2;
+  border: 1px solid #c8f0e2;
   padding: 6px 16px;
   border-radius: 999px;
-  box-shadow: 0 2px 0 #ffe1c2;
+  box-shadow: 0 2px 0 #c8f0e2;
 }
 
 .score-tag::before {
@@ -2199,7 +2199,7 @@ button.speak-btn-hero.speak-btn-active {
 .spelling-stage-box {
   border: 2px solid var(--outline);
   border-radius: var(--radius);
-  background: #fffefb;
+  background: #fbfffd;
   margin: 6px 0 14px;
   padding: 18px 14px;
 }
@@ -2548,7 +2548,7 @@ button.speak-btn-hero.speak-btn-active {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: #fff4e5;
+  background: #e6f9f2;
   border: 2px solid var(--accent);
   border-radius: 999px;
   padding: 3px 10px 3px 6px;
@@ -2570,7 +2570,7 @@ button.speak-btn-hero.speak-btn-active {
    any specific character) plus a confetti-pop entrance, so hitting a goal
    feels like a small event rather than a status update. */
 .goal-banner {
-  background: linear-gradient(135deg, #fff8e5, #e4f8ef);
+  background: linear-gradient(135deg, #eaf9f3, #e4f8ef);
   border: 3px solid var(--success-dark);
   border-radius: 20px;
   padding: 16px 14px 14px;
@@ -2634,7 +2634,7 @@ button.speak-btn-hero.speak-btn-active {
    another plain <p class="muted">. */
 .celebration-card {
   text-align: center;
-  background: linear-gradient(135deg, #fff8e5, #eef4ff);
+  background: linear-gradient(135deg, #eaf9f3, #eef4ff);
   border: 3px solid var(--primary-dark);
   border-radius: 18px;
   padding: 16px 14px;
@@ -2724,7 +2724,7 @@ button.speak-btn-hero.speak-btn-active {
 }
 
 .admin-pending-badge {
-  color: #a15c00;
+  color: #0a7d63;
   font-weight: 700;
 }
 
@@ -3302,8 +3302,8 @@ html[lang="en"] button.kid-modal-btn {
 }
 
 .wordlist-item .retry-btn {
-  background: #fff3e0;
-  color: #b56a00;
+  background: #e2f7ef;
+  color: #0f8a6e;
 }
 
 .wordlist-item .retry-btn:disabled,
@@ -3313,8 +3313,8 @@ html[lang="en"] button.kid-modal-btn {
 }
 
 .failed-words-banner {
-  background: #fff8ec;
-  border: 1px solid #f3d9a8;
+  background: #eaf9f3;
+  border: 1px solid #a8ddc9;
   border-radius: 12px;
   padding: 10px 12px;
   margin-bottom: 10px;
@@ -3325,7 +3325,7 @@ html[lang="en"] button.kid-modal-btn {
 }
 
 .failed-words-banner p {
-  color: #8a5a00;
+  color: #0d7a61;
 }
 
 .failed-actions {
