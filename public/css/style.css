@@ -950,17 +950,20 @@ select:focus-visible {
   border-color: var(--primary-dark);
 }
 
-/* Spelling's Back/Next get the same white/black-default, color-on-hover
-   treatment as Flashcards' Back/Next, for a consistent feel between the
-   two practice modes. */
-#spelling-back:hover {
-  background: #e7e7ec;
-}
-
-#spelling-next:hover:not(:disabled) {
+/* Spelling's Back/Next start white/black like Flashcards' pair, but once
+   Next actually becomes pressable (the answer's been checked), both flip
+   color for the rest of that word — Next to blue as the obvious "go
+   forward" action, Back to gray alongside it — rather than only hinting at
+   it on hover. :has() lets Back react to its sibling Next's own state
+   without any extra class from JS. */
+#spelling-next:not(:disabled) {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary-dark);
+}
+
+.flash-controls:has(#spelling-next:not(:disabled)) #spelling-back {
+  background: #e7e7ec;
 }
 
 .check-icon-svg {

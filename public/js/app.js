@@ -2734,7 +2734,14 @@ document.addEventListener("keydown", (e) => {
 
   if (e.key === " ") {
     e.preventDefault();
-    if (tag !== "BUTTON") flashSpeakBtn.click();
+    if (tag === "BUTTON") return;
+    // Flipped to the back, Space reads out the meaning shown there instead
+    // of re-reading the front word — whichever side is actually showing.
+    if (flashcardEl.classList.contains("flipped")) {
+      if (flashDeck.length) speak(flashDefEl.textContent);
+    } else {
+      flashSpeakBtn.click();
+    }
     return;
   }
   if (e.key === "ArrowLeft" || e.key === "Backspace") {
@@ -3635,7 +3642,13 @@ spellingGoalNextLevelBtn.addEventListener("click", () => {
 // showing one screen or the other.
 document.addEventListener("keydown", (e) => {
   if (!document.getElementById("view-spelling").classList.contains("active")) return;
-  if (!spellingReport.hidden) return; // no shortcuts once the round's report is showing
+  if (!spellingReport.hidden) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      spellingReportRestartBtn.click();
+    }
+    return;
+  }
 
   if (e.key === "ArrowUp") {
     e.preventDefault();
