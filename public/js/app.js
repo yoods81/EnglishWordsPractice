@@ -244,7 +244,7 @@ const TRANSLATIONS = {
     spellingStartBtn: "▶ Start the first word",
     spellingBackBtn: "⬅ Back",
     spellingNextBtn: "Next ➡",
-    spellingCheckBtn: "✅ Check Answer",
+    spellingCheckBtn: "Check Answer",
     spellingCorrectPrompt: "✅ Correct! Press Next to continue.",
     spellingCorrectNoCreditPrompt: "✅ Correct! (This one already counted as wrong earlier this round, so it won't add to your score.) Press Next to continue.",
     spellingWrongPrompt: "Please enter the correct spelling to go to the next word",
@@ -645,7 +645,7 @@ const TRANSLATIONS = {
     spellingStartBtn: "▶ 첫 단어 시작하기",
     spellingBackBtn: "⬅ 이전",
     spellingNextBtn: "다음 ➡",
-    spellingCheckBtn: "✅ 정답 확인",
+    spellingCheckBtn: "정답 확인",
     spellingCorrectPrompt: "✅ 정답이에요! Next를 눌러 다음 단어로 넘어가세요.",
     spellingCorrectNoCreditPrompt: "✅ 정답이에요! (이 단어는 이번 라운드에서 이미 한 번 틀려서 점수에는 반영되지 않아요.) Next를 눌러 다음 단어로 넘어가세요.",
     spellingWrongPrompt: "정확한 철자를 입력해야 다음 단어로 넘어갈 수 있어요.",
@@ -2723,6 +2723,36 @@ flashPrevBtn.addEventListener("click", () => {
   renderFlashcard();
 });
 
+// ---- Keyboard play: Space hears the word, Left arrow/Backspace goes back,
+// Right arrow moves on, Enter flips the card. Skipped while focus is in a
+// form control (the category selects, or the My Cards add-word fields), so
+// typing and choosing a dropdown option are never hijacked.
+document.addEventListener("keydown", (e) => {
+  if (!document.getElementById("view-flashcards").classList.contains("active")) return;
+  const tag = document.activeElement ? document.activeElement.tagName : "";
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
+  if (e.key === " ") {
+    e.preventDefault();
+    if (tag !== "BUTTON") flashSpeakBtn.click();
+    return;
+  }
+  if (e.key === "ArrowLeft" || e.key === "Backspace") {
+    e.preventDefault();
+    flashPrevBtn.click();
+    return;
+  }
+  if (e.key === "ArrowRight") {
+    e.preventDefault();
+    flashNextBtn.click();
+    return;
+  }
+  if (e.key === "Enter") {
+    e.preventDefault();
+    flashcardEl.classList.toggle("flipped");
+  }
+});
+
 flashKnowBtn.addEventListener("click", () => {
   if (flashDeck.length === 0) return;
   const word = flashDeck[flashIndex].word;
@@ -3077,8 +3107,56 @@ function renderQuizQuestion() {
     btn.addEventListener("click", () => handleQuizAnswer(btn, opt, q));
     quizOptionsEl.appendChild(btn);
   });
+  // Arrow-key navigation always starts back on the first option for a fresh
+  // question, so Enter alone (with no arrow press at all) still answers it.
+  quizFocusIndex = 0;
+  highlightQuizOption(quizFocusIndex);
   updateQuizScoreLabel();
 }
+
+// ---- Keyboard play: arrow keys move a highlight between the option
+// buttons, Enter answers with whichever one is highlighted, and — once the
+// question is answered — a second Enter presses "Next Question" for you,
+// so a question can be played start to finish without touching the mouse.
+let quizFocusIndex = 0;
+
+function highlightQuizOption(index) {
+  Array.from(quizOptionsEl.children).forEach((b, i) => {
+    b.classList.toggle("option-btn-kbd-focus", i === index);
+  });
+}
+
+function quizOptionColumns() {
+  const cols = getComputedStyle(quizOptionsEl).gridTemplateColumns.split(" ").filter(Boolean).length;
+  return cols || 1;
+}
+
+document.addEventListener("keydown", (e) => {
+  if (!document.getElementById("view-quiz").classList.contains("active")) return;
+  const tag = document.activeElement ? document.activeElement.tagName : "";
+  if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+
+  const opts = Array.from(quizOptionsEl.children);
+  if (!opts.length) return;
+
+  if (!quizAnswered) {
+    const cols = quizOptionColumns();
+    let handled = true;
+    if (e.key === "ArrowRight") quizFocusIndex = Math.min(quizFocusIndex + 1, opts.length - 1);
+    else if (e.key === "ArrowLeft") quizFocusIndex = Math.max(quizFocusIndex - 1, 0);
+    else if (e.key === "ArrowDown") quizFocusIndex = Math.min(quizFocusIndex + cols, opts.length - 1);
+    else if (e.key === "ArrowUp") quizFocusIndex = Math.max(quizFocusIndex - cols, 0);
+    else if (e.key === "Enter") opts[quizFocusIndex].click();
+    else handled = false;
+    if (handled) {
+      e.preventDefault();
+      highlightQuizOption(quizFocusIndex);
+    }
+  } else if (e.key === "Enter" && quizNextBtn.style.display !== "none") {
+    e.preventDefault();
+    quizNextBtn.click();
+  }
+});
 
 function handleQuizAnswer(btn, chosen, q) {
   if (quizAnswered) return;
@@ -3300,6 +3378,11 @@ function renderSpellingLetterHints(word) {
     // tile, so it's skipped in favor of a letter genuinely not needed.
     if (!letters.includes(candidate)) decoys.push(candidate);
   }
+  // Tracks, for every tile currently "used", exactly which character
+  // position in the input it inserted — so tapping the same tile again can
+  // remove that one character instead of just clearing the whole answer,
+  // even when several tiles share the same letter.
+  const activeInsertions = [];
   shuffle([...letters, ...decoys]).forEach((letter) => {
     const tile = document.createElement("button");
     tile.type = "button";
@@ -3307,9 +3390,34 @@ function renderSpellingLetterHints(word) {
     tile.textContent = letter;
     tile.setAttribute("aria-label", `${letter}`);
     tile.addEventListener("click", () => {
+      const record = activeInsertions.find((r) => r.tile === tile);
+      if (record) {
+        // Toggle off: remove the exact character this tile added.
+        const idx = record.index;
+        if (spellingInput.value[idx] === letter) {
+          spellingInput.value = spellingInput.value.slice(0, idx) + spellingInput.value.slice(idx + 1);
+        } else {
+          // The input shifted in some unexpected way (manual edit) — fall
+          // back to removing the last occurrence of the letter instead of
+          // doing nothing.
+          const lastIdx = spellingInput.value.lastIndexOf(letter);
+          if (lastIdx !== -1) {
+            spellingInput.value = spellingInput.value.slice(0, lastIdx) + spellingInput.value.slice(lastIdx + 1);
+          }
+        }
+        // Every insertion recorded after this one just shifted left by one.
+        activeInsertions.forEach((r) => {
+          if (r !== record && r.index > idx) r.index -= 1;
+        });
+        activeInsertions.splice(activeInsertions.indexOf(record), 1);
+        tile.classList.remove("spelling-hint-tile-used");
+        spellingInput.focus();
+        return;
+      }
+      const insertIndex = spellingInput.value.length;
       spellingInput.value += letter;
+      activeInsertions.push({ tile, index: insertIndex });
       spellingInput.focus();
-      tile.disabled = true;
       tile.classList.add("spelling-hint-tile-used");
     });
     spellingHintTray.appendChild(tile);
@@ -3519,6 +3627,75 @@ spellingGoalNextLevelBtn.addEventListener("click", () => {
   applyLevel(next);
   goToTab("spelling");
   buildSpellingDeck();
+});
+
+// ---- Keyboard play for the whole Spelling screen. The Number of Questions
+// stepper sits above both the start and practice screens, so Up/Down work
+// throughout; everything else only makes sense once a round is actually
+// showing one screen or the other.
+document.addEventListener("keydown", (e) => {
+  if (!document.getElementById("view-spelling").classList.contains("active")) return;
+  if (!spellingReport.hidden) return; // no shortcuts once the round's report is showing
+
+  if (e.key === "ArrowUp") {
+    e.preventDefault();
+    spellingGoalPlusBtn.click();
+    return;
+  }
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    spellingGoalMinusBtn.click();
+    return;
+  }
+
+  if (!spellingStartScreen.hidden) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      spellingStartBtn.click();
+    }
+    return;
+  }
+
+  if (spellingPractice.hidden) return;
+
+  const inInput = document.activeElement === spellingInput;
+
+  if (e.key === "Escape") {
+    e.preventDefault();
+    spellingFinishBtn.click();
+    return;
+  }
+
+  if (e.key === " ") {
+    // A button under focus already activates itself on Space; anywhere
+    // else (including the answer field, where a literal space could never
+    // be part of a real word anyway) it re-plays the word's audio instead.
+    const tag = document.activeElement ? document.activeElement.tagName : "";
+    e.preventDefault();
+    if (tag !== "BUTTON") spellingSpeakBtn.click();
+    return;
+  }
+
+  if (e.key === "ArrowRight" && spellingCurrentChecked) {
+    e.preventDefault();
+    goToNextSpellingWord();
+    return;
+  }
+
+  // Backspace/Left-arrow only jump to the previous word once they can't do
+  // their normal job any more — the field is empty, or the cursor is
+  // already sitting at its very start — so ordinary editing of the typed
+  // answer is never interrupted.
+  const atFieldStart = inInput && spellingInput.selectionStart === 0 && spellingInput.selectionEnd === 0;
+  if (e.key === "ArrowLeft" && (!inInput || atFieldStart) && !spellingBackBtn.disabled) {
+    e.preventDefault();
+    spellingBackBtn.click();
+    return;
+  }
+  if (e.key === "Backspace" && (!inInput || spellingInput.value.length === 0) && !spellingBackBtn.disabled) {
+    e.preventDefault();
+    spellingBackBtn.click();
+  }
 });
 
 /* ================= TYPING GAME (falling words) =================
@@ -5018,6 +5195,112 @@ timesTableExpandBtn.addEventListener("click", () => {
   const label = t(expanded ? "timesTableCollapse" : "timesTableExpand");
   timesTableExpandBtn.setAttribute("aria-label", label);
   timesTableExpandBtn.setAttribute("title", label);
+});
+
+// ---- Keyboard play, shared between Typing Game and Times Table since both
+// are built from the same falling-word/falling-problem arcade shell (start
+// overlay -> running -> pause overlay / game-over overlay).
+//
+// Up/Down always work: on the start screen they drive whichever stepper
+// that screen shows (only Times Table has one there — "Practice tables up
+// to"), and once playing they drive the shared game-speed stepper instead.
+// Arrows never produce a character, so they're safe to intercept even
+// while the answer field has focus. Space is skipped whenever the input is
+// focused in EITHER game, since Times Table's own multi-digit answers can
+// legitimately contain a space ("8 2 16"). M is only skipped for Typing
+// Game, whose input is real English words that can contain the letter —
+// Times Table's input is numeric-only, so "m" can never be part of a real
+// answer there and is safe to treat as the mute shortcut even mid-type.
+function setupArcadeGameKeyboard(cfg) {
+  document.addEventListener("keydown", (e) => {
+    if (!document.getElementById(cfg.viewId).classList.contains("active")) return;
+    const inInput = document.activeElement === cfg.inputEl;
+
+    if (!cfg.startOverlay.hidden) {
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (cfg.stepperPlusBtn) cfg.stepperPlusBtn.click();
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (cfg.stepperMinusBtn) cfg.stepperMinusBtn.click();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        cfg.startBtn.click();
+      }
+      return;
+    }
+
+    if (!cfg.overOverlay.hidden) return; // no shortcuts on the game-over screen
+
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      cfg.speedPlusBtn.click();
+      return;
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      cfg.speedMinusBtn.click();
+      return;
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      cfg.endBtn.click();
+      return;
+    }
+    if (e.ctrlKey && e.key === "Enter") {
+      e.preventDefault();
+      cfg.expandBtn.click();
+      return;
+    }
+    if (e.key === " ") {
+      if (inInput) return;
+      e.preventDefault();
+      if (cfg.manuallyPaused()) cfg.resumeBtn.click();
+      else cfg.pauseBtn.click();
+    } else if (e.key.toLowerCase() === "m") {
+      if (inInput && cfg.muteConflictsWithInput) return;
+      e.preventDefault();
+      cfg.muteBtn.click();
+    }
+  });
+}
+
+setupArcadeGameKeyboard({
+  viewId: "view-typegame",
+  inputEl: typeGameInput,
+  startOverlay: typeGameStartOverlay,
+  overOverlay: typeGameOverOverlay,
+  startBtn: typeGameStartBtn,
+  stepperMinusBtn: null,
+  stepperPlusBtn: null,
+  speedMinusBtn: typeGameSpeedMinusBtn,
+  speedPlusBtn: typeGameSpeedPlusBtn,
+  manuallyPaused: () => typeGameManuallyPaused,
+  pauseBtn: typeGamePauseBtn,
+  resumeBtn: typeGameResumeBtn,
+  muteBtn: typeGameMuteBtn,
+  muteConflictsWithInput: true,
+  expandBtn: typeGameExpandBtn,
+  endBtn: typeGameEndBtn,
+});
+
+setupArcadeGameKeyboard({
+  viewId: "view-timestable",
+  inputEl: timesTableInput,
+  startOverlay: timesTableStartOverlay,
+  overOverlay: timesTableOverOverlay,
+  startBtn: timesTableStartBtn,
+  stepperMinusBtn: timesTableMaxTableMinusBtn,
+  stepperPlusBtn: timesTableMaxTablePlusBtn,
+  speedMinusBtn: timesTableSpeedMinusBtn,
+  speedPlusBtn: timesTableSpeedPlusBtn,
+  manuallyPaused: () => timesTableManuallyPaused,
+  pauseBtn: timesTablePauseBtn,
+  resumeBtn: timesTableResumeBtn,
+  muteBtn: timesTableMuteBtn,
+  muteConflictsWithInput: false,
+  expandBtn: timesTableExpandBtn,
+  endBtn: timesTableEndBtn,
 });
 
 // Cycles the stage's visual theme (day/sunset/dusk/space/underwater — see

@@ -950,6 +950,27 @@ select:focus-visible {
   border-color: var(--primary-dark);
 }
 
+/* Spelling's Back/Next get the same white/black-default, color-on-hover
+   treatment as Flashcards' Back/Next, for a consistent feel between the
+   two practice modes. */
+#spelling-back:hover {
+  background: #e7e7ec;
+}
+
+#spelling-next:hover:not(:disabled) {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary-dark);
+}
+
+.check-icon-svg {
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+  vertical-align: -0.15em;
+  margin-right: 0.35em;
+}
+
 .flash-side-btn {
   flex: 0 0 auto;
   display: flex;
@@ -1000,7 +1021,12 @@ select:focus-visible {
 .flashcard-front .word {
   font-family: var(--font-heading);
   font-size: 1.5rem;
-  font-weight: 600;
+  /* The page only loads Fredoka's 500 and 700 weights (see the Google
+     Fonts <link> in index.html) — asking for 600 without that weight
+     actually loaded makes the browser substitute the nearest heavier
+     match, which is 700, so it silently rendered just as bold as before.
+     500 is the lightest weight actually available. */
+  font-weight: 500;
 }
 
 /* When the meaning is shown on the front instead of the word, it's usually
@@ -1008,7 +1034,7 @@ select:focus-visible {
    fits comfortably. */
 .flashcard.front-meaning .flashcard-front .word {
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .flashcard-back {
@@ -1940,6 +1966,18 @@ button.speak-btn-hero.speak-btn-active {
   cursor: default;
 }
 
+/* Keyboard play: shows which option arrow keys currently point at, before
+   Enter locks in an answer. Suppressed once the question is answered, since
+   .correct/.incorrect already carry their own color by then. */
+.option-btn-kbd-focus {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.option-btn:disabled.option-btn-kbd-focus {
+  outline: none;
+}
+
 .quiz-footer {
   display: flex;
   justify-content: space-between;
@@ -2108,15 +2146,16 @@ button.speak-btn-hero.speak-btn-active {
   box-shadow: 0 1px 0 var(--bg);
 }
 
-/* A tapped tile used to just fade to 35% opacity — now it flips to a
-   success green and gives a little wobble, so using a hint reads as a small
-   win in the moment rather than a control quietly going dim. */
+/* A tapped tile flips to a success green and gives a little wobble, so
+   using a hint reads as a small win in the moment. It stays clickable
+   (cursor: pointer, not disabled) — tapping it again undoes that one
+   letter and turns the tile back off, in case of a mis-tap. */
 .spelling-hint-tile-used {
   background: var(--success);
   border-color: var(--success-dark);
   color: #fff;
   box-shadow: 0 1px 0 var(--success-dark);
-  cursor: default;
+  cursor: pointer;
   animation: spelling-hint-used-wobble 0.45s ease forwards;
 }
 
