@@ -108,7 +108,7 @@
     <div class="auth-toggle-wrap">
       <button id="auth-toggle" class="auth-toggle" type="button">🔑 Log In</button>
       <div id="auth-menu" class="auth-menu" hidden>
-        <button type="button" id="auth-menu-account-btn" data-i18n="myAccountMenuItem">👤 My Account</button>
+        <button type="button" id="auth-menu-account-btn" data-i18n="myAccountMenuItem">🧑 My Account</button>
         <button type="button" id="auth-menu-logout-btn" data-i18n="authLogoutBtn">Log Out</button>
       </div>
     </div>
@@ -144,7 +144,7 @@
              without adding three more permanent buttons to it. -->
         <div class="tab-group" data-group-views="quiz,spelling,flashcards" id="study-tab-group">
           <button type="button" class="tab-group-trigger" id="study-tab-btn" aria-haspopup="true" aria-expanded="false">
-            <span data-i18n="navStudy">📖 Study</span><span class="tab-caret" aria-hidden="true">▾</span>
+            <span data-i18n="navStudy">📚 Study</span><span class="tab-caret" aria-hidden="true">▾</span>
           </button>
           <div class="tab-dropdown">
             <button data-view="quiz" class="tab-btn tab-dropdown-item"><span data-i18n="navQuiz">💡 Quiz</span></button>
@@ -154,7 +154,7 @@
         </div>
         <div class="tab-group" data-group-views="timestable,typegame" id="game-tab-group">
           <button type="button" class="tab-group-trigger" id="game-tab-btn" aria-haspopup="true" aria-expanded="false">
-            <span data-i18n="navGame">🎮 Game</span><span class="tab-caret" aria-hidden="true">▾</span>
+            <span data-i18n="navGame">👾 Game</span><span class="tab-caret" aria-hidden="true">▾</span>
           </button>
           <div class="tab-dropdown">
             <button data-view="timestable" class="tab-btn tab-dropdown-item"><span data-i18n="navTimesTable">🧮 Times Table</span></button>
@@ -819,7 +819,7 @@
     <!-- Admin panel: user accounts (incl. upgrade requests), paid signup codes -->
     <section id="view-admincodes" class="view">
       <div class="card">
-        <h3 data-i18n="adminUsersTitle">👥 User Accounts</h3>
+        <h3 data-i18n="adminUsersTitle">🧑‍🤝‍🧑 User Accounts</h3>
         <p class="muted" data-i18n="adminUsersDesc">Search for an account, change its role or password, or approve a pending upgrade request — a user waiting on one is pinned to the top.</p>
         <div class="admin-panel-toolbar">
           <input type="text" id="admin-users-search" class="wordlist-search admin-panel-search-inline" data-i18n-placeholder="adminUsersSearchPlaceholder" placeholder="Search by username" />
@@ -860,7 +860,7 @@
     <!-- My Account: a signed-in user's own status + password change -->
     <section id="view-myaccount" class="view">
       <div class="card">
-        <h3 data-i18n="myAccountTitle">👤 My Account</h3>
+        <h3 data-i18n="myAccountTitle">🧑 My Account</h3>
         <div id="my-account-status" class="stats-grid"></div>
       </div>
       <div class="card">
@@ -873,7 +873,7 @@
           <p id="my-account-password-error" class="auth-error" hidden></p>
           <p id="my-account-password-success" class="auth-hint" hidden data-i18n="myAccountPasswordChanged">Password updated.</p>
           <div class="auth-actions">
-            <button type="submit" class="pill primary" id="my-account-password-submit-btn" data-i18n="myAccountChangePasswordBtn">Update password</button>
+            <button type="submit" class="pill accent" id="my-account-password-submit-btn" data-i18n="myAccountChangePasswordBtn">Update password</button>
           </div>
         </form>
       </div>
@@ -895,7 +895,7 @@
     </button>
     <div class="tab-group bottom-tab-group" data-group-views="quiz,spelling,flashcards" id="bottom-study-tab-group">
       <button type="button" class="bottom-tab-btn tab-group-trigger" id="bottom-study-tab-btn" aria-haspopup="true" aria-expanded="false">
-        <span class="bottom-tab-icon" aria-hidden="true">🎓</span>
+        <span class="bottom-tab-icon" aria-hidden="true">📚</span>
         <span class="bottom-tab-label" data-i18n="navStudyShort">Study</span>
       </button>
       <div class="tab-dropdown tab-dropdown-up">
@@ -906,7 +906,7 @@
     </div>
     <div class="tab-group bottom-tab-group" data-group-views="timestable,typegame" id="bottom-game-tab-group">
       <button type="button" class="bottom-tab-btn tab-group-trigger" id="bottom-game-tab-btn" aria-haspopup="true" aria-expanded="false">
-        <span class="bottom-tab-icon" aria-hidden="true">🎮</span>
+        <span class="bottom-tab-icon" aria-hidden="true">👾</span>
         <span class="bottom-tab-label" data-i18n="navGameShort">Game</span>
       </button>
       <div class="tab-dropdown tab-dropdown-up">

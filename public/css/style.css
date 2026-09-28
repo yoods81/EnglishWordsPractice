@@ -653,7 +653,8 @@ nav.tabs button[data-view="admincodes"]:active {
    thicker look. */
 #view-stats .card,
 #view-admincodes .card,
-#view-addword .card {
+#view-addword .card,
+#view-myaccount .card {
   border-width: 1px;
   box-shadow: 0 2px 0 var(--outline);
 }

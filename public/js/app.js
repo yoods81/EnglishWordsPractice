@@ -66,8 +66,8 @@ const TRANSLATIONS = {
     // "Study" trigger, and Times Table/Typing Game under one "Game" trigger
     // (each opens a small dropdown on hover/tap) — see .tab-group in
     // style.css and the tabGroups wiring in app.js.
-    navStudy: "🎓 Study",
-    navGame: "🎮 Game",
+    navStudy: "📚 Study",
+    navGame: "👾 Game",
     // Short, icon-free labels for the mobile bottom tab bar, whose icon is
     // its own separate element (see .bottom-tab-icon) — these just need a
     // one-word caption underneath it.
@@ -112,7 +112,7 @@ const TRANSLATIONS = {
     adminRequestApproveBtn: "✅ Approve",
     adminRequestDismissBtn: "Dismiss",
     adminRequestActionFailed: "That didn't work — please try again.",
-    adminUsersTitle: "👥 User Accounts",
+    adminUsersTitle: "🧑‍🤝‍🧑 User Accounts",
     adminUsersDesc: "Search for an account, change its role or password, or approve a pending upgrade request — a user waiting on one is pinned to the top.",
     adminUsersSearchPlaceholder: "Search by username",
     adminUsersSortLabel: "Sort by",
@@ -403,8 +403,8 @@ const TRANSLATIONS = {
     authHeaderLoginBtn: "🔑 Log In",
     authToggleLoggedOutHint: "Sign in to save your progress",
     authLogoutBtn: "Logout",
-    myAccountMenuItem: "👤 My Account",
-    myAccountTitle: "👤 My Account",
+    myAccountMenuItem: "🧑 My Account",
+    myAccountTitle: "🧑 My Account",
     myAccountChangePasswordTitle: "🔒 Change Password",
     myAccountCurrentPasswordLabel: "Current password",
     myAccountNewPasswordLabel: "New password",
@@ -473,8 +473,8 @@ const TRANSLATIONS = {
     quizSectionTitle: "💡 퀴즈",
     spellingSectionTitle: "✏️ 스펠링",
     flashcardsSectionTitle: "🃏 플래시카드",
-    navStudy: "🎓 학습",
-    navGame: "🎮 게임",
+    navStudy: "📚 학습",
+    navGame: "👾 게임",
     navQuizShort: "퀴즈",
     navTimesTableShort: "구구단",
     navStatsShort: "진행상황",
@@ -513,7 +513,7 @@ const TRANSLATIONS = {
     adminRequestApproveBtn: "✅ 승인",
     adminRequestDismissBtn: "거절",
     adminRequestActionFailed: "처리하지 못했어요 — 다시 시도해주세요.",
-    adminUsersTitle: "👥 사용자 계정",
+    adminUsersTitle: "🧑‍🤝‍🧑 사용자 계정",
     adminUsersDesc: "계정을 검색하고 역할이나 비밀번호를 변경하거나, 업그레이드 요청을 승인할 수 있어요 — 요청 대기 중인 사용자는 맨 위에 고정돼요.",
     adminUsersSearchPlaceholder: "사용자명으로 검색",
     adminUsersSortLabel: "정렬",
@@ -797,8 +797,8 @@ const TRANSLATIONS = {
     authHeaderLoginBtn: "🔑 로그인",
     authToggleLoggedOutHint: "로그인하면 학습 진행 상황이 저장돼요",
     authLogoutBtn: "로그아웃",
-    myAccountMenuItem: "👤 내 계정",
-    myAccountTitle: "👤 내 계정",
+    myAccountMenuItem: "🧑 내 계정",
+    myAccountTitle: "🧑 내 계정",
     myAccountChangePasswordTitle: "🔒 비밀번호 변경",
     myAccountCurrentPasswordLabel: "현재 비밀번호",
     myAccountNewPasswordLabel: "새 비밀번호",
