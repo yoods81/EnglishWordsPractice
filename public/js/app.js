@@ -60,7 +60,7 @@ const TRANSLATIONS = {
     // "Study" trigger, and Times Table/Typing Game under one "Game" trigger
     // (each opens a small dropdown on hover/tap) — see .tab-group in
     // style.css and the tabGroups wiring in app.js.
-    navStudy: "📖 Study",
+    navStudy: "🎓 Study",
     navGame: "🎮 Game",
     // Short, icon-free labels for the mobile bottom tab bar, whose icon is
     // its own separate element (see .bottom-tab-icon) — these just need a
@@ -461,7 +461,7 @@ const TRANSLATIONS = {
     navStats: "📊 내 진행상황",
     navHome: "🏠 홈",
     navAdminCodes: "🛠️ 관리자",
-    navStudy: "📖 학습",
+    navStudy: "🎓 학습",
     navGame: "🎮 게임",
     navQuizShort: "퀴즈",
     navTimesTableShort: "구구단",

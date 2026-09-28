@@ -248,7 +248,14 @@ nav.tabs {
   /* "safe" centers the row when it fits, but falls back to start-alignment
      when it overflows so the first tab never scrolls out of reach */
   justify-content: safe center;
-  padding-bottom: 2px;
+  /* nav.tabs needs overflow-x: auto for its horizontal-scroll fallback,
+     which forces overflow-y to auto as an unavoidable side effect — without
+     headroom above the buttons, that turns nav.tabs into a scroll container
+     that clips right at the content edge, cutting off the top of a button's
+     border/shadow the instant :hover's translateY(-1px) lifts it. padding-
+     top reserves exactly that room; padding-bottom already did the same for
+     the bottom box-shadow. */
+  padding: 4px 0 2px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
 }
@@ -383,10 +390,39 @@ nav.tabs button.tab-btn-highlight.active {
   display: flex;
 }
 
+/* Dropdown items are moved out to <body> by app.js (see the comment on
+   .tab-dropdown above), so they no longer match the `nav.tabs button`
+   descendant selector that used to give them the pill look — this repeats
+   that same look explicitly, plus a playful colored-hover state instead of
+   a plain gray one, to match the rest of the app's bold-outline buttons. */
 .tab-dropdown-item {
   width: 100%;
   justify-content: flex-start !important;
   text-align: left;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--text);
+  background: #fff;
+  border: 2px solid var(--outline);
+  border-radius: 999px;
+  box-shadow: 0 3px 0 var(--outline);
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab-dropdown-item:hover {
+  transform: translateY(-1px);
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary-dark);
+  box-shadow: 0 3px 0 var(--primary-dark);
+}
+
+.tab-dropdown-item:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--primary-dark);
 }
 
 .bottom-tab-group {
@@ -763,17 +799,51 @@ nav.tabs button.tab-btn-highlight.active {
 }
 
 .setting-row label {
-  font-weight: 600;
-  color: var(--muted);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--text);
   font-size: 0.85rem;
 }
 
+/* Native <select>s used to be a plain thin-gray-border, system-font box —
+   the one spot in the app still built out of default browser form-control
+   styling instead of its own bold-outline cartoon look. `appearance: none`
+   plus a hand-drawn caret puts it back in that same visual language: pill
+   shape, dark rim, flat shadow, and the Fredoka heading font every button
+   and label already use. */
 select {
-  padding: 6px 10px;
-  border-radius: 10px;
-  border: 1px solid #d9deec;
-  background: #fff;
-  font-size: 0.9rem;
+  padding: 6px 26px 6px 12px;
+  border-radius: 999px;
+  border: 2px solid var(--outline);
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 8l5 5 5-5' stroke='%232c2318' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  background-size: 11px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text);
+  box-shadow: 0 3px 0 var(--outline);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+select:hover {
+  transform: translateY(-1px);
+}
+
+select:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--outline);
+}
+
+select:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 /* Flashcards */
@@ -866,15 +936,22 @@ select {
   text-align: center;
   color: var(--muted);
   font-size: 0.75rem;
-  margin-top: 6px;
+  margin-top: 14px;
 }
 
 .flash-controls {
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 14px;
   flex-wrap: wrap;
+}
+
+/* The category/front-side/source row sat almost flush against the big
+   flashcard below it — give Flashcards the same breathing room Quiz's
+   setting row already got. */
+#view-flashcards .setting-row {
+  margin-bottom: 26px;
 }
 
 /* Every pill button gets the same "pressed" look: a solid shade-darker rim
@@ -1006,12 +1083,17 @@ button.pill:disabled {
    the reference app was that "hear it" was easy to miss and unclear whether
    it had actually fired, so this is deliberately the biggest, most obvious
    tappable thing on the card front, with its own always-visible label and a
-   pulse while audio is actually playing (see speak()'s onstart/onend). */
+   pulse while audio is actually playing (see speak()'s onstart/onend). It
+   uses the warm accent color rather than the card's own blue — a same-family
+   blue-on-blue button read as washed out against the card's blue gradient
+   background; the accent orange actually pops against it. Extra gap below
+   the button (12px, not 4px) also keeps the pulse's scale-up from growing
+   down into the label underneath it. */
 .speak-btn-hero-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 12px;
   margin-bottom: 10px;
 }
 
@@ -1020,9 +1102,9 @@ button.speak-btn-hero {
   height: 56px;
   border-radius: 50%;
   background: #fff;
-  color: var(--primary-dark);
-  border: 3px solid var(--primary-dark);
-  box-shadow: 0 4px 0 var(--primary-dark);
+  color: var(--accent-dark);
+  border: 3px solid var(--accent-dark);
+  box-shadow: 0 4px 0 var(--accent-dark);
   font-size: 1.5rem;
   display: flex;
   align-items: center;
@@ -1033,7 +1115,7 @@ button.speak-btn-hero {
 
 button.speak-btn-hero:active {
   transform: translateY(3px);
-  box-shadow: 0 1px 0 var(--primary-dark);
+  box-shadow: 0 1px 0 var(--accent-dark);
 }
 
 button.speak-btn-hero.speak-btn-active {
@@ -1043,11 +1125,11 @@ button.speak-btn-hero.speak-btn-active {
 @keyframes speak-btn-pulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 4px 0 var(--primary-dark);
+    box-shadow: 0 4px 0 var(--accent-dark);
   }
   50% {
-    transform: scale(1.08);
-    box-shadow: 0 6px 0 var(--primary-dark);
+    transform: scale(1.05);
+    box-shadow: 0 5px 0 var(--accent-dark);
   }
 }
 
@@ -1154,56 +1236,48 @@ button.speak-btn-hero.speak-btn-active {
    games (mute, pause, end) — gradient fill, soft tinted shadow, and a
    playful scale+spin on hover/press. Each button's own class still owns
    its position, size, and gradient color. */
+/* Pause/Mute/Expand used to each get their own glowing gradient (orange,
+   blue, green) with a soft color-matched blur shadow — a different visual
+   language from the rest of the app's flat-shadow bold-outline buttons, and
+   three different colors for three buttons that aren't actually different
+   in importance. They now share one look (white circle, dark rim, flat
+   shadow) like every other button in the app; End keeps its own red
+   identity since it's a genuinely different, one-way action. */
 .round-icon-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
+  border: 2px solid var(--outline);
   border-radius: 50%;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  background: #fff;
+  color: var(--text);
+  box-shadow: 0 3px 0 var(--outline);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .round-icon-btn:hover {
-  transform: scale(1.12) rotate(90deg);
+  transform: translateY(-1px);
 }
 
 .round-icon-btn:active {
-  transform: scale(0.9) rotate(90deg);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--outline);
 }
 
-/* Mute sits directly under Pause, both stacked on the left; Expand takes
-   the top-right spot mute used to have. */
-.typegame-mute-btn {
-  position: absolute;
-  top: 48px;
-  left: 8px;
-  z-index: 3;
+.typegame-pause-btn,
+.typegame-mute-btn,
+.typegame-expand-btn {
   width: 32px;
   height: 32px;
-  background: linear-gradient(145deg, #6f96ff, var(--primary));
-  box-shadow: 0 3px 10px rgba(58, 111, 247, 0.5);
   font-size: 1rem;
-}
-
-.typegame-mute-btn:hover {
-  background: linear-gradient(145deg, #86a6ff, var(--primary-dark));
+  z-index: 3;
 }
 
 .typegame-pause-btn {
   position: absolute;
   top: 8px;
   left: 8px;
-  z-index: 3;
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(145deg, #ffc48a, var(--accent));
-  box-shadow: 0 3px 10px rgba(255, 159, 64, 0.5);
-  font-size: 1rem;
-}
-
-.typegame-pause-btn:hover {
-  background: linear-gradient(145deg, #ffd29e, #e6862c);
 }
 
 .typegame-pause-btn[hidden] {
@@ -1214,16 +1288,15 @@ button.speak-btn-hero.speak-btn-active {
   position: absolute;
   top: 8px;
   right: 8px;
-  z-index: 3;
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(145deg, #6be3b8, var(--success));
-  box-shadow: 0 3px 10px rgba(47, 179, 128, 0.5);
-  font-size: 1rem;
 }
 
-.typegame-expand-btn:hover {
-  background: linear-gradient(145deg, #86edc4, #24925f);
+/* Mute now stacks directly under Expand on the right, instead of sitting in
+   its own column under Pause on the left — one cluster of "view options"
+   buttons instead of two separate floating pairs. */
+.typegame-mute-btn {
+  position: absolute;
+  top: 48px;
+  right: 8px;
 }
 
 /* A taller play area — see typegame-expand-btn's click handler — while
@@ -1677,7 +1750,9 @@ button.speak-btn-hero.speak-btn-active {
 
   #view-flashcards .setting-row-nowrap select {
     flex: 1 1 0;
-    padding: 6px 4px;
+    padding: 6px 20px 6px 8px;
+    background-position: right 6px center;
+    background-size: 10px;
     font-size: 0.78rem;
   }
 
@@ -1876,29 +1951,53 @@ button.speak-btn-hero.speak-btn-active {
 .spelling-hint-tile {
   width: 34px;
   height: 34px;
-  border: 2px solid var(--outline);
+  border: 2px solid var(--primary-dark);
   border-radius: 10px;
   background: #fff;
-  color: var(--text);
+  color: var(--primary-dark);
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: 0.95rem;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 3px 0 var(--outline);
-  transition: transform 0.08s ease, box-shadow 0.08s ease, opacity 0.15s ease;
+  box-shadow: 0 3px 0 var(--primary-dark);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.spelling-hint-tile:hover {
+  transform: translateY(-1px);
 }
 
 .spelling-hint-tile:active {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--outline);
+  box-shadow: 0 1px 0 var(--primary-dark);
 }
 
+/* A tapped tile used to just fade to 35% opacity — now it flips to a
+   success green and gives a little wobble, so using a hint reads as a small
+   win in the moment rather than a control quietly going dim. */
 .spelling-hint-tile-used {
-  opacity: 0.35;
+  background: var(--success);
+  border-color: var(--success-dark);
+  color: #fff;
+  box-shadow: 0 1px 0 var(--success-dark);
   cursor: default;
-  box-shadow: none;
-  transform: translateY(3px);
+  animation: spelling-hint-used-wobble 0.45s ease forwards;
+}
+
+@keyframes spelling-hint-used-wobble {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  35% {
+    transform: scale(1.22) rotate(-10deg);
+  }
+  65% {
+    transform: scale(0.94) rotate(7deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg) translateY(2px);
+  }
 }
 
 .spelling-tip {
@@ -2141,36 +2240,40 @@ button.speak-btn-hero.speak-btn-active {
 }
 
 #view-quiz #quiz-restart {
-  padding: 7px 11px;
+  padding: 6px 12px;
   font-size: 0.72rem;
   font-weight: 600;
+  line-height: 1;
 }
 
 /* The New Quiz button's icon used to be a plain 🔄 emoji glyph — its own
    fixed, multi-color rendering that never matched the button's own accent
    fill and read as small/muddy on some platforms. A currentColor SVG inside
    a small circular badge instead always matches the button's text color and
-   stays crisp at any size. */
+   stays crisp at any size. The badge is sized close to the text's own
+   line-height (rather than a fixed, noticeably larger circle) so the button
+   doesn't grow taller than its neighbors in the same setting row. */
 .new-quiz-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  line-height: 1;
 }
 
 .new-quiz-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.3);
   flex: 0 0 auto;
 }
 
 .new-quiz-icon svg {
-  width: 13px;
-  height: 13px;
+  width: 9px;
+  height: 9px;
   color: #fff;
 }
 
@@ -2193,16 +2296,18 @@ button.speak-btn-hero.speak-btn-active {
 }
 
 .game-speed-label {
-  font-weight: 600;
-  color: var(--muted);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--text);
   font-size: 0.75rem;
   white-space: nowrap;
 }
 
 
 .goal-stepper-label {
-  font-weight: 600;
-  color: var(--muted);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--text);
   font-size: 0.85rem;
   white-space: nowrap;
 }
