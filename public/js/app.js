@@ -2850,7 +2850,7 @@ function setMyDeckMode(mode) {
     [myDeckModeBulkBtn, "bulk"],
     [myDeckModeSearchBtn, "search"],
   ].forEach(([btn, id]) => {
-    btn.classList.toggle("primary", mode === id);
+    btn.classList.toggle("accent", mode === id);
     btn.classList.toggle("neutral", mode !== id);
   });
   if (mode === "search") renderMyDeckSearch();

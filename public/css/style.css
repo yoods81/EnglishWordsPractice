@@ -659,7 +659,8 @@ nav.tabs button[data-view="admincodes"]:active {
 #view-myaccount .card,
 #view-quiz .card,
 #view-spelling .card,
-#view-flashcards .card {
+#view-flashcards .card,
+#view-wordlist .card {
   border-width: 1px;
   box-shadow: 0 2px 0 var(--outline);
 }
@@ -2391,6 +2392,11 @@ button.speak-btn-hero.speak-btn-active {
   font-size: 0.9rem;
 }
 
+.wordlist-search:focus {
+  outline: none;
+  border-color: var(--accent-dark);
+}
+
 .admin-panel-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -2463,8 +2469,9 @@ button.speak-btn-hero.speak-btn-active {
   cursor: pointer;
 }
 
-.filter-dropdown-toggle:hover {
-  border-color: var(--primary);
+.filter-dropdown-toggle:hover,
+.filter-dropdown-toggle.open {
+  border-color: var(--accent-dark);
 }
 
 .filter-dropdown-chevron {
@@ -3384,6 +3391,13 @@ html[lang="en"] button.kid-modal-btn {
   border: 3px solid var(--bg);
   font-size: 0.9rem;
   width: 100%;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+  outline: none;
+  border-color: var(--accent-dark);
 }
 
 .form-row textarea {
