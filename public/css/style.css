@@ -103,7 +103,7 @@ header {
   font-size: 0.75rem;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 3px 0 var(--outline);
+  box-shadow: 0 2px 0 var(--outline);
 }
 
 .lang-toggle:active {
@@ -132,7 +132,7 @@ header {
      button's own accent-dark (or success-dark once signed in, below) rather
      than the shared --outline used on white surfaces — a filled button's rim
      matches its own fill instead of a generic dark line sitting on it. */
-  box-shadow: 0 3px 0 var(--accent-dark);
+  box-shadow: 0 2px 0 var(--accent-dark);
   max-width: 45vw;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -147,7 +147,7 @@ header {
 .auth-toggle.auth-toggle-active {
   background: var(--success);
   border-color: var(--success-dark);
-  box-shadow: 0 3px 0 var(--success-dark);
+  box-shadow: 0 2px 0 var(--success-dark);
 }
 
 .auth-toggle.auth-toggle-active:active {
@@ -270,7 +270,7 @@ nav.tabs button {
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 3px 0 var(--outline);
+  box-shadow: 0 2px 0 var(--outline);
   white-space: nowrap;
   flex: 0 0 auto;
   transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, color 0.15s ease;
@@ -293,7 +293,7 @@ nav.tabs button.active {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary-dark);
-  box-shadow: 0 3px 0 var(--primary-dark);
+  box-shadow: 0 2px 0 var(--primary-dark);
 }
 
 nav.tabs button.active:active {
@@ -311,19 +311,18 @@ nav.tabs button.active:active {
    clipped there. A border is part of the box itself and is never clipped
    this way; padding below is trimmed by the border's own width so the
    pill's overall size still matches its unhighlighted neighbors. */
-nav.tabs button.tab-btn-highlight {
-  background: #ffefe0;
-  border-color: var(--accent);
-  color: var(--accent-dark);
-  box-shadow: 0 3px 0 var(--accent-dark);
-}
-nav.tabs button.tab-btn-highlight:active {
-  box-shadow: 0 1px 0 var(--accent-dark);
-}
+/* Unselected, these now look exactly like the plain Home tab (white fill,
+   dark outline rim) — only .active below still carries the accent-colored
+   "selected" look, so the accent color reads as "you're here now" instead
+   of permanently marking these two tabs as different from the rest. */
 nav.tabs button.tab-btn-highlight.active {
   background: var(--accent);
   border-color: var(--accent-dark);
   color: #fff;
+  box-shadow: 0 2px 0 var(--accent-dark);
+}
+nav.tabs button.tab-btn-highlight.active:active {
+  box-shadow: 0 1px 0 var(--accent-dark);
 }
 
 /* "Study" (Quiz/Spelling/Flashcards) and "Game" (Times Table/Typing Game)
@@ -362,7 +361,7 @@ nav.tabs button.tab-btn-highlight.active {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary-dark);
-  box-shadow: 0 3px 0 var(--primary-dark);
+  box-shadow: 0 2px 0 var(--primary-dark);
 }
 
 /* Positioned with `position: fixed` and explicit top/bottom/left set by
@@ -374,10 +373,13 @@ nav.tabs button.tab-btn-highlight.active {
    would just get clipped by that. app.js moves each dropdown out to <body>
    once, on first use, entirely sidestepping the issue. */
 .tab-dropdown {
-  background: #fff;
+  /* Matches the site's own background instead of plain white, so the
+     dropdown panel reads as part of the app's frame rather than a
+     generic browser-menu box. */
+  background: var(--bg);
   border: 3px solid var(--outline);
   border-radius: 16px;
-  box-shadow: 0 4px 0 var(--outline);
+  box-shadow: 0 3px 0 var(--outline);
   padding: 6px;
   display: none;
   flex-direction: column;
@@ -406,7 +408,7 @@ nav.tabs button.tab-btn-highlight.active {
   background: #fff;
   border: 2px solid var(--outline);
   border-radius: 999px;
-  box-shadow: 0 3px 0 var(--outline);
+  box-shadow: 0 2px 0 var(--outline);
   padding: 7px 12px;
   cursor: pointer;
   transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
@@ -417,7 +419,7 @@ nav.tabs button.tab-btn-highlight.active {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary-dark);
-  box-shadow: 0 3px 0 var(--primary-dark);
+  box-shadow: 0 2px 0 var(--primary-dark);
 }
 
 .tab-dropdown-item:active {
@@ -610,6 +612,18 @@ nav.tabs button.tab-btn-highlight.active {
   font-size: 1rem;
 }
 
+/* Quiz/Spelling/Flashcards each now open with their own title so the card
+   reads as a named section instead of jumping straight into controls — a
+   full line-gap below (rather than .card h3's tighter 10px) so the title
+   doesn't feel glued to the setting row underneath it. */
+.view-section-title {
+  margin: 0 0 20px;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
 .card-divider {
   border: none;
   border-top: 1px solid #eef0f6;
@@ -790,6 +804,17 @@ nav.tabs button.tab-btn-highlight.active {
   flex: 0 1 auto;
 }
 
+/* Spelling's Number-of-Questions row is the only thing in that row, so it
+   reads better centered than pinned to the left edge like a multi-item
+   settings row. */
+.setting-row-center {
+  justify-content: center;
+}
+
+#view-spelling .setting-row-center {
+  margin-bottom: 22px;
+}
+
 .icon-btn {
   display: flex;
   align-items: center;
@@ -966,7 +991,7 @@ select:focus-visible {
    individually-colored rectangles. Only the fill changes between variants. */
 button.pill {
   --pill-shadow: var(--outline);
-  border: 3px solid var(--outline);
+  border: 2px solid var(--outline);
   border-radius: 999px;
   padding: 8px 17px;
   font-family: var(--font-heading);
@@ -974,11 +999,11 @@ button.pill {
   cursor: pointer;
   font-size: 0.85rem;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
-  box-shadow: 0 4px 0 var(--pill-shadow);
+  box-shadow: 0 3px 0 var(--pill-shadow);
 }
 
 button.pill:active {
-  transform: translateY(3px);
+  transform: translateY(2px);
   box-shadow: 0 1px 0 var(--pill-shadow);
 }
 
@@ -998,7 +1023,7 @@ button.pill.small {
   border-width: 2px;
   padding: 6px 12px;
   font-size: 0.72rem;
-  box-shadow: 0 3px 0 var(--pill-shadow);
+  box-shadow: 0 2px 0 var(--pill-shadow);
 }
 
 button.pill.small:active {
@@ -1029,6 +1054,20 @@ button.pill:disabled {
 .level-bulk-select:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+/* "Change level" and "Word Management" turn the site's blue on hover, same
+   as #custom-export-btn below, so all three read as one family of
+   secondary actions on this row. */
+.level-bulk-select:not(:disabled):hover {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+#custom-export-btn:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary-dark);
 }
 
 .my-added-words-header-actions {
@@ -1519,7 +1558,8 @@ button.speak-btn-hero.speak-btn-active {
   width: 100%;
   padding: 10px 14px;
   border-radius: 999px;
-  border: 2px solid #d9deec;
+  /* Same site-background border treatment as #spelling-input. */
+  border: 2px solid var(--bg);
   font-size: 1rem;
   text-align: center;
 }
@@ -1923,14 +1963,25 @@ button.speak-btn-hero.speak-btn-active {
   flex-wrap: wrap;
 }
 
+/* Extra breathing room above the Hear the word/Check Answer row, so it
+   doesn't sit right under the Number of Questions row above it. */
+.spelling-action-row {
+  margin-top: 6px;
+}
+
 #spelling-input {
   width: 100%;
   padding: 10px;
   font-size: 1.05rem;
   border-radius: 12px;
-  border: 2px solid #d9deec;
+  /* Matches the site's own background instead of a generic gray-blue —
+     see the same treatment on .typegame-input, .wordlist-search and the
+     Add Word form fields. */
+  border: 2px solid var(--bg);
   text-align: center;
-  margin: 10px 0;
+  /* Extra gap above (below the Hear the word row) beyond the plain 10px
+     the input used to sit at. */
+  margin: 20px 0 10px;
 }
 
 #spelling-input.correct { border-color: var(--success); background: #e4f8ef; }
@@ -1951,7 +2002,10 @@ button.speak-btn-hero.speak-btn-active {
 .spelling-hint-tile {
   width: 34px;
   height: 34px;
-  border: 2px solid var(--primary-dark);
+  /* Matches the site's own background instead of the previous primary-blue
+     rim, so the tray reads as part of the page's own frame — same
+     treatment as #spelling-input's border above. */
+  border: 2px solid var(--bg);
   border-radius: 10px;
   background: #fff;
   color: var(--primary-dark);
@@ -1960,7 +2014,7 @@ button.speak-btn-hero.speak-btn-active {
   font-size: 0.95rem;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 3px 0 var(--primary-dark);
+  box-shadow: 0 3px 0 var(--bg);
   transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
@@ -1970,7 +2024,7 @@ button.speak-btn-hero.speak-btn-active {
 
 .spelling-hint-tile:active {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--primary-dark);
+  box-shadow: 0 1px 0 var(--bg);
 }
 
 /* A tapped tile used to just fade to 35% opacity — now it flips to a
@@ -2015,6 +2069,18 @@ button.speak-btn-hero.speak-btn-active {
   font-weight: 700;
 }
 
+/* Shared between the before-start screen and the after-start practice
+   panel so the card reads as one consistent "stage" across that
+   transition, instead of a bordered box appearing only once you've
+   started. */
+.spelling-stage-box {
+  border: 2px solid var(--outline);
+  border-radius: var(--radius);
+  background: #fffefb;
+  margin: 6px 0 14px;
+  padding: 18px 14px;
+}
+
 #spelling-start-screen {
   text-align: center;
   padding: 30px 10px;
@@ -2057,7 +2123,7 @@ button.speak-btn-hero.speak-btn-active {
   min-width: 0;
   padding: 8px 12px;
   border-radius: 999px;
-  border: 1px solid #d9deec;
+  border: 1px solid var(--bg);
   font-size: 0.9rem;
 }
 
@@ -2125,7 +2191,7 @@ button.speak-btn-hero.speak-btn-active {
   gap: 8px;
   background: #fff;
   color: var(--text);
-  border: 1px solid #d9deec;
+  border: 1px solid var(--bg);
   border-radius: 999px;
   padding: 8px 12px;
   font-size: 0.8rem;
@@ -3007,7 +3073,7 @@ html[lang="en"] button.kid-modal-btn {
 .form-row textarea {
   padding: 8px 10px;
   border-radius: 10px;
-  border: 1px solid #d9deec;
+  border: 1px solid var(--bg);
   font-size: 0.9rem;
   width: 100%;
 }

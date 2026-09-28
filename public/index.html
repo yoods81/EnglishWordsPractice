@@ -238,6 +238,7 @@
     <!-- Flashcards -->
     <section id="view-flashcards" class="view">
       <div class="card">
+        <h3 class="view-section-title" data-i18n="flashcardsSectionTitle">🃏 Flashcards</h3>
         <div class="setting-row setting-row-nowrap">
           <label for="flash-category" data-i18n="categoryLabel">Category</label>
           <select id="flash-category">
@@ -341,6 +342,7 @@
     <!-- Quiz -->
     <section id="view-quiz" class="view">
       <div class="card">
+        <h3 class="view-section-title" data-i18n="quizSectionTitle">❓ Quiz</h3>
         <div class="setting-row">
           <label for="quiz-category" data-i18n="categoryLabel">Category</label>
           <select id="quiz-category">
@@ -357,15 +359,6 @@
             </span>
             <button type="button" class="goal-step-btn" id="quiz-goal-plus" data-i18n-aria-label="goalIncreaseLabel" aria-label="Increase">+</button>
           </div>
-          <button class="pill accent new-quiz-btn" id="quiz-restart" style="margin-left:auto;">
-            <span class="new-quiz-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 12a8 8 0 0 1 13.66-5.66M20 12a8 8 0 0 1-13.66 5.66" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
-                <path d="M17 3v4.5h-4.5M7 21v-4.5h4.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-            <span data-i18n="newQuizBtn">New Quiz</span>
-          </button>
         </div>
         <div class="goal-banner" id="quiz-goal-banner" hidden>
           <p class="goal-message" id="quiz-goal-message"></p>
@@ -380,6 +373,15 @@
         <div class="quiz-footer">
           <span class="score-tag" id="quiz-score">Score: 0 / 0</span>
           <button class="pill accent" id="quiz-next" style="display:none;" data-i18n="nextQuestionBtn">Next Question ➡</button>
+          <button class="pill accent new-quiz-btn" id="quiz-restart" style="margin-left:auto;">
+            <span class="new-quiz-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 12a8 8 0 0 1 13.66-5.66M20 12a8 8 0 0 1-13.66 5.66" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                <path d="M17 3v4.5h-4.5M7 21v-4.5h4.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span data-i18n="newQuizBtn">New Quiz</span>
+          </button>
         </div>
       </div>
     </section>
@@ -387,7 +389,8 @@
     <!-- Spelling -->
     <section id="view-spelling" class="view">
       <div class="card">
-        <div class="setting-row setting-row-nowrap">
+        <h3 class="view-section-title" data-i18n="spellingSectionTitle">✏️ Spelling</h3>
+        <div class="setting-row setting-row-nowrap setting-row-center">
           <div class="goal-stepper goal-stepper-fun" id="spelling-goal-stepper">
             <span class="goal-stepper-label" data-i18n="goalLabel">Number of Questions</span>
             <button type="button" class="goal-step-btn" id="spelling-goal-minus" data-i18n-aria-label="goalDecreaseLabel" aria-label="Decrease">−</button>
@@ -405,24 +408,24 @@
             <button type="button" class="pill neutral" id="spelling-goal-dismiss" data-i18n="goalKeepGoingBtn">Keep going</button>
           </div>
         </div>
-        <div id="spelling-start-screen">
+        <div id="spelling-start-screen" class="spelling-stage-box">
           <button class="pill accent" id="spelling-start-btn" data-i18n="spellingStartBtn">▶ Start the first word</button>
         </div>
-        <div id="spelling-practice" hidden>
-          <div id="spelling-word-audio">
-            <button class="pill green" id="spelling-speak" data-i18n="spellingHearBtn">🔊 Hear the word</button>
-            <button class="pill accent" id="spelling-check" data-i18n="spellingCheckBtn">✅ Check Answer</button>
+        <div id="spelling-practice" class="spelling-stage-box" hidden>
+          <div id="spelling-word-audio" class="spelling-action-row">
+            <button class="pill green small" id="spelling-speak" data-i18n="spellingHearBtn">🔊 Hear the word</button>
+            <button class="pill accent small" id="spelling-check" data-i18n="spellingCheckBtn">✅ Check Answer</button>
           </div>
           <input type="text" id="spelling-input" data-i18n-placeholder="spellingPlaceholder" placeholder="Type what you hear..." autocomplete="off" autocapitalize="off" spellcheck="false" />
           <div class="spelling-hint-tray" id="spelling-hint-tray" aria-hidden="true"></div>
           <div class="spelling-tip" id="spelling-feedback"></div>
           <div class="flash-controls">
-            <button class="pill dark" id="spelling-back" data-i18n="spellingBackBtn">⬅ Back</button>
-            <button class="pill primary" id="spelling-next" data-i18n="spellingNextBtn" disabled>Next ➡</button>
+            <button class="pill dark small" id="spelling-back" data-i18n="spellingBackBtn">⬅ Back</button>
+            <button class="pill primary small" id="spelling-next" data-i18n="spellingNextBtn" disabled>Next ➡</button>
           </div>
           <div class="quiz-footer">
             <span class="score-tag" id="spelling-score">Score: 0 / 0</span>
-            <button class="pill error" id="spelling-finish-btn" style="margin-left:auto;" data-i18n="spellingFinishBtn">🏁 Finish</button>
+            <button class="pill error small" id="spelling-finish-btn" style="margin-left:auto;" data-i18n="spellingFinishBtn">🏁 Finish</button>
           </div>
         </div>
         <div id="spelling-report" hidden>
@@ -619,7 +622,7 @@
           </span>
         </h3>
         <div class="file-picker-row">
-          <button type="button" class="pill primary" id="ocr-choose-btn" data-i18n="ocrChooseBtn">📁 Choose Photo or File</button>
+          <button type="button" class="pill accent" id="ocr-choose-btn" data-i18n="ocrChooseBtn">📁 Choose Photo or File</button>
           <span class="file-picker-name" id="ocr-file-name" data-i18n="ocrNoFileChosen">No file chosen</span>
           <input
             type="file"
@@ -642,7 +645,7 @@
           <div class="setting-row">
             <label for="ocr-level" data-i18n="ocrLevelLabel">Save selected words as</label>
             <select id="ocr-level"></select>
-            <button class="pill primary" id="ocr-add-btn" style="margin-left:auto;" data-i18n="ocrAddBtn">Add selected words</button>
+            <button class="pill accent" id="ocr-add-btn" style="margin-left:auto;" data-i18n="ocrAddBtn">Add selected words</button>
           </div>
           <div id="ocr-status" class="spelling-tip"></div>
         </div>
@@ -656,7 +659,7 @@
       <div class="card" id="addword-manual-card">
         <h3 data-i18n="addWordManualTitle">➕ Add a word manually</h3>
         <div class="add-mode-toggle">
-          <button type="button" class="pill primary" id="add-mode-single-btn" data-i18n="addModeSingle">Single word</button>
+          <button type="button" class="pill accent" id="add-mode-single-btn" data-i18n="addModeSingle">Single word</button>
           <button type="button" class="pill neutral" id="add-mode-bulk-btn" data-i18n="addModeBulk">Multiple words</button>
         </div>
 
@@ -679,7 +682,7 @@
             <select id="manual-level"></select>
           </div>
           <div class="form-actions">
-            <button type="submit" class="pill primary" id="manual-save-btn" data-i18n="saveWordBtn">Save word</button>
+            <button type="submit" class="pill accent" id="manual-save-btn" data-i18n="saveWordBtn">Save word</button>
             <button type="button" class="pill neutral" id="manual-cancel-btn" style="display:none;" data-i18n="cancelEditBtn">Cancel edit</button>
           </div>
           <div id="manual-add-status" class="spelling-tip"></div>
@@ -692,7 +695,7 @@
           </div>
           <p class="muted" data-i18n="bulkWordsHint">We'll automatically look up each word's meaning and example, and guess a matching level for it.</p>
           <div class="form-actions">
-            <button type="button" class="pill primary" id="bulk-add-save-btn" data-i18n="bulkAddSaveBtn">Save words</button>
+            <button type="button" class="pill accent" id="bulk-add-save-btn" data-i18n="bulkAddSaveBtn">Save words</button>
           </div>
           <div id="bulk-add-status" class="spelling-tip"></div>
         </div>

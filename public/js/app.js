@@ -56,6 +56,12 @@ const TRANSLATIONS = {
     navStats: "📊 My Progress",
     navHome: "🏠 Home",
     navAdminCodes: "🛠️ Admin",
+    // Section titles shown at the top of the Quiz/Spelling/Flashcards cards
+    // themselves (not the nav) — separate from navQuiz/navSpelling/
+    // navFlashcards above since those carry the nav's own emoji/short-form.
+    quizSectionTitle: "❓ Quiz",
+    spellingSectionTitle: "✏️ Spelling",
+    flashcardsSectionTitle: "🃏 Flashcards",
     // The persistent nav row groups Quiz/Spelling/Flashcards under one
     // "Study" trigger, and Times Table/Typing Game under one "Game" trigger
     // (each opens a small dropdown on hover/tap) — see .tab-group in
@@ -461,6 +467,9 @@ const TRANSLATIONS = {
     navStats: "📊 내 진행상황",
     navHome: "🏠 홈",
     navAdminCodes: "🛠️ 관리자",
+    quizSectionTitle: "❓ 퀴즈",
+    spellingSectionTitle: "✏️ 스펠링",
+    flashcardsSectionTitle: "🃏 플래시카드",
     navStudy: "🎓 학습",
     navGame: "🎮 게임",
     navQuizShort: "퀴즈",
@@ -5478,9 +5487,9 @@ function setAddMode(mode) {
   const single = mode === "single";
   manualForm.hidden = !single;
   bulkAddForm.hidden = single;
-  addModeSingleBtn.classList.toggle("primary", single);
+  addModeSingleBtn.classList.toggle("accent", single);
   addModeSingleBtn.classList.toggle("neutral", !single);
-  addModeBulkBtn.classList.toggle("primary", !single);
+  addModeBulkBtn.classList.toggle("accent", !single);
   addModeBulkBtn.classList.toggle("neutral", single);
 }
 
@@ -5853,8 +5862,14 @@ function deleteAllFailedWords() {
 }
 
 function updateDeleteSelectedBtn() {
-  customDeleteSelectedBtn.disabled = selectedCustomWordIds.size === 0;
-  customLevelSelect.disabled = selectedCustomWordIds.size === 0;
+  const hasSelection = selectedCustomWordIds.size > 0;
+  customDeleteSelectedBtn.disabled = !hasSelection;
+  // Red background once words are actually selected, instead of staying a
+  // plain neutral pill the whole time — makes a destructive action visibly
+  // "armed" rather than looking the same whether it will do anything or not.
+  customDeleteSelectedBtn.classList.toggle("error", hasSelection);
+  customDeleteSelectedBtn.classList.toggle("neutral", !hasSelection);
+  customLevelSelect.disabled = !hasSelection;
 }
 
 // The words this section manages — an admin's own shared additions, a paid
