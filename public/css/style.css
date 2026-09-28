@@ -505,34 +505,6 @@ nav.tabs button.tab-btn-highlight.active:active {
   font-size: 1.4rem;
 }
 
-/* Quiz's icon is a drawn circle-and-question-mark (see .quiz-icon-svg)
-   instead of an emoji glyph, so it needs an explicit ink color to sit on
-   this tile's own --bg fill — every other tile's icon is a colorful emoji
-   that doesn't need one. */
-.landing-tile-icon-quiz {
-  color: var(--outline);
-}
-
-.landing-tile-icon-quiz svg {
-  width: 26px;
-  height: 26px;
-}
-
-/* Shared "circle + bold question mark" icon (replacing a plain ❓ emoji,
-   which read as an error/warning glyph rather than "Quiz") — drawn with
-   currentColor so it always matches whatever text color it sits next to:
-   dark on a plain nav tab, white once that tab is the active/selected
-   fill. Sized like an emoji (1em square) so it drops into running text
-   (nav label, dropdown item, section title) without its own layout rule
-   at each call site. */
-.quiz-icon-svg {
-  width: 1em;
-  height: 1em;
-  flex: 0 0 auto;
-  vertical-align: -0.15em;
-  margin-right: 0.35em;
-}
-
 .landing-tile-body {
   flex: 1 1 auto;
   min-width: 0;
@@ -867,7 +839,7 @@ nav.tabs button.tab-btn-highlight.active:active {
 select {
   padding: 6px 26px 6px 12px;
   border-radius: 999px;
-  border: 2px solid var(--outline);
+  border: 1px solid var(--outline);
   background-color: #fff;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 8l5 5 5-5' stroke='%232c2318' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -877,7 +849,7 @@ select {
   font-weight: 600;
   font-size: 0.85rem;
   color: var(--text);
-  box-shadow: 0 3px 0 var(--outline);
+  box-shadow: 0 2px 0 var(--outline);
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -890,8 +862,8 @@ select:hover {
 }
 
 select:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--outline);
+  transform: translateY(1px);
+  box-shadow: none;
 }
 
 /* The Level dropdown on the "Single word" add form gets the same orange
@@ -899,16 +871,19 @@ select:active {
    outline color every other select uses — a visual pairing since they sit
    in the same form and Save word is the form's main action. */
 #manual-level {
-  box-shadow: 0 3px 0 var(--accent);
+  box-shadow: 0 2px 0 var(--accent);
 }
 
 #manual-level:active {
-  box-shadow: 0 1px 0 var(--accent);
+  box-shadow: none;
 }
 
+/* Browsers apply :focus-visible to <select> on a plain mouse click, not
+   just keyboard focus, which was leaving a blue outline ring behind every
+   time a dropdown was opened. The pill shape and hover/active states
+   already give plenty of visual feedback, so the ring is dropped. */
 select:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+  outline: none;
 }
 
 /* Flashcards */
@@ -917,6 +892,20 @@ select:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 10px;
+}
+
+/* Back and Next both start as plain white/black pills; on hover Back
+   suggests "go back" with a neutral gray fill, while Next picks up the
+   same blue used for primary actions elsewhere, hinting it moves you
+   forward, without either button needing a permanent color of its own. */
+#flash-prev:hover {
+  background: #e7e7ec;
+}
+
+#flash-next:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary-dark);
 }
 
 .flash-side-btn {
@@ -969,7 +958,7 @@ select:focus-visible {
 .flashcard-front .word {
   font-family: var(--font-heading);
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* When the meaning is shown on the front instead of the word, it's usually
@@ -1112,6 +1101,7 @@ button.pill:disabled {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary-dark);
+  transform: translateY(-1px);
 }
 
 .my-added-words-header-actions {
@@ -1184,10 +1174,10 @@ button.speak-btn-hero {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: #fff;
-  color: var(--accent-dark);
-  border: 3px solid var(--accent-dark);
-  box-shadow: 0 4px 0 var(--accent-dark);
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent-dark);
+  box-shadow: 0 2px 0 var(--accent-dark);
   font-size: 1.5rem;
   display: flex;
   align-items: center;
@@ -1197,8 +1187,8 @@ button.speak-btn-hero {
 }
 
 button.speak-btn-hero:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 var(--accent-dark);
+  transform: translateY(2px);
+  box-shadow: none;
 }
 
 button.speak-btn-hero.speak-btn-active {
@@ -1208,11 +1198,11 @@ button.speak-btn-hero.speak-btn-active {
 @keyframes speak-btn-pulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 4px 0 var(--accent-dark);
+    box-shadow: 0 2px 0 var(--accent-dark);
   }
   50% {
     transform: scale(1.05);
-    box-shadow: 0 5px 0 var(--accent-dark);
+    box-shadow: 0 3px 0 var(--accent-dark);
   }
 }
 
@@ -1872,14 +1862,14 @@ button.speak-btn-hero.speak-btn-active {
 }
 
 .option-btn {
-  border: 3px solid var(--outline);
+  border: 1px solid var(--outline);
   background: #fff;
   border-radius: 14px;
   padding: 10px;
   font-size: 0.88rem;
   cursor: pointer;
   text-align: left;
-  box-shadow: 0 3px 0 var(--outline);
+  box-shadow: 0 2px 0 var(--outline);
   transition: border-color 0.15s ease, background 0.15s ease, transform 0.08s ease, box-shadow 0.08s ease;
 }
 
@@ -1888,20 +1878,20 @@ button.speak-btn-hero.speak-btn-active {
 }
 
 .option-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--outline);
+  transform: translateY(1px);
+  box-shadow: none;
 }
 
 .option-btn.correct {
   background: #e4f8ef;
   border-color: var(--success);
-  box-shadow: 0 3px 0 var(--success-dark);
+  box-shadow: 0 2px 0 var(--success-dark);
 }
 
 .option-btn.incorrect {
   background: #fdeaea;
   border-color: var(--error);
-  box-shadow: 0 3px 0 var(--error-dark);
+  box-shadow: 0 2px 0 var(--error-dark);
 }
 
 .option-btn:disabled {
@@ -1980,10 +1970,10 @@ button.speak-btn-hero.speak-btn-active {
   font-size: 1rem;
   color: var(--accent-dark);
   background: #fff;
-  border: 2px solid #ffe1c2;
+  border: 1px solid #ffe1c2;
   padding: 6px 16px;
   border-radius: 999px;
-  box-shadow: 0 3px 0 #ffe1c2;
+  box-shadow: 0 2px 0 #ffe1c2;
 }
 
 .score-tag::before {
@@ -2603,10 +2593,10 @@ button.speak-btn-hero.speak-btn-active {
 
 .wordlist-item {
   background: #fff;
-  border: 2px solid var(--outline);
+  border: 1px solid var(--outline);
   border-radius: 14px;
   padding: 9px 12px;
-  box-shadow: 0 3px 0 var(--outline);
+  box-shadow: 0 2px 0 var(--outline);
   display: flex;
   justify-content: space-between;
   /* flex-start rather than center: a row whose definition wraps onto a

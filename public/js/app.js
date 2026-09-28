@@ -47,7 +47,7 @@ const TRANSLATIONS = {
     levelOverlayTitle: "📚 Choose your level",
     levelOverlayDesc: "Pick the level you want to practise. You can change this anytime.",
     navFlashcards: "🃏 Flashcards",
-    navQuiz: "Quiz",
+    navQuiz: "💡 Quiz",
     navSpelling: "✏️ Spelling",
     navTypeGame: "⌨️ Typing Game",
     navTimesTable: "🔢 Times Table",
@@ -59,7 +59,7 @@ const TRANSLATIONS = {
     // Section titles shown at the top of the Quiz/Spelling/Flashcards cards
     // themselves (not the nav) — separate from navQuiz/navSpelling/
     // navFlashcards above since those carry the nav's own emoji/short-form.
-    quizSectionTitle: "Quiz",
+    quizSectionTitle: "💡 Quiz",
     spellingSectionTitle: "✏️ Spelling",
     flashcardsSectionTitle: "🃏 Flashcards",
     // The persistent nav row groups Quiz/Spelling/Flashcards under one
@@ -461,7 +461,7 @@ const TRANSLATIONS = {
     levelOverlayTitle: "📚 레벨을 선택하세요",
     levelOverlayDesc: "학습할 레벨을 선택하세요. 언제든지 바꿀 수 있어요.",
     navFlashcards: "🃏 플래시카드",
-    navQuiz: "퀴즈",
+    navQuiz: "💡 퀴즈",
     navSpelling: "✏️ 스펠링",
     navTypeGame: "⌨️ 타이핑 게임",
     navTimesTable: "🔢 구구단",
@@ -470,7 +470,7 @@ const TRANSLATIONS = {
     navStats: "📊 내 진행상황",
     navHome: "🏠 홈",
     navAdminCodes: "🛠️ 관리자",
-    quizSectionTitle: "퀴즈",
+    quizSectionTitle: "💡 퀴즈",
     spellingSectionTitle: "✏️ 스펠링",
     flashcardsSectionTitle: "🃏 플래시카드",
     navStudy: "🎓 학습",
@@ -6296,7 +6296,6 @@ function parseLevelValue(raw, levels) {
 }
 
 customExportBtn.addEventListener("click", () => {
-  pulseScoreTag(customExportBtn, "score-tag-pulse");
   if (typeof XLSX === "undefined") {
     customWordsStatus.textContent = t("excelToolUnavailable");
     return;
