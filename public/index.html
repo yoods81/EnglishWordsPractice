@@ -157,7 +157,7 @@
             <span data-i18n="navGame">🎮 Game</span><span class="tab-caret" aria-hidden="true">▾</span>
           </button>
           <div class="tab-dropdown">
-            <button data-view="timestable" class="tab-btn tab-dropdown-item"><span data-i18n="navTimesTable">🔢 Times Table</span></button>
+            <button data-view="timestable" class="tab-btn tab-dropdown-item"><span data-i18n="navTimesTable">🧮 Times Table</span></button>
             <button data-view="typegame" class="tab-btn tab-dropdown-item"><span data-i18n="navTypeGame">⌨️ Typing Game</span></button>
           </div>
         </div>
@@ -199,9 +199,9 @@
           </span>
         </button>
         <button data-view="timestable" class="tab-btn landing-tile">
-          <span class="landing-tile-icon" aria-hidden="true">🔢</span>
+          <span class="landing-tile-icon" aria-hidden="true">🧮</span>
           <span class="landing-tile-body">
-            <span class="landing-tile-title" data-i18n="navTimesTable">🔢 Times Table</span>
+            <span class="landing-tile-title" data-i18n="navTimesTable">🧮 Times Table</span>
             <span class="landing-tile-desc" data-i18n="landingDescTimesTable">Practise your times tables</span>
           </span>
         </button>
@@ -493,7 +493,15 @@
             <p id="typegame-final-score"></p>
             <p id="typegame-high-score"></p>
             <p id="typegame-encourage-msg" class="typegame-encourage-msg" hidden></p>
-            <button class="pill accent" id="typegame-restart-btn" data-i18n="typeGameRestartBtn">Play Again</button>
+            <button class="pill accent new-quiz-btn" id="typegame-restart-btn">
+              <span class="new-quiz-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 12a8 8 0 0 1 13.66-5.66M20 12a8 8 0 0 1-13.66 5.66" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                  <path d="M17 3v4.5h-4.5M7 21v-4.5h4.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span data-i18n="typeGameRestartBtn">Play Again</span>
+            </button>
           </div>
 
           <div class="typegame-overlay" id="typegame-pause-overlay" hidden>
@@ -544,7 +552,7 @@
           <div class="typegame-words" id="timestable-words"></div>
 
           <div class="typegame-overlay" id="timestable-start-overlay">
-            <h3 data-i18n="timesTableTitle">🔢 Times Table</h3>
+            <h3 data-i18n="timesTableTitle">🧮 Times Table</h3>
             <p id="timestable-start-message" class="timestable-instructions"></p>
             <div class="goal-stepper" id="timestable-maxtable-stepper">
               <span class="goal-stepper-label" data-i18n="timesTableMaxTableLabel">Practice tables up to</span>
@@ -568,7 +576,15 @@
               <span class="goal-stepper-value" id="timestable-over-maxtable-value">9</span>
               <button type="button" class="goal-step-btn" id="timestable-over-maxtable-plus" data-i18n-aria-label="goalIncreaseLabel" aria-label="Increase">+</button>
             </div>
-            <button class="pill accent" id="timestable-restart-btn" data-i18n="timesTableRestartBtn">Play Again</button>
+            <button class="pill accent new-quiz-btn" id="timestable-restart-btn">
+              <span class="new-quiz-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 12a8 8 0 0 1 13.66-5.66M20 12a8 8 0 0 1-13.66 5.66" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                  <path d="M17 3v4.5h-4.5M7 21v-4.5h4.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span data-i18n="timesTableRestartBtn">Play Again</span>
+            </button>
           </div>
 
           <div class="typegame-overlay" id="timestable-pause-overlay" hidden>
@@ -894,7 +910,7 @@
         <span class="bottom-tab-label" data-i18n="navGameShort">Game</span>
       </button>
       <div class="tab-dropdown tab-dropdown-up">
-        <button data-view="timestable" class="tab-btn tab-dropdown-item"><span data-i18n="navTimesTable">🔢 Times Table</span></button>
+        <button data-view="timestable" class="tab-btn tab-dropdown-item"><span data-i18n="navTimesTable">🧮 Times Table</span></button>
         <button data-view="typegame" class="tab-btn tab-dropdown-item"><span data-i18n="navTypeGame">⌨️ Typing Game</span></button>
       </div>
     </div>

@@ -647,11 +647,13 @@ nav.tabs button[data-view="admincodes"]:active {
   font-size: 1rem;
 }
 
-/* My Progress and Admin specifically use the thinner "1px border / 2px
-   shadow" proportions (matching the Login button) instead of the site's
-   usual thicker 3px/4px card rim — everywhere else keeps the thicker look. */
+/* My Progress, Admin and Add Word specifically use the thinner "1px
+   border / 2px shadow" proportions (matching the Login button) instead of
+   the site's usual thicker 3px/4px card rim — everywhere else keeps the
+   thicker look. */
 #view-stats .card,
-#view-admincodes .card {
+#view-admincodes .card,
+#view-addword .card {
   border-width: 1px;
   box-shadow: 0 2px 0 var(--outline);
 }
@@ -752,9 +754,11 @@ nav.tabs button[data-view="admincodes"]:active {
   color: var(--muted);
 }
 
-/* My Progress's Premium Insights lock card matches the Login button's
-   thinner border/shadow proportions too (see #view-stats .card above). */
-#view-stats .premium-gate-label {
+/* My Progress's Premium Insights lock card and Add Word's premium lock
+   banner match the Login button's thinner border/shadow proportions too
+   (see #view-stats .card above). */
+#view-stats .premium-gate-label,
+#view-addword .premium-gate-label {
   border-width: 1px;
   box-shadow: 0 2px 0 var(--accent);
 }
@@ -1668,6 +1672,26 @@ button.speak-btn-hero.speak-btn-active {
   max-width: 280px;
 }
 
+/* Final/Best score are the numbers someone actually cares about on this
+   screen, so they get their own bold, bigger, Fredoka treatment instead of
+   blending into the same small pale-blue paragraph style as the rest of
+   the overlay's incidental copy. */
+#typegame-final-score,
+#timestable-final-score {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #fff;
+}
+
+#typegame-high-score,
+#timestable-high-score {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #7cf2d6;
+}
+
 /* Times Table start screen: a two-line "how to answer" example, built by JS
    (not the generic data-i18n text swap) so the example numbers can be bold
    and colored. Both lines are centered, per how the rest of this overlay
@@ -1770,7 +1794,7 @@ button.speak-btn-hero.speak-btn-active {
 
 .typegame-input:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: var(--accent-dark);
 }
 
 .typegame-input.typegame-input-error {
@@ -3055,7 +3079,7 @@ html[lang="en"] button.kid-modal-btn {
 
 .auth-form input:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: var(--accent-dark);
 }
 
 /* Only for forms sitting in a full-width card (like My Account), not the
