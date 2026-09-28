@@ -20,7 +20,7 @@
   --text: #333a37;
   --muted: #7c8985;
   --radius: 16px;
-  --shadow: 0 8px 24px rgba(10, 46, 38, 0.08);
+  --shadow: 0 8px 24px rgba(20, 92, 72, 0.14);
   /* The "bold outline cartoon" pass: every card/button/tab now gets a real
      dark rim (this color) plus a flat, direction-only drop shadow in the
      same color, instead of a diffuse blur — the tactile, illustrated look
@@ -28,7 +28,7 @@
      colors/typography changed in earlier passes. One shared outline color
      (rather than each element inventing its own border tint) is what makes
      every card/button/tab read as one consistent system. */
-  --outline: #1c2b27;
+  --outline: #1f5c48;
   /* Fredoka is the kid-friendly, rounded display face for anything short —
      titles, buttons, labels, numbers. Its Latin glyphs are wide-set and
      read as loose/awkward across a full sentence or Hangul text, so body
