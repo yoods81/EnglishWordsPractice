@@ -3126,10 +3126,16 @@ function renderQuizQuestion() {
 // question is answered — a second Enter presses "Next Question" for you,
 // so a question can be played start to finish without touching the mouse.
 let quizFocusIndex = 0;
+// The highlight ring is only meaningful once someone is actually steering
+// with arrow keys — showing it on every freshly-rendered question (before
+// any key has been touched) just reads as a stray blue border around the
+// first option for anyone playing with the mouse. So it stays off until the
+// first arrow-key press, then persists question-to-question after that.
+let quizKeyboardNavUsed = false;
 
 function highlightQuizOption(index) {
   Array.from(quizOptionsEl.children).forEach((b, i) => {
-    b.classList.toggle("option-btn-kbd-focus", i === index);
+    b.classList.toggle("option-btn-kbd-focus", quizKeyboardNavUsed && i === index);
   });
 }
 
@@ -3149,10 +3155,10 @@ document.addEventListener("keydown", (e) => {
   if (!quizAnswered) {
     const cols = quizOptionColumns();
     let handled = true;
-    if (e.key === "ArrowRight") quizFocusIndex = Math.min(quizFocusIndex + 1, opts.length - 1);
-    else if (e.key === "ArrowLeft") quizFocusIndex = Math.max(quizFocusIndex - 1, 0);
-    else if (e.key === "ArrowDown") quizFocusIndex = Math.min(quizFocusIndex + cols, opts.length - 1);
-    else if (e.key === "ArrowUp") quizFocusIndex = Math.max(quizFocusIndex - cols, 0);
+    if (e.key === "ArrowRight") { quizFocusIndex = Math.min(quizFocusIndex + 1, opts.length - 1); quizKeyboardNavUsed = true; }
+    else if (e.key === "ArrowLeft") { quizFocusIndex = Math.max(quizFocusIndex - 1, 0); quizKeyboardNavUsed = true; }
+    else if (e.key === "ArrowDown") { quizFocusIndex = Math.min(quizFocusIndex + cols, opts.length - 1); quizKeyboardNavUsed = true; }
+    else if (e.key === "ArrowUp") { quizFocusIndex = Math.max(quizFocusIndex - cols, 0); quizKeyboardNavUsed = true; }
     else if (e.key === "Enter") opts[quizFocusIndex].click();
     else handled = false;
     if (handled) {

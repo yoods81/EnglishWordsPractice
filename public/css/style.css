@@ -20,15 +20,18 @@
   --text: #333a37;
   --muted: #7c8985;
   --radius: 16px;
-  --shadow: 0 8px 24px rgba(20, 92, 72, 0.14);
+  --shadow: 0 8px 24px rgba(14, 156, 125, 0.16);
   /* The "bold outline cartoon" pass: every card/button/tab now gets a real
      dark rim (this color) plus a flat, direction-only drop shadow in the
      same color, instead of a diffuse blur — the tactile, illustrated look
      kids' apps in this genre use, and the piece that was missing when only
      colors/typography changed in earlier passes. One shared outline color
      (rather than each element inventing its own border tint) is what makes
-     every card/button/tab read as one consistent system. */
-  --outline: #1f5c48;
+     every card/button/tab read as one consistent system. Set to the exact
+     same mint as --accent-dark (the Login button's own rim color) so the
+     whole site's outline/shadow system reads as one unified mint, not a
+     separate near-black tone next to it. */
+  --outline: var(--accent-dark);
   /* Fredoka is the kid-friendly, rounded display face for anything short —
      titles, buttons, labels, numbers. Its Latin glyphs are wide-set and
      read as loose/awkward across a full sentence or Hangul text, so body
@@ -416,10 +419,10 @@ nav.tabs button.tab-btn-highlight.active:active {
 
 .tab-dropdown-item:hover {
   transform: translateY(-1px);
-  background: var(--primary);
+  background: var(--accent);
   color: #fff;
-  border-color: var(--primary-dark);
-  box-shadow: 0 2px 0 var(--primary-dark);
+  border-color: var(--accent-dark);
+  box-shadow: 0 2px 0 var(--accent-dark);
 }
 
 .tab-dropdown-item:active {
@@ -622,6 +625,17 @@ nav.tabs button.tab-btn-highlight.active:active {
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--text);
+}
+
+/* Quiz/Spelling/Flashcards specifically get their section title tinted a
+   dark mint (matching --accent-dark) instead of the plain neutral --text
+   the other views' titles keep — these three are the app's main practice
+   loops, so a shot of the brand color helps them read as "the main event"
+   at a glance. */
+#view-quiz .view-section-title,
+#view-spelling .view-section-title,
+#view-flashcards .view-section-title {
+  color: var(--accent-dark);
 }
 
 .card-divider {
@@ -3146,16 +3160,16 @@ html[lang="en"] button.kid-modal-btn {
 
 .level-badge {
   margin-top: 0;
-  border: 1px solid var(--primary-dark);
-  background: var(--primary);
-  color: #fff;
+  border: 1px solid var(--accent-dark);
+  background: var(--card-bg);
+  color: var(--accent-dark);
   font-family: var(--font-heading);
   font-weight: 700;
   padding: 4px 13px;
   font-size: 0.78rem;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 2px 0 var(--primary-dark);
+  box-shadow: 0 2px 0 var(--accent-dark);
 }
 
 .level-badge:active {
