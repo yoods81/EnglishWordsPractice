@@ -47,7 +47,7 @@ const TRANSLATIONS = {
     levelOverlayTitle: "📚 Choose your level",
     levelOverlayDesc: "Pick the level you want to practise. You can change this anytime.",
     navFlashcards: "🃏 Flashcards",
-    navQuiz: "❓ Quiz",
+    navQuiz: "🧠 Quiz",
     navSpelling: "✏️ Spelling",
     navTypeGame: "⌨️ Typing Game",
     navTimesTable: "🔢 Times Table",
@@ -59,7 +59,7 @@ const TRANSLATIONS = {
     // Section titles shown at the top of the Quiz/Spelling/Flashcards cards
     // themselves (not the nav) — separate from navQuiz/navSpelling/
     // navFlashcards above since those carry the nav's own emoji/short-form.
-    quizSectionTitle: "❓ Quiz",
+    quizSectionTitle: "🧠 Quiz",
     spellingSectionTitle: "✏️ Spelling",
     flashcardsSectionTitle: "🃏 Flashcards",
     // The persistent nav row groups Quiz/Spelling/Flashcards under one
@@ -262,6 +262,9 @@ const TRANSLATIONS = {
     clearSelectionBtn: "Clear selection",
     selectAllBtn: "☑️ Select All",
     allLabel: "All",
+    // Just the "My added words" checkbox on the Add Word page — the Word
+    // List page's own select-all checkbox keeps the shorter allLabel above.
+    selectAllLabel: "Select All",
     addedToMyDeck: (added, picked) =>
       added === picked
         ? `Added ${added} word${added === 1 ? "" : "s"} to your flashcards.`
@@ -458,7 +461,7 @@ const TRANSLATIONS = {
     levelOverlayTitle: "📚 레벨을 선택하세요",
     levelOverlayDesc: "학습할 레벨을 선택하세요. 언제든지 바꿀 수 있어요.",
     navFlashcards: "🃏 플래시카드",
-    navQuiz: "❓ 퀴즈",
+    navQuiz: "🧠 퀴즈",
     navSpelling: "✏️ 스펠링",
     navTypeGame: "⌨️ 타이핑 게임",
     navTimesTable: "🔢 구구단",
@@ -467,7 +470,7 @@ const TRANSLATIONS = {
     navStats: "📊 내 진행상황",
     navHome: "🏠 홈",
     navAdminCodes: "🛠️ 관리자",
-    quizSectionTitle: "❓ 퀴즈",
+    quizSectionTitle: "🧠 퀴즈",
     spellingSectionTitle: "✏️ 스펠링",
     flashcardsSectionTitle: "🃏 플래시카드",
     navStudy: "🎓 학습",
@@ -660,6 +663,7 @@ const TRANSLATIONS = {
     clearSelectionBtn: "선택 해제",
     selectAllBtn: "☑️ 전체 선택",
     allLabel: "전체",
+    selectAllLabel: "전체 선택",
     addedToMyDeck: (added, picked) =>
       added === picked
         ? `${added}개를 내 플래시카드에 추가했어요.`
@@ -5185,7 +5189,20 @@ const selectedWordlistWords = new Map();
 // unchecking it clears the ENTIRE selection, including anything selected
 // under a different search/filter that isn't currently visible (same as the
 // old, now-removed, Clear Selection button did).
-function selectAllInGrid(grid) {
+//
+// Each row's own "change" listener is what actually adds it to the
+// selection Set (see buildWordRow / the custom-words row builder) — this
+// just flips every checkbox and dispatches that same event so those
+// listeners still run. What used to make this laggy on a big list: those
+// per-row listeners also called an O(n) "is everything checked?" grid scan
+// (updateSelectAllCheckboxState) and the button-enable/count refresh after
+// EVERY single row, turning one click into an O(n²) pass over the whole
+// grid. suppressSelectionUpdates skips that per-row work while the loop
+// runs, and afterUpdate() below does it once at the end instead.
+let suppressSelectionUpdates = false;
+
+function selectAllInGrid(grid, afterUpdate) {
+  suppressSelectionUpdates = true;
   const checkboxes = Array.from(grid.querySelectorAll(".cw-select"));
   checkboxes.forEach((cb) => {
     if (!cb.checked) {
@@ -5193,6 +5210,8 @@ function selectAllInGrid(grid) {
       cb.dispatchEvent(new Event("change"));
     }
   });
+  suppressSelectionUpdates = false;
+  if (afterUpdate) afterUpdate();
 }
 
 function updateSelectAllCheckboxState(checkbox, grid) {
@@ -5241,7 +5260,7 @@ function buildWordRow(w) {
   checkbox.addEventListener("change", () => {
     if (checkbox.checked) selectedWordlistWords.set(w.word, w);
     else selectedWordlistWords.delete(w.word);
-    updateWordlistSelectionButtons();
+    if (!suppressSelectionUpdates) updateWordlistSelectionButtons();
   });
   row.appendChild(checkbox);
 
@@ -5354,7 +5373,7 @@ wordlistAddDeckBtn.addEventListener("click", () => {
 
 wordlistSelectAllCheckbox.addEventListener("change", () => {
   if (wordlistSelectAllCheckbox.checked) {
-    selectAllInGrid(wordlistGrid);
+    selectAllInGrid(wordlistGrid, updateWordlistSelectionButtons);
   } else {
     selectedWordlistWords.clear();
     renderWordList();
@@ -5975,8 +5994,10 @@ function renderCustomWords() {
       checkbox.addEventListener("change", () => {
         if (checkbox.checked) selectedCustomWordIds.add(w.id);
         else selectedCustomWordIds.delete(w.id);
-        updateDeleteSelectedBtn();
-        updateSelectAllCheckboxState(customSelectAllCheckbox, customWordsGrid);
+        if (!suppressSelectionUpdates) {
+          updateDeleteSelectedBtn();
+          updateSelectAllCheckboxState(customSelectAllCheckbox, customWordsGrid);
+        }
       });
       row.appendChild(checkbox);
 
@@ -6136,7 +6157,10 @@ customDeleteSelectedBtn.addEventListener("click", () => {
 
 customSelectAllCheckbox.addEventListener("change", () => {
   if (customSelectAllCheckbox.checked) {
-    selectAllInGrid(customWordsGrid);
+    selectAllInGrid(customWordsGrid, () => {
+      updateDeleteSelectedBtn();
+      updateSelectAllCheckboxState(customSelectAllCheckbox, customWordsGrid);
+    });
   } else {
     selectedCustomWordIds.clear();
     renderCustomWords();

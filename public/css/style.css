@@ -103,12 +103,12 @@ header {
   font-size: 0.75rem;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 2px 0 var(--outline);
+  box-shadow: 0 1px 0 var(--outline);
 }
 
 .lang-toggle:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--outline);
+  transform: translateY(1px);
+  box-shadow: none;
 }
 
 .auth-toggle-wrap {
@@ -132,7 +132,7 @@ header {
      button's own accent-dark (or success-dark once signed in, below) rather
      than the shared --outline used on white surfaces — a filled button's rim
      matches its own fill instead of a generic dark line sitting on it. */
-  box-shadow: 0 2px 0 var(--accent-dark);
+  box-shadow: 0 1px 0 var(--accent-dark);
   max-width: 45vw;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -140,18 +140,18 @@ header {
 }
 
 .auth-toggle:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--accent-dark);
+  transform: translateY(1px);
+  box-shadow: none;
 }
 
 .auth-toggle.auth-toggle-active {
   background: var(--success);
   border-color: var(--success-dark);
-  box-shadow: 0 2px 0 var(--success-dark);
+  box-shadow: 0 1px 0 var(--success-dark);
 }
 
 .auth-toggle.auth-toggle-active:active {
-  box-shadow: 0 1px 0 var(--success-dark);
+  box-shadow: none;
 }
 
 .auth-menu {
@@ -270,7 +270,7 @@ nav.tabs button {
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 0 var(--outline);
+  box-shadow: 0 1px 0 var(--outline);
   white-space: nowrap;
   flex: 0 0 auto;
   transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, color 0.15s ease;
@@ -281,8 +281,8 @@ nav.tabs button:hover {
 }
 
 nav.tabs button:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--outline);
+  transform: translateY(1px);
+  box-shadow: none;
 }
 
 /* A selected (blue-filled) tab keeps its rim in its own color rather than
@@ -293,11 +293,11 @@ nav.tabs button.active {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary-dark);
-  box-shadow: 0 2px 0 var(--primary-dark);
+  box-shadow: 0 1px 0 var(--primary-dark);
 }
 
 nav.tabs button.active:active {
-  box-shadow: 0 1px 0 var(--primary-dark);
+  box-shadow: none;
 }
 
 /* Add Word / My Progress are the two tabs the monetization plan leans on —
@@ -319,10 +319,10 @@ nav.tabs button.tab-btn-highlight.active {
   background: var(--accent);
   border-color: var(--accent-dark);
   color: #fff;
-  box-shadow: 0 2px 0 var(--accent-dark);
+  box-shadow: 0 1px 0 var(--accent-dark);
 }
 nav.tabs button.tab-btn-highlight.active:active {
-  box-shadow: 0 1px 0 var(--accent-dark);
+  box-shadow: none;
 }
 
 /* "Study" (Quiz/Spelling/Flashcards) and "Game" (Times Table/Typing Game)
@@ -361,7 +361,7 @@ nav.tabs button.tab-btn-highlight.active:active {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary-dark);
-  box-shadow: 0 2px 0 var(--primary-dark);
+  box-shadow: 0 1px 0 var(--primary-dark);
 }
 
 /* Positioned with `position: fixed` and explicit top/bottom/left set by
@@ -408,7 +408,7 @@ nav.tabs button.tab-btn-highlight.active:active {
   background: #fff;
   border: 2px solid var(--outline);
   border-radius: 999px;
-  box-shadow: 0 2px 0 var(--outline);
+  box-shadow: 0 1px 0 var(--outline);
   padding: 7px 12px;
   cursor: pointer;
   transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
@@ -419,12 +419,12 @@ nav.tabs button.tab-btn-highlight.active:active {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary-dark);
-  box-shadow: 0 2px 0 var(--primary-dark);
+  box-shadow: 0 1px 0 var(--primary-dark);
 }
 
 .tab-dropdown-item:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--primary-dark);
+  transform: translateY(1px);
+  box-shadow: none;
 }
 
 .bottom-tab-group {
@@ -999,12 +999,12 @@ button.pill {
   cursor: pointer;
   font-size: 0.85rem;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
-  box-shadow: 0 3px 0 var(--pill-shadow);
+  box-shadow: 0 2px 0 var(--pill-shadow);
 }
 
 button.pill:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--pill-shadow);
+  transform: translateY(1px);
+  box-shadow: none;
 }
 
 /* Only .neutral (white fill, dark text) keeps the shared --outline rim —
@@ -1023,11 +1023,11 @@ button.pill.small {
   border-width: 2px;
   padding: 6px 12px;
   font-size: 0.72rem;
-  box-shadow: 0 2px 0 var(--pill-shadow);
+  box-shadow: 0 1px 0 var(--pill-shadow);
 }
 
 button.pill.small:active {
-  box-shadow: 0 1px 0 var(--pill-shadow);
+  box-shadow: none;
 }
 
 button.pill:disabled {
@@ -1558,8 +1558,10 @@ button.speak-btn-hero.speak-btn-active {
   width: 100%;
   padding: 10px 14px;
   border-radius: 999px;
-  /* Same site-background border treatment as #spelling-input. */
-  border: 2px solid var(--bg);
+  /* Same site-background border treatment as #spelling-input — thick
+     enough (4px) to actually read as a border against the page's own
+     near-identical background color, instead of all but disappearing. */
+  border: 4px solid var(--bg);
   font-size: 1rem;
   text-align: center;
 }
@@ -1976,8 +1978,10 @@ button.speak-btn-hero.speak-btn-active {
   border-radius: 12px;
   /* Matches the site's own background instead of a generic gray-blue —
      see the same treatment on .typegame-input, .wordlist-search and the
-     Add Word form fields. */
-  border: 2px solid var(--bg);
+     Add Word form fields. Thick (4px) so it actually reads as a border
+     against the page's own near-identical background, instead of
+     disappearing. */
+  border: 4px solid var(--bg);
   text-align: center;
   /* Extra gap above (below the Hear the word row) beyond the plain 10px
      the input used to sit at. */
@@ -2004,8 +2008,9 @@ button.speak-btn-hero.speak-btn-active {
   height: 34px;
   /* Matches the site's own background instead of the previous primary-blue
      rim, so the tray reads as part of the page's own frame — same
-     treatment as #spelling-input's border above. */
-  border: 2px solid var(--bg);
+     treatment as #spelling-input's border above, at 3px (rather than
+     4px) since these tiles are much smaller. */
+  border: 3px solid var(--bg);
   border-radius: 10px;
   background: #fff;
   color: var(--primary-dark);
@@ -2121,9 +2126,9 @@ button.speak-btn-hero.speak-btn-active {
 .wordlist-search {
   flex: 1 1 auto;
   min-width: 0;
-  padding: 8px 12px;
+  padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid var(--bg);
+  border: 3px solid var(--bg);
   font-size: 0.9rem;
 }
 
@@ -2191,7 +2196,7 @@ button.speak-btn-hero.speak-btn-active {
   gap: 8px;
   background: #fff;
   color: var(--text);
-  border: 1px solid var(--bg);
+  border: 3px solid var(--bg);
   border-radius: 999px;
   padding: 8px 12px;
   font-size: 0.8rem;
@@ -2378,32 +2383,35 @@ button.speak-btn-hero.speak-btn-active {
   white-space: nowrap;
 }
 
+/* Matches the plain nav-button look (white fill, dark outline, dark text)
+   instead of a filled blue circle, so it reads as "just another menu
+   control" rather than a separate, differently-themed widget. */
 .goal-step-btn {
-  border: 2px solid var(--primary-dark);
+  border: 2px solid var(--outline);
   border-radius: 999px;
   width: 30px;
   height: 30px;
   flex: 0 0 auto;
-  background: var(--primary);
-  color: #fff;
+  background: #fff;
+  color: var(--text);
   font-size: 1.05rem;
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
-  box-shadow: 0 2px 0 var(--primary-dark);
+  box-shadow: 0 1px 0 var(--outline);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .goal-step-btn:active {
-  transform: translateY(2px) scale(0.96);
-  box-shadow: 0 0 0 var(--primary-dark);
+  transform: translateY(1px) scale(0.96);
+  box-shadow: none;
 }
 
 .goal-step-btn:disabled {
   opacity: 0.4;
   cursor: default;
   transform: none;
-  box-shadow: 0 2px 0 var(--primary-dark);
+  box-shadow: 0 1px 0 var(--outline);
 }
 
 .goal-stepper-value {
@@ -3071,9 +3079,9 @@ html[lang="en"] button.kid-modal-btn {
 .form-row input,
 .form-row select,
 .form-row textarea {
-  padding: 8px 10px;
+  padding: 6px 8px;
   border-radius: 10px;
-  border: 1px solid var(--bg);
+  border: 3px solid var(--bg);
   font-size: 0.9rem;
   width: 100%;
 }
