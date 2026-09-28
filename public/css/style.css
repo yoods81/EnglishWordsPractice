@@ -1843,11 +1843,28 @@ button.speak-btn-hero.speak-btn-active {
   border-radius: 10px;
   padding: 8px 12px;
   line-height: 1.4;
+  text-align: left;
 }
 
 @media (max-width: 480px) {
-  .addword-top-row { flex-direction: column; }
+  /* Stacked (column) at this width, so the row's cross-axis is now
+     horizontal — align-items: flex-start (inherited from the desktop
+     side-by-side layout) left each card shrink-to-fit its own content
+     instead of matching the other's width. Stretching them back to the
+     row's full width keeps both boxes the same width once they're
+     stacked. */
+  .addword-top-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
   .options { grid-template-columns: 1fr; }
+
+  /* Quiz's Category row and Number of Questions row each wrap onto their
+     own line at this width — centering them (instead of the default
+     left-packed flex-start) reads as tidy rather than off-balance. */
+  #view-quiz .setting-row {
+    justify-content: center;
+  }
 
   .flash-side-btn {
     width: 46px;
@@ -2023,18 +2040,63 @@ button.speak-btn-hero.speak-btn-active {
   }
 
   /* The flashcards row packs a category select, a front-side select, and the
-     My Progress shortcut into one line — give the selects equal room to
-     shrink into and drop the "Category" label so all three fit. */
+     source select into one line — drop the redundant "Category" label (the
+     selected option already says "Vocabulary") to free up space. Equal
+     flex (1 1 0) used to hand the source select ("🎲 Level words") the same
+     width as its much-shorter siblings, which is what forced its text to
+     wrap onto two lines — appearance:none lets the select's own text wrap
+     like normal inline content once its box gets that tight. Sizing each
+     select to its own content instead (flex: 0 1 auto), then letting only
+     the source select grow into whatever room is left, keeps every
+     select's label on one line, with nowrap/ellipsis as a last-resort
+     safety net if a translation still doesn't fit. */
   #view-flashcards .setting-row-nowrap label {
     display: none;
   }
 
   #view-flashcards .setting-row-nowrap select {
-    flex: 1 1 0;
-    padding: 6px 20px 6px 8px;
-    background-position: right 6px center;
-    background-size: 10px;
-    font-size: 0.78rem;
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 6px 18px 6px 8px;
+    background-position: right 5px center;
+    background-size: 9px;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #view-flashcards .setting-row-nowrap #flash-source {
+    flex: 1 1 auto;
+  }
+
+  /* Times Table/Typing Game's top row (score, stage, speed stepper, hearts)
+     is another setting-row-nowrap that's too tight at this width — the
+     score/stage pills were letting flexbox shrink them below their text's
+     own width, which (like the flashcards row above) wrapped the text
+     inside instead of just staying on one line. Trim their padding/font
+     and pin them to nowrap so the whole row fits without any one piece
+     breaking onto a second line. */
+  #view-typegame .setting-row-nowrap .score-tag,
+  #view-timestable .setting-row-nowrap .score-tag {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  #view-typegame .setting-row-nowrap .stage-tag,
+  #view-timestable .setting-row-nowrap .stage-tag {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  #view-typegame .setting-row-nowrap .typegame-lives,
+  #view-timestable .setting-row-nowrap .typegame-lives {
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    white-space: nowrap;
   }
 
   .typegame-stage {
@@ -2531,10 +2593,35 @@ button.speak-btn-hero.speak-btn-active {
 @media (max-width: 480px) {
   .custom-search-half {
     max-width: none;
+    /* Reclaims the row to itself once Sort & Filter/Change level have
+       wrapped above it, instead of staying pinned to a 50%-width column
+       with empty space beside it. */
+    flex-basis: 100%;
+    width: 100%;
+    margin-left: 0;
   }
 
   .custom-controls-row {
     flex-wrap: wrap;
+  }
+
+  /* My added words' Select All/Delete/Word Management/Export row wraps at
+     this width with each control keeping its own natural (very different)
+     width, which reads as a messy, unaligned jumble rather than a toolbar.
+     A fixed two-column grid gives every control the same cell width so
+     they line up cleanly instead. */
+  .my-added-words-header-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .my-added-words-header-actions > * {
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+    text-align: center;
+    margin: 0;
   }
 }
 

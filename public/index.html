@@ -440,7 +440,15 @@
             <span class="score-tag" id="spelling-report-score">Today's score: 0 / 0</span>
           </div>
           <div class="flash-controls">
-            <button class="pill accent" id="spelling-report-restart" data-i18n="spellingReportRestart">🔄 Practice Again</button>
+            <button class="pill accent new-quiz-btn" id="spelling-report-restart">
+              <span class="new-quiz-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 12a8 8 0 0 1 13.66-5.66M20 12a8 8 0 0 1-13.66 5.66" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                  <path d="M17 3v4.5h-4.5M7 21v-4.5h4.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span data-i18n="spellingReportRestart">Practice Again</span>
+            </button>
           </div>
         </div>
       </div>

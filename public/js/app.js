@@ -252,7 +252,7 @@ const TRANSLATIONS = {
     spellingFinishBtn: "🏁 Finish",
     spellingReportTitle: "📋 Spelling Report",
     spellingReportEmpty: "No mistakes today — great job! 🎉",
-    spellingReportRestart: "🔄 Practice Again",
+    spellingReportRestart: "Practice Again",
     spellingTodayScore: (c, t) => `Today's score: ${c} / ${t}`,
     spellingWrongBadge: "Incorrect",
     wordlistSearchPlaceholder: "🔍 Search words...",
@@ -653,7 +653,7 @@ const TRANSLATIONS = {
     spellingFinishBtn: "🏁 종료",
     spellingReportTitle: "📋 스펠링 리포트",
     spellingReportEmpty: "오늘은 틀린 단어가 없어요 — 정말 잘했어요! 🎉",
-    spellingReportRestart: "🔄 다시 연습하기",
+    spellingReportRestart: "다시 연습하기",
     spellingTodayScore: (c, t) => `오늘의 점수: ${c} / ${t}`,
     spellingWrongBadge: "틀린문제",
     wordlistSearchPlaceholder: "🔍 단어 검색...",
@@ -1429,6 +1429,14 @@ const FEMALE_VOICE_HINTS = {
 };
 const MALE_VOICE_HINTS = ["male", "russell", "lee", "guy", "daniel", "fred", "james"];
 
+// Mobile Chrome/Safari's speechSynthesis implementation doesn't actually
+// support pause()/resume() the way desktop does — calling pause() shortly
+// after speak() starts tends to cut the utterance off right there instead
+// of resuming it, so most words come out as just their first syllable. The
+// desktop-only watchdog below (built for a different Chrome bug — an
+// utterance silently stopping after ~15s) must not run on these platforms.
+const IS_MOBILE_TTS = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+
 let cachedVoices = [];
 function refreshVoices() {
   if ("speechSynthesis" in window) cachedVoices = window.speechSynthesis.getVoices() || [];
@@ -1480,11 +1488,12 @@ function speak(text, opts = {}) {
     // Slightly brighter pitch/pace to read as a younger adult voice.
     utter.rate = 0.95;
     utter.pitch = 1.08;
+    let watchdog = null;
     let settled = false;
     const finish = () => {
       if (settled) return;
       settled = true;
-      clearInterval(watchdog);
+      if (watchdog) clearInterval(watchdog);
       if (opts.onend) opts.onend();
     };
     utter.onstart = opts.onstart || null;
@@ -1503,20 +1512,22 @@ function speak(text, opts = {}) {
     // unless something nudges the engine in the meantime. A harmless
     // pause/resume every quarter-second keeps that from cutting off longer
     // text (example sentences) partway through; capped so a genuinely stuck
-    // synth doesn't spin this forever.
-    let ticks = 0;
-    const watchdog = setInterval(() => {
-      if (!synth.speaking) {
-        clearInterval(watchdog);
-        return;
-      }
-      if (++ticks > 40) {
-        clearInterval(watchdog);
-        return;
-      }
-      synth.pause();
-      synth.resume();
-    }, 250);
+    // synth doesn't spin this forever. Desktop only — see IS_MOBILE_TTS above.
+    if (!IS_MOBILE_TTS) {
+      let ticks = 0;
+      watchdog = setInterval(() => {
+        if (!synth.speaking) {
+          clearInterval(watchdog);
+          return;
+        }
+        if (++ticks > 40) {
+          clearInterval(watchdog);
+          return;
+        }
+        synth.pause();
+        synth.resume();
+      }, 250);
+    }
   };
 
   // On a page's first pronunciation attempt, some browsers still have an
