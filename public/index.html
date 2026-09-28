@@ -14,6 +14,7 @@
   <!-- Level select overlay (shown on first visit, and whenever the level badge is pressed) -->
   <div id="level-overlay" class="level-overlay">
     <div class="level-overlay-card">
+      <button type="button" class="level-overlay-close" id="level-overlay-close" aria-label="Close" title="Close">✕</button>
       <h2 id="level-overlay-title">📚 Choose your level</h2>
       <p id="level-overlay-desc">Pick the year level you want to practise. You can change this anytime.</p>
       <div class="level-choices" id="level-choices"></div>
@@ -25,7 +26,7 @@
     <div class="auth-card">
       <h2 id="auth-title">🔑 Log In</h2>
       <div class="add-mode-toggle">
-        <button type="button" class="pill primary" id="auth-mode-login-btn" data-i18n="authModeLogin">Log In</button>
+        <button type="button" class="pill accent" id="auth-mode-login-btn" data-i18n="authModeLogin">Log In</button>
         <button type="button" class="pill neutral" id="auth-mode-signup-btn" data-i18n="authModeSignup">Sign Up</button>
       </div>
 
@@ -37,7 +38,7 @@
         <p id="login-error" class="auth-error" hidden></p>
         <div class="auth-actions">
           <button type="button" id="login-cancel-btn" class="pill neutral" data-i18n="authCancelBtn">Cancel</button>
-          <button type="submit" id="login-submit-btn" class="pill primary" data-i18n="authLoginBtn">Login</button>
+          <button type="submit" id="login-submit-btn" class="pill accent" data-i18n="authLoginBtn">Login</button>
         </div>
       </form>
 
@@ -469,7 +470,7 @@
             <span class="typegame-star typegame-star-2">⭐</span>
           </div>
 
-          <button type="button" class="typegame-pause-btn round-icon-btn" id="typegame-pause-btn" data-i18n-aria-label="typeGamePauseLabel" aria-label="Pause" hidden>⏸️</button>
+          <button type="button" class="typegame-pause-btn round-icon-btn" id="typegame-pause-btn" data-i18n-aria-label="typeGamePauseLabel" aria-label="Pause" hidden><svg class="pause-icon-svg" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button>
           <button type="button" class="typegame-mute-btn round-icon-btn" id="typegame-mute-btn" data-i18n-aria-label="typeGameMute" aria-label="Mute music">🔊</button>
           <button type="button" class="typegame-expand-btn round-icon-btn" id="typegame-expand-btn" data-i18n-aria-label="typeGameExpand" aria-label="Expand game area">⇕</button>
           <button type="button" class="typegame-end-btn round-icon-btn" id="typegame-end-btn" data-i18n-aria-label="typeGameEndLabel" aria-label="End game" hidden>✕</button>
@@ -495,8 +496,8 @@
           </div>
 
           <div class="typegame-overlay" id="typegame-pause-overlay" hidden>
-            <h3 data-i18n="gamePausedTitle">⏸️ Paused</h3>
-            <button class="pill primary" id="typegame-resume-btn" data-i18n="gameResumeBtn">▶ Resume</button>
+            <h3><svg class="pause-icon-svg" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="5" height="16" rx="1.5" fill="currentColor"/></svg> <span data-i18n="gamePausedTitle">Paused</span></h3>
+            <button class="pill accent" id="typegame-resume-btn" data-i18n="gameResumeBtn">▶ Resume</button>
           </div>
         </div>
 
@@ -530,7 +531,7 @@
             <span class="typegame-star typegame-star-2">⭐</span>
           </div>
 
-          <button type="button" class="typegame-pause-btn round-icon-btn" id="timestable-pause-btn" data-i18n-aria-label="timesTablePauseLabel" aria-label="Pause" hidden>⏸️</button>
+          <button type="button" class="typegame-pause-btn round-icon-btn" id="timestable-pause-btn" data-i18n-aria-label="timesTablePauseLabel" aria-label="Pause" hidden><svg class="pause-icon-svg" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button>
           <button type="button" class="typegame-mute-btn round-icon-btn" id="timestable-mute-btn" data-i18n-aria-label="timesTableMute" aria-label="Mute music">🔊</button>
           <button type="button" class="typegame-expand-btn round-icon-btn" id="timestable-expand-btn" data-i18n-aria-label="timesTableExpand" aria-label="Expand game area">⇕</button>
           <button type="button" class="typegame-end-btn round-icon-btn" id="timestable-end-btn" data-i18n-aria-label="timesTableEndLabel" aria-label="End game" hidden>✕</button>
@@ -569,8 +570,8 @@
           </div>
 
           <div class="typegame-overlay" id="timestable-pause-overlay" hidden>
-            <h3 data-i18n="gamePausedTitle">⏸️ Paused</h3>
-            <button class="pill primary" id="timestable-resume-btn" data-i18n="gameResumeBtn">▶ Resume</button>
+            <h3><svg class="pause-icon-svg" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="5" height="16" rx="1.5" fill="currentColor"/></svg> <span data-i18n="gamePausedTitle">Paused</span></h3>
+            <button class="pill accent" id="timestable-resume-btn" data-i18n="gameResumeBtn">▶ Resume</button>
           </div>
         </div>
 
@@ -822,7 +823,7 @@
         <h3 data-i18n="adminCodesTitle">🎟️ Premium Signup Codes</h3>
         <p class="muted" data-i18n="adminCodesDesc">Generate a one-time code and send it to someone so they can sign up as a paid account instead of free.</p>
         <div class="admin-panel-toolbar">
-          <button type="button" class="pill primary" id="admin-codes-generate-btn" data-i18n="adminCodesGenerateBtn">🎲 Generate New Code</button>
+          <button type="button" class="pill accent" id="admin-codes-generate-btn" data-i18n="adminCodesGenerateBtn">🎲 Generate New Code</button>
           <div class="admin-panel-sort-group">
             <label for="admin-codes-sort" data-i18n="adminCodesSortLabel">Sort by</label>
             <select id="admin-codes-sort">

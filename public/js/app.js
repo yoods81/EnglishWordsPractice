@@ -443,7 +443,7 @@ const TRANSLATIONS = {
     kidConfirmCancelBtn: "Not now",
     challengeYesBtn: "🚀 Let's go!",
     challengeNoBtn: "Not yet",
-    gamePausedTitle: "⏸️ Paused",
+    gamePausedTitle: "Paused",
     gameResumeBtn: "▶ Resume",
     gameSpeedLabel: "Game speed",
     gameSpeedDecreaseLabel: "Slower",
@@ -837,7 +837,7 @@ const TRANSLATIONS = {
     kidConfirmCancelBtn: "다음에요",
     challengeYesBtn: "🚀 도전할래요!",
     challengeNoBtn: "다음에요",
-    gamePausedTitle: "⏸️ 일시정지",
+    gamePausedTitle: "일시정지",
     gameResumeBtn: "▶ 계속하기",
     gameSpeedLabel: "게임 속도",
     gameSpeedDecreaseLabel: "느리게",
@@ -1679,6 +1679,7 @@ function updateCategoryOptionVisibility() {
 
 /* ================= LEVEL SELECT OVERLAY ================= */
 const levelOverlay = document.getElementById("level-overlay");
+const levelOverlayCloseBtn = document.getElementById("level-overlay-close");
 const levelBadge = document.getElementById("level-badge");
 const streakChipEl = document.getElementById("streak-chip");
 const streakCountEl = document.getElementById("streak-count");
@@ -1736,7 +1737,15 @@ function applyLevel(level) {
 
 levelBadge.addEventListener("click", () => {
   renderLevelChoices();
+  // Reopened from the badge means a level is already set, so this visit is
+  // optional — show the close button (see the CSS comment on
+  // .level-overlay-close for why the mandatory first-run pick never does).
+  levelOverlayCloseBtn.hidden = false;
   levelOverlay.hidden = false;
+});
+
+levelOverlayCloseBtn.addEventListener("click", () => {
+  levelOverlay.hidden = true;
 });
 
 /* ================= LANGUAGE TOGGLE ================= */
@@ -1757,6 +1766,7 @@ function switchLanguage(lang) {
     refreshCurrentView();
     renderCustomWords();
   } else {
+    levelOverlayCloseBtn.hidden = true;
     levelOverlay.hidden = false;
   }
 }
@@ -7871,6 +7881,7 @@ populateLevelSelects();
 
 // Show the level-select overlay only if we don't yet have a saved level for this language.
 levelOverlay.hidden = !!savedLevels[currentLang];
+levelOverlayCloseBtn.hidden = true;
 
 buildFlashDeck();
 buildQuizQuestions();
