@@ -1481,6 +1481,16 @@ button.speak-btn-hero.speak-btn-active {
   height: 32px;
   font-size: 1rem;
   z-index: 3;
+  /* Matches the Login button's exact 1px border / 2px shadow-offset
+     thickness rather than the bulkier default .round-icon-btn rim. */
+  border-width: 1px;
+  box-shadow: 0 2px 0 var(--outline);
+}
+
+.typegame-pause-btn:active,
+.typegame-mute-btn:active,
+.typegame-expand-btn:active {
+  box-shadow: none;
 }
 
 .typegame-pause-btn {
@@ -1558,7 +1568,7 @@ button.speak-btn-hero.speak-btn-active {
   position: absolute;
   transform: translateX(-50%);
   background: #fff;
-  border: 2px solid #c9d4ee;
+  border: 2px solid var(--accent);
   border-radius: 999px;
   padding: 5px 12px;
   font-weight: 700;
@@ -1568,8 +1578,8 @@ button.speak-btn-hero.speak-btn-active {
 }
 
 .typegame-word.tw-lock {
-  border-color: var(--primary);
-  background: #eaf1ff;
+  border-color: var(--accent-dark);
+  background: #eaf9f3;
 }
 
 .typegame-word.tw-cleared {
