@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>OZ Words &amp; Math Practice</title>
+  <!-- flat drop shadow + tile -->
+  <rect x="36" y="52" width="440" height="440" rx="112" fill="#0e9c7d"/>
+  <rect x="36" y="28" width="440" height="440" rx="112" fill="#22c9a3" stroke="#0e9c7d" stroke-width="20"/>
+  <!-- O -->
+  <circle cx="170" cy="248" r="62" fill="none" stroke="#0e9c7d" stroke-width="68"/>
+  <circle cx="170" cy="248" r="62" fill="none" stroke="#ffffff" stroke-width="40"/>
+  <!-- Z -->
+  <path d="M300 186H392L300 310H404" fill="none" stroke="#0e9c7d" stroke-width="68" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M300 186H392L300 310H404" fill="none" stroke="#ffffff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- math badge -->
+  <circle cx="404" cy="410" r="54" fill="#2d6cff" stroke="#1e4fcc" stroke-width="16"/>
+  <path d="M384 390L424 430M424 390L384 430" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+</svg>
