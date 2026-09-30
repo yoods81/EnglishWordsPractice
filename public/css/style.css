@@ -4309,3 +4309,59 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
 @keyframes sp-next-nudge { 0%, 100% { box-shadow: 0 3px 0 var(--accent-dark), 0 0 0 0 rgba(34,201,163,.6); } 50% { box-shadow: 0 3px 0 var(--accent-dark), 0 0 0 8px rgba(34,201,163,0); } }
 #spelling-back:active, #spelling-next:active { transform: translateY(3px); box-shadow: none; }
 @media (prefers-reduced-motion: reduce) { .sp-confetti { display: none; } #spelling-next, .sp-dot.cur, #spelling-input { animation: none !important; } }
+
+/* ===== Spelling: start button under the chalkboard, compact practice layout ===== */
+#spelling-start-screen { padding: 14px 10px; }
+.sp-start-btn { display: block; margin: 12px auto 4px; font-size: 1.1rem; padding: 12px 26px; animation: sp-start-pulse 1.8s ease-in-out infinite; }
+@keyframes sp-start-pulse { 0%, 100% { box-shadow: 0 3px 0 var(--accent-dark), 0 0 0 0 rgba(34,201,163,.55); } 50% { box-shadow: 0 3px 0 var(--accent-dark), 0 0 0 10px rgba(34,201,163,0); } }
+.sp-intro .sp-bubble { margin-top: 14px; }
+
+#spelling-practice[hidden] { display: none; }
+#spelling-practice { padding: 10px 12px; }
+.sp-left { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 10px; row-gap: 2px; }
+.sp-left .sp-live-scene { grid-column: 1 / -1; height: 74px; margin: 0; }
+.sp-left .sp-live-scene .fk-svg { width: 112px; }
+.sp-left .sp-progress { margin: 0; text-align: left; }
+.sp-left .sp-dots { justify-content: flex-start; }
+.sp-left .sp-dot { width: 18px; height: 18px; font-size: 0.6rem; }
+.sp-left .spelling-speak-wrap { flex-direction: row; gap: 8px; margin: 0; }
+.sp-left button.speak-btn-hero { width: 52px; height: 52px; font-size: 1.5rem; }
+.sp-left .speak-btn-hero-label { display: none; }
+.sp-right { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.sp-right .spelling-action-row { margin: 0; }
+.sp-right .spelling-hint-tray { margin: 0; }
+.sp-right .spelling-tip { min-height: 0; margin: 0; }
+.sp-right .flash-controls { margin: 0; }
+.sp-right .quiz-footer { margin: 0; }
+
+@media (min-width: 700px) {
+  #spelling-practice { display: grid; grid-template-columns: minmax(230px, 0.85fr) 1.3fr; gap: 24px; align-items: center; padding: 14px 20px; }
+  #spelling-practice[hidden] { display: none; }
+  .sp-left { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .sp-left .sp-live-scene { width: 100%; height: 112px; }
+  .sp-left .sp-live-scene .fk-svg { width: 168px; }
+  .sp-left .sp-live-scene .fk-bubble { left: calc(50% + 86px); max-width: 130px; }
+  .sp-left .sp-progress { text-align: center; }
+  .sp-left .sp-dots { justify-content: center; }
+  .sp-left .sp-dot { width: 20px; height: 20px; }
+  .sp-left .spelling-speak-wrap { flex-direction: column; }
+  .sp-left button.speak-btn-hero { width: 84px; height: 84px; font-size: 2.3rem; }
+  .sp-left .speak-btn-hero-label { display: block; }
+  .sp-right { margin-top: 0; gap: 10px; }
+}
+@media (max-width: 480px) {
+  .sp-left .sp-live-scene .fk-bubble { left: calc(50% + 56px); max-width: 44%; font-size: 0.7rem; }
+}
+@media (prefers-reduced-motion: reduce) { .sp-start-btn { animation: none; } }
+@media (max-width: 699px) {
+  .sp-left .sp-dots { gap: 3px; }
+  .sp-left .sp-dot { width: 15px; height: 15px; font-size: 0.5rem; border-width: 1.5px; }
+  .sp-right .spelling-hint-tray { gap: 4px; }
+  .sp-right .spelling-tip { font-size: 0.85rem; }
+}
+@media (max-width: 699px) {
+  /* Mid-round the title and "Number of Questions" row aren't needed — hiding
+     them keeps the whole practice screen closer to one phone screen. */
+  #view-spelling .card:has(#spelling-practice:not([hidden])) > .view-section-title,
+  #view-spelling .card:has(#spelling-practice:not([hidden])) > .setting-row { display: none; }
+}
