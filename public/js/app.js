@@ -3227,7 +3227,7 @@ function renderQuizQuestion() {
     const text = document.createElement("span");
     text.className = "celebration-card-text";
     text.textContent = t("quizComplete", quizScore, total);
-    if (total >= 5 && quizScore === total && !quizQuestions._awarded) {
+    if (canUsePaidFeatures() && total >= 5 && quizScore === total && !quizQuestions._awarded) {
       quizQuestions._awarded = true;
       ensureRewardData();
       progress.counters.quizPerfect++;
@@ -3715,7 +3715,7 @@ spellingBackBtn.addEventListener("click", () => {
 function renderSpellingReport() {
   spellingPractice.hidden = true;
   spellingReport.hidden = false;
-  if (spellingScore.total >= 5 && spellingScore.correct === spellingScore.total) {
+  if (canUsePaidFeatures() && spellingScore.total >= 5 && spellingScore.correct === spellingScore.total) {
     ensureRewardData();
     progress.counters.spellPerfect++;
     saveProgress();
@@ -8133,6 +8133,9 @@ function trackActivity(word, isCorrect, mode) {
   const keys = Object.keys(progress.daily).sort();
   while (keys.length > 60) delete progress.daily[keys.shift()];
 
+  // Badges and the Wrong-answer notebook are Premium/admin perks — nothing
+  // is collected for free or signed-out visitors (charts above still are).
+  if (!canUsePaidFeatures()) return;
   const key = String(word);
   if (isCorrect) {
     if (mode === "tt") progress.ttSolved[key] = 1;
@@ -8218,6 +8221,7 @@ function buildBadgeCatalog() {
 let rwToastQueue = [];
 let rwToastShowing = false;
 function checkBadges() {
+  if (!canUsePaidFeatures()) return;
   ensureRewardData();
   const fresh = [];
   buildBadgeCatalog().forEach((b) => {
@@ -8270,7 +8274,7 @@ function escapeHtml(s) {
 
 function renderRewardPanels() {
   ensureRewardData();
-  const wrongCount = Object.keys(progress.wrong).length;
+  const wrongCount = canUsePaidFeatures() ? Object.keys(progress.wrong).length : 0;
   const wrongTab = document.querySelector('.stats-tab[data-stats-tab="wrong"]');
   if (wrongTab) wrongTab.querySelector(".stats-tab-count").textContent = wrongCount ? String(wrongCount) : "";
   if (statsTab === "overview") renderStatsCharts();
@@ -8278,19 +8282,31 @@ function renderRewardPanels() {
   else renderWrongPanel();
 }
 
+function premiumLockHtml() {
+  return `<div class="rw-lock"><div class="rw-lock-icon">🔒🐨</div>
+    <div class="rw-lock-title">${t("premiumGateTitle")}</div>
+    <p>${rwL("Koala badges and the Wrong-answer notebook are for Premium members.", "코알라 배지와 오답 노트는 프리미엄 회원 전용이에요.")}</p>
+    <button type="button" class="pill accent small" data-rw-upgrade>${rwL("Sign up / Upgrade", "가입 / 업그레이드")}</button></div>`;
+}
+document.addEventListener("click", (e) => {
+  if (e.target.closest("[data-rw-upgrade]")) promptUpgradeForFeature();
+});
+
 function renderBadgePanel() {
+  const paid = canUsePaidFeatures();
   const cat = buildBadgeCatalog();
-  const got = cat.filter((b) => progress.badges[b.id]).length;
+  const got = paid ? cat.filter((b) => progress.badges[b.id]).length : 0;
   const groups = [
     ["math", rwL("🧮 Times Table", "🧮 구구단")],
     ["english", rwL("📖 English", "📖 영어")],
     ["habit", rwL("🔥 Habits", "🔥 학습 습관")],
   ];
-  let html = `<p class="badge-summary">${rwL(`Collected ${got} of ${cat.length} koala badges`, `코알라 배지 ${cat.length}개 중 ${got}개 모았어요`)}</p>`;
+  let html = paid ? "" : premiumLockHtml();
+  html += `<p class="badge-summary">${rwL(`Collected ${got} of ${cat.length} koala badges`, `코알라 배지 ${cat.length}개 중 ${got}개 모았어요`)}</p>`;
   groups.forEach(([g, title]) => {
     html += `<h4 class="badge-group-title">${title}</h4><div class="badge-grid">`;
     cat.filter((b) => b.group === g).forEach((b) => {
-      const on = !!progress.badges[b.id];
+      const on = paid && !!progress.badges[b.id];
       html += `<div class="badge-card ${on ? "earned" : "locked"}" title="${escapeHtml(b.desc)}">
         <div class="badge-medal"><span class="badge-koala">🐨</span><span class="badge-sticker">${on ? b.emoji : "🔒"}</span></div>
         <div class="badge-name">${escapeHtml(b.name)}</div>
@@ -8319,8 +8335,12 @@ function wrongEntries() {
 }
 
 function renderWrongPanel() {
-  const items = wrongEntries();
   const el = statsPanels.wrong;
+  if (!canUsePaidFeatures()) {
+    el.innerHTML = premiumLockHtml();
+    return;
+  }
+  const items = wrongEntries();
   if (!items.length) {
     el.innerHTML = `<div class="wrong-empty"><div class="wrong-empty-koala">🐨✨</div><p>${rwL(
       "No mistakes to review. Great job!", "복습할 오답이 없어요. 잘했어요!")}</p></div>`;
