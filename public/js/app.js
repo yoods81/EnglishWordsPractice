@@ -3589,16 +3589,19 @@ const SPELL_KOALA_SVG = `<svg class="sk-svg" viewBox="0 0 200 205" width="170" h
       <path d="M146 62 q6 -6 12 0 M146 71 q8 -5 14 1" stroke="#c9d3cf" stroke-width="2" fill="none" stroke-linecap="round"/>
       <ellipse cx="100" cy="82" rx="46" ry="40" fill="#a9b7b2"/>
       <ellipse cx="100" cy="96" rx="30" ry="22" fill="#c4cfcb"/>
-      <circle cx="72" cy="94" r="7" fill="#ff7a90" opacity="0.45"/><circle cx="128" cy="94" r="7" fill="#ff7a90" opacity="0.45"/>
+      <circle class="sk-cheek" cx="72" cy="94" r="7" fill="#ff7a90" opacity="0.45"/><circle class="sk-cheek" cx="128" cy="94" r="7" fill="#ff7a90" opacity="0.45"/>
       <g class="fk-eyes"><circle cx="82" cy="76" r="5.2" fill="#1f2a27"/><circle cx="118" cy="76" r="5.2" fill="#1f2a27"/><circle cx="84" cy="74" r="1.7" fill="#fff"/><circle cx="120" cy="74" r="1.7" fill="#fff"/></g>
       <g class="fk-eyes-happy"><path d="M75 79 Q82 68 89 79" fill="none" stroke="#1f2a27" stroke-width="3" stroke-linecap="round"/><path d="M111 79 Q118 68 125 79" fill="none" stroke="#1f2a27" stroke-width="3" stroke-linecap="round"/></g>
       <ellipse cx="100" cy="92" rx="15" ry="18" fill="#1f2a27"/><ellipse cx="95" cy="85" rx="4.5" ry="2.6" fill="#fff" opacity="0.35"/>
-      <path d="M90 116 Q100 123 110 116" stroke="#1f2a27" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      <path class="sk-mouth" d="M90 116 Q100 123 110 116" stroke="#1f2a27" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      <g class="sk-mouth-open"><ellipse cx="100" cy="119" rx="10" ry="8" fill="#7a2233"/><ellipse cx="100" cy="123" rx="6" ry="3.4" fill="#ff7a90"/></g>
       <polygon points="100,26 150,41 100,58 50,41" fill="#26332f"/>
       <rect x="80" y="50" width="40" height="10" rx="3" fill="#26332f"/>
       <line x1="146" y1="42" x2="146" y2="62" stroke="#ffd166" stroke-width="2.6"/><circle cx="146" cy="65" r="3.4" fill="#ffd166"/>
     </g>
   </g>
+  <g class="sk-eatpaw" style="transform-origin:136px 124px"><line x1="136" y1="124" x2="154" y2="152" stroke="#a9b7b2" stroke-width="14" stroke-linecap="round"/><circle cx="155" cy="154" r="8" fill="#8d9c97"/><g class="sk-eatleaf"><path d="M147 150 C152 138 170 138 178 152 C170 164 152 164 147 150Z" fill="#3fb984" stroke="#0e9c7d" stroke-width="2"/><path d="M149 151 H174" stroke="#0e9c7d" stroke-width="1.6" stroke-linecap="round"/></g></g>
+  <circle class="sk-crumb sk-crumb-1" cx="100" cy="122" r="3" fill="#3fb984"/><circle class="sk-crumb sk-crumb-2" cx="100" cy="122" r="2.4" fill="#0e9c7d"/><circle class="sk-crumb sk-crumb-3" cx="100" cy="122" r="2.8" fill="#3fb984"/>
   <text class="fk-spark fk-spark-1" x="10" y="50" font-size="20">✨</text>
   <text class="fk-spark fk-spark-2" x="172" y="44" font-size="20">⭐</text>
   <text class="sk-heart sk-heart-1" x="30" y="70" font-size="22">💚</text><text class="sk-heart sk-heart-2" x="150" y="64" font-size="22">💚</text><text class="sk-heart sk-heart-3" x="92" y="20" font-size="22">💚</text>
@@ -3628,12 +3631,36 @@ function flyLeafToKoala(leaf) {
   if (!leaf || !koala) return;
   const lr = leaf.getBoundingClientRect(), kr = koala.getBoundingClientRect();
   const fly = leaf.cloneNode(true);
-  fly.classList.add("sp-leaf-fly");
+  fly.className = "sp-leaf-fly";
   fly.style.left = lr.left + "px"; fly.style.top = lr.top + "px";
-  fly.style.setProperty("--tx", (kr.left + kr.width * 0.5 - lr.left - 12) + "px");
-  fly.style.setProperty("--ty", (kr.top + kr.height * 0.5 - lr.top - 6) + "px");
   document.body.appendChild(fly);
-  setTimeout(() => fly.remove(), 800);
+  // land in the koala's right paw (svg point 155,154)
+  const tx = kr.left + kr.width * (160 / 200) - lr.left - lr.width / 2;
+  const ty = kr.top + kr.height * (150 / 205) - lr.top - lr.height / 2;
+  const frames = [
+    { transform: "translate(0,0) rotate(0deg)", offset: 0 },
+    { transform: `translate(${tx * 0.15 - 22}px,${ty * 0.28}px) rotate(-55deg)`, offset: 0.3 },
+    { transform: `translate(${tx * 0.55 + 20}px,${ty * 0.62}px) rotate(40deg)`, offset: 0.62 },
+    { transform: `translate(${tx * 0.9 - 8}px,${ty * 0.9}px) rotate(-15deg)`, offset: 0.85 },
+    { transform: `translate(${tx}px,${ty}px) rotate(10deg)`, offset: 1 },
+  ];
+  const anim = fly.animate(frames, { duration: 900, easing: "ease-in", fill: "forwards" });
+  anim.onfinish = () => fly.remove();
+}
+let spellingEatTimers = [];
+function koalaEatSequence(full, fed) {
+  spellingEatTimers.forEach(clearTimeout); spellingEatTimers = [];
+  const sc = spellingScene;
+  sc.classList.remove("sk-eat", "sk-gulp");
+  const at = (ms, fn) => spellingEatTimers.push(setTimeout(fn, ms));
+  at(880, () => { sc.classList.add("sk-eat"); spellingBubble.querySelector(".bubble-text").textContent = t("spLiveOk"); });
+  at(2350, () => {
+    sc.classList.remove("sk-eat");
+    sc.style.setProperty("--fed", fed.toFixed(3));
+    void sc.offsetWidth; sc.classList.add("sk-gulp");
+    if (full) { sc.classList.add("sk-full"); spellingBubble.querySelector(".bubble-text").textContent = t("spLiveFull"); }
+  });
+  at(3200, () => sc.classList.remove("sk-gulp"));
 }
 function renderSpellingProgress(advanced = false) {
   const n = spellingDeck.length;
@@ -3651,14 +3678,21 @@ function renderSpellingProgress(advanced = false) {
   });
   spellingLeafEaten = target;
   const fed = done / n;
-  spellingScene.style.setProperty("--fed", fed.toFixed(3));
   const full = done >= n;
-  spellingScene.classList.toggle("sk-full", full);
   if (advanced) {
-    spellingScene.classList.remove("sk-munch"); void spellingScene.offsetWidth; spellingScene.classList.add("sk-munch");
-    setTimeout(() => spellingScene.classList.remove("sk-munch"), 900);
-    if (full) setTimeout(() => { spellingBubble.querySelector(".bubble-text").textContent = t("spLiveFull"); }, 1800);
+    koalaEatSequence(full, fed);
+  } else {
+    spellingEatTimers.forEach(clearTimeout); spellingEatTimers = [];
+    spellingScene.classList.remove("sk-eat", "sk-gulp");
+    spellingScene.style.setProperty("--fed", fed.toFixed(3));
+    spellingScene.classList.toggle("sk-full", full);
   }
+}
+function koalaTalk(on, safetyMs = 4000) {
+  clearTimeout(spellingScene._talkT);
+  spellingScene.classList.toggle("sk-talk", on);
+  spellingSpeakBtn.classList.toggle("sk-wave", on);
+  if (on) spellingScene._talkT = setTimeout(() => { spellingScene.classList.remove("sk-talk"); spellingSpeakBtn.classList.remove("sk-wave"); }, safetyMs);
 }
 function spellingConfetti() {
   const box = spellingPractice;
@@ -3783,9 +3817,10 @@ function renderSpellingLetterHints(word) {
 spellingSpeakBtn.addEventListener("click", () => {
   spellingReact("hear", "spLiveHear");
   if (spellingDeck[spellingIndex]) speak(spellingDeck[spellingIndex].word, {
-    onstart: () => spellingSpeakBtn.classList.add("speak-btn-active"),
-    onend: () => spellingSpeakBtn.classList.remove("speak-btn-active"),
+    onstart: () => { spellingSpeakBtn.classList.add("speak-btn-active"); koalaTalk(true); },
+    onend: () => { spellingSpeakBtn.classList.remove("speak-btn-active"); koalaTalk(false); },
   });
+  koalaTalk(true, 1800);
 });
 
 function showSpellingWrongFeedback(current) {
@@ -3850,7 +3885,7 @@ function checkSpellingAnswer() {
     updateSpellingScoreLabel();
     spellingInput.className = "correct";
     pulseScoreTag(spellingInput, "option-btn-bounce");
-    spellingReact("know", "spLiveOk");
+    spellingScene.classList.remove("sk-talk");
     spellingConfetti();
     renderSpellingProgress(true);
     showSpellingCorrectFeedback(earnsCredit);

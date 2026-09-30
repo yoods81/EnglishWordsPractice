@@ -4496,3 +4496,58 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
 .sp-branch { flex-wrap: nowrap; }
 .sp-leaf { flex: 1 1 0; max-width: 34px; display: flex; justify-content: center; }
 .sp-leaf svg { width: 100%; height: auto; max-width: 34px; }
+
+/* ---- Stronger actions: falling leaf, paw-to-mouth, chewing, big belly, talking ---- */
+.sp-leaf-fly { animation: none; }
+.sp-leaf.eaten { transition: none; opacity: 0; }
+/* belly: clearly rounder with every leaf */
+.sk-svg .sk-body { transform-origin: 100px 158px; transform: scale(calc(1 + var(--fed) * .5), calc(1 + var(--fed) * .2)); transition: transform .5s cubic-bezier(.3,1.8,.5,1); }
+.sk-svg .sk-belly { transform: scale(calc(1 + var(--fed) * .55), calc(1 + var(--fed) * .24)); }
+.sk-gulp .sk-body { animation: sk-gulp .8s ease-out; }
+@keyframes sk-gulp { 0% { filter: none; } 30% { filter: brightness(1.08); } 100% { filter: none; } }
+.sk-gulp .fk-koala { animation: sk-burp .8s ease-out; }
+@keyframes sk-burp { 0% { transform: scale(1); } 25% { transform: scale(1.09, .95); } 55% { transform: scale(.97, 1.05); } 100% { transform: scale(1); } }
+.sk-svg .fk-koala { transform-origin: 100px 182px; transform-box: view-box; }
+/* paw holding the leaf up to the mouth */
+.sk-eatpaw { opacity: 0; }
+.sk-eat .fk-paw-r { opacity: 0; }
+.sk-eat .sk-eatpaw { opacity: 1; animation: sk-paw-up 2.2s ease-in-out forwards; }
+@keyframes sk-paw-up { 0% { transform: rotate(0); } 22% { transform: rotate(150deg); } 88% { transform: rotate(150deg); } 100% { transform: rotate(0); } }
+.sk-eatleaf { transform-box: fill-box; transform-origin: 20% 50%; }
+.sk-eat .sk-eatleaf { animation: sk-leaf-bite 2.2s steps(1, end) forwards; }
+@keyframes sk-leaf-bite { 0% { transform: scale(1); } 30% { transform: scale(.8); } 45% { transform: scale(.6); } 60% { transform: scale(.4); } 75% { transform: scale(.2); } 88% { transform: scale(0); } 100% { transform: scale(0); } }
+/* chewing: jaw opens/closes, head bobs, cheeks puff, crumbs pop out */
+.sk-mouth-open { opacity: 0; }
+.sk-eat .sk-mouth { opacity: 0; }
+.sk-eat .sk-mouth-open { animation: sk-jaw .28s ease-in-out 3.4s infinite; animation-delay: .45s; animation-iteration-count: 5; }
+@keyframes sk-jaw { 0%,100% { opacity: 0; } 30%,70% { opacity: 1; } }
+.sk-eat .fk-head { animation: sk-chew-head .28s ease-in-out .45s 5; }
+@keyframes sk-chew-head { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(5px) rotate(-3deg); } }
+.sk-cheek { transform-box: fill-box; transform-origin: center; }
+.sk-eat .sk-cheek { animation: sk-puff .28s ease-in-out .45s 5; }
+@keyframes sk-puff { 0%,100% { transform: scale(1); } 50% { transform: scale(1.5); } }
+.sk-eat .fk-eyes { opacity: 0; }
+.sk-eat .fk-eyes-happy { opacity: 1; }
+.sk-crumb { opacity: 0; }
+.sk-eat .sk-crumb { animation: sk-crumb .7s ease-out .5s 2; }
+.sk-eat .sk-crumb-2 { animation-delay: .7s; --cx: 18px; }
+.sk-eat .sk-crumb-3 { animation-delay: .9s; --cx: -16px; }
+.sk-crumb-1 { --cx: 4px; }
+@keyframes sk-crumb { 0% { opacity: 1; transform: translate(0,0); } 100% { opacity: 0; transform: translate(var(--cx), 26px); } }
+/* talking: mouth flaps, head nods, speaker wobbles with sound waves */
+.sk-talk .sk-mouth { opacity: 0; }
+.sk-talk .sk-mouth-open { animation: sk-talk-mouth .32s ease-in-out infinite; }
+@keyframes sk-talk-mouth { 0%,100% { opacity: 1; transform: scaleY(.35); } 50% { opacity: 1; transform: scaleY(1); } }
+.sk-mouth-open { transform-box: fill-box; transform-origin: 50% 20%; }
+.sk-talk .fk-head { animation: sk-talk-head .6s ease-in-out infinite; }
+@keyframes sk-talk-head { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg) translateY(-2px); } }
+.sp-live-scene.fk-hear .fk-paw-r { animation: none; }
+.sp-live-scene.fk-hear .fk-head { animation: none; }
+.sp-live-scene.sk-talk.fk-hear .fk-head { animation: sk-talk-head .6s ease-in-out infinite; }
+.sp-answer-row { position: relative; }
+button.speak-btn-hero.sk-wave { animation: sk-speaker-wobble .5s ease-in-out infinite; }
+@keyframes sk-speaker-wobble { 0%,100% { transform: rotate(0) scale(1); } 25% { transform: rotate(-12deg) scale(1.12); } 75% { transform: rotate(12deg) scale(1.12); } }
+@media (prefers-reduced-motion: reduce) { .sk-eat *, .sk-talk *, button.speak-btn-hero.sk-wave { animation-duration: 0s !important; } }
+/* bigger belly growth */
+.sk-svg .sk-body { transform: scale(calc(1 + var(--fed) * .85), calc(1 + var(--fed) * .3)); }
+.sk-svg .sk-belly { transform: scale(calc(1 + var(--fed) * .9), calc(1 + var(--fed) * .34)); }
