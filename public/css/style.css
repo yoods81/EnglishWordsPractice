@@ -4365,3 +4365,26 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
   #view-spelling .card:has(#spelling-practice:not([hidden])) > .view-section-title,
   #view-spelling .card:has(#spelling-practice:not([hidden])) > .setting-row { display: none; }
 }
+
+/* ===== Spelling: full-body koala ===== */
+.sp-left .sp-live-scene { position: relative; display: flex; justify-content: center; align-items: flex-end; height: auto; margin: 0; pointer-events: none; z-index: 1; grid-column: auto; }
+.sp-left .sp-live-scene .sk-svg { width: 100%; max-width: 170px; height: auto; overflow: visible; display: block; }
+.sp-left .sp-live-bubble { position: relative; left: auto; right: auto; top: auto; max-width: none; white-space: normal; margin: 0; }
+.sp-left .sp-live-bubble::before { left: -7px; top: 50%; }
+/* phone: koala on the left, bubble / progress / hear button stacked on the right */
+@media (max-width: 699px) {
+  .sp-left { grid-template-columns: 118px 1fr; column-gap: 10px; row-gap: 6px; align-items: center; }
+  .sp-left .sp-live-scene { grid-column: 1; grid-row: 1 / span 3; }
+  .sp-left .sp-live-scene .sk-svg { max-width: 118px; }
+  .sp-left .sp-live-bubble { grid-column: 2; grid-row: 1; }
+  .sp-left .sp-progress { grid-column: 2; grid-row: 2; }
+  .sp-left .spelling-speak-wrap { grid-column: 2; grid-row: 3; justify-self: start; }
+}
+/* desktop: bubble above the koala, arrow pointing down */
+@media (min-width: 700px) {
+  .sp-left .sp-live-bubble { order: -1; max-width: 240px; text-align: center; }
+  .sp-left .sp-live-bubble::before { left: 50%; top: auto; bottom: -9px; transform: translateX(-50%) rotate(-135deg); }
+  .sp-left .sp-live-scene { width: 100%; }
+  .sp-left .sp-live-scene .sk-svg { max-width: 176px; }
+  .sp-left button.speak-btn-hero { width: 72px; height: 72px; font-size: 2rem; }
+}

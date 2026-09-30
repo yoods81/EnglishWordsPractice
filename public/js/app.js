@@ -3563,7 +3563,39 @@ const spellingScene = document.getElementById("spelling-scene");
 const spellingBubble = document.getElementById("spelling-bubble");
 const spellingProgressEl = document.getElementById("spelling-progress");
 // Same koala artwork as the Flashcards helper, dropped in before the bubble.
-spellingScene.insertAdjacentHTML("afterbegin", flashScene.querySelector("svg").outerHTML);
+// Full-body koala (sitting on a branch) — shares the fk-* class names so the
+// same reaction animations drive it.
+const SPELL_KOALA_SVG = `<svg class="sk-svg" viewBox="0 0 200 205" width="170" height="174">
+  <rect x="14" y="181" width="172" height="12" rx="6" fill="#b98b5a"/>
+  <path d="M150 182 q14 -18 30 -10 q-6 16 -30 10z" fill="#3fb984"/><path d="M28 182 q-10 -16 -24 -8 q6 14 24 8z" fill="#3fb984"/>
+  <g class="fk-koala">
+    <ellipse cx="72" cy="182" rx="20" ry="9" fill="#8d9c97"/><ellipse cx="128" cy="182" rx="20" ry="9" fill="#8d9c97"/>
+    <ellipse cx="100" cy="146" rx="46" ry="40" fill="#a9b7b2"/>
+    <ellipse cx="100" cy="152" rx="28" ry="28" fill="#e3ebe8"/>
+    <ellipse cx="66" cy="168" rx="20" ry="15" fill="#a9b7b2"/><ellipse cx="134" cy="168" rx="20" ry="15" fill="#a9b7b2"/>
+    <g class="fk-paw fk-paw-l" style="transform-origin:64px 124px"><line x1="64" y1="124" x2="46" y2="152" stroke="#a9b7b2" stroke-width="14" stroke-linecap="round"/><circle cx="45" cy="154" r="8" fill="#8d9c97"/></g>
+    <g class="fk-paw fk-paw-r" style="transform-origin:136px 124px"><line x1="136" y1="124" x2="154" y2="152" stroke="#a9b7b2" stroke-width="14" stroke-linecap="round"/><circle cx="155" cy="154" r="8" fill="#8d9c97"/></g>
+    <g class="fk-head" style="transform-origin:100px 112px">
+      <circle cx="50" cy="66" r="24" fill="#a9b7b2"/><circle cx="50" cy="66" r="15" fill="#eef2f0"/>
+      <path d="M42 62 q6 -6 12 0 M40 70 q8 -5 14 1" stroke="#c9d3cf" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <circle cx="150" cy="66" r="24" fill="#a9b7b2"/><circle cx="150" cy="66" r="15" fill="#eef2f0"/>
+      <path d="M146 62 q6 -6 12 0 M146 71 q8 -5 14 1" stroke="#c9d3cf" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <ellipse cx="100" cy="82" rx="46" ry="40" fill="#a9b7b2"/>
+      <ellipse cx="100" cy="96" rx="30" ry="22" fill="#c4cfcb"/>
+      <circle cx="72" cy="94" r="7" fill="#ff7a90" opacity="0.45"/><circle cx="128" cy="94" r="7" fill="#ff7a90" opacity="0.45"/>
+      <g class="fk-eyes"><circle cx="82" cy="76" r="5.2" fill="#1f2a27"/><circle cx="118" cy="76" r="5.2" fill="#1f2a27"/><circle cx="84" cy="74" r="1.7" fill="#fff"/><circle cx="120" cy="74" r="1.7" fill="#fff"/></g>
+      <g class="fk-eyes-happy"><path d="M75 79 Q82 68 89 79" fill="none" stroke="#1f2a27" stroke-width="3" stroke-linecap="round"/><path d="M111 79 Q118 68 125 79" fill="none" stroke="#1f2a27" stroke-width="3" stroke-linecap="round"/></g>
+      <ellipse cx="100" cy="92" rx="15" ry="18" fill="#1f2a27"/><ellipse cx="95" cy="85" rx="4.5" ry="2.6" fill="#fff" opacity="0.35"/>
+      <path d="M90 116 Q100 123 110 116" stroke="#1f2a27" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      <polygon points="100,26 150,41 100,58 50,41" fill="#26332f"/>
+      <rect x="80" y="50" width="40" height="10" rx="3" fill="#26332f"/>
+      <line x1="146" y1="42" x2="146" y2="62" stroke="#ffd166" stroke-width="2.6"/><circle cx="146" cy="65" r="3.4" fill="#ffd166"/>
+    </g>
+  </g>
+  <text class="fk-spark fk-spark-1" x="10" y="50" font-size="20">✨</text>
+  <text class="fk-spark fk-spark-2" x="172" y="44" font-size="20">⭐</text>
+</svg>`;
+spellingScene.insertAdjacentHTML("afterbegin", SPELL_KOALA_SVG);
 function spellingReact(kind, msgKey) {
   koalaReact(kind, msgKey, spellingScene, spellingBubble, "spLiveIdle");
 }
@@ -3988,13 +4020,11 @@ document.addEventListener("keydown", (e) => {
   // their normal job any more — the field is empty, or the cursor is
   // already sitting at its very start — so ordinary editing of the typed
   // answer is never interrupted.
-  const atFieldStart = inInput && spellingInput.selectionStart === 0 && spellingInput.selectionEnd === 0;
-  if (e.key === "ArrowLeft" && (!inInput || atFieldStart) && !spellingBackBtn.disabled) {
-    e.preventDefault();
-    spellingBackBtn.click();
-    return;
-  }
-  if (e.key === "Backspace" && (!inInput || spellingInput.value.length === 0) && !spellingBackBtn.disabled) {
+  // Backspace never triggers Back here any more (holding it to erase a typo
+  // used to jump to the previous word once the field emptied). Only the
+  // Left arrow does, and only when it isn't needed for moving the cursor:
+  // outside the input, or with the input still empty.
+  if (e.key === "ArrowLeft" && (!inInput || spellingInput.value.length === 0) && !spellingBackBtn.disabled) {
     e.preventDefault();
     spellingBackBtn.click();
   }
