@@ -543,13 +543,12 @@
               <span class="bubble-text" data-i18n="spLiveIdle">Listen &amp; type!</span>
             </div>
           </div>
-          <div class="speak-btn-hero-wrap spelling-speak-wrap">
-            <button class="speak-btn speak-btn-hero" id="spelling-speak" type="button" title="Hear the word" aria-label="Hear the word">🔊</button>
-            <span class="speak-btn-hero-label" data-i18n="spellingHearBtn">Hear the word</span>
-          </div>
           </div>
           <div class="sp-right">
-          <input type="text" id="spelling-input" data-i18n-placeholder="spellingPlaceholder" placeholder="Type what you hear..." autocomplete="off" autocapitalize="off" spellcheck="false" />
+          <div class="sp-answer-row">
+            <button class="speak-btn speak-btn-hero" id="spelling-speak" type="button" title="Hear the word" aria-label="Hear the word">🔊</button>
+            <input type="text" id="spelling-input" data-i18n-placeholder="spellingPlaceholder" placeholder="Type what you hear..." autocomplete="off" autocapitalize="off" spellcheck="false" />
+          </div>
           <div class="spelling-hint-tray" id="spelling-hint-tray" aria-hidden="true"></div>
           <div id="spelling-word-audio" class="spelling-action-row">
             <button class="pill accent small" id="spelling-check"><svg class="check-icon-svg" viewBox="0 0 24 24" width="14" height="14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="var(--bg)" stroke-width="2" fill="none"/><path d="M7 12.5l3.2 3.2L17 9" stroke="var(--bg)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span data-i18n="spellingCheckBtn">Check Answer</span></button>

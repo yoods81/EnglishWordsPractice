@@ -84,7 +84,8 @@ const TRANSLATIONS = {
     spWhy3: "Spelling is part of school tests like NAPLAN.",
     spLiveIdle: "Listen & type!",
     spLiveHear: "Listening 👂",
-    spLiveOk: "Perfect! 🌟",
+    spLiveOk: "Yum! 🍃",
+    spLiveFull: "So full & happy! 🥰",
     spLiveNo: "Try again 💪",
     spLiveNext: "Next! 🍃",
     spLivePrev: "Look back 👀",
@@ -523,7 +524,8 @@ const TRANSLATIONS = {
     spWhy3: "호주 학교 시험(NAPLAN)에도 스펠링이 나와요.",
     spLiveIdle: "듣고 써요!",
     spLiveHear: "쫑긋 👂",
-    spLiveOk: "완벽해요! 🌟",
+    spLiveOk: "냠냠! 🍃",
+    spLiveFull: "배불러서 행복해요! 🥰",
     spLiveNo: "다시 해봐요 💪",
     spLiveNext: "다음! 🍃",
     spLivePrev: "다시 보기 👀",
@@ -3575,8 +3577,8 @@ const SPELL_KOALA_SVG = `<svg class="sk-svg" viewBox="0 0 200 205" width="170" h
   <path d="M150 182 q14 -18 30 -10 q-6 16 -30 10z" fill="#3fb984"/><path d="M28 182 q-10 -16 -24 -8 q6 14 24 8z" fill="#3fb984"/>
   <g class="fk-koala">
     <ellipse cx="72" cy="182" rx="20" ry="9" fill="#8d9c97"/><ellipse cx="128" cy="182" rx="20" ry="9" fill="#8d9c97"/>
-    <ellipse cx="100" cy="146" rx="46" ry="40" fill="#a9b7b2"/>
-    <ellipse cx="100" cy="152" rx="28" ry="28" fill="#e3ebe8"/>
+    <ellipse class="sk-body" cx="100" cy="146" rx="46" ry="40" fill="#a9b7b2"/>
+    <ellipse class="sk-body sk-belly" cx="100" cy="152" rx="28" ry="28" fill="#e3ebe8"/>
     <ellipse cx="66" cy="168" rx="20" ry="15" fill="#a9b7b2"/><ellipse cx="134" cy="168" rx="20" ry="15" fill="#a9b7b2"/>
     <g class="fk-paw fk-paw-l" style="transform-origin:64px 124px"><line x1="64" y1="124" x2="46" y2="152" stroke="#a9b7b2" stroke-width="14" stroke-linecap="round"/><circle cx="45" cy="154" r="8" fill="#8d9c97"/></g>
     <g class="fk-paw fk-paw-r" style="transform-origin:136px 124px"><line x1="136" y1="124" x2="154" y2="152" stroke="#a9b7b2" stroke-width="14" stroke-linecap="round"/><circle cx="155" cy="154" r="8" fill="#8d9c97"/></g>
@@ -3599,27 +3601,64 @@ const SPELL_KOALA_SVG = `<svg class="sk-svg" viewBox="0 0 200 205" width="170" h
   </g>
   <text class="fk-spark fk-spark-1" x="10" y="50" font-size="20">✨</text>
   <text class="fk-spark fk-spark-2" x="172" y="44" font-size="20">⭐</text>
+  <text class="sk-heart sk-heart-1" x="30" y="70" font-size="22">💚</text><text class="sk-heart sk-heart-2" x="150" y="64" font-size="22">💚</text><text class="sk-heart sk-heart-3" x="92" y="20" font-size="22">💚</text>
 </svg>`;
 spellingScene.insertAdjacentHTML("afterbegin", SPELL_KOALA_SVG);
 function spellingReact(kind, msgKey) {
   koalaReact(kind, msgKey, spellingScene, spellingBubble, "spLiveIdle");
 }
-// Same crawling-koala trail as the Quiz tab, cloned so the two screens match.
-const spellingTrail = quizTrail.cloneNode(true);
-spellingTrail.id = "spelling-trail";
-spellingTrail.classList.add("sp-trail");
-spellingTrail.style.setProperty("--p", "0");
-spellingTrail.querySelector("#quiz-progress-fill").id = "spelling-progress-fill";
-spellingTrail.querySelector("#quiz-koala").id = "spelling-trail-koala";
-document.getElementById("spelling-trail-slot").appendChild(spellingTrail);
-const spellingTrailFill = spellingTrail.querySelector("#spelling-progress-fill");
+// Leaf branch: one leaf per word. Each correct answer, the koala eats a leaf
+// and its belly gets rounder; after the last leaf it is completely happy.
+const spellingBranch = document.createElement("div");
+spellingBranch.className = "sp-branch";
+spellingBranch.id = "spelling-branch";
+document.getElementById("spelling-trail-slot").appendChild(spellingBranch);
+const LEAF_SVG = '<svg viewBox="0 0 40 28" width="30" height="21" aria-hidden="true"><path d="M2 14 C10 0 28 0 38 14 C28 28 10 28 2 14Z" fill="#3fb984" stroke="#0e9c7d" stroke-width="2"/><path d="M4 14 H34" stroke="#0e9c7d" stroke-width="1.8" stroke-linecap="round"/></svg>';
+let spellingLeafTotal = 0, spellingLeafEaten = 0;
+function buildSpellingBranch(n) {
+  spellingLeafTotal = Math.min(Math.max(n, 0), 15);
+  spellingLeafEaten = 0;
+  spellingBranch.innerHTML = '<div class="sp-twig"></div>' + Array.from({ length: spellingLeafTotal }, (_, i) =>
+    `<span class="sp-leaf" data-i="${i}" style="--r:${(i % 2 ? 1 : -1) * (8 + (i * 7) % 10)}deg">${LEAF_SVG}</span>`).join("");
+  spellingScene.style.setProperty("--fed", "0");
+  spellingScene.classList.remove("sk-full");
+}
+function flyLeafToKoala(leaf) {
+  const koala = spellingScene.querySelector(".sk-svg");
+  if (!leaf || !koala) return;
+  const lr = leaf.getBoundingClientRect(), kr = koala.getBoundingClientRect();
+  const fly = leaf.cloneNode(true);
+  fly.classList.add("sp-leaf-fly");
+  fly.style.left = lr.left + "px"; fly.style.top = lr.top + "px";
+  fly.style.setProperty("--tx", (kr.left + kr.width * 0.5 - lr.left - 12) + "px");
+  fly.style.setProperty("--ty", (kr.top + kr.height * 0.5 - lr.top - 6) + "px");
+  document.body.appendChild(fly);
+  setTimeout(() => fly.remove(), 800);
+}
 function renderSpellingProgress(advanced = false) {
   const n = spellingDeck.length;
-  if (!n) { spellingProgressEl.textContent = ""; setTrailProgress(spellingTrail, spellingTrailFill, 0); return; }
+  if (!n) { spellingProgressEl.textContent = ""; buildSpellingBranch(0); return; }
+  if (spellingBranch.dataset.n !== String(n)) { spellingBranch.dataset.n = String(n); buildSpellingBranch(n); }
   const cur = Math.min(spellingIndex, n - 1);
   spellingProgressEl.textContent = t("spProgressLabel", cur + 1, n);
-  // The little koala advances one leaf as soon as the word is spelled right.
-  setTrailProgress(spellingTrail, spellingTrailFill, ((cur + (advanced ? 1 : 0)) / n) * 100);
+  const done = cur + (advanced ? 1 : 0);
+  const target = Math.round((done / n) * spellingLeafTotal);
+  const leaves = spellingBranch.querySelectorAll(".sp-leaf");
+  leaves.forEach((l, i) => {
+    const eaten = i < target;
+    if (eaten && !l.classList.contains("eaten") && advanced && i === spellingLeafEaten) flyLeafToKoala(l);
+    l.classList.toggle("eaten", eaten);
+  });
+  spellingLeafEaten = target;
+  const fed = done / n;
+  spellingScene.style.setProperty("--fed", fed.toFixed(3));
+  const full = done >= n;
+  spellingScene.classList.toggle("sk-full", full);
+  if (advanced) {
+    spellingScene.classList.remove("sk-munch"); void spellingScene.offsetWidth; spellingScene.classList.add("sk-munch");
+    setTimeout(() => spellingScene.classList.remove("sk-munch"), 900);
+    if (full) setTimeout(() => { spellingBubble.querySelector(".bubble-text").textContent = t("spLiveFull"); }, 1800);
+  }
 }
 function spellingConfetti() {
   const box = spellingPractice;

@@ -4454,3 +4454,45 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
   .sp-right .speak-btn-hero-label { font-size: 0.8rem; }
   .sp-right > :not(.spelling-speak-wrap) { grid-column: 1 / -1; }
 }
+
+/* ---- Spelling: leaf-eating koala + inline speaker ---- */
+.sp-trail { display: none; }
+.sp-branch { position: relative; display: flex; justify-content: center; align-items: flex-start; gap: 4px; flex-wrap: wrap; padding: 8px 6px 2px; margin: 2px 0 6px; min-height: 30px; }
+.sp-twig { position: absolute; left: 4%; right: 4%; top: 6px; height: 7px; border-radius: 5px; background: #b98b5a; }
+.sp-leaf { position: relative; display: inline-block; margin-top: 2px; transform: rotate(var(--r, 0deg)); transform-origin: 50% 0; transition: opacity .3s, transform .4s; animation: sp-leaf-sway 3s ease-in-out infinite; }
+.sp-leaf:nth-child(even) { animation-delay: -1.2s; }
+.sp-leaf svg { display: block; }
+.sp-leaf.eaten { opacity: 0; transform: rotate(var(--r, 0deg)) scale(.2); animation: none; }
+@keyframes sp-leaf-sway { 0%,100% { transform: rotate(var(--r, 0deg)); } 50% { transform: rotate(calc(var(--r, 0deg) * -0.6)); } }
+.sp-leaf-fly { position: fixed; z-index: 60; pointer-events: none; animation: sp-leaf-fly .7s cubic-bezier(.5,0,.7,.6) forwards; }
+@keyframes sp-leaf-fly { 0% { transform: translate(0,0) scale(1) rotate(0); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(.5) rotate(200deg); opacity: 0; } }
+/* fatter belly as the koala eats */
+.sp-live-scene { --fed: 0; }
+.sk-svg .sk-body { transform-box: view-box; transform-origin: 100px 182px; transform: scale(calc(1 + var(--fed) * .3), calc(1 + var(--fed) * .12)); transition: transform .6s cubic-bezier(.3,1.6,.5,1); }
+.sk-svg .sk-belly { transform: scale(calc(1 + var(--fed) * .34), calc(1 + var(--fed) * .16)); }
+.sk-munch .fk-head { animation: sk-chew .18s ease-in-out 5; }
+@keyframes sk-chew { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(4px) rotate(-2deg); } }
+.sk-heart { opacity: 0; transform-box: fill-box; }
+.sk-full .fk-eyes { opacity: 0; }
+.sk-full .fk-eyes-happy { opacity: 1; }
+.sk-full .fk-koala { animation: fk-hop 1s ease-out infinite; }
+.sk-full .sk-heart { animation: sk-heart 1.8s ease-out infinite; }
+.sk-full .sk-heart-2 { animation-delay: .6s; }
+.sk-full .sk-heart-3 { animation-delay: 1.2s; }
+@keyframes sk-heart { 0% { opacity: 0; transform: translateY(8px) scale(.4); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-22px) scale(1.1); } }
+/* speaker sits in front of the input */
+.sp-answer-row { display: flex; align-items: center; gap: 10px; }
+.sp-answer-row #spelling-input { flex: 1 1 auto; min-width: 0; margin: 0; }
+.sp-answer-row button.speak-btn-hero { flex: 0 0 auto; width: 56px; height: 56px; font-size: 1.6rem; margin: 0; }
+@media (max-width: 699px) {
+  .sp-body { grid-template-columns: 1fr; }
+  .sp-left .sp-live-scene { grid-column: 1 / -1; grid-row: auto; }
+  .sp-left .sp-live-scene .sk-svg { max-width: 120px; }
+  .sp-cloud { left: calc(50% + 34px); }
+  .sp-answer-row button.speak-btn-hero { width: 50px; height: 50px; font-size: 1.4rem; }
+  .sp-branch { padding-top: 6px; margin: 0 0 2px; }
+}
+@media (prefers-reduced-motion: reduce) { .sp-leaf, .sk-full .fk-koala, .sk-full .sk-heart { animation: none; } }
+.sp-branch { flex-wrap: nowrap; }
+.sp-leaf { flex: 1 1 0; max-width: 34px; display: flex; justify-content: center; }
+.sp-leaf svg { width: 100%; height: auto; max-width: 34px; }
