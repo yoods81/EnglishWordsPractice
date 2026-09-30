@@ -82,12 +82,12 @@ const TRANSLATIONS = {
     spWhy1: "Words you can spell are words you read faster.",
     spWhy2: "Your writing looks clear and confident.",
     spWhy3: "Spelling is part of school tests like NAPLAN.",
-    spLiveIdle: "Listen, then type!",
-    spLiveHear: "I'm listening 👂",
-    spLiveOk: "Perfect spelling! 🌟",
-    spLiveNo: "So close! Try again 💪",
-    spLiveNext: "Next word! 🍃",
-    spLivePrev: "Let's look back 👀",
+    spLiveIdle: "Listen & type!",
+    spLiveHear: "Listening 👂",
+    spLiveOk: "Perfect! 🌟",
+    spLiveNo: "Try again 💪",
+    spLiveNext: "Next! 🍃",
+    spLivePrev: "Look back 👀",
     spProgressLabel: (i, n) => `Word ${i} of ${n}`,
     fkIdle: "Tap the card to flip!",
     fkFlip: "Ta-da! ✨",
@@ -521,12 +521,12 @@ const TRANSLATIONS = {
     spWhy1: "철자를 알면 글을 더 빨리 읽을 수 있어요.",
     spWhy2: "글씨가 또렷하고 자신감 있게 보여요.",
     spWhy3: "호주 학교 시험(NAPLAN)에도 스펠링이 나와요.",
-    spLiveIdle: "잘 듣고 써봐요!",
-    spLiveHear: "귀 쫑긋! 듣는 중 👂",
-    spLiveOk: "철자 완벽해요! 🌟",
-    spLiveNo: "아깝다! 다시 해봐요 💪",
-    spLiveNext: "다음 단어! 🍃",
-    spLivePrev: "다시 볼까요? 👀",
+    spLiveIdle: "듣고 써요!",
+    spLiveHear: "쫑긋 👂",
+    spLiveOk: "완벽해요! 🌟",
+    spLiveNo: "다시 해봐요 💪",
+    spLiveNext: "다음! 🍃",
+    spLivePrev: "다시 보기 👀",
     spProgressLabel: (i, n) => `${n}단어 중 ${i}번째`,
     fkIdle: "카드를 눌러 뒤집어요!",
     fkFlip: "짜잔! ✨",
@@ -2834,11 +2834,12 @@ function koalaReact(kind, msgKey, scene = flashScene, bubble = flashBubble, idle
   scene.classList.remove(...FK_CLASSES);
   void scene.offsetWidth; // restart the animation
   scene.classList.add("fk-" + kind);
-  bubble.textContent = t(msgKey);
+  const bubbleText = bubble.querySelector(".bubble-text") || bubble;
+  bubbleText.textContent = t(msgKey);
   clearTimeout(scene._fkTimer);
   scene._fkTimer = setTimeout(() => {
     scene.classList.remove(...FK_CLASSES);
-    bubble.textContent = t(idleKey);
+    bubbleText.textContent = t(idleKey);
   }, 1700);
 }
 function slideFlashStage(dir) {
@@ -3183,25 +3184,29 @@ let quizTrailMoveTimer = null;
 // Moves the quiz progress bar AND the crawling koala on it. The koala walks
 // (legs swing) while the position is changing, munches the leaves it passes
 // (they fade as it reaches them), and is happy once it reaches the tree.
-function setQuizProgress(pct) {
+function setTrailProgress(trail, fill, pct) {
   const p = Math.max(0, Math.min(100, pct)) / 100;
-  quizProgressFill.style.width = `calc(var(--kw) - 8px + ${p} * (100% - var(--kw) + 8px))`;
-  if (p === 0) quizProgressFill.style.width = "0";
-  quizTrail.style.setProperty("--p", String(p));
-  const backwards = pct < quizTrailLastPct;
-  quizTrail.classList.toggle("no-anim", backwards);
-  if (!backwards && pct !== quizTrailLastPct) {
-    quizTrail.classList.add("moving");
-    clearTimeout(quizTrailMoveTimer);
-    quizTrailMoveTimer = setTimeout(() => quizTrail.classList.remove("moving"), 750);
+  fill.style.width = `calc(var(--kw) - 8px + ${p} * (100% - var(--kw) + 8px))`;
+  if (p === 0) fill.style.width = "0";
+  trail.style.setProperty("--p", String(p));
+  const last = trail._lastPct || 0;
+  const backwards = pct < last;
+  trail.classList.toggle("no-anim", backwards);
+  if (!backwards && pct !== last) {
+    trail.classList.add("moving");
+    clearTimeout(trail._moveTimer);
+    trail._moveTimer = setTimeout(() => trail.classList.remove("moving"), 750);
   } else if (backwards) {
-    quizTrail.classList.remove("moving");
+    trail.classList.remove("moving");
   }
-  quizTrail.classList.toggle("done", p >= 1);
-  quizTrail.querySelectorAll(".trail-leaf").forEach((leaf) => {
+  trail.classList.toggle("done", p >= 1);
+  trail.querySelectorAll(".trail-leaf").forEach((leaf) => {
     leaf.classList.toggle("eaten", p >= parseFloat(leaf.style.getPropertyValue("--x")) - 0.001 && p > 0);
   });
-  quizTrailLastPct = pct;
+  trail._lastPct = pct;
+}
+function setQuizProgress(pct) {
+  setTrailProgress(quizTrail, quizProgressFill, pct);
 }
 
 const MIN_POOL_FOR_QUIZ = 4;
@@ -3599,19 +3604,22 @@ spellingScene.insertAdjacentHTML("afterbegin", SPELL_KOALA_SVG);
 function spellingReact(kind, msgKey) {
   koalaReact(kind, msgKey, spellingScene, spellingBubble, "spLiveIdle");
 }
-function renderSpellingProgress() {
+// Same crawling-koala trail as the Quiz tab, cloned so the two screens match.
+const spellingTrail = quizTrail.cloneNode(true);
+spellingTrail.id = "spelling-trail";
+spellingTrail.classList.add("sp-trail");
+spellingTrail.style.setProperty("--p", "0");
+spellingTrail.querySelector("#quiz-progress-fill").id = "spelling-progress-fill";
+spellingTrail.querySelector("#quiz-koala").id = "spelling-trail-koala";
+document.getElementById("spelling-trail-slot").appendChild(spellingTrail);
+const spellingTrailFill = spellingTrail.querySelector("#spelling-progress-fill");
+function renderSpellingProgress(advanced = false) {
   const n = spellingDeck.length;
-  if (!n) { spellingProgressEl.innerHTML = ""; return; }
+  if (!n) { spellingProgressEl.textContent = ""; setTrailProgress(spellingTrail, spellingTrailFill, 0); return; }
   const cur = Math.min(spellingIndex, n - 1);
-  let dots = "";
-  if (n <= 20) {
-    spellingDeck.forEach((w, i) => {
-      const done = spellingCreditedWords.has(w.word);
-      const cls = i === cur ? "cur" : done ? "done" : i < cur ? "skip" : "";
-      dots += `<span class="sp-dot ${cls}">${done ? "⭐" : i === cur ? "🌿" : ""}</span>`;
-    });
-  }
-  spellingProgressEl.innerHTML = `<div class="sp-progress-label">${t("spProgressLabel", cur + 1, n)}</div>${dots ? `<div class="sp-dots">${dots}</div>` : ""}`;
+  spellingProgressEl.textContent = t("spProgressLabel", cur + 1, n);
+  // The little koala advances one leaf as soon as the word is spelled right.
+  setTrailProgress(spellingTrail, spellingTrailFill, ((cur + (advanced ? 1 : 0)) / n) * 100);
 }
 function spellingConfetti() {
   const box = spellingPractice;
@@ -3805,7 +3813,7 @@ function checkSpellingAnswer() {
     pulseScoreTag(spellingInput, "option-btn-bounce");
     spellingReact("know", "spLiveOk");
     spellingConfetti();
-    renderSpellingProgress();
+    renderSpellingProgress(true);
     showSpellingCorrectFeedback(earnsCredit);
     spellingCurrentChecked = true;
     spellingNextBtn.disabled = false;

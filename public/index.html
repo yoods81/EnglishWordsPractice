@@ -533,10 +533,16 @@
           </div>
         </div>
         <div id="spelling-practice" class="spelling-stage-box" hidden>
-          <div class="sp-left">
-          <div class="sp-live-scene" id="spelling-scene" aria-hidden="true"></div>
-          <div class="fk-bubble sp-live-bubble" id="spelling-bubble" data-i18n="spLiveIdle">Listen, then type!</div>
           <div class="sp-progress" id="spelling-progress" aria-live="polite"></div>
+          <div id="spelling-trail-slot"></div>
+          <div class="sp-body">
+          <div class="sp-left">
+          <div class="sp-live-scene" id="spelling-scene" aria-hidden="true">
+            <div class="sp-cloud" id="spelling-bubble">
+              <svg viewBox="0 0 120 68" class="sp-cloud-bg"><path d="M28 50 C12 50 6 36 16 28 C10 14 28 6 40 14 C46 2 70 2 78 14 C92 6 112 16 104 30 C116 38 108 52 92 50 C80 58 40 58 28 50 Z" fill="#fff" stroke="#0e9c7d" stroke-width="2.6" stroke-linejoin="round"/><circle cx="62" cy="60" r="3.6" fill="#fff" stroke="#0e9c7d" stroke-width="2"/><circle cx="66" cy="66" r="2.2" fill="#fff" stroke="#0e9c7d" stroke-width="1.6"/></svg>
+              <span class="bubble-text" data-i18n="spLiveIdle">Listen &amp; type!</span>
+            </div>
+          </div>
           <div class="speak-btn-hero-wrap spelling-speak-wrap">
             <button class="speak-btn speak-btn-hero" id="spelling-speak" type="button" title="Hear the word" aria-label="Hear the word">🔊</button>
             <span class="speak-btn-hero-label" data-i18n="spellingHearBtn">Hear the word</span>
@@ -556,6 +562,7 @@
           <div class="quiz-footer">
             <span class="score-tag" id="spelling-score">Score: 0 / 0</span>
             <button class="pill error small" id="spelling-finish-btn" style="margin-left:auto;" data-i18n="spellingFinishBtn">🏁 Finish</button>
+          </div>
           </div>
           </div>
         </div>
