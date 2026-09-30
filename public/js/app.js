@@ -82,6 +82,12 @@ const TRANSLATIONS = {
     spWhy1: "Words you can spell are words you read faster.",
     spWhy2: "Your writing looks clear and confident.",
     spWhy3: "Spelling is part of school tests like NAPLAN.",
+    fkIdle: "Tap the card to flip!",
+    fkFlip: "Ta-da! ✨",
+    fkNext: "Next word! 🍃",
+    fkPrev: "Let's look again 👀",
+    fkKnow: "Great job! 🌟",
+    fkDunno: "We'll practise! 💪",
     installAppBtn: "📲 Install app",
     installSheetTitle: "Add Koala Study Mate to your home screen",
     installSheetSub: "Free • Safe • No ads",
@@ -508,6 +514,12 @@ const TRANSLATIONS = {
     spWhy1: "철자를 알면 글을 더 빨리 읽을 수 있어요.",
     spWhy2: "글씨가 또렷하고 자신감 있게 보여요.",
     spWhy3: "호주 학교 시험(NAPLAN)에도 스펠링이 나와요.",
+    fkIdle: "카드를 눌러 뒤집어요!",
+    fkFlip: "짜잔! ✨",
+    fkNext: "다음 단어! 🍃",
+    fkPrev: "다시 볼까요? 👀",
+    fkKnow: "잘했어요! 🌟",
+    fkDunno: "같이 연습해요! 💪",
     installAppBtn: "📲 앱 설치하기",
     installSheetTitle: "코알라 스터디 메이트를 홈 화면에 추가하세요",
     installSheetSub: "무료 • 안전 • 광고 없음",
@@ -2796,9 +2808,37 @@ function renderFlashcard() {
   flashExampleEl.textContent = item.example;
 }
 
+// ---- Koala helper above the card: reacts to flip / next / back / know ----
+const flashScene = document.getElementById("flash-scene");
+const flashBubble = document.getElementById("flash-bubble");
+const flashStageEl = document.getElementById("flashcard-stage");
+let flashSceneTimer = null;
+const FK_CLASSES = ["fk-flip", "fk-next", "fk-prev", "fk-know", "fk-dunno"];
+function koalaReact(kind, msgKey) {
+  if (!flashScene) return;
+  flashScene.classList.remove(...FK_CLASSES);
+  void flashScene.offsetWidth; // restart the animation
+  flashScene.classList.add("fk-" + kind);
+  flashBubble.textContent = t(msgKey);
+  clearTimeout(flashSceneTimer);
+  flashSceneTimer = setTimeout(() => {
+    flashScene.classList.remove(...FK_CLASSES);
+    flashBubble.textContent = t("fkIdle");
+  }, 1700);
+}
+function slideFlashStage(dir) {
+  flashStageEl.classList.remove("slide-next", "slide-prev");
+  void flashStageEl.offsetWidth;
+  flashStageEl.classList.add(dir === "prev" ? "slide-prev" : "slide-next");
+}
+function flipFlashcard() {
+  flashcardEl.classList.toggle("flipped");
+  koalaReact("flip", "fkFlip");
+}
+
 flashcardEl.addEventListener("click", (e) => {
   if (e.target === flashSpeakBtn) return;
-  flashcardEl.classList.toggle("flipped");
+  flipFlashcard();
 });
 
 flashSpeakBtn.addEventListener("click", (e) => {
@@ -2824,6 +2864,8 @@ function nextFlashcard() {
   if (flashDeck.length === 0) return;
   flashIndex = (flashIndex + 1) % flashDeck.length;
   renderFlashcard();
+  slideFlashStage("next");
+  koalaReact("next", "fkNext");
 }
 
 flashNextBtn.addEventListener("click", nextFlashcard);
@@ -2831,6 +2873,8 @@ flashPrevBtn.addEventListener("click", () => {
   if (flashDeck.length === 0) return;
   flashIndex = (flashIndex - 1 + flashDeck.length) % flashDeck.length;
   renderFlashcard();
+  slideFlashStage("prev");
+  koalaReact("prev", "fkPrev");
 });
 
 // ---- Keyboard play: Space hears the word, Left arrow/Backspace goes back,
@@ -2866,7 +2910,7 @@ document.addEventListener("keydown", (e) => {
   }
   if (e.key === "Enter") {
     e.preventDefault();
-    flashcardEl.classList.toggle("flipped");
+    flipFlashcard();
   }
 });
 
@@ -2877,6 +2921,7 @@ flashKnowBtn.addEventListener("click", () => {
   recordResult(word, true, "flash");
   pulseScoreTag(flashKnowBtn, "option-btn-bounce");
   nextFlashcard();
+  koalaReact("know", "fkKnow");
 });
 
 flashDontKnowBtn.addEventListener("click", () => {
@@ -2885,6 +2930,7 @@ flashDontKnowBtn.addEventListener("click", () => {
   delete progress.flashKnown[word];
   recordResult(word, false, "flash");
   nextFlashcard();
+  koalaReact("dunno", "fkDunno");
 });
 
 flashCategorySel.addEventListener("change", buildFlashDeck);

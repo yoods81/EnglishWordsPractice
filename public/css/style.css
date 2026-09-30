@@ -4205,3 +4205,73 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
   .sp-l, .sp-star, .sp-underline { opacity: 1; }
   .sp-tip1 { opacity: 1; }
 }
+
+/* ===== Flashcards: koala helper + leaf buttons ===== */
+.flash-scene { position: relative; display: flex; justify-content: center; align-items: flex-end; height: 88px; margin: -8px 0 -10px; pointer-events: none; z-index: 2; }
+.fk-svg { width: 170px; height: auto; overflow: visible; }
+.fk-bubble { position: absolute; right: 4%; top: 6px; max-width: 34%; background: #fff; border: 2px solid var(--accent-dark); border-radius: 14px; box-shadow: 0 2px 0 var(--accent-dark); padding: 5px 9px; font-family: var(--font-heading); font-weight: 700; font-size: 0.78rem; color: var(--accent-dark); line-height: 1.2; text-align: center; }
+.fk-bubble::before { content: ""; position: absolute; left: -7px; top: 50%; width: 10px; height: 10px; background: #fff; border-left: 2px solid var(--accent-dark); border-bottom: 2px solid var(--accent-dark); transform: translateY(-50%) rotate(45deg); }
+.fk-eyes-happy, .fk-spark { opacity: 0; }
+.fk-eyes { animation: fk-blink 4s infinite; transform-box: fill-box; transform-origin: center; }
+.fk-head { animation: fk-idle 3.4s ease-in-out infinite; }
+@keyframes fk-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+@keyframes fk-idle { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-2.5deg); } }
+/* flip: both paws throw up like flipping a card, head hops, happy eyes */
+.fk-flip .fk-paw-l { animation: fk-paw-l 0.7s ease-out; }
+.fk-flip .fk-paw-r { animation: fk-paw-r 0.7s ease-out; }
+.fk-flip .fk-koala { animation: fk-hop 0.7s ease-out; }
+.fk-flip .fk-eyes, .fk-know .fk-eyes, .fk-next .fk-eyes { opacity: 0; }
+.fk-flip .fk-eyes-happy, .fk-know .fk-eyes-happy, .fk-next .fk-eyes-happy { opacity: 1; }
+.fk-flip .fk-spark-1, .fk-flip .fk-spark-2, .fk-know .fk-spark-1, .fk-know .fk-spark-2 { animation: fk-spark 1s ease-out; }
+@keyframes fk-paw-l { 0% { transform: rotate(0); } 35% { transform: translateY(-22px) rotate(35deg); } 100% { transform: rotate(0); } }
+@keyframes fk-paw-r { 0% { transform: rotate(0); } 35% { transform: translateY(-22px) rotate(-35deg); } 100% { transform: rotate(0); } }
+@keyframes fk-hop { 0% { transform: translateY(0); } 30% { transform: translateY(-9px); } 60% { transform: translateY(0); } 78% { transform: translateY(-3px); } 100% { transform: translateY(0); } }
+@keyframes fk-spark { 0% { opacity: 0; transform: translateY(6px) scale(.4); } 30% { opacity: 1; transform: translateY(-4px) scale(1.2); } 100% { opacity: 0; transform: translateY(-14px) scale(1); } }
+/* next / back: koala leans and pushes the card the way it is going */
+.fk-next .fk-head { animation: fk-lean-r 0.6s ease-out; }
+.fk-next .fk-paw-r { animation: fk-push-r 0.6s ease-out; }
+.fk-prev .fk-head { animation: fk-lean-l 0.6s ease-out; }
+.fk-prev .fk-paw-l { animation: fk-push-l 0.6s ease-out; }
+@keyframes fk-lean-r { 0%, 100% { transform: rotate(0); } 40% { transform: rotate(9deg) translateX(6px); } }
+@keyframes fk-lean-l { 0%, 100% { transform: rotate(0); } 40% { transform: rotate(-9deg) translateX(-6px); } }
+@keyframes fk-push-r { 0%, 100% { transform: translateX(0); } 40% { transform: translateX(18px) rotate(-15deg); } }
+@keyframes fk-push-l { 0%, 100% { transform: translateX(0); } 40% { transform: translateX(-18px) rotate(15deg); } }
+.fk-know .fk-koala { animation: fk-hop 0.7s ease-out 2; }
+.fk-dunno .fk-head { animation: fk-shake 0.6s ease-in-out; }
+@keyframes fk-shake { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } 80% { transform: rotate(-4deg); } }
+/* card slides in from the side it was pushed from */
+#flashcard-stage.slide-next { animation: fk-slide-next 0.45s ease-out; }
+#flashcard-stage.slide-prev { animation: fk-slide-prev 0.45s ease-out; }
+@keyframes fk-slide-next { from { transform: translateX(46px) rotate(4deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fk-slide-prev { from { transform: translateX(-46px) rotate(-4deg); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* leaf-shaped Back / Next buttons */
+#flash-prev, #flash-next {
+  background: linear-gradient(160deg, #6fe0bf, var(--accent));
+  color: #fff;
+  border: 1px solid var(--accent-dark);
+  box-shadow: 0 3px 0 var(--accent-dark);
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+#flash-next { border-radius: 6px 26px 6px 26px; }
+#flash-prev { border-radius: 26px 6px 26px 6px; }
+#flash-prev:hover, #flash-next:hover { background: linear-gradient(160deg, #7aeac9, #1fb894); color: #fff; border-color: var(--accent-dark); }
+#flash-prev:active, #flash-next:active { transform: translateY(3px); box-shadow: none; }
+#flash-prev .btn-arrow, #flash-next .btn-arrow { display: inline-block; transition: transform .25s; }
+#flash-next:hover .btn-arrow { animation: fk-leaf-r .7s ease-in-out infinite; }
+#flash-prev:hover .btn-arrow { animation: fk-leaf-l .7s ease-in-out infinite; }
+@keyframes fk-leaf-r { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(18deg) translateX(3px); } }
+@keyframes fk-leaf-l { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-18deg) translateX(-3px); } }
+@media (max-width: 480px) {
+  #flash-prev, #flash-next { width: 46px; height: 52px; border-radius: 6px 24px 6px 24px; }
+  #flash-prev { border-radius: 24px 6px 24px 6px; }
+  .fk-bubble { max-width: 38%; font-size: 0.7rem; right: 0; }
+  .fk-svg { width: 140px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fk-koala, .fk-koala *, #flashcard-stage, .flash-side-btn .btn-arrow { animation: none !important; }
+}
+@media (min-width: 481px) {
+  .fk-bubble { right: auto; left: calc(50% + 84px); max-width: 220px; white-space: nowrap; }
+}
