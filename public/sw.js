@@ -3,15 +3,15 @@
      shows up immediately; the cached copy is used only when offline.
    - /api/* is never cached (logins, shared words, sync always go to the server).
    - Google Fonts: stale-while-revalidate. Bump CACHE when the list changes. */
-const CACHE = "koala-study-v1";
+const CACHE = "koala-study-v3";
 const PRECACHE = [
   "/", "/index.html", "/css/style.css", "/js/app.js", "/js/words.js", "/js/words_ko.js",
-  "/favicon.svg", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png", "/manifest.webmanifest",
+  "/favicon.svg?v=3", "/icon-192.png?v=3", "/icon-512.png?v=3", "/apple-touch-icon.png?v=3", "/manifest.webmanifest", "/screenshots/home.png",
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((c) => Promise.allSettled(PRECACHE.map((u) => c.add(u)))).then(() => self.skipWaiting())
+    caches.open(CACHE).then((c) => Promise.allSettled(PRECACHE.map((u) => c.add(new Request(u, { cache: "reload" }))))).then(() => self.skipWaiting())
   );
 });
 

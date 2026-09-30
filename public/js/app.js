@@ -76,6 +76,13 @@ const TRANSLATIONS = {
     navTimesTableShort: "Times",
     navStatsShort: "Progress",
     installAppBtn: "📲 Install app",
+    installSheetTitle: "Add Koala Study Mate to your home screen",
+    installSheetSub: "Free • Safe • No ads",
+    installPerk1: "⚡ Opens in one tap, full screen",
+    installPerk2: "📴 Flashcards & games work offline",
+    installPerk3: "🏅 Keeps your koala badges close",
+    installSheetOk: "Install",
+    installSheetLater: "Not now",
     offlineBanner: "📴 You're offline — flashcards, word list and games still work.",
     statsTabOverview: "📊 Overview",
     statsTabBadges: "🏅 Badges",
@@ -488,6 +495,13 @@ const TRANSLATIONS = {
     navTimesTableShort: "구구단",
     navStatsShort: "진행상황",
     installAppBtn: "📲 앱 설치하기",
+    installSheetTitle: "코알라 스터디 메이트를 홈 화면에 추가하세요",
+    installSheetSub: "무료 • 안전 • 광고 없음",
+    installPerk1: "⚡ 한 번 터치로 전체 화면 실행",
+    installPerk2: "📴 오프라인에서도 플래시카드·게임 가능",
+    installPerk3: "🏅 코알라 배지를 항상 가까이",
+    installSheetOk: "설치하기",
+    installSheetLater: "나중에",
     offlineBanner: "📴 오프라인이에요 — 플래시카드, 단어 목록, 게임은 계속 쓸 수 있어요.",
     statsTabOverview: "📊 요약",
     statsTabBadges: "🏅 배지",
@@ -8496,12 +8510,32 @@ renderCustomWords();
     if (installBtn) installBtn.hidden = false;
   });
   if (installBtn) {
-    installBtn.addEventListener("click", async () => {
+    // A friendly sheet first (what you get, why it's safe), then the
+    // browser's own install prompt on "Install".
+    installBtn.addEventListener("click", () => {
       if (!deferredInstall) return;
-      deferredInstall.prompt();
-      try { await deferredInstall.userChoice; } catch (e) { /* ignore */ }
-      deferredInstall = null;
-      installBtn.hidden = true;
+      const sheet = document.createElement("div");
+      sheet.className = "install-sheet-backdrop";
+      sheet.innerHTML =
+        `<div class="install-sheet" role="dialog" aria-modal="true" aria-labelledby="install-sheet-title">` +
+        `<img class="install-sheet-icon" src="icon-192.png?v=3" alt="" />` +
+        `<h3 id="install-sheet-title">${t("installSheetTitle")}</h3>` +
+        `<div class="install-sheet-sub">🛡️ ${t("installSheetSub")}</div>` +
+        `<ul><li>${t("installPerk1")}</li><li>${t("installPerk2")}</li><li>${t("installPerk3")}</li></ul>` +
+        `<div class="install-sheet-actions"><button type="button" class="pill accent" id="install-sheet-ok">${t("installSheetOk")}</button>` +
+        `<button type="button" class="install-sheet-later" id="install-sheet-later">${t("installSheetLater")}</button></div></div>`;
+      document.body.appendChild(sheet);
+      const close = () => sheet.remove();
+      sheet.addEventListener("click", (e) => { if (e.target === sheet) close(); });
+      sheet.querySelector("#install-sheet-later").addEventListener("click", close);
+      sheet.querySelector("#install-sheet-ok").addEventListener("click", async () => {
+        close();
+        if (!deferredInstall) return;
+        deferredInstall.prompt();
+        try { await deferredInstall.userChoice; } catch (e) { /* ignore */ }
+        deferredInstall = null;
+        installBtn.hidden = true;
+      });
     });
   }
   window.addEventListener("appinstalled", () => { if (installBtn) installBtn.hidden = true; });
