@@ -86,6 +86,10 @@ const TRANSLATIONS = {
     spLiveHear: "Listening 👂",
     spLiveOk: "Yum! 🍃",
     spLiveFull: "So full & happy! 🥰",
+    kbIdle: "Let's go! 🍃",
+    kbYum: "Yum! 🍃",
+    kbOops: "Oops! 😮",
+    kbOver: "Good try! 🐨",
     spLiveNo: "Try again 💪",
     spLiveNext: "Next! 🍃",
     spLivePrev: "Look back 👀",
@@ -526,6 +530,10 @@ const TRANSLATIONS = {
     spLiveHear: "쫑긋 👂",
     spLiveOk: "냠냠! 🍃",
     spLiveFull: "배불러서 행복해요! 🥰",
+    kbIdle: "가자! 🍃",
+    kbYum: "냠냠! 🍃",
+    kbOops: "앗! 😮",
+    kbOver: "잘했어요! 🐨",
     spLiveNo: "다시 해봐요 💪",
     spLiveNext: "다음! 🍃",
     spLivePrev: "다시 보기 👀",
@@ -3275,6 +3283,7 @@ function buildQuizQuestions() {
   quizIndex = 0;
   quizScore = 0;
   quizAnswered = false;
+  kb("quiz")?.reset();
   renderGoalStepper("quiz");
   renderQuizQuestion();
 }
@@ -3413,6 +3422,8 @@ function handleQuizAnswer(btn, chosen, q) {
 
   quizNextBtn.style.display = "inline-block";
   updateQuizScoreLabel();
+  if (correct) kb("quiz")?.eat(quizScore / quizQuestions.length, quizScore >= quizQuestions.length, false);
+  else kb("quiz")?.oops();
 
   const goal = goals.quiz;
   if (goal && !quizGoalCelebrated && quizScore >= goal) {
@@ -3626,6 +3637,24 @@ function buildSpellingBranch(n) {
   spellingScene.style.setProperty("--fed", "0");
   spellingScene.classList.remove("sk-full");
 }
+function flyLeafToKoalaEl(leaf, sceneEl, ms) {
+  const koala = sceneEl.querySelector(".sk-svg");
+  if (!leaf || !koala) return;
+  const lr = leaf.getBoundingClientRect(), kr = koala.getBoundingClientRect();
+  const fly = leaf.cloneNode(true);
+  fly.className = "sp-leaf-fly";
+  fly.style.left = lr.left + "px"; fly.style.top = lr.top + "px";
+  document.body.appendChild(fly);
+  const tx = kr.left + kr.width * (160 / 200) - lr.left - lr.width / 2;
+  const ty = kr.top + kr.height * (150 / 205) - lr.top - lr.height / 2;
+  const frames = [
+    { transform: "translate(0,0) rotate(0deg)", offset: 0 },
+    { transform: `translate(${tx * 0.2 - 16}px,${ty * 0.35}px) rotate(-50deg)`, offset: 0.35 },
+    { transform: `translate(${tx * 0.7 + 12}px,${ty * 0.7}px) rotate(35deg)`, offset: 0.7 },
+    { transform: `translate(${tx}px,${ty}px) rotate(10deg)`, offset: 1 },
+  ];
+  fly.animate(frames, { duration: ms, easing: "ease-in", fill: "forwards" }).onfinish = () => fly.remove();
+}
 function flyLeafToKoala(leaf) {
   const koala = spellingScene.querySelector(".sk-svg");
   if (!leaf || !koala) return;
@@ -3693,6 +3722,64 @@ function koalaTalk(on, safetyMs = 4000) {
   spellingScene.classList.toggle("sk-talk", on);
   spellingSpeakBtn.classList.toggle("sk-wave", on);
   if (on) spellingScene._talkT = setTimeout(() => { spellingScene.classList.remove("sk-talk"); spellingSpeakBtn.classList.remove("sk-wave"); }, safetyMs);
+}
+
+// ---- Koala buddy: compact koala strip reused by Quiz / Typing / Times Table ----
+const KB_GAME_FULL = 25; // cleared words/facts for a completely full belly
+const CLOUD_SVG = '<svg viewBox="0 0 120 68" class="sp-cloud-bg"><path d="M28 50 C12 50 6 36 16 28 C10 14 28 6 40 14 C46 2 70 2 78 14 C92 6 112 16 104 30 C116 38 108 52 92 50 C80 58 40 58 28 50 Z" fill="#fff" stroke="#0e9c7d" stroke-width="2.6" stroke-linejoin="round"/><circle cx="62" cy="60" r="3.6" fill="#fff" stroke="#0e9c7d" stroke-width="2"/></svg>';
+const KB_ANCHORS = {
+  quiz: () => document.getElementById("quiz-trail"),
+  type: () => document.getElementById("typegame-typo-msg"),
+  tt: () => document.getElementById("timestable-typo-msg"),
+};
+const KB_REG = {};
+function kb(key) {
+  if (KB_REG[key]) return KB_REG[key];
+  let anchor;
+  try { anchor = KB_ANCHORS[key](); void SPELL_KOALA_SVG; } catch (e) { return null; }
+  if (!anchor) return null;
+  const strip = document.createElement("div");
+  strip.className = "kb-strip kb-" + key;
+  strip.innerHTML = `<div class="sp-live-scene kb-scene" aria-hidden="true">${SPELL_KOALA_SVG}</div><div class="sp-cloud kb-cloud" aria-hidden="true">${CLOUD_SVG}<span class="bubble-text"></span></div>`;
+  if (key === "quiz") anchor.after(strip); else anchor.before(strip);
+  const scene = strip.querySelector(".kb-scene");
+  const bubble = strip.querySelector(".kb-cloud");
+  const text = bubble.querySelector(".bubble-text");
+  const b = { scene, timers: [], eating: false, target: null };
+  const at = (ms, fn) => b.timers.push(setTimeout(fn, ms));
+  const say = (k, keep) => { text.textContent = t(k); clearTimeout(b.sayT); if (!keep) b.sayT = setTimeout(() => { text.textContent = t("kbIdle"); }, 2200); };
+  b.say = say;
+  b.reset = () => {
+    b.timers.forEach(clearTimeout); b.timers = []; b.eating = false; b.target = null;
+    scene.classList.remove("sk-eat", "sk-quick", "sk-gulp", "sk-full", "fk-dunno");
+    scene.style.setProperty("--fed", "0");
+    say("kbIdle", true);
+  };
+  b.eat = (fed, full, quick) => {
+    b.target = { fed, full };
+    if (b.eating) return;
+    b.eating = true;
+    // a leaf drops from above into the paw
+    const kr = scene.querySelector(".sk-svg").getBoundingClientRect();
+    const fake = document.createElement("span");
+    fake.innerHTML = LEAF_SVG;
+    const src = { getBoundingClientRect: () => ({ left: kr.left + kr.width * 0.55, top: kr.top - 60, width: 30, height: 21 }), cloneNode: () => fake.cloneNode(true) };
+    flyLeafToKoalaEl(src, scene, quick ? 480 : 900);
+    at(quick ? 480 : 880, () => { scene.classList.add("sk-eat"); scene.classList.toggle("sk-quick", !!quick); say("kbYum"); });
+    at(quick ? 1450 : 2350, () => {
+      scene.classList.remove("sk-eat", "sk-quick");
+      scene.style.setProperty("--fed", b.target.fed.toFixed(3));
+      void scene.offsetWidth; scene.classList.add("sk-gulp");
+      if (b.target.full) { scene.classList.add("sk-full"); say("spLiveFull", true); }
+      b.eating = false;
+    });
+    at((quick ? 1450 : 2350) + 800, () => scene.classList.remove("sk-gulp"));
+  };
+  b.oops = () => { koalaReact("dunno", "kbOops", scene, bubble, "kbIdle"); };
+  b.over = () => { b.timers.forEach(clearTimeout); b.timers = []; b.eating = false; scene.classList.remove("sk-eat", "sk-quick"); koalaReact("dunno", "kbOver", scene, bubble, "kbIdle"); };
+  KB_REG[key] = b;
+  say("kbIdle", true);
+  return b;
 }
 function spellingConfetti() {
   const box = spellingPractice;
@@ -4317,6 +4404,7 @@ function enterTypeGameTab() {
 }
 
 function resetTypeGame() {
+  kb("type")?.reset();
   typeGameActive.forEach((w) => w.el.remove());
   typeGameActive = [];
   typeGameScore = 0;
@@ -4348,6 +4436,7 @@ function resetTypeGame() {
 
 function startTypeGame() {
   if (typeGameWordPool.length < TYPEGAME_MIN_POOL_SIZE) return;
+  kb("type")?.reset();
   typeGameRunning = true;
   typeGamePaused = false;
   typeGameScore = 0;
@@ -4548,6 +4637,7 @@ function loseTypeGameLife(missedWord) {
     recordResult(missedWord, false, "typing");
   }
   typeGameLives--;
+  kb("type")?.oops();
   updateTypeGameHud();
   playTypeGameLifeLostSfx();
   typeGameStage.classList.remove("typegame-shake");
@@ -4590,6 +4680,7 @@ function clearTypeGameWord(word) {
 
   typeGameScore += word.text.length * 10;
   typeGameWordsCleared++;
+  kb("type")?.eat(Math.min(typeGameWordsCleared / KB_GAME_FULL, 1), typeGameWordsCleared >= KB_GAME_FULL, true);
   playTypeGameCorrectSfx();
 
   // Speed ramps up by how many words have been typed correctly, not by
@@ -4666,6 +4757,7 @@ const TYPEGAME_ENCOURAGE_MESSAGES = {
 };
 
 function endTypeGame() {
+  kb("type")?.over();
   typeGameRunning = false;
   typeGamePaused = false;
   typeGameManuallyPaused = false;
@@ -5264,6 +5356,7 @@ function enterTimesTableTab() {
 }
 
 function resetTimesTable() {
+  kb("tt")?.reset();
   timesTableActive.forEach((w) => w.el.remove());
   timesTableActive = [];
   timesTableScore = 0;
@@ -5295,6 +5388,7 @@ function resetTimesTable() {
 function startTimesTable() {
   timesTableProblemPool = buildTimesTableProblemPool(timesTableMaxTable);
   if (timesTableProblemPool.length === 0) return;
+  kb("tt")?.reset();
   timesTableRunning = true;
   timesTablePaused = false;
   timesTableScore = 0;
@@ -5445,6 +5539,7 @@ function loseTimesTableLife(missedKey) {
     recordResult(missedKey, false, "tt");
   }
   timesTableLives--;
+  kb("tt")?.oops();
   updateTimesTableHud();
   playTimesTableLifeLostSfx();
   timesTableStage.classList.remove("typegame-shake");
@@ -5485,6 +5580,7 @@ function clearTimesTableProblem(item) {
 
   timesTableScore += TIMESTABLE_POINTS_PER_CORRECT;
   timesTableCorrectCount++;
+  kb("tt")?.eat(Math.min(timesTableCorrectCount / KB_GAME_FULL, 1), timesTableCorrectCount >= KB_GAME_FULL, true);
   playTimesTableCorrectSfx();
 
   const stage = Math.floor(timesTableCorrectCount / TIMESTABLE_PROBLEMS_PER_STAGE);
@@ -5558,6 +5654,7 @@ const TIMESTABLE_ENCOURAGE_MESSAGES = {
 };
 
 function endTimesTableRound(reason) {
+  kb("tt")?.over();
   timesTableRunning = false;
   timesTablePaused = false;
   timesTableManuallyPaused = false;

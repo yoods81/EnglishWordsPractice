@@ -4551,3 +4551,17 @@ button.speak-btn-hero.sk-wave { animation: sk-speaker-wobble .5s ease-in-out inf
 /* bigger belly growth */
 .sk-svg .sk-body { transform: scale(calc(1 + var(--fed) * .85), calc(1 + var(--fed) * .3)); }
 .sk-svg .sk-belly { transform: scale(calc(1 + var(--fed) * .9), calc(1 + var(--fed) * .34)); }
+
+/* ---- Koala buddy strip (Quiz / Typing / Times Table) ---- */
+.kb-strip { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 6px 0 8px; min-height: 84px; }
+.kb-strip .kb-scene { position: relative; flex: 0 0 auto; width: 92px; height: 88px; padding: 0; margin: 0; display: block; pointer-events: none; }
+.kb-strip .kb-scene .sk-svg { width: 92px; height: auto; max-width: none; display: block; overflow: visible; }
+.kb-strip .sp-cloud.kb-cloud { position: relative; top: auto; left: auto; width: 128px; height: 74px; flex: 0 0 auto; animation: sp-cloud-bob 3s ease-in-out infinite; }
+.kb-strip .kb-cloud .bubble-text { font-size: .74rem; left: 14px; right: 14px; top: 12px; height: 32px; }
+#quiz-trail .trail-koala { display: none; }
+@media (max-width: 699px) { .kb-strip { min-height: 74px; margin: 2px 0 4px; } .kb-strip .kb-scene { width: 78px; height: 76px; } .kb-strip .kb-scene .sk-svg { width: 78px; } .kb-strip .sp-cloud.kb-cloud { width: 110px; height: 64px; } .kb-strip .kb-cloud .bubble-text { font-size: .68rem; top: 10px; } }
+/* quick chew for games */
+.sk-quick.sk-eat .sk-eatpaw { animation-duration: 1s; }
+.sk-quick.sk-eat .sk-eatleaf { animation-duration: 1s; }
+.sk-quick.sk-eat .sk-mouth-open { animation-delay: .25s; animation-iteration-count: 3; }
+.sk-quick.sk-eat .fk-head, .sk-quick.sk-eat .sk-cheek { animation-delay: .25s; animation-iteration-count: 3; }
