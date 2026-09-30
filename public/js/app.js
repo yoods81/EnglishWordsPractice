@@ -1,4 +1,4 @@
-// Aussie English Word Practice — app logic
+// Koala Study Mate — app logic
 // Word extraction from a photo uses Tesseract.js, from a PDF uses pdf.js, and
 // from a Word document uses mammoth.js — all loaded from a CDN, client-side
 // only. Best-effort definition lookup uses the free dictionaryapi.dev service
@@ -19,6 +19,7 @@ const GOAL_STEP = 5;
 const LEVELS_KEY = "ywp_levels_v1"; // { en: "year4", ko: "kr_elem6" }
 const LANG_KEY = "ywp_lang_v1";
 const ADMIN_KEY = "ywp_admin_v1";
+let flashWrongOverride = null; // set by the Wrong-notes "Study these words" button
 const TYPEGAME_HIGH_SCORE_KEY = "ywp_typegame_highscores_v1";
 const ADMIN_USERNAME = "admin";
 // SHA-256 of the admin password, so the password itself isn't sitting in
@@ -40,7 +41,7 @@ async function sha256Hex(text) {
 /* ================= TRANSLATIONS ================= */
 const TRANSLATIONS = {
   en: {
-    appTitle: "OZ Words & Math Practice",
+    appTitle: "Koala Study Mate",
     appSubtitle: "Build your vocabulary, spelling, times tables and word skills!",
     langToggle: "한국어",
     levelBadgePrefix: "Level",
@@ -74,6 +75,11 @@ const TRANSLATIONS = {
     navQuizShort: "Quiz",
     navTimesTableShort: "Times",
     navStatsShort: "Progress",
+    installAppBtn: "📲 Install app",
+    offlineBanner: "📴 You're offline — flashcards, word list and games still work.",
+    statsTabOverview: "📊 Overview",
+    statsTabBadges: "🏅 Badges",
+    statsTabWrong: "📕 Wrong notes",
     navAddwordShort: "Add Word",
     navHomeShort: "Home",
     navStudyShort: "Study",
@@ -164,6 +170,8 @@ const TRANSLATIONS = {
     typeGameLevelChallengePrompt: (level) => `Ready to try ${level}?`,
     timesTableTitle: "🧮 Times Table",
     timesTableDesc: 'Type the whole fact — like "8 2 16" for 8 × 2 — before it reaches the bottom!',
+    timesTableDemoCaption: "Type the two numbers, then the answer.",
+    timesTableDemoCaption2: "Spaces are optional!",
     timesTableInstrLine1: "When the problem is {{EX}}, here's how to answer:",
     timesTableInstrLine2: "Enter one of {{FMT}}",
     timesTableMaxTableLabel: "Practice tables up to",
@@ -189,7 +197,8 @@ const TRANSLATIONS = {
     timesTableChallengePrompt: (table) => `Ready to try the ${table} times table?`,
     categoryLabel: "Category",
     optVocabulary: "Vocabulary",
-    optSynonyms: "Synonyms & Antonyms",
+    optSynonyms: "Synonyms",
+    optAntonyms: "Antonyms",
     optHomophones: "Homophones",
     flashFrontModeLabel: "Flashcard front side",
     flashSourceLabel: "Flashcard source",
@@ -454,7 +463,7 @@ const TRANSLATIONS = {
     roleFree: "General",
   },
   ko: {
-    appTitle: "OZ 영어 단어 & 구구단 연습",
+    appTitle: "Koala Study Mate",
     appSubtitle: "영어 어휘력, 스펠링, 구구단 실력을 함께 키워보세요!",
     langToggle: "English",
     levelBadgePrefix: "레벨",
@@ -478,6 +487,11 @@ const TRANSLATIONS = {
     navQuizShort: "퀴즈",
     navTimesTableShort: "구구단",
     navStatsShort: "진행상황",
+    installAppBtn: "📲 앱 설치하기",
+    offlineBanner: "📴 오프라인이에요 — 플래시카드, 단어 목록, 게임은 계속 쓸 수 있어요.",
+    statsTabOverview: "📊 요약",
+    statsTabBadges: "🏅 배지",
+    statsTabWrong: "📕 오답 노트",
     navAddwordShort: "단어 추가",
     navHomeShort: "홈",
     navStudyShort: "학습",
@@ -565,6 +579,8 @@ const TRANSLATIONS = {
     typeGameLevelChallengePrompt: (level) => `${level}에 도전하시겠습니까?`,
     timesTableTitle: "🧮 구구단",
     timesTableDesc: "식 전체를 타이핑하세요 — 8 × 2라면 \"8 2 16\"처럼 — 바닥에 닿기 전에!",
+    timesTableDemoCaption: "두 수와 정답을 차례로 입력하세요.",
+    timesTableDemoCaption2: "띄어쓰기는 자유예요!",
     timesTableInstrLine1: "문제가 {{EX}} 일 때 정답 입력 방법",
     timesTableInstrLine2: "{{FMT}} 셋 중 하나를 입력",
     timesTableMaxTableLabel: "몇 단까지 연습할까요",
@@ -590,7 +606,8 @@ const TRANSLATIONS = {
     timesTableChallengePrompt: (table) => `${table}단에 도전하시겠습니까?`,
     categoryLabel: "카테고리",
     optVocabulary: "어휘",
-    optSynonyms: "동의어 & 반의어",
+    optSynonyms: "동의어",
+    optAntonyms: "반의어",
     optHomophones: "동음이의어",
     flashFrontModeLabel: "플래시카드 앞면",
     flashSourceLabel: "플래시카드 출처",
@@ -934,12 +951,13 @@ function saveProgress() {
   if (canWriteServerWords()) scheduleProgressSync();
 }
 
-function recordResult(word, isCorrect) {
+function recordResult(word, isCorrect, mode) {
   const stats = progress.wordStats[word] || { correct: 0, incorrect: 0 };
   if (isCorrect) stats.correct++;
   else stats.incorrect++;
   progress.wordStats[word] = stats;
   const streakChanged = bumpDailyStreak();
+  trackActivity(word, isCorrect, mode);
   saveProgress();
   renderStreakChip();
   if (streakChanged && streakChipEl) pulseScoreTag(streakChipEl, "stat-chip-pulse");
@@ -1777,7 +1795,7 @@ function switchLanguage(lang) {
     refreshCurrentView();
     renderCustomWords();
   } else {
-    levelOverlayCloseBtn.hidden = true;
+    levelOverlayCloseBtn.hidden = false;
     levelOverlay.hidden = false;
   }
 }
@@ -2635,7 +2653,12 @@ const flashDontKnowBtn = document.getElementById("flash-dont-know");
 const flashPrevBtn = document.getElementById("flash-prev");
 const flashNextBtn = document.getElementById("flash-next");
 
-const flashSourceSel = document.getElementById("flash-source");
+const flashSourceLevelBtn = document.getElementById("flash-source-level");
+const flashSourceMineBtn = document.getElementById("flash-source-mine");
+// Two independent switches: level-generated words and/or the kid's own cards.
+// At least one always stays on so the deck is never sourceless.
+let flashUseLevel = true;
+let flashUseMine = false;
 const myDeckCard = document.getElementById("my-deck-card");
 const myDeckForm = document.getElementById("my-deck-form");
 const myDeckWordInput = document.getElementById("my-deck-word");
@@ -2662,28 +2685,66 @@ let flashIndex = 0;
 
 function getFlashItems(category, level) {
   if (category === "synonyms") {
-    return getSynonymPool(level).map((s) => ({
-      word: s.word,
-      definition: `Synonym: ${s.synonym}  •  Antonym: ${s.antonym}`,
-      example: `"${s.word}" means the same as "${s.synonym}", and is the opposite of "${s.antonym}".`,
-    }));
+    return getSynonymPool(level)
+      .filter((s) => s.synonym)
+      .map((s) => ({
+        word: s.word,
+        definition: `Synonym: ${s.synonym}`,
+        example: `"${s.word}" means the same as "${s.synonym}".`,
+      }));
+  }
+  if (category === "antonyms") {
+    return getSynonymPool(level)
+      .filter((s) => s.antonym)
+      .map((s) => ({
+        word: s.word,
+        definition: `Antonym: ${s.antonym}`,
+        example: `"${s.word}" is the opposite of "${s.antonym}".`,
+      }));
   }
   return getVocabPool(level);
 }
 
 function usingMyDeck() {
-  return flashSourceSel.value === "mine";
+  return flashUseMine;
+}
+
+function syncFlashSourceSwitches() {
+  [
+    [flashSourceLevelBtn, flashUseLevel],
+    [flashSourceMineBtn, flashUseMine],
+  ].forEach(([btn, on]) => {
+    btn.classList.toggle("on", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
 }
 
 function buildFlashDeck() {
-  const items = usingMyDeck() ? myDeck.slice() : getFlashItems(flashCategorySel.value, currentLevel);
+  const items = [];
+  const seen = new Set();
+  const addAll = (list) =>
+    list.forEach((it) => {
+      const key = String(it.word).trim().toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      items.push(it);
+    });
+  // Own cards go in first so a word the kid added themselves wins over the
+  // generated copy of the same word when both switches are on.
+  if (flashWrongOverride) {
+    addAll(flashWrongOverride);
+  } else {
+    if (flashUseMine) addAll(myDeck.slice());
+    if (flashUseLevel) addAll(getFlashItems(flashCategorySel.value, currentLevel));
+  }
   flashDeck = shuffle(items);
   flashIndex = 0;
-  // The category only applies to the generated deck, and the deck editor only
-  // to your own cards.
-  flashCategorySel.disabled = usingMyDeck();
-  myDeckCard.hidden = !usingMyDeck();
-  if (usingMyDeck()) renderMyDeck();
+  // The category only applies to the generated deck, and the deck editor
+  // (with its list of your cards) shows whenever "My cards" is on.
+  flashCategorySel.disabled = !flashUseLevel || !!flashWrongOverride;
+  myDeckCard.hidden = !flashUseMine;
+  syncFlashSourceSwitches();
+  if (flashUseMine) renderMyDeck();
   renderFlashcard();
 }
 
@@ -2785,7 +2846,7 @@ flashKnowBtn.addEventListener("click", () => {
   if (flashDeck.length === 0) return;
   const word = flashDeck[flashIndex].word;
   progress.flashKnown[word] = true;
-  recordResult(word, true);
+  recordResult(word, true, "flash");
   pulseScoreTag(flashKnowBtn, "option-btn-bounce");
   nextFlashcard();
 });
@@ -2794,18 +2855,25 @@ flashDontKnowBtn.addEventListener("click", () => {
   if (flashDeck.length === 0) return;
   const word = flashDeck[flashIndex].word;
   delete progress.flashKnown[word];
-  recordResult(word, false);
+  recordResult(word, false, "flash");
   nextFlashcard();
 });
 
 flashCategorySel.addEventListener("change", buildFlashDeck);
 flashFrontModeSel.addEventListener("change", renderFlashcard);
-flashSourceSel.addEventListener("change", () => {
-  if (flashSourceSel.value === "mine" && !canUsePaidFeatures()) {
-    flashSourceSel.value = "auto";
+flashSourceLevelBtn.addEventListener("click", () => {
+  // Can't switch the last remaining source off.
+  if (flashUseLevel && !flashUseMine) return;
+  flashUseLevel = !flashUseLevel;
+  buildFlashDeck();
+});
+flashSourceMineBtn.addEventListener("click", () => {
+  if (!flashUseMine && !canUsePaidFeatures()) {
     promptUpgradeForFeature();
     return;
   }
+  if (flashUseMine && !flashUseLevel) return;
+  flashUseMine = !flashUseMine;
   buildFlashDeck();
 });
 
@@ -3019,6 +3087,33 @@ function pulseScoreTag(el, className = "score-tag-pulse") {
 const quizScoreEl = document.getElementById("quiz-score");
 const quizNextBtn = document.getElementById("quiz-next");
 const quizProgressFill = document.getElementById("quiz-progress-fill");
+const quizTrail = document.getElementById("quiz-trail");
+let quizTrailLastPct = 0;
+let quizTrailMoveTimer = null;
+
+// Moves the quiz progress bar AND the crawling koala on it. The koala walks
+// (legs swing) while the position is changing, munches the leaves it passes
+// (they fade as it reaches them), and is happy once it reaches the tree.
+function setQuizProgress(pct) {
+  const p = Math.max(0, Math.min(100, pct)) / 100;
+  quizProgressFill.style.width = `calc(var(--kw) - 8px + ${p} * (100% - var(--kw) + 8px))`;
+  if (p === 0) quizProgressFill.style.width = "0";
+  quizTrail.style.setProperty("--p", String(p));
+  const backwards = pct < quizTrailLastPct;
+  quizTrail.classList.toggle("no-anim", backwards);
+  if (!backwards && pct !== quizTrailLastPct) {
+    quizTrail.classList.add("moving");
+    clearTimeout(quizTrailMoveTimer);
+    quizTrailMoveTimer = setTimeout(() => quizTrail.classList.remove("moving"), 750);
+  } else if (backwards) {
+    quizTrail.classList.remove("moving");
+  }
+  quizTrail.classList.toggle("done", p >= 1);
+  quizTrail.querySelectorAll(".trail-leaf").forEach((leaf) => {
+    leaf.classList.toggle("eaten", p >= parseFloat(leaf.style.getPropertyValue("--x")) - 0.001 && p > 0);
+  });
+  quizTrailLastPct = pct;
+}
 
 const MIN_POOL_FOR_QUIZ = 4;
 let quizQuestions = [];
@@ -3097,15 +3192,16 @@ function renderQuizQuestion() {
   // question line first.
   quizQuestionEl.classList.remove("celebration-card", "quiz-complete-card");
 
+  if (quizSpeakWrap) quizSpeakWrap.hidden = total === 0 || quizIndex >= total;
   if (total === 0) {
-    quizProgressFill.style.width = "0%";
+    setQuizProgress(0);
     quizQuestionEl.textContent = t("quizNotEnough", levelLabel(currentLevel));
     quizOptionsEl.innerHTML = "";
     updateQuizScoreLabel();
     return;
   }
 
-  quizProgressFill.style.width = `${(quizIndex / total) * 100}%`;
+  setQuizProgress((quizIndex / total) * 100);
 
   if (quizIndex >= total) {
     quizQuestionEl.classList.add("celebration-card", "quiz-complete-card");
@@ -3117,10 +3213,17 @@ function renderQuizQuestion() {
     const text = document.createElement("span");
     text.className = "celebration-card-text";
     text.textContent = t("quizComplete", quizScore, total);
+    if (total >= 5 && quizScore === total && !quizQuestions._awarded) {
+      quizQuestions._awarded = true;
+      ensureRewardData();
+      progress.counters.quizPerfect++;
+      saveProgress();
+      checkBadges();
+    }
     quizQuestionEl.appendChild(icon);
     quizQuestionEl.appendChild(text);
     quizOptionsEl.innerHTML = "";
-    quizProgressFill.style.width = "100%";
+    setQuizProgress(100);
     updateQuizScoreLabel();
     return;
   }
@@ -3200,7 +3303,7 @@ function handleQuizAnswer(btn, chosen, q) {
 
   progress.quiz.total++;
   if (correct) progress.quiz.correct++;
-  recordResult(q.target, correct);
+  recordResult(q.target, correct, "quiz");
   recordSrsResult(q.target, correct);
   saveProgress();
 
@@ -3233,6 +3336,14 @@ quizNextBtn.addEventListener("click", () => {
 });
 
 quizQuestionEl.addEventListener("click", () => speak(quizQuestionEl.textContent));
+const quizSpeakBtn = document.getElementById("quiz-speak");
+const quizSpeakWrap = document.getElementById("quiz-speak-wrap");
+quizSpeakBtn.addEventListener("click", () => {
+  speak(quizQuestionEl.textContent, {
+    onstart: () => quizSpeakBtn.classList.add("speak-btn-active"),
+    onend: () => quizSpeakBtn.classList.remove("speak-btn-active"),
+  });
+});
 
 quizRestartBtn.addEventListener("click", () => {
   pulseScoreTag(quizRestartBtn, "score-tag-pulse");
@@ -3459,7 +3570,10 @@ function renderSpellingLetterHints(word) {
 }
 
 spellingSpeakBtn.addEventListener("click", () => {
-  if (spellingDeck[spellingIndex]) speak(spellingDeck[spellingIndex].word);
+  if (spellingDeck[spellingIndex]) speak(spellingDeck[spellingIndex].word, {
+    onstart: () => spellingSpeakBtn.classList.add("speak-btn-active"),
+    onend: () => spellingSpeakBtn.classList.remove("speak-btn-active"),
+  });
 });
 
 function showSpellingWrongFeedback(current) {
@@ -3496,7 +3610,7 @@ function checkSpellingAnswer() {
   const current = spellingDeck[spellingIndex];
   const guess = spellingInput.value.trim().toLowerCase();
   const correct = guess === current.word.toLowerCase();
-  recordResult(current.word, correct);
+  recordResult(current.word, correct, "spelling");
   recordSrsResult(current.word, correct);
 
   if (!spellingTotalCountedWords.has(current.word)) {
@@ -3587,6 +3701,12 @@ spellingBackBtn.addEventListener("click", () => {
 function renderSpellingReport() {
   spellingPractice.hidden = true;
   spellingReport.hidden = false;
+  if (spellingScore.total >= 5 && spellingScore.correct === spellingScore.total) {
+    ensureRewardData();
+    progress.counters.spellPerfect++;
+    saveProgress();
+    checkBadges();
+  }
 
   const words = Array.from(spellingSessionWrongWords.values());
   spellingReportList.innerHTML = "";
@@ -4064,6 +4184,46 @@ function scheduleTypeGameSpawn() {
   }, typeGameSpawnInterval);
 }
 
+// Places a freshly created falling item (typing game word / times-table
+// equation) so it never overlaps one that is already falling. It tries a few
+// random horizontal spots at the normal start height, then starts a little
+// higher up (a queue just above the play area) if every spot in that row is
+// taken. Returns the item's starting `top` in px.
+function placeFallingItem(el, container, activeList) {
+  const W = container.clientWidth || 300;
+  const w = el.offsetWidth || 80;
+  const h = el.offsetHeight || 34;
+  const edge = 8;
+  const minX = w / 2 + edge;
+  const maxX = Math.max(minX, W - w / 2 - edge);
+  const rowStep = h + 10;
+  const others = activeList.map((a) => ({
+    top: a.top,
+    x: a.el.offsetLeft,
+    w: a.el.offsetWidth || 80,
+  }));
+  const fits = (x, top) =>
+    !others.some(
+      (o) => Math.abs(o.top - top) < h + 6 && Math.abs(o.x - x) < (o.w + w) / 2 + 10
+    );
+  for (let row = 0; row < 4; row++) {
+    const top = -30 - row * rowStep;
+    for (let i = 0; i < 16; i++) {
+      const x = minX + Math.random() * (maxX - minX);
+      if (fits(x, top)) {
+        el.style.left = `${x}px`;
+        el.style.top = `${top}px`;
+        return top;
+      }
+    }
+  }
+  const top = -30 - 4 * rowStep;
+  const x = minX + Math.random() * (maxX - minX);
+  el.style.left = `${x}px`;
+  el.style.top = `${top}px`;
+  return top;
+}
+
 function spawnTypeGameWord() {
   // Prefer a word that doesn't share a prefix with one already falling, so
   // typing never has to guess which of two words is meant; if every word in
@@ -4101,11 +4261,10 @@ function spawnTypeGameWord() {
   restSpan.textContent = word;
   el.appendChild(typedSpan);
   el.appendChild(restSpan);
-  el.style.left = `${6 + Math.random() * 82}%`;
-  el.style.top = "-30px";
   typeGameWordsEl.appendChild(el);
+  const startTop = placeFallingItem(el, typeGameWordsEl, typeGameActive);
 
-  typeGameActive.push({ text: word, el, top: -30 });
+  typeGameActive.push({ text: word, el, top: startTop });
 }
 
 function typeGameLoop(ts) {
@@ -4132,7 +4291,7 @@ function typeGameLoop(ts) {
 function loseTypeGameLife(missedWord) {
   if (missedWord) {
     recordSrsResult(missedWord, false);
-    recordResult(missedWord, false);
+    recordResult(missedWord, false, "typing");
   }
   typeGameLives--;
   updateTypeGameHud();
@@ -4168,7 +4327,7 @@ function spawnTypeGamePopFx(el) {
 
 function clearTypeGameWord(word) {
   recordSrsResult(word.text, true);
-  recordResult(word.text, true);
+  recordResult(word.text, true, "typing");
   typeGameRoundSolved.add(word.text);
   spawnTypeGamePopFx(word.el);
   word.el.classList.add("tw-cleared");
@@ -4426,11 +4585,27 @@ function updateTypeGameMuteBtn() {
   typeGameMuteBtn.title = label;
 }
 
+// Phones play Web Audio quietly (tiny speakers) and iPhones mute it entirely
+// while the ringer/silent switch is on. Tagging the page's audio as
+// "playback" (iOS 16.4+) makes it behave like a media player instead, so the
+// game music is heard even with the switch on. Harmless where unsupported.
+const GAME_MUSIC_PEAK_GAIN = 0.16; // was 0.05 — too faint on phone speakers
+const GAME_SFX_BOOST = 2;
+function enableMediaPlaybackAudio() {
+  try {
+    if (navigator.audioSession) navigator.audioSession.type = "playback";
+  } catch (e) {
+    /* not supported — nothing to do */
+  }
+}
+
 function ensureTypeGameAudioCtx() {
   const Ctx = window.AudioContext || window.webkitAudioContext;
   if (!Ctx) return null;
+  enableMediaPlaybackAudio();
   if (!typeGameAudioCtx) typeGameAudioCtx = new Ctx();
-  if (typeGameAudioCtx.state === "suspended") typeGameAudioCtx.resume();
+  // "interrupted" is iOS's version of suspended (phone call, app switch).
+  if (typeGameAudioCtx.state !== "running") typeGameAudioCtx.resume().catch(() => {});
   return typeGameAudioCtx;
 }
 
@@ -4441,7 +4616,7 @@ function playTypeGameNote(freq, when) {
   osc.type = "triangle";
   osc.frequency.value = freq;
   gain.gain.setValueAtTime(0, when);
-  gain.gain.linearRampToValueAtTime(0.05, when + 0.02);
+  gain.gain.linearRampToValueAtTime(GAME_MUSIC_PEAK_GAIN, when + 0.02);
   gain.gain.linearRampToValueAtTime(0, when + TYPEGAME_NOTE_DURATION);
   osc.connect(gain).connect(ctx.destination);
   osc.start(when);
@@ -4490,7 +4665,7 @@ function playTypeGameTone(freq, startOffset, duration, type, peakGain) {
   osc.frequency.value = freq;
   const when = ctx.currentTime + startOffset;
   gain.gain.setValueAtTime(0, when);
-  gain.gain.linearRampToValueAtTime(peakGain, when + 0.015);
+  gain.gain.linearRampToValueAtTime(Math.min(peakGain * GAME_SFX_BOOST, 0.4), when + 0.015);
   gain.gain.linearRampToValueAtTime(0, when + duration);
   osc.connect(gain).connect(ctx.destination);
   osc.start(when);
@@ -4605,7 +4780,19 @@ function renderTimesTableInstructions() {
     `<span class="ti-highlight">8 2 16</span>`;
   const line1 = t("timesTableInstrLine1").replace("{{EX}}", exHtml);
   const line2 = t("timesTableInstrLine2").replace("{{FMT}}", fmtHtml);
-  timesTableStartMessage.innerHTML = `<span class="ti-line">${line1}</span><span class="ti-line">${line2}</span>`;
+  // Animated mini demo: problem "8 × 2" appears, the digits 8 / 2 / 16 get
+  // typed one by one, then a ✔ pops. The three accepted formats are shown
+  // as chips underneath. Purely decorative (aria-hidden); the caption and
+  // chips carry the meaning for screen readers / reduced-motion users.
+  timesTableStartMessage.innerHTML =
+    `<span class="tt-demo" aria-hidden="true">` +
+      `<span class="tt-demo-problem">8 × 2</span>` +
+      `<span class="tt-demo-input"><span class="tt-d tt-d1">8</span><span class="tt-d tt-d2">2</span><span class="tt-d tt-d3">16</span><span class="tt-ok">✔</span></span>` +
+    `</span>` +
+    `<span class="ti-line ti-caption">${t("timesTableDemoCaption")}</span>` +
+    `<span class="ti-line ti-caption">${t("timesTableDemoCaption2")}</span>` +
+    `<span class="ti-line ti-chips">` +
+      `<span class="ti-chip">8216</span><span class="ti-chip">82 16</span><span class="ti-chip">8 2 16</span></span>`;
 }
 renderTimesTableInstructions();
 
@@ -4965,16 +5152,15 @@ function spawnTimesTableProblem() {
   const el = document.createElement("div");
   el.className = "typegame-word timestable-eq";
   el.textContent = timesTableDisplay(problem);
-  el.style.left = `${6 + Math.random() * 82}%`;
-  el.style.top = "-30px";
   timesTableWordsEl.appendChild(el);
+  const startTop = placeFallingItem(el, timesTableWordsEl, timesTableActive);
 
   timesTableActive.push({
     display: timesTableDisplay(problem),
     expected: timesTableExpected(problem),
     key: timesTableKey(problem),
     el,
-    top: -30,
+    top: startTop,
   });
 }
 
@@ -5002,7 +5188,7 @@ function timesTableLoop(ts) {
 function loseTimesTableLife(missedKey) {
   if (missedKey) {
     recordSrsResult(missedKey, false);
-    recordResult(missedKey, false);
+    recordResult(missedKey, false, "tt");
   }
   timesTableLives--;
   updateTimesTableHud();
@@ -5036,7 +5222,7 @@ function spawnTimesTablePopFx(el) {
 
 function clearTimesTableProblem(item) {
   recordSrsResult(item.key, true);
-  recordResult(item.key, true);
+  recordResult(item.key, true, "tt");
   timesTableRoundSolved.add(item.key);
   spawnTimesTablePopFx(item.el);
   item.el.classList.add("tw-cleared");
@@ -5254,7 +5440,23 @@ timesTableExpandBtn.addEventListener("click", () => {
 function setupArcadeGameKeyboard(cfg) {
   document.addEventListener("keydown", (e) => {
     if (!document.getElementById(cfg.viewId).classList.contains("active")) return;
-    const inInput = document.activeElement === cfg.inputEl;
+    // A modal (log in / sign up, upgrade prompt, kid confirm, level picker) or
+    // any other text field owns the keyboard while it's up — otherwise typing
+    // "admin" into the login box would hit M and toggle the game's mute button
+    // (and Space/Enter/Esc/arrows would drive the game behind it).
+    if (document.querySelector(".auth-overlay:not([hidden]), .kid-modal-overlay:not([hidden]), .level-overlay:not([hidden])")) return;
+    const activeEl = document.activeElement;
+    if (
+      activeEl &&
+      activeEl !== cfg.inputEl &&
+      (activeEl.tagName === "INPUT" ||
+        activeEl.tagName === "TEXTAREA" ||
+        activeEl.tagName === "SELECT" ||
+        activeEl.isContentEditable)
+    ) {
+      return;
+    }
+    const inInput = activeEl === cfg.inputEl;
 
     if (!cfg.startOverlay.hidden) {
       if (e.key === "ArrowUp") {
@@ -5305,6 +5507,45 @@ function setupArcadeGameKeyboard(cfg) {
   });
 }
 
+// ---- Phone play mode (see ".card.game-immersive" in style.css): while a round
+// is live on a narrow screen, the game card fills the *visible* viewport —
+// i.e. the area above the on-screen keyboard — so the play area and the
+// answer box are both always on screen.
+const mobileGameMQ = window.matchMedia("(max-width: 700px)");
+
+function syncVisualViewportVars() {
+  const vv = window.visualViewport;
+  const root = document.documentElement;
+  root.style.setProperty("--vv-height", `${vv ? vv.height : window.innerHeight}px`);
+  root.style.setProperty("--vv-top", `${vv ? vv.offsetTop : 0}px`);
+}
+
+function setupMobileGameImmersive(sectionId, startOverlay, overOverlay) {
+  const card = document.querySelector(`#${sectionId} > .card`);
+  const section = document.getElementById(sectionId);
+  function sync() {
+    const live = mobileGameMQ.matches && startOverlay.hidden && overOverlay.hidden;
+    card.classList.toggle("game-immersive", live);
+    document.body.classList.toggle("game-immersive-open", !!document.querySelector(".view.active > .card.game-immersive"));
+  }
+  const overlayObserver = new MutationObserver(sync);
+  overlayObserver.observe(startOverlay, { attributes: true, attributeFilter: ["hidden"] });
+  overlayObserver.observe(overOverlay, { attributes: true, attributeFilter: ["hidden"] });
+  // Leaving/returning to the tab flips the section's "active" class.
+  new MutationObserver(sync).observe(section, { attributes: true, attributeFilter: ["class"] });
+  mobileGameMQ.addEventListener("change", sync);
+  sync();
+}
+
+syncVisualViewportVars();
+window.addEventListener("resize", syncVisualViewportVars);
+window.addEventListener("orientationchange", syncVisualViewportVars);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", syncVisualViewportVars);
+  window.visualViewport.addEventListener("scroll", syncVisualViewportVars);
+}
+setupMobileGameImmersive("view-typegame", typeGameStartOverlay, typeGameOverOverlay);
+
 setupArcadeGameKeyboard({
   viewId: "view-typegame",
   inputEl: typeGameInput,
@@ -5323,6 +5564,8 @@ setupArcadeGameKeyboard({
   expandBtn: typeGameExpandBtn,
   endBtn: typeGameEndBtn,
 });
+
+setupMobileGameImmersive("view-timestable", timesTableStartOverlay, timesTableOverOverlay);
 
 setupArcadeGameKeyboard({
   viewId: "view-timestable",
@@ -5405,8 +5648,9 @@ function updateTimesTableMuteBtn() {
 function ensureTimesTableAudioCtx() {
   const Ctx = window.AudioContext || window.webkitAudioContext;
   if (!Ctx) return null;
+  enableMediaPlaybackAudio();
   if (!timesTableAudioCtx) timesTableAudioCtx = new Ctx();
-  if (timesTableAudioCtx.state === "suspended") timesTableAudioCtx.resume();
+  if (timesTableAudioCtx.state !== "running") timesTableAudioCtx.resume().catch(() => {});
   return timesTableAudioCtx;
 }
 
@@ -5417,7 +5661,7 @@ function playTimesTableNote(freq, when) {
   osc.type = "triangle";
   osc.frequency.value = freq;
   gain.gain.setValueAtTime(0, when);
-  gain.gain.linearRampToValueAtTime(0.05, when + 0.02);
+  gain.gain.linearRampToValueAtTime(GAME_MUSIC_PEAK_GAIN, when + 0.02);
   gain.gain.linearRampToValueAtTime(0, when + TIMESTABLE_NOTE_DURATION);
   osc.connect(gain).connect(ctx.destination);
   osc.start(when);
@@ -5461,7 +5705,7 @@ function playTimesTableTone(freq, startOffset, duration, type, peakGain) {
   osc.frequency.value = freq;
   const when = ctx.currentTime + startOffset;
   gain.gain.setValueAtTime(0, when);
-  gain.gain.linearRampToValueAtTime(peakGain, when + 0.015);
+  gain.gain.linearRampToValueAtTime(Math.min(peakGain * GAME_SFX_BOOST, 0.4), when + 0.015);
   gain.gain.linearRampToValueAtTime(0, when + duration);
   osc.connect(gain).connect(ctx.destination);
   osc.start(when);
@@ -7840,6 +8084,342 @@ ocrAddBtn.addEventListener("click", async () => {
   renderWordList();
 });
 
+/* ================= REWARDS: badges, wrong-answer notebook, charts ================= */
+// New per-account data lives inside `progress` (so it saves/syncs with the rest):
+//   progress.daily   { "YYYY-MM-DD": { quiz:[correct,total], spelling:[..], typing:[..], tt:[..], flash:[..] } }
+//   progress.modes   { quiz:[c,t], ... } lifetime per-mode totals (tracked from now on)
+//   progress.wrong   { key: { n: misses, last: ts, ok: correct-in-a-row, mode } } — cleared after 2 right in a row
+//   progress.ttSolved{ "8x2": 1 } every times-table fact ever cleared
+//   progress.badges  { id: earnedAt }
+//   progress.counters{ spellPerfect, quizPerfect, wrongCleared }
+const RW_MODES = ["quiz", "spelling", "typing", "tt", "flash"];
+const rwL = (en, ko) => (currentLang === "ko" ? ko : en);
+
+function ensureRewardData() {
+  if (!progress.daily) progress.daily = {};
+  if (!progress.modes) progress.modes = {};
+  if (!progress.wrong) progress.wrong = {};
+  if (!progress.ttSolved) progress.ttSolved = {};
+  if (!progress.badges) progress.badges = {};
+  if (!progress.counters) progress.counters = { spellPerfect: 0, quizPerfect: 0, wrongCleared: 0 };
+}
+
+function trackActivity(word, isCorrect, mode) {
+  ensureRewardData();
+  mode = mode || "flash";
+  const day = localDateKey(new Date());
+  const d = progress.daily[day] || (progress.daily[day] = {});
+  const m = d[mode] || (d[mode] = [0, 0]);
+  m[1]++;
+  if (isCorrect) m[0]++;
+  const life = progress.modes[mode] || (progress.modes[mode] = [0, 0]);
+  life[1]++;
+  if (isCorrect) life[0]++;
+  // keep only the last 60 days of daily history
+  const keys = Object.keys(progress.daily).sort();
+  while (keys.length > 60) delete progress.daily[keys.shift()];
+
+  const key = String(word);
+  if (isCorrect) {
+    if (mode === "tt") progress.ttSolved[key] = 1;
+    const w = progress.wrong[key];
+    if (w) {
+      w.ok = (w.ok || 0) + 1;
+      if (w.ok >= 2) {
+        delete progress.wrong[key];
+        progress.counters.wrongCleared++;
+      }
+    }
+  } else {
+    const w = progress.wrong[key] || (progress.wrong[key] = { n: 0, last: 0, ok: 0, mode });
+    w.n++;
+    w.ok = 0;
+    w.last = Date.now();
+    w.mode = mode;
+  }
+  checkBadges();
+}
+
+/* ---- Badge catalogue ---- */
+function ttMastered(n) {
+  for (let b = 1; b <= TIMESTABLE_MULTIPLIER_MAX; b++) {
+    if (!progress.ttSolved[`${n}x${b}`] && !progress.ttSolved[`${b}x${n}`]) return false;
+  }
+  return true;
+}
+function modeCorrect(mode) {
+  return (progress.modes[mode] && progress.modes[mode][0]) || 0;
+}
+function buildBadgeCatalog() {
+  const list = [];
+  for (let n = TIMESTABLE_MIN_TABLE; n <= 9; n++) {
+    list.push({
+      id: `tt${n}`, emoji: "🧮", group: "math",
+      name: rwL(`Table ${n} Master Koala`, `구구단 ${n}단 마스터 코알라`),
+      desc: rwL(`Clear every ${n}× fact in Times Table`, `구구단 게임에서 ${n}단을 모두 맞혀요`),
+      test: () => ttMastered(n),
+    });
+  }
+  list.push({
+    id: "ttAll", emoji: "👑", group: "math",
+    name: rwL("Times Table Champion", "구구단 챔피언 코알라"),
+    desc: rwL("Master every table from 2 to 9", "2단부터 9단까지 모두 마스터"),
+    test: () => { for (let n = TIMESTABLE_MIN_TABLE; n <= 9; n++) if (!ttMastered(n)) return false; return true; },
+  });
+  list.push(
+    { id: "spell100", emoji: "✏️", group: "english", name: rwL("Spelling 100 Sticker", "스펠링 100점 스티커"),
+      desc: rwL("Finish a spelling round (5+ words) with every word right first time", "스펠링 5단어 이상을 한 번에 모두 맞혀요"),
+      test: () => progress.counters.spellPerfect >= 1 },
+    { id: "spell100x5", emoji: "🌟", group: "english", name: rwL("Spelling Superstar", "스펠링 슈퍼스타"),
+      desc: rwL("Get 5 perfect spelling rounds", "스펠링 100점을 5번 달성"),
+      test: () => progress.counters.spellPerfect >= 5 },
+    { id: "quiz100", emoji: "💡", group: "english", name: rwL("Quiz Perfect Sticker", "퀴즈 만점 스티커"),
+      desc: rwL("Finish a quiz (5+ questions) with no mistakes", "퀴즈(5문제 이상)를 모두 맞혀요"),
+      test: () => progress.counters.quizPerfect >= 1 },
+    { id: "type50", emoji: "⌨️", group: "english", name: rwL("Speedy Typist Koala", "타이핑 코알라"),
+      desc: rwL("Type 50 words correctly in the Typing Game", "타이핑 게임에서 단어 50개 성공"),
+      test: () => modeCorrect("typing") >= 50 },
+    { id: "words50", emoji: "📚", group: "english", name: rwL("Word Explorer", "단어 탐험가"),
+      desc: rwL("Practise 50 different words", "서로 다른 단어 50개 연습"),
+      test: () => Object.keys(progress.wordStats).length >= 50 },
+    { id: "words200", emoji: "🎓", group: "english", name: rwL("Word Wizard", "단어 마법사"),
+      desc: rwL("Practise 200 different words", "서로 다른 단어 200개 연습"),
+      test: () => Object.keys(progress.wordStats).length >= 200 },
+    { id: "streak3", emoji: "🔥", group: "habit", name: rwL("3-Day Streak", "3일 연속 학습"),
+      desc: rwL("Practise 3 days in a row", "3일 연속 학습"), test: () => (progress.streak.count || 0) >= 3 },
+    { id: "streak7", emoji: "🌳", group: "habit", name: rwL("Week-long Koala", "일주일 연속 코알라"),
+      desc: rwL("Practise 7 days in a row", "7일 연속 학습"), test: () => (progress.streak.count || 0) >= 7 },
+    { id: "streak30", emoji: "🏆", group: "habit", name: rwL("Monthly Marathon", "한 달 연속 학습"),
+      desc: rwL("Practise 30 days in a row", "30일 연속 학습"), test: () => (progress.streak.count || 0) >= 30 },
+    { id: "fix5", emoji: "📕", group: "habit", name: rwL("Mistake Fixer", "오답 해결사"),
+      desc: rwL("Clear 5 words from your Wrong-answer notebook", "오답 노트에서 5개 졸업"),
+      test: () => progress.counters.wrongCleared >= 5 },
+    { id: "fix20", emoji: "🛠️", group: "habit", name: rwL("Mistake Master", "오답 마스터"),
+      desc: rwL("Clear 20 words from your Wrong-answer notebook", "오답 노트에서 20개 졸업"),
+      test: () => progress.counters.wrongCleared >= 20 }
+  );
+  return list;
+}
+
+let rwToastQueue = [];
+let rwToastShowing = false;
+function checkBadges() {
+  ensureRewardData();
+  const fresh = [];
+  buildBadgeCatalog().forEach((b) => {
+    if (!progress.badges[b.id] && b.test()) {
+      progress.badges[b.id] = Date.now();
+      fresh.push(b);
+    }
+  });
+  if (fresh.length) {
+    fresh.forEach((b) => rwToastQueue.push(b));
+    showNextBadgeToast();
+  }
+}
+function showNextBadgeToast() {
+  if (rwToastShowing || !rwToastQueue.length) return;
+  rwToastShowing = true;
+  const b = rwToastQueue.shift();
+  const el = document.createElement("div");
+  el.className = "badge-toast";
+  el.setAttribute("role", "status");
+  el.innerHTML = `<span class="badge-toast-emoji">${b.emoji}</span><span><strong>${rwL("New badge!", "새 배지!")}</strong><br>${b.name}</span>`;
+  document.body.appendChild(el);
+  setTimeout(() => el.classList.add("out"), 3200);
+  setTimeout(() => { el.remove(); rwToastShowing = false; showNextBadgeToast(); }, 3700);
+}
+
+/* ---- Stats sub-tabs ---- */
+const statsTabBtns = document.querySelectorAll(".stats-tab");
+const statsPanels = {
+  overview: document.getElementById("stats-panel-overview"),
+  badges: document.getElementById("stats-panel-badges"),
+  wrong: document.getElementById("stats-panel-wrong"),
+};
+let statsTab = "overview";
+function setStatsTab(name) {
+  statsTab = name;
+  statsTabBtns.forEach((b) => {
+    const on = b.dataset.statsTab === name;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-selected", on ? "true" : "false");
+  });
+  Object.entries(statsPanels).forEach(([k, el]) => (el.hidden = k !== name));
+  renderRewardPanels();
+}
+statsTabBtns.forEach((b) => b.addEventListener("click", () => setStatsTab(b.dataset.statsTab)));
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function renderRewardPanels() {
+  ensureRewardData();
+  const wrongCount = Object.keys(progress.wrong).length;
+  const wrongTab = document.querySelector('.stats-tab[data-stats-tab="wrong"]');
+  if (wrongTab) wrongTab.querySelector(".stats-tab-count").textContent = wrongCount ? String(wrongCount) : "";
+  if (statsTab === "overview") renderStatsCharts();
+  else if (statsTab === "badges") renderBadgePanel();
+  else renderWrongPanel();
+}
+
+function renderBadgePanel() {
+  const cat = buildBadgeCatalog();
+  const got = cat.filter((b) => progress.badges[b.id]).length;
+  const groups = [
+    ["math", rwL("🧮 Times Table", "🧮 구구단")],
+    ["english", rwL("📖 English", "📖 영어")],
+    ["habit", rwL("🔥 Habits", "🔥 학습 습관")],
+  ];
+  let html = `<p class="badge-summary">${rwL(`Collected ${got} of ${cat.length} koala badges`, `코알라 배지 ${cat.length}개 중 ${got}개 모았어요`)}</p>`;
+  groups.forEach(([g, title]) => {
+    html += `<h4 class="badge-group-title">${title}</h4><div class="badge-grid">`;
+    cat.filter((b) => b.group === g).forEach((b) => {
+      const on = !!progress.badges[b.id];
+      html += `<div class="badge-card ${on ? "earned" : "locked"}" title="${escapeHtml(b.desc)}">
+        <div class="badge-medal"><span class="badge-koala">🐨</span><span class="badge-sticker">${on ? b.emoji : "🔒"}</span></div>
+        <div class="badge-name">${escapeHtml(b.name)}</div>
+        <div class="badge-desc">${escapeHtml(b.desc)}</div></div>`;
+    });
+    html += `</div>`;
+  });
+  statsPanels.badges.innerHTML = html;
+}
+
+/* ---- Wrong-answer notebook ---- */
+function findWordInfo(word) {
+  const lw = String(word).toLowerCase();
+  const pools = [customWords, myDeck, getAllWordsForLevel(currentLevel)];
+  for (const p of pools) {
+    const hit = (p || []).find((x) => x && x.word && String(x.word).toLowerCase() === lw);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+function wrongEntries() {
+  return Object.entries(progress.wrong)
+    .map(([key, v]) => ({ key, ...v }))
+    .sort((a, b) => b.last - a.last);
+}
+
+function renderWrongPanel() {
+  const items = wrongEntries();
+  const el = statsPanels.wrong;
+  if (!items.length) {
+    el.innerHTML = `<div class="wrong-empty"><div class="wrong-empty-koala">🐨✨</div><p>${rwL(
+      "No mistakes to review. Great job!", "복습할 오답이 없어요. 잘했어요!")}</p></div>`;
+    return;
+  }
+  const modeName = { quiz: rwL("Quiz", "퀴즈"), spelling: rwL("Spelling", "스펠링"), typing: rwL("Typing", "타이핑"), tt: rwL("Times Table", "구구단"), flash: rwL("Flashcards", "플래시카드") };
+  let html = `<p class="wrong-hint">${rwL(
+    "Get a word right 2 times in a row and it graduates from this notebook.",
+    "같은 단어를 연속 2번 맞히면 오답 노트에서 졸업해요.")}</p>
+    <div class="wrong-actions"><button type="button" class="pill accent small" id="wrong-study-btn">🃏 ${rwL("Study these words", "오답 단어 공부하기")}</button></div>
+    <ul class="wrong-list">`;
+  items.forEach((it) => {
+    const isMath = /^\d+x\d+$/.test(it.key);
+    let title, sub = "";
+    if (isMath) {
+      const [a, b] = it.key.split("x").map(Number);
+      title = `${a} × ${b} = ${a * b}`;
+    } else {
+      title = escapeHtml(it.key);
+      const info = findWordInfo(it.key);
+      if (info && info.definition) sub = escapeHtml(info.definition);
+    }
+    html += `<li class="wrong-item"><div class="wrong-main"><div class="wrong-word">${title}</div>${sub ? `<div class="wrong-def">${sub}</div>` : ""}
+      <div class="wrong-meta">${modeName[it.mode] || ""} · ${rwL(`missed ${it.n}×`, `${it.n}번 틀림`)}</div></div>
+      ${isMath ? "" : `<button type="button" class="wrong-speak" data-say="${escapeHtml(it.key)}" aria-label="${rwL("Hear it", "들어보기")}">🔊</button>`}
+      <button type="button" class="wrong-remove" data-remove="${escapeHtml(it.key)}" aria-label="${rwL("Remove", "삭제")}">✕</button></li>`;
+  });
+  html += `</ul>`;
+  el.innerHTML = html;
+}
+
+statsPanels.wrong.addEventListener("click", (e) => {
+  const say = e.target.closest("[data-say]");
+  if (say) { speak(say.dataset.say); return; }
+  const rm = e.target.closest("[data-remove]");
+  if (rm) {
+    delete progress.wrong[rm.dataset.remove];
+    saveProgress();
+    renderRewardPanels();
+    return;
+  }
+  if (e.target.closest("#wrong-study-btn")) {
+    const cards = wrongEntries()
+      .filter((it) => !/^\d+x\d+$/.test(it.key))
+      .map((it) => {
+        const info = findWordInfo(it.key);
+        return { word: it.key, definition: (info && info.definition) || "", example: (info && info.example) || "" };
+      });
+    if (!cards.length) return;
+    flashWrongOverride = cards;
+    const navBtn = document.querySelector('.tab-btn[data-view="flashcards"]');
+    if (navBtn) navBtn.click();
+    buildFlashDeck();
+  }
+});
+
+[flashSourceLevelBtn, flashSourceMineBtn, flashCategorySel].forEach((el) => {
+  ["click", "change"].forEach((ev) => el.addEventListener(ev, () => { flashWrongOverride = null; }, true));
+});
+
+/* ---- Charts (inline SVG, one accent hue, direct labels) ---- */
+function renderStatsCharts() {
+  ensureRewardData();
+  const box = statsPanels.overview.querySelector("#stats-charts");
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const rec = progress.daily[localDateKey(d)] || {};
+    let c = 0, tot = 0;
+    RW_MODES.forEach((m) => { if (rec[m]) { c += rec[m][0]; tot += rec[m][1]; } });
+    days.push({ label: d.toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { weekday: "short" }), c, w: tot - c, tot });
+  }
+  const maxTot = Math.max(5, ...days.map((d) => d.tot));
+  const W = 320, H = 150, top = 20, bottom = 24, bw = 28, gap = (W - 7 * bw) / 8;
+  const plotH = H - top - bottom;
+  let bars = "";
+  days.forEach((d, i) => {
+    const x = gap + i * (bw + gap);
+    const hc = (d.c / maxTot) * plotH, hw = (d.w / maxTot) * plotH;
+    const yBase = H - bottom;
+    const tip = `${d.label}: ${d.c}/${d.tot} ${rwL("correct", "정답")}`;
+    bars += `<g><title>${tip}</title>`;
+    if (d.c) bars += `<rect x="${x}" y="${yBase - hc}" width="${bw}" height="${hc}" rx="4" fill="var(--accent)"/>`;
+    if (d.w) bars += `<rect x="${x}" y="${yBase - hc - hw - (d.c ? 2 : 0)}" width="${bw}" height="${hw}" rx="4" fill="var(--chart-miss)"/>`;
+    if (d.tot) bars += `<text x="${x + bw / 2}" y="${yBase - hc - hw - (d.c && d.w ? 2 : 0) - 4}" text-anchor="middle" class="chart-val">${d.tot}</text>`;
+    bars += `<text x="${x + bw / 2}" y="${H - 8}" text-anchor="middle" class="chart-lbl">${d.label}</text></g>`;
+  });
+  const weekTot = days.reduce((s, d) => s + d.tot, 0);
+  const svgDays = `<svg viewBox="0 0 ${W} ${H}" class="chart-svg" role="img" aria-label="${rwL("Answers in the last 7 days", "최근 7일 학습량")}"><line x1="0" x2="${W}" y1="${H - bottom}" y2="${H - bottom}" class="chart-axis"/>${bars}</svg>`;
+
+  const modeRows = [
+    ["quiz", rwL("Quiz", "퀴즈"), [progress.quiz.correct, progress.quiz.total]],
+    ["spelling", rwL("Spelling", "스펠링"), [progress.spelling.correct, progress.spelling.total]],
+    ["typing", rwL("Typing Game", "타이핑 게임"), progress.modes.typing || [0, 0]],
+    ["tt", rwL("Times Table", "구구단"), progress.modes.tt || [0, 0]],
+    ["flash", rwL("Flashcards", "플래시카드"), progress.modes.flash || [0, 0]],
+  ];
+  let rows = "";
+  modeRows.forEach(([, name, [c, tot]]) => {
+    const pct = tot ? Math.round((c / tot) * 100) : 0;
+    rows += `<div class="hbar-row" title="${name}: ${c}/${tot}">
+      <span class="hbar-name">${name}</span>
+      <span class="hbar-track"><span class="hbar-fill" style="width:${pct}%"></span></span>
+      <span class="hbar-pct">${tot ? pct + "%" : "–"}</span></div>`;
+  });
+  box.innerHTML = `
+    <h4 class="chart-title">${rwL("Last 7 days", "최근 7일 학습량")}</h4>
+    <div class="chart-legend"><span><i class="lg lg-ok"></i>${rwL("Correct", "정답")}</span><span><i class="lg lg-miss"></i>${rwL("Missed", "오답")}</span></div>
+    ${weekTot ? svgDays : `<p class="chart-empty">${rwL("Practise today to see your chart!", "오늘 학습하면 차트가 채워져요!")}</p>`}
+    <h4 class="chart-title">${rwL("Accuracy by activity", "활동별 정답률")}</h4>${rows}`;
+}
+
 /* ================= STATS ================= */
 const statsGrid = document.getElementById("stats-grid");
 const resetProgressBtn = document.getElementById("reset-progress");
@@ -7865,6 +8445,7 @@ function renderStats() {
   statsGrid.innerHTML = stats
     .map((s) => `<div class="stat-box"><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div></div>`)
     .join("");
+  renderRewardPanels();
 }
 
 resetProgressBtn.addEventListener("click", () => {
@@ -7876,8 +8457,10 @@ resetProgressBtn.addEventListener("click", () => {
     spelling: { correct: 0, total: 0 },
     spellingStatus: {},
     srs: {},
+    streak: { count: 0, lastDay: null },
     updatedAt: 0,
   };
+  ensureRewardData();
   saveProgress();
   renderStats();
   renderWordList();
@@ -7892,7 +8475,9 @@ populateLevelSelects();
 
 // Show the level-select overlay only if we don't yet have a saved level for this language.
 levelOverlay.hidden = !!savedLevels[currentLang];
-levelOverlayCloseBtn.hidden = true;
+// The close (✕) button is always available now: closing the first-run picker
+// just keeps the default level until the kid picks one from the level badge.
+levelOverlayCloseBtn.hidden = false;
 
 buildFlashDeck();
 buildQuizQuestions();
@@ -7900,3 +8485,49 @@ buildSpellingDeck();
 resetTypeGame();
 renderWordList();
 renderCustomWords();
+
+/* ================= PWA: install button, service worker, offline notice ================= */
+(function setupPwa() {
+  const installBtn = document.getElementById("install-app-btn");
+  let deferredInstall = null;
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredInstall = e;
+    if (installBtn) installBtn.hidden = false;
+  });
+  if (installBtn) {
+    installBtn.addEventListener("click", async () => {
+      if (!deferredInstall) return;
+      deferredInstall.prompt();
+      try { await deferredInstall.userChoice; } catch (e) { /* ignore */ }
+      deferredInstall = null;
+      installBtn.hidden = true;
+    });
+  }
+  window.addEventListener("appinstalled", () => { if (installBtn) installBtn.hidden = true; });
+
+  let banner = null;
+  const updateOnline = () => {
+    if (!navigator.onLine) {
+      if (!banner) {
+        banner = document.createElement("div");
+        banner.className = "offline-banner";
+        banner.setAttribute("role", "status");
+        document.body.appendChild(banner);
+      }
+      banner.textContent = t("offlineBanner");
+    } else if (banner) {
+      banner.remove();
+      banner = null;
+    }
+  };
+  window.addEventListener("online", updateOnline);
+  window.addEventListener("offline", updateOnline);
+  updateOnline();
+
+  if ("serviceWorker" in navigator && location.protocol !== "file:") {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch((e) => console.warn("Service worker failed", e));
+    });
+  }
+})();

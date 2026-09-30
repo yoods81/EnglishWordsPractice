@@ -208,6 +208,19 @@ header h1 .emoji {
   font-size: 1.2rem;
 }
 
+header h1 .brand-logo {
+  width: 34px;
+  height: 34px;
+  vertical-align: -9px;
+}
+
+.kid-modal-icon img {
+  width: 64px;
+  height: 64px;
+  display: block;
+  margin: 0 auto;
+}
+
 header p {
   margin: 3px 0 0;
   color: var(--muted);
@@ -872,6 +885,49 @@ nav.tabs button[data-view="admincodes"]:active {
   flex-wrap: nowrap;
 }
 
+/* Flashcards: "Level words" and "My cards" are two independent toggle
+   buttons sharing the Category row (either one, or both, feed the deck).
+   Same 1px rim + 2px bottom edge as the Log In button. */
+.source-btn {
+  flex: 0 0 auto;
+  border: 1px solid var(--outline);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text);
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 0 var(--outline);
+  transition: background 0.15s ease, box-shadow 0.1s ease, transform 0.1s ease;
+}
+
+.source-btn.on {
+  border-color: var(--accent-dark);
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 0 var(--accent-dark);
+}
+
+.source-btn:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+#view-flashcards #flash-category { flex: 0 0 auto; width: auto; }
+#view-flashcards #flash-front-mode { flex: 0 0 auto; }
+#view-flashcards .setting-row-nowrap { gap: 6px; }
+@media (max-width: 420px) {
+  .source-btn { font-size: 0.7rem; padding: 5px 8px; }
+  #view-flashcards #flash-front-mode { width: 46px; padding-left: 6px; padding-right: 16px; }
+}
+@media (max-width: 340px) {
+  #view-flashcards .setting-row-nowrap { flex-wrap: wrap; }
+}
+
+
 .setting-row-nowrap select {
   min-width: 0;
   flex: 0 1 auto;
@@ -1223,7 +1279,8 @@ button.pill:disabled {
 }
 
 .level-bulk-select {
-  padding: 5px 10px;
+  /* Right padding must clear the dropdown arrow (drawn at right 9px). */
+  padding: 5px 24px 5px 10px;
   font-size: 0.72rem;
   border-radius: 999px;
 }
@@ -2066,10 +2123,6 @@ button.speak-btn-hero.speak-btn-active {
     text-overflow: ellipsis;
   }
 
-  #view-flashcards .setting-row-nowrap #flash-source {
-    flex: 1 1 auto;
-  }
-
   /* Times Table/Typing Game's top row (score, stage, speed stepper, hearts)
      is another setting-row-nowrap that's too tight at this width — the
      score/stage pills were letting flexbox shrink them below their text's
@@ -2635,7 +2688,7 @@ button.speak-btn-hero.speak-btn-active {
   flex: 0 1 auto;
   min-width: 0;
   border-radius: 999px;
-  padding: 8px 10px;
+  padding: 8px 26px 8px 12px;
   font-size: 0.8rem;
 }
 
@@ -2889,6 +2942,10 @@ button.speak-btn-hero.speak-btn-active {
   font-weight: 700;
   color: var(--accent-dark);
   font-size: 0.95rem;
+}
+
+.my-added-words-header-actions + .wordlist-count {
+  margin-top: 8px;
 }
 
 .wordlist-count {
@@ -3239,7 +3296,7 @@ html[lang="en"] button.kid-modal-btn {
 .level-overlay-card {
   position: relative;
   background: #fff;
-  border: 1px solid var(--outline);
+  border: 4px solid var(--outline);
   border-radius: var(--radius);
   padding: 20px 18px;
   max-width: 380px;
@@ -3256,16 +3313,17 @@ html[lang="en"] button.kid-modal-btn {
   position: absolute;
   top: 10px;
   right: 10px;
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--outline);
+  border: 3px solid var(--outline);
   border-radius: 999px;
   background: #fff;
   color: var(--text);
-  font-size: 0.85rem;
+  font-size: 1rem;
+  font-weight: 700;
   line-height: 1;
   cursor: pointer;
   box-shadow: 0 2px 0 var(--outline);
@@ -3359,6 +3417,11 @@ html[lang="en"] button.kid-modal-btn {
     max-height: 85vh;
     overflow-y: auto;
     animation: sheet-slide-up 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+
+  /* The level picker gets a heavier rim than the other sheets. */
+  .level-overlay .level-overlay-card {
+    border-width: 6px 0 0;
   }
 
   /* The kid-modal's playful pop-in doesn't fit a sheet sliding up from the
@@ -3615,4 +3678,472 @@ html[lang="en"] button.kid-modal-btn {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+}
+
+/* ---- Phone play mode for Typing Game / Times Table ----
+   On a phone the on-screen keyboard eats about half the screen, so the
+   normal stacked layout (header + score row + stage + input) could never
+   fit above it: the input, or the bottom of the play area, ended up hidden
+   behind the keyboard. While a round is live, the game card becomes a
+   full-screen panel sized to the *visible* viewport (--vv-height/--vv-top
+   are kept in sync with window.visualViewport by app.js): score row on top,
+   the play area flexing to fill whatever is left, and the answer box pinned
+   right underneath, so both are always on screen. The falling-item drop
+   distance already follows the stage's live height every frame. */
+@media (max-width: 700px) {
+  body.game-immersive-open {
+    overflow: hidden;
+  }
+
+  .card.game-immersive {
+    position: fixed;
+    left: 0;
+    top: var(--vv-top, 0px);
+    width: 100%;
+    height: var(--vv-height, 100dvh);
+    box-sizing: border-box;
+    z-index: 900;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .card.game-immersive .setting-row {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  .card.game-immersive .typegame-stage,
+  .card.game-immersive .typegame-stage.typegame-stage-expanded {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 100px;
+    margin-bottom: 0;
+  }
+
+  .card.game-immersive .typegame-typo-msg {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  .card.game-immersive .typegame-input {
+    flex: 0 0 auto;
+    /* 16px+ stops iOS from zooming the page when the box is focused. */
+    font-size: 1rem;
+  }
+
+  .card.game-immersive .hint,
+  .card.game-immersive .typegame-expand-btn {
+    display: none;
+  }
+}
+
+/* ===== Home header: bigger title + logo, roomier spacing ===== */
+header h1 {
+  font-size: clamp(1.4rem, 6.4vw, 2rem);
+  line-height: 1.15;
+}
+
+header h1 .brand-logo {
+  width: 1.6em;
+  height: 1.6em;
+  vertical-align: -0.45em;
+}
+
+header p {
+  margin-top: 6px;
+}
+
+.stat-bar {
+  margin-top: 16px;
+}
+
+main {
+  padding-top: 8px;
+}
+
+#view-landing .landing-tiles,
+.landing-tiles {
+  margin-top: 8px;
+}
+
+/* Menu cards are squares. */
+.landing-tile .landing-tile-body {
+  flex: 0 0 auto;
+}
+
+.landing-tile {
+  aspect-ratio: 1 / 1;
+  justify-content: center;
+  padding: 8px 6px;
+}
+
+/* Level popup close button: same 1px rim + 2px bottom edge as Log In. */
+.level-overlay-close {
+  border: 1px solid var(--accent-dark);
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 0 var(--accent-dark);
+}
+
+/* ===== Quiz progress: the koala crawls along, eating leaves ===== */
+.quiz-trail {
+  --kw: 50px;
+  --p: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 30px;
+}
+
+.trail-icon {
+  flex: 0 0 auto;
+  font-size: 1.5rem;
+  line-height: 1;
+  padding-bottom: 1px;
+}
+
+.trail-track {
+  position: relative;
+  flex: 1 1 auto;
+  height: 40px;
+  min-width: 0;
+}
+
+#view-quiz .trail-track .progress-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  margin: 0;
+  height: 8px;
+}
+
+.trail-track .progress-bar-fill {
+  transition: width 0.7s ease-in-out;
+}
+
+.trail-koala {
+  position: absolute;
+  bottom: 6px;
+  left: calc(var(--p) * (100% - var(--kw)));
+  width: var(--kw);
+  height: 30px;
+  transition: left 0.7s ease-in-out;
+  pointer-events: none;
+}
+
+.quiz-trail.no-anim .trail-koala,
+.quiz-trail.no-anim .trail-track .progress-bar-fill {
+  transition: none;
+}
+
+.koala {
+  display: block;
+  overflow: visible;
+}
+
+.trail-leaf {
+  position: absolute;
+  bottom: 9px;
+  left: calc(var(--x) * (100% - var(--kw)) + var(--kw) - 4px);
+  font-size: 0.95rem;
+  line-height: 1;
+  transform-origin: center;
+  transition: transform 0.35s ease 0.45s, opacity 0.35s ease 0.45s;
+}
+
+.trail-leaf.eaten {
+  transform: scale(0);
+  opacity: 0;
+}
+
+/* Munching: the head bobs and the leaf in its mouth wiggles all the time. */
+.k-head {
+  transform-origin: 51px 22px;
+  animation: k-chew 0.5s ease-in-out infinite;
+}
+
+.k-leaf {
+  transform-origin: 57px 28px;
+  animation: k-leaf-wiggle 0.5s ease-in-out infinite;
+}
+
+@keyframes k-chew {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(4deg) translateY(1px); }
+}
+
+@keyframes k-leaf-wiggle {
+  0%, 100% { transform: rotate(-6deg) scaleX(1); }
+  50% { transform: rotate(8deg) scaleX(0.9); }
+}
+
+/* Crawling: legs swing in a diagonal gait while the koala is moving. */
+.quiz-trail.moving .leg-near-back,
+.quiz-trail.moving .leg-far-front {
+  animation: k-leg-a 0.4s ease-in-out infinite;
+}
+
+.quiz-trail.moving .leg-far-back,
+.quiz-trail.moving .leg-near-front {
+  animation: k-leg-b 0.4s ease-in-out infinite;
+}
+
+.quiz-trail.moving .koala {
+  animation: k-body-bob 0.4s ease-in-out infinite;
+}
+
+@keyframes k-leg-a {
+  0%, 100% { transform: rotate(-30deg); }
+  50% { transform: rotate(30deg); }
+}
+
+@keyframes k-leg-b {
+  0%, 100% { transform: rotate(30deg); }
+  50% { transform: rotate(-30deg); }
+}
+
+@keyframes k-body-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
+
+/* Hearts/sparkles only show once the koala has reached the tree. */
+.k-heart {
+  position: absolute;
+  top: -6px;
+  font-size: 0.8rem;
+  color: #ff5f7e;
+  opacity: 0;
+}
+
+.k-heart-1 { left: 8px; }
+.k-heart-2 { left: 26px; }
+.k-heart-3 { left: 40px; }
+.k-eye-happy { display: none; }
+
+.quiz-trail.done .k-eye-open { display: none; }
+.quiz-trail.done .k-eye-happy { display: inline; }
+
+.quiz-trail.done .koala {
+  animation: k-hop 0.7s ease-in-out infinite;
+}
+
+.quiz-trail.done .k-head {
+  animation-duration: 0.9s;
+}
+
+.quiz-trail.done .k-heart {
+  animation: k-heart-float 1.6s ease-out infinite;
+}
+
+.quiz-trail.done .k-heart-2 { animation-delay: 0.5s; }
+.quiz-trail.done .k-heart-3 { animation-delay: 1s; }
+
+.quiz-trail.done .trail-end {
+  animation: k-hop 0.7s ease-in-out infinite;
+}
+
+@keyframes k-hop {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-7px); }
+}
+
+@keyframes k-heart-float {
+  0% { opacity: 0; transform: translateY(6px) scale(0.6); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-14px) scale(1.1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .k-head, .k-leaf, .quiz-trail .koala, .quiz-trail .leg,
+  .quiz-trail.done .trail-end, .quiz-trail.done .k-heart {
+    animation: none !important;
+  }
+  .trail-koala, .trail-track .progress-bar-fill, .trail-leaf { transition: none; }
+}
+
+/* Phone header: buttons sit on their own row so the big title gets full width. */
+@media (max-width: 480px) {
+  header { padding: 46px 12px 4px; }
+  header h1 { white-space: nowrap; }
+}
+
+/* ===== Home menu cards: icon + text scale with the (square) card ===== */
+.landing-tile {
+  container-type: inline-size;
+  gap: 8px;
+}
+
+.landing-tile .landing-tile-icon {
+  width: clamp(56px, 48cqw, 104px);
+  height: clamp(56px, 48cqw, 104px);
+  font-size: clamp(1.9rem, 27cqw, 3.4rem);
+  border-radius: 24%;
+}
+
+.landing-tile .landing-tile-title {
+  font-size: clamp(0.8rem, 11.5cqw, 1.3rem);
+}
+
+.landing-tile .landing-tile-desc {
+  font-size: clamp(0.7rem, 6.5cqw, 0.95rem);
+}
+
+.landing-tile-badge {
+  top: 6px;
+  right: 6px;
+}
+
+/* ===== Step 1: bigger speaker buttons ===== */
+button.speak-btn-hero {
+  width: 72px;
+  height: 72px;
+  font-size: 2rem;
+  position: relative;
+}
+button.speak-btn-hero::before,
+button.speak-btn-hero::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  opacity: 0;
+  pointer-events: none;
+}
+button.speak-btn-hero.speak-btn-active::before { animation: speak-ring 1s ease-out infinite; }
+button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-out 0.5s infinite; }
+@keyframes speak-ring {
+  0% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+.speak-btn-hero-label { font-size: 0.85rem; }
+.quiz-speak-wrap, .spelling-speak-wrap { margin: 4px 0 8px; }
+.quiz-speak-wrap[hidden] { display: none; }
+.speakable-line::after { font-size: 1em; opacity: 0.85; }
+#quiz-question.speakable-line::after { content: none; }
+
+/* ===== Step 1: times-table animated how-to ===== */
+.timestable-instructions { max-width: 320px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.tt-demo { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.tt-demo-problem {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: #fff;
+  background: rgba(255,255,255,0.14);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 14px;
+  padding: 4px 14px;
+  animation: tt-problem 5s ease-in-out infinite;
+}
+.tt-demo-input {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-width: 128px; min-height: 44px; padding: 4px 12px;
+  background: var(--bg); border-radius: 12px; border: 3px solid var(--accent);
+  font-family: var(--font-heading); font-weight: 800; font-size: 1.5rem;
+  color: var(--accent-dark);
+}
+.tt-d, .tt-ok { opacity: 0; }
+.tt-d1 { animation: tt-d1 5s infinite; }
+.tt-d2 { animation: tt-d2 5s infinite; }
+.tt-d3 { animation: tt-d3 5s infinite; }
+.tt-ok { color: #1fa971; margin-left: auto; animation: tt-ok 5s infinite; }
+@keyframes tt-problem { 0% { transform: scale(0.6); opacity: 0; } 8%, 92% { transform: scale(1); opacity: 1; } 100% { opacity: 0; } }
+@keyframes tt-d1 { 0%, 18% { opacity: 0; transform: translateY(-8px); } 24%, 92% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+@keyframes tt-d2 { 0%, 36% { opacity: 0; transform: translateY(-8px); } 42%, 92% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+@keyframes tt-d3 { 0%, 54% { opacity: 0; transform: translateY(-8px); } 60%, 92% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+@keyframes tt-ok { 0%, 68% { opacity: 0; transform: scale(0.3); } 76% { opacity: 1; transform: scale(1.4); } 82%, 92% { opacity: 1; transform: scale(1); } 100% { opacity: 0; } }
+.ti-caption { font-size: 0.9rem; line-height: 1.4; }
+.timestable-instructions { gap: 2px; }
+.timestable-instructions .tt-demo, .timestable-instructions .ti-chips { margin: 4px 0; }
+.ti-chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.ti-chip {
+  font-family: var(--font-heading); font-weight: 700; font-size: 0.85rem;
+  color: var(--accent-dark); background: #fff; border-radius: 999px; padding: 2px 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tt-demo *, button.speak-btn-hero::before, button.speak-btn-hero::after { animation: none !important; }
+  .tt-d, .tt-ok, .tt-demo-problem { opacity: 1; }
+}
+
+/* ===== Step 2: stats tabs, badges, wrong-answer notebook, charts ===== */
+:root { --chart-miss: #cfd8d5; }
+.stats-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.stats-tab {
+  flex: 1 1 0; min-width: 0; padding: 8px 6px; border-radius: 999px; cursor: pointer;
+  background: #fff; color: var(--accent-dark); font-family: var(--font-heading); font-weight: 700; font-size: 0.85rem;
+  border: 1px solid var(--accent-dark); box-shadow: 0 2px 0 var(--accent-dark);
+}
+.stats-tab.on { background: var(--accent); color: #fff; }
+.stats-tab-count:not(:empty) { margin-left: 4px; background: var(--error); color: #fff; border-radius: 999px; padding: 0 6px; font-size: 0.72rem; }
+.chart-title { margin: 14px 0 6px; font-family: var(--font-heading); color: var(--text); font-size: 1rem; }
+.chart-legend { display: flex; gap: 12px; font-size: 0.8rem; color: var(--muted); margin-bottom: 2px; }
+.chart-legend .lg { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; }
+.lg-ok { background: var(--accent); } .lg-miss { background: var(--chart-miss); }
+.chart-svg { width: 100%; height: auto; display: block; }
+.chart-axis { stroke: var(--outline, #cfe7df); stroke-width: 1; }
+.chart-val { font-size: 10px; fill: var(--text); font-weight: 700; }
+.chart-lbl { font-size: 10px; fill: var(--muted); }
+.chart-empty { color: var(--muted); font-size: 0.9rem; margin: 8px 0; }
+.hbar-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; font-size: 0.85rem; }
+.hbar-name { flex: 0 0 96px; color: var(--text); }
+.hbar-track { flex: 1; height: 12px; background: #e6f1ed; border-radius: 6px; overflow: hidden; }
+.hbar-fill { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
+.hbar-pct { flex: 0 0 40px; text-align: right; font-weight: 700; color: var(--text); }
+
+.badge-summary { font-family: var(--font-heading); font-weight: 700; color: var(--accent-dark); margin: 0 0 6px; }
+.badge-group-title { margin: 14px 0 8px; font-family: var(--font-heading); color: var(--text); }
+.badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+.badge-card { background: #fff; border: 1px solid var(--outline, #cfe7df); border-radius: 14px; padding: 10px 6px; text-align: center; box-shadow: 0 2px 0 var(--outline, #cfe7df); }
+.badge-medal { position: relative; width: 64px; height: 64px; margin: 0 auto 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; background: #d9f6ee; border: 3px solid var(--accent); }
+.badge-sticker { position: absolute; right: -8px; bottom: -6px; font-size: 1.4rem; background: #fff; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+.badge-card.locked .badge-medal { background: #eceeed; border-color: #c4cbc9; }
+.badge-card.locked .badge-koala { filter: grayscale(1); opacity: .35; }
+.badge-card.earned .badge-medal { animation: badge-pop .6s ease-out; }
+.badge-name { font-family: var(--font-heading); font-weight: 700; font-size: 0.8rem; color: var(--text); line-height: 1.2; }
+.badge-desc { font-size: 0.68rem; color: var(--muted); margin-top: 3px; line-height: 1.25; }
+@keyframes badge-pop { 0% { transform: scale(.5); } 70% { transform: scale(1.12); } 100% { transform: scale(1); } }
+
+.badge-toast {
+  position: fixed; left: 50%; top: 16px; transform: translateX(-50%); z-index: 1000;
+  display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 16px;
+  background: #fff; border: 2px solid var(--accent-dark); box-shadow: 0 4px 0 var(--accent-dark), 0 8px 24px rgba(0,0,0,.2);
+  font-size: 0.9rem; color: var(--text); animation: toast-in .4s ease-out; max-width: 92vw;
+}
+.badge-toast.out { opacity: 0; transition: opacity .5s; }
+.badge-toast-emoji { font-size: 2rem; }
+@keyframes toast-in { from { transform: translate(-50%, -30px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
+.wrong-hint { color: var(--muted); font-size: 0.85rem; margin: 0 0 8px; }
+.wrong-actions { margin-bottom: 10px; }
+.wrong-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.wrong-item { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid var(--outline, #cfe7df); border-radius: 12px; padding: 8px 10px; }
+.wrong-main { flex: 1; min-width: 0; }
+.wrong-word { font-family: var(--font-heading); font-weight: 700; color: var(--text); font-size: 1.05rem; }
+.wrong-def { font-size: 0.82rem; color: var(--text); }
+.wrong-meta { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+.wrong-speak, .wrong-remove { flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--accent-dark); background: var(--accent); color: #fff; font-size: 1.1rem; cursor: pointer; }
+.wrong-remove { background: #fff; color: var(--muted); border-color: var(--outline, #cfe7df); font-size: 0.9rem; }
+.wrong-empty { text-align: center; padding: 20px 0; color: var(--muted); }
+.wrong-empty-koala { font-size: 2.6rem; }
+@media (prefers-reduced-motion: reduce) { .badge-card.earned .badge-medal, .badge-toast { animation: none; } }
+.stats-tab { font-size: 0.8rem; padding: 8px 4px; }
+
+/* ===== Step 3: PWA ===== */
+.install-app-btn { display: block; margin: 0 auto 10px; }
+.install-app-btn[hidden] { display: none; }
+.offline-banner {
+  position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 999;
+  max-width: 92vw; padding: 8px 14px; border-radius: 14px; font-size: 0.85rem;
+  background: #333a37; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.25); text-align: center;
 }
