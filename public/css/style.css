@@ -4430,3 +4430,27 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
   /* While a spelling round is on, drop the tagline so the round fits the screen. */
   body:has(#spelling-practice:not([hidden])) #app-subtitle { display: none; }
 }
+
+/* ===== Spelling: one koala (the big coach), speaker leads the answer column ===== */
+.sp-trail { --kw: 0px; }
+.sp-trail .trail-koala { display: none; }
+.sp-right .spelling-speak-wrap { flex-direction: row; align-items: center; justify-content: center; gap: 12px; margin: 0; }
+.sp-right button.speak-btn-hero { width: 64px; height: 64px; font-size: 1.8rem; flex: 0 0 auto; }
+.sp-right .speak-btn-hero-label { display: block; font-size: 1rem; }
+@media (min-width: 700px) {
+  .sp-body { align-items: center; }
+  .sp-left .sp-live-scene .sk-svg { max-width: 230px; }
+  .sp-left .sp-live-scene { padding-top: 56px; }
+  .sp-cloud { left: 60%; width: 124px; height: 72px; top: 8px; }
+  .sp-cloud .bubble-text { font-size: 0.8rem; top: 12px; height: 32px; }
+  .sp-right .spelling-speak-wrap { justify-content: flex-start; }
+}
+@media (max-width: 699px) {
+  .sp-body { display: grid; grid-template-columns: 108px 1fr; column-gap: 10px; row-gap: 6px; align-items: center; }
+  .sp-left, .sp-right { display: contents; }
+  .sp-left .sp-live-scene { grid-column: 1; grid-row: 1; }
+  .sp-right .spelling-speak-wrap { grid-column: 2; grid-row: 1; flex-direction: column; justify-content: center; gap: 4px; }
+  .sp-right button.speak-btn-hero { width: 68px; height: 68px; }
+  .sp-right .speak-btn-hero-label { font-size: 0.8rem; }
+  .sp-right > :not(.spelling-speak-wrap) { grid-column: 1 / -1; }
+}
