@@ -82,6 +82,13 @@ const TRANSLATIONS = {
     spWhy1: "Words you can spell are words you read faster.",
     spWhy2: "Your writing looks clear and confident.",
     spWhy3: "Spelling is part of school tests like NAPLAN.",
+    spLiveIdle: "Listen, then type!",
+    spLiveHear: "I'm listening 👂",
+    spLiveOk: "Perfect spelling! 🌟",
+    spLiveNo: "So close! Try again 💪",
+    spLiveNext: "Next word! 🍃",
+    spLivePrev: "Let's look back 👀",
+    spProgressLabel: (i, n) => `Word ${i} of ${n}`,
     fkIdle: "Tap the card to flip!",
     fkFlip: "Ta-da! ✨",
     fkNext: "Next word! 🍃",
@@ -271,8 +278,8 @@ const TRANSLATIONS = {
     spellingHearBtn: "🔊 Hear the word",
     spellingPlaceholder: "Type what you hear...",
     spellingStartBtn: "▶ Start the first word",
-    spellingBackBtn: "⬅ Back",
-    spellingNextBtn: "Next ➡",
+    spellingBackBtn: "🍃 Back",
+    spellingNextBtn: "Next 🌿",
     spellingCheckBtn: "Check Answer",
     spellingCorrectPrompt: "✅ Correct! Press Next to continue.",
     spellingCorrectNoCreditPrompt: "✅ Correct! (This one already counted as wrong earlier this round, so it won't add to your score.) Press Next to continue.",
@@ -514,6 +521,13 @@ const TRANSLATIONS = {
     spWhy1: "철자를 알면 글을 더 빨리 읽을 수 있어요.",
     spWhy2: "글씨가 또렷하고 자신감 있게 보여요.",
     spWhy3: "호주 학교 시험(NAPLAN)에도 스펠링이 나와요.",
+    spLiveIdle: "잘 듣고 써봐요!",
+    spLiveHear: "귀 쫑긋! 듣는 중 👂",
+    spLiveOk: "철자 완벽해요! 🌟",
+    spLiveNo: "아깝다! 다시 해봐요 💪",
+    spLiveNext: "다음 단어! 🍃",
+    spLivePrev: "다시 볼까요? 👀",
+    spProgressLabel: (i, n) => `${n}단어 중 ${i}번째`,
     fkIdle: "카드를 눌러 뒤집어요!",
     fkFlip: "짜잔! ✨",
     fkNext: "다음 단어! 🍃",
@@ -700,8 +714,8 @@ const TRANSLATIONS = {
     spellingHearBtn: "🔊 단어 듣기",
     spellingPlaceholder: "들리는 대로 입력하세요...",
     spellingStartBtn: "▶ 첫 단어 시작하기",
-    spellingBackBtn: "⬅ 이전",
-    spellingNextBtn: "다음 ➡",
+    spellingBackBtn: "🍃 이전",
+    spellingNextBtn: "다음 🌿",
     spellingCheckBtn: "정답 확인",
     spellingCorrectPrompt: "✅ 정답이에요! Next를 눌러 다음 단어로 넘어가세요.",
     spellingCorrectNoCreditPrompt: "✅ 정답이에요! (이 단어는 이번 라운드에서 이미 한 번 틀려서 점수에는 반영되지 않아요.) Next를 눌러 다음 단어로 넘어가세요.",
@@ -2814,16 +2828,17 @@ const flashBubble = document.getElementById("flash-bubble");
 const flashStageEl = document.getElementById("flashcard-stage");
 let flashSceneTimer = null;
 const FK_CLASSES = ["fk-flip", "fk-next", "fk-prev", "fk-know", "fk-dunno"];
-function koalaReact(kind, msgKey) {
-  if (!flashScene) return;
-  flashScene.classList.remove(...FK_CLASSES);
-  void flashScene.offsetWidth; // restart the animation
-  flashScene.classList.add("fk-" + kind);
-  flashBubble.textContent = t(msgKey);
-  clearTimeout(flashSceneTimer);
-  flashSceneTimer = setTimeout(() => {
-    flashScene.classList.remove(...FK_CLASSES);
-    flashBubble.textContent = t("fkIdle");
+FK_CLASSES.push("fk-hear");
+function koalaReact(kind, msgKey, scene = flashScene, bubble = flashBubble, idleKey = "fkIdle") {
+  if (!scene) return;
+  scene.classList.remove(...FK_CLASSES);
+  void scene.offsetWidth; // restart the animation
+  scene.classList.add("fk-" + kind);
+  bubble.textContent = t(msgKey);
+  clearTimeout(scene._fkTimer);
+  scene._fkTimer = setTimeout(() => {
+    scene.classList.remove(...FK_CLASSES);
+    bubble.textContent = t(idleKey);
   }, 1700);
 }
 function slideFlashStage(dir) {
@@ -3543,6 +3558,45 @@ function buildSpellingDeck({ resetScreen = true } = {}) {
   }
 }
 
+// ---- Live practice screen: koala coach, star progress, confetti ----
+const spellingScene = document.getElementById("spelling-scene");
+const spellingBubble = document.getElementById("spelling-bubble");
+const spellingProgressEl = document.getElementById("spelling-progress");
+// Same koala artwork as the Flashcards helper, dropped in before the bubble.
+spellingScene.insertAdjacentHTML("afterbegin", flashScene.querySelector("svg").outerHTML);
+function spellingReact(kind, msgKey) {
+  koalaReact(kind, msgKey, spellingScene, spellingBubble, "spLiveIdle");
+}
+function renderSpellingProgress() {
+  const n = spellingDeck.length;
+  if (!n) { spellingProgressEl.innerHTML = ""; return; }
+  const cur = Math.min(spellingIndex, n - 1);
+  let dots = "";
+  if (n <= 20) {
+    spellingDeck.forEach((w, i) => {
+      const done = spellingCreditedWords.has(w.word);
+      const cls = i === cur ? "cur" : done ? "done" : i < cur ? "skip" : "";
+      dots += `<span class="sp-dot ${cls}">${done ? "⭐" : i === cur ? "🌿" : ""}</span>`;
+    });
+  }
+  spellingProgressEl.innerHTML = `<div class="sp-progress-label">${t("spProgressLabel", cur + 1, n)}</div>${dots ? `<div class="sp-dots">${dots}</div>` : ""}`;
+}
+function spellingConfetti() {
+  const box = spellingPractice;
+  const bits = ["⭐", "✨", "🌿", "🎉", "🍃", "💚"];
+  for (let i = 0; i < 12; i++) {
+    const s = document.createElement("span");
+    s.className = "sp-confetti";
+    s.textContent = bits[i % bits.length];
+    const ang = (Math.PI * 2 * i) / 12 + Math.random() * 0.4;
+    const dist = 70 + Math.random() * 60;
+    s.style.setProperty("--dx", `${Math.cos(ang) * dist}px`);
+    s.style.setProperty("--dy", `${Math.sin(ang) * dist - 30}px`);
+    box.appendChild(s);
+    setTimeout(() => s.remove(), 1000);
+  }
+}
+
 spellingStartBtn.addEventListener("click", () => {
   spellingStartScreen.hidden = true;
   spellingPractice.hidden = false;
@@ -3566,7 +3620,11 @@ function loadSpellingWord(speakAloud = true) {
     spellingIndex = 0;
   }
   spellingBackBtn.disabled = spellingIndex === 0;
-  if (speakAloud) speak(spellingDeck[spellingIndex].word);
+  renderSpellingProgress();
+  if (speakAloud) {
+    spellingReact("hear", "spLiveHear");
+    spellingSpeakBtn.click();
+  }
   renderSpellingLetterHints(spellingDeck[spellingIndex].word);
   spellingInput.focus();
 }
@@ -3644,6 +3702,7 @@ function renderSpellingLetterHints(word) {
 }
 
 spellingSpeakBtn.addEventListener("click", () => {
+  spellingReact("hear", "spLiveHear");
   if (spellingDeck[spellingIndex]) speak(spellingDeck[spellingIndex].word, {
     onstart: () => spellingSpeakBtn.classList.add("speak-btn-active"),
     onend: () => spellingSpeakBtn.classList.remove("speak-btn-active"),
@@ -3712,6 +3771,9 @@ function checkSpellingAnswer() {
     updateSpellingScoreLabel();
     spellingInput.className = "correct";
     pulseScoreTag(spellingInput, "option-btn-bounce");
+    spellingReact("know", "spLiveOk");
+    spellingConfetti();
+    renderSpellingProgress();
     showSpellingCorrectFeedback(earnsCredit);
     spellingCurrentChecked = true;
     spellingNextBtn.disabled = false;
@@ -3728,6 +3790,10 @@ function checkSpellingAnswer() {
     saveProgress();
     updateSpellingScoreLabel();
     spellingInput.className = "incorrect";
+    spellingInput.classList.remove("sp-shake");
+    void spellingInput.offsetWidth;
+    spellingInput.classList.add("sp-shake");
+    spellingReact("dunno", "spLiveNo");
     showSpellingWrongFeedback(current);
     spellingCurrentChecked = false;
     spellingNextBtn.disabled = true;
@@ -3738,6 +3804,7 @@ function goToNextSpellingWord() {
   if (!spellingCurrentChecked) return;
   spellingIndex++;
   loadSpellingWord();
+  spellingReact("next", "spLiveNext");
 }
 
 function updateSpellingScoreLabel() {
@@ -3769,6 +3836,7 @@ spellingBackBtn.addEventListener("click", () => {
   if (spellingIndex > 0) {
     spellingIndex--;
     loadSpellingWord();
+    spellingReact("prev", "spLivePrev");
   }
 });
 

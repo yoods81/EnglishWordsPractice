@@ -533,6 +533,10 @@
           <button class="pill accent" id="spelling-start-btn" data-i18n="spellingStartBtn">▶ Start the first word</button>
         </div>
         <div id="spelling-practice" class="spelling-stage-box" hidden>
+          <div class="flash-scene sp-live-scene" id="spelling-scene" aria-hidden="true">
+            <div class="fk-bubble" id="spelling-bubble" data-i18n="spLiveIdle">Listen, then type!</div>
+          </div>
+          <div class="sp-progress" id="spelling-progress" aria-live="polite"></div>
           <div class="speak-btn-hero-wrap spelling-speak-wrap">
             <button class="speak-btn speak-btn-hero" id="spelling-speak" type="button" title="Hear the word" aria-label="Hear the word">🔊</button>
             <span class="speak-btn-hero-label" data-i18n="spellingHearBtn">Hear the word</span>
