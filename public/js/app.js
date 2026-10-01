@@ -228,8 +228,9 @@ const TRANSLATIONS = {
     timesTableHowTitle: "💡 How to answer",
     timesTableOne: (n) => `Table ${n}`,
     timesTableMany: (n) => `${n} tables`,
-    timesTableQuickDefault: "Reset 2–9",
-    timesTableQuickAll: "All 2–20",
+    timesTableLabelDefault: "2–9",
+    timesTableLabelAll: "All",
+    timesTableNone: "Pick tables",
     timesTableStartBtn: "▶ Start Game",
     timesTableHint: "How to answer when the problem is 8 × 2: enter one of 8216 / 82 16 / 8 2 16",
     timesTableTypoMsg: "❌ No matching fact — try again!",
@@ -692,8 +693,9 @@ const TRANSLATIONS = {
     timesTableHowTitle: "💡 이렇게 답해요",
     timesTableOne: (n) => `${n}단`,
     timesTableMany: (n) => `${n}개 단`,
-    timesTableQuickDefault: "기본 2~9단",
-    timesTableQuickAll: "전체 2~20단",
+    timesTableLabelDefault: "2~9단",
+    timesTableLabelAll: "전체",
+    timesTableNone: "단 고르기",
     timesTableStartBtn: "▶ 게임 시작",
     timesTableHint: "문제가 8 × 2 일 때 정답 입력 방법: 8216 / 82 16 / 8 2 16 셋 중 하나를 입력 — 계속 입력하면 돼요, Enter는 필요 없어요.",
     timesTableTypoMsg: "❌ 일치하는 식이 없어요 — 다시 시도해보세요!",
@@ -5250,6 +5252,7 @@ function loadTimesTableSelection() {
     if (raw) {
       const arr = JSON.parse(raw).filter((n) => Number.isInteger(n) && n >= TIMESTABLE_MIN_TABLE && n <= TIMESTABLE_MAX_TABLE_CAP);
       if (arr.length) return new Set(arr);
+      if (raw === "[]") return new Set();
     }
     // Migrate the old "practice up to N" setting.
     const old = parseInt(localStorage.getItem(TIMESTABLE_MAXTABLE_KEY), 10);
@@ -5268,7 +5271,7 @@ let timesTableSelected = loadTimesTableSelection();
 let timesTableMaxTable = Math.max(...timesTableSelected);
 
 function saveTimesTableMaxTable() {
-  timesTableMaxTable = Math.max(...timesTableSelected);
+  timesTableMaxTable = timesTableSelected.size ? Math.max(...timesTableSelected) : TIMESTABLE_DEFAULT_MAX_TABLE;
   try {
     localStorage.setItem(TIMESTABLE_TABLES_KEY, JSON.stringify([...timesTableSelected].sort((x, y) => x - y)));
   } catch (e) {
@@ -5282,8 +5285,16 @@ function timesTableSelectionKey() {
   return contiguous ? String(arr[arr.length - 1]) : "s" + arr.join(".");
 }
 
+function timesTableIsRange(lo, hi) {
+  if (timesTableSelected.size !== hi - lo + 1) return false;
+  for (let n = lo; n <= hi; n++) if (!timesTableSelected.has(n)) return false;
+  return true;
+}
 function timesTableRangeLabel() {
   const arr = [...timesTableSelected].sort((x, y) => x - y);
+  if (arr.length === 0) return t("timesTableNone");
+  if (timesTableIsRange(TIMESTABLE_MIN_TABLE, TIMESTABLE_DEFAULT_MAX_TABLE)) return t("timesTableLabelDefault");
+  if (timesTableIsRange(TIMESTABLE_MIN_TABLE, TIMESTABLE_MAX_TABLE_CAP)) return t("timesTableLabelAll");
   if (arr.length === 1) return t("timesTableOne", arr[0]);
   return t("timesTableMany", arr.length);
 }
@@ -5307,7 +5318,7 @@ function updateTimesTableMaxTableUI() {
     c.addEventListener("click", () => {
       if (timesTableRunning) return;
       if (timesTableSelected.has(n)) {
-        if (timesTableSelected.size > 1) timesTableSelected.delete(n);
+        timesTableSelected.delete(n);
       } else {
         timesTableSelected.add(n);
       }
@@ -5315,8 +5326,12 @@ function updateTimesTableMaxTableUI() {
     });
     timesTableRangeGrid.appendChild(c);
   }
-  document.getElementById("timestable-range-default").textContent = t("timesTableQuickDefault");
-  document.getElementById("timestable-range-all").textContent = t("timesTableQuickAll");
+  const defBtn = document.getElementById("timestable-range-default");
+  const allBtn = document.getElementById("timestable-range-all");
+  defBtn.textContent = t("timesTableLabelDefault");
+  allBtn.textContent = t("timesTableLabelAll");
+  defBtn.classList.toggle("on", timesTableIsRange(TIMESTABLE_MIN_TABLE, TIMESTABLE_DEFAULT_MAX_TABLE));
+  allBtn.classList.toggle("on", timesTableIsRange(TIMESTABLE_MIN_TABLE, TIMESTABLE_MAX_TABLE_CAP));
   timesTableRangeWrap.classList.toggle("locked", !!timesTableRunning);
   if (timesTableRunning) closeTimesTableRangePanel();
 }
@@ -5334,12 +5349,13 @@ timesTableRangeBtn.addEventListener("click", (e) => {
 timesTableRangePanel.addEventListener("click", (e) => e.stopPropagation());
 document.addEventListener("click", closeTimesTableRangePanel);
 document.getElementById("timestable-range-default").addEventListener("click", () => {
-  timesTableSelected = defaultTimesTableSelection();
+  timesTableSelected = timesTableIsRange(TIMESTABLE_MIN_TABLE, TIMESTABLE_DEFAULT_MAX_TABLE) ? new Set() : defaultTimesTableSelection();
   applyTimesTableSelection();
 });
 document.getElementById("timestable-range-all").addEventListener("click", () => {
+  const wasAll = timesTableIsRange(TIMESTABLE_MIN_TABLE, TIMESTABLE_MAX_TABLE_CAP);
   timesTableSelected = new Set();
-  for (let n = TIMESTABLE_MIN_TABLE; n <= TIMESTABLE_MAX_TABLE_CAP; n++) timesTableSelected.add(n);
+  if (!wasAll) for (let n = TIMESTABLE_MIN_TABLE; n <= TIMESTABLE_MAX_TABLE_CAP; n++) timesTableSelected.add(n);
   applyTimesTableSelection();
 });
 
@@ -5498,7 +5514,14 @@ function resetTimesTable() {
 
 function startTimesTable() {
   timesTableProblemPool = buildTimesTableProblemPool();
-  if (timesTableProblemPool.length === 0) return;
+  if (timesTableProblemPool.length === 0) {
+    // nothing selected: open the picker (after the click finishes bubbling)
+    setTimeout(() => {
+      timesTableRangePanel.hidden = false;
+      timesTableRangeBtn.setAttribute("aria-expanded", "true");
+    }, 0);
+    return;
+  }
   kb("tt")?.reset();
   timesTableRunning = true;
   updateTimesTableMaxTableUI();

@@ -4703,3 +4703,4 @@ button.speak-btn-hero.sk-wave { animation: sk-speaker-wobble .5s ease-in-out inf
 .tt-howto-title { font-size: .9rem; margin-bottom: 4px; }
 .card.game-immersive .tt-howto { display: none; }
 @media (max-width: 699px) { #timestable-stage { min-height: 300px; } .card.game-immersive #timestable-stage { min-height: 100px; } }
+.tt-range-quick button.on { background: var(--accent); color: #fff; }
