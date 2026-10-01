@@ -9466,6 +9466,28 @@ function closeReview() {
 }
 document.getElementById("review-close").addEventListener("click", closeReview);
 
+// Keyboard: Space = hear it, Enter = next step (Now spell it / Check / Next / Done), Esc = close.
+document.addEventListener("keydown", (e) => {
+  if (document.getElementById("review-overlay").hidden) return;
+  if (e.key === "Escape") { e.preventDefault(); closeReview(); return; }
+  if (e.target && e.target.id === "review-input") return; // the input handles its own Enter
+  if (e.key === " " || e.code === "Space") {
+    e.preventDefault();
+    const hear = document.getElementById("review-hear");
+    if (hear) hear.click();
+    return;
+  }
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const btn = document.getElementById("review-finish") || document.getElementById("review-next") || document.getElementById("review-check");
+    if (btn) btn.click();
+  }
+});
+document.addEventListener("keyup", (e) => {
+  // stop a focused button from also "clicking" itself when Space is released
+  if (e.key === " " && !document.getElementById("review-overlay").hidden && e.target.tagName === "BUTTON") e.preventDefault();
+});
+
 function reviewInfoFor(key) {
   if (reviewIsMath(key)) {
     const [a, b] = key.split("x").map(Number);
