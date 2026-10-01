@@ -4899,3 +4899,14 @@ body.review-open { overflow: hidden; }
   #view-stats .dash-link:hover, #view-stats .more-stats > summary:hover { color: var(--accent); transform: translateY(-2px); }
 }
 #view-stats .dash-btn:active, #view-stats .pr-actions .pill:active { transform: translateY(0); box-shadow: none; }
+
+/* Progress card buttons share the look of the Overview/Badges tabs */
+#view-stats .dash-btn, #view-stats .pr-actions .pill, #view-stats .wrong-actions .pill {
+  width: auto; flex: 0 0 auto; align-self: flex-start; display: inline-flex; align-items: center; justify-content: center;
+  padding: 8px 18px; min-height: 44px; border-radius: 999px; background: #fff; color: var(--accent-dark);
+  font-family: var(--font-heading); font-weight: 700; font-size: .85rem; border: 1px solid var(--accent-dark); box-shadow: 0 2px 0 var(--accent-dark);
+}
+#view-stats .dash-btn.accent, #view-stats .pr-actions .pill.accent, #view-stats .wrong-actions .pill.accent { background: var(--accent); color: #fff; }
+#view-stats .dash-rec-btn { background: #fff; color: var(--accent-dark); font-size: .95rem; border-color: #fff; box-shadow: 0 3px 0 rgba(0,0,0,.18); }
+.dash-badge.off .dash-badge-ico { filter: grayscale(1); opacity: .5; }
+.dash-today .dash-btn, .dash-review .dash-btn { margin-top: 2px; }
