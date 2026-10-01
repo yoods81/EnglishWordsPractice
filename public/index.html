@@ -201,6 +201,14 @@
         <ul class="mission-list" id="mission-list"></ul>
         <p class="mission-done-msg" id="mission-done-msg" hidden data-i18n="missionDoneMsg">🎉 Mission complete! Come back tomorrow for a new one.</p>
       </div>
+      <div class="review-card" id="review-card" hidden>
+        <div class="review-card-icon" aria-hidden="true">🐨</div>
+        <div class="review-card-text">
+          <h2 class="review-card-title" id="review-card-title"></h2>
+          <p class="review-card-sub" id="review-card-sub"></p>
+        </div>
+        <button type="button" class="pill accent small" id="review-card-btn"></button>
+      </div>
       <div class="photo-promo">
         <div class="photo-promo-text">
           <h2 class="photo-promo-title" data-i18n="promoTitle">📸 From your child's book to a quiz</h2>
@@ -1115,6 +1123,16 @@
     </button>
   </nav>
 
+  <div class="review-overlay" id="review-overlay" role="dialog" aria-modal="true" hidden>
+    <div class="review-panel">
+      <div class="review-top">
+        <div class="review-progress"><div class="review-progress-fill" id="review-progress-fill"></div></div>
+        <span class="review-count" id="review-count"></span>
+        <button type="button" class="review-close" id="review-close" aria-label="Close">✕</button>
+      </div>
+      <div class="review-body" id="review-body"></div>
+    </div>
+  </div>
   <script src="js/words.js"></script>
   <script src="js/words_ko.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>

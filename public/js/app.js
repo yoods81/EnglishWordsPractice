@@ -8823,7 +8823,7 @@ function renderWrongPanel() {
   let html = `<p class="wrong-hint">${rwL(
     "Get a word right 2 times in a row and it graduates from this notebook.",
     "같은 단어를 연속 2번 맞히면 오답 노트에서 졸업해요.")}</p>
-    <div class="wrong-actions"><button type="button" class="pill accent small" id="wrong-study-btn">🃏 ${rwL("Study these words", "오답 단어 공부하기")}</button></div>
+    <div class="wrong-actions"><button type="button" class="pill accent small" id="wrong-review-btn">🐨 ${rwL("Start review", "복습 시작")}</button> <button type="button" class="pill small" id="wrong-study-btn">🃏 ${rwL("Study these words", "오답 단어 공부하기")}</button></div>
     <ul class="wrong-list">`;
   items.forEach((it) => {
     const isMath = /^\d+x\d+$/.test(it.key);
@@ -8853,6 +8853,11 @@ statsPanels.wrong.addEventListener("click", (e) => {
     delete progress.wrong[rm.dataset.remove];
     saveProgress();
     renderRewardPanels();
+    return;
+  }
+  if (e.target.closest("#wrong-review-btn")) {
+    if (!reviewDueList().length) { kidConfirm(rwL("All caught up! These words come back for a retest tomorrow.", "오늘 복습할 단어를 모두 끝냈어요! 내일 다시 확인해요."), "OK"); return; }
+    startReview();
     return;
   }
   if (e.target.closest("#wrong-study-btn")) {
@@ -9140,6 +9145,7 @@ function renderHome() {
   });
   renderHomeYears();
   renderMission();
+  renderReviewCard();
 }
 document.getElementById("home-start-btn").addEventListener("click", () => {
   const next = missionTasks().find((x) => x.done < x.goal);
@@ -9147,3 +9153,184 @@ document.getElementById("home-start-btn").addEventListener("click", () => {
 });
 document.getElementById("promo-btn").addEventListener("click", () => goToTab("addword"));
 renderHome();
+
+
+/* ================= REVIEW LOOP: meaning → hear → spell → next-day retest ================= */
+// Words in progress.wrong (premium/admin) are reviewed in short sessions.
+// A word answered right is parked until tomorrow (w.retestAt) so the second
+// "right in a row" — which graduates it from the notebook — happens on a
+// different day. A wrong answer keeps it due straight away.
+const REVIEW_SESSION_MAX = 8;
+let reviewState = null;
+
+function reviewIsMath(key) { return /^\d+x\d+$/.test(key); }
+function reviewNextMidnight() {
+  const d = new Date();
+  d.setHours(24, 0, 0, 0);
+  return d.getTime();
+}
+function reviewDueList() {
+  if (!canUsePaidFeatures()) return [];
+  ensureRewardData();
+  const now = Date.now();
+  return wrongEntries().filter((it) => !it.retestAt || it.retestAt <= now).sort((a, b) => (b.n || 0) - (a.n || 0));
+}
+function reviewWaitingCount() {
+  if (!canUsePaidFeatures()) return 0;
+  ensureRewardData();
+  const now = Date.now();
+  return wrongEntries().filter((it) => it.retestAt && it.retestAt > now).length;
+}
+
+function renderReviewCard() {
+  const card = document.getElementById("review-card");
+  if (!card) return;
+  const due = reviewDueList().length;
+  const waiting = reviewWaitingCount();
+  card.hidden = !(due || waiting);
+  if (card.hidden) return;
+  document.getElementById("review-card-title").textContent = due
+    ? rwL(`Review ${due} tricky word${due === 1 ? "" : "s"}`, `틀렸던 단어 ${due}개 복습`)
+    : rwL("Review done for today", "오늘 복습 완료");
+  document.getElementById("review-card-sub").textContent = due
+    ? rwL("Meaning, listen, then spell it.", "뜻 보고, 듣고, 직접 써 봐요.")
+    : rwL(`${waiting} word${waiting === 1 ? "" : "s"} to retest tomorrow.`, `내일 다시 확인할 단어 ${waiting}개`);
+  const btn = document.getElementById("review-card-btn");
+  btn.textContent = rwL("Start", "시작");
+  btn.hidden = !due;
+}
+document.getElementById("review-card-btn").addEventListener("click", startReview);
+
+function startReview() {
+  const due = reviewDueList().slice(0, REVIEW_SESSION_MAX);
+  if (!due.length) return;
+  reviewState = { queue: due.map((it) => ({ key: it.key, retried: false })), total: due.length, i: 0, right: 0, graduated: 0, missed: [] };
+  document.getElementById("review-overlay").hidden = false;
+  document.body.classList.add("review-open");
+  reviewShow();
+}
+function closeReview() {
+  document.getElementById("review-overlay").hidden = true;
+  document.body.classList.remove("review-open");
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  reviewState = null;
+  renderReviewCard();
+  try { renderRewardPanels(); } catch (e) { /* stats not ready */ }
+}
+document.getElementById("review-close").addEventListener("click", closeReview);
+
+function reviewInfoFor(key) {
+  if (reviewIsMath(key)) {
+    const [a, b] = key.split("x").map(Number);
+    return { math: true, a, b, answer: String(a * b) };
+  }
+  const info = findWordInfo(key) || {};
+  return { word: key, definition: info.definition || "", example: info.example || "" };
+}
+
+function reviewProgressUI() {
+  const s = reviewState;
+  const done = Math.min(s.i, s.queue.length);
+  document.getElementById("review-progress-fill").style.width = `${(done / s.queue.length) * 100}%`;
+  document.getElementById("review-count").textContent = `${Math.min(done + 1, s.queue.length)} / ${s.queue.length}`;
+}
+
+function reviewShow() {
+  const s = reviewState;
+  if (!s) return;
+  if (s.i >= s.queue.length) return reviewSummary();
+  reviewProgressUI();
+  const item = s.queue[s.i];
+  const info = reviewInfoFor(item.key);
+  if (info.math) return reviewAsk(item, info);
+  reviewLearn(item, info);
+}
+
+function reviewLearn(item, info) {
+  const body = document.getElementById("review-body");
+  body.innerHTML = `<div class="review-step">${rwL("Step 1 · Learn it", "1단계 · 익히기")}</div>
+    <div class="review-word">${escapeHtml(info.word)}</div>
+    <button type="button" class="review-hear" id="review-hear">🔊 ${rwL("Hear it", "들어보기")}</button>
+    ${info.definition ? `<p class="review-def">${escapeHtml(info.definition)}</p>` : ""}
+    ${info.example ? `<p class="review-ex">“${escapeHtml(info.example)}”</p>` : ""}
+    <button type="button" class="pill accent review-next" id="review-next">${rwL("Now spell it →", "이제 써 볼게요 →")}</button>`;
+  document.getElementById("review-hear").addEventListener("click", () => speak(info.word));
+  document.getElementById("review-next").addEventListener("click", () => reviewAsk(item, info));
+  speak(info.word);
+}
+
+function reviewAsk(item, info) {
+  const body = document.getElementById("review-body");
+  const prompt = info.math
+    ? `<div class="review-word review-math">${info.a} × ${info.b} = ?</div>`
+    : `<div class="review-step">${rwL("Step 2 · Spell it", "2단계 · 스펠링 쓰기")}</div>
+       <button type="button" class="review-hear" id="review-hear">🔊 ${rwL("Hear it", "들어보기")}</button>
+       ${info.definition ? `<p class="review-def">${escapeHtml(info.definition)}</p>` : ""}`;
+  body.innerHTML = `${prompt}
+    <input type="text" class="review-input" id="review-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+      ${info.math ? 'inputmode="numeric"' : ""} placeholder="${rwL("Type here…", "여기에 써요…")}" aria-label="answer">
+    <div class="review-feedback" id="review-feedback" aria-live="polite"></div>
+    <button type="button" class="pill accent review-next" id="review-check">${rwL("Check", "확인")}</button>`;
+  const input = document.getElementById("review-input");
+  const hear = document.getElementById("review-hear");
+  if (hear) hear.addEventListener("click", () => speak(info.word));
+  let answered = false;
+  const finish = () => {
+    if (answered) { reviewState.i++; reviewShow(); return; }
+    const val = input.value.trim().toLowerCase();
+    if (!val) return;
+    answered = true;
+    const expected = (info.math ? info.answer : info.word).toLowerCase();
+    const ok = val === expected;
+    reviewRecord(item, ok, info.math);
+    const fb = document.getElementById("review-feedback");
+    input.disabled = true;
+    input.classList.add(ok ? "ok" : "bad");
+    fb.className = "review-feedback " + (ok ? "ok" : "bad");
+    fb.innerHTML = ok
+      ? `🎉 ${rwL("Correct!", "정답!")} ${reviewState.lastGraduated ? rwL("You graduated this word!", "이 단어 졸업!") : rwL("We'll check it again tomorrow.", "내일 한 번 더 확인해요.")}`
+      : `${rwL("Answer", "정답")}: <b>${escapeHtml(info.math ? info.answer : info.word)}</b>`;
+    if (!ok && !info.math) speak(info.word);
+    const btn = document.getElementById("review-check");
+    btn.textContent = rwL("Next →", "다음 →");
+    btn.focus();
+  };
+  document.getElementById("review-check").addEventListener("click", finish);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); finish(); } });
+  if (!info.math) speak(info.word);
+  setTimeout(() => input.focus(), 50);
+}
+
+function reviewRecord(item, ok, isMath) {
+  const s = reviewState;
+  const key = item.key;
+  recordResult(key, ok, isMath ? "tt" : "spelling");
+  if (!isMath) recordSrsResult(key, ok);
+  const w = progress.wrong[key];
+  s.lastGraduated = false;
+  if (w) w.retestAt = ok ? reviewNextMidnight() : 0;
+  else if (ok) { s.graduated++; s.lastGraduated = true; }
+  if (ok) s.right++;
+  else {
+    s.missed.push(key);
+    if (!item.retried) s.queue.push({ key, retried: true });
+  }
+  saveProgress();
+}
+
+function reviewSummary() {
+  const s = reviewState;
+  document.getElementById("review-progress-fill").style.width = "100%";
+  document.getElementById("review-count").textContent = "";
+  const waiting = reviewWaitingCount();
+  const left = reviewDueList().length;
+  document.getElementById("review-body").innerHTML = `<div class="review-done-koala">🐨🍃</div>
+    <h3 class="review-done-title">${rwL("Review complete!", "복습 완료!")}</h3>
+    <p class="review-def">${rwL(`${s.right} correct`, `${s.right}개 맞혔어요`)}${s.graduated ? ` · ${rwL(`${s.graduated} graduated 🎓`, `${s.graduated}개 졸업 🎓`)}` : ""}</p>
+    ${waiting ? `<p class="review-ex">${rwL(`${waiting} word${waiting === 1 ? "" : "s"} will be retested tomorrow.`, `내일 다시 확인할 단어 ${waiting}개`)}</p>` : ""}
+    ${left ? `<button type="button" class="pill accent review-next" id="review-more">${rwL(`Review ${left} more`, `${left}개 더 복습`)}</button>` : ""}
+    <button type="button" class="pill review-next" id="review-finish">${rwL("Done", "끝내기")}</button>`;
+  const more = document.getElementById("review-more");
+  if (more) more.addEventListener("click", startReview);
+  document.getElementById("review-finish").addEventListener("click", closeReview);
+}
