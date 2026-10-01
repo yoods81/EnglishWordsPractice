@@ -4629,3 +4629,10 @@ button.speak-btn-hero.sk-wave { animation: sk-speaker-wobble .5s ease-in-out inf
 .landing-tiles, .landing-tiles.tiles-4 { grid-template-columns: repeat(2, 1fr); }
 @media (min-width: 700px) { .landing-tiles, .landing-tiles.tiles-4 { grid-template-columns: repeat(4, 1fr); } }
 @media (max-width: 699px) { .landing-tile { aspect-ratio: 1.35 / 1; } .landing-tile .landing-tile-icon { width: clamp(44px, 34cqw, 72px); height: clamp(44px, 34cqw, 72px); font-size: clamp(1.5rem, 19cqw, 2.4rem); } .landing-tile .landing-tile-title { font-size: clamp(.85rem, 9.5cqw, 1.1rem); } }
+.home-groups-row { display: grid; grid-template-columns: 1fr; gap: 0; }
+.home-group { min-width: 0; }
+.home-groups-row .landing-tiles { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 700px) { .home-groups-row { grid-template-columns: 1fr 1fr; gap: 12px; } .home-groups-row .landing-tiles { grid-template-columns: repeat(2, 1fr); } }
+.home-groups-row { margin-top: 16px; }
+.home-group + .home-group .home-section-title { margin-top: 16px; }
+@media (min-width: 700px) { .home-group + .home-group .home-section-title { margin-top: 6px; } }
