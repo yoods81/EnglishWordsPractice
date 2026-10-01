@@ -224,9 +224,12 @@ const TRANSLATIONS = {
     timesTableDemoCaption2: "Spaces are optional!",
     timesTableInstrLine1: "When the problem is {{EX}}, here's how to answer:",
     timesTableInstrLine2: "Enter one of {{FMT}}",
-    timesTableMaxTableLabel: "Practice tables up to",
+    timesTableMaxTableLabel: "Choose tables to practise",
     timesTableHowTitle: "💡 How to answer",
-    timesTableRangeOpt: (n) => `Tables 2–${n}`,
+    timesTableOne: (n) => `Table ${n}`,
+    timesTableMany: (n) => `${n} tables`,
+    timesTableQuickDefault: "Reset 2–9",
+    timesTableQuickAll: "All 2–20",
     timesTableStartBtn: "▶ Start Game",
     timesTableHint: "How to answer when the problem is 8 × 2: enter one of 8216 / 82 16 / 8 2 16",
     timesTableTypoMsg: "❌ No matching fact — try again!",
@@ -685,9 +688,12 @@ const TRANSLATIONS = {
     timesTableDemoCaption2: "띄어쓰기는 자유예요!",
     timesTableInstrLine1: "문제가 {{EX}} 일 때 정답 입력 방법",
     timesTableInstrLine2: "{{FMT}} 셋 중 하나를 입력",
-    timesTableMaxTableLabel: "몇 단까지 연습할까요",
+    timesTableMaxTableLabel: "연습할 단 고르기",
     timesTableHowTitle: "💡 이렇게 답해요",
-    timesTableRangeOpt: (n) => `2~${n}단`,
+    timesTableOne: (n) => `${n}단`,
+    timesTableMany: (n) => `${n}개 단`,
+    timesTableQuickDefault: "기본 2~9단",
+    timesTableQuickAll: "전체 2~20단",
     timesTableStartBtn: "▶ 게임 시작",
     timesTableHint: "문제가 8 × 2 일 때 정답 입력 방법: 8216 / 82 16 / 8 2 16 셋 중 하나를 입력 — 계속 입력하면 돼요, Enter는 필요 없어요.",
     timesTableTypoMsg: "❌ 일치하는 식이 없어요 — 다시 시도해보세요!",
@@ -5139,7 +5145,10 @@ const timesTableStageTagEl = document.getElementById("timestable-stage-tag");
 const timesTableStageBanner = document.getElementById("timestable-stage-banner");
 const timesTableStageBannerText = document.getElementById("timestable-stage-banner-text");
 const timesTableEncourageMsg = document.getElementById("timestable-encourage-msg");
-const timesTableRangeSelect = document.getElementById("timestable-range-select");
+const timesTableRangeWrap = document.getElementById("timestable-range-wrap");
+const timesTableRangeBtn = document.getElementById("timestable-range-btn");
+const timesTableRangePanel = document.getElementById("timestable-range-panel");
+const timesTableRangeGrid = document.getElementById("timestable-range-grid");
 // The old +/- stepper is now a row of table chips above the stage; these two
 // shims keep the Up/Down arrow keys on the start screen working.
 const timesTableMaxTableMinusBtn = { click: () => changeTimesTableMaxTable(-1) };
@@ -5226,70 +5235,124 @@ let timesTableHighScores = loadTimesTableHighScores();
 // Kept per language + "practice up to" table, since a 2-9 round and a
 // 2-20 round aren't really comparable.
 function timesTableHighScoreKey() {
-  return `${currentLang}_${timesTableMaxTable}`;
+  return `${currentLang}_${timesTableSelectionKey()}`;
 }
 
-function loadTimesTableMaxTable() {
+const TIMESTABLE_TABLES_KEY = "ywp_timestable_tables_v1";
+function defaultTimesTableSelection() {
+  const s = new Set();
+  for (let n = TIMESTABLE_MIN_TABLE; n <= TIMESTABLE_DEFAULT_MAX_TABLE; n++) s.add(n);
+  return s;
+}
+function loadTimesTableSelection() {
   try {
-    const raw = localStorage.getItem(TIMESTABLE_MAXTABLE_KEY);
-    const n = raw ? parseInt(raw, 10) : NaN;
-    if (Number.isFinite(n) && n >= TIMESTABLE_MIN_TABLE && n <= TIMESTABLE_MAX_TABLE_CAP) return n;
+    const raw = localStorage.getItem(TIMESTABLE_TABLES_KEY);
+    if (raw) {
+      const arr = JSON.parse(raw).filter((n) => Number.isInteger(n) && n >= TIMESTABLE_MIN_TABLE && n <= TIMESTABLE_MAX_TABLE_CAP);
+      if (arr.length) return new Set(arr);
+    }
+    // Migrate the old "practice up to N" setting.
+    const old = parseInt(localStorage.getItem(TIMESTABLE_MAXTABLE_KEY), 10);
+    if (Number.isFinite(old) && old >= TIMESTABLE_MIN_TABLE && old <= TIMESTABLE_MAX_TABLE_CAP) {
+      const s = new Set();
+      for (let n = TIMESTABLE_MIN_TABLE; n <= old; n++) s.add(n);
+      return s;
+    }
   } catch (e) {
     /* fall through to default */
   }
-  return TIMESTABLE_DEFAULT_MAX_TABLE;
+  return defaultTimesTableSelection();
 }
 
+let timesTableSelected = loadTimesTableSelection();
+let timesTableMaxTable = Math.max(...timesTableSelected);
+
 function saveTimesTableMaxTable() {
+  timesTableMaxTable = Math.max(...timesTableSelected);
   try {
-    localStorage.setItem(TIMESTABLE_MAXTABLE_KEY, String(timesTableMaxTable));
+    localStorage.setItem(TIMESTABLE_TABLES_KEY, JSON.stringify([...timesTableSelected].sort((x, y) => x - y)));
   } catch (e) {
-    console.warn("Could not save Times Table max-table setting", e);
+    console.warn("Could not save Times Table selection", e);
   }
 }
 
-let timesTableMaxTable = loadTimesTableMaxTable();
-
-function updateTimesTableMaxTableUI() {
-  // One compact dropdown: "Tables 2–N". Includes the current value if a
-  // challenge pushed it above 12.
-  const nums = [];
-  for (let n = TIMESTABLE_MIN_TABLE; n <= 12; n++) nums.push(n);
-  if (timesTableMaxTable > 12) nums.push(timesTableMaxTable);
-  timesTableRangeSelect.innerHTML = "";
-  nums.forEach((n) => {
-    const o = document.createElement("option");
-    o.value = String(n);
-    o.textContent = t("timesTableRangeOpt", n);
-    timesTableRangeSelect.appendChild(o);
-  });
-  timesTableRangeSelect.value = String(timesTableMaxTable);
-  timesTableRangeSelect.setAttribute("aria-label", t("timesTableMaxTableLabel"));
-  timesTableRangeSelect.classList.toggle("locked", !!timesTableRunning);
+function timesTableSelectionKey() {
+  const arr = [...timesTableSelected].sort((x, y) => x - y);
+  const contiguous = arr[0] === TIMESTABLE_MIN_TABLE && arr.every((n, i) => n === TIMESTABLE_MIN_TABLE + i);
+  return contiguous ? String(arr[arr.length - 1]) : "s" + arr.join(".");
 }
-timesTableRangeSelect.addEventListener("change", () => {
-  if (timesTableRunning) return;
-  timesTableMaxTable = parseInt(timesTableRangeSelect.value, 10);
-  saveTimesTableMaxTable();
-  timesTableProblemPool = buildTimesTableProblemPool(timesTableMaxTable);
-  timesTableRangeSelect.blur();
-});
 
-function changeTimesTableMaxTable(delta) {
-  const next = timesTableMaxTable + delta;
-  if (next < TIMESTABLE_MIN_TABLE || next > TIMESTABLE_MAX_TABLE_CAP) return;
-  timesTableMaxTable = next;
+function timesTableRangeLabel() {
+  const arr = [...timesTableSelected].sort((x, y) => x - y);
+  if (arr.length === 1) return t("timesTableOne", arr[0]);
+  return t("timesTableMany", arr.length);
+}
+
+function applyTimesTableSelection() {
   saveTimesTableMaxTable();
+  timesTableProblemPool = buildTimesTableProblemPool();
   updateTimesTableMaxTableUI();
 }
 
+function updateTimesTableMaxTableUI() {
+  timesTableRangeBtn.textContent = timesTableRangeLabel();
+  timesTableRangeBtn.setAttribute("aria-label", t("timesTableMaxTableLabel"));
+  timesTableRangeGrid.innerHTML = "";
+  for (let n = TIMESTABLE_MIN_TABLE; n <= TIMESTABLE_MAX_TABLE_CAP; n++) {
+    const c = document.createElement("button");
+    c.type = "button";
+    c.className = "tt-chip" + (timesTableSelected.has(n) ? " on" : "");
+    c.textContent = String(n);
+    c.setAttribute("aria-pressed", timesTableSelected.has(n) ? "true" : "false");
+    c.addEventListener("click", () => {
+      if (timesTableRunning) return;
+      if (timesTableSelected.has(n)) {
+        if (timesTableSelected.size > 1) timesTableSelected.delete(n);
+      } else {
+        timesTableSelected.add(n);
+      }
+      applyTimesTableSelection();
+    });
+    timesTableRangeGrid.appendChild(c);
+  }
+  document.getElementById("timestable-range-default").textContent = t("timesTableQuickDefault");
+  document.getElementById("timestable-range-all").textContent = t("timesTableQuickAll");
+  timesTableRangeWrap.classList.toggle("locked", !!timesTableRunning);
+  if (timesTableRunning) closeTimesTableRangePanel();
+}
+function closeTimesTableRangePanel() {
+  timesTableRangePanel.hidden = true;
+  timesTableRangeBtn.setAttribute("aria-expanded", "false");
+}
+timesTableRangeBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  if (timesTableRunning) return;
+  const open = timesTableRangePanel.hidden;
+  timesTableRangePanel.hidden = !open;
+  timesTableRangeBtn.setAttribute("aria-expanded", open ? "true" : "false");
+});
+timesTableRangePanel.addEventListener("click", (e) => e.stopPropagation());
+document.addEventListener("click", closeTimesTableRangePanel);
+document.getElementById("timestable-range-default").addEventListener("click", () => {
+  timesTableSelected = defaultTimesTableSelection();
+  applyTimesTableSelection();
+});
+document.getElementById("timestable-range-all").addEventListener("click", () => {
+  timesTableSelected = new Set();
+  for (let n = TIMESTABLE_MIN_TABLE; n <= TIMESTABLE_MAX_TABLE_CAP; n++) timesTableSelected.add(n);
+  applyTimesTableSelection();
+});
+
+function changeTimesTableMaxTable() {
+  /* keyboard shortcut no longer used */
+}
 
 // Every {a}×{b} fact for tables TIMESTABLE_MIN_TABLE..maxTable, each ×1
 // through ×9 (the standard 구구단 shape) — "몇 단" only changes the first
 // operand's range, matching how the times tables are actually taught.
-function buildTimesTableProblemPool(maxTable) {
+function buildTimesTableProblemPool() {
   const pool = [];
-  for (let a = TIMESTABLE_MIN_TABLE; a <= maxTable; a++) {
+  for (const a of [...timesTableSelected].sort((x, y) => x - y)) {
     for (let b = 1; b <= TIMESTABLE_MULTIPLIER_MAX; b++) {
       pool.push({ a, b, product: a * b });
     }
@@ -5427,14 +5490,14 @@ function resetTimesTable() {
   updateTimesTableStageScene();
   updateTimesTableHud();
 
-  timesTableProblemPool = buildTimesTableProblemPool(timesTableMaxTable);
+  timesTableProblemPool = buildTimesTableProblemPool();
   updateTimesTableMaxTableUI();
   timesTableOverOverlay.hidden = true;
   timesTableStartOverlay.hidden = false;
 }
 
 function startTimesTable() {
-  timesTableProblemPool = buildTimesTableProblemPool(timesTableMaxTable);
+  timesTableProblemPool = buildTimesTableProblemPool();
   if (timesTableProblemPool.length === 0) return;
   kb("tt")?.reset();
   timesTableRunning = true;
@@ -5668,7 +5731,7 @@ function clearTimesTableProblem(item) {
 function maybeOfferTimesTableChallenge() {
   if (timesTableMaxTable >= TIMESTABLE_MAX_TABLE_CAP) return;
   progress.timesTableChallengeShown = progress.timesTableChallengeShown || {};
-  const shownKey = `${currentLang}_${timesTableMaxTable}`;
+  const shownKey = `${currentLang}_${timesTableSelectionKey()}`;
   if (progress.timesTableChallengeShown[shownKey]) return;
   if (timesTableProblemPool.length === 0) return;
   const allCleared = timesTableProblemPool.every((p) => timesTableRoundSolved.has(timesTableKey(p)));
@@ -5680,7 +5743,7 @@ function maybeOfferTimesTableChallenge() {
   const nextTable = Math.min(timesTableMaxTable + 1, TIMESTABLE_MAX_TABLE_CAP);
   kidConfirm(t("timesTableChallengePrompt", nextTable), t("challengeYesBtn"), t("challengeNoBtn")).then((ok) => {
     if (ok) {
-      timesTableMaxTable = Math.min(timesTableMaxTable + 1, TIMESTABLE_MAX_TABLE_CAP);
+      timesTableSelected.add(nextTable);
       saveTimesTableMaxTable();
       startTimesTable();
     } else {

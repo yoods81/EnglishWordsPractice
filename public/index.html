@@ -720,7 +720,16 @@
             <span class="typegame-star typegame-star-2">⭐</span>
           </div>
 
-          <select class="tt-range-select" id="timestable-range-select" aria-label="Practice tables up to"></select>
+          <div class="tt-range-wrap" id="timestable-range-wrap">
+            <button type="button" class="tt-range-select" id="timestable-range-btn" aria-haspopup="true" aria-expanded="false"></button>
+            <div class="tt-range-panel" id="timestable-range-panel" hidden>
+              <div class="tt-range-grid" id="timestable-range-grid"></div>
+              <div class="tt-range-quick">
+                <button type="button" id="timestable-range-default"></button>
+                <button type="button" id="timestable-range-all"></button>
+              </div>
+            </div>
+          </div>
           <button type="button" class="typegame-pause-btn round-icon-btn" id="timestable-pause-btn" data-i18n-aria-label="timesTablePauseLabel" aria-label="Pause" hidden><svg class="pause-icon-svg" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button>
           <button type="button" class="typegame-mute-btn round-icon-btn" id="timestable-mute-btn" data-i18n-aria-label="timesTableMute" aria-label="Mute music">🔊</button>
           <button type="button" class="typegame-expand-btn round-icon-btn" id="timestable-expand-btn" data-i18n-aria-label="timesTableExpand" aria-label="Expand game area">⇕</button>
