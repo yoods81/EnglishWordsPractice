@@ -130,6 +130,7 @@ const TRANSLATIONS = {
     statsTabOverview: "📊 Overview",
     statsTabBadges: "🏅 Badges",
     statsTabWrong: "📕 Wrong notes",
+    statsTabParent: "👪 Parent",
     navAddwordShort: "Add Word",
     navHomeShort: "Home",
     navStudyShort: "Study",
@@ -598,6 +599,7 @@ const TRANSLATIONS = {
     statsTabOverview: "📊 요약",
     statsTabBadges: "🏅 배지",
     statsTabWrong: "📕 오답 노트",
+    statsTabParent: "👪 학부모",
     navAddwordShort: "단어 추가",
     navHomeShort: "홈",
     navStudyShort: "학습",
@@ -8727,6 +8729,7 @@ const statsPanels = {
   overview: document.getElementById("stats-panel-overview"),
   badges: document.getElementById("stats-panel-badges"),
   wrong: document.getElementById("stats-panel-wrong"),
+  parent: document.getElementById("stats-panel-parent"),
 };
 let statsTab = "overview";
 function setStatsTab(name) {
@@ -8752,6 +8755,7 @@ function renderRewardPanels() {
   if (wrongTab) wrongTab.querySelector(".stats-tab-count").textContent = wrongCount ? String(wrongCount) : "";
   if (statsTab === "overview") renderStatsCharts();
   else if (statsTab === "badges") renderBadgePanel();
+  else if (statsTab === "parent") renderParentPanel();
   else renderWrongPanel();
 }
 
@@ -9334,3 +9338,139 @@ function reviewSummary() {
   if (more) more.addEventListener("click", startReview);
   document.getElementById("review-finish").addEventListener("click", closeReview);
 }
+
+
+/* ================= PARENT REPORT ================= */
+// A weekly summary built from data every account already has (progress.daily,
+// wordStats, srs, streak) — no extra tracking, nothing leaves the device.
+const PARENT_MODES = [
+  ["quiz", () => rwL("Quiz", "퀴즈")],
+  ["spelling", () => rwL("Spelling", "스펠링")],
+  ["typing", () => rwL("Typing Game", "타이핑 게임")],
+  ["tt", () => rwL("Times Table", "구구단")],
+  ["flash", () => rwL("Flashcards", "플래시카드")],
+];
+
+function parentWeekData(offsetDays) {
+  ensureRewardData();
+  const perMode = {};
+  PARENT_MODES.forEach(([m]) => (perMode[m] = [0, 0]));
+  let activeDays = 0, correct = 0, total = 0;
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i - offsetDays);
+    const rec = progress.daily[localDateKey(d)] || {};
+    let dayTot = 0;
+    PARENT_MODES.forEach(([m]) => {
+      if (rec[m]) {
+        perMode[m][0] += rec[m][0];
+        perMode[m][1] += rec[m][1];
+        correct += rec[m][0];
+        total += rec[m][1];
+        dayTot += rec[m][1];
+      }
+    });
+    if (dayTot) activeDays++;
+  }
+  return { perMode, activeDays, correct, total, pct: total ? Math.round((correct / total) * 100) : 0 };
+}
+
+function parentTrickyWords(limit) {
+  return Object.entries(progress.wordStats || {})
+    .filter(([k, v]) => !reviewIsMath(k) && v.incorrect > 0 && v.incorrect >= v.correct)
+    .sort((a, b) => b[1].incorrect - a[1].incorrect)
+    .slice(0, limit)
+    .map(([k, v]) => ({ word: k, miss: v.incorrect, info: findWordInfo(k) }));
+}
+
+function parentSummaryLines() {
+  const w = parentWeekData(0), prev = parentWeekData(1 * 7);
+  const lines = [];
+  lines.push(`Koala Study Mate — ${rwL("weekly report", "주간 리포트")}`);
+  lines.push(`${rwL("Days practised", "학습한 날")}: ${w.activeDays}/7`);
+  lines.push(`${rwL("Answers", "푼 문제")}: ${w.total} (${rwL("accuracy", "정답률")} ${w.total ? w.pct + "%" : "–"})`);
+  PARENT_MODES.forEach(([m, name]) => {
+    const [c, tot] = w.perMode[m];
+    if (tot) lines.push(`• ${name()}: ${c}/${tot}`);
+  });
+  const tricky = parentTrickyWords(5).map((x) => x.word);
+  if (tricky.length) lines.push(`${rwL("Tricky words", "어려운 단어")}: ${tricky.join(", ")}`);
+  lines.push(`${rwL("Streak", "연속 학습")}: ${(progress.streak && progress.streak.count) || 0}${rwL(" days", "일")}`);
+  void prev;
+  return lines;
+}
+
+function parentTips(w, prev) {
+  const tips = [];
+  if (w.activeDays === 0) {
+    tips.push(rwL("No practice yet this week. Five minutes after dinner is a great place to start.", "이번 주는 아직 학습 기록이 없어요. 저녁 식사 후 5분부터 시작해 보세요."));
+    return tips;
+  }
+  if (w.activeDays < 4) tips.push(rwL(`Practised ${w.activeDays} of 7 days. Short daily sessions work better than one long one — aim for 4+ days.`, `이번 주 ${w.activeDays}일 학습했어요. 몰아서 하는 것보다 매일 조금씩이 효과적이에요. 주 4일 이상을 목표로 해 보세요.`));
+  else tips.push(rwL(`Practised ${w.activeDays} of 7 days — a great routine. Keep it going!`, `7일 중 ${w.activeDays}일 학습했어요. 좋은 습관이에요. 계속 이어가요!`));
+  let low = null;
+  PARENT_MODES.forEach(([m, name]) => {
+    const [c, tot] = w.perMode[m];
+    if (tot >= 5) {
+      const p = c / tot;
+      if (!low || p < low.p) low = { p, name: name() };
+    }
+  });
+  if (low && low.p < 0.7) tips.push(rwL(`${low.name} is the toughest area (${Math.round(low.p * 100)}% correct). A few extra rounds there would help most.`, `${low.name}이(가) 가장 어려워 보여요(정답률 ${Math.round(low.p * 100)}%). 이 부분을 조금 더 연습하면 좋아요.`));
+  if (prev.total >= 10 && w.total >= 10 && w.pct - prev.pct >= 5) tips.push(rwL(`Accuracy is up ${w.pct - prev.pct} points on last week. Worth a compliment!`, `지난주보다 정답률이 ${w.pct - prev.pct}%p 올랐어요. 칭찬해 주세요!`));
+  return tips;
+}
+
+function renderParentPanel() {
+  const el = statsPanels.parent;
+  const w = parentWeekData(0), prev = parentWeekData(7);
+  const delta = prev.total >= 10 && w.total >= 10 ? w.pct - prev.pct : null;
+  const deltaHtml = delta === null ? "" : `<span class="pr-delta ${delta >= 0 ? "up" : "down"}">${delta >= 0 ? "▲" : "▼"} ${Math.abs(delta)}%p</span>`;
+  const streak = (progress.streak && progress.streak.count) || 0;
+  const learned = Object.values(progress.srs || {}).filter((e) => e.box >= 3).length;
+  const mastered = `<div class="pr-tile"><div class="pr-num">${learned}</div><div class="pr-lbl">${rwL("words well known", "잘 아는 단어")}</div></div>`;
+  let modes = "";
+  PARENT_MODES.forEach(([m, name]) => {
+    const [c, tot] = w.perMode[m];
+    const pct = tot ? Math.round((c / tot) * 100) : 0;
+    modes += `<div class="hbar-row"><span class="hbar-name">${name()}</span>
+      <span class="hbar-track"><span class="hbar-fill" style="width:${pct}%"></span></span>
+      <span class="hbar-pct">${tot ? c + "/" + tot : "–"}</span></div>`;
+  });
+  const tricky = parentTrickyWords(6);
+  const trickyHtml = tricky.length
+    ? `<ul class="pr-tricky">${tricky.map((x) => `<li><button type="button" class="pr-say" data-say="${escapeHtml(x.word)}" aria-label="${rwL("Hear it", "들어보기")}">🔊</button><span class="pr-word">${escapeHtml(x.word)}</span><span class="pr-def">${x.info && x.info.definition ? escapeHtml(x.info.definition) : ""}</span><span class="pr-miss">${rwL(`missed ${x.miss}×`, `${x.miss}번 틀림`)}</span></li>`).join("")}</ul>`
+    : `<p class="chart-empty">${rwL("No tricky words yet.", "아직 어려운 단어가 없어요.")}</p>`;
+  const tips = parentTips(w, prev).map((x) => `<li>${escapeHtml(x)}</li>`).join("");
+  const from = new Date(); from.setDate(from.getDate() - 6);
+  const loc = currentLang === "ko" ? "ko-KR" : "en-AU";
+  const range = `${from.toLocaleDateString(loc, { day: "numeric", month: "short" })} – ${new Date().toLocaleDateString(loc, { day: "numeric", month: "short" })}`;
+  el.innerHTML = `<div class="pr-head"><h4 class="chart-title">${rwL("Weekly report", "주간 리포트")}</h4><span class="pr-range">${range}</span></div>
+    <div class="pr-tiles">
+      <div class="pr-tile"><div class="pr-num">${w.activeDays}<small>/7</small></div><div class="pr-lbl">${rwL("days practised", "학습한 날")}</div></div>
+      <div class="pr-tile"><div class="pr-num">${w.total}</div><div class="pr-lbl">${rwL("answers", "푼 문제")}</div></div>
+      <div class="pr-tile"><div class="pr-num">${w.total ? w.pct + "%" : "–"}${deltaHtml}</div><div class="pr-lbl">${rwL("accuracy", "정답률")}</div></div>
+      <div class="pr-tile"><div class="pr-num">${streak}</div><div class="pr-lbl">${rwL("day streak", "연속 학습")}</div></div>
+      ${mastered}
+    </div>
+    <h4 class="chart-title">${rwL("This week by activity", "이번 주 활동별")}</h4>${modes}
+    <h4 class="chart-title">${rwL("Tricky words", "어려운 단어")}</h4>${trickyHtml}
+    <h4 class="chart-title">${rwL("Tips for this week", "이번 주 조언")}</h4><ul class="pr-tips">${tips}</ul>
+    <div class="pr-actions"><button type="button" class="pill accent small" id="pr-copy">📋 ${rwL("Copy summary", "요약 복사")}</button>
+    <button type="button" class="pill small" id="pr-share" ${navigator.share ? "" : "hidden"}>📤 ${rwL("Share", "공유")}</button></div>
+    <p class="pr-note">${rwL("Based on this device. Premium accounts also keep progress across devices.", "이 기기의 기록을 기준으로 해요. 프리미엄 계정은 기기가 달라도 기록이 이어져요.")}</p>`;
+}
+
+statsPanels.parent.addEventListener("click", async (e) => {
+  const say = e.target.closest("[data-say]");
+  if (say) { speak(say.dataset.say); return; }
+  const text = parentSummaryLines().join("\n");
+  if (e.target.closest("#pr-copy")) {
+    const btn = e.target.closest("#pr-copy");
+    try { await navigator.clipboard.writeText(text); btn.textContent = "✓ " + rwL("Copied!", "복사됨!"); }
+    catch (err) { btn.textContent = rwL("Copy failed", "복사 실패"); }
+    setTimeout(() => { btn.textContent = "📋 " + rwL("Copy summary", "요약 복사"); }, 1800);
+  } else if (e.target.closest("#pr-share") && navigator.share) {
+    navigator.share({ title: "Koala Study Mate", text }).catch(() => {});
+  }
+});
