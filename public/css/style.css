@@ -4667,3 +4667,13 @@ button.speak-btn-hero.sk-wave { animation: sk-speaker-wobble .5s ease-in-out inf
 }
 @media (max-width: 699px) { .tt-range-chips { display: grid; grid-template-columns: repeat(6, 1fr); width: 100%; } .tt-range-chip { min-width: 0; width: 100%; } }
 @media (max-width: 699px) { .tt-range.locked { display: none; } }
+
+/* ---- Times Table polish: one-row number track, centred start screen ---- */
+#timestable-start-overlay { justify-content: center !important; overflow: hidden; }
+.tt-range { gap: 6px 12px; margin: 2px 0 10px; }
+.tt-range-label { font-size: .8rem; white-space: nowrap; }
+.tt-range-chips { display: flex !important; grid-template-columns: none !important; flex: 1 1 260px; width: auto !important; gap: 4px; align-items: center; }
+.tt-range-chip { flex: 1 1 0; min-width: 0 !important; width: auto !important; max-width: 38px; height: auto !important; aspect-ratio: 1; padding: 0 !important; border-radius: 50%; font-size: clamp(.68rem, 2.3vw, .88rem) !important; box-shadow: 0 1px 0 var(--outline); }
+.tt-range-chip.active { transform: scale(1.12); box-shadow: 0 2px 0 var(--accent-dark); }
+@media (max-width: 699px) { .tt-range { flex-wrap: wrap; } .tt-range-chips { flex: 1 1 100%; } .tt-range-chip { max-width: none; } }
+@media (max-width: 699px) { .tt-range-chip { max-width: 40px; } .tt-range-chips { justify-content: space-between; } }
