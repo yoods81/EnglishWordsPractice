@@ -43,6 +43,10 @@ const TRANSLATIONS = {
   en: {
     appTitle: "Koala Study Mate",
     appSubtitle: "Vocabulary, spelling & times tables for Australian primary students",
+    heroLine1: "Learn words.",
+    heroLine2: "Practise spelling.",
+    heroLine3: "Master times tables.",
+    heroSub: "A fun study buddy for Australian primary students.",
     homePitch: "Short, fun daily practice that builds vocabulary, spelling and times tables — a few minutes a day.",
     homeAus: "🇦🇺 Made for Australian primary students · Year 4–6",
     homeChooseYear: "Choose your year level",
@@ -522,6 +526,10 @@ const TRANSLATIONS = {
   ko: {
     appTitle: "Koala Study Mate",
     appSubtitle: "영어 어휘력, 스펠링, 구구단 실력을 함께 키워보세요!",
+    heroLine1: "단어를 배우고,",
+    heroLine2: "스펠링을 익히고,",
+    heroLine3: "구구단을 정복해요!",
+    heroSub: "영어 필수 단어를 공부하는 친구들을 위한 재미있는 공부 친구",
     homePitch: "하루 몇 분, 짧고 재미있게 어휘력, 스펠링, 구구단을 키워요.",
     homeAus: "🇰🇷 영어 필수 단어를 공부하는 학생들을 위해 만들었어요",
     homeChooseYear: "학년을 골라요",
@@ -8884,8 +8892,50 @@ statsPanels.wrong.addEventListener("click", (e) => {
 });
 
 /* ---- Charts (inline SVG, one accent hue, direct labels) ---- */
+function renderSkillsCard() {
+  const box = document.getElementById("stats-skills");
+  if (!box) return;
+  const skills = [
+    { id: "quiz", view: "quiz", icon: "📖", name: rwL("Vocabulary", "어휘"), c: progress.quiz.correct, tot: progress.quiz.total, action: rwL("Take a quiz", "퀴즈 풀기") },
+    { id: "spelling", view: "spelling", icon: "✏️", name: rwL("Spelling", "스펠링"), c: progress.spelling.correct, tot: progress.spelling.total, action: rwL("Practise spelling", "스펠링 연습") },
+    { id: "tt", view: "timestable", icon: "🧮", name: rwL("Times Tables", "구구단"), c: (progress.modes.tt || [0, 0])[0], tot: (progress.modes.tt || [0, 0])[1], action: rwL("Play Times Table", "구구단 게임") },
+  ].map((s) => ({ ...s, ready: s.tot >= 5, pct: s.tot ? Math.round((s.c / s.tot) * 100) : 0 }));
+  const level = (s) => (!s.ready ? "new" : s.pct >= 85 ? "great" : s.pct >= 60 ? "ok" : "low");
+  const status = { new: rwL("Not enough practice yet", "아직 연습이 부족해요"), great: rwL("Strong 💪", "아주 좋아요 💪"), ok: rwL("Getting there", "잘 해가고 있어요"), low: rwL("Needs practice", "연습이 필요해요") };
+  const rows = skills.map((s) => `<div class="sk-row sk-${level(s)}">
+      <span class="sk-ico">${s.icon}</span>
+      <div class="sk-main"><div class="sk-top"><span class="sk-name">${s.name}</span><span class="sk-pct">${s.ready ? s.pct + "%" : "–"}</span></div>
+      <span class="hbar-track"><span class="hbar-fill" style="width:${s.ready ? s.pct : 0}%"></span></span>
+      <span class="sk-status">${status[level(s)]}</span></div></div>`).join("");
+
+  // Pick the single most useful next step.
+  let next = null, msg = "";
+  const untried = skills.find((s) => !s.ready);
+  const ready = skills.filter((s) => s.ready).sort((a, b) => a.pct - b.pct);
+  const due = typeof reviewDueList === "function" ? reviewDueList().length : 0;
+  if (ready.length && ready[0].pct < 85) {
+    next = ready[0];
+    msg = rwL(`Next step: ${next.name} is your lowest at ${next.pct}%. One short round will help most.`, `다음 목표: ${next.name}이(가) ${next.pct}%로 가장 낮아요. 짧게 한 번 더 해 볼까요?`);
+  } else if (untried) {
+    next = untried;
+    msg = rwL(`Next step: try ${untried.name} — a few answers unlock your score here.`, `다음 목표: ${untried.name}을(를) 해 봐요. 몇 문제만 풀면 점수가 보여요.`);
+  } else if (ready.length) {
+    next = skills.find((s) => s.id === "tt");
+    msg = rwL("All strong! Keep the streak going with a quick round.", "모두 훌륭해요! 가볍게 한 판 더 해서 연속 학습을 이어가요.");
+  }
+  const reviewBtn = due ? `<button type="button" class="pill small" data-sk-review>🐨 ${rwL(`Review ${due} tricky word${due === 1 ? "" : "s"}`, `틀렸던 단어 ${due}개 복습`)}</button>` : "";
+  box.innerHTML = `<h4 class="chart-title">${rwL("Your skills", "나의 실력")}</h4>${rows}
+    ${next ? `<div class="sk-next"><p>${msg}</p><div class="sk-next-btns"><button type="button" class="pill accent small" data-sk-go="${next.view}">${next.action} →</button>${reviewBtn}</div></div>` : ""}`;
+}
+document.addEventListener("click", (e) => {
+  const go = e.target.closest("[data-sk-go]");
+  if (go) { goToTab(go.dataset.skGo); return; }
+  if (e.target.closest("[data-sk-review]")) startReview();
+});
+
 function renderStatsCharts() {
   ensureRewardData();
+  renderSkillsCard();
   const box = statsPanels.overview.querySelector("#stats-charts");
   const days = [];
   for (let i = 6; i >= 0; i--) {
@@ -9151,10 +9201,6 @@ function renderHome() {
   renderMission();
   renderReviewCard();
 }
-document.getElementById("home-start-btn").addEventListener("click", () => {
-  const next = missionTasks().find((x) => x.done < x.goal);
-  goToTab(next ? next.view : "quiz");
-});
 document.getElementById("promo-btn").addEventListener("click", () => goToTab("addword"));
 renderHome();
 

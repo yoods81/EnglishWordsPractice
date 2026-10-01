@@ -186,11 +186,12 @@
     <section id="view-landing" class="view active">
       <button type="button" class="pill accent small install-app-btn" id="install-app-btn" hidden data-i18n="installAppBtn">📲 Install app</button>
       <div class="home-hero">
-        <p class="home-pitch" data-i18n="homePitch">Short, fun daily practice in vocabulary, spelling and times tables.</p>
-        <p class="home-aus" data-i18n="homeAus">🇦🇺 Made for Australian primary students</p>
-        <div class="home-years-label" data-i18n="homeChooseYear">Choose your year level</div>
-        <div class="home-years" id="home-years" role="group"></div>
-        <button type="button" class="pill accent home-start" id="home-start-btn" data-i18n="homeStartBtn">▶ Start today's practice</button>
+        <h2 class="hero-lines">
+          <span class="hero-line hl-1"><span class="hero-ico" aria-hidden="true">📖</span><span data-i18n="heroLine1">Learn words.</span></span>
+          <span class="hero-line hl-2"><span class="hero-ico" aria-hidden="true">✏️</span><span data-i18n="heroLine2">Practise spelling.</span></span>
+          <span class="hero-line hl-3"><span class="hero-ico" aria-hidden="true">🧮</span><span data-i18n="heroLine3">Master times tables.</span></span>
+        </h2>
+        <p class="hero-sub" data-i18n="heroSub">A fun study buddy for Australian primary students.</p>
       </div>
       <div class="mission-card" id="mission-card">
         <div class="mission-head">
@@ -983,6 +984,7 @@
           <button type="button" class="stats-tab" role="tab" aria-selected="false" data-stats-tab="parent"><span data-i18n="statsTabParent">👪 Parent</span></button>
         </div>
         <div id="stats-panel-overview">
+          <div id="stats-skills"></div>
           <div class="stats-grid" id="stats-grid"></div>
           <div id="stats-charts"></div>
           <button class="reset-btn" id="reset-progress" data-i18n="resetBtn">Reset all progress</button>
