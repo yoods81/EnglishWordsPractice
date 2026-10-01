@@ -977,6 +977,10 @@
     <!-- Stats -->
     <section id="view-stats" class="view">
       <div class="card">
+        <div class="progress-head">
+          <h2 class="progress-title" data-i18n="progressTitle">My Progress</h2>
+          <p class="progress-sub" data-i18n="progressSub">See how you're doing and what to practise next.</p>
+        </div>
         <div class="stats-tabs" role="tablist">
           <button type="button" class="stats-tab on" role="tab" aria-selected="true" data-stats-tab="overview"><span data-i18n="statsTabOverview">📊 Overview</span></button>
           <button type="button" class="stats-tab" role="tab" aria-selected="false" data-stats-tab="badges"><span data-i18n="statsTabBadges">🏅 Badges</span></button>
@@ -985,9 +989,12 @@
         </div>
         <div id="stats-panel-overview">
           <div id="stats-skills"></div>
-          <div class="stats-grid" id="stats-grid"></div>
-          <div id="stats-charts"></div>
-          <button class="reset-btn" id="reset-progress" data-i18n="resetBtn">Reset all progress</button>
+          <details class="more-stats">
+            <summary data-i18n="moreStats">More stats</summary>
+            <div class="stats-grid" id="stats-grid"></div>
+            <div id="stats-charts"></div>
+            <button class="reset-btn" id="reset-progress" data-i18n="resetBtn">Reset all progress</button>
+          </details>
         </div>
         <div id="stats-panel-badges" hidden></div>
         <div id="stats-panel-wrong" hidden></div>

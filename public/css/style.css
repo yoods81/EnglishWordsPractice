@@ -4819,3 +4819,57 @@ body.review-open { overflow: hidden; }
 .dash-acts li span:nth-child(2) { flex: 1; }
 .dash-act-day { color: var(--muted); min-width: 78px; }
 .dash-secondary { box-shadow: none; }
+
+/* ===== Progress page: phase 2 layout ===== */
+.progress-head { text-align: center; margin: 0 0 12px; }
+.progress-title { margin: 0; font-family: var(--font-heading); font-size: 1.5rem; color: var(--text); }
+.progress-sub { margin: 4px 0 0; font-size: .92rem; color: var(--muted); }
+#stats-skills { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
+.dash-top { display: flex; flex-direction: column; gap: 12px; }
+.dash-card, .dash-block { margin: 0; }
+.dash-block { background: none; }
+.dash-h-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.dash-h-row .dash-h { margin: 0; }
+.dash-h-plain { font-size: 1.05rem; color: var(--text); margin: 0 0 8px; }
+.dash-inline { margin: 0; }
+.dash-btn { min-height: 44px; padding-left: 18px; padding-right: 18px; }
+.dash-today .dash-nums { margin-bottom: 12px; }
+/* Recommended next = strongest card, still the same accent family */
+.dash-rec { background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%); border-color: var(--accent-dark); box-shadow: 0 3px 0 var(--accent-dark); color: #fff; }
+.dash-rec .dash-eyebrow { color: #d8fff3; }
+.dash-rec .dash-title { font-size: 1.4rem; color: #fff; }
+.dash-rec .dash-reason { color: #fff; font-size: 1rem; }
+.dash-rec-btn { background: #fff; color: var(--accent-dark); border-color: #fff; font-size: 1.05rem; box-shadow: 0 3px 0 rgba(0,0,0,.18); }
+.dash-caught-up .dash-good { margin: 0 0 2px; font-family: var(--font-heading); font-size: 1.1rem; color: var(--accent-dark); }
+.dash-say { border: 0; background: #e3f8f1; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 1rem; flex: none; }
+.dash-words li { min-height: 40px; }
+.dash-cat-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.dash-cat { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; background: #fff; border: 1px solid var(--outline); border-radius: 18px; box-shadow: 0 2px 0 var(--outline); padding: 12px 14px; border-top: 1px solid var(--outline); }
+.dash-cat-name { font-family: var(--font-heading); font-weight: 700; font-size: 1rem; }
+.dash-cat-pct { font-family: var(--font-heading); font-size: 1.9rem; line-height: 1.1; color: var(--accent-dark); margin: 0; }
+.dash-cat-sub { font-size: .8rem; color: var(--muted); }
+.dash-cat-empty { margin: 6px 0 2px; font-size: .88rem; }
+.dash-trend { font-size: .85rem; font-weight: 700; margin: 2px 0 6px; }
+.dash-trend-up { color: var(--success-dark); } .dash-trend-down { color: #b87a0c; } .dash-trend-flat { color: var(--muted); }
+.dash-cat .dash-btn { margin-top: 8px; }
+.dash-secondary .dash-acts li { padding: 6px 0; border-top: 1px solid #e3efeb; }
+.dash-secondary .dash-acts li:first-child { border-top: 0; }
+.dash-act-name { flex: 1; }
+.dash-link { border: 0; background: none; padding: 10px 0 2px; color: var(--accent-dark); font-weight: 700; text-decoration: underline; cursor: pointer; min-height: 44px; }
+.dash-badges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+.dash-badge { background: #fff; border: 1px solid var(--outline); border-radius: 14px; padding: 8px 4px; text-align: center; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.dash-badge.off { opacity: .55; }
+.dash-badge-ico { font-size: 1.5rem; }
+.dash-badge-name { font-size: .72rem; line-height: 1.2; }
+.more-stats { margin-top: 6px; }
+.more-stats > summary { cursor: pointer; font-family: var(--font-heading); font-weight: 700; color: var(--accent-dark); padding: 10px 0; min-height: 44px; display: flex; align-items: center; }
+.dash-btn:focus-visible, .dash-link:focus-visible, .dash-say:focus-visible, .more-stats > summary:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+@media (min-width: 700px) {
+  .dash-top { flex-direction: row; align-items: stretch; }
+  .dash-top > .dash-card { flex: 1; }
+  .dash-top > .dash-rec { flex: 1.25; }
+  .dash-cat-grid { grid-template-columns: 1fr 1fr; }
+  .dash-badges { grid-template-columns: repeat(6, 1fr); }
+}
+.dash-btn:not(.accent):not(.dash-rec-btn) { background: #fff; color: var(--accent-dark); border: 1px solid var(--outline); box-shadow: 0 2px 0 var(--outline); }
+.dash-rec .dash-eyebrow { margin-bottom: 2px; }
