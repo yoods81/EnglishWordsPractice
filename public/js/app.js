@@ -3283,7 +3283,6 @@ function buildQuizQuestions() {
   quizIndex = 0;
   quizScore = 0;
   quizAnswered = false;
-  kb("quiz")?.reset();
   renderGoalStepper("quiz");
   renderQuizQuestion();
 }
@@ -3422,8 +3421,6 @@ function handleQuizAnswer(btn, chosen, q) {
 
   quizNextBtn.style.display = "inline-block";
   updateQuizScoreLabel();
-  if (correct) kb("quiz")?.eat(quizScore / quizQuestions.length, quizScore >= quizQuestions.length, false);
-  else kb("quiz")?.oops();
 
   const goal = goals.quiz;
   if (goal && !quizGoalCelebrated && quizScore >= goal) {
@@ -3728,9 +3725,8 @@ function koalaTalk(on, safetyMs = 4000) {
 const KB_GAME_FULL = 25; // cleared words/facts for a completely full belly
 const CLOUD_SVG = '<svg viewBox="0 0 120 68" class="sp-cloud-bg"><path d="M28 50 C12 50 6 36 16 28 C10 14 28 6 40 14 C46 2 70 2 78 14 C92 6 112 16 104 30 C116 38 108 52 92 50 C80 58 40 58 28 50 Z" fill="#fff" stroke="#0e9c7d" stroke-width="2.6" stroke-linejoin="round"/><circle cx="62" cy="60" r="3.6" fill="#fff" stroke="#0e9c7d" stroke-width="2"/></svg>';
 const KB_ANCHORS = {
-  quiz: () => document.getElementById("quiz-trail"),
-  type: () => document.getElementById("typegame-typo-msg"),
-  tt: () => document.getElementById("timestable-typo-msg"),
+  type: () => document.querySelector("#typegame-start-overlay h3"),
+  tt: () => document.querySelector("#timestable-start-overlay h3"),
 };
 const KB_REG = {};
 function kb(key) {
@@ -3741,7 +3737,7 @@ function kb(key) {
   const strip = document.createElement("div");
   strip.className = "kb-strip kb-" + key;
   strip.innerHTML = `<div class="sp-live-scene kb-scene" aria-hidden="true">${SPELL_KOALA_SVG}</div><div class="sp-cloud kb-cloud" aria-hidden="true">${CLOUD_SVG}<span class="bubble-text"></span></div>`;
-  if (key === "quiz") anchor.after(strip); else anchor.before(strip);
+  anchor.before(strip);
   const scene = strip.querySelector(".kb-scene");
   const bubble = strip.querySelector(".kb-cloud");
   const text = bubble.querySelector(".bubble-text");

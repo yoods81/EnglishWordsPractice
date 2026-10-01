@@ -4558,10 +4558,30 @@ button.speak-btn-hero.sk-wave { animation: sk-speaker-wobble .5s ease-in-out inf
 .kb-strip .kb-scene .sk-svg { width: 92px; height: auto; max-width: none; display: block; overflow: visible; }
 .kb-strip .sp-cloud.kb-cloud { position: relative; top: auto; left: auto; width: 128px; height: 74px; flex: 0 0 auto; animation: sp-cloud-bob 3s ease-in-out infinite; }
 .kb-strip .kb-cloud .bubble-text { font-size: .74rem; left: 14px; right: 14px; top: 12px; height: 32px; }
-#quiz-trail .trail-koala { display: none; }
 @media (max-width: 699px) { .kb-strip { min-height: 74px; margin: 2px 0 4px; } .kb-strip .kb-scene { width: 78px; height: 76px; } .kb-strip .kb-scene .sk-svg { width: 78px; } .kb-strip .sp-cloud.kb-cloud { width: 110px; height: 64px; } .kb-strip .kb-cloud .bubble-text { font-size: .68rem; top: 10px; } }
 /* quick chew for games */
 .sk-quick.sk-eat .sk-eatpaw { animation-duration: 1s; }
 .sk-quick.sk-eat .sk-eatleaf { animation-duration: 1s; }
 .sk-quick.sk-eat .sk-mouth-open { animation-delay: .25s; animation-iteration-count: 3; }
 .sk-quick.sk-eat .fk-head, .sk-quick.sk-eat .sk-cheek { animation-delay: .25s; animation-iteration-count: 3; }
+
+/* koala inside the game start overlays */
+.typegame-overlay .kb-strip { min-height: 0; margin: 0 0 4px; }
+.typegame-overlay .kb-strip .kb-scene { width: 70px; height: 68px; }
+.typegame-overlay .kb-strip .kb-scene .sk-svg { width: 70px; }
+.typegame-overlay .kb-strip .sp-cloud.kb-cloud { width: 104px; height: 60px; }
+.typegame-overlay .kb-strip .kb-cloud .bubble-text { font-size: .64rem; top: 9px; height: 28px; left: 12px; right: 12px; }
+.typegame-overlay .kb-strip .sk-svg { animation: kb-bob 2.6s ease-in-out infinite; }
+@keyframes kb-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@media (max-width: 699px) {
+  #timestable-start-overlay .kb-strip .kb-scene { width: 46px; height: 45px; }
+  #timestable-start-overlay .kb-strip .kb-scene .sk-svg { width: 46px; }
+  #timestable-start-overlay .kb-strip .sp-cloud.kb-cloud { width: 78px; height: 44px; }
+  #timestable-start-overlay .kb-strip .kb-cloud .bubble-text { font-size: .52rem; top: 6px; height: 20px; left: 9px; right: 9px; }
+  #timestable-start-overlay { justify-content: flex-start; padding-top: 6px; overflow-y: auto; }
+}
+@media (max-width: 699px) {
+  #timestable-start-overlay { gap: 3px; padding: 4px 8px; overflow: hidden; }
+  #timestable-start-overlay h3 { font-size: 1rem; }
+  #timestable-start-overlay .kb-strip { margin: 0; }
+}
