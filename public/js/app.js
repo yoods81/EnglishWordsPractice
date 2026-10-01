@@ -9710,6 +9710,22 @@ function parentTips(w, prev) {
   return tips;
 }
 
+function parentShareUrl() { return /^https?:/.test(location.protocol) ? location.origin : "https://koalastudymate.com"; }
+// Fallback for desktop browsers without the system share sheet.
+function parentShareLinks() {
+  const text = parentSummaryLines().join("\n");
+  const url = parentShareUrl();
+  const t = encodeURIComponent(text), u = encodeURIComponent(url), both = encodeURIComponent(text + "\n" + url);
+  return [
+    { name: "WhatsApp", href: `https://wa.me/?text=${both}` },
+    { name: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${u}&quote=${t}` },
+    { name: "X", href: `https://twitter.com/intent/tweet?text=${t}&url=${u}` },
+    { name: "Telegram", href: `https://t.me/share/url?url=${u}&text=${t}` },
+    { name: rwL("Email", "이메일"), href: `mailto:?subject=${encodeURIComponent("Koala Study Mate — " + rwL("weekly report", "주간 리포트"))}&body=${both}` },
+    { name: rwL("Text message", "문자"), href: `sms:?&body=${both}` },
+  ];
+}
+
 function renderParentPanel() {
   const el = statsPanels.parent;
   const w = parentWeekData(0), prev = parentWeekData(7);
@@ -9746,7 +9762,8 @@ function renderParentPanel() {
     <h4 class="chart-title">${rwL("Tricky words", "어려운 단어")}</h4>${trickyHtml}
     <h4 class="chart-title">${rwL("Tips for this week", "이번 주 조언")}</h4><ul class="pr-tips">${tips}</ul>
     <div class="pr-actions"><button type="button" class="pill accent small" id="pr-copy">📋 ${rwL("Copy summary", "요약 복사")}</button>
-    <button type="button" class="pill small" id="pr-share" ${navigator.share ? "" : "hidden"}>📤 ${rwL("Share", "공유")}</button></div>
+    <div class="pr-share-wrap"><button type="button" class="pill small" id="pr-share" aria-haspopup="true" aria-expanded="false"><svg class="ios-share" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3v12M12 3L8 7M12 3l4 4M6 11H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ${rwL("Share", "공유")}</button>
+    <div class="pr-share-menu" id="pr-share-menu" hidden role="menu">${parentShareLinks().map((l) => `<a role="menuitem" class="pr-share-item" href="${l.href}" target="_blank" rel="noopener noreferrer">${l.name}</a>`).join("")}</div></div></div>
     <p class="pr-note">${rwL("Based on this device. Premium accounts also keep progress across devices.", "이 기기의 기록을 기준으로 해요. 프리미엄 계정은 기기가 달라도 기록이 이어져요.")}</p>`;
 }
 
@@ -9759,7 +9776,19 @@ statsPanels.parent.addEventListener("click", async (e) => {
     try { await navigator.clipboard.writeText(text); btn.textContent = "✓ " + rwL("Copied!", "복사됨!"); }
     catch (err) { btn.textContent = rwL("Copy failed", "복사 실패"); }
     setTimeout(() => { btn.textContent = "📋 " + rwL("Copy summary", "요약 복사"); }, 1800);
-  } else if (e.target.closest("#pr-share") && navigator.share) {
-    navigator.share({ title: "Koala Study Mate", text }).catch(() => {});
+  } else if (e.target.closest("#pr-share")) {
+    // Phones/tablets: the system share sheet (iMessage, WhatsApp, KakaoTalk, …).
+    if (navigator.share) { navigator.share({ title: "Koala Study Mate", text, url: parentShareUrl() }).catch(() => {}); return; }
+    const menu = document.getElementById("pr-share-menu");
+    menu.hidden = !menu.hidden;
+    document.getElementById("pr-share").setAttribute("aria-expanded", menu.hidden ? "false" : "true");
+  }
+});
+document.addEventListener("click", (e) => {
+  const menu = document.getElementById("pr-share-menu");
+  if (menu && !menu.hidden && !e.target.closest(".pr-share-wrap")) {
+    menu.hidden = true;
+    const b = document.getElementById("pr-share");
+    if (b) b.setAttribute("aria-expanded", "false");
   }
 });
