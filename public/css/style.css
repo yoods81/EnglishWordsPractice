@@ -4636,3 +4636,34 @@ button.speak-btn-hero.sk-wave { animation: sk-speaker-wobble .5s ease-in-out inf
 .home-groups-row { margin-top: 16px; }
 .home-group + .home-group .home-section-title { margin-top: 16px; }
 @media (min-width: 700px) { .home-group + .home-group .home-section-title { margin-top: 6px; } }
+
+/* ---- Times Table: table-range chips, slim start screen, how-to card ---- */
+.tt-range { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 8px; }
+.tt-range-label { font-family: var(--font-heading); font-size: .85rem; color: var(--muted); }
+.tt-range-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.tt-range-chip { min-width: 34px; height: 34px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--outline); background: #fff; color: var(--accent-dark); font-family: var(--font-heading); font-weight: 700; font-size: .9rem; cursor: pointer; box-shadow: 0 2px 0 var(--outline); transition: transform .08s, box-shadow .08s; }
+.tt-range-chip.in { background: #e3f8f1; }
+.tt-range-chip.active { background: var(--accent); color: #fff; }
+.tt-range-chip:active { transform: translateY(2px); box-shadow: none; }
+.tt-range.locked .tt-range-chip { opacity: .55; cursor: default; }
+#timestable-start-overlay { gap: 6px; }
+#timestable-start-overlay .kb-strip .kb-scene { width: 104px; height: 100px; }
+#timestable-start-overlay .kb-strip .kb-scene .sk-svg { width: 104px; }
+#timestable-start-overlay .kb-strip .sp-cloud.kb-cloud { width: 136px; height: 78px; }
+#timestable-start-overlay .kb-strip .kb-cloud .bubble-text { font-size: .76rem; top: 12px; height: 34px; }
+.tt-howto { background: #fff; border: 1px solid var(--outline); border-radius: 18px; box-shadow: 0 2px 0 var(--outline); padding: 12px 14px; margin-top: 10px; text-align: center; }
+.tt-howto-title { margin: 0 0 6px; font-family: var(--font-heading); font-size: 1rem; color: var(--accent-dark); }
+.tt-howto .timestable-instructions { max-width: 420px; margin: 0 auto; color: var(--text); }
+.tt-howto .tt-demo-problem { color: var(--accent-dark); background: #e8faf4; border-color: var(--accent); }
+.tt-howto .ti-highlight { color: var(--accent-dark); }
+.tt-howto .ti-chip { background: #e8faf4; border: 1px solid var(--accent); }
+@media (max-width: 699px) {
+  #timestable-start-overlay { overflow: hidden; padding: 8px; }
+  #timestable-start-overlay .kb-strip .kb-scene { width: 84px; height: 82px; }
+  #timestable-start-overlay .kb-strip .kb-scene .sk-svg { width: 84px; }
+  #timestable-start-overlay .kb-strip .sp-cloud.kb-cloud { width: 112px; height: 64px; }
+  .tt-range { gap: 4px; }
+  .tt-range-chip { min-width: 30px; height: 30px; font-size: .82rem; padding: 0 6px; }
+}
+@media (max-width: 699px) { .tt-range-chips { display: grid; grid-template-columns: repeat(6, 1fr); width: 100%; } .tt-range-chip { min-width: 0; width: 100%; } }
+@media (max-width: 699px) { .tt-range.locked { display: none; } }

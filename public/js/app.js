@@ -225,6 +225,7 @@ const TRANSLATIONS = {
     timesTableInstrLine1: "When the problem is {{EX}}, here's how to answer:",
     timesTableInstrLine2: "Enter one of {{FMT}}",
     timesTableMaxTableLabel: "Practice tables up to",
+    timesTableHowTitle: "💡 How to answer",
     timesTableStartBtn: "▶ Start Game",
     timesTableHint: "How to answer when the problem is 8 × 2: enter one of 8216 / 82 16 / 8 2 16",
     timesTableTypoMsg: "❌ No matching fact — try again!",
@@ -684,6 +685,7 @@ const TRANSLATIONS = {
     timesTableInstrLine1: "문제가 {{EX}} 일 때 정답 입력 방법",
     timesTableInstrLine2: "{{FMT}} 셋 중 하나를 입력",
     timesTableMaxTableLabel: "몇 단까지 연습할까요",
+    timesTableHowTitle: "💡 이렇게 답해요",
     timesTableStartBtn: "▶ 게임 시작",
     timesTableHint: "문제가 8 × 2 일 때 정답 입력 방법: 8216 / 82 16 / 8 2 16 셋 중 하나를 입력 — 계속 입력하면 돼요, Enter는 필요 없어요.",
     timesTableTypoMsg: "❌ 일치하는 식이 없어요 — 다시 시도해보세요!",
@@ -3765,7 +3767,7 @@ const KB_GAME_FULL = 25; // cleared words/facts for a completely full belly
 const CLOUD_SVG = '<svg viewBox="0 0 120 68" class="sp-cloud-bg"><path d="M28 50 C12 50 6 36 16 28 C10 14 28 6 40 14 C46 2 70 2 78 14 C92 6 112 16 104 30 C116 38 108 52 92 50 C80 58 40 58 28 50 Z" fill="#fff" stroke="#0e9c7d" stroke-width="2.6" stroke-linejoin="round"/><circle cx="62" cy="60" r="3.6" fill="#fff" stroke="#0e9c7d" stroke-width="2"/></svg>';
 const KB_ANCHORS = {
   type: () => document.querySelector("#typegame-start-overlay h3"),
-  tt: () => document.querySelector("#timestable-start-overlay h3"),
+  tt: () => document.getElementById("timestable-start-btn"),
 };
 const KB_REG = {};
 function kb(key) {
@@ -5135,14 +5137,11 @@ const timesTableStageTagEl = document.getElementById("timestable-stage-tag");
 const timesTableStageBanner = document.getElementById("timestable-stage-banner");
 const timesTableStageBannerText = document.getElementById("timestable-stage-banner-text");
 const timesTableEncourageMsg = document.getElementById("timestable-encourage-msg");
-const timesTableMaxTableMinusBtn = document.getElementById("timestable-maxtable-minus");
-const timesTableMaxTablePlusBtn = document.getElementById("timestable-maxtable-plus");
-const timesTableMaxTableValueEl = document.getElementById("timestable-maxtable-value");
-// Same stepper, duplicated onto the game-over screen so the max table can be
-// changed there too, without a trip back to the pre-game start screen.
-const timesTableOverMaxTableMinusBtn = document.getElementById("timestable-over-maxtable-minus");
-const timesTableOverMaxTablePlusBtn = document.getElementById("timestable-over-maxtable-plus");
-const timesTableOverMaxTableValueEl = document.getElementById("timestable-over-maxtable-value");
+const timesTableRangeChipsEl = document.getElementById("timestable-range-chips");
+// The old +/- stepper is now a row of table chips above the stage; these two
+// shims keep the Up/Down arrow keys on the start screen working.
+const timesTableMaxTableMinusBtn = { click: () => changeTimesTableMaxTable(-1) };
+const timesTableMaxTablePlusBtn = { click: () => changeTimesTableMaxTable(1) };
 const timesTableSpeedMinusBtn = document.getElementById("timestable-speed-minus");
 const timesTableSpeedPlusBtn = document.getElementById("timestable-speed-plus");
 const timesTableSpeedValueEl = document.getElementById("timestable-speed-value");
@@ -5250,12 +5249,28 @@ function saveTimesTableMaxTable() {
 let timesTableMaxTable = loadTimesTableMaxTable();
 
 function updateTimesTableMaxTableUI() {
-  timesTableMaxTableValueEl.textContent = String(timesTableMaxTable);
-  timesTableMaxTableMinusBtn.disabled = timesTableMaxTable <= TIMESTABLE_MIN_TABLE;
-  timesTableMaxTablePlusBtn.disabled = timesTableMaxTable >= TIMESTABLE_MAX_TABLE_CAP;
-  timesTableOverMaxTableValueEl.textContent = String(timesTableMaxTable);
-  timesTableOverMaxTableMinusBtn.disabled = timesTableMaxTable <= TIMESTABLE_MIN_TABLE;
-  timesTableOverMaxTablePlusBtn.disabled = timesTableMaxTable >= TIMESTABLE_MAX_TABLE_CAP;
+  // Chips 2-12, plus the current value if a challenge pushed it higher.
+  const nums = [];
+  for (let n = TIMESTABLE_MIN_TABLE; n <= 12; n++) nums.push(n);
+  if (timesTableMaxTable > 12) nums.push(timesTableMaxTable);
+  timesTableRangeChipsEl.innerHTML = "";
+  nums.forEach((n) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "tt-range-chip" + (n <= timesTableMaxTable ? " in" : "") + (n === timesTableMaxTable ? " active" : "");
+    b.textContent = String(n);
+    b.setAttribute("aria-pressed", n === timesTableMaxTable ? "true" : "false");
+    b.setAttribute("aria-label", t("timesTableMaxTableLabel") + " " + n);
+    b.addEventListener("click", () => {
+      if (timesTableRunning) return; // takes effect at the next round
+      timesTableMaxTable = n;
+      saveTimesTableMaxTable();
+      updateTimesTableMaxTableUI();
+      timesTableProblemPool = buildTimesTableProblemPool(timesTableMaxTable);
+    });
+    timesTableRangeChipsEl.appendChild(b);
+  });
+  timesTableRangeChipsEl.parentElement.classList.toggle("locked", !!timesTableRunning);
 }
 
 function changeTimesTableMaxTable(delta) {
@@ -5266,10 +5281,6 @@ function changeTimesTableMaxTable(delta) {
   updateTimesTableMaxTableUI();
 }
 
-timesTableMaxTableMinusBtn.addEventListener("click", () => changeTimesTableMaxTable(-1));
-timesTableMaxTablePlusBtn.addEventListener("click", () => changeTimesTableMaxTable(1));
-timesTableOverMaxTableMinusBtn.addEventListener("click", () => changeTimesTableMaxTable(-1));
-timesTableOverMaxTablePlusBtn.addEventListener("click", () => changeTimesTableMaxTable(1));
 
 // Every {a}×{b} fact for tables TIMESTABLE_MIN_TABLE..maxTable, each ×1
 // through ×9 (the standard 구구단 shape) — "몇 단" only changes the first
@@ -5425,6 +5436,7 @@ function startTimesTable() {
   if (timesTableProblemPool.length === 0) return;
   kb("tt")?.reset();
   timesTableRunning = true;
+  updateTimesTableMaxTableUI();
   timesTablePaused = false;
   timesTableScore = 0;
   timesTableCorrectCount = 0;
@@ -5691,6 +5703,7 @@ const TIMESTABLE_ENCOURAGE_MESSAGES = {
 function endTimesTableRound(reason) {
   kb("tt")?.over();
   timesTableRunning = false;
+  updateTimesTableMaxTableUI();
   timesTablePaused = false;
   timesTableManuallyPaused = false;
   timesTablePauseOverlay.hidden = true;

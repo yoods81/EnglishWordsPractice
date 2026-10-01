@@ -711,6 +711,11 @@
           <span class="typegame-lives" id="timestable-lives" style="margin-left:auto;"></span>
         </div>
 
+        <div class="tt-range" id="timestable-range">
+          <span class="tt-range-label" data-i18n="timesTableMaxTableLabel">Practice tables up to</span>
+          <div class="tt-range-chips" id="timestable-range-chips" role="group"></div>
+        </div>
+
         <div class="typegame-stage" id="timestable-stage">
           <div class="typegame-sky" aria-hidden="true">
             <span class="typegame-cloud typegame-cloud-1">☁️</span>
@@ -732,14 +737,6 @@
           <div class="typegame-words" id="timestable-words"></div>
 
           <div class="typegame-overlay" id="timestable-start-overlay">
-            <h3 data-i18n="timesTableTitle">🧮 Times Table</h3>
-            <p id="timestable-start-message" class="timestable-instructions"></p>
-            <div class="goal-stepper" id="timestable-maxtable-stepper">
-              <span class="goal-stepper-label" data-i18n="timesTableMaxTableLabel">Practice tables up to</span>
-              <button type="button" class="goal-step-btn" id="timestable-maxtable-minus" data-i18n-aria-label="goalDecreaseLabel" aria-label="Decrease">−</button>
-              <span class="goal-stepper-value" id="timestable-maxtable-value">9</span>
-              <button type="button" class="goal-step-btn" id="timestable-maxtable-plus" data-i18n-aria-label="goalIncreaseLabel" aria-label="Increase">+</button>
-            </div>
             <button class="pill accent" id="timestable-start-btn" data-i18n="timesTableStartBtn">▶ Start Game</button>
           </div>
 
@@ -750,12 +747,6 @@
             <p id="timestable-high-score"></p>
             <p id="timestable-limit-msg" class="timestable-limit-msg" hidden></p>
             <p id="timestable-encourage-msg" class="typegame-encourage-msg" hidden></p>
-            <div class="goal-stepper" id="timestable-over-maxtable-stepper">
-              <span class="goal-stepper-label" data-i18n="timesTableMaxTableLabel">Practice tables up to</span>
-              <button type="button" class="goal-step-btn" id="timestable-over-maxtable-minus" data-i18n-aria-label="goalDecreaseLabel" aria-label="Decrease">−</button>
-              <span class="goal-stepper-value" id="timestable-over-maxtable-value">9</span>
-              <button type="button" class="goal-step-btn" id="timestable-over-maxtable-plus" data-i18n-aria-label="goalIncreaseLabel" aria-label="Increase">+</button>
-            </div>
             <button class="pill accent new-quiz-btn" id="timestable-restart-btn">
               <span class="new-quiz-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -775,7 +766,10 @@
 
         <p class="typegame-typo-msg" id="timestable-typo-msg" hidden data-i18n="timesTableTypoMsg">❌ No matching fact — try again!</p>
         <input type="text" id="timestable-input" class="typegame-input" inputmode="numeric" data-i18n-placeholder="timesTableInputPlaceholder" placeholder="Type here..." autocomplete="off" autocapitalize="off" spellcheck="false" disabled />
-        <p class="hint" data-i18n="timesTableHint">How to answer when the problem is 8 × 2: enter one of 8216 / 82 16 / 8 2 16</p>
+        <div class="tt-howto">
+          <h3 class="tt-howto-title" data-i18n="timesTableHowTitle">💡 How to answer</h3>
+          <p id="timestable-start-message" class="timestable-instructions"></p>
+        </div>
       </div>
     </section>
 
