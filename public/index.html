@@ -213,7 +213,14 @@
       <div class="photo-promo">
         <div class="photo-promo-text">
           <h2 class="photo-promo-title" data-i18n="promoTitle">📸 From your child's book to a quiz</h2>
-          <p class="photo-promo-steps" data-i18n="promoSteps">Snap a page → pick the tricky words → practise them as flashcards, spelling and quizzes.</p>
+          <div class="promo-anim" role="img" aria-label="Snap a page, pick the tricky words, practise them as flashcards, spelling and quizzes.">
+            <div class="pa-stage">
+              <div class="pa-scene pa-s1"><div class="pa-page"><i></i><i></i><i></i><i></i></div><span class="pa-cam">📸</span><span class="pa-flash"></span></div>
+              <div class="pa-scene pa-s2"><div class="pa-page"><i></i><i class="pa-hl pa-hl1"></i><i></i><i class="pa-hl pa-hl2"></i></div><span class="pa-tick pa-t1">✓</span><span class="pa-tick pa-t2">✓</span></div>
+              <div class="pa-scene pa-s3"><span class="pa-card pa-c1">🃏</span><span class="pa-card pa-c2">✏️</span><span class="pa-card pa-c3">💡</span></div>
+            </div>
+            <div class="pa-steps"><span class="pa-st pa-st1" data-i18n="promoSnap">Snap</span><span class="pa-st pa-st2" data-i18n="promoPick">Pick</span><span class="pa-st pa-st3" data-i18n="promoPractise">Practise</span></div>
+          </div>
         </div>
         <button type="button" class="pill accent small" id="promo-btn" data-view-go="addword" data-i18n="promoBtn">Try it →</button>
       </div>
