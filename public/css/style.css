@@ -4910,3 +4910,11 @@ body.review-open { overflow: hidden; }
 #view-stats .dash-rec-btn { background: #fff; color: var(--accent-dark); font-size: .95rem; border-color: #fff; box-shadow: 0 3px 0 rgba(0,0,0,.18); }
 .dash-badge.off .dash-badge-ico { filter: grayscale(1); opacity: .5; }
 .dash-today .dash-btn, .dash-review .dash-btn { margin-top: 2px; }
+
+/* Hero v2: one brand statement (replaces the three feature lines) */
+.hero-lines { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0 .35em; font-size: clamp(1.6rem, 6.6vw, 2.3rem); margin: 0 0 6px; }
+.hero-line { display: inline-block; gap: 0; }
+.hl-1 span:last-child, .hl-2 span:last-child, .hl-3 span:last-child { color: inherit; }
+.hl-1, .hl-2 { color: var(--text); }
+.hl-3 { color: var(--accent-dark); }
+.hero-sub { max-width: 520px; margin: 0 auto; font-size: .95rem; line-height: 1.4; }
