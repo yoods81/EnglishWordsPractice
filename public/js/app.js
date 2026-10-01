@@ -226,6 +226,7 @@ const TRANSLATIONS = {
     timesTableInstrLine2: "Enter one of {{FMT}}",
     timesTableMaxTableLabel: "Practice tables up to",
     timesTableHowTitle: "💡 How to answer",
+    timesTableRangeOpt: (n) => `Tables 2–${n}`,
     timesTableStartBtn: "▶ Start Game",
     timesTableHint: "How to answer when the problem is 8 × 2: enter one of 8216 / 82 16 / 8 2 16",
     timesTableTypoMsg: "❌ No matching fact — try again!",
@@ -686,6 +687,7 @@ const TRANSLATIONS = {
     timesTableInstrLine2: "{{FMT}} 셋 중 하나를 입력",
     timesTableMaxTableLabel: "몇 단까지 연습할까요",
     timesTableHowTitle: "💡 이렇게 답해요",
+    timesTableRangeOpt: (n) => `2~${n}단`,
     timesTableStartBtn: "▶ 게임 시작",
     timesTableHint: "문제가 8 × 2 일 때 정답 입력 방법: 8216 / 82 16 / 8 2 16 셋 중 하나를 입력 — 계속 입력하면 돼요, Enter는 필요 없어요.",
     timesTableTypoMsg: "❌ 일치하는 식이 없어요 — 다시 시도해보세요!",
@@ -5137,7 +5139,7 @@ const timesTableStageTagEl = document.getElementById("timestable-stage-tag");
 const timesTableStageBanner = document.getElementById("timestable-stage-banner");
 const timesTableStageBannerText = document.getElementById("timestable-stage-banner-text");
 const timesTableEncourageMsg = document.getElementById("timestable-encourage-msg");
-const timesTableRangeChipsEl = document.getElementById("timestable-range-chips");
+const timesTableRangeSelect = document.getElementById("timestable-range-select");
 // The old +/- stepper is now a row of table chips above the stage; these two
 // shims keep the Up/Down arrow keys on the start screen working.
 const timesTableMaxTableMinusBtn = { click: () => changeTimesTableMaxTable(-1) };
@@ -5249,29 +5251,29 @@ function saveTimesTableMaxTable() {
 let timesTableMaxTable = loadTimesTableMaxTable();
 
 function updateTimesTableMaxTableUI() {
-  // Chips 2-12, plus the current value if a challenge pushed it higher.
+  // One compact dropdown: "Tables 2–N". Includes the current value if a
+  // challenge pushed it above 12.
   const nums = [];
   for (let n = TIMESTABLE_MIN_TABLE; n <= 12; n++) nums.push(n);
   if (timesTableMaxTable > 12) nums.push(timesTableMaxTable);
-  timesTableRangeChipsEl.innerHTML = "";
+  timesTableRangeSelect.innerHTML = "";
   nums.forEach((n) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "tt-range-chip" + (n <= timesTableMaxTable ? " in" : "") + (n === timesTableMaxTable ? " active" : "");
-    b.textContent = String(n);
-    b.setAttribute("aria-pressed", n === timesTableMaxTable ? "true" : "false");
-    b.setAttribute("aria-label", t("timesTableMaxTableLabel") + " " + n);
-    b.addEventListener("click", () => {
-      if (timesTableRunning) return; // takes effect at the next round
-      timesTableMaxTable = n;
-      saveTimesTableMaxTable();
-      updateTimesTableMaxTableUI();
-      timesTableProblemPool = buildTimesTableProblemPool(timesTableMaxTable);
-    });
-    timesTableRangeChipsEl.appendChild(b);
+    const o = document.createElement("option");
+    o.value = String(n);
+    o.textContent = t("timesTableRangeOpt", n);
+    timesTableRangeSelect.appendChild(o);
   });
-  timesTableRangeChipsEl.parentElement.classList.toggle("locked", !!timesTableRunning);
+  timesTableRangeSelect.value = String(timesTableMaxTable);
+  timesTableRangeSelect.setAttribute("aria-label", t("timesTableMaxTableLabel"));
+  timesTableRangeSelect.classList.toggle("locked", !!timesTableRunning);
 }
+timesTableRangeSelect.addEventListener("change", () => {
+  if (timesTableRunning) return;
+  timesTableMaxTable = parseInt(timesTableRangeSelect.value, 10);
+  saveTimesTableMaxTable();
+  timesTableProblemPool = buildTimesTableProblemPool(timesTableMaxTable);
+  timesTableRangeSelect.blur();
+});
 
 function changeTimesTableMaxTable(delta) {
   const next = timesTableMaxTable + delta;
