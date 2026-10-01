@@ -42,7 +42,25 @@ async function sha256Hex(text) {
 const TRANSLATIONS = {
   en: {
     appTitle: "Koala Study Mate",
-    appSubtitle: "Build your vocabulary, spelling, times tables and word skills!",
+    appSubtitle: "Vocabulary, spelling & times tables for Australian primary students",
+    homePitch: "Short, fun daily practice that builds vocabulary, spelling and times tables — a few minutes a day.",
+    homeAus: "🇦🇺 Made for Australian primary students · Year 4–6",
+    homeChooseYear: "Choose your year level",
+    homeStartBtn: "▶ Start today's practice",
+    missionTitle: "🎯 Today's Mission",
+    missionFlash: (n) => `Learn ${n} words with Flashcards`,
+    missionSpelling: (n) => `Spell ${n} words`,
+    missionQuiz: (n) => `Answer ${n} quiz questions`,
+    missionTT: (n) => `Practise ${n} times-table facts`,
+    missionGo: "Go",
+    missionDoneMsg: "🎉 Mission complete! Come back tomorrow for a new one.",
+    missionToast: "Mission complete!",
+    promoTitle: "📸 From your child's book to a quiz",
+    promoSteps: "Snap a page → pick the tricky words → practise them as flashcards, spelling and quizzes.",
+    promoBtn: "Try it →",
+    homeLearn: "Learn",
+    homePlay: "Play",
+    homeMine: "My learning",
     langToggle: "한국어",
     levelBadgePrefix: "Level",
     levelOverlayTitle: "📚 Choose your level",
@@ -496,7 +514,25 @@ const TRANSLATIONS = {
   },
   ko: {
     appTitle: "Koala Study Mate",
-    appSubtitle: "영어 어휘력, 스펠링, 구구단 실력을 함께 키워보세요!",
+    appSubtitle: "호주 초등학생을 위한 어휘력 · 스펠링 · 구구단",
+    homePitch: "하루 몇 분, 짧고 재미있게 어휘력, 스펠링, 구구단을 키워요.",
+    homeAus: "🇦🇺 호주 초등학생을 위해 만들었어요 · Year 4–6",
+    homeChooseYear: "학년을 골라요",
+    homeStartBtn: "▶ 오늘의 연습 시작",
+    missionTitle: "🎯 오늘의 미션",
+    missionFlash: (n) => `플래시카드로 ${n}단어 익히기`,
+    missionSpelling: (n) => `스펠링 ${n}단어 쓰기`,
+    missionQuiz: (n) => `퀴즈 ${n}문제 풀기`,
+    missionTT: (n) => `구구단 ${n}문제 연습하기`,
+    missionGo: "가기",
+    missionDoneMsg: "🎉 미션 완료! 내일 새로운 미션이 기다려요.",
+    missionToast: "미션 완료!",
+    promoTitle: "📸 아이의 책에서 바로 퀴즈로",
+    promoSteps: "책 한 페이지를 찍고 → 어려운 단어를 고르면 → 플래시카드, 스펠링, 퀴즈로 연습해요.",
+    promoBtn: "해보기 →",
+    homeLearn: "배우기",
+    homePlay: "게임",
+    homeMine: "내 공부",
     langToggle: "English",
     levelBadgePrefix: "레벨",
     levelOverlayTitle: "📚 레벨을 선택하세요",
@@ -1024,6 +1060,7 @@ function recordResult(word, isCorrect, mode) {
   trackActivity(word, isCorrect, mode);
   saveProgress();
   renderStreakChip();
+  if (typeof checkMissionComplete === "function") checkMissionComplete();
   if (streakChanged && streakChipEl) pulseScoreTag(streakChipEl, "stat-chip-pulse");
 }
 
@@ -1751,6 +1788,7 @@ function applyStaticTranslations() {
   document.documentElement.lang = currentLang === "ko" ? "ko" : "en";
   renderGoalStepper("quiz");
   renderGoalStepper("spelling");
+  if (typeof renderHome === "function") renderHome();
   updateCategoryOptionVisibility();
   // These two show state (not static copy), so re-derive them after the
   // generic data-i18n sweep above may have reset them to their default text.
@@ -2011,6 +2049,7 @@ function refreshCurrentView() {
 }
 
 function refreshView(view) {
+  if (view === "landing") renderHome();
   if (view === "flashcards") buildFlashDeck();
   if (view === "quiz") buildQuizQuestions();
   if (view === "spelling") buildSpellingDeck();
@@ -8871,7 +8910,7 @@ renderCustomWords();
       sheet.className = "install-sheet-backdrop";
       sheet.innerHTML =
         `<div class="install-sheet" role="dialog" aria-modal="true" aria-labelledby="install-sheet-title">` +
-        `<img class="install-sheet-icon" src="icon-192.png?v=3" alt="" />` +
+        `<img class="install-sheet-icon" src="icon-192.png?v=4" alt="" />` +
         `<h3 id="install-sheet-title">${t("installSheetTitle")}</h3>` +
         `<div class="install-sheet-sub">🛡️ ${t("installSheetSub")}</div>` +
         `<ul><li>${t("installPerk1")}</li><li>${t("installPerk2")}</li><li>${t("installPerk3")}</li></ul>` +
@@ -8918,3 +8957,92 @@ renderCustomWords();
     });
   }
 })();
+
+/* ---- Home: year chips, Today's Mission ---- */
+function missionGoal() { return 5; }
+function missionTodayCounts() {
+  ensureRewardData();
+  return progress.daily[localDateKey(new Date())] || {};
+}
+function missionTasks() {
+  const d = missionTodayCounts();
+  const n = (m) => (d[m] && d[m][1]) || 0;
+  const day = Math.floor(Date.now() / 86400000);
+  const third = day % 2 ? { id: "quiz", mode: "quiz", view: "quiz", key: "missionQuiz", emoji: "💡" } : { id: "tt", mode: "tt", view: "timestable", key: "missionTT", emoji: "🧮" };
+  return [
+    { id: "flash", mode: "flash", view: "flashcards", key: "missionFlash", emoji: "🃏" },
+    { id: "spelling", mode: "spelling", view: "spelling", key: "missionSpelling", emoji: "✏️" },
+    third,
+  ].map((x) => ({ ...x, done: Math.min(n(x.mode), missionGoal()), goal: missionGoal() }));
+}
+function renderHomeYears() {
+  const box = document.getElementById("home-years");
+  if (!box) return;
+  box.innerHTML = "";
+  currentSystem().levels.forEach((lv) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "home-year" + (lv.id === currentLevel ? " active" : "");
+    b.textContent = lv.label;
+    b.setAttribute("aria-pressed", lv.id === currentLevel ? "true" : "false");
+    b.addEventListener("click", () => { if (lv.id !== currentLevel) applyLevel(lv.id); renderHomeYears(); });
+    box.appendChild(b);
+  });
+}
+function renderMission() {
+  const list = document.getElementById("mission-list");
+  if (!list) return;
+  const tasks = missionTasks();
+  list.innerHTML = "";
+  tasks.forEach((tk) => {
+    const li = document.createElement("li");
+    const done = tk.done >= tk.goal;
+    li.className = "mission-item" + (done ? " done" : "");
+    li.innerHTML = `<span class="mission-check" aria-hidden="true">${done ? "✓" : ""}</span><span class="mission-emoji" aria-hidden="true">${tk.emoji}</span><span class="mission-text">${t(tk.key, tk.goal)}<small>${tk.done} / ${tk.goal}</small></span>`;
+    if (!done) {
+      const go = document.createElement("button");
+      go.type = "button";
+      go.className = "pill accent small mission-go";
+      go.textContent = t("missionGo");
+      go.addEventListener("click", () => goToTab(tk.view));
+      li.appendChild(go);
+    }
+    list.appendChild(li);
+  });
+  const doneCount = tasks.filter((x) => x.done >= x.goal).length;
+  document.getElementById("mission-count").textContent = `${doneCount} / ${tasks.length}`;
+  document.getElementById("mission-bar-fill").style.width = `${(tasks.reduce((s, x) => s + x.done / x.goal, 0) / tasks.length) * 100}%`;
+  const all = doneCount === tasks.length;
+  document.getElementById("mission-card").classList.toggle("complete", all);
+  document.getElementById("mission-done-msg").hidden = !all;
+  return all;
+}
+function checkMissionComplete() {
+  const all = missionTasks().every((x) => x.done >= x.goal);
+  const today = localDateKey(new Date());
+  if (all && progress.missionDone !== today) {
+    progress.missionDone = today;
+    saveProgress();
+    const el = document.createElement("div");
+    el.className = "badge-toast";
+    el.setAttribute("role", "status");
+    el.innerHTML = `<span class="badge-toast-emoji">🎯</span><span><strong>${t("missionToast")}</strong><br>${t("missionDoneMsg").replace(/^🎉 /, "")}</span>`;
+    document.body.appendChild(el);
+    setTimeout(() => el.classList.add("out"), 3200);
+    setTimeout(() => el.remove(), 3700);
+  }
+}
+function renderHome() {
+  // The tile icon already carries the emoji, so drop it from the title text.
+  document.querySelectorAll(".landing-tile-title").forEach((el) => {
+    el.textContent = el.textContent.replace(/^[^\p{L}\p{N}]+/u, "").trim();
+  });
+  renderHomeYears();
+  renderMission();
+}
+document.getElementById("home-start-btn").addEventListener("click", () => {
+  const next = missionTasks().find((x) => x.done < x.goal);
+  goToTab(next ? next.view : "quiz");
+});
+document.getElementById("promo-btn").addEventListener("click", () => goToTab("addword"));
+renderHome();

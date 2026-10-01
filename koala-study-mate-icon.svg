@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>Koala Study Mate</title>
+<circle cx="256" cy="256" r="228" fill="#0b6b57"/>
+<circle cx="256" cy="256" r="196" fill="#22c9a3"/>
+<circle cx="256" cy="256" r="176" fill="none" stroke="#ffffff" stroke-width="6" stroke-dasharray="1 15" stroke-linecap="round"/>
+<g transform="translate(106,126) scale(1.5)">
+<circle cx="38" cy="62" r="34" fill="#a9b7b2"/>
+<circle cx="38" cy="62" r="18" fill="#ffb3c1"/>
+<circle cx="162" cy="62" r="34" fill="#a9b7b2"/>
+<circle cx="162" cy="62" r="18" fill="#ffb3c1"/>
+<ellipse cx="100" cy="112" rx="70" ry="62" fill="#a9b7b2"/>
+<ellipse cx="100" cy="134" rx="36" ry="26" fill="#e3ebe8"/>
+<circle cx="70" cy="102" r="8" fill="#1f2a27"/>
+<circle cx="130" cy="102" r="8" fill="#1f2a27"/>
+<circle cx="73" cy="99" r="2.6" fill="#ffffff"/>
+<circle cx="133" cy="99" r="2.6" fill="#ffffff"/>
+<path d="M78 112 Q100 98 122 112 Q126 138 100 146 Q74 138 78 112Z" fill="#1f2a27"/>
+<ellipse cx="92" cy="116" rx="7" ry="3.2" fill="#ffffff" opacity="0.35"/>
+<circle cx="50" cy="128" r="9" fill="#ff7a90" opacity="0.6"/>
+<circle cx="150" cy="128" r="9" fill="#ff7a90" opacity="0.6"/>
+<path d="M90 156 Q100 164 110 156" fill="none" stroke="#1f2a27" stroke-width="4" stroke-linecap="round"/>
+</g>
+<path d="M196 196 V224 Q256 254 316 224 V196 L256 218Z" fill="#1c252d"/>
+<path d="M256 130 L380 176 L256 222 L132 176Z" fill="#26313a"/>
+<path d="M256 176 L366 180 V226" fill="none" stroke="#ffc93c" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="366" cy="232" r="10" fill="#ffc93c"/>
+<polygon points="0,-22 6.5,-9 21,-6.8 10.4,3.4 12.9,18 0,11 -12.9,18 -10.4,3.4 -21,-6.8 -6.5,-9" transform="translate(256,440)" fill="#ffc93c"/>
+<circle cx="112" cy="392" r="40" fill="#ffffff" stroke="#0b6b57" stroke-width="12"/>
+<path d="M92 412 L112 370 L132 412 M99 398 H125" fill="none" stroke="#2d6cff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="400" cy="392" r="40" fill="#ffc93c" stroke="#0b6b57" stroke-width="12"/>
+<path d="M400 370 V414 M378 392 H422" fill="none" stroke="#333a37" stroke-width="12" stroke-linecap="round"/>
+</svg>

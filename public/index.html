@@ -10,10 +10,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Koala Study" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <link rel="icon" href="favicon.svg?v=3" type="image/svg+xml" />
-  <link rel="icon" href="favicon.ico?v=3" sizes="48x48" />
-  <link rel="icon" href="icon-192.png?v=3" type="image/png" sizes="192x192" />
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3" />
+  <link rel="icon" href="favicon.svg?v=4" type="image/svg+xml" />
+  <link rel="icon" href="favicon.ico?v=4" sizes="48x48" />
+  <link rel="icon" href="icon-192.png?v=4" type="image/png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=4" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Gaegu:wght@700&display=swap" rel="stylesheet" />
@@ -104,7 +104,7 @@
        real browser confirm() shows the raw URL and can't be styled or animated. -->
   <div id="kid-confirm-overlay" class="kid-modal-overlay" hidden>
     <div class="kid-modal-card">
-      <div class="kid-modal-icon" aria-hidden="true"><img src="favicon.svg?v=3" alt="" width="64" height="64"></div>
+      <div class="kid-modal-icon" aria-hidden="true"><img src="favicon.svg?v=4" alt="" width="64" height="64"></div>
       <div class="kid-modal-brand">Koala Study Mate</div>
       <p class="kid-modal-message" id="kid-confirm-message"></p>
       <div class="kid-modal-actions">
@@ -123,7 +123,7 @@
       </div>
     </div>
     <button id="lang-toggle" class="lang-toggle" type="button">한국어</button>
-    <h1><img class="brand-logo" src="favicon.svg?v=3" alt="" width="34" height="34"> <span id="app-title">Koala Study Mate</span></h1>
+    <h1><img class="brand-logo" src="favicon.svg?v=4" alt="" width="34" height="34"> <span id="app-title">Koala Study Mate</span></h1>
     <p id="app-subtitle">Build your vocabulary, spelling, times tables and word skills!</p>
     <div class="stat-bar">
       <button id="level-badge" class="level-badge" title="Change level">Level: Year 4 ▾</button>
@@ -185,6 +185,78 @@
          extra JS — see the comment there. -->
     <section id="view-landing" class="view active">
       <button type="button" class="pill accent small install-app-btn" id="install-app-btn" hidden data-i18n="installAppBtn">📲 Install app</button>
+      <div class="home-hero">
+        <p class="home-pitch" data-i18n="homePitch">Short, fun daily practice in vocabulary, spelling and times tables.</p>
+        <p class="home-aus" data-i18n="homeAus">🇦🇺 Made for Australian primary students</p>
+        <div class="home-years-label" data-i18n="homeChooseYear">Choose your year level</div>
+        <div class="home-years" id="home-years" role="group"></div>
+        <button type="button" class="pill accent home-start" id="home-start-btn" data-i18n="homeStartBtn">▶ Start today's practice</button>
+      </div>
+      <div class="mission-card" id="mission-card">
+        <div class="mission-head">
+          <h2 class="mission-title" data-i18n="missionTitle">🎯 Today's Mission</h2>
+          <span class="mission-count" id="mission-count">0 / 3</span>
+        </div>
+        <div class="mission-bar"><div class="mission-bar-fill" id="mission-bar-fill"></div></div>
+        <ul class="mission-list" id="mission-list"></ul>
+        <p class="mission-done-msg" id="mission-done-msg" hidden data-i18n="missionDoneMsg">🎉 Mission complete! Come back tomorrow for a new one.</p>
+      </div>
+      <div class="photo-promo">
+        <div class="photo-promo-text">
+          <h2 class="photo-promo-title" data-i18n="promoTitle">📸 From your child's book to a quiz</h2>
+          <p class="photo-promo-steps" data-i18n="promoSteps">Snap a page → pick the tricky words → practise them as flashcards, spelling and quizzes.</p>
+        </div>
+        <button type="button" class="pill accent small" id="promo-btn" data-view-go="addword" data-i18n="promoBtn">Try it →</button>
+      </div>
+      <h2 class="home-section-title" data-i18n="homeLearn">Learn</h2>
+      <div class="landing-tiles tiles-4">
+        <button data-view="quiz" class="tab-btn landing-tile">
+          <span class="landing-tile-icon" aria-hidden="true">💡</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navQuiz">💡 Quiz</span>
+            <span class="landing-tile-desc" data-i18n="landingDescQuiz">Test yourself, word by word</span>
+          </span>
+        </button>
+        <button data-view="spelling" class="tab-btn landing-tile">
+          <span class="landing-tile-icon" aria-hidden="true">✏️</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navSpelling">✏️ Spelling</span>
+            <span class="landing-tile-desc" data-i18n="landingDescSpelling">Type each word from memory</span>
+          </span>
+        </button>
+        <button data-view="flashcards" class="tab-btn landing-tile">
+          <span class="landing-tile-icon" aria-hidden="true">🃏</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navFlashcards">🃏 Flashcards</span>
+            <span class="landing-tile-desc" data-i18n="landingDescFlashcards">Flip through and review</span>
+          </span>
+        </button>
+        <button data-view="wordlist" class="tab-btn landing-tile">
+          <span class="landing-tile-icon" aria-hidden="true">📖</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navWordlist">📖 Word List</span>
+            <span class="landing-tile-desc" data-i18n="landingDescWordlist">Browse every word you have</span>
+          </span>
+        </button>
+      </div>
+      <h2 class="home-section-title" data-i18n="homePlay">Play</h2>
+      <div class="landing-tiles">
+        <button data-view="typegame" class="tab-btn landing-tile">
+          <span class="landing-tile-icon" aria-hidden="true">⌨️</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navTypeGame">⌨️ Typing Game</span>
+            <span class="landing-tile-desc" data-i18n="landingDescTypeGame">Catch the falling words</span>
+          </span>
+        </button>
+        <button data-view="timestable" class="tab-btn landing-tile">
+          <span class="landing-tile-icon" aria-hidden="true">🧮</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navTimesTable">🧮 Times Table</span>
+            <span class="landing-tile-desc" data-i18n="landingDescTimesTable">Practise your times tables</span>
+          </span>
+        </button>
+      </div>
+      <h2 class="home-section-title" data-i18n="homeMine">My learning</h2>
       <div class="landing-tiles">
         <button data-view="stats" class="tab-btn landing-tile landing-tile-highlight">
           <span class="landing-tile-icon" aria-hidden="true">📊</span>
@@ -201,48 +273,6 @@
             <span class="landing-tile-desc" data-i18n="landingDescAddword">Build your own word list</span>
           </span>
           <span class="nav-badge landing-tile-badge" aria-hidden="true">🔒</span>
-        </button>
-        <button data-view="quiz" class="tab-btn landing-tile">
-          <span class="landing-tile-icon" aria-hidden="true">💡</span>
-          <span class="landing-tile-body">
-            <span class="landing-tile-title" data-i18n="navQuiz">💡 Quiz</span>
-            <span class="landing-tile-desc" data-i18n="landingDescQuiz">Test yourself, word by word</span>
-          </span>
-        </button>
-        <button data-view="timestable" class="tab-btn landing-tile">
-          <span class="landing-tile-icon" aria-hidden="true">🧮</span>
-          <span class="landing-tile-body">
-            <span class="landing-tile-title" data-i18n="navTimesTable">🧮 Times Table</span>
-            <span class="landing-tile-desc" data-i18n="landingDescTimesTable">Practise your times tables</span>
-          </span>
-        </button>
-        <button data-view="spelling" class="tab-btn landing-tile">
-          <span class="landing-tile-icon" aria-hidden="true">✏️</span>
-          <span class="landing-tile-body">
-            <span class="landing-tile-title" data-i18n="navSpelling">✏️ Spelling</span>
-            <span class="landing-tile-desc" data-i18n="landingDescSpelling">Type each word from memory</span>
-          </span>
-        </button>
-        <button data-view="typegame" class="tab-btn landing-tile">
-          <span class="landing-tile-icon" aria-hidden="true">⌨️</span>
-          <span class="landing-tile-body">
-            <span class="landing-tile-title" data-i18n="navTypeGame">⌨️ Typing Game</span>
-            <span class="landing-tile-desc" data-i18n="landingDescTypeGame">Catch the falling words</span>
-          </span>
-        </button>
-        <button data-view="flashcards" class="tab-btn landing-tile">
-          <span class="landing-tile-icon" aria-hidden="true">🃏</span>
-          <span class="landing-tile-body">
-            <span class="landing-tile-title" data-i18n="navFlashcards">🃏 Flashcards</span>
-            <span class="landing-tile-desc" data-i18n="landingDescFlashcards">Flip through and review</span>
-          </span>
-        </button>
-        <button data-view="wordlist" class="tab-btn landing-tile">
-          <span class="landing-tile-icon" aria-hidden="true">📖</span>
-          <span class="landing-tile-body">
-            <span class="landing-tile-title" data-i18n="navWordlist">📖 Word List</span>
-            <span class="landing-tile-desc" data-i18n="landingDescWordlist">Browse every word you have</span>
-          </span>
         </button>
       </div>
     </section>

@@ -4585,3 +4585,47 @@ button.speak-btn-hero.sk-wave { animation: sk-speaker-wobble .5s ease-in-out inf
   #timestable-start-overlay h3 { font-size: 1rem; }
   #timestable-start-overlay .kb-strip { margin: 0; }
 }
+
+/* ---- Home: hero, year chips, Today's Mission, photo promo, grouped tiles ---- */
+.home-hero { text-align: center; background: #fff; border: 1px solid var(--outline); border-radius: 22px; box-shadow: 0 3px 0 var(--outline); padding: 16px 14px 16px; margin-bottom: 14px; }
+.home-pitch { margin: 0 auto 6px; max-width: 520px; font-size: 1.02rem; font-weight: 600; color: var(--text); line-height: 1.35; }
+.home-aus { margin: 0 0 12px; font-size: .85rem; color: var(--accent-dark); font-weight: 700; }
+.home-years-label { font-family: var(--font-heading); font-size: .85rem; color: var(--muted); margin-bottom: 6px; }
+.home-years { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 14px; }
+.home-year { font-family: var(--font-heading); font-weight: 600; font-size: .95rem; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--outline); background: #fff; color: var(--accent-dark); box-shadow: 0 2px 0 var(--outline); cursor: pointer; transition: transform .08s, box-shadow .08s; }
+.home-year:hover { transform: translateY(-1px); }
+.home-year.active { background: var(--accent); color: #fff; }
+.home-year:active { transform: translateY(2px); box-shadow: none; }
+.home-start { font-size: 1.1rem; padding: 12px 28px; }
+.mission-card { background: #fff; border: 1px solid var(--outline); border-radius: 22px; box-shadow: 0 3px 0 var(--outline); padding: 14px; margin-bottom: 14px; }
+.mission-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.mission-title { margin: 0; font-family: var(--font-heading); font-size: 1.1rem; color: var(--accent-dark); }
+.mission-count { font-family: var(--font-heading); font-weight: 700; background: #e8faf4; color: var(--accent-dark); border-radius: 999px; padding: 2px 12px; }
+.mission-bar { height: 10px; border-radius: 99px; background: #e6efec; overflow: hidden; margin-bottom: 10px; }
+.mission-bar-fill { height: 100%; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--accent), #7be0c3); transition: width .5s ease; }
+.mission-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.mission-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; background: #f5fbf9; border: 1px solid #d6efe6; }
+.mission-item.done { background: #e8faf4; }
+.mission-check { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--accent); display: grid; place-items: center; color: #fff; font-weight: 800; font-size: .85rem; background: #fff; }
+.mission-item.done .mission-check { background: var(--accent); }
+.mission-emoji { font-size: 1.25rem; }
+.mission-text { flex: 1 1 auto; font-weight: 600; font-size: .92rem; line-height: 1.25; }
+.mission-text small { display: block; color: var(--muted); font-weight: 500; font-size: .78rem; }
+.mission-item.done .mission-text { color: var(--accent-dark); }
+.mission-go { flex: 0 0 auto; }
+.mission-done-msg { margin: 10px 0 0; text-align: center; font-weight: 700; color: var(--accent-dark); }
+.mission-card.complete { background: linear-gradient(180deg, #f2fff9, #fff); }
+.photo-promo { display: flex; align-items: center; gap: 12px; background: #fff8e6; border: 1px solid #f0c75e; border-radius: 22px; box-shadow: 0 3px 0 #f0c75e; padding: 12px 14px; margin-bottom: 16px; }
+.photo-promo-text { flex: 1 1 auto; }
+.photo-promo-title { margin: 0 0 2px; font-family: var(--font-heading); font-size: 1rem; color: #8a5a00; }
+.photo-promo-steps { margin: 0; font-size: .82rem; color: #6b5420; line-height: 1.35; }
+.home-section-title { margin: 6px 2px 8px; font-family: var(--font-heading); font-size: .95rem; letter-spacing: .02em; color: var(--muted); text-transform: none; }
+.landing-tiles + .home-section-title { margin-top: 16px; }
+.landing-tiles { grid-template-columns: repeat(2, 1fr); }
+.landing-tiles.tiles-4 { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 700px) { .landing-tiles.tiles-4 { grid-template-columns: repeat(4, 1fr); } .landing-tiles { grid-template-columns: repeat(2, 1fr); } .home-hero, .mission-card, .photo-promo { max-width: 100%; } }
+@media (max-width: 480px) { .photo-promo { flex-direction: column; align-items: stretch; text-align: center; } .photo-promo .pill { align-self: center; } .home-pitch { font-size: .95rem; } }
+/* grouped menu: same card size in every group; shorter cards on phones */
+.landing-tiles, .landing-tiles.tiles-4 { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 700px) { .landing-tiles, .landing-tiles.tiles-4 { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 699px) { .landing-tile { aspect-ratio: 1.35 / 1; } .landing-tile .landing-tile-icon { width: clamp(44px, 34cqw, 72px); height: clamp(44px, 34cqw, 72px); font-size: clamp(1.5rem, 19cqw, 2.4rem); } .landing-tile .landing-tile-title { font-size: clamp(.85rem, 9.5cqw, 1.1rem); } }
