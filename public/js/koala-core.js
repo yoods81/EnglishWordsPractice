@@ -26,7 +26,10 @@
 })(typeof self !== "undefined" ? self : this, function () {
   /* ---------- Configuration: every reward number lives here ---------- */
   const REWARD_CONFIG = {
-    // Coins for finishing a learning activity. Used from Phase 3 on.
+    // Coins for a learning round: every `correctPerReward` correct answers in a
+    // mode earn that mode's coins, up to `dailyRewardsPerMode` rounds per mode
+    // per day (so the day's total is bounded and wrong answers never cost coins).
+    learning: { correctPerReward: 10, dailyRewardsPerMode: 3 },
     coins: {
       quiz: 5,
       spelling: 5,
@@ -36,7 +39,7 @@
       review: 10,
       dailyMission: 15,
     },
-    // Bonus coins when a badge is earned (badge id -> coins). Phase 3.
+    // Bonus coins when a badge is earned (badge id -> coins).
     // Unlisted badges use badgeDefault.
     badgeBonus: {},
     badgeDefault: 25,
@@ -337,6 +340,53 @@
     };
   }
 
+  /* ---------- Reward loop: learning -> coins (Phase 3) ---------- */
+  // Maps the app's answer-mode names to the coin names above.
+  const MODE_COINS = { quiz: "quiz", spelling: "spelling", flash: "flashcards", tt: "timesTable", typing: "typing" };
+
+  // Called after an answer. `correctToday` = correct answers in this mode today.
+  // Awards every round reached and not yet paid (idempotent per day+round).
+  // Returns [{why, n}] for the rounds paid just now.
+  function awardLearning(progress, mode, correctToday, day, opts) {
+    const why = MODE_COINS[mode];
+    const cfg = REWARD_CONFIG.learning;
+    if (!why) return [];
+    const rounds = Math.min(Math.floor((correctToday || 0) / cfg.correctPerReward), cfg.dailyRewardsPerMode);
+    const paid = [];
+    for (let i = 1; i <= rounds; i++) {
+      const n = awardCoins(progress, REWARD_CONFIG.coins[why], why, Object.assign({}, opts, { key: `learn:${mode}:${day}:${i}` }));
+      if (n) paid.push({ why, n });
+    }
+    return paid;
+  }
+
+  // Where the child stands towards the next round in a mode (for "Earn more Coins").
+  function learningProgress(mode, correctToday) {
+    const cfg = REWARD_CONFIG.learning;
+    const done = Math.floor((correctToday || 0) / cfg.correctPerReward);
+    const capped = done >= cfg.dailyRewardsPerMode;
+    return {
+      coins: REWARD_CONFIG.coins[MODE_COINS[mode]] || 0,
+      have: capped ? cfg.correctPerReward : (correctToday || 0) % cfg.correctPerReward,
+      goal: cfg.correctPerReward,
+      roundsDone: Math.min(done, cfg.dailyRewardsPerMode),
+      roundsMax: cfg.dailyRewardsPerMode,
+      capped,
+    };
+  }
+
+  function awardMission(progress, day, opts) {
+    return awardCoins(progress, REWARD_CONFIG.coins.dailyMission, "dailyMission", Object.assign({}, opts, { key: "mission:" + day }));
+  }
+  function awardBadge(progress, badgeId, opts) {
+    const n = REWARD_CONFIG.badgeBonus[badgeId] != null ? REWARD_CONFIG.badgeBonus[badgeId] : REWARD_CONFIG.badgeDefault;
+    return awardCoins(progress, n, "badge", Object.assign({}, opts, { key: "badge:" + badgeId }));
+  }
+  // One review session. `sessionKey` makes a double click on "Done" harmless.
+  function awardReview(progress, sessionKey, opts) {
+    return awardCoins(progress, REWARD_CONFIG.coins.review, "review", Object.assign({}, opts, { key: "review:" + sessionKey }));
+  }
+
   /* ---------- Account sync (every signed-in account) ---------- */
   // The slice of progress that makes up the child's Koala world.
   function rewardSlice(progress) {
@@ -395,7 +445,7 @@
   return {
     REWARD_CONFIG,
     dateKey, daysBetween, shiftDay, weekKey,
-    ensureKoala, awardCoins, spendCoins, adjustCoins, rewardSlice, mergeRewards,
+    ensureKoala, awardCoins, spendCoins, adjustCoins, awardLearning, learningProgress, awardMission, awardBadge, awardReview, rewardSlice, mergeRewards,
     ITEM_SLOTS, ITEMS, itemById, itemStatus, buyItem, equipItem, unequipSlot, syncStreakUnlocks, nextReward,
     levelInfo,
     ensureStreak, advanceStreak, streakStatus,

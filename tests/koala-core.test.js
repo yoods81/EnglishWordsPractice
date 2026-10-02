@@ -324,3 +324,32 @@ test("mergeRewards: nothing earned on either device is lost", () => {
   assert.equal(K.mergeRewards(a, null), false);
   assert.equal(K.mergeRewards({}, a.koala ? K.rewardSlice(a) : null), true, "new device gets everything");
 });
+
+test("reward loop: rounds of correct answers pay coins once, capped per day", () => {
+  const p = {};
+  assert.deepEqual(K.awardLearning(p, "quiz", 9, "2026-10-02"), []);
+  assert.deepEqual(K.awardLearning(p, "quiz", 10, "2026-10-02"), [{ why: "quiz", n: 5 }]);
+  assert.deepEqual(K.awardLearning(p, "quiz", 10, "2026-10-02"), [], "same round is never paid twice");
+  assert.equal(K.awardLearning(p, "quiz", 25, "2026-10-02").length, 1, "second round only");
+  assert.equal(K.awardLearning(p, "quiz", 500, "2026-10-02").length, 1, "third round, then capped");
+  assert.equal(K.awardLearning(p, "quiz", 900, "2026-10-02").length, 0);
+  assert.equal(p.koala.coins, 15);
+  assert.equal(K.awardLearning(p, "quiz", 10, "2026-10-03").length, 1, "new day, new rounds");
+  assert.equal(K.awardLearning(p, "flash", 10, "d")[0].why, "flashcards");
+  assert.equal(K.awardLearning(p, "tt", 10, "d")[0].why, "timesTable");
+  assert.deepEqual(K.awardLearning(p, "bogus", 99, "d"), []);
+});
+
+test("reward loop: mission, badge and review coins are one-time and wrong answers never cost", () => {
+  const p = {};
+  assert.equal(K.awardMission(p, "2026-10-02"), 15);
+  assert.equal(K.awardMission(p, "2026-10-02"), 0);
+  assert.equal(K.awardBadge(p, "tt3"), 25);
+  assert.equal(K.awardBadge(p, "tt3"), 0);
+  assert.equal(K.awardReview(p, "2026-10-02:1"), 10);
+  assert.equal(K.awardReview(p, "2026-10-02:1"), 0);
+  assert.equal(p.koala.coins, 50);
+  const lp = K.learningProgress("quiz", 13);
+  assert.deepEqual([lp.have, lp.goal, lp.roundsDone, lp.capped], [3, 10, 1, false]);
+  assert.equal(K.learningProgress("quiz", 30).capped, true);
+});

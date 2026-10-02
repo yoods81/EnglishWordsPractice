@@ -5028,3 +5028,16 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
 .admin-koala-note{width:140px;max-width:100%}
 .koala-hero{flex-wrap:wrap}
 .koala-hero-main{min-width:140px}
+
+/* Phase 3: reward loop */
+.badge-toast-link { cursor: pointer; }
+.badge-toast-go { color: var(--accent-dark); font-weight: 700; }
+.koala-earn { background: #fff; border: 2px solid #e6e9e7; border-radius: 16px; padding: 10px 12px; margin: 8px 0 10px; }
+.koala-earn-title { font-family: var(--font-heading); font-weight: 700; color: var(--text); }
+.koala-earn-list { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 8px; }
+.koala-earn-row { display: flex; align-items: center; gap: 10px; }
+.koala-earn-emoji { font-size: 1.4rem; flex: 0 0 auto; width: 1.8rem; text-align: center; }
+.koala-earn-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.koala-earn-name { font-weight: 600; font-size: 0.9rem; color: var(--text); }
+.koala-earn-main small { color: var(--text); opacity: .8; }
+.koala-earn-go { flex: 0 0 auto; min-height: 36px; }

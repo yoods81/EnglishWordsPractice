@@ -1103,6 +1103,23 @@ function saveProgress() {
   scheduleKoalaSummary();
 }
 
+// Learning -> Koala Coins. Every 10 correct answers in a mode earn that mode's
+// coins (a few rounds per mode per day). Only a signed-in child earns; a wrong
+// answer, or just opening a page, never changes the balance.
+function rewardLearning(mode) {
+  if (!canUseAccountFeatures()) return;
+  const day = localDateKey(new Date());
+  const rec = progress.daily && progress.daily[day] && progress.daily[day][mode];
+  const paid = KoalaCore.awardLearning(progress, mode, rec ? rec[0] : 0, day);
+  paid.forEach((r) => {
+    rwToastQueue.push({
+      emojiHtml: COIN_SVG, title: rwL(`+${r.n} Koala Coins!`, `+${r.n} 코알라 코인!`),
+      name: KOALA_REASON_LABELS()[r.why] || r.why, go: true,
+    });
+  });
+  if (paid.length) showNextBadgeToast();
+}
+
 function recordResult(word, isCorrect, mode) {
   const stats = progress.wordStats[word] || { correct: 0, incorrect: 0 };
   if (isCorrect) stats.correct++;
@@ -1111,6 +1128,7 @@ function recordResult(word, isCorrect, mode) {
   trackActivity(word, isCorrect, mode);
   const streakChanged = bumpDailyStreak();
   if (streakChanged) { checkBadges(); announceKoalaUnlocks(); } // streak badges / streak items
+  rewardLearning(mode);
   saveProgress();
   renderStreakChip();
   if (typeof checkMissionComplete === "function") checkMissionComplete();
@@ -8860,7 +8878,11 @@ function checkBadges() {
     }
   });
   if (fresh.length) {
-    fresh.forEach((b) => rwToastQueue.push(b));
+    fresh.forEach((b) => {
+      const coins = KoalaCore.awardBadge(progress, b.id);
+      rwToastQueue.push(coins ? { ...b, title: rwL(`New badge! +${coins} Coins`, `새 배지! +${coins}코인`), go: true } : b);
+    });
+    saveProgress();
     showNextBadgeToast();
   }
 }
@@ -8869,12 +8891,14 @@ function showNextBadgeToast() {
   rwToastShowing = true;
   const b = rwToastQueue.shift();
   const el = document.createElement("div");
-  el.className = "badge-toast";
+  el.className = "badge-toast" + (b.go ? " badge-toast-link" : "");
   el.setAttribute("role", "status");
-  el.innerHTML = `<span class="badge-toast-emoji">${b.emoji}</span><span><strong>${b.title || rwL("New badge!", "새 배지!")}</strong><br>${b.name}</span>`;
+  el.innerHTML = `<span class="badge-toast-emoji">${b.emojiHtml || b.emoji}</span><span><strong>${b.title || rwL("New badge!", "새 배지!")}</strong><br>${b.name}${b.go ? `<br><small class="badge-toast-go">${rwL("See My Koala →", "나의 코알라 보기 →")}</small>` : ""}</span>`;
+  if (b.go) el.addEventListener("click", () => { el.remove(); goToTab("koala"); });
   document.body.appendChild(el);
-  setTimeout(() => el.classList.add("out"), 3200);
-  setTimeout(() => { el.remove(); rwToastShowing = false; showNextBadgeToast(); }, 3700);
+  const life = b.go ? 4800 : 3200;
+  setTimeout(() => el.classList.add("out"), life);
+  setTimeout(() => { el.remove(); rwToastShowing = false; showNextBadgeToast(); }, life + 500);
 }
 
 /* ---- Stats sub-tabs ---- */
@@ -9045,9 +9069,49 @@ function koalaNextRewardHtml() {
     <div class="koala-next-sub">${sub}</div>${action}</div></div>`;
 }
 
+// "Earn more Coins": where the child stands today in each activity, with a
+// button straight into it. Mirrors KoalaCore.REWARD_CONFIG so numbers never drift.
+const KOALA_EARN = [
+  { mode: "quiz", why: "quiz", view: "quiz", emoji: "💡" },
+  { mode: "spelling", why: "spelling", view: "spelling", emoji: "✏️" },
+  { mode: "flash", why: "flashcards", view: "flashcards", emoji: "🃏" },
+  { mode: "tt", why: "timesTable", view: "timestable", emoji: "🧮" },
+  { mode: "typing", why: "typing", view: "typegame", emoji: "⌨️" },
+];
+function koalaEarnHtml() {
+  const cfg = KoalaCore.REWARD_CONFIG;
+  const day = localDateKey(new Date());
+  const today = (progress.daily && progress.daily[day]) || {};
+  const labels = KOALA_REASON_LABELS();
+  const rows = KOALA_EARN.map((e) => {
+    const lp = KoalaCore.learningProgress(e.mode, (today[e.mode] && today[e.mode][0]) || 0);
+    const text = lp.capped
+      ? rwL("✓ All done for today", "✓ 오늘은 다 했어요")
+      : rwL(`${lp.have} / ${lp.goal} correct`, `${lp.have} / ${lp.goal} 정답`);
+    return `<li class="koala-earn-row"><span class="koala-earn-emoji" aria-hidden="true">${e.emoji}</span>
+      <span class="koala-earn-main"><span class="koala-earn-name">${labels[e.why]} <b>+${lp.coins}</b> ${COIN_SVG}</span>
+      <span class="koala-level-bar" aria-hidden="true"><span style="width:${Math.round((lp.have / lp.goal) * 100)}%"></span></span>
+      <small>${text}</small></span>
+      ${lp.capped ? "" : `<button type="button" class="pill small koala-earn-go" data-koala-go="${e.view}">${rwL("Go", "가기")}</button>`}</li>`;
+  }).join("");
+  const missionDone = progress.missionDone === day;
+  return `<div class="koala-earn"><div class="koala-earn-title">${COIN_SVG} ${rwL("Earn more Coins", "코인 더 모으기")}</div>
+    <p class="koala-note">${rwL(
+      `Every ${cfg.learning.correctPerReward} correct answers earn Coins (up to ${cfg.learning.dailyRewardsPerMode} times per activity each day). Wrong answers never cost Coins.`,
+      `정답 ${cfg.learning.correctPerReward}개마다 코인을 받아요 (활동마다 하루 ${cfg.learning.dailyRewardsPerMode}번까지). 틀려도 코인은 줄지 않아요.`)}</p>
+    <ul class="koala-earn-list">${rows}
+      <li class="koala-earn-row"><span class="koala-earn-emoji" aria-hidden="true">🎯</span><span class="koala-earn-main"><span class="koala-earn-name">${labels.dailyMission} <b>+${cfg.coins.dailyMission}</b> ${COIN_SVG}</span>
+        <small>${missionDone ? rwL("✓ Done today", "✓ 오늘 완료") : rwL("Finish all 3 mission tasks", "미션 3개를 모두 끝내요")}</small></span>
+        ${missionDone ? "" : `<button type="button" class="pill small koala-earn-go" data-koala-go="landing">${rwL("Go", "가기")}</button>`}</li>
+      <li class="koala-earn-row"><span class="koala-earn-emoji" aria-hidden="true">🏆</span><span class="koala-earn-main"><span class="koala-earn-name">${labels.badge} <b>+${cfg.badgeDefault}</b> ${COIN_SVG}</span>
+        <small>${rwL("Every new badge pays a bonus", "새 배지를 받을 때마다 보너스")}</small></span>
+        <button type="button" class="pill small koala-earn-go" data-koala-tab="badges">${rwL("Badges", "배지")}</button></li>
+    </ul></div>`;
+}
+
 function koalaCharacterHtml() {
   const titles = KOALA_SLOT_TITLES();
-  return `${koalaNextRewardHtml()}
+  return `${koalaNextRewardHtml()}${koalaEarnHtml()}
     ${KoalaCore.ITEM_SLOTS.map((slot) => `<h4 class="badge-group-title">${titles[slot]}</h4>
       <div class="koala-items">${KoalaCore.ITEMS.filter((it) => it.slot === slot).map(koalaItemCardHtml).join("")}</div>`).join("")}`;
 }
@@ -9056,7 +9120,7 @@ function koalaHistoryHtml(k) {
   const labels = KOALA_REASON_LABELS();
   const recent = k.ledger.slice(-8).reverse();
   if (!recent.length) {
-    return `<p class="koala-note">${rwL("Koala Coins are coming soon! Your level, streak and badges already count as you learn.", "코알라 코인이 곧 찾아와요! 레벨, 연속 학습, 배지는 지금도 공부하면서 쌓여요.")}</p>`;
+    return `<p class="koala-note">${rwL("No Coins yet — answer 10 questions correctly to earn your first Koala Coins!", "아직 코인이 없어요. 정답 10개를 맞히면 첫 코알라 코인을 받아요!")}</p>`;
   }
   const label = (why) => {
     if (String(why).startsWith("item:")) {
@@ -9166,6 +9230,8 @@ async function handleKoalaItem(id) {
 document.addEventListener("click", (e) => {
   const tab = e.target.closest("[data-koala-tab]");
   if (tab) { koalaTab = tab.dataset.koalaTab === "badges" ? "badges" : "character"; renderKoala(); return; }
+  const go = e.target.closest("[data-koala-go]");
+  if (go) { goToTab(go.dataset.koalaGo); return; }
   const card = e.target.closest("[data-koala-item]");
   if (card) handleKoalaItem(card.dataset.koalaItem);
 });
@@ -9839,14 +9905,15 @@ function checkMissionComplete() {
   const today = localDateKey(new Date());
   if (all && progress.missionDone !== today) {
     progress.missionDone = today;
+    const coins = canUseAccountFeatures() ? KoalaCore.awardMission(progress, today) : 0;
     saveProgress();
-    const el = document.createElement("div");
-    el.className = "badge-toast";
-    el.setAttribute("role", "status");
-    el.innerHTML = `<span class="badge-toast-emoji">🎯</span><span><strong>${t("missionToast")}</strong><br>${t("missionDoneMsg").replace(/^🎉 /, "")}</span>`;
-    document.body.appendChild(el);
-    setTimeout(() => el.classList.add("out"), 3200);
-    setTimeout(() => el.remove(), 3700);
+    // The "reward moment": a bigger toast that doubles as a link to My Koala.
+    rwToastQueue.push({
+      emoji: "🎯", title: t("missionToast"),
+      name: coins ? rwL(`+${coins} Koala Coins!`, `+${coins} 코알라 코인!`) : t("missionDoneMsg").replace(/^🎉 /, ""),
+      go: coins > 0,
+    });
+    showNextBadgeToast();
   }
 }
 function renderHome() {
@@ -10049,6 +10116,15 @@ function reviewRecord(item, ok, isMath) {
 
 function reviewSummary() {
   const s = reviewState;
+  if (!s.rewarded && s.right > 0 && canUseAccountFeatures()) {
+    s.rewarded = true;
+    const coins = KoalaCore.awardReview(progress, localDateKey(new Date()) + ":" + Date.now());
+    if (coins) {
+      saveProgress();
+      rwToastQueue.push({ emojiHtml: COIN_SVG, title: rwL(`+${coins} Koala Coins!`, `+${coins} 코알라 코인!`), name: KOALA_REASON_LABELS().review, go: true });
+      showNextBadgeToast();
+    }
+  }
   document.getElementById("review-progress-fill").style.width = "100%";
   document.getElementById("review-count").textContent = "";
   const waiting = reviewWaitingCount();
