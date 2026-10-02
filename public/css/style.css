@@ -5020,3 +5020,11 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
 .koala-item.is-locked .koala-item-pic { filter: grayscale(1); opacity: .55; }
 .koala-history-n.spent { color: var(--muted); }
 .koala-panel { min-height: 40px; }
+
+/* Admin: Koala Coins */
+.admin-koala-row{flex-wrap:wrap;gap:8px}
+.admin-koala-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
+.admin-koala-amt{width:76px}
+.admin-koala-note{width:140px;max-width:100%}
+.koala-hero{flex-wrap:wrap}
+.koala-hero-main{min-width:140px}

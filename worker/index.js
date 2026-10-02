@@ -580,8 +580,116 @@ async function handleApi(request, env, url) {
     await env.DB.batch([
       env.DB.prepare("DELETE FROM shared_words WHERE owner_id = ?").bind(userId),
       env.DB.prepare("DELETE FROM upgrade_requests WHERE user_id = ?").bind(userId),
+      env.DB.prepare("DELETE FROM koala_grants WHERE user_id = ?").bind(userId),
+      env.DB.prepare("DELETE FROM user_koala WHERE user_id = ?").bind(userId),
       env.DB.prepare("DELETE FROM users WHERE id = ?").bind(userId),
     ]);
+    return json({ ok: true });
+  }
+
+  /* ---------- Koala Coins: admin gifts + balance summary ---------- */
+  const clampInt = (v, max) => {
+    const n = Math.floor(Number(v));
+    return Number.isFinite(n) ? Math.max(0, Math.min(max, n)) : 0;
+  };
+
+  // The signed-in child's device asks for gifts it hasn't applied yet.
+  if (route === "/koala/grants" && request.method === "GET") {
+    const session = await getSessionUser(request, env);
+    if (!session) return json({ error: "unauthorized" }, 401);
+    const { results } = await env.DB.prepare(
+      "SELECT id, amount, note, created_at FROM koala_grants WHERE user_id = ? AND applied_at IS NULL ORDER BY id ASC LIMIT 50"
+    ).bind(session.id).all();
+    return json({ grants: results || [] });
+  }
+
+  // ...and confirms the ones it applied, so they aren't handed out twice.
+  if (route === "/koala/grants/ack" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session) return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const ids = Array.isArray(body?.ids) ? body.ids.map(Number).filter((n) => Number.isInteger(n)).slice(0, 50) : [];
+    if (ids.length) {
+      const now = Date.now();
+      await env.DB.batch(
+        ids.map((id) =>
+          env.DB.prepare("UPDATE koala_grants SET applied_at = ? WHERE id = ? AND user_id = ? AND applied_at IS NULL").bind(now, id, session.id)
+        )
+      );
+    }
+    return json({ ok: true });
+  }
+
+  // The device reports its balance so the admin can see it. Informational
+  // only — the real balance stays with the child's own progress.
+  if (route === "/koala/summary" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session) return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const max = 100000000;
+    await env.DB.prepare(
+      `INSERT INTO user_koala (user_id, coins, earned, streak, best_streak, updated_at) VALUES (?, ?, ?, ?, ?, ?)
+       ON CONFLICT(user_id) DO UPDATE SET coins = excluded.coins, earned = excluded.earned,
+         streak = excluded.streak, best_streak = excluded.best_streak, updated_at = excluded.updated_at`
+    ).bind(session.id, clampInt(body?.coins, max), clampInt(body?.earned, max), clampInt(body?.streak, 100000), clampInt(body?.best, 100000), Date.now()).run();
+    return json({ ok: true });
+  }
+
+  if (route === "/admin/koala" && request.method === "GET") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    const q = (url.searchParams.get("q") || "").trim();
+    const base = `SELECT u.id, u.username, u.role, k.coins, k.earned, k.streak, k.best_streak, k.updated_at AS reported_at,
+                    (SELECT COALESCE(SUM(g.amount), 0) FROM koala_grants g WHERE g.user_id = u.id AND g.applied_at IS NULL) AS pending
+                  FROM users u LEFT JOIN user_koala k ON k.user_id = u.id`;
+    const query = q
+      ? env.DB.prepare(`${base} WHERE u.username LIKE ? ORDER BY u.username COLLATE NOCASE ASC LIMIT 200`).bind(`%${q}%`)
+      : env.DB.prepare(`${base} ORDER BY u.username COLLATE NOCASE ASC LIMIT 200`);
+    const { results } = await query.all();
+    const recent = await env.DB.prepare(
+      `SELECT g.id, g.amount, g.note, g.created_at, g.applied_at, u.username
+         FROM koala_grants g LEFT JOIN users u ON u.id = g.user_id ORDER BY g.id DESC LIMIT 15`
+    ).all();
+    return json({
+      users: (results || []).map((r) => ({
+        id: r.id, username: r.username, role: r.role,
+        coins: r.coins == null ? null : r.coins, earned: r.earned || 0,
+        streak: r.streak || 0, best: r.best_streak || 0,
+        reportedAt: r.reported_at || null, pending: r.pending || 0,
+      })),
+      recent: (recent.results || []).map((g) => ({
+        id: g.id, amount: g.amount, note: g.note || "", createdAt: g.created_at, appliedAt: g.applied_at || null, username: g.username || "(deleted)",
+      })),
+    });
+  }
+
+  if (route === "/admin/koala/grant" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const userId = typeof body?.userId === "string" ? body.userId : "";
+    const amount = Number(body?.amount);
+    const note = typeof body?.note === "string" ? body.note.trim().slice(0, 80) : "";
+    if (!userId || !Number.isInteger(amount) || amount === 0 || Math.abs(amount) > 100000) return json({ error: "bad_request" }, 400);
+    const target = await env.DB.prepare("SELECT id FROM users WHERE id = ?").bind(userId).first();
+    if (!target) return json({ error: "not_found" }, 404);
+    await env.DB.prepare("INSERT INTO koala_grants (user_id, amount, note, created_by, created_at) VALUES (?, ?, ?, ?, ?)")
+      .bind(userId, amount, note, session.id, Date.now()).run();
     return json({ ok: true });
   }
 

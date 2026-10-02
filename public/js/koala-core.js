@@ -157,6 +157,25 @@
     return true;
   }
 
+  // Admin gift / correction. Positive amounts are added like any reward (and
+  // count towards level); negative amounts take coins away but never below 0.
+  // `key` makes it idempotent, so the same grant can't be applied twice.
+  function adjustCoins(progress, amount, why, opts) {
+    const o = opts || {};
+    const n = Math.trunc(Number(amount));
+    if (!Number.isFinite(n) || n === 0) return 0;
+    if (n > 0) return awardCoins(progress, n, why, o);
+    const k = ensureKoala(progress);
+    if (o.key && k.ledger.some((e) => e.key === o.key)) return 0;
+    const take = Math.min(k.coins, -n);
+    k.coins -= take;
+    const entry = { t: o.now != null ? o.now : Date.now(), n: -take, why: String(why || "") };
+    if (o.key) entry.key = String(o.key);
+    k.ledger.push(entry);
+    if (k.ledger.length > REWARD_CONFIG.ledgerMax) k.ledger.splice(0, k.ledger.length - REWARD_CONFIG.ledgerMax);
+    return -take;
+  }
+
   /* ---------- Character items ---------- */
   // Streak items unlock by themselves once the best streak is long enough.
   // Returns the ids unlocked just now.
@@ -176,13 +195,15 @@
   // What the child sees for one item right now:
   //   equipped | owned (tap to wear) | buyable (enough coins) | locked
   // plus the exact thing still missing, for the "why is it locked" text.
-  function itemStatus(progress, item) {
+  // opts.unlimited (admin): coins are never short and never spent.
+  function itemStatus(progress, item, opts) {
     const k = ensureKoala(progress);
+    const unlimited = !!(opts && opts.unlimited);
     if (k.items.equipped[item.slot] === item.id) return { state: "equipped" };
     if (k.items.owned[item.id]) return { state: "owned" };
     if (item.unlock.coins) {
       const cost = item.unlock.coins;
-      if (k.coins >= cost) return { state: "buyable", cost };
+      if (unlimited || k.coins >= cost) return { state: "buyable", cost };
       return { state: "locked", need: "coins", cost, short: cost - k.coins };
     }
     const need = item.unlock.streak || 0;
@@ -195,7 +216,7 @@
     const k = ensureKoala(progress);
     if (!it || !it.unlock.coins) return { ok: false, reason: "notForSale" };
     if (k.items.owned[id]) return { ok: false, reason: "owned" };
-    if (!spendCoins(progress, it.unlock.coins, "item:" + id, opts)) return { ok: false, reason: "notEnoughCoins" };
+    if (!(opts && opts.unlimited) && !spendCoins(progress, it.unlock.coins, "item:" + id, opts)) return { ok: false, reason: "notEnoughCoins" };
     k.items.owned[id] = (opts && opts.now) || Date.now();
     k.items.equipped[it.slot] = id; // wear it straight away
     return { ok: true, item: it };
@@ -217,13 +238,14 @@
 
   // The cheapest coin item the child doesn't own yet — the short-term goal
   // shown as "Next reward". null once every coin item is owned.
-  function nextReward(progress) {
+  function nextReward(progress, opts) {
     const k = ensureKoala(progress);
+    const unlimited = !!(opts && opts.unlimited);
     const open = ITEMS.filter((it) => it.unlock.coins && !k.items.owned[it.id]).sort((a, b) => a.unlock.coins - b.unlock.coins);
     if (!open.length) return null;
     const item = open[0];
     const cost = item.unlock.coins;
-    return { item, cost, coins: k.coins, toGo: Math.max(0, cost - k.coins), affordable: k.coins >= cost, pct: Math.min(100, Math.round((k.coins / cost) * 100)) };
+    return { item, cost, coins: k.coins, toGo: unlimited ? 0 : Math.max(0, cost - k.coins), affordable: unlimited || k.coins >= cost, pct: unlimited ? 100 : Math.min(100, Math.round((k.coins / cost) * 100)) };
   }
 
   /* ---------- Level ---------- */
@@ -318,7 +340,7 @@
   return {
     REWARD_CONFIG,
     dateKey, daysBetween, shiftDay, weekKey,
-    ensureKoala, awardCoins, spendCoins,
+    ensureKoala, awardCoins, spendCoins, adjustCoins,
     ITEM_SLOTS, ITEMS, itemById, itemStatus, buyItem, equipItem, unequipSlot, syncStreakUnlocks, nextReward,
     levelInfo,
     ensureStreak, advanceStreak, streakStatus,

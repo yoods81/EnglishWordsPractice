@@ -1100,6 +1100,7 @@ function saveProgress() {
   // Admin/paid accounts also keep a server copy so this survives logging out
   // and back in (or switching devices) — free/anonymous stays local-only.
   if (canWriteServerWords()) scheduleProgressSync();
+  scheduleKoalaSummary();
 }
 
 function recordResult(word, isCorrect, mode) {
@@ -2114,6 +2115,7 @@ function refreshView(view) {
   if (view === "admincodes") {
     loadAdminCodes();
     loadAdminUsers();
+    loadAdminKoala();
   }
   if (view === "myaccount") renderMyAccount();
 }
@@ -2231,6 +2233,60 @@ async function pushProgressToServer() {
   } catch (e) {
     console.warn("Could not sync progress to server", e);
   }
+}
+
+// After a sign-in / page load: pull the server copy of progress (paid/admin),
+// then apply any coins an admin gave, then report this device's balance.
+async function koalaAfterLogin() {
+  if (canWriteServerWords()) await syncProgressOnLogin();
+  await applyKoalaGrants();
+  pushKoalaSummary();
+}
+
+// Coins the admin gave or took are waiting on the server. Apply each exactly
+// once (the key makes it idempotent), then tell the server they're done.
+async function applyKoalaGrants() {
+  if (!currentUser) return;
+  try {
+    const { grants } = await api("/koala/grants");
+    if (!grants || !grants.length) return;
+    const done = [];
+    let gained = 0;
+    grants.forEach((g) => {
+      const n = KoalaCore.adjustCoins(progress, g.amount, g.amount > 0 ? "adminGift" : "adminAdjust", { key: "grant:" + g.id });
+      done.push(g.id); // already-applied keys are fine to confirm as well
+      if (n > 0) gained += n;
+    });
+    saveProgress();
+    await api("/koala/grants/ack", { method: "POST", body: JSON.stringify({ ids: done }) });
+    if (gained > 0) {
+      rwToastQueue.push({ emoji: "🎁", title: rwL("A gift for you!", "선물이 도착했어요!"), name: rwL(`+${gained} Koala Coins`, `+${gained} 코알라 코인`) });
+      showNextBadgeToast();
+    }
+    const kv = document.getElementById("view-koala");
+    if (kv && kv.classList.contains("active")) renderKoala();
+  } catch (e) {
+    console.warn("Could not apply Koala Coin gifts", e);
+  }
+}
+
+// Lets the admin see balances. Informational only; debounced and skipped when
+// nothing changed.
+var koalaSummarySent = "";
+var koalaSummaryTimer = null;
+function scheduleKoalaSummary() {
+  if (!currentUser) return;
+  clearTimeout(koalaSummaryTimer);
+  koalaSummaryTimer = setTimeout(pushKoalaSummary, 4000);
+}
+function pushKoalaSummary() {
+  if (!currentUser || !progress || !progress.koala) return;
+  const k = KoalaCore.ensureKoala(progress);
+  const st = KoalaCore.ensureStreak(progress.streak);
+  const body = JSON.stringify({ coins: k.coins, earned: k.earned, streak: st.count, best: st.best });
+  if (body === koalaSummarySent) return;
+  koalaSummarySent = body;
+  api("/koala/summary", { method: "POST", body }).catch(() => { koalaSummarySent = ""; });
 }
 
 // Called once right after a login/page-load confirms an admin/paid session.
@@ -2635,7 +2691,7 @@ loginForm.addEventListener("submit", async (e) => {
   updateAdminUI();
   renderUpgradeReadyBanner();
   if (currentUser) refreshSharedWords();
-  if (canWriteServerWords()) syncProgressOnLogin();
+  koalaAfterLogin();
 });
 
 const SIGNUP_ERROR_KEYS = {
@@ -2662,7 +2718,7 @@ signupForm.addEventListener("submit", async (e) => {
     closeAuthOverlay();
     updateAdminUI();
     refreshSharedWords();
-    if (canWriteServerWords()) syncProgressOnLogin();
+    koalaAfterLogin();
   } catch (err) {
     const code = err && err.data && err.data.error;
     signupError.textContent = t(SIGNUP_ERROR_KEYS[code] || "authSignupErrorGeneric");
@@ -2741,7 +2797,7 @@ async function redeemUpgradeCode(specialCode) {
   renderGoalStepper("quiz");
   renderGoalStepper("spelling");
   refreshSharedWords();
-  if (canWriteServerWords()) syncProgressOnLogin();
+  koalaAfterLogin();
 }
 
 upgradeForm.addEventListener("submit", async (e) => {
@@ -2791,7 +2847,7 @@ async function restoreSession() {
   }
   updateAdminUI();
   renderUpgradeReadyBanner();
-  if (canWriteServerWords()) syncProgressOnLogin();
+  koalaAfterLogin();
 }
 
 updateAdminUI();
@@ -8883,6 +8939,8 @@ const KOALA_REASON_LABELS = () => ({
   review: rwL("Review session", "복습"),
   dailyMission: rwL("Today's Mission", "오늘의 미션"),
   badge: rwL("New badge", "새 배지"),
+  adminGift: rwL("Gift from Koala Study Mate", "코알라 스터디 메이트의 선물"),
+  adminAdjust: rwL("Coins adjusted", "코인 조정"),
 });
 const KOALA_SLOT_TITLES = () => ({
   headwear: rwL("🎩 Headwear", "🎩 머리"),
@@ -8892,6 +8950,9 @@ const KOALA_SLOT_TITLES = () => ({
 });
 const KOALA_SLOT_EMOJI = { headwear: "🎩", face: "👓", clothing: "👕", accessory: "🎒" };
 let koalaTab = "character"; // "character" | "badges"
+
+// The admin account has unlimited coins: nothing is ever short, nothing is spent.
+const koalaOpts = () => ({ unlimited: !!serverAdmin });
 
 const koalaItemName = (it) => it.name[currentLang === "ko" ? "ko" : "en"];
 
@@ -8911,7 +8972,7 @@ function koalaItemStatusText(st) {
 }
 
 function koalaItemCardHtml(it) {
-  const st = KoalaCore.itemStatus(progress, it);
+  const st = KoalaCore.itemStatus(progress, it, koalaOpts());
   const name = koalaItemName(it);
   const locked = st.state === "locked";
   const text = koalaItemStatusText(st);
@@ -8924,10 +8985,12 @@ function koalaItemCardHtml(it) {
 }
 
 function koalaNextRewardHtml() {
-  const nr = KoalaCore.nextReward(progress);
+  const nr = KoalaCore.nextReward(progress, koalaOpts());
   if (!nr) return `<div class="koala-next"><div class="koala-next-main"><div class="koala-next-title">${rwL("🎉 You unlocked every item!", "🎉 모든 아이템을 열었어요!")}</div></div></div>`;
   const name = escapeHtml(koalaItemName(nr.item));
-  const sub = nr.affordable
+  const sub = serverAdmin
+    ? rwL("Admin: unlimited Coins ∞", "관리자: 코인 무제한 ∞")
+    : nr.affordable
     ? rwL("You have enough Coins!", "코인이 충분해요!")
     : rwL(`${nr.coins} / ${nr.cost} Coins — ${nr.toGo} more Coins to unlock`, `${nr.coins} / ${nr.cost}코인 — ${nr.toGo}코인 더 모으면 열려요`);
   const action = nr.affordable ? `<button type="button" class="pill accent small koala-next-btn" data-koala-item="${nr.item.id}">${rwL("Unlock now", "지금 열기")}</button>` : "";
@@ -9009,7 +9072,7 @@ function renderKoala() {
     ? rwL("✅ Today counted!", "✅ 오늘 완료!")
     : rwL(`Answer ${st.answersToGo} more today`, `오늘 ${st.answersToGo}문제 더 풀어요`);
   const stats = `<div class="koala-stats">
-      ${koalaStatTile(COIN_SVG, k.coins, rwL("Koala Coins", "코알라 코인"))}
+      ${koalaStatTile(COIN_SVG, serverAdmin ? "∞" : k.coins, rwL("Koala Coins", "코알라 코인"), serverAdmin ? rwL("Admin — unlimited", "관리자 — 무제한") : "")}
       ${koalaStatTile("🔥", st.count, rwL("day streak", "일 연속"), streakSub)}
       ${koalaStatTile("🏆", `${badgeCount}/${cat.length}`, rwL("Badges", "배지"))}
     </div>`;
@@ -9034,7 +9097,7 @@ async function handleKoalaItem(id) {
   if (!canUseAccountFeatures()) return;
   const it = KoalaCore.itemById(id);
   if (!it) return;
-  let st = KoalaCore.itemStatus(progress, it);
+  let st = KoalaCore.itemStatus(progress, it, koalaOpts());
   if (st.state === "equipped") {
     KoalaCore.unequipSlot(progress, it.slot);
   } else if (st.state === "owned") {
@@ -9045,7 +9108,7 @@ async function handleKoalaItem(id) {
       rwL(`Unlock ${name} for ${st.cost} Koala Coins?`, `${st.cost} 코알라 코인으로 ${name}을(를) 열까요?`),
       rwL("Unlock", "열기"), rwL("Not now", "나중에"));
     if (!ok) return;
-    const res = KoalaCore.buyItem(progress, id);
+    const res = KoalaCore.buyItem(progress, id, koalaOpts());
     if (!res.ok) { renderKoala(); return; } // coins changed while the dialog was open
     rwToastQueue.push({ emoji: KOALA_SLOT_EMOJI[it.slot], title: rwL("New item unlocked!", "새 아이템 해금!"), name: rwL(`${name} — now wearing it!`, `${name} — 바로 입었어요!`) });
     showNextBadgeToast();
@@ -9061,6 +9124,85 @@ document.addEventListener("click", (e) => {
   if (tab) { koalaTab = tab.dataset.koalaTab === "badges" ? "badges" : "character"; renderKoala(); return; }
   const card = e.target.closest("[data-koala-item]");
   if (card) handleKoalaItem(card.dataset.koalaItem);
+});
+
+/* ---- Admin: Koala Coins ---- */
+let adminKoala = { users: [], recent: [] };
+let adminKoalaQuery = "";
+
+async function loadAdminKoala() {
+  if (!serverAdmin) return;
+  try {
+    const q = adminKoalaQuery ? `?q=${encodeURIComponent(adminKoalaQuery)}` : "";
+    adminKoala = await api(`/admin/koala${q}`);
+  } catch (e) {
+    console.warn("Could not load Koala Coins", e);
+  }
+  renderAdminKoala();
+}
+
+function renderAdminKoala() {
+  const grid = document.getElementById("admin-koala-grid");
+  const empty = document.getElementById("admin-koala-empty");
+  const recent = document.getElementById("admin-koala-recent");
+  if (!grid) return;
+  const users = adminKoala.users || [];
+  empty.hidden = users.length > 0;
+  grid.innerHTML = users.map((u) => {
+    const bal = u.coins == null ? rwL("not seen yet", "아직 기록 없음") : `${u.coins}`;
+    const pend = u.pending ? ` · ${rwL("waiting", "대기")}: ${u.pending > 0 ? "+" : ""}${u.pending}` : "";
+    const sub = `${u.role}${u.coins == null ? "" : ` · ${rwL("streak", "연속")} ${u.streak}`}${pend}`;
+    return `<div class="wordlist-item admin-koala-row" data-uid="${escapeHtml(u.id)}">
+      <div class="wordlist-item-main"><div class="w">${escapeHtml(u.username)}</div>
+        <div class="d">${COIN_SVG} <b>${escapeHtml(bal)}</b> · ${escapeHtml(sub)}</div></div>
+      <div class="admin-koala-actions">
+        <input type="number" class="admin-koala-amt" min="1" max="100000" step="1" placeholder="10" aria-label="${rwL("Coins", "코인")}" />
+        <input type="text" class="admin-koala-note" maxlength="80" placeholder="${rwL("Note (optional)", "메모(선택)")}" />
+        <button type="button" class="edit-btn" data-admin-koala="give">${rwL("Give", "주기")}</button>
+        <button type="button" class="delete-btn" data-admin-koala="take">${rwL("Take", "빼기")}</button>
+      </div></div>`;
+  }).join("");
+  const rec = adminKoala.recent || [];
+  recent.innerHTML = rec.length
+    ? rec.map((g) => `<li><span class="koala-history-n${g.amount < 0 ? " spent" : ""}">${g.amount < 0 ? "−" : "+"}${Math.abs(g.amount)} ${COIN_SVG}</span>
+        <span class="koala-history-why">${escapeHtml(g.username)}${g.note ? " — " + escapeHtml(g.note) : ""}${g.appliedAt ? "" : " · " + rwL("waiting", "대기 중")}</span>
+        <span class="koala-history-day">${new Date(g.createdAt).toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { day: "numeric", month: "short" })}</span></li>`).join("")
+    : `<li class="muted">${rwL("Nothing yet.", "아직 없어요.")}</li>`;
+}
+
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("[data-admin-koala]");
+  if (!btn || !serverAdmin) return;
+  const row = btn.closest(".admin-koala-row");
+  const amt = Math.floor(Number(row.querySelector(".admin-koala-amt").value));
+  if (!Number.isFinite(amt) || amt < 1 || amt > 100000) {
+    alert(rwL("Enter a number of coins from 1 to 100000.", "1~100000 사이의 코인 수를 입력해 주세요."));
+    return;
+  }
+  const give = btn.dataset.adminKoala === "give";
+  const name = row.querySelector(".w").textContent;
+  const ok = await kidConfirm(
+    give ? rwL(`Give ${amt} Koala Coins to ${name}?`, `${name}에게 코알라 코인 ${amt}개를 줄까요?`)
+         : rwL(`Take ${amt} Koala Coins from ${name}?`, `${name}의 코알라 코인 ${amt}개를 뺄까요?`),
+    give ? rwL("Give", "주기") : rwL("Take", "빼기"), rwL("Cancel", "취소"));
+  if (!ok) return;
+  btn.disabled = true;
+  try {
+    await api("/admin/koala/grant", {
+      method: "POST",
+      body: JSON.stringify({ userId: row.dataset.uid, amount: give ? amt : -amt, note: row.querySelector(".admin-koala-note").value }),
+    });
+    await loadAdminKoala();
+  } catch (err) {
+    alert(rwL("Could not save that. Please try again.", "저장하지 못했어요. 다시 시도해 주세요."));
+    btn.disabled = false;
+  }
+});
+document.addEventListener("input", (e) => {
+  if (e.target.id !== "admin-koala-search") return;
+  adminKoalaQuery = e.target.value.trim();
+  clearTimeout(window.__akT);
+  window.__akT = setTimeout(loadAdminKoala, 250);
 });
 
 /* ---- Wrong-answer notebook ---- */

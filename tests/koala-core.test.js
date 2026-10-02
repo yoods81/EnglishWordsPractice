@@ -270,3 +270,34 @@ test("avatar draws only what is equipped, in the right layers", () => {
   assert.ok(A.avatar({}, { label: 'My "Koala"' }).includes('aria-label="My &quot;Koala&quot;"'));
   assert.ok(A.itemPicture("blueCap").includes("26 12 148 124"), "head crop for headwear");
 });
+
+test("adjustCoins: gifts add, corrections take (never below 0), keys make it idempotent", () => {
+  const p = {};
+  assert.equal(K.adjustCoins(p, 50, "admin gift", { key: "grant:1" }), 50);
+  assert.equal(K.adjustCoins(p, 50, "admin gift", { key: "grant:1" }), 0, "same grant twice does nothing");
+  assert.equal(p.koala.coins, 50);
+  assert.equal(p.koala.earned, 50);
+  assert.equal(K.adjustCoins(p, -20, "admin", { key: "grant:2" }), -20);
+  assert.equal(p.koala.coins, 30);
+  assert.equal(p.koala.earned, 50, "taking coins never lowers lifetime earned/level");
+  assert.equal(K.adjustCoins(p, -999, "admin", { key: "grant:3" }), -30, "clamped at 0");
+  assert.equal(p.koala.coins, 0);
+  assert.equal(K.adjustCoins(p, 0, "x"), 0);
+  assert.equal(K.adjustCoins(p, "abc", "x"), 0);
+});
+
+test("unlimited (admin): items are buyable and buying spends nothing", () => {
+  const p = {};
+  const it = K.ITEMS.filter((i) => i.unlock.coins).sort((a, b) => b.unlock.coins - a.unlock.coins)[0];
+  assert.equal(K.itemStatus(p, it).state, "locked");
+  assert.equal(K.itemStatus(p, it, { unlimited: true }).state, "buyable");
+  const r = K.buyItem(p, it.id, { unlimited: true });
+  assert.equal(r.ok, true);
+  assert.equal(p.koala.coins, 0);
+  assert.equal(p.koala.items.equipped[it.slot], it.id);
+  assert.equal(K.buyItem(p, it.id, { unlimited: true }).reason, "owned");
+  assert.equal(K.buyItem({}, it.id).reason, "notEnoughCoins");
+  const nr = K.nextReward({}, { unlimited: true });
+  assert.equal(nr.affordable, true);
+  assert.equal(nr.toGo, 0);
+});

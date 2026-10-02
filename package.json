@@ -5,11 +5,13 @@
   "description": "Aussie English Word Practice — static app plus a small Cloudflare Worker API for the shared word list.",
   "scripts": {
     "dev": "wrangler dev",
-    "test": "node --test tests/koala-core.test.js",
+    "test": "node --test tests/koala-core.test.js && node --experimental-sqlite --test tests/worker-koala.test.mjs",
     "deploy": "wrangler deploy",
     "db:init": "wrangler d1 execute englishwordspractice --remote --file=./schema.sql",
     "db:init:local": "wrangler d1 execute englishwordspractice --local --file=./schema.sql",
     "db:migrate:users": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0001_users_and_word_ownership.sql",
+    "db:migrate:koala": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0006_koala_coins.sql",
+    "db:migrate:koala:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0006_koala_coins.sql",
     "db:migrate:users:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0001_users_and_word_ownership.sql"
   },
   "devDependencies": {
