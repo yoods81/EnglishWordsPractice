@@ -246,12 +246,12 @@ test("catalogue is consistent: every item has art, a valid slot and a requiremen
   const ids = new Set();
   K.ITEMS.forEach((it) => {
     assert.ok(!ids.has(it.id), "unique id " + it.id); ids.add(it.id);
-    assert.ok(K.ITEM_SLOTS.includes(it.slot), "slot " + it.slot);
+    assert.ok(K.ITEM_SLOTS.includes(it.slot) || K.ROOM_SLOTS.includes(it.slot), "slot " + it.slot);
     assert.ok(it.name.en && it.name.ko);
     assert.ok(it.unlock.free || it.unlock.coins > 0 || it.unlock.streak > 0);
     assert.ok(A.hasArt(it.id), "art for " + it.id);
   });
-  assert.ok(K.ITEMS.length >= 5 && K.ITEMS.length <= 10, "small first catalogue");
+  assert.ok(K.ITEMS.length >= 5 && K.ITEMS.length <= 25, "small catalogue");
 });
 
 test("avatar draws only what is equipped, in the right layers", () => {
@@ -352,4 +352,36 @@ test("reward loop: mission, badge and review coins are one-time and wrong answer
   const lp = K.learningProgress("quiz", 13);
   assert.deepEqual([lp.have, lp.goal, lp.roundsDone, lp.capped], [3, 10, 1, false]);
   assert.equal(K.learningProgress("quiz", 30).capped, true);
+});
+
+test("Study Room: room items follow the same rules and never mix with character items", () => {
+  const roomItems = K.ITEMS.filter((i) => i.kind === "room");
+  assert.ok(roomItems.length >= 8);
+  assert.ok(roomItems.every((i) => K.ROOM_SLOTS.includes(i.slot)), "every room item has a room slot");
+  assert.ok(K.ITEMS.filter((i) => i.kind !== "room").every((i) => K.ITEM_SLOTS.includes(i.slot)));
+  assert.equal(new Set(K.ITEMS.map((i) => i.id)).size, K.ITEMS.length, "unique ids");
+  const p = {};
+  assert.ok(p.koala === undefined);
+  assert.equal(K.nextReward(p).item.slot === "wallpaper", false, "character next reward is a character item");
+  assert.equal(K.nextReward(p, { kind: "room" }).item.id, "blueRug");
+  K.awardCoins(p, 100, "quiz");
+  assert.equal(K.buyItem(p, "blueRug").ok, true);
+  assert.equal(p.koala.items.equipped.rug, "blueRug");
+  assert.equal(p.koala.items.equipped.headwear, undefined);
+  assert.equal(K.buyItem(p, "studyDesk").reason, "notEnoughCoins");
+  assert.equal(K.unequipSlot(p, "rug"), true);
+  assert.equal(K.equipItem(p, "blueRug"), true);
+  assert.equal(K.equipItem(p, "mintWall"), false, "not owned");
+  assert.equal(K.equipItem(p, "creamWall"), true, "free wallpaper");
+});
+
+test("Study Room art: every room item has a picture and renders in the scene", () => {
+  const A = require("../public/js/koala-art.js");
+  K.ITEMS.forEach((it) => assert.ok(A.hasArt(it.id) && A.itemPicture(it.id).includes("<svg"), it.id));
+  const eq = { wallpaper: "nightWall", rug: "starRug", desk: "studyDesk", lamp: "deskLamp", shelf: "bookshelf", plant: "pottedPlant", poster: "mapPoster", headwear: "crown" };
+  const room = A.room(eq, eq);
+  Object.values(eq).forEach((id) => assert.ok(room.includes(`data-item="${id}"`) || room.includes(id), id));
+  assert.ok(room.includes('data-item="crown"'), "koala still wears its hat in the room");
+  assert.ok(A.room({}, {}).includes("#fbf1dc"), "default cream wall");
+  assert.ok(!A.room({ rug: "mapPoster" }, {}).includes('data-item="mapPoster"'), "wrong slot ignored");
 });

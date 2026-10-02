@@ -9015,9 +9015,16 @@ const KOALA_SLOT_TITLES = () => ({
   face: rwL("👓 Face", "👓 얼굴"),
   clothing: rwL("👕 Clothing", "👕 옷"),
   accessory: rwL("🎒 Accessories", "🎒 소품"),
+  wallpaper: rwL("🎨 Wall", "🎨 벽지"),
+  rug: rwL("🟡 Rug", "🟡 러그"),
+  poster: rwL("🖼️ Poster", "🖼️ 포스터"),
+  desk: rwL("📚 Desk", "📚 책상"),
+  lamp: rwL("💡 Lamp", "💡 램프"),
+  shelf: rwL("📖 Bookshelf", "📖 책장"),
+  plant: rwL("🪴 Plant", "🪴 화분"),
 });
-const KOALA_SLOT_EMOJI = { headwear: "🎩", face: "👓", clothing: "👕", accessory: "🎒" };
-let koalaTab = "character"; // "character" | "badges"
+const KOALA_SLOT_EMOJI = { headwear: "🎩", face: "👓", clothing: "👕", accessory: "🎒", wallpaper: "🎨", rug: "🟡", poster: "🖼️", desk: "📚", lamp: "💡", shelf: "📖", plant: "🪴" };
+let koalaTab = "character"; // "character" | "room" | "badges"
 
 // The admin account has unlimited coins: nothing is ever short, nothing is spent.
 const koalaOpts = () => ({ unlimited: !!serverAdmin });
@@ -9052,8 +9059,8 @@ function koalaItemCardHtml(it) {
       <span class="koala-item-status">${text}</span></button>`;
 }
 
-function koalaNextRewardHtml() {
-  const nr = KoalaCore.nextReward(progress, koalaOpts());
+function koalaNextRewardHtml(kind) {
+  const nr = KoalaCore.nextReward(progress, Object.assign({ kind: kind || "character" }, koalaOpts()));
   if (!nr) return `<div class="koala-next"><div class="koala-next-main"><div class="koala-next-title">${rwL("🎉 You unlocked every item!", "🎉 모든 아이템을 열었어요!")}</div></div></div>`;
   const name = escapeHtml(koalaItemName(nr.item));
   const sub = serverAdmin
@@ -9107,6 +9114,29 @@ function koalaEarnHtml() {
         <small>${rwL("Every new badge pays a bonus", "새 배지를 받을 때마다 보너스")}</small></span>
         <button type="button" class="pill small koala-earn-go" data-koala-tab="badges">${rwL("Badges", "배지")}</button></li>
     </ul></div>`;
+}
+
+// Study Room: the koala at home. The scene shows what is equipped; the
+// trophy wall shows every badge earned so far.
+function koalaTrophyWallHtml() {
+  const cat = buildBadgeCatalog();
+  const got = cat.filter((b) => progress.badges[b.id]).sort((a, b) => progress.badges[a.id] - progress.badges[b.id]);
+  const shelf = got.length
+    ? got.map((b) => `<span class="koala-trophy" title="${escapeHtml(String(b.name).replace(/<[^>]*>/g, ""))}"><span class="koala-trophy-ico" aria-hidden="true">${b.emoji}</span><span class="koala-trophy-name">${b.name}</span></span>`).join("")
+    : `<p class="koala-note">${rwL("Earn badges and they appear here on your wall!", "배지를 모으면 이곳 트로피 벽에 걸려요!")}</p>`;
+  return `<h4 class="badge-group-title">${rwL("🏆 Trophy wall", "🏆 트로피 벽")} <small>${got.length}/${cat.length}</small></h4>
+    <div class="koala-trophy-wall">${shelf}</div>`;
+}
+
+function koalaRoomHtml() {
+  const k = KoalaCore.ensureKoala(progress);
+  const titles = KOALA_SLOT_TITLES();
+  return `<div class="koala-room">${KoalaArt.room(k.items.equipped, k.items.equipped, { label: rwL("Your Koala's Study Room", "나의 코알라 공부방") })}</div>
+    <p class="koala-note">${rwL("Tap an item to put it in your room. Tap again to take it out.", "아이템을 누르면 방에 놓여요. 다시 누르면 치워져요.")}</p>
+    ${koalaNextRewardHtml("room")}
+    ${koalaTrophyWallHtml()}
+    ${KoalaCore.ROOM_SLOTS.map((slot) => `<h4 class="badge-group-title">${titles[slot]}</h4>
+      <div class="koala-items">${KoalaCore.ITEMS.filter((it) => it.slot === slot).map(koalaItemCardHtml).join("")}</div>`).join("")}`;
 }
 
 function koalaCharacterHtml() {
@@ -9193,11 +9223,12 @@ function renderKoala() {
 
   const tabs = `<div class="stats-tabs koala-tabs" role="tablist">
       <button type="button" class="stats-tab${koalaTab === "character" ? " on" : ""}" role="tab" aria-selected="${koalaTab === "character"}" data-koala-tab="character">${rwL("🐨 Character", "🐨 캐릭터")}</button>
+      <button type="button" class="stats-tab${koalaTab === "room" ? " on" : ""}" role="tab" aria-selected="${koalaTab === "room"}" data-koala-tab="room">${rwL("🏠 Room", "🏠 방")}</button>
       <button type="button" class="stats-tab${koalaTab === "badges" ? " on" : ""}" role="tab" aria-selected="${koalaTab === "badges"}" data-koala-tab="badges">${rwL("🏆 Badges", "🏆 배지")}</button>
     </div>`;
 
   box.innerHTML = `${hero}${stats}${streakNote}${tabs}
-    <div class="koala-panel">${koalaTab === "badges" ? badgeGridHtml() : koalaCharacterHtml()}</div>
+    <div class="koala-panel">${koalaTab === "badges" ? badgeGridHtml() : koalaTab === "room" ? koalaRoomHtml() : koalaCharacterHtml()}</div>
     <h3 class="koala-h">${COIN_SVG} ${rwL("Coin history", "코인 내역")}</h3>${koalaHistoryHtml(k)}`;
 }
 
@@ -9229,7 +9260,7 @@ async function handleKoalaItem(id) {
 
 document.addEventListener("click", (e) => {
   const tab = e.target.closest("[data-koala-tab]");
-  if (tab) { koalaTab = tab.dataset.koalaTab === "badges" ? "badges" : "character"; renderKoala(); return; }
+  if (tab) { koalaTab = ["badges", "room"].includes(tab.dataset.koalaTab) ? tab.dataset.koalaTab : "character"; renderKoala(); return; }
   const go = e.target.closest("[data-koala-go]");
   if (go) { goToTab(go.dataset.koalaGo); return; }
   const card = e.target.closest("[data-koala-item]");

@@ -77,7 +77,20 @@
     { id: "heroCape",   slot: "clothing",  name: { en: "Hero Cape",       ko: "히어로 망토" },   unlock: { coins: 200 } },
     { id: "headphones", slot: "accessory", name: { en: "Headphones",      ko: "헤드폰" },        unlock: { coins: 100 } },
     { id: "backpack",   slot: "accessory", name: { en: "School Backpack", ko: "책가방" },        unlock: { coins: 150 } },
+    // Study Room (Phase 4): same unlock rules, kind "room". One item per slot.
+    { id: "creamWall",  kind: "room", slot: "wallpaper", name: { en: "Cream Wall",     ko: "크림색 벽지" },   unlock: { free: true } },
+    { id: "mintWall",   kind: "room", slot: "wallpaper", name: { en: "Mint Wall",      ko: "민트색 벽지" },   unlock: { coins: 60 } },
+    { id: "nightWall",  kind: "room", slot: "wallpaper", name: { en: "Starry Night",   ko: "별이 빛나는 밤" }, unlock: { coins: 130 } },
+    { id: "blueRug",    kind: "room", slot: "rug",       name: { en: "Blue Rug",       ko: "파란 러그" },     unlock: { coins: 40 } },
+    { id: "starRug",    kind: "room", slot: "rug",       name: { en: "Star Rug",       ko: "별 러그" },       unlock: { coins: 90 } },
+    { id: "mapPoster",  kind: "room", slot: "poster",    name: { en: "World Map",      ko: "세계 지도" },     unlock: { coins: 70 } },
+    { id: "rocketPoster", kind: "room", slot: "poster",  name: { en: "Rocket Poster",  ko: "로켓 포스터" },   unlock: { coins: 110 } },
+    { id: "studyDesk",  kind: "room", slot: "desk",      name: { en: "Study Desk",     ko: "공부 책상" },     unlock: { coins: 80 } },
+    { id: "deskLamp",   kind: "room", slot: "lamp",      name: { en: "Hanging Lamp",   ko: "천장 램프" },     unlock: { coins: 60 } },
+    { id: "bookshelf",  kind: "room", slot: "shelf",     name: { en: "Bookshelf",      ko: "책장" },          unlock: { coins: 100 } },
+    { id: "pottedPlant", kind: "room", slot: "plant",    name: { en: "Potted Plant",   ko: "화분" },          unlock: { coins: 50 } },
   ];
+  const ROOM_SLOTS = ["wallpaper", "rug", "poster", "desk", "lamp", "shelf", "plant"];
   const itemById = (id) => ITEMS.find((i) => i.id === id) || null;
 
   /* ---------- Dates (local calendar days as "YYYY-MM-DD") ---------- */
@@ -244,7 +257,8 @@
   function nextReward(progress, opts) {
     const k = ensureKoala(progress);
     const unlimited = !!(opts && opts.unlimited);
-    const open = ITEMS.filter((it) => it.unlock.coins && !k.items.owned[it.id]).sort((a, b) => a.unlock.coins - b.unlock.coins);
+    const kind = (opts && opts.kind) || "character";
+    const open = ITEMS.filter((it) => (it.kind || "character") === kind && it.unlock.coins && !k.items.owned[it.id]).sort((a, b) => a.unlock.coins - b.unlock.coins);
     if (!open.length) return null;
     const item = open[0];
     const cost = item.unlock.coins;
@@ -446,7 +460,7 @@
     REWARD_CONFIG,
     dateKey, daysBetween, shiftDay, weekKey,
     ensureKoala, awardCoins, spendCoins, adjustCoins, awardLearning, learningProgress, awardMission, awardBadge, awardReview, rewardSlice, mergeRewards,
-    ITEM_SLOTS, ITEMS, itemById, itemStatus, buyItem, equipItem, unequipSlot, syncStreakUnlocks, nextReward,
+    ITEM_SLOTS, ROOM_SLOTS, ITEMS, itemById, itemStatus, buyItem, equipItem, unequipSlot, syncStreakUnlocks, nextReward,
     levelInfo,
     ensureStreak, advanceStreak, streakStatus,
   };
