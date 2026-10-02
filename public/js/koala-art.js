@@ -13,7 +13,7 @@
   else root.KoalaArt = api;
 })(typeof self !== "undefined" ? self : this, function () {
   const FULL_VIEW = "0 0 200 205";
-  const HEAD_VIEW = "26 12 148 124";
+  const HEAD_VIEW = "26 2 148 134";
 
   // A five-point star polygon centred on (cx, cy).
   function starPts(cx, cy, R, r) {
@@ -122,9 +122,75 @@
     },
   };
 
+  /* ---------- Shop expansion: more headwear/face/clothing/accessories + Jewelry + Shoes ---------- */
+  function heartPath(cx, cy, s) {
+    const f = (n) => +n.toFixed(1);
+    return `M${cx} ${f(cy + s * 0.8)} C${f(cx - s * 1.4)} ${f(cy - s * 0.2)} ${f(cx - s * 0.6)} ${f(cy - s * 1.1)} ${cx} ${f(cy - s * 0.35)} C${f(cx + s * 0.6)} ${f(cy - s * 1.1)} ${f(cx + s * 1.4)} ${f(cy - s * 0.2)} ${cx} ${f(cy + s * 0.8)} Z`;
+  }
+  // Points along the neck curve (66,120) -> (100,152) -> (134,120).
+  function neckPt(t) { return [66 + 68 * t, 120 + 64 * t * (1 - t)]; }
+  const NECK_D = "M66 120 Q100 152 134 120";
+  const pearls = Array.from({ length: 11 }, (_, i) => { const p = neckPt(i / 10); return `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4.2" fill="#fff" stroke="#cbd5e1" stroke-width="1.2"/>`; }).join("");
+  const bracelet = (cx, cy) => ["#ef4444", "#fde047", "#3b82f6", "#3fb984", "#f472b6"].map((c, i) => `<circle cx="${(cx + (i - 2) * 3.2 * 0.84).toFixed(1)}" cy="${(cy + (i - 2) * 3.2 * 0.54).toFixed(1)}" r="3" fill="${c}" stroke="#fff" stroke-width=".8"/>`).join("");
+  const pair = (s) => `${s}<g transform="translate(56 0)">${s}</g>`;
+  const shirtBody = "M58 128 Q100 140 142 128 Q150 160 132 182 Q100 192 68 182 Q50 160 58 128Z";
+  const sleeves = (c) => `<line x1="64" y1="126" x2="51" y2="146" stroke="${c}" stroke-width="16" stroke-linecap="round"/><line x1="136" y1="126" x2="149" y2="146" stroke="${c}" stroke-width="16" stroke-linecap="round"/>`;
+
+  Object.assign(ART, {
+    beanie: { view: "head", front: `<path d="M58 60 C56 30 80 22 100 22 C120 22 144 30 142 60 Z" fill="#e11d48"/><path d="M72 58 V30 M86 56 V25 M100 56 V22 M114 56 V25 M128 58 V30" stroke="#be123c" stroke-width="2.4" opacity=".6"/><rect x="55" y="50" width="90" height="15" rx="7.5" fill="#be123c"/><circle cx="100" cy="19" r="8.5" fill="#fff"/>` },
+    cowboyHat: { view: "head", front: `<path d="M70 56 C66 30 76 22 100 27 C124 22 134 30 130 56 Z" fill="#b45309"/><rect x="69" y="44" width="62" height="8" fill="#7c2d12"/><path d="M36 58 Q46 50 70 52 L130 52 Q154 50 164 58 Q156 68 140 62 L60 62 Q44 68 36 58Z" fill="#a16207"/>` },
+    chefHat: { view: "head", front: `<g fill="#fff" stroke="#d1d5db" stroke-width="2"><circle cx="76" cy="34" r="15"/><circle cx="124" cy="34" r="15"/><circle cx="100" cy="26" r="18"/></g><rect x="74" y="42" width="52" height="18" rx="3" fill="#fff" stroke="#d1d5db" stroke-width="2"/><path d="M84 46 V58 M100 46 V58 M116 46 V58" stroke="#e5e7eb" stroke-width="2"/>` },
+    bunnyEars: { view: "head", front: `<path d="M64 54 Q100 44 136 54" stroke="#f472b6" stroke-width="6" fill="none" stroke-linecap="round"/><g transform="rotate(-12 82 52)"><ellipse cx="82" cy="28" rx="10" ry="25" fill="#fff" stroke="#e5e7eb" stroke-width="2"/><ellipse cx="82" cy="30" rx="4.6" ry="17" fill="#fbcfe8"/></g><g transform="rotate(12 118 52)"><ellipse cx="118" cy="28" rx="10" ry="25" fill="#fff" stroke="#e5e7eb" stroke-width="2"/><ellipse cx="118" cy="30" rx="4.6" ry="17" fill="#fbcfe8"/></g>` },
+    heartGlasses: { view: "head", front: `<g fill="rgba(244,114,182,.5)" stroke="#be185d" stroke-width="3" stroke-linejoin="round"><path d="${heartPath(82, 76, 15)}"/><path d="${heartPath(118, 76, 15)}"/></g><path d="M97 74 Q100 70 103 74" stroke="#be185d" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M64 72 L54 68 M136 72 L146 68" stroke="#be185d" stroke-width="3" stroke-linecap="round"/>` },
+    catEyeGlasses: { view: "head", front: `<g fill="rgba(167,139,250,.35)" stroke="#6d28d9" stroke-width="3" stroke-linejoin="round"><path d="M62 70 L60 60 L96 68 Q99 90 80 90 Q63 90 62 70Z"/><path d="M138 70 L140 60 L104 68 Q101 90 120 90 Q137 90 138 70Z"/></g><path d="M97 72 Q100 68 103 72" stroke="#6d28d9" stroke-width="3" fill="none"/><path d="M60 66 L52 64 M140 66 L148 64" stroke="#6d28d9" stroke-width="3" stroke-linecap="round"/>` },
+    goggles: { view: "head", front: `<rect x="46" y="66" width="108" height="20" rx="8" fill="#1e3a8a" opacity=".85"/><g fill="rgba(147,197,253,.6)" stroke="#1d4ed8" stroke-width="5"><circle cx="82" cy="76" r="14"/><circle cx="118" cy="76" r="14"/></g><path d="M74 70 Q80 66 86 70 M110 70 Q116 66 122 70" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".8"/>` },
+    eyePatch: { view: "head", front: `<path d="M52 56 L112 82 M118 76 L148 62" stroke="#111827" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="118" cy="76" rx="14" ry="12" fill="#111827"/><path d="M110 72 Q116 68 122 72" stroke="#4b5563" stroke-width="2.4" fill="none" stroke-linecap="round"/>` },
+    moustache: { view: "head", front: `<path d="M68 114 Q70 100 86 104 Q96 106 100 110 Q104 106 114 104 Q130 100 132 114 Q118 110 100 116 Q82 110 68 114Z" fill="#5b3a29" stroke="#3f2a1c" stroke-width="1.6" stroke-linejoin="round"/>` },
+    freckles: { view: "head", front: `<g fill="#b45309" opacity=".85"><circle cx="64" cy="100" r="2.2"/><circle cx="71" cy="104" r="2.2"/><circle cx="78" cy="99" r="2.2"/><circle cx="68" cy="94" r="1.8"/><circle cx="136" cy="100" r="2.2"/><circle cx="129" cy="104" r="2.2"/><circle cx="122" cy="99" r="2.2"/><circle cx="132" cy="94" r="1.8"/></g>` },
+    monocle: { view: "head", front: `<circle cx="118" cy="76" r="14" fill="rgba(255,255,255,.3)" stroke="#d4a017" stroke-width="3.4"/><path d="M128 87 Q142 106 134 136" stroke="#d4a017" stroke-width="2" fill="none" stroke-dasharray="3 2.4"/><path d="M110 70 Q116 66 122 70" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".8"/>` },
+
+    tshirt: { view: "full", front: `<path d="${shirtBody}" fill="#38bdf8"/>${sleeves("#38bdf8")}<path d="M84 128 Q100 142 116 128" stroke="#0ea5e9" stroke-width="5" fill="none" stroke-linecap="round"/><polygon points="${starPts(100, 158, 12, 5.2)}" fill="#fff"/>` },
+    hoodie: { view: "full", front: `<path d="${shirtBody}" fill="#8b5cf6"/>${sleeves("#8b5cf6")}<path d="M66 124 Q100 148 134 124" stroke="#7c3aed" stroke-width="10" fill="none" stroke-linecap="round"/><path d="M92 136 V150 M108 136 V150" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M78 162 H122 L118 178 H82 Z" fill="#7c3aed"/>` },
+    stripeShirt: { view: "full", front: `<defs><clipPath id="kaStripe"><path d="${shirtBody}"/></clipPath></defs><path d="${shirtBody}" fill="#fff"/><g clip-path="url(#kaStripe)" fill="#ef4444"><rect x="40" y="136" width="120" height="7"/><rect x="40" y="150" width="120" height="7"/><rect x="40" y="164" width="120" height="7"/><rect x="40" y="178" width="120" height="7"/></g>${sleeves("#fff")}<g stroke="#ef4444" stroke-width="3"><path d="M56 138 L46 152 M144 138 L154 152" stroke-linecap="round"/></g><path d="M84 128 Q100 140 116 128" stroke="#ef4444" stroke-width="4" fill="none" stroke-linecap="round"/>` },
+    pinkDress: { view: "full", front: `<path d="M64 126 Q100 138 136 126 L152 184 Q100 198 48 184 Z" fill="#f9a8d4"/><path d="M64 126 Q100 138 136 126 L134 146 Q100 154 66 146Z" fill="#f472b6"/><path d="M60 126 q-6 -8 6 -10 M140 126 q6 -8 -6 -10" stroke="#f472b6" stroke-width="7" fill="none" stroke-linecap="round"/><rect x="66" y="144" width="68" height="7" rx="3" fill="#ec4899"/><path d="M78 166 q4 6 8 0 M104 172 q4 6 8 0 M126 164 q4 6 8 0" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round"/>` },
+    labCoat: { view: "full", front: `<path d="${shirtBody}" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>${sleeves("#fff")}<path d="M78 128 L100 170 L122 128" stroke="#cbd5e1" stroke-width="3" fill="none" stroke-linejoin="round"/><path d="M80 128 L90 146 L100 134 L110 146 L120 128 Z" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2"/><circle cx="100" cy="152" r="2.6" fill="#94a3b8"/><circle cx="100" cy="164" r="2.6" fill="#94a3b8"/><rect x="112" y="156" width="16" height="14" rx="2" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.6"/><path d="M118 152 v10" stroke="#3b82f6" stroke-width="2.6" stroke-linecap="round"/>` },
+    overalls: { view: "full", front: `<path d="${shirtBody}" fill="#fde047"/>${sleeves("#fde047")}<path d="M62 150 Q100 160 138 150 Q144 168 132 182 Q100 192 68 182 Q56 168 62 150Z" fill="#3b82f6"/><rect x="80" y="134" width="40" height="26" rx="5" fill="#3b82f6"/><path d="M82 136 L74 122 M118 136 L126 122" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/><circle cx="84" cy="140" r="2.4" fill="#fde047"/><circle cx="116" cy="140" r="2.4" fill="#fde047"/><rect x="90" y="146" width="20" height="10" rx="2" fill="#2563eb"/>` },
+    jersey: { view: "full", front: `<path d="${shirtBody}" fill="#ef4444"/>${sleeves("#ef4444")}<path d="M84 128 Q100 142 116 128" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M92 146 H108 L98 170" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M58 142 L48 156 M142 142 L152 156" stroke="#fff" stroke-width="3" stroke-linecap="round"/>` },
+
+    balloon: { view: "full", front: `<path d="M155 154 Q170 120 168 74" stroke="#6b7a75" stroke-width="1.8" fill="none"/><ellipse cx="168" cy="54" rx="17" ry="21" fill="#ef4444"/><path d="M168 75 l-4 6 h8z" fill="#dc2626"/><ellipse cx="161" cy="46" rx="4" ry="7" fill="#fff" opacity=".45" transform="rotate(20 161 46)"/>` },
+    magicWand: { view: "full", front: `<line x1="155" y1="154" x2="180" y2="96" stroke="#6d28d9" stroke-width="5" stroke-linecap="round"/><line x1="170" y1="118" x2="176" y2="104" stroke="#fde047" stroke-width="5" stroke-linecap="round"/><polygon points="${starPts(184, 88, 11, 4.8)}" fill="#fde047" stroke="#e0a21a" stroke-width="1.6" stroke-linejoin="round"/><circle cx="168" cy="82" r="2" fill="#fde047"/><circle cx="194" cy="100" r="1.8" fill="#fde047"/>` },
+    umbrella: { view: "full", front: `<path d="M160 164 q-2 10 -10 8" stroke="#374151" stroke-width="3.4" fill="none" stroke-linecap="round"/><line x1="160" y1="164" x2="182" y2="68" stroke="#374151" stroke-width="3.4" stroke-linecap="round"/><path d="M183 58 Q196 90 172 132 Q170 98 174 70Z" fill="#ef4444"/><path d="M180 70 Q186 100 174 128" stroke="#fca5a5" stroke-width="2" fill="none"/><rect x="170" y="108" width="12" height="4" rx="2" fill="#374151" transform="rotate(-14 176 110)"/>` },
+    guitar: { view: "full", front: `<g transform="rotate(-28 148 160)"><rect x="145" y="92" width="6" height="58" fill="#7c4a1d"/><rect x="143" y="84" width="10" height="13" rx="2" fill="#3f2a14"/><ellipse cx="148" cy="178" rx="21" ry="16" fill="#d97706"/><ellipse cx="148" cy="156" rx="14" ry="11" fill="#d97706"/><circle cx="148" cy="170" r="5.6" fill="#3f2a14"/><path d="M148 100 V182" stroke="#fde68a" stroke-width="1" opacity=".8"/></g>` },
+    storyBook: { view: "full", front: `<rect x="74" y="146" width="52" height="36" rx="3" fill="#3b82f6"/><rect x="74" y="146" width="7" height="36" rx="2" fill="#2563eb"/><rect x="82" y="178" width="42" height="3" fill="#fff"/><polygon points="${starPts(104, 162, 9, 4)}" fill="#fde047"/><path d="M86 154 H96 M86 158 H92" stroke="#bfdbfe" stroke-width="2" stroke-linecap="round"/>` },
+    camera: { view: "full", front: `<rect x="120" y="142" width="44" height="30" rx="6" fill="#374151"/><rect x="128" y="136" width="14" height="8" rx="2" fill="#4b5563"/><circle cx="142" cy="157" r="10" fill="#1f2937" stroke="#9ca3af" stroke-width="2.4"/><circle cx="142" cy="157" r="5" fill="#60a5fa"/><rect x="152" y="146" width="8" height="5" rx="1.5" fill="#fde047"/>` },
+    soccerBall: { view: "full", front: `<circle cx="168" cy="176" r="17" fill="#fff" stroke="#1f2937" stroke-width="2.4"/><polygon points="${starPts(168, 176, 6.4, 6.4).split(" ").filter((_, i) => i % 2 === 0).join(" ")}" fill="#1f2937"/><path d="M168 170 V160 M162 175 L153 172 M174 175 L183 172 M164 182 L158 190 M172 182 L178 190" stroke="#1f2937" stroke-width="2" stroke-linecap="round"/>` },
+
+    pearlNecklace: { view: "full", front: pearls },
+    goldChain: { view: "full", front: `<path d="${NECK_D}" stroke="#f5b83d" stroke-width="4" fill="none" stroke-dasharray="5 2.4" stroke-linecap="round"/><path d="${NECK_D}" stroke="#fde68a" stroke-width="1.4" fill="none" opacity=".8"/>` },
+    heartPendant: { view: "full", front: `<path d="${NECK_D}" stroke="#d4a017" stroke-width="2.4" fill="none"/><path d="${heartPath(100, 146, 10)}" fill="#ef4444" stroke="#b91c1c" stroke-width="1.8" stroke-linejoin="round"/><ellipse cx="95" cy="141" rx="2.4" ry="1.6" fill="#fff" opacity=".7"/>` },
+    starPendant: { view: "full", front: `<path d="${NECK_D}" stroke="#d4a017" stroke-width="2.4" fill="none"/><polygon points="${starPts(100, 148, 12, 5.2)}" fill="#fde047" stroke="#e0a21a" stroke-width="1.8" stroke-linejoin="round"/>` },
+    diamondPendant: { view: "full", front: `<path d="${NECK_D}" stroke="#94a3b8" stroke-width="2.4" fill="none"/><polygon points="100,138 110,149 100,164 90,149" fill="#7dd3fc" stroke="#0ea5e9" stroke-width="1.8" stroke-linejoin="round"/><path d="M90 149 H110 M100 138 L96 149 L100 164 L104 149 Z" stroke="#e0f2fe" stroke-width="1.2" fill="none"/>` },
+    goldEarrings: { view: "head", front: `<g stroke="#d4a017" stroke-width="2"><path d="M40 84 V96"/><path d="M160 84 V96"/></g><g fill="#fcd34d" stroke="#d4a017" stroke-width="1.6"><circle cx="40" cy="84" r="4"/><circle cx="160" cy="84" r="4"/><circle cx="40" cy="101" r="5.4"/><circle cx="160" cy="101" r="5.4"/></g>` },
+    hoopEarrings: { view: "head", front: `<g fill="none" stroke="#f5b83d" stroke-width="3.4"><circle cx="38" cy="98" r="10"/><circle cx="162" cy="98" r="10"/></g><g fill="#fcd34d"><circle cx="40" cy="86" r="3"/><circle cx="160" cy="86" r="3"/></g>` },
+    friendshipBracelet: { view: "full", front: bracelet(50, 146) + bracelet(150, 146) },
+    rubyBrooch: { view: "full", front: `<g fill="#f5b83d" stroke="#e0a21a" stroke-width="1.4"><circle cx="78" cy="136" r="4"/><circle cx="86" cy="140" r="4"/><circle cx="86" cy="150" r="4"/><circle cx="78" cy="154" r="4"/><circle cx="70" cy="150" r="4"/><circle cx="70" cy="140" r="4"/></g><circle cx="78" cy="145" r="7" fill="#dc2626" stroke="#fde68a" stroke-width="2"/><ellipse cx="75.6" cy="142.4" rx="2" ry="1.4" fill="#fff" opacity=".7"/>` },
+    hairClip: { view: "head", front: `<g transform="translate(128 52) rotate(18)"><path d="M0 0 L-14 -9 L-14 9 Z" fill="#f472b6"/><path d="M0 0 L14 -9 L14 9 Z" fill="#f472b6"/><circle r="4.6" fill="#ec4899"/><circle cx="-8" cy="0" r="1.6" fill="#fff"/><circle cx="8" cy="0" r="1.6" fill="#fff"/></g>` },
+
+    sneakers: { view: "full", front: pair(`<path d="M52 184 Q52 170 72 170 Q93 170 93 184 Q93 192 72 192 Q52 192 52 184Z" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><path d="M54 188 Q72 196 92 188" stroke="#ef4444" stroke-width="3.4" fill="none" stroke-linecap="round"/><path d="M64 174 H80 M65 179 H79" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/><path d="M56 180 Q72 176 90 180" stroke="#ef4444" stroke-width="2.4" fill="none"/>`) },
+    boots: { view: "full", front: pair(`<path d="M55 166 H89 V184 Q89 192 74 192 H58 Q52 192 52 186 V170 Q52 166 55 166Z" fill="#92400e"/><rect x="53" y="162" width="38" height="7" rx="3" fill="#78350f"/><path d="M52 190 H92" stroke="#451a03" stroke-width="4" stroke-linecap="round"/><path d="M60 174 H82 M60 180 H82" stroke="#b45309" stroke-width="1.6"/>`) },
+    rainBoots: { view: "full", front: pair(`<path d="M56 164 H88 V184 Q90 192 74 192 H58 Q52 192 52 186 V168 Q52 164 56 164Z" fill="#facc15"/><rect x="54" y="162" width="36" height="6" rx="3" fill="#eab308"/><path d="M52 190 H92" stroke="#dc2626" stroke-width="4" stroke-linecap="round"/><g fill="#fff" opacity=".85"><circle cx="64" cy="174" r="2.4"/><circle cx="78" cy="176" r="2.4"/><circle cx="68" cy="183" r="2.4"/></g>`) },
+    flipFlops: { view: "full", front: pair(`<ellipse cx="72" cy="186" rx="21" ry="8" fill="#fb923c" stroke="#ea580c" stroke-width="1.8"/><path d="M72 178 L60 186 M72 178 L84 186" stroke="#f43f5e" stroke-width="3.4" stroke-linecap="round"/><circle cx="72" cy="178" r="2.6" fill="#f43f5e"/>`) },
+    slippers: { view: "full", front: pair(`<ellipse cx="72" cy="185" rx="21" ry="10" fill="#f9a8d4"/><g fill="#fbcfe8"><circle cx="58" cy="179" r="5"/><circle cx="66" cy="175" r="5"/><circle cx="75" cy="174" r="5"/><circle cx="84" cy="177" r="5"/></g><ellipse cx="72" cy="190" rx="20" ry="3" fill="#ec4899" opacity=".5"/>`) },
+    balletShoes: { view: "full", front: pair(`<path d="M52 185 Q52 172 72 172 Q92 172 92 185 Q92 192 72 192 Q52 192 52 185Z" fill="#fbcfe8" stroke="#f9a8d4" stroke-width="2"/><path d="M62 174 L82 166 M82 174 L62 166" stroke="#f472b6" stroke-width="2.6" stroke-linecap="round"/><path d="M80 166 q6 -2 6 4 M64 166 q-6 -2 -6 4" stroke="#f472b6" stroke-width="2" fill="none"/>`) },
+    soccerBoots: { view: "full", front: pair(`<path d="M52 184 Q52 170 72 170 Q93 170 93 184 Q93 191 72 191 Q52 191 52 184Z" fill="#1f2937"/><path d="M58 178 L86 182 M58 183 L84 187" stroke="#84cc16" stroke-width="3" stroke-linecap="round"/><g fill="#9ca3af"><rect x="55" y="190" width="5" height="5" rx="1"/><rect x="66" y="191" width="5" height="5" rx="1"/><rect x="77" y="191" width="5" height="5" rx="1"/><rect x="86" y="189" width="5" height="5" rx="1"/></g>`) },
+    rollerSkates: { view: "full", front: pair(`<path d="M52 184 Q52 168 72 168 Q93 168 93 184 L93 189 H52Z" fill="#f9a8d4" stroke="#ec4899" stroke-width="2"/><rect x="52" y="188" width="41" height="4" rx="1.5" fill="#6b7280"/><g fill="#38bdf8" stroke="#0284c7" stroke-width="1.4"><circle cx="58" cy="196" r="4.4"/><circle cx="68" cy="196" r="4.4"/><circle cx="78" cy="196" r="4.4"/><circle cx="88" cy="196" r="4.4"/></g><path d="M62 174 H82 M63 179 H81" stroke="#fff" stroke-width="2" stroke-linecap="round"/>`) },
+    sparkleShoes: { view: "full", front: pair(`<path d="M52 184 Q52 170 72 170 Q93 170 93 184 Q93 192 72 192 Q52 192 52 184Z" fill="#a78bfa" stroke="#7c3aed" stroke-width="2"/><path d="M54 188 Q72 196 92 188" stroke="#fde047" stroke-width="3" fill="none" stroke-linecap="round"/><polygon points="${starPts(64, 180, 5, 2.2)}" fill="#fff"/><polygon points="${starPts(80, 177, 4, 1.8)}" fill="#fde047"/><polygon points="${starPts(82, 186, 3.2, 1.4)}" fill="#fff"/>`) },
+    snowBoots: { view: "full", front: pair(`<path d="M55 168 H89 V184 Q90 192 74 192 H58 Q52 192 52 186 V172 Q52 168 55 168Z" fill="#3b82f6"/><g fill="#fff"><circle cx="56" cy="166" r="5"/><circle cx="64" cy="164" r="5"/><circle cx="72" cy="163" r="5"/><circle cx="80" cy="164" r="5"/><circle cx="88" cy="166" r="5"/></g><path d="M52 190 H92" stroke="#e5e7eb" stroke-width="4" stroke-linecap="round"/><path d="M60 176 H84 M60 182 H84" stroke="#93c5fd" stroke-width="1.8"/>`) },
+  });
+
   // Front layers are drawn in this slot order, so e.g. headwear always sits
   // on top of headphones, and glasses on top of the face.
-  const FRONT_ORDER = ["clothing", "accessory", "face", "headwear"];
+  const FRONT_ORDER = ["clothing", "shoes", "jewelry", "accessory", "face", "headwear"];
   // Back layers sit behind the body (cape first, backpack in front of it).
   const BACK_ORDER = ["clothing", "accessory"];
 
@@ -155,6 +221,12 @@
     partyHat: "headwear", flowerCrown: "headwear", wizardHat: "headwear", santaHat: "headwear",
     starGlasses: "face", bowTie: "clothing", goldMedal: "accessory", surfboard: "accessory",
   };
+  ["beanie", "cowboyHat", "chefHat", "bunnyEars"].forEach((i) => { SLOT_OF[i] = "headwear"; });
+  ["heartGlasses", "catEyeGlasses", "goggles", "eyePatch", "moustache", "freckles", "monocle"].forEach((i) => { SLOT_OF[i] = "face"; });
+  ["tshirt", "hoodie", "stripeShirt", "pinkDress", "labCoat", "overalls", "jersey"].forEach((i) => { SLOT_OF[i] = "clothing"; });
+  ["balloon", "magicWand", "umbrella", "guitar", "storyBook", "camera", "soccerBall"].forEach((i) => { SLOT_OF[i] = "accessory"; });
+  ["pearlNecklace", "goldChain", "heartPendant", "starPendant", "diamondPendant", "goldEarrings", "hoopEarrings", "friendshipBracelet", "rubyBrooch", "hairClip"].forEach((i) => { SLOT_OF[i] = "jewelry"; });
+  ["sneakers", "boots", "rainBoots", "flipFlops", "slippers", "balletShoes", "soccerBoots", "rollerSkates", "sparkleShoes", "snowBoots"].forEach((i) => { SLOT_OF[i] = "shoes"; });
 
   function layer(equipped, order, side) {
     return order.map((slot) => {
@@ -245,5 +317,96 @@
     return avatar({ [SLOT_OF[id]]: id }, { view: art.view });
   }
 
-  return { avatar, room, itemPicture, hasArt: (id) => !!ART[id] || !!ROOM_ART[id] };
+  // Tight per-item bounding boxes "x y w h", measured from the artwork itself
+  // (see tests/ — regenerated whenever art changes).
+  const ICON_VIEW = {
+    blueCap: "45 18 110 57",
+    gradHat: "47 23 106 48",
+    crown: "59 19 82 41",
+    roundGlasses: "53 60 94 32",
+    sunglasses: "51 64 98 32",
+    redScarf: "55 114 90 61",
+    heroCape: "19 111 162 92",
+    headphones: "38 33 125 56",
+    backpack: "33 101 134 92",
+    partyHat: "71 -3 58 64",
+    flowerCrown: "55 34 90 29",
+    wizardHat: "45 4 110 64",
+    starGlasses: "51 56 98 37",
+    bowTie: "73 109 54 34",
+    goldMedal: "79 113 42 61",
+    santaHat: "53 17 107 49",
+    surfboard: "125 40 79 158",
+    beanie: "52 8 96 61",
+    cowboyHat: "33 23 134 45",
+    chefHat: "58 5 84 58",
+    bunnyEars: "59 -1 82 59",
+    heartGlasses: "51 64 98 27",
+    catEyeGlasses: "49 57 102 36",
+    goggles: "43 59 114 34",
+    eyePatch: "49 53 102 38",
+    moustache: "65 100 70 19",
+    freckles: "58 88 28 22",
+    monocle: "101 59 39 80",
+    tshirt: "48 123 104 67",
+    hoodie: "48 121 104 69",
+    stripeShirt: "37 123 126 67",
+    pinkDress: "45 113 110 81",
+    labCoat: "48 123 104 67",
+    overalls: "48 119 104 71",
+    jersey: "45 123 110 67",
+    balloon: "148 30 40 127",
+    magicWand: "152 74 47 83",
+    umbrella: "147 55 44 120",
+    guitar: "91 80 95 123",
+    storyBook: "71 143 58 42",
+    camera: "117 133 50 42",
+    soccerBall: "148 156 40 40",
+    pearlNecklace: "59 113 82 30",
+    goldChain: "63 117 74 22",
+    heartPendant: "63 117 74 40",
+    starPendant: "63 117 74 44",
+    diamondPendant: "63 117 74 50",
+    goldEarrings: "30 78 20 32",
+    hoopEarrings: "26 86 24 24",
+    friendshipBracelet: "40 138 22 16",
+    rubyBrooch: "63 129 30 32",
+    hairClip: "109 36 38 32",
+    sneakers: "49 167 103 28",
+    boots: "49 159 102 36",
+    rainBoots: "49 159 102 36",
+    flipFlops: "48 172 104 25",
+    slippers: "48 166 104 32",
+    balletShoes: "49 163 102 33",
+    soccerBoots: "49 167 103 32",
+    rollerSkates: "49 165 103 38",
+    sparkleShoes: "49 167 103 28",
+    snowBoots: "48 155 104 40",
+  };
+
+  // Item-only picture for small shop cards: no koala, just the thing.
+  function itemIcon(id) {
+    if (ROOM_ART[id]) {
+      const a = ROOM_ART[id];
+      if (a.layer === "wall") return `<svg class="koala-icon-svg" viewBox="0 0 320 150" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${a.svg}</svg>`;
+      return `<svg class="koala-icon-svg" viewBox="${a.view}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${a.svg}</svg>`;
+    }
+    const art = ART[id];
+    if (!art) return "";
+    const vb = ICON_VIEW[id] || (art.view === "head" ? HEAD_VIEW : FULL_VIEW);
+    return `<svg class="koala-icon-svg" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${art.back || ""}${art.front || ""}</svg>`;
+  }
+
+  // "After wearing" picture: the koala as it looks now with this item swapped
+  // in (room items: the room with the item placed in it).
+  function previewFor(id, equipped, roomEquipped, slot) {
+    if (ROOM_ART[id]) {
+      return room(Object.assign({}, roomEquipped || {}, { [slot]: id }), equipped || {});
+    }
+    const art = ART[id];
+    if (!art) return "";
+    return avatar(Object.assign({}, equipped || {}, { [SLOT_OF[id]]: id }), { view: art.view === "head" ? "head" : "full" });
+  }
+
+  return { avatar, room, itemPicture, itemIcon, previewFor, artIds: () => Object.keys(ART), hasArt: (id) => !!ART[id] || !!ROOM_ART[id] };
 });

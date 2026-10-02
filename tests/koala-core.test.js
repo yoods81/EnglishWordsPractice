@@ -218,19 +218,19 @@ test("nextReward is the cheapest coin item not yet owned", () => {
   const p = {};
   K.awardCoins(p, 20, "x");
   let n = K.nextReward(p);
-  assert.equal(n.item.id, "blueCap");
-  assert.equal(n.toGo, 30);
-  assert.equal(n.pct, 40);
+  const cheapest = K.ITEMS.filter((i) => i.unlock.coins && !i.season).sort((a, b) => a.unlock.coins - b.unlock.coins)[0];
+  assert.equal(n.item.unlock.coins, cheapest.unlock.coins);
+  assert.equal(n.toGo, cheapest.unlock.coins - 20);
   assert.equal(n.affordable, false);
-  K.awardCoins(p, 30, "x");
+  K.awardCoins(p, 500, "x");
   assert.equal(K.nextReward(p).affordable, true);
-  K.buyItem(p, "blueCap");
-  assert.equal(K.nextReward(p).item.id, "bowTie");
+  K.buyItem(p, n.item.id);
+  assert.notEqual(K.nextReward(p).item.id, n.item.id);
 });
 
 test("nextReward is null once every coin item is owned", () => {
   const p = {};
-  K.awardCoins(p, 5000, "x");
+  K.awardCoins(p, 50000, "x");
   K.ITEMS.filter((i) => i.unlock.coins).forEach((i) => K.buyItem(p, i.id));
   assert.equal(K.nextReward(p), null);
 });
@@ -251,7 +251,7 @@ test("catalogue is consistent: every item has art, a valid slot and a requiremen
     assert.ok(it.unlock.free || it.unlock.coins > 0 || it.unlock.streak > 0 || it.unlock.badge);
     assert.ok(A.hasArt(it.id), "art for " + it.id);
   });
-  assert.ok(K.ITEMS.length >= 5 && K.ITEMS.length <= 60, "catalogue");
+  assert.ok(K.ITEMS.length >= 5 && K.ITEMS.length <= 120, "catalogue");
 });
 
 test("avatar draws only what is equipped, in the right layers", () => {
@@ -268,7 +268,9 @@ test("avatar draws only what is equipped, in the right layers", () => {
   // an item in the wrong slot is ignored
   assert.ok(!A.avatar({ face: "gradHat" }).includes("data-item"));
   assert.ok(A.avatar({}, { label: 'My "Koala"' }).includes('aria-label="My &quot;Koala&quot;"'));
-  assert.ok(A.itemPicture("blueCap").includes("26 12 148 124"), "head crop for headwear");
+  assert.ok(A.itemPicture("blueCap").includes("26 2 148 134"), "head crop for headwear");
+  assert.ok(A.itemIcon("blueCap").includes("koala-icon-svg") && !A.itemIcon("blueCap").includes('rx="46" ry="40"'), "item-only icon has no koala");
+  assert.ok(A.previewFor("beanie", { clothing: "tshirt" }, {}, "headwear").includes('data-item="tshirt"'), "preview keeps what is worn");
 });
 
 test("adjustCoins: gifts add, corrections take (never below 0), keys make it idempotent", () => {
@@ -419,4 +421,13 @@ test("Phase 6: seasonal items are on sale only in their window, kept forever onc
   assert.equal(K.buyItem({ koala: undefined }, "santaHat", { date: spring, unlimited: true }).ok, true, "admin can buy any time");
   const nr = K.nextReward({}, { kind: "room", date: spring });
   assert.ok(!["xmasTree", "beachTowel"].includes(nr.item.id), "next reward never a seasonal item that is not on sale");
+});
+
+test("shop expansion: Jewelry and Shoes exist and every character category has 10+ items", () => {
+  assert.ok(K.ITEM_SLOTS.includes("jewelry") && K.ITEM_SLOTS.includes("shoes"));
+  K.ITEM_SLOTS.forEach((slot) => {
+    const n = K.ITEMS.filter((i) => i.slot === slot && !i.season).length;
+    assert.ok(n >= 10, slot + " has " + n);
+  });
+  K.ITEMS.forEach((i) => assert.ok(A.itemIcon(i.id).includes("<svg"), "icon " + i.id));
 });

@@ -5102,3 +5102,54 @@ body.signed-in .stat-bar { display: none; }
   .koala-eyes, .koala-avatar-svg, .koala-room > svg > svg, .koala-sparkle, .badge-toast-emoji .koala-coin, .levelup-card, .levelup-koala, .levelup-confetti span { animation: none !important; }
   .koala-sparkle, .levelup-confetti { display: none; }
 }
+
+/* ---- My Koala: compact item cards, Netflix-style rows, item popup, Coins tab ---- */
+.koala-hero-streak { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--outline, #cfe7df); font-size: 0.88rem; }
+.koala-hero-streak-main b { font-family: var(--font-heading); font-size: 1.05rem; }
+.koala-hero-streak small { display: block; margin-top: 3px; color: var(--muted); font-size: 0.75rem; line-height: 1.35; }
+.koala-balance { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: #fff8e1; border: 2px solid #f0d28a; border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
+.koala-balance-ico { font-size: 2rem; line-height: 1; display: inline-flex; }
+.koala-balance-ico .koala-coin { width: 2.2rem; height: 2.2rem; }
+.koala-balance-val { font-family: var(--font-heading); font-weight: 700; font-size: 1.8rem; line-height: 1.05; }
+.koala-balance-lbl { font-size: 0.85rem; color: var(--muted); }
+.koala-balance-earned { margin-left: auto; text-align: right; display: flex; flex-direction: column; font-size: 0.78rem; color: var(--muted); }
+.koala-balance-earned b { font-family: var(--font-heading); font-size: 1.2rem; color: var(--text); }
+.koala-badge-sum { background: #f3faf7; border-color: var(--outline, #cfe7df); }
+.koala-badge-sum .koala-level-bar { margin-top: 6px; min-width: 160px; }
+
+.koala-row { position: relative; margin: 0 0 6px; }
+.koala-row-track { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; padding: 4px 2px 8px; }
+.koala-row-track::-webkit-scrollbar { display: none; }
+.koala-row-arrow { position: absolute; top: 50%; transform: translateY(-58%); z-index: 3; width: 38px; height: 62px; border: 0; border-radius: 12px; background: rgba(38, 51, 47, .72); color: #fff; font-size: 2.2rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0 0 4px; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+.koala-row-arrow[hidden] { display: none; }
+.koala-row-arrow:hover, .koala-row-arrow:focus-visible { background: rgba(38, 51, 47, .92); outline: none; }
+.koala-row-arrow.prev { left: -4px; }
+.koala-row-arrow.next { right: -4px; }
+.koala-row-track .koala-item { flex: 0 0 74px; width: 74px; min-height: 0; padding: 5px 3px 5px; gap: 3px; border-radius: 12px; scroll-snap-align: start; }
+.koala-row-track .koala-item .koala-item-pic { position: relative; width: 100%; height: 52px; border-radius: 8px; display: block; padding: 3px; box-sizing: border-box; }
+.koala-item-pic .koala-icon-svg { width: 100%; height: 100%; display: block; }
+.koala-row-track .koala-item-name { font-size: 0.68rem; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: keep-all; min-height: 2.3em; }
+.koala-item-badge { position: absolute; right: -2px; bottom: -2px; font-size: 0.62rem; line-height: 1; background: #fff; border: 1px solid var(--outline, #cfe7df); border-radius: 999px; padding: 1px 4px; display: inline-flex; align-items: center; gap: 1px; font-weight: 700; color: var(--text); }
+.koala-item-badge .koala-coin { width: .8rem; height: .8rem; }
+.koala-item-badge.on { background: var(--accent-dark); color: #fff; border-color: var(--accent-dark); }
+.koala-item-badge.season { right: auto; left: -2px; top: -2px; bottom: auto; }
+.koala-row-track .koala-item.is-locked { cursor: pointer; }
+.koala-item.is-locked .koala-item-badge { filter: none; }
+.koala-item-pic .koala-item-badge { filter: none; }
+.koala-next-pic .koala-icon-svg { width: 100%; height: 100%; padding: 6px; box-sizing: border-box; }
+
+.koala-modal-overlay { position: fixed; inset: 0; z-index: 9500; background: rgba(20, 30, 27, .55); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.koala-modal { background: #fff; border-radius: 22px; padding: 18px 18px 16px; width: min(340px, 100%); text-align: center; box-shadow: 0 12px 40px rgba(0,0,0,.3); animation: koala-pop .18s ease-out; }
+@keyframes koala-pop { from { transform: scale(.92); opacity: 0; } to { transform: none; opacity: 1; } }
+.koala-modal-pic { width: 190px; height: 190px; margin: 0 auto 8px; background: #d9f6ee; border: 3px solid var(--accent); border-radius: 24px; overflow: hidden; }
+.koala-modal-pic.is-room { width: 100%; height: auto; aspect-ratio: 320 / 220; }
+.koala-modal-pic.is-locked svg { filter: grayscale(.8); opacity: .75; }
+.koala-modal-pic svg { width: 100%; height: 100%; display: block; }
+.koala-modal-name { font-family: var(--font-heading); font-weight: 700; font-size: 1.2rem; }
+.koala-modal-line { margin: 6px 0 12px; font-size: 0.95rem; color: var(--text); display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; }
+.koala-modal-line .koala-coin { width: 1.1rem; height: 1.1rem; }
+.koala-modal-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.koala-modal-actions .pill { min-height: 44px; min-width: 110px; }
+@media (max-width: 520px) { .koala-row-arrow { width: 32px; height: 54px; font-size: 1.9rem; } }
+.koala-item.is-locked .koala-item-pic { filter: none; opacity: 1; }
+.koala-item.is-locked .koala-icon-svg { filter: grayscale(.75); opacity: .7; }
