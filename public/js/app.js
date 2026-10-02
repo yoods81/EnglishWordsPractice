@@ -2236,11 +2236,41 @@ async function pushProgressToServer() {
 }
 
 // After a sign-in / page load: pull the server copy of progress (paid/admin),
-// then apply any coins an admin gave, then report this device's balance.
+// then the saved Koala world (every account), then apply any coins an admin
+// gave, then report this device's balance.
 async function koalaAfterLogin() {
   if (canWriteServerWords()) await syncProgressOnLogin();
+  await pullKoalaData();
   await applyKoalaGrants();
+  pushKoalaData();
   pushKoalaSummary();
+}
+
+// The Koala world follows the account, not the device. Merge, never overwrite,
+// so coins earned on two devices are not lost (KoalaCore.mergeRewards).
+async function pullKoalaData() {
+  if (!currentUser) return;
+  try {
+    const { data } = await api("/koala/data");
+    if (data && KoalaCore.mergeRewards(progress, data)) {
+      saveProgress();
+      announceKoalaUnlocks();
+      const kv = document.getElementById("view-koala");
+      if (kv && kv.classList.contains("active")) renderKoala();
+      renderStreakChip();
+    }
+  } catch (e) {
+    console.warn("Could not load saved Koala data", e);
+  }
+}
+
+var koalaDataSent = "";
+function pushKoalaData() {
+  if (!currentUser || !progress) return Promise.resolve();
+  const body = JSON.stringify({ data: KoalaCore.rewardSlice(progress) });
+  if (body === koalaDataSent) return Promise.resolve();
+  koalaDataSent = body;
+  return api("/koala/data", { method: "PUT", body }).catch(() => { koalaDataSent = ""; });
 }
 
 // Coins the admin gave or took are waiting on the server. Apply each exactly
@@ -2277,16 +2307,16 @@ var koalaSummaryTimer = null;
 function scheduleKoalaSummary() {
   if (!currentUser) return;
   clearTimeout(koalaSummaryTimer);
-  koalaSummaryTimer = setTimeout(pushKoalaSummary, 4000);
+  koalaSummaryTimer = setTimeout(() => { pushKoalaData(); pushKoalaSummary(); }, 4000);
 }
 function pushKoalaSummary() {
-  if (!currentUser || !progress || !progress.koala) return;
+  if (!currentUser || !progress || !progress.koala) return Promise.resolve();
   const k = KoalaCore.ensureKoala(progress);
   const st = KoalaCore.ensureStreak(progress.streak);
   const body = JSON.stringify({ coins: k.coins, earned: k.earned, streak: st.count, best: st.best });
-  if (body === koalaSummarySent) return;
+  if (body === koalaSummarySent) return Promise.resolve();
   koalaSummarySent = body;
-  api("/koala/summary", { method: "POST", body }).catch(() => { koalaSummarySent = ""; });
+  return api("/koala/summary", { method: "POST", body }).catch(() => { koalaSummarySent = ""; });
 }
 
 // Called once right after a login/page-load confirms an admin/paid session.
@@ -2508,6 +2538,12 @@ function closeAuthMenu() {
 }
 
 async function logOut() {
+  // Save the Koala world one last time while the session can still write it.
+  if (currentUser) {
+    clearTimeout(koalaSummaryTimer);
+    await pushKoalaData();
+    await pushKoalaSummary();
+  }
   const wasSyncable = canWriteServerWords();
   if (wasSyncable) {
     // Flush one last time before the session that authenticates this write
@@ -2543,6 +2579,14 @@ async function logOut() {
   isAdmin = false;
   serverAdmin = false;
   pendingUpgradeRequest = null;
+  // A free account keeps its word stats on this device, but its Koala world
+  // (coins, items, streak, badges) is safe on the server — drop it here so it
+  // can't carry over to whoever signs in next. It returns on the next sign-in.
+  if (!wasSyncable) {
+    delete progress.koala; delete progress.streak; delete progress.badges;
+    koalaDataSent = ""; koalaSummarySent = "";
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); } catch (e) { /* ignore */ }
+  }
   sessionStorage.removeItem(ADMIN_KEY);
   // A free account's words only ever existed in memory for that session —
   // they don't carry over once you sign out.

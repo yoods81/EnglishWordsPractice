@@ -582,6 +582,7 @@ async function handleApi(request, env, url) {
       env.DB.prepare("DELETE FROM upgrade_requests WHERE user_id = ?").bind(userId),
       env.DB.prepare("DELETE FROM koala_grants WHERE user_id = ?").bind(userId),
       env.DB.prepare("DELETE FROM user_koala WHERE user_id = ?").bind(userId),
+      env.DB.prepare("DELETE FROM user_rewards WHERE user_id = ?").bind(userId),
       env.DB.prepare("DELETE FROM users WHERE id = ?").bind(userId),
     ]);
     return json({ ok: true });
@@ -592,6 +593,38 @@ async function handleApi(request, env, url) {
     const n = Math.floor(Number(v));
     return Number.isFinite(n) ? Math.max(0, Math.min(max, n)) : 0;
   };
+
+  // The child's Koala world (coins, items, streak, badges), saved per account.
+  if (route === "/koala/data" && request.method === "GET") {
+    const session = await getSessionUser(request, env);
+    if (!session) return json({ error: "unauthorized" }, 401);
+    const row = await env.DB.prepare("SELECT reward_json, updated_at FROM user_rewards WHERE user_id = ?").bind(session.id).first();
+    if (!row) return json({ data: null, updatedAt: null });
+    let data = null;
+    try { data = JSON.parse(row.reward_json); } catch (e) { /* treat as empty */ }
+    return json({ data, updatedAt: row.updated_at });
+  }
+
+  if (route === "/koala/data" && request.method === "PUT") {
+    const session = await getSessionUser(request, env);
+    if (!session) return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const d = body && body.data;
+    if (!d || typeof d !== "object" || Array.isArray(d) || typeof d.koala !== "object" || d.koala === null) return json({ error: "bad_request" }, 400);
+    const text = JSON.stringify({ koala: d.koala, streak: d.streak || {}, badges: d.badges || {} });
+    if (text.length > 100000) return json({ error: "too_large" }, 413);
+    const now = Date.now();
+    await env.DB.prepare(
+      `INSERT INTO user_rewards (user_id, reward_json, updated_at) VALUES (?, ?, ?)
+       ON CONFLICT(user_id) DO UPDATE SET reward_json = excluded.reward_json, updated_at = excluded.updated_at`
+    ).bind(session.id, text, now).run();
+    return json({ ok: true, updatedAt: now });
+  }
 
   // The signed-in child's device asks for gifts it hasn't applied yet.
   if (route === "/koala/grants" && request.method === "GET") {

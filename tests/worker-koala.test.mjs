@@ -95,3 +95,18 @@ test("deleting a user removes their coin rows", async () => {
   assert.equal(db.prepare("SELECT COUNT(*) c FROM koala_grants WHERE user_id='u2'").get().c, 0);
   assert.equal(db.prepare("SELECT COUNT(*) c FROM user_koala WHERE user_id='u2'").get().c, 0);
 });
+
+test("account Koala data: any signed-in account can save and load its own, nobody else's", async () => {
+  assert.equal((await call(null, "GET", "/koala/data")).status, 401);
+  assert.equal((await call(kid, "GET", "/koala/data")).data.data, null);
+  assert.equal((await call(kid, "PUT", "/koala/data", { data: "x" })).status, 400);
+  assert.equal((await call(kid, "PUT", "/koala/data", { data: { streak: {} } })).status, 400);
+  const data = { koala: { coins: 9, earned: 20, items: { owned: { redScarf: 1 }, equipped: {} } }, streak: { count: 3 }, badges: { a: 1 }, evil: "dropped" };
+  assert.equal((await call(kid, "PUT", "/koala/data", { data })).status, 200);
+  const got = (await call(kid, "GET", "/koala/data")).data;
+  assert.equal(got.data.koala.coins, 9);
+  assert.equal(got.data.evil, undefined);
+  assert.equal((await call(other, "GET", "/koala/data")).data.data, null);
+  const big = { koala: { x: "y".repeat(100001) } };
+  assert.equal((await call(kid, "PUT", "/koala/data", { data: big })).status, 413);
+});

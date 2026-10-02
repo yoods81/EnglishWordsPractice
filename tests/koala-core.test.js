@@ -301,3 +301,26 @@ test("unlimited (admin): items are buyable and buying spends nothing", () => {
   assert.equal(nr.affordable, true);
   assert.equal(nr.toGo, 0);
 });
+
+test("mergeRewards: nothing earned on either device is lost", () => {
+  const a = {}; // this device
+  K.awardCoins(a, 100, "quiz"); K.buyItem(a, "blueCap");                 // earned 100, spent 50 -> 50 coins
+  a.streak = { count: 2, lastDay: "2026-10-01", best: 2, restWeek: null };
+  a.badges = { b1: 500 };
+  const b = {}; // another device of the same child
+  K.awardCoins(b, 300, "quiz"); K.buyItem(b, "roundGlasses");             // earned 300 -> 220 coins
+  b.streak = { count: 5, lastDay: "2026-10-02", best: 7, restWeek: "2026-09-28" };
+  b.badges = { b1: 900, b2: 800 };
+  const remote = K.rewardSlice(b);
+  assert.equal(K.mergeRewards(a, remote), true);
+  assert.equal(a.koala.coins, 220, "side with more lifetime earnings wins the balance");
+  assert.equal(a.koala.earned, 300);
+  assert.ok(a.koala.items.owned.blueCap && a.koala.items.owned.roundGlasses, "items from both sides");
+  assert.equal(a.streak.best, 7);
+  assert.equal(a.streak.count, 5);
+  assert.equal(a.badges.b1, 500, "earliest badge date kept");
+  assert.ok(a.badges.b2);
+  assert.equal(K.mergeRewards(a, remote), false, "merging again changes nothing");
+  assert.equal(K.mergeRewards(a, null), false);
+  assert.equal(K.mergeRewards({}, a.koala ? K.rewardSlice(a) : null), true, "new device gets everything");
+});

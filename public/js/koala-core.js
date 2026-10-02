@@ -337,10 +337,65 @@
     };
   }
 
+  /* ---------- Account sync (every signed-in account) ---------- */
+  // The slice of progress that makes up the child's Koala world.
+  function rewardSlice(progress) {
+    ensureKoala(progress);
+    progress.streak = ensureStreak(progress.streak);
+    if (!progress.badges || typeof progress.badges !== "object") progress.badges = {};
+    return { koala: progress.koala, streak: progress.streak, badges: progress.badges };
+  }
+
+  // Merges a copy from the server into this device's progress WITHOUT losing
+  // what either side earned (the same child may use two devices):
+  //  - coins/ledger: the side that has earned more over its lifetime wins
+  //  - items: everything owned on either side; worn items follow the winning side
+  //  - streak: longest best; current count from whichever side played most recently
+  //  - badges: everything earned on either side
+  // Returns true if this device's progress changed.
+  function canon(v) {
+    if (Array.isArray(v)) return v.map(canon);
+    if (v && typeof v === "object") return Object.keys(v).sort().reduce((o, k) => { o[k] = canon(v[k]); return o; }, {});
+    return v;
+  }
+  function mergeRewards(progress, remote) {
+    const before = JSON.stringify(canon(rewardSlice(progress)));
+    if (!remote || typeof remote !== "object") return false;
+    const r = { koala: remote.koala, streak: remote.streak, badges: remote.badges };
+    ensureKoala(r);
+    r.streak = ensureStreak(r.streak);
+    if (!r.badges || typeof r.badges !== "object") r.badges = {};
+
+    const l = progress.koala;
+    const remoteWins = r.koala.earned > l.earned;
+    const base = remoteWins ? r.koala : l;
+    const other = remoteWins ? l : r.koala;
+    const owned = {};
+    [other.items.owned, base.items.owned].forEach((o) => Object.keys(o).forEach((id) => {
+      owned[id] = owned[id] ? Math.min(owned[id], o[id]) : o[id];
+    }));
+    const equipped = Object.assign({}, other.items.equipped, base.items.equipped);
+    progress.koala = {
+      v: 1, coins: base.coins, earned: Math.max(base.earned, other.earned),
+      ledger: base.ledger.slice(), items: { owned, equipped },
+    };
+    // keep ledger keys from the other side so an applied gift is never applied twice
+    other.ledger.forEach((e) => { if (e.key && !progress.koala.ledger.some((x) => x.key === e.key)) progress.koala.ledger.push(e); });
+    ensureKoala(progress);
+
+    const a = progress.streak, b = r.streak;
+    const later = (b.lastDay || "") > (a.lastDay || "") || ((b.lastDay || "") === (a.lastDay || "") && b.count > a.count) ? b : a;
+    progress.streak = { count: later.count, lastDay: later.lastDay, best: Math.max(a.best, b.best), restWeek: later.restWeek };
+    Object.keys(r.badges).forEach((id) => {
+      if (!progress.badges[id] || r.badges[id] < progress.badges[id]) progress.badges[id] = r.badges[id];
+    });
+    return JSON.stringify(canon(rewardSlice(progress))) !== before;
+  }
+
   return {
     REWARD_CONFIG,
     dateKey, daysBetween, shiftDay, weekKey,
-    ensureKoala, awardCoins, spendCoins, adjustCoins,
+    ensureKoala, awardCoins, spendCoins, adjustCoins, rewardSlice, mergeRewards,
     ITEM_SLOTS, ITEMS, itemById, itemStatus, buyItem, equipItem, unequipSlot, syncStreakUnlocks, nextReward,
     levelInfo,
     ensureStreak, advanceStreak, streakStatus,
