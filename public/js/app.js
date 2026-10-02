@@ -8870,6 +8870,10 @@ function renderBadgePanel() {
 // Everything the child has earned lives here: Koala level, Koala Coins,
 // learning streak and badges. Character, Room and the Next Reward preview are
 // later phases — nothing is stubbed in the UI for them.
+// The coin is drawn, not an emoji: the coin emoji glyph is missing from many
+// Windows and older Android fonts and shows up as an empty box. Sizes with the text.
+const COIN_SVG = '<svg class="koala-coin" viewBox="0 0 24 24" width="1.1em" height="1.1em" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10.5" fill="#f6c343" stroke="#c98a12" stroke-width="1.5"/><circle cx="12" cy="12" r="7" fill="none" stroke="#e0a21a" stroke-width="1.2"/><path d="M12 7.2v9.6M9.3 9.6c0-1.2 1.2-1.9 2.7-1.9s2.7.7 2.7 1.9c0 2.7-5.4 1.5-5.4 4.2 0 1.2 1.2 2 2.7 2s2.7-.8 2.7-2" fill="none" stroke="#a86f0c" stroke-width="1.3" stroke-linecap="round"/></svg>';
+
 const KOALA_REASON_LABELS = () => ({
   quiz: rwL("Quiz", "퀴즈"),
   spelling: rwL("Spelling", "스펠링"),
@@ -8920,7 +8924,7 @@ function renderKoala() {
     ? rwL("✅ Today counted!", "✅ 오늘 완료!")
     : rwL(`Answer ${st.answersToGo} more today`, `오늘 ${st.answersToGo}문제 더 풀어요`);
   const stats = `<div class="koala-stats">
-      ${koalaStatTile("🪙", k.coins, rwL("Koala Coins", "코알라 코인"))}
+      ${koalaStatTile(COIN_SVG, k.coins, rwL("Koala Coins", "코알라 코인"))}
       ${koalaStatTile("🔥", st.count, rwL("day streak", "일 연속"), streakSub)}
       ${koalaStatTile("🏆", `${badgeCount}/${cat.length}`, rwL("Badges", "배지"))}
     </div>`;
@@ -8934,11 +8938,11 @@ function renderKoala() {
   const labels = KOALA_REASON_LABELS();
   const recent = k.ledger.slice(-8).reverse();
   const history = recent.length
-    ? `<ul class="koala-history">${recent.map((e) => `<li><span class="koala-history-n">+${e.n} 🪙</span><span class="koala-history-why">${escapeHtml(labels[e.why] || e.why)}</span><span class="koala-history-day">${new Date(e.t).toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { day: "numeric", month: "short" })}</span></li>`).join("")}</ul>`
+    ? `<ul class="koala-history">${recent.map((e) => `<li><span class="koala-history-n">+${e.n} ${COIN_SVG}</span><span class="koala-history-why">${escapeHtml(labels[e.why] || e.why)}</span><span class="koala-history-day">${new Date(e.t).toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { day: "numeric", month: "short" })}</span></li>`).join("")}</ul>`
     : `<p class="koala-note">${rwL("Koala Coins are coming soon! Your level, streak and badges already count as you learn.", "코알라 코인이 곧 찾아와요! 레벨, 연속 학습, 배지는 지금도 공부하면서 쌓여요.")}</p>`;
 
   box.innerHTML = `${hero}${stats}${streakNote}
-    <h3 class="koala-h">${rwL("🪙 Coin history", "🪙 코인 내역")}</h3>${history}
+    <h3 class="koala-h">${COIN_SVG} ${rwL("Coin history", "코인 내역")}</h3>${history}
     <h3 class="koala-h">${rwL("🏆 Badges", "🏆 배지")}</h3>${badgeGridHtml()}`;
 }
 
