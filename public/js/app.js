@@ -483,7 +483,7 @@ const TRANSLATIONS = {
     authHeaderLoginBtn: "🔑 Log In",
     authToggleLoggedOutHint: "Sign in to save your progress",
     authLogoutBtn: "Logout",
-    myAccountMenuItem: "🧑 My Account",
+    myAccountMenuItem: "My Account",
     myAccountTitle: "🧑 My Account",
     myAccountChangePasswordTitle: "🔒 Change Password",
     myAccountCurrentPasswordLabel: "Current password",
@@ -956,7 +956,7 @@ const TRANSLATIONS = {
     authHeaderLoginBtn: "🔑 로그인",
     authToggleLoggedOutHint: "로그인하면 학습 진행 상황이 저장돼요",
     authLogoutBtn: "로그아웃",
-    myAccountMenuItem: "🧑 내 계정",
+    myAccountMenuItem: "내 계정",
     myAccountTitle: "🧑 내 계정",
     myAccountChangePasswordTitle: "🔒 비밀번호 변경",
     myAccountCurrentPasswordLabel: "현재 비밀번호",
@@ -1968,7 +1968,7 @@ function switchLanguage(lang) {
     populateLevelSelects();
     refreshCurrentView();
     renderCustomWords();
-  } else {
+  } else if (!currentUser) {
     levelOverlayCloseBtn.hidden = false;
     levelOverlay.hidden = false;
   }
@@ -2509,6 +2509,7 @@ function updateAdminUI() {
   authToggleBtn.classList.toggle("auth-toggle-active", !!currentUser);
   // Signed in: level picker + streak live in the account popover instead.
   document.body.classList.toggle("signed-in", !!currentUser);
+  if (currentUser) levelOverlay.hidden = true;
   if (typeof renderStreakChip === "function") renderStreakChip();
   if (!currentUser) closeAuthMenu();
 
@@ -2645,7 +2646,8 @@ function renderAuthMenuKoala() {
       <span class="home-chip" title="${rwL("Badges", "배지")}">🏆 ${badges}/${cat.length}</span>
       <span class="home-chip" title="${rwL("Day streak", "연속 학습")}">🔥 ${rwL(`${st.count} day${st.count === 1 ? "" : "s"}`, `${st.count}일 연속`)}</span>
     </div>
-    <button type="button" class="auth-koala-level" id="auth-menu-level-btn">📚 ${t("levelBadgePrefix")}: ${levelLabel(currentLevel)} ▾</button>`;
+    <label class="auth-koala-level"><span>${t("levelBadgePrefix")}</span>
+      <select id="auth-menu-level-select" aria-label="${t("levelBadgePrefix")}">${currentSystem().levels.map((lv) => `<option value="${escapeHtml(lv.id)}"${lv.id === currentLevel ? " selected" : ""}>${escapeHtml(lv.label)}</option>`).join("")}</select></label>`;
 }
 
 let authMenuPinned = false;
@@ -2674,8 +2676,13 @@ authToggleBtn.addEventListener("click", () => {
   else closeAuthMenu();
 });
 authMenu.addEventListener("click", (e) => {
-  if (e.target.closest("#auth-menu-level-btn")) { closeAuthMenu(); levelBadge.click(); }
-  else if (e.target.closest("[data-koala-go]")) closeAuthMenu();
+  if (e.target.closest("[data-koala-go]")) closeAuthMenu();
+});
+// While the year dropdown is in use the popup must not close under it.
+authMenu.addEventListener("pointerdown", (e) => { if (e.target.closest("select")) authMenuPinned = true; });
+authMenu.addEventListener("focusin", (e) => { if (e.target.closest("select")) authMenuPinned = true; });
+authMenu.addEventListener("change", (e) => {
+  if (e.target.id === "auth-menu-level-select") { applyLevel(e.target.value); closeAuthMenu(); }
 });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !authMenu.hidden) closeAuthMenu(); });
 
@@ -2961,6 +2968,12 @@ async function restoreSession() {
   }
   updateAdminUI();
   renderUpgradeReadyBanner();
+  // The "Choose your level" picker is for signed-out visitors only; a signed-in
+  // child changes year level from the account popup instead.
+  if (!currentUser && !savedLevels[currentLang]) {
+    levelOverlayCloseBtn.hidden = false;
+    levelOverlay.hidden = false;
+  }
   koalaAfterLogin();
 }
 
@@ -9846,7 +9859,8 @@ renderStreakChip();
 populateLevelSelects();
 
 // Show the level-select overlay only if we don't yet have a saved level for this language.
-levelOverlay.hidden = !!savedLevels[currentLang];
+// (Decided once we know whether someone is signed in — see restoreSession().)
+levelOverlay.hidden = true;
 // The close (✕) button is always available now: closing the first-run picker
 // just keeps the default level until the kid picks one from the level badge.
 levelOverlayCloseBtn.hidden = false;

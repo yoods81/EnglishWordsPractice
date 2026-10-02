@@ -5065,3 +5065,9 @@ body.signed-in .stat-bar { display: none; }
 .auth-koala-chips .home-chip { justify-content: center; }
 .auth-menu .auth-koala-level { width: 100%; border: 1px solid var(--accent-dark); border-radius: 999px; background: #fff; color: var(--accent-dark); font-family: var(--font-heading); text-align: center; padding: 5px 10px; font-size: 0.78rem; }
 .home-chip { display: inline-flex; align-items: center; gap: 4px; background: #f3faf7; border: 1px solid #cfe8df; border-radius: 999px; padding: 2px 9px; font-weight: 700; font-size: 0.85rem; color: var(--text); }
+
+/* Account popup: icons + year dropdown */
+.auth-menu button { display: flex; align-items: center; gap: 9px; }
+.auth-menu-ico { width: 18px; height: 18px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.auth-menu label.auth-koala-level { border: none; background: none; padding: 0; border-radius: 0; text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; font-size: 0.8rem; font-weight: 600; color: var(--text); }
+.auth-koala-level select { flex: 1; min-width: 0; font: inherit; font-weight: 700; color: var(--accent-dark); background: #fff; border: 1px solid var(--accent-dark); border-radius: 999px; padding: 4px 8px; cursor: pointer; }
