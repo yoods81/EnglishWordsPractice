@@ -1101,6 +1101,7 @@ function saveProgress() {
   // and back in (or switching devices) — free/anonymous stays local-only.
   if (canWriteServerWords()) scheduleProgressSync();
   scheduleKoalaSummary();
+  if (window.__homeReady && document.getElementById("view-landing")?.classList.contains("active")) renderHomeProfile();
 }
 
 // Learning -> Koala Coins. Every 10 correct answers in a mode earn that mode's
@@ -2498,6 +2499,7 @@ function updateAdminUI() {
   if (adminCodesTabButton) adminCodesTabButton.hidden = !serverAdmin;
   const koalaView = document.getElementById("view-koala");
   if (koalaView && koalaView.classList.contains("active")) renderKoala();
+  if (window.__homeReady) renderHomeProfile(); // (the reward UI below isn't defined yet during first load)
   // Keep the label short (just the username) so it never fights the centered
   // title for space on narrow screens — the full "tap to log out" meaning
   // lives in the tooltip and the green "signed in" coloring instead.
@@ -9947,11 +9949,47 @@ function checkMissionComplete() {
     showNextBadgeToast();
   }
 }
+// Home: a compact "my Koala" card at the top — character, level, coins,
+// streak and badges at a glance. Tapping it opens My Koala. Signed-out
+// visitors get a small invitation instead.
+function renderHomeProfile() {
+  const box = document.getElementById("home-profile");
+  if (!box) return;
+  if (!canUseAccountFeatures()) {
+    box.innerHTML = `<div class="home-profile home-profile-invite"><span class="home-profile-avatar" aria-hidden="true">${KoalaArt.avatar({}, { view: "head" })}</span>
+      <span class="home-profile-main"><span class="home-profile-title">${rwL("Meet your Koala!", "나의 코알라를 만나요!")}</span>
+      <span class="home-profile-sub">${rwL("Sign up free to earn Coins, build a streak and decorate a room.", "무료로 가입하고 코인을 모으고 방을 꾸며요.")}</span></span>
+      <button type="button" class="pill accent small" data-rw-signup>${rwL("Sign up / Log in", "가입 / 로그인")}</button></div>`;
+    return;
+  }
+  ensureRewardData();
+  const k = KoalaCore.ensureKoala(progress);
+  const lv = KoalaCore.levelInfo(k.earned);
+  const st = currentStreakStatus();
+  const cat = buildBadgeCatalog();
+  const badges = cat.filter((b) => progress.badges[b.id]).length;
+  const coins = serverAdmin ? "∞" : k.coins;
+  box.innerHTML = `<button type="button" class="home-profile" data-koala-go="koala" aria-label="${rwL("Open My Koala", "나의 코알라 열기")}">
+      <span class="home-profile-avatar" aria-hidden="true">${KoalaArt.avatar(k.items.equipped, { view: "head" })}</span>
+      <span class="home-profile-main">
+        <span class="home-profile-title">${rwL(`Koala Lv. ${lv.level}`, `코알라 Lv. ${lv.level}`)}</span>
+        <span class="koala-level-bar" aria-hidden="true"><span style="width:${lv.pct}%"></span></span>
+        <span class="home-profile-chips">
+          <span class="home-chip" title="${rwL("Koala Coins", "코알라 코인")}">${COIN_SVG} ${coins}</span>
+          <span class="home-chip" title="${rwL("Day streak", "연속 학습")}">🔥 ${st.count}</span>
+          <span class="home-chip" title="${rwL("Badges", "배지")}">🏆 ${badges}/${cat.length}</span>
+        </span>
+      </span>
+      <span class="home-profile-go" aria-hidden="true">›</span></button>`;
+}
+
 function renderHome() {
   // The tile icon already carries the emoji, so drop it from the title text.
   document.querySelectorAll(".landing-tile-title").forEach((el) => {
     el.textContent = el.textContent.replace(/^[^\p{L}\p{N}]+/u, "").trim();
   });
+  window.__homeReady = true;
+  renderHomeProfile();
   renderHomeYears();
   renderMission();
   renderReviewCard();
