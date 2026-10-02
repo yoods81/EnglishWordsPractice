@@ -1101,7 +1101,7 @@ function saveProgress() {
   // and back in (or switching devices) — free/anonymous stays local-only.
   if (canWriteServerWords()) scheduleProgressSync();
   scheduleKoalaSummary();
-  if (window.__homeReady && document.getElementById("view-landing")?.classList.contains("active")) renderHomeProfile();
+  if (window.__koalaUiReady && !authMenu.hidden) renderAuthMenuKoala();
 }
 
 // Learning -> Koala Coins. Every 10 correct answers in a mode earn that mode's
@@ -2499,7 +2499,6 @@ function updateAdminUI() {
   if (adminCodesTabButton) adminCodesTabButton.hidden = !serverAdmin;
   const koalaView = document.getElementById("view-koala");
   if (koalaView && koalaView.classList.contains("active")) renderKoala();
-  if (window.__homeReady) renderHomeProfile(); // (the reward UI below isn't defined yet during first load)
   // Keep the label short (just the username) so it never fights the centered
   // title for space on narrow screens — the full "tap to log out" meaning
   // lives in the tooltip and the green "signed in" coloring instead.
@@ -2508,6 +2507,9 @@ function updateAdminUI() {
   // would I sign in?" — rather than repeating the button's own label back.
   authToggleBtn.title = currentUser ? t("myAccountMenuItem") : t("authToggleLoggedOutHint");
   authToggleBtn.classList.toggle("auth-toggle-active", !!currentUser);
+  // Signed in: level picker + streak live in the account popover instead.
+  document.body.classList.toggle("signed-in", !!currentUser);
+  if (typeof renderStreakChip === "function") renderStreakChip();
   if (!currentUser) closeAuthMenu();
 
   // Bounce back to the landing tile grid if we're sitting on admincodes and
@@ -2621,13 +2623,61 @@ async function logOut() {
   refreshSharedWords();
 }
 
-authToggleBtn.addEventListener("click", () => {
-  if (currentUser) {
-    authMenu.hidden = !authMenu.hidden;
-  } else {
-    openAuthOverlay("login");
-  }
+// The signed-in popover: the child's Koala, level, coins, badges, streak and
+// the year-level picker, above My Account / Log Out. Opens on hover (mouse),
+// tap or keyboard focus; clicking the Koala opens My Koala.
+const authMenuKoalaEl = document.getElementById("auth-menu-koala");
+function renderAuthMenuKoala() {
+  if (!authMenuKoalaEl) return;
+  if (!currentUser) { authMenuKoalaEl.innerHTML = ""; return; }
+  ensureRewardData();
+  const k = KoalaCore.ensureKoala(progress);
+  const lv = KoalaCore.levelInfo(k.earned);
+  const st = currentStreakStatus();
+  const cat = buildBadgeCatalog();
+  const badges = cat.filter((b) => progress.badges[b.id]).length;
+  authMenuKoalaEl.innerHTML = `<button type="button" class="auth-koala-avatar" data-koala-go="koala" aria-label="${rwL("Open My Koala", "나의 코알라 열기")}">
+      <span class="auth-koala-pic" aria-hidden="true">${KoalaArt.avatar(k.items.equipped, { view: "head" })}</span>
+      <span class="auth-koala-lv">${rwL(`Lv. ${lv.level}`, `Lv. ${lv.level}`)}</span>
+      <span class="koala-level-bar" aria-hidden="true"><span style="width:${lv.pct}%"></span></span></button>
+    <div class="auth-koala-chips">
+      <span class="home-chip" title="${rwL("Koala Coins", "코알라 코인")}">${COIN_SVG} ${serverAdmin ? "∞" : k.coins}</span>
+      <span class="home-chip" title="${rwL("Badges", "배지")}">🏆 ${badges}/${cat.length}</span>
+      <span class="home-chip" title="${rwL("Day streak", "연속 학습")}">🔥 ${rwL(`${st.count} day${st.count === 1 ? "" : "s"}`, `${st.count}일 연속`)}</span>
+    </div>
+    <button type="button" class="auth-koala-level" id="auth-menu-level-btn">📚 ${t("levelBadgePrefix")}: ${levelLabel(currentLevel)} ▾</button>`;
+}
+
+let authMenuPinned = false;
+let authMenuCloseTimer = null;
+function openAuthMenu(byHover) {
+  clearTimeout(authMenuCloseTimer);
+  authMenuPinned = !byHover;
+  renderAuthMenuKoala();
+  authMenu.hidden = false;
+}
+function scheduleAuthMenuClose() {
+  clearTimeout(authMenuCloseTimer);
+  authMenuCloseTimer = setTimeout(() => { if (!authMenuPinned) closeAuthMenu(); }, 220);
+}
+const authWrap = authToggleBtn.closest(".auth-toggle-wrap");
+authWrap.addEventListener("pointerenter", (e) => {
+  if (e.pointerType === "mouse" && currentUser && authMenu.hidden) openAuthMenu(true);
+  else clearTimeout(authMenuCloseTimer);
 });
+authWrap.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") scheduleAuthMenuClose(); });
+
+authToggleBtn.addEventListener("click", () => {
+  if (!currentUser) { openAuthOverlay("login"); return; }
+  if (authMenu.hidden) openAuthMenu(false);
+  else if (!authMenuPinned) authMenuPinned = true; // opened by hover: a click keeps it open
+  else closeAuthMenu();
+});
+authMenu.addEventListener("click", (e) => {
+  if (e.target.closest("#auth-menu-level-btn")) { closeAuthMenu(); levelBadge.click(); }
+  else if (e.target.closest("[data-koala-go]")) closeAuthMenu();
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !authMenu.hidden) closeAuthMenu(); });
 
 document.addEventListener("click", (e) => {
   if (!authMenu.hidden && !authMenu.contains(e.target) && e.target !== authToggleBtn) closeAuthMenu();
@@ -9949,47 +9999,12 @@ function checkMissionComplete() {
     showNextBadgeToast();
   }
 }
-// Home: a compact "my Koala" card at the top — character, level, coins,
-// streak and badges at a glance. Tapping it opens My Koala. Signed-out
-// visitors get a small invitation instead.
-function renderHomeProfile() {
-  const box = document.getElementById("home-profile");
-  if (!box) return;
-  if (!canUseAccountFeatures()) {
-    box.innerHTML = `<div class="home-profile home-profile-invite"><span class="home-profile-avatar" aria-hidden="true">${KoalaArt.avatar({}, { view: "head" })}</span>
-      <span class="home-profile-main"><span class="home-profile-title">${rwL("Meet your Koala!", "나의 코알라를 만나요!")}</span>
-      <span class="home-profile-sub">${rwL("Sign up free to earn Coins, build a streak and decorate a room.", "무료로 가입하고 코인을 모으고 방을 꾸며요.")}</span></span>
-      <button type="button" class="pill accent small" data-rw-signup>${rwL("Sign up / Log in", "가입 / 로그인")}</button></div>`;
-    return;
-  }
-  ensureRewardData();
-  const k = KoalaCore.ensureKoala(progress);
-  const lv = KoalaCore.levelInfo(k.earned);
-  const st = currentStreakStatus();
-  const cat = buildBadgeCatalog();
-  const badges = cat.filter((b) => progress.badges[b.id]).length;
-  const coins = serverAdmin ? "∞" : k.coins;
-  box.innerHTML = `<button type="button" class="home-profile" data-koala-go="koala" aria-label="${rwL("Open My Koala", "나의 코알라 열기")}">
-      <span class="home-profile-avatar" aria-hidden="true">${KoalaArt.avatar(k.items.equipped, { view: "head" })}</span>
-      <span class="home-profile-main">
-        <span class="home-profile-title">${rwL(`Koala Lv. ${lv.level}`, `코알라 Lv. ${lv.level}`)}</span>
-        <span class="koala-level-bar" aria-hidden="true"><span style="width:${lv.pct}%"></span></span>
-        <span class="home-profile-chips">
-          <span class="home-chip" title="${rwL("Koala Coins", "코알라 코인")}">${COIN_SVG} ${coins}</span>
-          <span class="home-chip" title="${rwL("Day streak", "연속 학습")}">🔥 ${st.count}</span>
-          <span class="home-chip" title="${rwL("Badges", "배지")}">🏆 ${badges}/${cat.length}</span>
-        </span>
-      </span>
-      <span class="home-profile-go" aria-hidden="true">›</span></button>`;
-}
-
 function renderHome() {
+  window.__koalaUiReady = true; // the reward UI above is defined from here on
   // The tile icon already carries the emoji, so drop it from the title text.
   document.querySelectorAll(".landing-tile-title").forEach((el) => {
     el.textContent = el.textContent.replace(/^[^\p{L}\p{N}]+/u, "").trim();
   });
-  window.__homeReady = true;
-  renderHomeProfile();
   renderHomeYears();
   renderMission();
   renderReviewCard();
