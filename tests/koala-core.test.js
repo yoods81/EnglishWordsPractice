@@ -251,7 +251,7 @@ test("catalogue is consistent: every item has art, a valid slot and a requiremen
     assert.ok(it.unlock.free || it.unlock.coins > 0 || it.unlock.streak > 0 || it.unlock.badge);
     assert.ok(A.hasArt(it.id), "art for " + it.id);
   });
-  assert.ok(K.ITEMS.length >= 5 && K.ITEMS.length <= 120, "catalogue");
+  assert.ok(K.ITEMS.length >= 5 && K.ITEMS.length <= 400, "catalogue");
 });
 
 test("avatar draws only what is equipped, in the right layers", () => {
@@ -430,4 +430,13 @@ test("shop expansion: Jewelry and Shoes exist and every character category has 1
     assert.ok(n >= 10, slot + " has " + n);
   });
   K.ITEMS.forEach((i) => assert.ok(A.itemIcon(i.id).includes("<svg"), "icon " + i.id));
+});
+
+test("shop expansion: every Study Room category has 10+ items with art", () => {
+  K.ROOM_SLOTS.forEach((slot) => {
+    const n = K.ITEMS.filter((i) => i.slot === slot && !i.season).length;
+    assert.ok(n >= 10, slot + " has " + n);
+  });
+  assert.ok(K.ROOM_SLOTS.length >= 11);
+  K.ITEMS.filter((i) => i.kind === "room").forEach((i) => assert.ok(A.hasArt(i.id), i.id));
 });

@@ -9107,8 +9107,12 @@ const KOALA_SLOT_TITLES = () => ({
   lamp: rwL("💡 Lamp", "💡 램프"),
   shelf: rwL("📖 Bookshelf", "📖 책장"),
   plant: rwL("🪴 Plant", "🪴 화분"),
+  window: rwL("🪟 Window", "🪟 창문"),
+  garland: rwL("🎏 Hanging Decor", "🎏 천장 장식"),
+  pet: rwL("🐾 Pets", "🐾 반려동물"),
+  toy: rwL("🧸 Toys", "🧸 장난감"),
 });
-const KOALA_SLOT_EMOJI = { headwear: "🎩", face: "👓", clothing: "👕", jewelry: "💍", shoes: "👟", accessory: "🎒", wallpaper: "🎨", rug: "🟡", poster: "🖼️", desk: "📚", lamp: "💡", shelf: "📖", plant: "🪴" };
+const KOALA_SLOT_EMOJI = { headwear: "🎩", face: "👓", clothing: "👕", jewelry: "💍", shoes: "👟", accessory: "🎒", wallpaper: "🎨", rug: "🟡", poster: "🖼️", desk: "📚", lamp: "💡", shelf: "📖", plant: "🪴", window: "🪟", garland: "🎏", pet: "🐾", toy: "🧸" };
 let koalaTab = "character"; // "character" | "room" | "coins" | "badges"
 
 // The admin account has unlimited coins: nothing is ever short, nothing is spent.
