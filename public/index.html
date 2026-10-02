@@ -172,6 +172,7 @@
           </div>
         </div>
         <button data-view="stats" class="tab-btn tab-btn-highlight"><span data-i18n="navStats">📊 My Progress</span><span class="nav-badge nav-badge-star" aria-hidden="true">⭐</span></button>
+        <button data-view="koala" class="tab-btn"><span data-i18n="navKoala">🐨 My Koala</span></button>
         <button data-view="addword" class="tab-btn tab-btn-highlight"><span data-i18n="navAddword">➕ Add Word</span><span class="nav-badge nav-badge-lock" aria-hidden="true">🔒</span></button>
         <button data-view="admincodes" class="tab-btn" data-i18n="navAdminCodes" hidden>🎟️ Codes</button>
       </nav>
@@ -295,6 +296,13 @@
             <span class="landing-tile-desc" data-i18n="landingDescStats">See how far you've come</span>
           </span>
           <span class="nav-badge landing-tile-badge" aria-hidden="true">⭐</span>
+        </button>
+        <button data-view="koala" class="tab-btn landing-tile">
+          <span class="landing-tile-icon" aria-hidden="true">🐨</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navKoala">🐨 My Koala</span>
+            <span class="landing-tile-desc" data-i18n="landingDescKoala">Your badges, streak and Koala</span>
+          </span>
         </button>
         <button data-view="addword" class="tab-btn landing-tile landing-tile-highlight">
           <span class="landing-tile-icon" aria-hidden="true">➕</span>
@@ -1041,6 +1049,18 @@
       </div>
     </section>
 
+    <!-- My Koala: the one place for everything a child earns (level, coins,
+         streak, badges). Rendered by renderKoala() in app.js. -->
+    <section id="view-koala" class="view">
+      <div class="card">
+        <div class="progress-head">
+          <h2 class="progress-title" data-i18n="navKoala">🐨 My Koala</h2>
+          <p class="progress-sub" data-i18n="koalaSub">Everything you earn while you learn lives here.</p>
+        </div>
+        <div id="koala-body"></div>
+      </div>
+    </section>
+
     <!-- Admin panel: user accounts (incl. upgrade requests), paid signup codes -->
     <section id="view-admincodes" class="view">
       <div class="card">
@@ -1144,6 +1164,10 @@
       <span class="bottom-tab-label" data-i18n="navStatsShort">Progress</span>
       <span class="nav-badge bottom-tab-badge" aria-hidden="true">⭐</span>
     </button>
+    <button data-view="koala" class="tab-btn bottom-tab-btn">
+      <span class="bottom-tab-icon" aria-hidden="true">🐨</span>
+      <span class="bottom-tab-label" data-i18n="navKoalaShort">My Koala</span>
+    </button>
     <button data-view="addword" class="tab-btn bottom-tab-btn bottom-tab-btn-highlight">
       <span class="bottom-tab-icon" aria-hidden="true">➕</span>
       <span class="bottom-tab-label" data-i18n="navAddwordShort">Add Word</span>
@@ -1167,6 +1191,7 @@
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.2/mammoth.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="js/koala-core.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

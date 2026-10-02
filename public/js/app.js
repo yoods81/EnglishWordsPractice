@@ -80,6 +80,10 @@ const TRANSLATIONS = {
     navWordlist: "📖 Word List",
     navAddword: "➕ Add Word",
     navStats: "📊 My Progress",
+    navKoala: "🐨 My Koala",
+    navKoalaShort: "My Koala",
+    landingDescKoala: "Your badges, streak and Koala",
+    koalaSub: "Everything you earn while you learn lives here.",
     navHome: "🏠 Home",
     navAdminCodes: "🛠️ Admin",
     // Section titles shown at the top of the Quiz/Spelling/Flashcards cards
@@ -569,6 +573,10 @@ const TRANSLATIONS = {
     navWordlist: "📖 단어장",
     navAddword: "➕ 단어 추가",
     navStats: "📊 내 진행상황",
+    navKoala: "🐨 마이 코알라",
+    navKoalaShort: "마이 코알라",
+    landingDescKoala: "나의 배지, 연속 학습, 코알라",
+    koalaSub: "공부하면서 얻은 모든 것이 여기에 모여요.",
     navHome: "🏠 홈",
     navAdminCodes: "🛠️ 관리자",
     quizSectionTitle: "💡 퀴즈",
@@ -1047,30 +1055,39 @@ function loadProgress() {
   };
 }
 
-// ---- Daily practice streak ----
-// A simple "did you practice at all today" counter, independent of score or
-// mode: any correct/incorrect answer through recordResult() counts. Counts up
-// once per calendar day (local time); a missed day resets it to 1 on the next
-// practice instead of continuing to climb.
+// ---- Daily learning streak ----
+// Rules and numbers live in koala-core.js (REWARD_CONFIG.streak): a day counts
+// once the child has answered enough questions that day, in any mode (merely
+// opening the site never counts); one missed day per week is forgiven; a
+// longer gap starts a new streak but the best streak is always kept.
 function localDateKey(date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  return KoalaCore.dateKey(date);
 }
 
+// Total answers given today across every mode (from progress.daily, which
+// trackActivity() fills in).
+function answersToday() {
+  const rec = (progress.daily && progress.daily[localDateKey(new Date())]) || {};
+  return Object.keys(rec).reduce((sum, mode) => sum + ((rec[mode] && rec[mode][1]) || 0), 0);
+}
+
+// Call after the answer has been tracked. Returns true when the streak count
+// changed just now.
 function bumpDailyStreak() {
-  if (!progress.streak) progress.streak = { count: 0, lastDay: null };
-  const today = localDateKey(new Date());
-  if (progress.streak.lastDay === today) return false; // already counted today
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const wasYesterday = progress.streak.lastDay === localDateKey(yesterday);
-  progress.streak.count = wasYesterday ? progress.streak.count + 1 : 1;
-  progress.streak.lastDay = today;
-  return true; // streak count changed just now
+  progress.streak = KoalaCore.ensureStreak(progress.streak);
+  if (answersToday() < KoalaCore.REWARD_CONFIG.streak.minAnswersPerDay) return false;
+  return KoalaCore.advanceStreak(progress.streak, localDateKey(new Date())).changed;
+}
+
+// What the streak looks like right now (a streak that can no longer be saved
+// reads 0 instead of a stale number).
+function currentStreakStatus() {
+  return KoalaCore.streakStatus(progress.streak, localDateKey(new Date()), answersToday());
 }
 
 function renderStreakChip() {
   if (!streakCountEl) return;
-  streakCountEl.textContent = String((progress.streak && progress.streak.count) || 0);
+  streakCountEl.textContent = String(currentStreakStatus().count);
 }
 
 function saveProgress() {
@@ -1090,8 +1107,9 @@ function recordResult(word, isCorrect, mode) {
   if (isCorrect) stats.correct++;
   else stats.incorrect++;
   progress.wordStats[word] = stats;
-  const streakChanged = bumpDailyStreak();
   trackActivity(word, isCorrect, mode);
+  const streakChanged = bumpDailyStreak();
+  if (streakChanged) checkBadges(); // streak badges read progress.streak.count
   saveProgress();
   renderStreakChip();
   if (typeof checkMissionComplete === "function") checkMissionComplete();
@@ -2092,6 +2110,7 @@ function refreshView(view) {
   if (view === "wordlist") renderWordList();
   if (view === "addword") renderCustomWords();
   if (view === "stats") renderStats();
+  if (view === "koala") renderKoala();
   if (view === "admincodes") {
     loadAdminCodes();
     loadAdminUsers();
@@ -2373,6 +2392,8 @@ function updateAdminUI() {
   // the click handler above). admincodes is the one tab that's genuinely
   // hidden, since it's admin-only rather than sign-in-gated.
   if (adminCodesTabButton) adminCodesTabButton.hidden = !serverAdmin;
+  const koalaView = document.getElementById("view-koala");
+  if (koalaView && koalaView.classList.contains("active")) renderKoala();
   // Keep the label short (just the username) so it never fights the centered
   // title for space on narrow screens — the full "tap to log out" meaning
   // lives in the tooltip and the green "signed in" coloring instead.
@@ -8634,13 +8655,15 @@ function trackActivity(word, isCorrect, mode) {
   const keys = Object.keys(progress.daily).sort();
   while (keys.length > 60) delete progress.daily[keys.shift()];
 
-  // Badges and the Wrong-answer notebook are Premium/admin perks — nothing
-  // is collected for free or signed-out visitors (charts above still are).
-  if (!canUsePaidFeatures()) return;
+  // The Wrong-answer notebook is a Premium/admin perk — nothing is collected
+  // for free or signed-out visitors (charts above still are).
+  const paid = canUsePaidFeatures();
   const key = String(word);
   if (isCorrect) {
-    if (mode === "tt") progress.ttSolved[key] = 1;
-    const w = progress.wrong[key];
+    // Times-table facts feed the table-mastery badges, which every signed-in
+    // account can earn.
+    if (mode === "tt" && canUseAccountFeatures()) progress.ttSolved[key] = 1;
+    const w = paid ? progress.wrong[key] : null;
     if (w) {
       w.ok = (w.ok || 0) + 1;
       if (w.ok >= 2) {
@@ -8648,7 +8671,7 @@ function trackActivity(word, isCorrect, mode) {
         progress.counters.wrongCleared++;
       }
     }
-  } else {
+  } else if (paid) {
     const w = progress.wrong[key] || (progress.wrong[key] = { n: 0, last: 0, ok: 0, mode });
     w.n++;
     w.ok = 0;
@@ -8709,10 +8732,10 @@ function buildBadgeCatalog() {
       desc: rwL("Practise 7 days in a row", "7일 연속 학습"), test: () => (progress.streak.count || 0) >= 7 },
     { id: "streak30", emoji: "🏆", group: "habit", name: rwL("Monthly Marathon", "한 달 연속 학습"),
       desc: rwL("Practise 30 days in a row", "30일 연속 학습"), test: () => (progress.streak.count || 0) >= 30 },
-    { id: "fix5", emoji: "🏅", group: "habit", name: rwL("Mistake Fixer", "오답 해결사"),
+    { id: "fix5", emoji: "🏅", group: "habit", paidOnly: true, name: rwL("Mistake Fixer", "오답 해결사"),
       desc: rwL("Clear 5 words from your Wrong-answer notebook", "오답 노트에서 5개 졸업"),
       test: () => progress.counters.wrongCleared >= 5 },
-    { id: "fix20", emoji: "💎", group: "habit", name: rwL("Mistake Master", "오답 마스터"),
+    { id: "fix20", emoji: "💎", group: "habit", paidOnly: true, name: rwL("Mistake Master", "오답 마스터"),
       desc: rwL("Clear 20 words from your Wrong-answer notebook", "오답 노트에서 20개 졸업"),
       test: () => progress.counters.wrongCleared >= 20 }
   );
@@ -8721,11 +8744,16 @@ function buildBadgeCatalog() {
 
 let rwToastQueue = [];
 let rwToastShowing = false;
+// Badges are open to every signed-in account (free, paid, admin) — signed-out
+// visitors see a sign-up prompt instead. Only the two Wrong-answer-notebook
+// badges (paidOnly) need Premium, because the notebook itself is Premium.
 function checkBadges() {
-  if (!canUsePaidFeatures()) return;
+  if (!canUseAccountFeatures()) return;
   ensureRewardData();
+  const paid = canUsePaidFeatures();
   const fresh = [];
   buildBadgeCatalog().forEach((b) => {
+    if (b.paidOnly && !paid) return;
     if (!progress.badges[b.id] && b.test()) {
       progress.badges[b.id] = Date.now();
       fresh.push(b);
@@ -8795,29 +8823,123 @@ document.addEventListener("click", (e) => {
   if (e.target.closest("[data-rw-upgrade]")) promptUpgradeForFeature();
 });
 
-function renderBadgePanel() {
+// Signed-out visitors can look at the badges but can't collect them.
+function badgeSignupLockHtml() {
+  return `<div class="rw-lock"><div class="rw-lock-icon">🔒🐨</div>
+    <div class="rw-lock-title">${rwL("Sign in to collect koala badges", "로그인하고 코알라 배지를 모아요")}</div>
+    <p>${rwL("Create a free account to earn badges as you learn.", "무료 계정을 만들면 공부하면서 배지를 모을 수 있어요.")}</p>
+    <button type="button" class="pill accent small" data-rw-signup>${rwL("Sign up / Log in", "가입 / 로그인")}</button></div>`;
+}
+document.addEventListener("click", (e) => {
+  if (e.target.closest("[data-rw-signup]")) openAuthOverlay("signup");
+});
+
+// The badge collection, shared by My Progress → Badges and My Koala.
+function badgeGridHtml() {
+  const signedIn = canUseAccountFeatures();
   const paid = canUsePaidFeatures();
   const cat = buildBadgeCatalog();
-  const got = paid ? cat.filter((b) => progress.badges[b.id]).length : 0;
+  const got = signedIn ? cat.filter((b) => progress.badges[b.id]).length : 0;
   const groups = [
     ["math", rwL("🧮 Times Table", "🧮 구구단")],
     ["english", rwL("📖 English", "📖 영어")],
     ["habit", rwL("🔥 Habits", "🔥 학습 습관")],
   ];
-  let html = paid ? "" : premiumLockHtml();
+  let html = signedIn ? "" : badgeSignupLockHtml();
   html += `<p class="badge-summary">${rwL(`Collected ${got} of ${cat.length} koala badges`, `코알라 배지 ${cat.length}개 중 ${got}개 모았어요`)}</p>`;
   groups.forEach(([g, title]) => {
     html += `<h4 class="badge-group-title">${title}</h4><div class="badge-grid">`;
     cat.filter((b) => b.group === g).forEach((b) => {
-      const on = paid && !!progress.badges[b.id];
+      const on = signedIn && !!progress.badges[b.id];
+      const premiumNote = b.paidOnly && !paid ? `<div class="badge-desc badge-premium">${rwL("Premium", "프리미엄")}</div>` : "";
       html += `<div class="badge-card ${on ? "earned" : "locked"}" title="${escapeHtml(b.desc)}">
         <div class="badge-medal"><span class="badge-koala">${b.emoji}</span><span class="badge-sticker">${on ? "🐨" : "🔒"}</span></div>
         <div class="badge-name">${escapeHtml(b.name)}</div>
-        <div class="badge-desc">${escapeHtml(b.desc)}</div></div>`;
+        <div class="badge-desc">${escapeHtml(b.desc)}</div>${on ? "" : premiumNote}</div>`;
     });
     html += `</div>`;
   });
-  statsPanels.badges.innerHTML = html;
+  return html;
+}
+
+function renderBadgePanel() {
+  statsPanels.badges.innerHTML = badgeGridHtml();
+}
+
+/* ================= MY KOALA (reward hub — Phase 1: foundation) ================= */
+// Everything the child has earned lives here: Koala level, Koala Coins,
+// learning streak and badges. Character, Room and the Next Reward preview are
+// later phases — nothing is stubbed in the UI for them.
+const KOALA_REASON_LABELS = () => ({
+  quiz: rwL("Quiz", "퀴즈"),
+  spelling: rwL("Spelling", "스펠링"),
+  flashcards: rwL("Flashcards", "플래시카드"),
+  timesTable: rwL("Times Table", "구구단"),
+  typing: rwL("Typing Game", "타이핑 게임"),
+  review: rwL("Review session", "복습"),
+  dailyMission: rwL("Today's Mission", "오늘의 미션"),
+  badge: rwL("New badge", "새 배지"),
+});
+
+function koalaStatTile(icon, value, label, sub) {
+  return `<div class="koala-stat"><span class="koala-stat-ico" aria-hidden="true">${icon}</span>
+    <span class="koala-stat-val">${value}</span><span class="koala-stat-lbl">${label}</span>${sub ? `<span class="koala-stat-sub">${sub}</span>` : ""}</div>`;
+}
+
+function renderKoala() {
+  const box = document.getElementById("koala-body");
+  if (!box) return;
+
+  if (!canUseAccountFeatures()) {
+    box.innerHTML = `<div class="rw-lock"><div class="rw-lock-icon">🐨🔒</div>
+      <div class="rw-lock-title">${rwL("Sign in to meet your Koala", "로그인하고 나의 코알라를 만나요")}</div>
+      <p>${rwL("Your Koala keeps your level, streak and badges as you learn. Create a free account to get started.", "나의 코알라가 레벨, 연속 학습, 배지를 모아 줘요. 무료 계정을 만들어 시작해요.")}</p>
+      <button type="button" class="pill accent small" data-rw-signup>${rwL("Sign up / Log in", "가입 / 로그인")}</button></div>`;
+    return;
+  }
+
+  ensureRewardData();
+  const k = KoalaCore.ensureKoala(progress);
+  const lv = KoalaCore.levelInfo(k.earned);
+  const st = currentStreakStatus();
+  const cfg = KoalaCore.REWARD_CONFIG.streak;
+  const cat = buildBadgeCatalog();
+  const badgeCount = cat.filter((b) => progress.badges[b.id]).length;
+
+  const hero = `<div class="koala-hero">
+      <div class="koala-hero-avatar" aria-hidden="true">🐨</div>
+      <div class="koala-hero-main">
+        <div class="koala-hero-level">${rwL(`Koala Lv. ${lv.level}`, `코알라 Lv. ${lv.level}`)}</div>
+        <div class="koala-level-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${lv.span}" aria-valuenow="${lv.intoLevel}"
+          aria-label="${rwL("Progress to next Koala level", "다음 코알라 레벨까지")}"><span style="width:${lv.pct}%"></span></div>
+        <div class="koala-hero-next">${rwL(`${lv.toNext} more Coins to reach Lv. ${lv.level + 1}`, `Lv. ${lv.level + 1}까지 코인 ${lv.toNext}개 남았어요`)}</div>
+      </div>
+    </div>`;
+
+  const streakSub = st.countedToday
+    ? rwL("✅ Today counted!", "✅ 오늘 완료!")
+    : rwL(`Answer ${st.answersToGo} more today`, `오늘 ${st.answersToGo}문제 더 풀어요`);
+  const stats = `<div class="koala-stats">
+      ${koalaStatTile("🪙", k.coins, rwL("Koala Coins", "코알라 코인"))}
+      ${koalaStatTile("🔥", st.count, rwL("day streak", "일 연속"), streakSub)}
+      ${koalaStatTile("🏆", `${badgeCount}/${cat.length}`, rwL("Badges", "배지"))}
+    </div>`;
+
+  const streakNote = `<p class="koala-note">${rwL(
+    `🔥 Best streak: ${st.best} ${st.best === 1 ? "day" : "days"}. A day counts when you answer ${cfg.minAnswersPerDay} questions.`,
+    `🔥 최고 연속 기록: ${st.best}일. 하루에 ${cfg.minAnswersPerDay}문제를 풀면 그날이 인정돼요.`)}
+    ${st.restAvailable ? rwL(" 🌙 You have a rest day this week — missing one day won't break your streak.", " 🌙 이번 주에는 쉬는 날이 있어요. 하루 쉬어도 연속 기록이 끊기지 않아요.") : ""}
+    ${st.nextMilestone ? rwL(` Next streak goal: ${st.nextMilestone} days.`, ` 다음 목표: ${st.nextMilestone}일 연속.`) : ""}</p>`;
+
+  const labels = KOALA_REASON_LABELS();
+  const recent = k.ledger.slice(-8).reverse();
+  const history = recent.length
+    ? `<ul class="koala-history">${recent.map((e) => `<li><span class="koala-history-n">+${e.n} 🪙</span><span class="koala-history-why">${escapeHtml(labels[e.why] || e.why)}</span><span class="koala-history-day">${new Date(e.t).toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { day: "numeric", month: "short" })}</span></li>`).join("")}</ul>`
+    : `<p class="koala-note">${rwL("Koala Coins are coming soon! Your level, streak and badges already count as you learn.", "코알라 코인이 곧 찾아와요! 레벨, 연속 학습, 배지는 지금도 공부하면서 쌓여요.")}</p>`;
+
+  box.innerHTML = `${hero}${stats}${streakNote}
+    <h3 class="koala-h">${rwL("🪙 Coin history", "🪙 코인 내역")}</h3>${history}
+    <h3 class="koala-h">${rwL("🏆 Badges", "🏆 배지")}</h3>${badgeGridHtml()}`;
 }
 
 /* ---- Wrong-answer notebook ---- */
@@ -9136,14 +9258,15 @@ function renderSkillsCard() {
     : "";
 
   // Badges preview (full list stays in the Badges tab)
-  const paid = canUsePaidFeatures();
+  const signedIn = canUseAccountFeatures();
   const cat = buildBadgeCatalog();
-  const earned = paid ? cat.filter((b) => progress.badges[b.id]) : [];
+  const earned = signedIn ? cat.filter((b) => progress.badges[b.id]) : [];
   const shown = (earned.length ? earned : cat).slice(0, 6);
   const badgeHtml = `<section class="dash-block" aria-labelledby="dash-h-badges"><div class="dash-h-row"><h3 class="dash-h dash-h-plain" id="dash-h-badges">${rwL("Your badges", "나의 배지")}</h3>
       <span class="dash-muted dash-inline">${rwL(`${earned.length} of ${cat.length}`, `${cat.length}개 중 ${earned.length}개`)}</span></div>
     <div class="dash-badges">${shown.map((b) => { const on = earned.includes(b); return `<div class="dash-badge ${on ? "on" : "off"}" title="${escapeHtml(b.desc)}"><span class="dash-badge-ico" aria-hidden="true">${b.emoji}</span><span class="dash-badge-name">${escapeHtml(b.name)}</span></div>`; }).join("")}</div>
-    <button type="button" class="pill small dash-btn" data-dash-tab="badges">${rwL("View all badges", "배지 모두 보기")}</button></section>`;
+    <button type="button" class="pill small dash-btn" data-dash-tab="badges">${rwL("View all badges", "배지 모두 보기")}</button>
+    <button type="button" class="pill small dash-btn" data-dash-act="view:koala">${rwL("View My Koala →", "My Koala 보기 →")}</button></section>`;
 
   box.innerHTML = `<div class="dash-top">${todayHtml}${recHtml}</div>${reviewHtml}${catHtml}${actHtml}${badgeHtml}`;
 }

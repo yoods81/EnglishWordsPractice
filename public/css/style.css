@@ -4968,3 +4968,27 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
 .pa-spark { position: absolute; top: 4px; right: 8px; font-size: 1rem; opacity: 0; animation: paSpark 9s infinite; }
 @keyframes paSpark { 0%, 84% { opacity: 0; transform: scale(.3) rotate(0); } 88% { opacity: 1; transform: scale(1.2) rotate(20deg); } 93%, 95% { opacity: 1; transform: scale(1) rotate(0); } 99%, 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .pa-panel, .pa-arrow, .pa-cam, .pa-vf, .pa-flash, .pa-hl::before, .pa-hand, .pa-tick, .pa-card, .pa-spark { animation: none; } .pa-panel { opacity: 1; } .pa-card, .pa-tick { opacity: 1; } .pa-hl::before { width: 100%; } }
+
+/* ===== My Koala (Phase 1: reward foundation) ===== */
+.koala-hero { display: flex; align-items: center; gap: 14px; background: #f3faf7; border: 2px solid var(--outline, #cfe7df); border-radius: 18px; padding: 14px; margin-bottom: 12px; }
+.koala-hero-avatar { flex: 0 0 auto; width: 72px; height: 72px; border-radius: 50%; background: #d9f6ee; border: 3px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 2.4rem; }
+.koala-hero-main { flex: 1; min-width: 0; }
+.koala-hero-level { font-family: var(--font-heading); font-weight: 700; font-size: 1.25rem; color: var(--accent-dark); }
+.koala-level-bar { height: 12px; background: #e6f1ed; border-radius: 6px; overflow: hidden; margin: 6px 0 4px; }
+.koala-level-bar > span { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
+.koala-hero-next { font-size: 0.85rem; color: var(--text); }
+.koala-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+.koala-stat { display: flex; flex-direction: column; align-items: center; gap: 2px; background: #fff; border: 1px solid var(--outline, #cfe7df); border-radius: 14px; padding: 10px 4px; box-shadow: 0 2px 0 var(--outline, #cfe7df); text-align: center; }
+.koala-stat-ico { font-size: 1.5rem; line-height: 1; }
+.koala-stat-val { font-family: var(--font-heading); font-weight: 700; font-size: 1.4rem; color: var(--text); line-height: 1.1; }
+.koala-stat-lbl { font-size: 0.78rem; color: var(--muted); }
+.koala-stat-sub { font-size: 0.72rem; color: var(--accent-dark); font-weight: 600; line-height: 1.2; }
+.koala-note { font-size: 0.85rem; color: var(--text); margin: 6px 0 4px; line-height: 1.4; }
+.koala-h { margin: 18px 0 8px; font-family: var(--font-heading); color: var(--text); }
+.koala-history { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.koala-history li { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--outline, #cfe7df); border-radius: 12px; padding: 8px 10px; font-size: 0.9rem; }
+.koala-history-n { font-family: var(--font-heading); font-weight: 700; color: var(--accent-dark); flex: 0 0 auto; }
+.koala-history-why { flex: 1; min-width: 0; }
+.koala-history-day { color: var(--muted); font-size: 0.8rem; flex: 0 0 auto; }
+.badge-premium { font-weight: 700; color: var(--accent-dark); }
+.dash-badges + .dash-btn { margin-right: 6px; }

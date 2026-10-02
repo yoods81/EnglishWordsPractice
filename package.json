@@ -5,6 +5,7 @@
   "description": "Aussie English Word Practice — static app plus a small Cloudflare Worker API for the shared word list.",
   "scripts": {
     "dev": "wrangler dev",
+    "test": "node --test tests/koala-core.test.js",
     "deploy": "wrangler deploy",
     "db:init": "wrangler d1 execute englishwordspractice --remote --file=./schema.sql",
     "db:init:local": "wrangler d1 execute englishwordspractice --local --file=./schema.sql",
