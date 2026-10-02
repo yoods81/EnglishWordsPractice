@@ -135,3 +135,138 @@ test("streakStatus shows 0 once a streak can no longer be saved, keeps best", ()
   assert.equal(done.countedToday, true);
   assert.equal(done.answersToGo, 0);
 });
+
+/* ---------------- Phase 2: character items ---------------- */
+const A = require("../public/js/koala-art.js");
+
+test("free items are owned from the start; others are not", () => {
+  const p = {};
+  const k = K.ensureKoala(p);
+  assert.ok(k.items.owned.redScarf, "free scarf owned");
+  assert.equal(k.items.owned.blueCap, undefined);
+  assert.equal(K.itemStatus(p, K.itemById("redScarf")).state, "owned");
+});
+
+test("locked coin item reports exactly how many coins are missing", () => {
+  const p = {};
+  K.awardCoins(p, 20, "quiz");
+  const s = K.itemStatus(p, K.itemById("blueCap"));
+  assert.deepEqual(s, { state: "locked", need: "coins", cost: 50, short: 30 });
+});
+
+test("buying an item spends coins, owns and wears it; level is unaffected", () => {
+  const p = {};
+  K.awardCoins(p, 60, "quiz");
+  assert.equal(K.itemStatus(p, K.itemById("blueCap")).state, "buyable");
+  const r = K.buyItem(p, "blueCap");
+  assert.equal(r.ok, true);
+  assert.equal(p.koala.coins, 10);
+  assert.equal(p.koala.earned, 60, "lifetime earned is not reduced by spending");
+  assert.equal(p.koala.items.equipped.headwear, "blueCap");
+  assert.equal(p.koala.ledger[p.koala.ledger.length - 1].n, -50);
+  assert.equal(K.itemStatus(p, K.itemById("blueCap")).state, "equipped");
+  assert.equal(K.levelInfo(p.koala.earned).level, 2);
+});
+
+test("cannot buy without enough coins, twice, or a non-shop item", () => {
+  const p = {};
+  K.awardCoins(p, 10, "quiz");
+  assert.deepEqual(K.buyItem(p, "blueCap"), { ok: false, reason: "notEnoughCoins" });
+  assert.equal(p.koala.coins, 10, "nothing taken on a failed purchase");
+  K.awardCoins(p, 100, "quiz");
+  assert.equal(K.buyItem(p, "blueCap").ok, true);
+  assert.deepEqual(K.buyItem(p, "blueCap"), { ok: false, reason: "owned" });
+  assert.deepEqual(K.buyItem(p, "crown"), { ok: false, reason: "notForSale" });
+  assert.deepEqual(K.buyItem(p, "nope"), { ok: false, reason: "notForSale" });
+});
+
+test("spendCoins never overdraws and ignores bad amounts", () => {
+  const p = {};
+  K.awardCoins(p, 5, "x");
+  assert.equal(K.spendCoins(p, 6, "y"), false);
+  assert.equal(K.spendCoins(p, -1, "y"), false);
+  assert.equal(K.spendCoins(p, 0, "y"), false);
+  assert.equal(p.koala.coins, 5);
+});
+
+test("equip / unequip: one item per slot, only owned items", () => {
+  const p = {};
+  K.awardCoins(p, 500, "x");
+  K.buyItem(p, "blueCap");
+  K.buyItem(p, "gradHat"); // replaces the cap in the headwear slot
+  assert.equal(p.koala.items.equipped.headwear, "gradHat");
+  assert.equal(K.equipItem(p, "blueCap"), true);
+  assert.equal(p.koala.items.equipped.headwear, "blueCap");
+  assert.equal(K.equipItem(p, "sunglasses"), false, "not owned");
+  assert.equal(K.unequipSlot(p, "headwear"), true);
+  assert.equal(K.unequipSlot(p, "headwear"), false);
+  assert.equal(K.itemStatus(p, K.itemById("blueCap")).state, "owned");
+});
+
+test("streak item unlocks from the best streak, with the missing days shown", () => {
+  const p = { streak: { count: 0, lastDay: null, best: 4 } };
+  const s = K.itemStatus(p, K.itemById("crown"));
+  assert.deepEqual(s, { state: "locked", need: "streak", days: 7, have: 4 });
+  assert.deepEqual(K.syncStreakUnlocks(p), []);
+  p.streak.best = 7;
+  assert.deepEqual(K.syncStreakUnlocks(p), ["crown"]);
+  assert.deepEqual(K.syncStreakUnlocks(p), [], "only announced once");
+  assert.equal(K.itemStatus(p, K.itemById("crown")).state, "owned");
+});
+
+test("nextReward is the cheapest coin item not yet owned", () => {
+  const p = {};
+  K.awardCoins(p, 20, "x");
+  let n = K.nextReward(p);
+  assert.equal(n.item.id, "blueCap");
+  assert.equal(n.toGo, 30);
+  assert.equal(n.pct, 40);
+  assert.equal(n.affordable, false);
+  K.awardCoins(p, 30, "x");
+  assert.equal(K.nextReward(p).affordable, true);
+  K.buyItem(p, "blueCap");
+  assert.equal(K.nextReward(p).item.id, "roundGlasses");
+});
+
+test("nextReward is null once every coin item is owned", () => {
+  const p = {};
+  K.awardCoins(p, 5000, "x");
+  K.ITEMS.filter((i) => i.unlock.coins).forEach((i) => K.buyItem(p, i.id));
+  assert.equal(K.nextReward(p), null);
+});
+
+test("saved data with removed or mismatched items is repaired", () => {
+  const p = { koala: { items: { owned: { ghost: 1, blueCap: 1 }, equipped: { headwear: "ghost", face: "blueCap", clothing: "heroCape" } } } };
+  const k = K.ensureKoala(p);
+  assert.equal(k.items.owned.ghost, undefined);
+  assert.deepEqual(k.items.equipped, {}, "ghost, wrong-slot and unowned items are dropped");
+});
+
+test("catalogue is consistent: every item has art, a valid slot and a requirement", () => {
+  const ids = new Set();
+  K.ITEMS.forEach((it) => {
+    assert.ok(!ids.has(it.id), "unique id " + it.id); ids.add(it.id);
+    assert.ok(K.ITEM_SLOTS.includes(it.slot), "slot " + it.slot);
+    assert.ok(it.name.en && it.name.ko);
+    assert.ok(it.unlock.free || it.unlock.coins > 0 || it.unlock.streak > 0);
+    assert.ok(A.hasArt(it.id), "art for " + it.id);
+  });
+  assert.ok(K.ITEMS.length >= 5 && K.ITEMS.length <= 10, "small first catalogue");
+});
+
+test("avatar draws only what is equipped, in the right layers", () => {
+  const bare = A.avatar({});
+  assert.ok(!bare.includes("data-item"));
+  const dressed = A.avatar({ headwear: "gradHat", clothing: "heroCape", accessory: "backpack" });
+  assert.ok(dressed.includes('data-item="gradHat"'));
+  assert.ok(dressed.includes('data-item="heroCape" data-layer="back"'));
+  assert.ok(dressed.includes('data-item="backpack" data-layer="back"'));
+  assert.ok(dressed.includes('data-item="backpack" data-layer="front"'));
+  // back layers come before the koala's body, front layers after it
+  assert.ok(dressed.indexOf('data-layer="back"') < dressed.indexOf('rx="46" ry="40"'));
+  assert.ok(dressed.lastIndexOf('data-item="gradHat"') > dressed.indexOf('rx="46" ry="40"'));
+  // an item in the wrong slot is ignored
+  assert.ok(!A.avatar({ face: "gradHat" }).includes("data-item"));
+  assert.ok(A.avatar({}, { label: 'My "Koala"' }).includes('aria-label="My &quot;Koala&quot;"'));
+  assert.ok(A.itemPicture("blueCap").includes("26 12 148 124"), "head crop for headwear");
+});

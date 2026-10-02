@@ -10,7 +10,8 @@
 //     v: 1,
 //     coins: 0,          // spendable balance (Koala Coins — the only currency)
 //     earned: 0,         // lifetime coins earned; drives the Koala level
-//     ledger: [ { t, n, why, key? } ]   // newest last, capped to LEDGER_MAX
+//     ledger: [ { t, n, why, key? } ]   // newest last, capped; n < 0 = a purchase
+//     items: { owned: { itemId: ts }, equipped: { slot: itemId } }   // Phase 2
 //   }
 // The daily streak stays in `progress.streak` (the app already had it, and the
 // streak badges read it): { count, lastDay, best, restWeek }.
@@ -55,6 +56,27 @@
     ledgerMax: 100,
   };
 
+  /* ---------- Character items (Phase 2) ----------
+     slot: headwear | face | clothing | accessory (one item per slot is worn).
+     unlock is one of:
+       { free: true }      owned from the start
+       { coins: N }        bought once with Koala Coins
+       { streak: N }       unlocked automatically once the best streak >= N days
+     Every requirement is shown to the child — nothing is hidden. */
+  const ITEM_SLOTS = ["headwear", "face", "clothing", "accessory"];
+  const ITEMS = [
+    { id: "blueCap",    slot: "headwear",  name: { en: "Blue Cap",        ko: "파란 모자" },     unlock: { coins: 50 } },
+    { id: "gradHat",    slot: "headwear",  name: { en: "Graduation Hat",  ko: "졸업 모자" },     unlock: { coins: 120 } },
+    { id: "crown",      slot: "headwear",  name: { en: "Golden Crown",    ko: "황금 왕관" },     unlock: { streak: 7 } },
+    { id: "roundGlasses", slot: "face",    name: { en: "Round Glasses",   ko: "동그란 안경" },   unlock: { coins: 80 } },
+    { id: "sunglasses", slot: "face",      name: { en: "Cool Sunglasses", ko: "멋진 선글라스" }, unlock: { coins: 150 } },
+    { id: "redScarf",   slot: "clothing",  name: { en: "Red Scarf",       ko: "빨간 목도리" },   unlock: { free: true } },
+    { id: "heroCape",   slot: "clothing",  name: { en: "Hero Cape",       ko: "히어로 망토" },   unlock: { coins: 200 } },
+    { id: "headphones", slot: "accessory", name: { en: "Headphones",      ko: "헤드폰" },        unlock: { coins: 100 } },
+    { id: "backpack",   slot: "accessory", name: { en: "School Backpack", ko: "책가방" },        unlock: { coins: 150 } },
+  ];
+  const itemById = (id) => ITEMS.find((i) => i.id === id) || null;
+
   /* ---------- Dates (local calendar days as "YYYY-MM-DD") ---------- */
   function dateKey(date) {
     const d = date || new Date();
@@ -87,6 +109,17 @@
     k.earned = Number.isFinite(k.earned) && k.earned > 0 ? Math.floor(k.earned) : 0;
     if (k.earned < k.coins) k.earned = k.coins;
     if (!Array.isArray(k.ledger)) k.ledger = [];
+    if (!k.items || typeof k.items !== "object") k.items = {};
+    if (!k.items.owned || typeof k.items.owned !== "object") k.items.owned = {};
+    if (!k.items.equipped || typeof k.items.equipped !== "object") k.items.equipped = {};
+    // Free items are owned from the start; drop anything the catalogue no
+    // longer knows about so a removed item can never stay equipped.
+    ITEMS.forEach((it) => { if (it.unlock.free && !k.items.owned[it.id]) k.items.owned[it.id] = 1; });
+    Object.keys(k.items.owned).forEach((id) => { if (!itemById(id)) delete k.items.owned[id]; });
+    Object.keys(k.items.equipped).forEach((slot) => {
+      const it = itemById(k.items.equipped[slot]);
+      if (!it || it.slot !== slot || !k.items.owned[it.id]) delete k.items.equipped[slot];
+    });
     return k;
   }
 
@@ -107,6 +140,90 @@
     k.ledger.push(entry);
     if (k.ledger.length > REWARD_CONFIG.ledgerMax) k.ledger.splice(0, k.ledger.length - REWARD_CONFIG.ledgerMax);
     return n;
+  }
+
+  // Spending is explicit and only ever happens on a purchase the child
+  // confirmed — it is never a penalty. Level uses lifetime `earned`, so
+  // spending can't lower it. Returns true if the coins were taken.
+  function spendCoins(progress, amount, why, opts) {
+    const o = opts || {};
+    const n = Math.floor(Number(amount));
+    if (!Number.isFinite(n) || n <= 0) return false;
+    const k = ensureKoala(progress);
+    if (k.coins < n) return false;
+    k.coins -= n;
+    k.ledger.push({ t: o.now != null ? o.now : Date.now(), n: -n, why: String(why || "") });
+    if (k.ledger.length > REWARD_CONFIG.ledgerMax) k.ledger.splice(0, k.ledger.length - REWARD_CONFIG.ledgerMax);
+    return true;
+  }
+
+  /* ---------- Character items ---------- */
+  // Streak items unlock by themselves once the best streak is long enough.
+  // Returns the ids unlocked just now.
+  function syncStreakUnlocks(progress) {
+    const k = ensureKoala(progress);
+    const best = ensureStreak(progress.streak).best;
+    const fresh = [];
+    ITEMS.forEach((it) => {
+      if (it.unlock.streak && !k.items.owned[it.id] && best >= it.unlock.streak) {
+        k.items.owned[it.id] = Date.now();
+        fresh.push(it.id);
+      }
+    });
+    return fresh;
+  }
+
+  // What the child sees for one item right now:
+  //   equipped | owned (tap to wear) | buyable (enough coins) | locked
+  // plus the exact thing still missing, for the "why is it locked" text.
+  function itemStatus(progress, item) {
+    const k = ensureKoala(progress);
+    if (k.items.equipped[item.slot] === item.id) return { state: "equipped" };
+    if (k.items.owned[item.id]) return { state: "owned" };
+    if (item.unlock.coins) {
+      const cost = item.unlock.coins;
+      if (k.coins >= cost) return { state: "buyable", cost };
+      return { state: "locked", need: "coins", cost, short: cost - k.coins };
+    }
+    const need = item.unlock.streak || 0;
+    const best = ensureStreak(progress.streak).best;
+    return { state: "locked", need: "streak", days: need, have: best };
+  }
+
+  function buyItem(progress, id, opts) {
+    const it = itemById(id);
+    const k = ensureKoala(progress);
+    if (!it || !it.unlock.coins) return { ok: false, reason: "notForSale" };
+    if (k.items.owned[id]) return { ok: false, reason: "owned" };
+    if (!spendCoins(progress, it.unlock.coins, "item:" + id, opts)) return { ok: false, reason: "notEnoughCoins" };
+    k.items.owned[id] = (opts && opts.now) || Date.now();
+    k.items.equipped[it.slot] = id; // wear it straight away
+    return { ok: true, item: it };
+  }
+
+  function equipItem(progress, id) {
+    const it = itemById(id);
+    const k = ensureKoala(progress);
+    if (!it || !k.items.owned[id]) return false;
+    k.items.equipped[it.slot] = id;
+    return true;
+  }
+  function unequipSlot(progress, slot) {
+    const k = ensureKoala(progress);
+    if (!k.items.equipped[slot]) return false;
+    delete k.items.equipped[slot];
+    return true;
+  }
+
+  // The cheapest coin item the child doesn't own yet — the short-term goal
+  // shown as "Next reward". null once every coin item is owned.
+  function nextReward(progress) {
+    const k = ensureKoala(progress);
+    const open = ITEMS.filter((it) => it.unlock.coins && !k.items.owned[it.id]).sort((a, b) => a.unlock.coins - b.unlock.coins);
+    if (!open.length) return null;
+    const item = open[0];
+    const cost = item.unlock.coins;
+    return { item, cost, coins: k.coins, toGo: Math.max(0, cost - k.coins), affordable: k.coins >= cost, pct: Math.min(100, Math.round((k.coins / cost) * 100)) };
   }
 
   /* ---------- Level ---------- */
@@ -201,7 +318,8 @@
   return {
     REWARD_CONFIG,
     dateKey, daysBetween, shiftDay, weekKey,
-    ensureKoala, awardCoins,
+    ensureKoala, awardCoins, spendCoins,
+    ITEM_SLOTS, ITEMS, itemById, itemStatus, buyItem, equipItem, unequipSlot, syncStreakUnlocks, nextReward,
     levelInfo,
     ensureStreak, advanceStreak, streakStatus,
   };

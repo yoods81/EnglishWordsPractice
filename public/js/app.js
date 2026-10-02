@@ -1109,7 +1109,7 @@ function recordResult(word, isCorrect, mode) {
   progress.wordStats[word] = stats;
   trackActivity(word, isCorrect, mode);
   const streakChanged = bumpDailyStreak();
-  if (streakChanged) checkBadges(); // streak badges read progress.streak.count
+  if (streakChanged) { checkBadges(); announceKoalaUnlocks(); } // streak badges / streak items
   saveProgress();
   renderStreakChip();
   if (typeof checkMissionComplete === "function") checkMissionComplete();
@@ -8771,7 +8771,7 @@ function showNextBadgeToast() {
   const el = document.createElement("div");
   el.className = "badge-toast";
   el.setAttribute("role", "status");
-  el.innerHTML = `<span class="badge-toast-emoji">${b.emoji}</span><span><strong>${rwL("New badge!", "새 배지!")}</strong><br>${b.name}</span>`;
+  el.innerHTML = `<span class="badge-toast-emoji">${b.emoji}</span><span><strong>${b.title || rwL("New badge!", "새 배지!")}</strong><br>${b.name}</span>`;
   document.body.appendChild(el);
   setTimeout(() => el.classList.add("out"), 3200);
   setTimeout(() => { el.remove(); rwToastShowing = false; showNextBadgeToast(); }, 3700);
@@ -8866,10 +8866,10 @@ function renderBadgePanel() {
   statsPanels.badges.innerHTML = badgeGridHtml();
 }
 
-/* ================= MY KOALA (reward hub — Phase 1: foundation) ================= */
+/* ================= MY KOALA (reward hub — Phase 1 foundation + Phase 2 character) ================= */
 // Everything the child has earned lives here: Koala level, Koala Coins,
-// learning streak and badges. Character, Room and the Next Reward preview are
-// later phases — nothing is stubbed in the UI for them.
+// learning streak, badges, and the dress-up Koala (Character tab). The Room is
+// a later phase — nothing is stubbed in the UI for it.
 // The coin is drawn, not an emoji: the coin emoji glyph is missing from many
 // Windows and older Android fonts and shows up as an empty box. Sizes with the text.
 const COIN_SVG = '<svg class="koala-coin" viewBox="0 0 24 24" width="1.1em" height="1.1em" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10.5" fill="#f6c343" stroke="#c98a12" stroke-width="1.5"/><circle cx="12" cy="12" r="7" fill="none" stroke="#e0a21a" stroke-width="1.2"/><path d="M12 7.2v9.6M9.3 9.6c0-1.2 1.2-1.9 2.7-1.9s2.7.7 2.7 1.9c0 2.7-5.4 1.5-5.4 4.2 0 1.2 1.2 2 2.7 2s2.7-.8 2.7-2" fill="none" stroke="#a86f0c" stroke-width="1.3" stroke-linecap="round"/></svg>';
@@ -8884,10 +8884,94 @@ const KOALA_REASON_LABELS = () => ({
   dailyMission: rwL("Today's Mission", "오늘의 미션"),
   badge: rwL("New badge", "새 배지"),
 });
+const KOALA_SLOT_TITLES = () => ({
+  headwear: rwL("🎩 Headwear", "🎩 머리"),
+  face: rwL("👓 Face", "👓 얼굴"),
+  clothing: rwL("👕 Clothing", "👕 옷"),
+  accessory: rwL("🎒 Accessories", "🎒 소품"),
+});
+const KOALA_SLOT_EMOJI = { headwear: "🎩", face: "👓", clothing: "👕", accessory: "🎒" };
+let koalaTab = "character"; // "character" | "badges"
+
+const koalaItemName = (it) => it.name[currentLang === "ko" ? "ko" : "en"];
 
 function koalaStatTile(icon, value, label, sub) {
   return `<div class="koala-stat"><span class="koala-stat-ico" aria-hidden="true">${icon}</span>
     <span class="koala-stat-val">${value}</span><span class="koala-stat-lbl">${label}</span>${sub ? `<span class="koala-stat-sub">${sub}</span>` : ""}</div>`;
+}
+
+// The sentence under an item that says exactly where it stands — a locked item
+// always says what is still missing.
+function koalaItemStatusText(st) {
+  if (st.state === "equipped") return rwL("✓ Wearing — tap to take off", "✓ 입는 중 — 눌러서 벗기");
+  if (st.state === "owned") return rwL("Tap to wear", "눌러서 입기");
+  if (st.state === "buyable") return `${COIN_SVG} ${rwL(`${st.cost} Coins — tap to unlock`, `${st.cost}코인 — 눌러서 열기`)}`;
+  if (st.need === "coins") return rwL(`🔒 ${st.short} more Coins to unlock`, `🔒 ${st.short}코인 더 모으면 열려요`);
+  return rwL(`🔒 Reach a ${st.days}-day streak (best so far: ${st.have})`, `🔒 ${st.days}일 연속 학습하면 열려요 (최고 ${st.have}일)`);
+}
+
+function koalaItemCardHtml(it) {
+  const st = KoalaCore.itemStatus(progress, it);
+  const name = koalaItemName(it);
+  const locked = st.state === "locked";
+  const text = koalaItemStatusText(st);
+  const plain = text.replace(/<[^>]*>/g, "");
+  return `<button type="button" class="koala-item is-${st.state}" data-koala-item="${it.id}"${st.state === "equipped" ? ' aria-pressed="true"' : ""}${locked ? ' aria-disabled="true"' : ""}
+      aria-label="${escapeHtml(name)} — ${escapeHtml(plain)}">
+      <span class="koala-item-pic" aria-hidden="true">${KoalaArt.itemPicture(it.id)}</span>
+      <span class="koala-item-name">${escapeHtml(name)}</span>
+      <span class="koala-item-status">${text}</span></button>`;
+}
+
+function koalaNextRewardHtml() {
+  const nr = KoalaCore.nextReward(progress);
+  if (!nr) return `<div class="koala-next"><div class="koala-next-main"><div class="koala-next-title">${rwL("🎉 You unlocked every item!", "🎉 모든 아이템을 열었어요!")}</div></div></div>`;
+  const name = escapeHtml(koalaItemName(nr.item));
+  const sub = nr.affordable
+    ? rwL("You have enough Coins!", "코인이 충분해요!")
+    : rwL(`${nr.coins} / ${nr.cost} Coins — ${nr.toGo} more Coins to unlock`, `${nr.coins} / ${nr.cost}코인 — ${nr.toGo}코인 더 모으면 열려요`);
+  const action = nr.affordable ? `<button type="button" class="pill accent small koala-next-btn" data-koala-item="${nr.item.id}">${rwL("Unlock now", "지금 열기")}</button>` : "";
+  return `<div class="koala-next"><div class="koala-next-pic" aria-hidden="true">${KoalaArt.itemPicture(nr.item.id)}</div>
+    <div class="koala-next-main"><div class="koala-next-title">${rwL("🎁 Next reward:", "🎁 다음 보상:")} ${name}</div>
+    <div class="koala-level-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${nr.cost}" aria-valuenow="${Math.min(nr.coins, nr.cost)}"
+      aria-label="${rwL("Coins towards the next reward", "다음 보상까지 코인")}"><span style="width:${nr.pct}%"></span></div>
+    <div class="koala-next-sub">${sub}</div>${action}</div></div>`;
+}
+
+function koalaCharacterHtml() {
+  const titles = KOALA_SLOT_TITLES();
+  return `${koalaNextRewardHtml()}
+    ${KoalaCore.ITEM_SLOTS.map((slot) => `<h4 class="badge-group-title">${titles[slot]}</h4>
+      <div class="koala-items">${KoalaCore.ITEMS.filter((it) => it.slot === slot).map(koalaItemCardHtml).join("")}</div>`).join("")}`;
+}
+
+function koalaHistoryHtml(k) {
+  const labels = KOALA_REASON_LABELS();
+  const recent = k.ledger.slice(-8).reverse();
+  if (!recent.length) {
+    return `<p class="koala-note">${rwL("Koala Coins are coming soon! Your level, streak and badges already count as you learn.", "코알라 코인이 곧 찾아와요! 레벨, 연속 학습, 배지는 지금도 공부하면서 쌓여요.")}</p>`;
+  }
+  const label = (why) => {
+    if (String(why).startsWith("item:")) {
+      const it = KoalaCore.itemById(String(why).slice(5));
+      return it ? koalaItemName(it) : why;
+    }
+    return labels[why] || why;
+  };
+  return `<ul class="koala-history">${recent.map((e) => `<li><span class="koala-history-n${e.n < 0 ? " spent" : ""}">${e.n < 0 ? "−" : "+"}${Math.abs(e.n)} ${COIN_SVG}</span><span class="koala-history-why">${escapeHtml(label(e.why))}</span><span class="koala-history-day">${new Date(e.t).toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { day: "numeric", month: "short" })}</span></li>`).join("")}</ul>`;
+}
+
+// Streak items (Golden Crown) open by themselves; tell the child when one does.
+function announceKoalaUnlocks() {
+  if (!canUseAccountFeatures()) return;
+  const fresh = KoalaCore.syncStreakUnlocks(progress);
+  if (!fresh.length) return;
+  fresh.forEach((id) => {
+    const it = KoalaCore.itemById(id);
+    rwToastQueue.push({ emoji: KOALA_SLOT_EMOJI[it.slot], title: rwL("New item unlocked!", "새 아이템 해금!"), name: koalaItemName(it) });
+  });
+  showNextBadgeToast();
+  saveProgress();
 }
 
 function renderKoala() {
@@ -8903,6 +8987,7 @@ function renderKoala() {
   }
 
   ensureRewardData();
+  announceKoalaUnlocks();
   const k = KoalaCore.ensureKoala(progress);
   const lv = KoalaCore.levelInfo(k.earned);
   const st = currentStreakStatus();
@@ -8911,7 +8996,7 @@ function renderKoala() {
   const badgeCount = cat.filter((b) => progress.badges[b.id]).length;
 
   const hero = `<div class="koala-hero">
-      <div class="koala-hero-avatar" aria-hidden="true">🐨</div>
+      <div class="koala-hero-avatar">${KoalaArt.avatar(k.items.equipped, { label: rwL("Your Koala", "나의 코알라") })}</div>
       <div class="koala-hero-main">
         <div class="koala-hero-level">${rwL(`Koala Lv. ${lv.level}`, `코알라 Lv. ${lv.level}`)}</div>
         <div class="koala-level-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${lv.span}" aria-valuenow="${lv.intoLevel}"
@@ -8935,16 +9020,48 @@ function renderKoala() {
     ${st.restAvailable ? rwL(" 🌙 You have a rest day this week — missing one day won't break your streak.", " 🌙 이번 주에는 쉬는 날이 있어요. 하루 쉬어도 연속 기록이 끊기지 않아요.") : ""}
     ${st.nextMilestone ? rwL(` Next streak goal: ${st.nextMilestone} days.`, ` 다음 목표: ${st.nextMilestone}일 연속.`) : ""}</p>`;
 
-  const labels = KOALA_REASON_LABELS();
-  const recent = k.ledger.slice(-8).reverse();
-  const history = recent.length
-    ? `<ul class="koala-history">${recent.map((e) => `<li><span class="koala-history-n">+${e.n} ${COIN_SVG}</span><span class="koala-history-why">${escapeHtml(labels[e.why] || e.why)}</span><span class="koala-history-day">${new Date(e.t).toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { day: "numeric", month: "short" })}</span></li>`).join("")}</ul>`
-    : `<p class="koala-note">${rwL("Koala Coins are coming soon! Your level, streak and badges already count as you learn.", "코알라 코인이 곧 찾아와요! 레벨, 연속 학습, 배지는 지금도 공부하면서 쌓여요.")}</p>`;
+  const tabs = `<div class="stats-tabs koala-tabs" role="tablist">
+      <button type="button" class="stats-tab${koalaTab === "character" ? " on" : ""}" role="tab" aria-selected="${koalaTab === "character"}" data-koala-tab="character">${rwL("🐨 Character", "🐨 캐릭터")}</button>
+      <button type="button" class="stats-tab${koalaTab === "badges" ? " on" : ""}" role="tab" aria-selected="${koalaTab === "badges"}" data-koala-tab="badges">${rwL("🏆 Badges", "🏆 배지")}</button>
+    </div>`;
 
-  box.innerHTML = `${hero}${stats}${streakNote}
-    <h3 class="koala-h">${COIN_SVG} ${rwL("Coin history", "코인 내역")}</h3>${history}
-    <h3 class="koala-h">${rwL("🏆 Badges", "🏆 배지")}</h3>${badgeGridHtml()}`;
+  box.innerHTML = `${hero}${stats}${streakNote}${tabs}
+    <div class="koala-panel">${koalaTab === "badges" ? badgeGridHtml() : koalaCharacterHtml()}</div>
+    <h3 class="koala-h">${COIN_SVG} ${rwL("Coin history", "코인 내역")}</h3>${koalaHistoryHtml(k)}`;
 }
+
+async function handleKoalaItem(id) {
+  if (!canUseAccountFeatures()) return;
+  const it = KoalaCore.itemById(id);
+  if (!it) return;
+  let st = KoalaCore.itemStatus(progress, it);
+  if (st.state === "equipped") {
+    KoalaCore.unequipSlot(progress, it.slot);
+  } else if (st.state === "owned") {
+    KoalaCore.equipItem(progress, id);
+  } else if (st.state === "buyable") {
+    const name = koalaItemName(it);
+    const ok = await kidConfirm(
+      rwL(`Unlock ${name} for ${st.cost} Koala Coins?`, `${st.cost} 코알라 코인으로 ${name}을(를) 열까요?`),
+      rwL("Unlock", "열기"), rwL("Not now", "나중에"));
+    if (!ok) return;
+    const res = KoalaCore.buyItem(progress, id);
+    if (!res.ok) { renderKoala(); return; } // coins changed while the dialog was open
+    rwToastQueue.push({ emoji: KOALA_SLOT_EMOJI[it.slot], title: rwL("New item unlocked!", "새 아이템 해금!"), name: rwL(`${name} — now wearing it!`, `${name} — 바로 입었어요!`) });
+    showNextBadgeToast();
+  } else {
+    return; // locked: the card already says what is missing
+  }
+  saveProgress();
+  renderKoala();
+}
+
+document.addEventListener("click", (e) => {
+  const tab = e.target.closest("[data-koala-tab]");
+  if (tab) { koalaTab = tab.dataset.koalaTab === "badges" ? "badges" : "character"; renderKoala(); return; }
+  const card = e.target.closest("[data-koala-item]");
+  if (card) handleKoalaItem(card.dataset.koalaItem);
+});
 
 /* ---- Wrong-answer notebook ---- */
 function findWordInfo(word) {
