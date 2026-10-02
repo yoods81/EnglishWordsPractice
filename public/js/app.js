@@ -1118,7 +1118,7 @@ function rewardLearning(mode) {
       name: KOALA_REASON_LABELS()[r.why] || r.why, go: true,
     });
   });
-  if (paid.length) showNextBadgeToast();
+  if (paid.length) { showNextBadgeToast(); checkLevelUp(); }
 }
 
 function recordResult(word, isCorrect, mode) {
@@ -2309,6 +2309,7 @@ async function applyKoalaGrants() {
     saveProgress();
     await api("/koala/grants/ack", { method: "POST", body: JSON.stringify({ ids: done }) });
     if (gained > 0) {
+      checkLevelUp();
       rwToastQueue.push({ emoji: "🎁", title: rwL("A gift for you!", "선물이 도착했어요!"), name: rwL(`+${gained} Koala Coins`, `+${gained} 코알라 코인`) });
       showNextBadgeToast();
     }
@@ -8915,6 +8916,20 @@ function buildBadgeCatalog() {
       desc: rwL("Practise 7 days in a row", "7일 연속 학습"), test: () => (progress.streak.count || 0) >= 7 },
     { id: "streak30", emoji: "🏆", group: "habit", name: rwL("Monthly Marathon", "한 달 연속 학습"),
       desc: rwL("Practise 30 days in a row", "30일 연속 학습"), test: () => (progress.streak.count || 0) >= 30 },
+    { id: "streak14", emoji: "🥇", group: "habit", name: rwL("Fortnight Koala", "2주 연속 코알라"),
+      desc: rwL("Practise 14 days in a row", "14일 연속 학습"), test: () => (progress.streak.count || 0) >= 14 },
+    { id: "mission7", emoji: "🎯", group: "habit", name: rwL("Mission Master", "미션 마스터"),
+      desc: rwL("Complete Today's Mission 7 times", "오늘의 미션을 7번 완료"), test: () => (progress.counters.missions || 0) >= 7 },
+    { id: "coins500", emoji: "🪙", group: "koala", name: rwL("Coin Collector", "코인 수집가"),
+      desc: rwL("Earn 500 Koala Coins in total", "코알라 코인을 모두 500개 모아요"), test: () => KoalaCore.ensureKoala(progress).earned >= 500 },
+    { id: "level5", emoji: "⭐", group: "koala", name: rwL("Level 5 Koala", "레벨 5 코알라"),
+      desc: rwL("Reach Koala Level 5", "코알라 레벨 5 달성"), test: () => KoalaCore.levelInfo(KoalaCore.ensureKoala(progress).earned).level >= 5 },
+    { id: "items5", emoji: "🎩", group: "koala", name: rwL("Dress-up Fan", "패션 코알라"),
+      desc: rwL("Unlock 5 items for your Koala or room", "코알라나 방 아이템 5개 해금"),
+      test: () => { const k = KoalaCore.ensureKoala(progress); return Object.keys(k.items.owned).filter((id) => { const it = KoalaCore.itemById(id); return it && !it.unlock.free; }).length >= 5; } },
+    { id: "roomDecor", emoji: "🏠", group: "koala", name: rwL("Room Designer", "방 꾸미기 달인"),
+      desc: rwL("Put 5 items in your Study Room", "공부방에 아이템 5개를 놓아요"),
+      test: () => { const k = KoalaCore.ensureKoala(progress); return KoalaCore.ROOM_SLOTS.filter((sl) => k.items.equipped[sl]).length >= 5; } },
     { id: "fix5", emoji: "🏅", group: "habit", paidOnly: true, name: rwL("Mistake Fixer", "오답 해결사"),
       desc: rwL("Clear 5 words from your Wrong-answer notebook", "오답 노트에서 5개 졸업"),
       test: () => progress.counters.wrongCleared >= 5 },
@@ -8949,6 +8964,8 @@ function checkBadges() {
     });
     saveProgress();
     showNextBadgeToast();
+    announceKoalaUnlocks(); // a badge can open an item (Wizard Hat, Gold Medal, Trophy Cabinet)
+    checkLevelUp();
   }
 }
 function showNextBadgeToast() {
@@ -9033,6 +9050,7 @@ function badgeGridHtml() {
     ["math", rwL("🧮 Times Table", "🧮 구구단")],
     ["english", rwL("📖 English", "📖 영어")],
     ["habit", rwL("🔥 Habits", "🔥 학습 습관")],
+    ["koala", rwL("🐨 My Koala", "🐨 나의 코알라")],
   ];
   let html = signedIn ? "" : badgeSignupLockHtml();
   html += `<p class="badge-summary">${rwL(`Collected ${got} of ${cat.length} koala badges`, `코알라 배지 ${cat.length}개 중 ${got}개 모았어요`)}</p>`;
@@ -9107,6 +9125,11 @@ function koalaItemStatusText(st) {
   if (st.state === "equipped") return rwL("✓ Wearing — tap to take off", "✓ 입는 중 — 눌러서 벗기");
   if (st.state === "owned") return rwL("Tap to wear", "눌러서 입기");
   if (st.state === "buyable") return `${COIN_SVG} ${rwL(`${st.cost} Coins — tap to unlock`, `${st.cost}코인 — 눌러서 열기`)}`;
+  if (st.need === "season") return rwL("🎄 Back next season", "🎄 다음 시즌에 만나요");
+  if (st.need === "badge") {
+    const b = buildBadgeCatalog().find((x) => x.id === st.badge);
+    return rwL(`🔒 Earn the "${b ? b.name : st.badge}" badge`, `🔒 "${b ? b.name : st.badge}" 배지를 받으면 열려요`);
+  }
   if (st.need === "coins") return rwL(`🔒 ${st.short} more Coins to unlock`, `🔒 ${st.short}코인 더 모으면 열려요`);
   return rwL(`🔒 Reach a ${st.days}-day streak (best so far: ${st.have})`, `🔒 ${st.days}일 연속 학습하면 열려요 (최고 ${st.have}일)`);
 }
@@ -9120,7 +9143,7 @@ function koalaItemCardHtml(it) {
   return `<button type="button" class="koala-item is-${st.state}" data-koala-item="${it.id}"${st.state === "equipped" ? ' aria-pressed="true"' : ""}${locked ? ' aria-disabled="true"' : ""}
       aria-label="${escapeHtml(name)} — ${escapeHtml(plain)}">
       <span class="koala-item-pic" aria-hidden="true">${KoalaArt.itemPicture(it.id)}</span>
-      <span class="koala-item-name">${escapeHtml(name)}</span>
+      <span class="koala-item-name">${escapeHtml(name)}</span>${it.season ? `<span class="koala-item-tag">${rwL("Limited time", "기간 한정")}</span>` : ""}
       <span class="koala-item-status">${text}</span></button>`;
 }
 
@@ -9201,14 +9224,14 @@ function koalaRoomHtml() {
     ${koalaNextRewardHtml("room")}
     ${koalaTrophyWallHtml()}
     ${KoalaCore.ROOM_SLOTS.map((slot) => `<h4 class="badge-group-title">${titles[slot]}</h4>
-      <div class="koala-items">${KoalaCore.ITEMS.filter((it) => it.slot === slot).map(koalaItemCardHtml).join("")}</div>`).join("")}`;
+      <div class="koala-items">${KoalaCore.visibleItems(progress, slot, { showAll: serverAdmin }).map(koalaItemCardHtml).join("")}</div>`).join("")}`;
 }
 
 function koalaCharacterHtml() {
   const titles = KOALA_SLOT_TITLES();
   return `${koalaNextRewardHtml()}${koalaEarnHtml()}
     ${KoalaCore.ITEM_SLOTS.map((slot) => `<h4 class="badge-group-title">${titles[slot]}</h4>
-      <div class="koala-items">${KoalaCore.ITEMS.filter((it) => it.slot === slot).map(koalaItemCardHtml).join("")}</div>`).join("")}`;
+      <div class="koala-items">${KoalaCore.visibleItems(progress, slot, { showAll: serverAdmin }).map(koalaItemCardHtml).join("")}</div>`).join("")}`;
 }
 
 function koalaHistoryHtml(k) {
@@ -9297,6 +9320,46 @@ function renderKoala() {
     <h3 class="koala-h">${COIN_SVG} ${rwL("Coin history", "코인 내역")}</h3>${koalaHistoryHtml(k)}`;
 }
 
+// A few sparkles over the Koala (or the room) after an item is put on.
+function koalaSparkle() {
+  const host = document.querySelector(koalaTab === "room" ? ".koala-room" : ".koala-hero-avatar");
+  if (!host) return;
+  host.classList.add("koala-sparkling");
+  for (let i = 0; i < 6; i++) {
+    const sp = document.createElement("span");
+    sp.className = "koala-sparkle";
+    sp.textContent = "✦";
+    sp.style.setProperty("--sx", `${10 + Math.round(Math.random() * 80)}%`);
+    sp.style.setProperty("--sy", `${10 + Math.round(Math.random() * 70)}%`);
+    sp.style.animationDelay = `${i * 70}ms`;
+    host.appendChild(sp);
+  }
+  setTimeout(() => { host.classList.remove("koala-sparkling"); host.querySelectorAll(".koala-sparkle").forEach((n) => n.remove()); }, 1100);
+}
+
+// Level-up celebration. The level a child last saw is kept in progress.koala;
+// the first time we look (or after a sync) it is just recorded, never celebrated.
+function checkLevelUp() {
+  if (!canUseAccountFeatures()) return;
+  const k = KoalaCore.ensureKoala(progress);
+  const lv = KoalaCore.levelInfo(k.earned).level;
+  if (k.lvSeen == null) { k.lvSeen = lv; return; }
+  if (lv <= k.lvSeen) return;
+  k.lvSeen = lv;
+  saveProgress();
+  const el = document.createElement("div");
+  el.className = "levelup-pop";
+  el.setAttribute("role", "status");
+  el.innerHTML = `<div class="levelup-card"><div class="levelup-koala" aria-hidden="true">${KoalaArt.avatar(k.items.equipped, { view: "head" })}</div>
+    <div class="levelup-title">${rwL("Level up!", "레벨 업!")}</div>
+    <div class="levelup-lv">${rwL(`Koala Lv. ${lv}`, `코알라 Lv. ${lv}`)}</div>
+    <div class="levelup-confetti" aria-hidden="true">${["🎉", "⭐", "✨", "🎊", "⭐", "✨"].map((c, i) => `<span style="--i:${i}">${c}</span>`).join("")}</div></div>`;
+  el.addEventListener("click", () => el.remove());
+  document.body.appendChild(el);
+  setTimeout(() => el.classList.add("out"), 3000);
+  setTimeout(() => el.remove(), 3500);
+}
+
 async function handleKoalaItem(id) {
   if (!canUseAccountFeatures()) return;
   const it = KoalaCore.itemById(id);
@@ -9319,8 +9382,10 @@ async function handleKoalaItem(id) {
   } else {
     return; // locked: the card already says what is missing
   }
+  checkBadges();
   saveProgress();
   renderKoala();
+  koalaSparkle();
 }
 
 document.addEventListener("click", (e) => {
@@ -10002,6 +10067,8 @@ function checkMissionComplete() {
   const today = localDateKey(new Date());
   if (all && progress.missionDone !== today) {
     progress.missionDone = today;
+    ensureRewardData();
+    progress.counters.missions = (progress.counters.missions || 0) + 1;
     const coins = canUseAccountFeatures() ? KoalaCore.awardMission(progress, today) : 0;
     saveProgress();
     // The "reward moment": a bigger toast that doubles as a link to My Koala.
@@ -10011,6 +10078,8 @@ function checkMissionComplete() {
       go: coins > 0,
     });
     showNextBadgeToast();
+    checkBadges();
+    checkLevelUp();
   }
 }
 function renderHome() {
@@ -10221,6 +10290,7 @@ function reviewSummary() {
       saveProgress();
       rwToastQueue.push({ emojiHtml: COIN_SVG, title: rwL(`+${coins} Koala Coins!`, `+${coins} 코알라 코인!`), name: KOALA_REASON_LABELS().review, go: true });
       showNextBadgeToast();
+      checkLevelUp();
     }
   }
   document.getElementById("review-progress-fill").style.width = "100%";

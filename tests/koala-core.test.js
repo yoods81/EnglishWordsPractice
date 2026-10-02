@@ -225,7 +225,7 @@ test("nextReward is the cheapest coin item not yet owned", () => {
   K.awardCoins(p, 30, "x");
   assert.equal(K.nextReward(p).affordable, true);
   K.buyItem(p, "blueCap");
-  assert.equal(K.nextReward(p).item.id, "roundGlasses");
+  assert.equal(K.nextReward(p).item.id, "bowTie");
 });
 
 test("nextReward is null once every coin item is owned", () => {
@@ -248,10 +248,10 @@ test("catalogue is consistent: every item has art, a valid slot and a requiremen
     assert.ok(!ids.has(it.id), "unique id " + it.id); ids.add(it.id);
     assert.ok(K.ITEM_SLOTS.includes(it.slot) || K.ROOM_SLOTS.includes(it.slot), "slot " + it.slot);
     assert.ok(it.name.en && it.name.ko);
-    assert.ok(it.unlock.free || it.unlock.coins > 0 || it.unlock.streak > 0);
+    assert.ok(it.unlock.free || it.unlock.coins > 0 || it.unlock.streak > 0 || it.unlock.badge);
     assert.ok(A.hasArt(it.id), "art for " + it.id);
   });
-  assert.ok(K.ITEMS.length >= 5 && K.ITEMS.length <= 25, "small catalogue");
+  assert.ok(K.ITEMS.length >= 5 && K.ITEMS.length <= 60, "catalogue");
 });
 
 test("avatar draws only what is equipped, in the right layers", () => {
@@ -384,4 +384,39 @@ test("Study Room art: every room item has a picture and renders in the scene", (
   assert.ok(room.includes('data-item="crown"'), "koala still wears its hat in the room");
   assert.ok(A.room({}, {}).includes("#fbf1dc"), "default cream wall");
   assert.ok(!A.room({ rug: "mapPoster" }, {}).includes('data-item="mapPoster"'), "wrong slot ignored");
+});
+
+test("Phase 6: badge-gated items open by themselves when the badge is earned", () => {
+  const p = { badges: {} };
+  assert.deepEqual(K.syncStreakUnlocks(p), []);
+  const it = K.itemById("wizardHat");
+  assert.deepEqual(K.itemStatus(p, it), { state: "locked", need: "badge", badge: "words200" });
+  assert.equal(K.buyItem(p, "wizardHat").reason, "notForSale");
+  p.badges.words200 = 1; p.badges.ttAll = 2; p.badges.quiz100 = 3;
+  assert.deepEqual(K.syncStreakUnlocks(p).sort(), ["goldMedal", "trophyCabinet", "wizardHat"]);
+  assert.equal(K.itemStatus(p, it).state, "owned");
+  assert.deepEqual(K.syncStreakUnlocks(p), [], "only announced once");
+  assert.equal(K.equipItem(p, "wizardHat"), true);
+});
+
+test("Phase 6: seasonal items are on sale only in their window, kept forever once owned", () => {
+  const summer = new Date(2026, 11, 20), spring = new Date(2026, 9, 2), jan = new Date(2027, 0, 3), feb = new Date(2027, 1, 10);
+  const santa = K.itemById("santaHat"), surf = K.itemById("surfboard");
+  assert.ok(K.isSeasonActive(santa, summer) && K.isSeasonActive(santa, jan));
+  assert.ok(!K.isSeasonActive(santa, spring) && !K.isSeasonActive(santa, feb));
+  assert.ok(K.isSeasonActive(surf, feb) && !K.isSeasonActive(surf, spring));
+  assert.ok(K.isSeasonActive(K.itemById("blueCap"), spring), "no season = always");
+  const p = {};
+  K.awardCoins(p, 500, "quiz");
+  const ids = (d, o) => K.visibleItems(p, "headwear", Object.assign({ date: d }, o)).map((i) => i.id);
+  assert.ok(!ids(spring).includes("santaHat"), "hidden out of season");
+  assert.ok(ids(summer).includes("santaHat"));
+  assert.ok(ids(spring, { showAll: true }).includes("santaHat"), "admin preview");
+  assert.equal(K.itemStatus(p, santa, { date: spring }).need, "season");
+  assert.equal(K.buyItem(p, "santaHat", { date: spring }).reason, "outOfSeason");
+  assert.equal(K.buyItem(p, "santaHat", { date: summer }).ok, true);
+  assert.ok(ids(spring).includes("santaHat"), "owned items stay visible all year");
+  assert.equal(K.buyItem({ koala: undefined }, "santaHat", { date: spring, unlimited: true }).ok, true, "admin can buy any time");
+  const nr = K.nextReward({}, { kind: "room", date: spring });
+  assert.ok(!["xmasTree", "beachTowel"].includes(nr.item.id), "next reward never a seasonal item that is not on sale");
 });

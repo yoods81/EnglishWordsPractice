@@ -77,6 +77,17 @@
     { id: "heroCape",   slot: "clothing",  name: { en: "Hero Cape",       ko: "히어로 망토" },   unlock: { coins: 200 } },
     { id: "headphones", slot: "accessory", name: { en: "Headphones",      ko: "헤드폰" },        unlock: { coins: 100 } },
     { id: "backpack",   slot: "accessory", name: { en: "School Backpack", ko: "책가방" },        unlock: { coins: 150 } },
+    // Phase 6: more items. { badge: id } opens by itself when that badge is earned;
+    // season = a yearly window [month, day] (wraps over New Year) during which the
+    // item is on sale. Once owned, a seasonal item is the child's for good.
+    { id: "partyHat",   slot: "headwear",  name: { en: "Party Hat",       ko: "파티 모자" },     unlock: { coins: 90 } },
+    { id: "flowerCrown", slot: "headwear", name: { en: "Flower Crown",    ko: "꽃 왕관" },       unlock: { coins: 100 } },
+    { id: "wizardHat",  slot: "headwear",  name: { en: "Wizard Hat",      ko: "마법사 모자" },   unlock: { badge: "words200" } },
+    { id: "starGlasses", slot: "face",     name: { en: "Star Glasses",    ko: "별 안경" },       unlock: { coins: 110 } },
+    { id: "bowTie",     slot: "clothing",  name: { en: "Bow Tie",         ko: "나비넥타이" },    unlock: { coins: 70 } },
+    { id: "goldMedal",  slot: "accessory", name: { en: "Gold Medal",      ko: "금메달" },        unlock: { badge: "ttAll" } },
+    { id: "santaHat",   slot: "headwear",  name: { en: "Santa Hat",       ko: "산타 모자" },     unlock: { coins: 100 }, season: { from: [12, 1], to: [1, 6] } },
+    { id: "surfboard",  slot: "accessory", name: { en: "Surfboard",       ko: "서핑 보드" },     unlock: { coins: 120 }, season: { from: [12, 1], to: [2, 28] } },
     // Study Room (Phase 4): same unlock rules, kind "room". One item per slot.
     { id: "creamWall",  kind: "room", slot: "wallpaper", name: { en: "Cream Wall",     ko: "크림색 벽지" },   unlock: { free: true } },
     { id: "mintWall",   kind: "room", slot: "wallpaper", name: { en: "Mint Wall",      ko: "민트색 벽지" },   unlock: { coins: 60 } },
@@ -89,8 +100,33 @@
     { id: "deskLamp",   kind: "room", slot: "lamp",      name: { en: "Hanging Lamp",   ko: "천장 램프" },     unlock: { coins: 60 } },
     { id: "bookshelf",  kind: "room", slot: "shelf",     name: { en: "Bookshelf",      ko: "책장" },          unlock: { coins: 100 } },
     { id: "pottedPlant", kind: "room", slot: "plant",    name: { en: "Potted Plant",   ko: "화분" },          unlock: { coins: 50 } },
+    { id: "skyWall",    kind: "room", slot: "wallpaper", name: { en: "Sunny Sky",      ko: "맑은 하늘" },     unlock: { coins: 90 } },
+    { id: "greenRug",   kind: "room", slot: "rug",       name: { en: "Grass Rug",      ko: "잔디 러그" },     unlock: { coins: 50 } },
+    { id: "rainbowPoster", kind: "room", slot: "poster", name: { en: "Rainbow Poster", ko: "무지개 포스터" }, unlock: { coins: 80 } },
+    { id: "scienceDesk", kind: "room", slot: "desk",     name: { en: "Science Desk",   ko: "과학 책상" },     unlock: { coins: 140 } },
+    { id: "starLamp",   kind: "room", slot: "lamp",      name: { en: "Star Lights",    ko: "별 조명" },       unlock: { coins: 90 } },
+    { id: "trophyCabinet", kind: "room", slot: "shelf",  name: { en: "Trophy Cabinet", ko: "트로피 진열장" }, unlock: { badge: "quiz100" } },
+    { id: "xmasTree",   kind: "room", slot: "plant",     name: { en: "Christmas Tree", ko: "크리스마스 트리" }, unlock: { coins: 90 }, season: { from: [12, 1], to: [1, 6] } },
+    { id: "beachTowel", kind: "room", slot: "rug",       name: { en: "Beach Towel",    ko: "비치 타월" },     unlock: { coins: 70 }, season: { from: [12, 1], to: [2, 28] } },
   ];
   const ROOM_SLOTS = ["wallpaper", "rug", "poster", "desk", "lamp", "shelf", "plant"];
+  // Seasonal items are on sale only inside their yearly window (it may wrap
+  // over New Year). Anything without a season is always available.
+  function isSeasonActive(item, date) {
+    if (!item.season) return true;
+    const d = date || new Date();
+    const key = (d.getMonth() + 1) * 100 + d.getDate();
+    const from = item.season.from[0] * 100 + item.season.from[1];
+    const to = item.season.to[0] * 100 + item.season.to[1];
+    return from <= to ? key >= from && key <= to : key >= from || key <= to;
+  }
+  // What the child sees for a slot: everything, except out-of-season items they
+  // don't own. opts.showAll (admin preview) shows those too.
+  function visibleItems(progress, slot, opts) {
+    const o = opts || {};
+    const k = ensureKoala(progress);
+    return ITEMS.filter((it) => it.slot === slot && (!it.season || k.items.owned[it.id] || o.showAll || isSeasonActive(it, o.date)));
+  }
   const itemById = (id) => ITEMS.find((i) => i.id === id) || null;
 
   /* ---------- Dates (local calendar days as "YYYY-MM-DD") ---------- */
@@ -195,12 +231,16 @@
   /* ---------- Character items ---------- */
   // Streak items unlock by themselves once the best streak is long enough.
   // Returns the ids unlocked just now.
+  // Items that open by themselves: streak length or an earned badge.
+  // Returns the ids unlocked just now.
   function syncStreakUnlocks(progress) {
     const k = ensureKoala(progress);
     const best = ensureStreak(progress.streak).best;
+    const badges = progress.badges || {};
     const fresh = [];
     ITEMS.forEach((it) => {
-      if (it.unlock.streak && !k.items.owned[it.id] && best >= it.unlock.streak) {
+      if (k.items.owned[it.id]) return;
+      if ((it.unlock.streak && best >= it.unlock.streak) || (it.unlock.badge && badges[it.unlock.badge])) {
         k.items.owned[it.id] = Date.now();
         fresh.push(it.id);
       }
@@ -217,6 +257,8 @@
     const unlimited = !!(opts && opts.unlimited);
     if (k.items.equipped[item.slot] === item.id) return { state: "equipped" };
     if (k.items.owned[item.id]) return { state: "owned" };
+    if (item.unlock.coins && !unlimited && !isSeasonActive(item, opts && opts.date)) return { state: "locked", need: "season" };
+    if (item.unlock.badge) return { state: "locked", need: "badge", badge: item.unlock.badge };
     if (item.unlock.coins) {
       const cost = item.unlock.coins;
       if (unlimited || k.coins >= cost) return { state: "buyable", cost };
@@ -232,6 +274,7 @@
     const k = ensureKoala(progress);
     if (!it || !it.unlock.coins) return { ok: false, reason: "notForSale" };
     if (k.items.owned[id]) return { ok: false, reason: "owned" };
+    if (!(opts && opts.unlimited) && !isSeasonActive(it, opts && opts.date)) return { ok: false, reason: "outOfSeason" };
     if (!(opts && opts.unlimited) && !spendCoins(progress, it.unlock.coins, "item:" + id, opts)) return { ok: false, reason: "notEnoughCoins" };
     k.items.owned[id] = (opts && opts.now) || Date.now();
     k.items.equipped[it.slot] = id; // wear it straight away
@@ -258,7 +301,7 @@
     const k = ensureKoala(progress);
     const unlimited = !!(opts && opts.unlimited);
     const kind = (opts && opts.kind) || "character";
-    const open = ITEMS.filter((it) => (it.kind || "character") === kind && it.unlock.coins && !k.items.owned[it.id]).sort((a, b) => a.unlock.coins - b.unlock.coins);
+    const open = ITEMS.filter((it) => (it.kind || "character") === kind && it.unlock.coins && !k.items.owned[it.id] && (unlimited || isSeasonActive(it, opts && opts.date))).sort((a, b) => a.unlock.coins - b.unlock.coins);
     if (!open.length) return null;
     const item = open[0];
     const cost = item.unlock.coins;
@@ -460,7 +503,7 @@
     REWARD_CONFIG,
     dateKey, daysBetween, shiftDay, weekKey,
     ensureKoala, awardCoins, spendCoins, adjustCoins, awardLearning, learningProgress, awardMission, awardBadge, awardReview, rewardSlice, mergeRewards,
-    ITEM_SLOTS, ROOM_SLOTS, ITEMS, itemById, itemStatus, buyItem, equipItem, unequipSlot, syncStreakUnlocks, nextReward,
+    ITEM_SLOTS, ROOM_SLOTS, ITEMS, isSeasonActive, visibleItems, itemById, itemStatus, buyItem, equipItem, unequipSlot, syncStreakUnlocks, nextReward,
     levelInfo,
     ensureStreak, advanceStreak, streakStatus,
   };

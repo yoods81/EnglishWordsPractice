@@ -5071,3 +5071,34 @@ body.signed-in .stat-bar { display: none; }
 .auth-menu-ico { width: 18px; height: 18px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .auth-menu label.auth-koala-level { border: none; background: none; padding: 0; border-radius: 0; text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; font-size: 0.8rem; font-weight: 600; color: var(--text); }
 .auth-koala-level select { flex: 1; min-width: 0; font: inherit; font-weight: 700; color: var(--accent-dark); background: #fff; border: 1px solid var(--accent-dark); border-radius: 999px; padding: 4px 8px; cursor: pointer; }
+
+/* Phase 6: polish */
+.koala-item-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; color: #b45309; background: #fff3c4; border: 1px solid #f0d28a; border-radius: 999px; padding: 0 7px; margin-top: 2px; }
+/* Blink + gentle breathing (My Koala, the room, the account popup). */
+@keyframes koala-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.08); } }
+@keyframes koala-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+.koala-hero-avatar .koala-eyes, .koala-room .koala-eyes, .auth-koala-pic .koala-eyes { transform-box: fill-box; transform-origin: center; animation: koala-blink 5s infinite; }
+.koala-hero-avatar .koala-avatar-svg, .auth-koala-pic .koala-avatar-svg { animation: koala-bob 3.4s ease-in-out infinite; }
+.koala-room > svg > svg { animation: koala-bob 3.4s ease-in-out infinite; }
+/* Coins pop when earned */
+@keyframes coin-pop { 0% { transform: scale(.3) rotateY(0); } 55% { transform: scale(1.35) rotateY(360deg); } 100% { transform: scale(1) rotateY(360deg); } }
+.badge-toast-emoji .koala-coin { width: 2rem; height: 2rem; animation: coin-pop .7s ease-out; }
+/* Sparkles after an item goes on */
+.koala-hero-avatar, .koala-room { position: relative; }
+@keyframes koala-sparkle { 0% { transform: scale(0) rotate(0); opacity: 0; } 40% { opacity: 1; } 100% { transform: scale(1.4) rotate(90deg); opacity: 0; } }
+.koala-sparkle { position: absolute; left: var(--sx); top: var(--sy); color: #f6c343; font-size: 1.2rem; pointer-events: none; animation: koala-sparkle .9s ease-out both; text-shadow: 0 0 6px #fff; }
+/* Level-up celebration */
+.levelup-pop { position: fixed; inset: 0; z-index: 1100; display: flex; align-items: center; justify-content: center; background: rgba(20, 40, 35, .35); cursor: pointer; animation: levelup-fade .3s ease-out; }
+.levelup-pop.out { opacity: 0; transition: opacity .5s; }
+.levelup-card { position: relative; background: #fff; border: 3px solid var(--accent-dark); border-radius: 24px; box-shadow: 0 6px 0 var(--accent-dark), 0 14px 40px rgba(0,0,0,.25); padding: 18px 28px 20px; text-align: center; animation: levelup-in .55s cubic-bezier(.3,1.6,.5,1); overflow: hidden; min-width: 200px; }
+.levelup-koala { width: 110px; height: 94px; margin: 0 auto 6px; border-radius: 18px; background: #f3faf7; border: 1px solid #cfe8df; overflow: hidden; animation: koala-bob 1s ease-in-out infinite; }
+.levelup-title { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; color: var(--accent-dark); }
+.levelup-lv { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--text); }
+.levelup-confetti span { position: absolute; top: -10px; left: calc(8% + var(--i) * 15%); font-size: 1.3rem; animation: levelup-fall 1.8s ease-in calc(var(--i) * 120ms) infinite; }
+@keyframes levelup-in { from { transform: scale(.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes levelup-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes levelup-fall { from { transform: translateY(0) rotate(0); opacity: 1; } to { transform: translateY(260px) rotate(200deg); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .koala-eyes, .koala-avatar-svg, .koala-room > svg > svg, .koala-sparkle, .badge-toast-emoji .koala-coin, .levelup-card, .levelup-koala, .levelup-confetti span { animation: none !important; }
+  .koala-sparkle, .levelup-confetti { display: none; }
+}

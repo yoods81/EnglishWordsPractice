@@ -15,6 +15,17 @@
   const FULL_VIEW = "0 0 200 205";
   const HEAD_VIEW = "26 12 148 124";
 
+  // A five-point star polygon centred on (cx, cy).
+  function starPts(cx, cy, R, r) {
+    const pts = [];
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + (i * Math.PI) / 5;
+      const rad = i % 2 ? r : R;
+      pts.push((cx + rad * Math.cos(a)).toFixed(1) + "," + (cy + rad * Math.sin(a)).toFixed(1));
+    }
+    return pts.join(" ");
+  }
+
   // view: which crop the small item picture on a card uses.
   const ART = {
     blueCap: {
@@ -76,6 +87,39 @@
       front: `<path d="M76 116 Q69 142 78 170" stroke="#d97706" stroke-width="8" fill="none" stroke-linecap="round"/>
         <path d="M124 116 Q131 142 122 170" stroke="#d97706" stroke-width="8" fill="none" stroke-linecap="round"/>`,
     },
+    partyHat: {
+      view: "head",
+      front: `<polygon points="100,6 74,58 126,58" fill="#a78bfa"/><path d="M90 30 L110 30 M82 44 L118 44" stroke="#fde047" stroke-width="4" stroke-linecap="round"/><circle cx="100" cy="7" r="6.5" fill="#f472b6"/><circle cx="94" cy="50" r="2.4" fill="#f472b6"/><circle cx="108" cy="52" r="2.4" fill="#fde047"/>`,
+    },
+    flowerCrown: {
+      view: "head",
+      front: `<path d="M58 56 Q100 40 142 56" stroke="#4fae6a" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <g><circle cx="66" cy="54" r="6" fill="#f472b6"/><circle cx="66" cy="54" r="2.2" fill="#fde047"/><circle cx="84" cy="47" r="6.4" fill="#fde047"/><circle cx="84" cy="47" r="2.2" fill="#f59e0b"/><circle cx="100" cy="44" r="7" fill="#fff"/><circle cx="100" cy="44" r="2.4" fill="#f472b6"/><circle cx="116" cy="47" r="6.4" fill="#a78bfa"/><circle cx="116" cy="47" r="2.2" fill="#fde047"/><circle cx="134" cy="54" r="6" fill="#fb923c"/><circle cx="134" cy="54" r="2.2" fill="#fde047"/></g>`,
+    },
+    wizardHat: {
+      view: "head",
+      front: `<path d="M62 56 Q100 66 138 56 L114 10 Q104 2 92 14 Z" fill="#4c3a9e"/><ellipse cx="100" cy="56" rx="52" ry="9" fill="#3b2b80"/><path d="M72 50 Q100 58 128 50" stroke="#fde047" stroke-width="4" fill="none"/><polygon points="${starPts(101, 34, 7.5, 3.2)}" fill="#fde047"/>`,
+    },
+    starGlasses: {
+      view: "head",
+      front: `<g fill="rgba(253,224,71,.55)" stroke="#26332f" stroke-width="3" stroke-linejoin="round"><polygon points="${starPts(82, 76, 17, 8)}"/><polygon points="${starPts(118, 76, 17, 8)}"/></g><path d="M97 74 Q100 70 103 74" stroke="#26332f" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M66 72 L54 68 M134 72 L146 68" stroke="#26332f" stroke-width="3" stroke-linecap="round"/>`,
+    },
+    bowTie: {
+      view: "full",
+      front: `<path d="M100 126 L76 112 L76 140 Z" fill="#ef4444"/><path d="M100 126 L124 112 L124 140 Z" fill="#ef4444"/><path d="M82 120 L82 132 M118 120 L118 132" stroke="#fca5a5" stroke-width="2" stroke-linecap="round"/><rect x="93" y="118" width="14" height="16" rx="5" fill="#b91c1c"/>`,
+    },
+    goldMedal: {
+      view: "full",
+      front: `<path d="M82 116 L100 152 L118 116" fill="none" stroke="#3b82f6" stroke-width="8" stroke-linejoin="round"/><circle cx="100" cy="158" r="13" fill="#ffd166" stroke="#e0a21a" stroke-width="3"/><polygon points="${starPts(100, 158, 7, 3)}" fill="#e0a21a"/>`,
+    },
+    santaHat: {
+      view: "head",
+      front: `<path d="M62 56 Q66 20 108 20 Q136 22 146 44 Q130 38 118 44 Q90 52 62 56Z" fill="#dc2626"/><rect x="56" y="50" width="90" height="13" rx="6.5" fill="#fff"/><circle cx="148" cy="44" r="9" fill="#fff"/>`,
+    },
+    surfboard: {
+      view: "full",
+      back: `<g transform="rotate(16 160 120)"><ellipse cx="164" cy="118" rx="17" ry="74" fill="#38bdf8"/><path d="M164 46 V190" stroke="#fff" stroke-width="3"/><path d="M150 96 q14 8 28 0" stroke="#fde047" stroke-width="5" fill="none"/></g>`,
+    },
   };
 
   // Front layers are drawn in this slot order, so e.g. headwear always sits
@@ -98,8 +142,8 @@
     <ellipse cx="100" cy="82" rx="46" ry="40" fill="#a9b7b2"/>
     <ellipse cx="100" cy="96" rx="30" ry="22" fill="#c4cfcb"/>
     <circle cx="72" cy="94" r="7" fill="#ff7a90" opacity="0.45"/><circle cx="128" cy="94" r="7" fill="#ff7a90" opacity="0.45"/>
-    <circle cx="82" cy="76" r="5.2" fill="#1f2a27"/><circle cx="118" cy="76" r="5.2" fill="#1f2a27"/>
-    <circle cx="84" cy="74" r="1.7" fill="#fff"/><circle cx="120" cy="74" r="1.7" fill="#fff"/>
+    <g class="koala-eyes"><circle cx="82" cy="76" r="5.2" fill="#1f2a27"/><circle cx="118" cy="76" r="5.2" fill="#1f2a27"/>
+    <circle cx="84" cy="74" r="1.7" fill="#fff"/><circle cx="120" cy="74" r="1.7" fill="#fff"/></g>
     <ellipse cx="100" cy="92" rx="15" ry="18" fill="#1f2a27"/><ellipse cx="95" cy="85" rx="4.5" ry="2.6" fill="#fff" opacity="0.35"/>
     <path d="M90 116 Q100 123 110 116" stroke="#1f2a27" stroke-width="2.6" fill="none" stroke-linecap="round"/>`;
 
@@ -108,6 +152,8 @@
     roundGlasses: "face", sunglasses: "face",
     redScarf: "clothing", heroCape: "clothing",
     headphones: "accessory", backpack: "accessory",
+    partyHat: "headwear", flowerCrown: "headwear", wizardHat: "headwear", santaHat: "headwear",
+    starGlasses: "face", bowTie: "clothing", goldMedal: "accessory", surfboard: "accessory",
   };
 
   function layer(equipped, order, side) {
@@ -146,6 +192,14 @@
     deskLamp: { layer: "lamp", view: "110 0 100 80", svg: `<path d="M160 0 V36" stroke="#6b7a75" stroke-width="2.4"/><path d="M142 58 q18 -28 36 0z" fill="#ffd166" stroke="#e0a21a" stroke-width="2.4"/><path d="M148 62 q12 18 24 0" fill="#fff3c4" opacity=".7"/>` },
     bookshelf: { layer: "shelf", view: "216 20 100 140", svg: `<rect x="228" y="30" width="72" height="122" rx="3" fill="#a9703f"/><rect x="234" y="36" width="60" height="32" fill="#8a5a31"/><rect x="234" y="72" width="60" height="32" fill="#8a5a31"/><rect x="234" y="108" width="60" height="38" fill="#8a5a31"/><g><rect x="238" y="42" width="8" height="26" fill="#ef4444"/><rect x="247" y="46" width="8" height="22" fill="#3b82f6"/><rect x="256" y="40" width="9" height="28" fill="#3fb984"/><rect x="266" y="48" width="8" height="20" fill="#f59e0b"/><rect x="238" y="80" width="10" height="24" fill="#8b5cf6"/><rect x="249" y="76" width="8" height="28" fill="#ef4444"/><rect x="262" y="90" width="26" height="14" fill="#fff"/><rect x="240" y="116" width="8" height="30" fill="#3b82f6"/><rect x="249" y="120" width="9" height="26" fill="#f59e0b"/></g>` },
     pottedPlant: { layer: "plant", view: "236 110 80 110", svg: `<path d="M270 172 q-18 -22 -4 -42 q8 18 4 42z M270 172 q2 -30 18 -40 q4 22 -18 40z M270 172 q-6 -14 -22 -14 q8 -8 22 14z" fill="#4fae6a"/><path d="M256 172 h28 l-4 28 h-20z" fill="#d97a4a"/><rect x="254" y="168" width="32" height="7" rx="2" fill="#c4683a"/>` },
+    skyWall: { layer: "wall", view: ROOM_VIEW, svg: `<rect width="320" height="150" fill="#bfe3ff"/><g fill="#fff"><ellipse cx="60" cy="40" rx="26" ry="10"/><ellipse cx="78" cy="34" rx="18" ry="9"/><ellipse cx="230" cy="64" rx="28" ry="10"/><ellipse cx="250" cy="57" rx="18" ry="9"/></g><circle cx="282" cy="26" r="14" fill="#ffd166"/>` },
+    greenRug: { layer: "rug", view: "40 130 240 90", svg: `<ellipse cx="160" cy="192" rx="98" ry="20" fill="#5fb878"/><ellipse cx="160" cy="192" rx="80" ry="14" fill="#86d19a"/><path d="M110 192 q6 -8 12 0 M150 196 q6 -8 12 0 M190 190 q6 -8 12 0" stroke="#4fae6a" stroke-width="2.4" fill="none" stroke-linecap="round"/>` },
+    beachTowel: { layer: "rug", view: "40 130 240 90", svg: `<rect x="70" y="176" width="180" height="30" rx="4" fill="#fff"/><g fill="#f97316"><rect x="70" y="176" width="180" height="6"/><rect x="70" y="188" width="180" height="6"/><rect x="70" y="200" width="180" height="6" rx="2"/></g><g fill="#38bdf8"><rect x="70" y="182" width="180" height="6"/><rect x="70" y="194" width="180" height="6"/></g>` },
+    rainbowPoster: { layer: "poster", view: "16 8 100 90", svg: `<rect x="30" y="22" width="64" height="48" rx="3" fill="#fff" stroke="#b9824f" stroke-width="4"/><g fill="none" stroke-width="4.5" stroke-linecap="round"><path d="M40 62 a22 22 0 0 1 44 0" stroke="#ef4444"/><path d="M45 62 a17 17 0 0 1 34 0" stroke="#fbbf24"/><path d="M50 62 a12 12 0 0 1 24 0" stroke="#3b82f6"/></g>` },
+    scienceDesk: { layer: "desk", view: "0 90 130 100", svg: `<rect x="8" y="118" width="98" height="10" rx="3" fill="#6b7fb3"/><rect x="14" y="128" width="8" height="42" fill="#556796"/><rect x="92" y="128" width="8" height="42" fill="#556796"/><rect x="26" y="128" width="62" height="20" rx="2" fill="#7f93c6"/><circle cx="57" cy="138" r="2.4" fill="#e3eaff"/><circle cx="34" cy="104" r="13" fill="#5aa9e6"/><path d="M26 98 q8 -4 12 4 q-2 8 -8 8 q-6 -2 -4 -12z" fill="#5fb878"/><rect x="31" y="116" width="6" height="4" fill="#556796"/><path d="M72 118 v-12 l-6 -10 h16 l-6 10 v12z" fill="#e3f4ff" stroke="#6b7fb3" stroke-width="2"/><path d="M68 108 h12 v10 h-12z" fill="#a78bfa" opacity=".8"/>` },
+    starLamp: { layer: "lamp", view: "90 0 140 80", svg: `<g stroke="#6b7a75" stroke-width="2"><path d="M120 0 V26"/><path d="M160 0 V44"/><path d="M200 0 V20"/></g><g fill="#ffd166" stroke="#e0a21a" stroke-width="1.6" stroke-linejoin="round"><polygon points="${starPts(120, 36, 12, 5.2)}"/><polygon points="${starPts(160, 56, 14, 6)}"/><polygon points="${starPts(200, 30, 11, 4.8)}"/></g>` },
+    trophyCabinet: { layer: "shelf", view: "216 20 100 140", svg: `<rect x="228" y="30" width="72" height="122" rx="3" fill="#7b5a3a"/><rect x="234" y="36" width="60" height="110" fill="#d6edf5"/><g stroke="#7b5a3a" stroke-width="4"><path d="M234 72H294M234 108H294"/></g><g fill="#ffd166" stroke="#e0a21a" stroke-width="1.6"><path d="M250 52 h12 v8 q0 8 -6 8 q-6 0 -6 -8z"/><path d="M276 56 h10 v7 q0 7 -5 7 q-5 0 -5 -7z"/><path d="M244 90 h14 v9 q0 9 -7 9 q-7 0 -7 -9z" /><circle cx="278" cy="98" r="9"/><path d="M252 126 h16 v10 q0 10 -8 10 q-8 0 -8 -10z"/></g><rect x="274" y="120" width="12" height="20" rx="2" fill="#3b82f6"/>` },
+    xmasTree: { layer: "plant", view: "236 100 80 120", svg: `<rect x="266" y="186" width="10" height="16" fill="#8a5a31"/><polygon points="271,112 248,150 294,150" fill="#2f8f4e"/><polygon points="271,134 242,176 300,176" fill="#3aa05b"/><polygon points="271,158 236,192 306,192" fill="#2f8f4e"/><polygon points="${starPts(271, 110, 9, 4)}" fill="#ffd166"/><g><circle cx="262" cy="150" r="3.4" fill="#ef4444"/><circle cx="280" cy="168" r="3.4" fill="#fde047"/><circle cx="256" cy="176" r="3.4" fill="#60a5fa"/><circle cx="288" cy="184" r="3.4" fill="#ef4444"/><circle cx="270" cy="182" r="3.4" fill="#f472b6"/></g>` },
   };
   // Draw order inside the room: back to front.
   const ROOM_ORDER = ["wall", "poster", "shelf", "lamp", "rug", "desk"];
