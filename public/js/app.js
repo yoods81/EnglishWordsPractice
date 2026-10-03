@@ -6689,6 +6689,8 @@ function endTimesTableRound(reason) {
   timesTableActive.forEach((w) => w.el.remove());
   timesTableActive = [];
   stopTimesTableMusic();
+  timesTableLives = 0; // game is over: the HUD hearts show empty even after a manual end
+  renderTimesTableHearts();
 
   const key = timesTableHighScoreKey();
   const prevBest = timesTableHighScores[key] || 0;
