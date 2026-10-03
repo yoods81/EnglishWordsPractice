@@ -4968,9 +4968,43 @@ function buildTypeGameWordPool() {
 function updateTypeGameHud() {
   typeGameScoreEl.textContent = t("typeGameScoreLabel", typeGameScore);
   typeGameStageTagEl.textContent = t("typeGameStageLabel", typeGameStageIndex + 1);
-  const full = "❤️".repeat(Math.max(typeGameLives, 0));
-  const empty = "🖤".repeat(Math.max(TYPEGAME_LIVES - typeGameLives, 0));
-  typeGameLivesEl.textContent = full + empty;
+  renderTypeGameHearts();
+}
+
+/* ---------- HUD hearts ----------
+   Glossy 3D heart icons (SVG, gradients live in the hidden #tg-heart-* defs in
+   index.html) instead of emoji. The DOM is only rebuilt when the life count
+   actually changes, so the "heart just broke" animation plays exactly once. */
+const TG_HEART_PATH = "M12 21.2C5.2 15.6 2.2 12.1 2.2 8.3 2.2 5.3 4.5 3 7.4 3c1.9 0 3.6 1 4.6 2.6C13 4 14.7 3 16.6 3c2.9 0 5.2 2.3 5.2 5.3 0 3.8-3 7.3-9.8 12.9z";
+let typeGameHeartsRendered = -1;
+
+function typeGameHeartSvg(full) {
+  return (
+    `<svg class="tg-heart-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">` +
+    `<path class="tg-heart-shape" d="${TG_HEART_PATH}" fill="url(#${full ? "tg-heart-fill" : "tg-heart-empty"})"/>` +
+    (full
+      ? `<path class="tg-heart-shine" d="M6.2 6.1c.7-1.1 2-1.6 3.2-1.2" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" opacity=".85"/>`
+      : `<path class="tg-heart-crack" d="M12 6.8l-1.6 3.1 2.2 1.5-1.7 3.3" fill="none" stroke="#8d97b3" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>`) +
+    `</svg>`
+  );
+}
+
+function renderTypeGameHearts() {
+  const lives = Math.max(typeGameLives, 0);
+  if (typeGameHeartsRendered === lives) return;
+  const prev = typeGameHeartsRendered;
+  typeGameHeartsRendered = lives;
+  let html = "";
+  for (let i = 0; i < TYPEGAME_LIVES; i++) {
+    const full = i < lives;
+    let cls = "tg-heart" + (full ? " tg-heart-full" : " tg-heart-empty");
+    if (prev >= 0 && lives < prev && i >= lives && i < prev) cls += " tg-heart-break"; // just lost
+    else if (prev >= 0 && lives > prev && i >= prev && i < lives) cls += " tg-heart-in"; // just refilled
+    html += `<span class="${cls}">${typeGameHeartSvg(full)}</span>`;
+  }
+  typeGameLivesEl.innerHTML = html;
+  typeGameLivesEl.setAttribute("role", "img");
+  typeGameLivesEl.setAttribute("aria-label", currentLang === "ko" ? `목숨 ${lives}/${TYPEGAME_LIVES}` : `Lives ${lives} of ${TYPEGAME_LIVES}`);
 }
 
 /* ---------- Live fall-speed control ----------
@@ -5106,6 +5140,7 @@ function startTypeGame() {
   typeGameStageIndex = 0;
   typeGameActive.forEach((w) => w.el.remove());
   typeGameActive = [];
+  typeGameWordsEl.querySelectorAll(".tg-hit, .tt-fx, .typegame-pop-fx").forEach((n) => n.remove());
   typeGameStartOverlay.hidden = true;
   typeGameOverOverlay.hidden = true;
   typeGameInput.disabled = false;
@@ -5252,19 +5287,54 @@ function spawnTypeGameWord() {
   }
   if (!word) return;
 
-  const el = document.createElement("div");
-  el.className = "typegame-word";
-  const typedSpan = document.createElement("span");
-  typedSpan.className = "tw-typed";
-  const restSpan = document.createElement("span");
-  restSpan.className = "tw-rest";
-  restSpan.textContent = word;
-  el.appendChild(typedSpan);
-  el.appendChild(restSpan);
+  const el = buildTypeGameObject(word);
   typeGameWordsEl.appendChild(el);
   const startTop = placeFallingItem(el, typeGameWordsEl, typeGameActive);
 
-  typeGameActive.push({ text: word, el, top: startTop });
+  typeGameActive.push({
+    text: word,
+    el,
+    top: startTop,
+    h: el.offsetHeight || 48, // balloons/leaves/clouds are taller than the old capsule, so "reached the bottom" uses the item's own height
+    c1: el.style.getPropertyValue("--tg-c1"),
+  });
+}
+
+/* ---------- Falling objects: balloons, eucalyptus leaves and clouds ----------
+   Each falling word is drawn as a soft 3D object instead of a plain capsule. The
+   kind and colours are purely cosmetic (CSS variables --tg-c1/--tg-c2 drive the
+   gradients in style.css). The text keeps the same .tw-typed / .tw-rest spans the
+   matching code already updates, so typing/scoring logic is untouched. */
+const TYPEGAME_OBJECT_KINDS = {
+  balloon: [["#ff8da1", "#e8476a"], ["#6ec3ff", "#3a86e0"], ["#ffb36b", "#ee7a2a"], ["#b9a2ff", "#7b5be2"], ["#58dcb8", "#1fa688"]],
+  leaf: [["#7fd9a8", "#2e9a6b"], ["#8fdc8a", "#3d9c48"], ["#6cc9b4", "#2a8f84"]],
+  cloud: [["#9fd3ff", "#5b9be0"], ["#d0b8ff", "#8a6be0"], ["#ffc4d6", "#e8708f"]],
+};
+let typeGameLastObjectKind = "";
+
+function buildTypeGameObject(word) {
+  // never the same kind twice in a row, so the sky always looks mixed
+  const kinds = Object.keys(TYPEGAME_OBJECT_KINDS).filter((k) => k !== typeGameLastObjectKind);
+  const kind = kinds[Math.floor(Math.random() * kinds.length)];
+  typeGameLastObjectKind = kind;
+  const palette = TYPEGAME_OBJECT_KINDS[kind];
+  const [c1, c2] = palette[Math.floor(Math.random() * palette.length)];
+
+  const el = document.createElement("div");
+  el.className = `typegame-word tg-obj tg-${kind}`;
+  el.style.setProperty("--tg-c1", c1);
+  el.style.setProperty("--tg-c2", c2);
+  el.style.setProperty("--tg-tilt", `${(Math.random() * 6 - 3).toFixed(1)}deg`);
+  el.style.setProperty("--tg-float-delay", `${(-Math.random() * 3).toFixed(2)}s`);
+  el.setAttribute("aria-label", word);
+  el.innerHTML =
+    `<span class="tg-shadow" aria-hidden="true"></span>` +
+    `<span class="tg-body"><span class="tg-text"><span class="tw-typed"></span><span class="tw-rest"></span></span>` +
+    `<span class="tg-reticle" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span>` +
+    `<span class="tg-obj-tail" aria-hidden="true"></span>` +
+    `<i class="tg-sp tg-sp1" aria-hidden="true">✦</i><i class="tg-sp tg-sp2" aria-hidden="true">★</i><i class="tg-sp tg-sp3" aria-hidden="true">✦</i>`;
+  el.querySelector(".tw-rest").textContent = word;
+  return el;
 }
 
 function typeGameLoop(ts) {
@@ -5278,7 +5348,8 @@ function typeGameLoop(ts) {
     const w = typeGameActive[i];
     w.top += typeGameEffectiveSpeed() * dt;
     w.el.style.top = `${w.top}px`;
-    if (w.top > stageHeight - 30) {
+    // Lost when the object's bottom edge reaches the floor (for the old 34px capsule this was the same spot as before).
+    if (w.top > stageHeight - (w.h || 34) + 4) {
       w.el.remove();
       typeGameActive.splice(i, 1);
       loseTypeGameLife(w.text);
@@ -5327,16 +5398,68 @@ function spawnTypeGamePopFx(el) {
   setTimeout(() => fx.remove(), 500);
 }
 
+/* ---------- Hit confetti ----------
+   On a correct answer the object scales up and fades out (.tw-cleared) while a
+   burst of coloured paper pieces, leaf-shaped bits and sparkles flies out of it
+   and drops with a little gravity, plus a "+score" pop-up. Pure CSS animation —
+   JS only places the pieces and sets their --dx/--dy/--rot variables. */
+const TYPEGAME_CONFETTI_COLORS = ["#ff6b8b", "#ffd43b", "#4dc9f6", "#5fe0b0", "#b197fc", "#ff9f43", "#ffffff"];
+const TYPEGAME_CONFETTI_SHAPES = ["rect", "rect", "dot", "strip", "leaf", "star"];
+const TYPEGAME_CONFETTI_PIECES = 22;
+
+function spawnTypeGameConfetti(el, scoreGain) {
+  const box = typeGameWordsEl.getBoundingClientRect();
+  const r = el.getBoundingClientRect();
+  const cx = Math.min(Math.max(r.left - box.left + r.width / 2, 12), Math.max(box.width - 12, 12));
+  const cy = Math.max(r.top - box.top + r.height / 2, 14);
+
+  // "+50" pop-up, kept fully inside the play area (same look as the Times Table's score pop)
+  const pop = document.createElement("div");
+  pop.className = "tt-fx tt-score-pop";
+  pop.textContent = `+${scoreGain}`;
+  pop.style.left = `${Math.min(Math.max(cx, 40), Math.max(box.width - 40, 40))}px`;
+  pop.style.top = `${Math.max(cy - 20, 24)}px`;
+  typeGameWordsEl.appendChild(pop);
+  setTimeout(() => pop.remove(), 1100);
+
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const own = el.style.getPropertyValue("--tg-c1");
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < TYPEGAME_CONFETTI_PIECES; i++) {
+    const shape = TYPEGAME_CONFETTI_SHAPES[i % TYPEGAME_CONFETTI_SHAPES.length];
+    const s = document.createElement("i");
+    s.className = `tg-hit tg-cf-${shape}`;
+    // every 4th piece wears the popped object's own colour, the rest are party colours
+    const color = i % 4 === 0 && own ? own : TYPEGAME_CONFETTI_COLORS[Math.floor(Math.random() * TYPEGAME_CONFETTI_COLORS.length)];
+    s.style.setProperty("--c", color);
+    const ang = (Math.PI * 2 * i) / TYPEGAME_CONFETTI_PIECES + Math.random() * 0.45;
+    const dist = 36 + Math.random() * 62;
+    s.style.left = `${cx}px`;
+    s.style.top = `${cy}px`;
+    s.style.setProperty("--dx", `${(Math.cos(ang) * dist).toFixed(1)}px`);
+    s.style.setProperty("--dy", `${(Math.sin(ang) * dist - 22).toFixed(1)}px`);
+    s.style.setProperty("--fall", `${(34 + Math.random() * 40).toFixed(0)}px`);
+    s.style.setProperty("--rot", `${Math.round((Math.random() - 0.5) * 720)}deg`);
+    s.style.setProperty("--dur", `${(0.75 + Math.random() * 0.35).toFixed(2)}s`);
+    frag.appendChild(s);
+    setTimeout(() => s.remove(), 1200);
+  }
+  typeGameWordsEl.appendChild(frag);
+}
+
 function clearTypeGameWord(word) {
   recordSrsResult(word.text, true);
   recordResult(word.text, true, "typing");
   typeGameRoundSolved.add(word.text);
+  const gain = word.text.length * 10;
   spawnTypeGamePopFx(word.el);
+  spawnTypeGameConfetti(word.el, gain);
   word.el.classList.add("tw-cleared");
-  setTimeout(() => word.el.remove(), 300);
+  setTimeout(() => word.el.remove(), 450);
   typeGameActive = typeGameActive.filter((w) => w !== word);
 
-  typeGameScore += word.text.length * 10;
+  typeGameScore += gain;
   typeGameWordsCleared++;
   kb("type")?.eat(Math.min(typeGameWordsCleared / KB_GAME_FULL, 1), typeGameWordsCleared >= KB_GAME_FULL, true);
   playTypeGameCorrectSfx();

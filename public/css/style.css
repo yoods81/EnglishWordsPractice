@@ -6334,3 +6334,441 @@ html body .tt-keypad-toggle[aria-pressed="true"] { background: var(--accent) !im
   .tg-koala .sk-svg, .tg-play-again { animation: none !important; }
   .tg-stars-go .tg-star.on { animation: none; filter: drop-shadow(0 0 6px #ffd54a); opacity: 1; transform: scale(1.1); }
 }
+
+/* =====================================================================
+   Typing Game visual polish
+   Everything below is scoped to #view-typegame / #typegame-stage (or to
+   classes only the Typing Game creates: .tg-*) so the Times Table, which
+   shares the older .typegame-* classes, is not affected. Pure CSS — JS only
+   builds the elements and sets --tg-c1/--tg-c2/--tg-tilt on each object.
+   ===================================================================== */
+
+/* ---- Scenery: pastel eucalyptus forest / night sky --------------------
+   The stage background and every scenery colour are CSS variables, so the
+   five stage scenes (the game cycles through them on each stage-up) only
+   have to swap variables. The #id selectors beat the dark-theme overrides
+   in themes.css, which paint .typegame-stage with !important. */
+#typegame-stage {
+  --tg-sky-1: #d3f1e6; --tg-sky-2: #e8f6dd; --tg-sky-3: #fff4d6;
+  --tg-hill-far: #bfe6c9; --tg-hill-near: #9dd8ae;
+  --tg-tree: #78c79d; --tg-trunk: #f5eddd; --tg-mark: #c9bfa8;
+  --tg-night: 0; --tg-cloud-op: 0.92;
+  --tg-orb-bg: #fff3a6; --tg-orb-cut: #ffe27a; --tg-orb-glow: rgba(255, 226, 120, 0.7);
+  --tg-orb-x: 13%; --tg-orb-y: 9%; --tg-orb-op: 1;
+}
+#typegame-stage.stage-scene-1 { /* peach sunset */
+  --tg-sky-1: #ffe1cd; --tg-sky-2: #ffc9d6; --tg-sky-3: #e6cbff;
+  --tg-hill-far: #f2b9c8; --tg-hill-near: #dba0bd;
+  --tg-tree: #88b9a2; --tg-trunk: #fcece2; --tg-mark: #d9bfb6;
+  --tg-night: 0; --tg-cloud-op: 0.8;
+  --tg-orb-bg: #ffb78f; --tg-orb-cut: #ff9b78; --tg-orb-glow: rgba(255, 160, 130, 0.65);
+  --tg-orb-x: 72%; --tg-orb-y: 30%;
+}
+#typegame-stage.stage-scene-2 { /* plum dusk */
+  --tg-sky-1: #6b4f9e; --tg-sky-2: #a876c2; --tg-sky-3: #f2aacb;
+  --tg-hill-far: #8b60aa; --tg-hill-near: #6f4b90;
+  --tg-tree: #62938e; --tg-trunk: #dccfe9; --tg-mark: #a995c2;
+  --tg-night: 0.55; --tg-cloud-op: 0.5;
+  --tg-orb-bg: #ffeaf3; --tg-orb-cut: #f2c6dc; --tg-orb-glow: rgba(255, 220, 240, 0.55);
+  --tg-orb-x: 76%; --tg-orb-y: 11%;
+}
+#typegame-stage.stage-scene-3 { /* pastel night sky */
+  --tg-sky-1: #2c3472; --tg-sky-2: #4b57a0; --tg-sky-3: #8c96da;
+  --tg-hill-far: #5e6eb2; --tg-hill-near: #4a5aa2;
+  --tg-tree: #5c9ca2; --tg-trunk: #d0d7ef; --tg-mark: #8e9bd0;
+  --tg-night: 1; --tg-cloud-op: 0.24;
+  --tg-orb-bg: #fff8d2; --tg-orb-cut: #e8dba2; --tg-orb-glow: rgba(255, 246, 190, 0.6);
+  --tg-orb-x: 18%; --tg-orb-y: 10%;
+}
+#typegame-stage.stage-scene-4 { /* misty gum forest */
+  --tg-sky-1: #cdeee2; --tg-sky-2: #aadecb; --tg-sky-3: #e9f7ee;
+  --tg-hill-far: #8fd0b5; --tg-hill-near: #6ec09f;
+  --tg-tree: #5db58f; --tg-trunk: #eef3e7; --tg-mark: #b7c4ae;
+  --tg-night: 0; --tg-cloud-op: 0.75;
+  --tg-orb-bg: #fffbe2; --tg-orb-cut: #f3edbf; --tg-orb-glow: rgba(255, 250, 210, 0.7);
+  --tg-orb-x: 70%; --tg-orb-y: 12%; --tg-orb-op: 0.8;
+}
+#typegame-stage.typegame-stage {
+  background: linear-gradient(180deg, var(--tg-sky-1) 0%, var(--tg-sky-2) 55%, var(--tg-sky-3) 100%) !important;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6), inset 0 0 0 4px rgba(110, 170, 150, 0.28);
+}
+
+.tg-sky .tg-orb {
+  position: absolute;
+  left: var(--tg-orb-x);
+  top: var(--tg-orb-y);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  opacity: var(--tg-orb-op);
+  background: var(--tg-orb-bg);
+  box-shadow: 0 0 18px 7px var(--tg-orb-glow), inset -7px -4px 0 var(--tg-orb-cut);
+}
+
+.tg-sky .tg-sky-stars { position: absolute; inset: 0; opacity: var(--tg-night); }
+.tg-sky .tg-sky-star {
+  position: absolute;
+  font-style: normal;
+  line-height: 1;
+  color: #fff;
+  font-size: 0.9rem;
+  text-shadow: 0 0 6px #fff, 0 0 12px rgba(255, 255, 255, 0.7);
+  animation: tg-twinkle 2.8s ease-in-out infinite;
+}
+.tg-sky-star-1 { top: 8%; left: 10%; }
+.tg-sky-star-2 { top: 20%; left: 36%; font-size: 0.75rem; animation-delay: -0.8s; }
+.tg-sky-star-3 { top: 6%; left: 56%; font-size: 1.05rem; animation-delay: -1.5s; }
+.tg-sky-star-4 { top: 26%; left: 84%; font-size: 0.8rem; animation-delay: -2.1s; }
+.tg-sky-star-5 { top: 36%; left: 20%; font-size: 0.7rem; animation-delay: -0.3s; }
+.tg-sky-star-6 { top: 15%; left: 92%; font-size: 0.95rem; animation-delay: -1.2s; }
+@keyframes tg-twinkle {
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.2) rotate(15deg); }
+}
+
+/* soft puffy clouds drifting across (re-uses the old drift keyframes) */
+.tg-sky .tg-sky-cloud {
+  position: absolute;
+  width: 62px;
+  height: 20px;
+  border-radius: 999px;
+  background: #fff;
+  opacity: var(--tg-cloud-op);
+  filter: drop-shadow(0 3px 2px rgba(90, 110, 150, 0.14));
+  animation: typegame-drift 62s linear infinite;
+}
+.tg-sky .tg-sky-cloud::before,
+.tg-sky .tg-sky-cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50%; }
+.tg-sky .tg-sky-cloud::before { width: 30px; height: 30px; left: 9px; top: -14px; }
+.tg-sky .tg-sky-cloud::after { width: 24px; height: 24px; left: 32px; top: -9px; }
+.tg-sky .tg-sky-cloud-1 { top: 10%; left: -14%; }
+.tg-sky .tg-sky-cloud-2 { top: 31%; left: -26%; scale: 0.75; animation-duration: 80s; animation-delay: -30s; }
+.tg-sky .tg-sky-cloud-3 { top: 47%; left: -20%; scale: 0.6; animation-duration: 68s; animation-delay: -46s; }
+
+.tg-sky .tg-hills { position: absolute; left: 0; bottom: 0; width: 100%; height: 36%; }
+.tg-hill-far { fill: var(--tg-hill-far); }
+.tg-hill-near { fill: var(--tg-hill-near); }
+
+.tg-sky .tg-trees { position: absolute; bottom: 0; height: min(112px, 42%); aspect-ratio: 150 / 110; width: auto; overflow: visible; }
+.tg-trees-l { left: 0; }
+.tg-trees-r { right: 0; }
+.tg-tree { transform-box: fill-box; transform-origin: 50% 100%; animation: tg-tree-sway 7s ease-in-out infinite; }
+.tg-tree-small { animation-duration: 9s; animation-delay: -3s; opacity: 0.88; }
+@keyframes tg-tree-sway { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.2deg); } }
+.tg-leaves { fill: var(--tg-tree); }
+.tg-leaves-lite { opacity: 0.8; }
+.tg-trunk { fill: var(--tg-trunk); }
+.tg-trunk-mark { stroke: var(--tg-mark); stroke-width: 1.4; stroke-linecap: round; fill: none; }
+.tg-branch { stroke: var(--tg-trunk); stroke-width: 3; stroke-linecap: round; fill: none; }
+.tg-sleepy-koala circle { fill: #b4bccb; }
+.tg-sleepy-koala .tg-koala-nose { fill: #4d5362; }
+
+/* ---- HUD: glossy 3D hearts ------------------------------------------ */
+.tg-svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+.tg-hearts {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  letter-spacing: 0;
+  background: linear-gradient(180deg, #ffffff, #eef2fb);
+  box-shadow: inset 0 0 0 2px #dde4f5, 0 2px 0 #c9d3ec;
+}
+.tg-hearts .tg-heart {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  transform-origin: 50% 60%;
+}
+.tg-heart-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.tg-heart-full { filter: drop-shadow(0 2px 1.5px rgba(216, 30, 85, 0.45)); animation: tg-heartbeat 1.7s ease-in-out infinite; }
+.tg-heart-full:nth-child(2) { animation-delay: 0.15s; }
+.tg-heart-full:nth-child(3) { animation-delay: 0.3s; }
+.tg-heart-full:nth-child(4) { animation-delay: 0.45s; }
+.tg-heart-full:nth-child(5) { animation-delay: 0.6s; }
+.tg-heart-full .tg-heart-shape { stroke: #c2184a; stroke-width: 0.9; stroke-linejoin: round; }
+.tg-heart-empty .tg-heart-shape { stroke: #a6b0c9; stroke-width: 0.9; stroke-linejoin: round; }
+.tg-heart-empty { opacity: 0.95; }
+.tg-heart-break { animation: tg-heart-break 0.7s ease-out both; }
+.tg-heart-in { animation: tg-heart-in 0.5s cubic-bezier(0.3, 1.7, 0.5, 1) both; }
+@keyframes tg-heartbeat { 0%, 60%, 100% { transform: scale(1); } 72% { transform: scale(1.14); } 84% { transform: scale(0.97); } }
+@keyframes tg-heart-break {
+  0% { transform: scale(1.35) rotate(0deg); filter: drop-shadow(0 0 8px #ff5b86); }
+  30% { transform: scale(0.85) rotate(-14deg); }
+  55% { transform: scale(1.05) rotate(10deg); }
+  100% { transform: scale(1) rotate(0deg); filter: none; }
+}
+@keyframes tg-heart-in { 0% { transform: scale(0.2); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+/* ---- Falling words: balloons, eucalyptus leaves and clouds ---------- */
+/* The plain capsule (.typegame-word) is switched off — the shape is drawn by
+   .tg-body. The ID selector beats the dark/ivory theme rules that paint every
+   .typegame-word with a solid !important background. */
+#view-typegame .typegame-word.tg-obj,
+#view-typegame .typegame-word.tg-obj.tw-lock {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 0 14px;
+  font-size: 1rem;
+  line-height: 1.05;
+  color: #fff;
+}
+#view-typegame .typegame-word.tg-balloon { padding-bottom: 20px; --tg-typed: #fff3a0; }
+#view-typegame .typegame-word.tg-leaf { padding-bottom: 8px; --tg-typed: #fff3a0; }
+#view-typegame .typegame-word.tg-cloud { padding-bottom: 10px; --tg-typed: #ee5a24; }
+
+.tg-obj .tg-body {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  transform-origin: 50% 100%;
+  /* the gentle Floating bob */
+  animation: tg-float 3.2s ease-in-out infinite;
+  animation-delay: var(--tg-float-delay, 0s);
+  transition: scale 0.15s ease;
+}
+@keyframes tg-float {
+  0%, 100% { transform: translateY(0) rotate(calc(var(--tg-tilt, 0deg) - 2.5deg)); }
+  50% { transform: translateY(-6px) rotate(calc(var(--tg-tilt, 0deg) + 2.5deg)); }
+}
+
+/* soft ground shadow that breathes with the float */
+.tg-obj .tg-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 1px;
+  width: 62%;
+  height: 9px;
+  margin-left: -31%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(40, 50, 100, 0.3) 0%, rgba(40, 50, 100, 0) 72%);
+  animation: tg-shadow 3.2s ease-in-out infinite;
+  animation-delay: var(--tg-float-delay, 0s);
+}
+@keyframes tg-shadow { 0%, 100% { transform: scale(1); opacity: 0.95; } 50% { transform: scale(0.82); opacity: 0.6; } }
+
+#view-typegame .tg-obj .tg-text {
+  position: relative;
+  z-index: 1;
+  font-size: 1.05rem;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+#view-typegame .tg-obj .tw-rest { color: #fff; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.38), 0 0 6px rgba(0, 0, 0, 0.22); }
+#view-typegame .tg-obj .tw-typed { color: var(--tg-typed, #fff3a0); text-shadow: 0 0 8px var(--tg-typed, #fff3a0), 0 1px 0 rgba(0, 0, 0, 0.4); }
+#view-typegame .tg-cloud .tw-rest { color: #34406e; text-shadow: none; }
+#view-typegame .tg-cloud .tw-typed { text-shadow: 0 0 6px rgba(255, 140, 80, 0.55); }
+
+/* Balloon: glossy round body, knot and a wobbling string */
+.tg-balloon .tg-body {
+  min-width: 78px;
+  min-height: 70px;
+  padding: 14px 16px 18px;
+  border-radius: 50% 50% 48% 48% / 58% 58% 42% 42%;
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.85) 0 7%, rgba(255, 255, 255, 0) 22%),
+    radial-gradient(circle at 50% 38%, var(--tg-c1) 0%, var(--tg-c2) 100%);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4), inset -6px -10px 14px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(30, 40, 90, 0.2);
+}
+.tg-obj-tail { position: absolute; left: 50%; bottom: 0; width: 0; height: 0; pointer-events: none; }
+.tg-balloon .tg-obj-tail::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  bottom: 13px;
+  border-style: solid;
+  border-width: 0 5px 6px 5px;
+  border-color: transparent transparent var(--tg-c2) transparent;
+}
+.tg-balloon .tg-obj-tail::after {
+  content: "";
+  position: absolute;
+  left: -1px;
+  bottom: 1px;
+  width: 2px;
+  height: 13px;
+  border-radius: 2px;
+  background: rgba(100, 110, 140, 0.7);
+  transform-origin: 50% 0;
+  animation: tg-string 2.4s ease-in-out infinite;
+}
+@keyframes tg-string { 0%, 100% { transform: skewX(9deg); } 50% { transform: skewX(-9deg); } }
+
+/* Eucalyptus leaf: almond shape tilted on its own, text stays upright */
+.tg-leaf .tg-body { min-width: 104px; min-height: 60px; padding: 10px 28px 12px; }
+.tg-leaf .tg-body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 0 100% 0 100% / 0 100% 0 100%;
+  background: linear-gradient(135deg, var(--tg-c1) 0%, var(--tg-c2) 100%);
+  transform: rotate(-12deg) scale(1.04);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.45), inset -5px -7px 12px rgba(0, 0, 0, 0.2), 0 5px 9px rgba(30, 60, 50, 0.2);
+}
+.tg-leaf .tg-body::after {
+  content: "";
+  position: absolute;
+  left: 9%;
+  right: 9%;
+  top: 50%;
+  height: 2px;
+  z-index: -1;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.4);
+  transform: rotate(21deg);
+}
+.tg-leaf .tg-obj-tail { left: auto; right: -6px; bottom: 6px; width: 16px; height: 4px; border-radius: 3px; background: #8a6a3d; transform: rotate(32deg); }
+
+/* Cloud: fluffy white puffs with a pastel outline */
+.tg-cloud .tg-body {
+  min-width: 92px;
+  min-height: 46px;
+  padding: 10px 26px 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff 0%, #eef5ff 100%);
+  box-shadow: inset 0 -6px 10px rgba(120, 150, 210, 0.22);
+  filter: drop-shadow(0 0 1px var(--tg-c2)) drop-shadow(0 0 1px var(--tg-c2)) drop-shadow(0 4px 3px rgba(30, 40, 90, 0.18));
+}
+.tg-cloud .tg-body::before,
+.tg-cloud .tg-body::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffffff, #f4f8ff);
+}
+.tg-cloud .tg-body::before { width: 38px; height: 38px; left: 14%; top: -17px; }
+.tg-cloud .tg-body::after { width: 30px; height: 30px; right: 16%; top: -12px; }
+.tg-cloud .tg-obj-tail { display: none; }
+
+/* ---- Lock-on: neon glow + aiming reticle on the word being typed ---- */
+#view-typegame .typegame-word.tg-obj.tw-lock {
+  z-index: 1;
+  animation: tg-lock-pulse 0.8s ease-in-out infinite alternate;
+}
+.tg-obj.tw-lock .tg-body { scale: 1.08; }
+@keyframes tg-lock-pulse {
+  from { filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 8px var(--tg-c1)) drop-shadow(0 0 16px var(--tg-c1)); }
+  to { filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 13px var(--tg-c1)) drop-shadow(0 0 26px var(--tg-c1)); }
+}
+.tg-reticle {
+  display: none;
+  position: absolute;
+  inset: -9px -10px;
+  z-index: 3;
+  pointer-events: none;
+  border: 2px solid #fff;
+  border-radius: inherit;
+  box-shadow: 0 0 6px #fff, 0 0 14px var(--tg-c1), 0 0 26px var(--tg-c1), inset 0 0 8px rgba(255, 255, 255, 0.55);
+}
+.tg-leaf .tg-reticle { border-radius: 48%; }
+.tg-reticle i { position: absolute; width: 11px; height: 11px; border: 0 solid #fff; filter: drop-shadow(0 0 3px var(--tg-c1)); }
+.tg-reticle i:nth-child(1) { top: -6px; left: -6px; border-top-width: 3px; border-left-width: 3px; }
+.tg-reticle i:nth-child(2) { top: -6px; right: -6px; border-top-width: 3px; border-right-width: 3px; }
+.tg-reticle i:nth-child(3) { bottom: -6px; left: -6px; border-bottom-width: 3px; border-left-width: 3px; }
+.tg-reticle i:nth-child(4) { bottom: -6px; right: -6px; border-bottom-width: 3px; border-right-width: 3px; }
+.tg-obj.tw-lock .tg-reticle {
+  display: block;
+  animation: tg-aim-in 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.4) both, tg-aim-pulse 1s ease-in-out 0.3s infinite;
+}
+@keyframes tg-aim-in { from { opacity: 0; transform: scale(1.7); } to { opacity: 1; transform: scale(1); } }
+@keyframes tg-aim-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+
+.tg-sp {
+  display: none;
+  position: absolute;
+  font-style: normal;
+  line-height: 1;
+  color: #fff8c4;
+  text-shadow: 0 0 4px #fff, 0 0 10px #ffd54a;
+  pointer-events: none;
+  z-index: 4;
+}
+.tg-sp1 { top: -12px; left: -12px; font-size: 1.05rem; }
+.tg-sp2 { top: -4px; right: -16px; font-size: 0.9rem; }
+.tg-sp3 { bottom: 24px; left: -18px; font-size: 0.8rem; }
+.tg-obj.tw-lock .tg-sp { display: block; animation: tg-sparkle 0.9s ease-in-out infinite; }
+.tg-obj.tw-lock .tg-sp2 { animation-delay: 0.3s; }
+.tg-obj.tw-lock .tg-sp3 { animation-delay: 0.6s; }
+@keyframes tg-sparkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.6) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.25) rotate(35deg); }
+}
+
+/* ---- Hit effect: scale-up & fade-out pop + confetti ------------------ */
+/* The lock class stays on an object for the instant it is cleared — the pop wins. */
+#view-typegame .typegame-word.tg-obj.tw-cleared {
+  animation: tg-obj-pop 0.42s cubic-bezier(0.3, 1.5, 0.5, 1) forwards;
+  filter: none;
+  pointer-events: none;
+}
+@keyframes tg-obj-pop {
+  0% { transform: translateX(-50%) scale(1); opacity: 1; }
+  38% { transform: translateX(-50%) scale(1.35); opacity: 1; }
+  100% { transform: translateX(-50%) scale(1.9); opacity: 0; }
+}
+.tg-hit {
+  position: absolute;
+  display: block;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--c, #ffd43b);
+  pointer-events: none;
+}
+.tg-hit { z-index: 2; animation: tg-hit var(--dur, 0.9s) cubic-bezier(0.2, 0.7, 0.4, 1) forwards; }
+.tg-cf-dot { width: 8px; height: 8px; border-radius: 50%; }
+.tg-cf-strip { width: 4px; height: 15px; border-radius: 2px; }
+.tg-cf-leaf { width: 12px; height: 7px; border-radius: 0 100% 0 100%; }
+.tg-cf-star { width: 12px; height: 12px; border-radius: 0; clip-path: polygon(50% 0, 62% 36%, 100% 38%, 70% 60%, 80% 100%, 50% 76%, 20% 100%, 30% 60%, 0 38%, 38% 36%); }
+@keyframes tg-hit {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.3) rotate(0deg); }
+  45% { opacity: 1; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1) rotate(calc(var(--rot) * 0.5)); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx) * 1.1), calc(-50% + var(--dy) + var(--fall, 40px))) scale(0.9) rotate(var(--rot)); }
+}
+
+/* ---- Phones ---------------------------------------------------------- */
+@media (max-width: 480px) {
+  .tg-hearts { gap: 2px; padding: 2px 7px; }
+  .tg-hearts .tg-heart { width: 19px; height: 19px; }
+  .tg-sky .tg-orb { width: 26px; height: 26px; }
+  .tg-sky .tg-trees { height: min(84px, 36%); }
+  #view-typegame .tg-obj .tg-text { font-size: 0.95rem; }
+  .tg-balloon .tg-body { min-width: 66px; min-height: 66px; padding: 12px 12px 16px; }
+  .tg-leaf .tg-body { min-width: 90px; min-height: 52px; padding: 8px 22px 10px; }
+  .tg-cloud .tg-body { min-width: 80px; min-height: 40px; padding: 8px 20px 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tg-obj .tg-body, .tg-obj .tg-shadow, .tg-balloon .tg-obj-tail::after, .tg-obj.tw-lock .tg-sp,
+  .tg-obj.tw-lock .tg-reticle, #view-typegame .typegame-word.tg-obj.tw-lock,
+  .tg-sky .tg-sky-star, .tg-sky .tg-sky-cloud, .tg-tree, .tg-heart-full,
+  .tg-over-overlay::before { animation: none !important; }
+  .tg-hit { display: none; }
+  .tg-obj.tw-lock .tg-body { scale: 1; }
+  #view-typegame .typegame-word.tg-obj.tw-lock { filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 10px var(--tg-c1)); }
+  .tg-obj.tw-lock .tg-reticle { opacity: 1; }
+}
+
+/* Game Over (shared popup): slowly turning light rays behind the card, arcade-style */
+.typegame-overlay.tg-over-overlay::before {
+  content: "";
+  position: absolute;
+  inset: -45%;
+  pointer-events: none;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 255, 255, 0.1) 0deg 9deg, rgba(255, 255, 255, 0) 9deg 18deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0%, rgba(0, 0, 0, 0) 62%);
+  mask-image: radial-gradient(circle, #000 0%, rgba(0, 0, 0, 0) 62%);
+  animation: tg-rays 26s linear infinite;
+}
+@keyframes tg-rays { to { transform: rotate(360deg); } }

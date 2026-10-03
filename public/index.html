@@ -693,16 +693,77 @@ to Flip!</span></div>
             <span class="goal-stepper-value" id="typegame-speed-value">1</span>
             <button type="button" class="goal-step-btn" id="typegame-speed-plus" data-i18n-aria-label="gameSpeedIncreaseLabel" aria-label="Faster">+</button>
           </span>
-          <span class="typegame-lives" id="typegame-lives" style="margin-left:auto;"></span>
+          <span class="typegame-lives tg-hearts" id="typegame-lives" style="margin-left:auto;"></span>
         </div>
 
+        <!-- Shared gradients for the 3D heart icons in the HUD (see renderTypeGameHearts in app.js) -->
+        <svg class="tg-svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="tg-heart-fill" x1="0" y1="0" x2="0.35" y2="1">
+              <stop offset="0" stop-color="#ff8fa8"/>
+              <stop offset="0.55" stop-color="#ff4d78"/>
+              <stop offset="1" stop-color="#d81e55"/>
+            </linearGradient>
+            <linearGradient id="tg-heart-empty" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#e9edf7"/>
+              <stop offset="1" stop-color="#bcc5db"/>
+            </linearGradient>
+          </defs>
+        </svg>
+
         <div class="typegame-stage" id="typegame-stage">
-          <div class="typegame-sky" aria-hidden="true">
-            <span class="typegame-cloud typegame-cloud-1">☁️</span>
-            <span class="typegame-cloud typegame-cloud-2">☁️</span>
-            <span class="typegame-cloud typegame-cloud-3">☁️</span>
-            <span class="typegame-star typegame-star-1">✨</span>
-            <span class="typegame-star typegame-star-2">⭐</span>
+          <!-- Pastel scenery. The five stage scenes (see .stage-scene-N under "Typing Game visual polish"
+               in style.css) recolour this one layer: eucalyptus morning, peach sunset, plum dusk,
+               pastel night sky and misty gum forest. -->
+          <div class="typegame-sky tg-sky" aria-hidden="true">
+            <span class="tg-orb"></span>
+            <span class="tg-sky-stars">
+              <i class="tg-sky-star tg-sky-star-1">✦</i><i class="tg-sky-star tg-sky-star-2">✦</i><i class="tg-sky-star tg-sky-star-3">✧</i>
+              <i class="tg-sky-star tg-sky-star-4">✦</i><i class="tg-sky-star tg-sky-star-5">✧</i><i class="tg-sky-star tg-sky-star-6">✦</i>
+            </span>
+            <span class="tg-sky-cloud tg-sky-cloud-1"></span>
+            <span class="tg-sky-cloud tg-sky-cloud-2"></span>
+            <span class="tg-sky-cloud tg-sky-cloud-3"></span>
+            <svg class="tg-hills" viewBox="0 0 400 120" preserveAspectRatio="none">
+              <path class="tg-hill-far" d="M0 54 C50 22 100 30 150 50 S250 70 300 42 S370 28 400 44 V120 H0Z"/>
+              <path class="tg-hill-near" d="M0 82 C60 56 120 62 180 80 S290 100 340 72 S388 64 400 70 V120 H0Z"/>
+            </svg>
+            <svg class="tg-trees tg-trees-l" viewBox="0 0 150 110" aria-hidden="true">
+              <g class="tg-tree">
+                <rect class="tg-trunk" x="38" y="38" width="7" height="72" rx="3.5"/>
+                <path class="tg-trunk-mark" d="M41 54 v10 M41 78 v12" />
+                <path class="tg-branch" d="M42 62 Q58 52 70 54" />
+                <ellipse class="tg-leaves" cx="42" cy="28" rx="24" ry="16"/>
+                <ellipse class="tg-leaves" cx="24" cy="42" rx="14" ry="9" transform="rotate(-20 24 42)"/>
+                <ellipse class="tg-leaves" cx="62" cy="38" rx="15" ry="9" transform="rotate(18 62 38)"/>
+                <ellipse class="tg-leaves tg-leaves-lite" cx="72" cy="54" rx="11" ry="6" transform="rotate(14 72 54)"/>
+              </g>
+              <g class="tg-sleepy-koala">
+                <circle cx="62" cy="54" r="7"/>
+                <circle cx="55" cy="48" r="3.6"/><circle cx="69" cy="48" r="3.6"/>
+                <ellipse class="tg-koala-nose" cx="62" cy="56" rx="2.4" ry="2"/>
+              </g>
+              <g class="tg-tree tg-tree-small">
+                <rect class="tg-trunk" x="104" y="64" width="5" height="46" rx="2.5"/>
+                <ellipse class="tg-leaves" cx="106" cy="58" rx="16" ry="11"/>
+                <ellipse class="tg-leaves" cx="93" cy="68" rx="9" ry="6" transform="rotate(-18 93 68)"/>
+                <ellipse class="tg-leaves" cx="119" cy="66" rx="10" ry="6" transform="rotate(16 119 66)"/>
+              </g>
+            </svg>
+            <svg class="tg-trees tg-trees-r" viewBox="0 0 150 110" aria-hidden="true">
+              <g class="tg-tree">
+                <rect class="tg-trunk" x="96" y="44" width="6" height="66" rx="3"/>
+                <path class="tg-trunk-mark" d="M99 60 v9 M99 82 v10" />
+                <ellipse class="tg-leaves" cx="99" cy="34" rx="22" ry="15"/>
+                <ellipse class="tg-leaves" cx="82" cy="48" rx="13" ry="8" transform="rotate(-18 82 48)"/>
+                <ellipse class="tg-leaves" cx="116" cy="46" rx="13" ry="8" transform="rotate(20 116 46)"/>
+              </g>
+              <g class="tg-tree tg-tree-small">
+                <rect class="tg-trunk" x="52" y="70" width="5" height="40" rx="2.5"/>
+                <ellipse class="tg-leaves" cx="54" cy="64" rx="14" ry="10"/>
+                <ellipse class="tg-leaves" cx="43" cy="73" rx="8" ry="5" transform="rotate(-18 43 73)"/>
+              </g>
+            </svg>
           </div>
 
           <button type="button" class="typegame-pause-btn round-icon-btn" id="typegame-pause-btn" data-i18n-aria-label="typeGamePauseLabel" aria-label="Pause" hidden><svg class="pause-icon-svg" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="5" height="16" rx="1.5" fill="currentColor"/></svg></button>
