@@ -349,6 +349,7 @@ const TRANSLATIONS = {
     qzRetryBtn: (n) => `🔁 Retry missed words (${n})`,
     qzAgainBtn: "▶ Play again",
     qzSettingsBtn: "⚙️ Change settings",
+    qzSeeResults: "See results 🏁",
     flashFrontModeLabel: "Flashcard front side",
     flashSourceLabel: "Flashcard source",
     flashSourceAuto: "🎲 Level words",
@@ -916,6 +917,7 @@ const TRANSLATIONS = {
     qzRetryBtn: (n) => `🔁 틀린 단어 다시 풀기 (${n})`,
     qzAgainBtn: "▶ 다시 하기",
     qzSettingsBtn: "⚙️ 설정 바꾸기",
+    qzSeeResults: "결과 보기 🏁",
     qzKoMeaningLabel: "🇰🇷 한국어 뜻",
     qzKoMeaningHide: "뜻 숨기기",
     qzKoMeaningShow: "뜻 보기",
@@ -4138,6 +4140,7 @@ function finishQuizQuestion(outcome) {
   }
 
   renderQuizFeedback(q, outcome, correct);
+  quizNextBtn.textContent = quizIndex + 1 >= quizQuestions.length ? t("qzSeeResults") : t("nextQuestionBtn");
   quizNextBtn.style.display = "inline-block";
   quizNextBtn.focus({ preventScroll: true });
   // On a phone the feedback and "Next" can sit below the fold: bring them into view (no scroll if already visible).
@@ -4260,6 +4263,7 @@ function renderQuizTimer() {
 function showQuizResult() {
   stopQuizTimer();
   quizPhase = "result";
+  quizGoalBanner.hidden = true; // the result screen says it all (and "Keep going" would suggest the round isn't over)
   const total = quizQuestions.length;
   setQuizProgress(100);
   quizPractice.hidden = true;
@@ -4317,6 +4321,7 @@ function showQuizResult() {
       <div class="qz-result-actions">
         ${quizMissed.length ? `<button type="button" class="pill accent" data-qz-act="retry">${escapeHtml(t("qzRetryBtn", quizMissed.length))}</button>` : ""}
         <button type="button" class="pill ${quizMissed.length ? "neutral" : "accent"}" data-qz-act="again">${escapeHtml(t("qzAgainBtn"))}</button>
+        ${!quizIsRetry && quizScore === total && total >= GOAL_MIN && nextLevelId() ? `<button type="button" class="pill success" data-qz-act="nextlevel">${escapeHtml(t("goalNextLevelBtn"))}</button>` : ""}
         <button type="button" class="pill neutral" data-qz-act="settings">${escapeHtml(t("qzSettingsBtn"))}</button>
       </div>
     </div>`;
@@ -4355,13 +4360,14 @@ document.addEventListener("keydown", (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
 
   if (quizPhase === "start") {
-    if (e.key === "Enter" && tag !== "BUTTON" && !quizStartBtn.disabled) { e.preventDefault(); quizStartBtn.click(); }
+    if (e.key === "Enter" && !e.repeat && tag !== "BUTTON" && !quizStartBtn.disabled) { e.preventDefault(); quizStartBtn.click(); }
     return;
   }
-  if (quizPhase === "result") {
-    if (e.key === "Enter" && tag !== "BUTTON") { e.preventDefault(); startQuizRound(); }
-    return;
-  }
+  // The result screen never reacts to the keyboard: a stray or held-down Enter
+  // used to start a brand-new round right after the last question, which looked
+  // like the quiz never ended. Starting again takes a deliberate click.
+  if (quizPhase === "result") return;
+  if (e.repeat && e.key === "Enter") return;
   const q = quizCurrent();
   if (!q) return;
 
@@ -4531,6 +4537,7 @@ quizResultEl.addEventListener("click", (e) => {
   if (btn.dataset.qzAct === "retry") startQuizRound(quizMissed.slice());
   else if (btn.dataset.qzAct === "again") startQuizRound();
   else if (btn.dataset.qzAct === "settings") showQuizStart();
+  else if (btn.dataset.qzAct === "nextlevel") { const next = nextLevelId(); if (next) applyLevel(next); }
 });
 
 quizRestartBtn.addEventListener("click", () => {
