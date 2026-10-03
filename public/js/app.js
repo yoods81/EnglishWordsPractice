@@ -3274,7 +3274,7 @@ flashKnowBtn.addEventListener("click", () => {
   const word = flashDeck[flashIndex].word;
   progress.flashKnown[word] = true;
   recordResult(word, true, "flash");
-  pulseScoreTag(flashKnowBtn, "option-btn-bounce");
+  pulseScoreTag(flashKnowBtn, "flash-know-bounce");
   nextFlashcard();
   koalaReact("know", "fkKnow");
 });

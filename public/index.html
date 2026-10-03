@@ -365,16 +365,15 @@
         </div>
         <div class="flashcard-row">
           <button class="pill neutral flash-side-btn" id="flash-prev">
-            <span class="btn-arrow">🍃</span><span class="btn-label" data-i18n="backLabel">Back</span>
+            <span class="btn-arrow" aria-hidden="true">←</span><span class="btn-label" data-i18n="backLabel">Back</span>
           </button>
           <div id="flashcard-stage">
             <div class="flashcard" id="flashcard">
               <div class="flashcard-face flashcard-front">
-                <div class="speak-btn-hero-wrap">
-                  <button class="speak-btn speak-btn-hero" id="flash-speak" type="button" title="Hear it" aria-label="Hear it">🔊</button>
-                  <span class="speak-btn-hero-label" data-i18n="hearItLabel">Hear it</span>
+                <div class="flash-word-row">
+                  <div class="word" id="flash-word">word</div>
+                  <button class="speak-btn flash-speak-mini" id="flash-speak" type="button" title="Hear it" aria-label="Hear it">🔊</button>
                 </div>
-                <div class="word" id="flash-word">word</div>
               </div>
               <div class="flashcard-face flashcard-back">
                 <div class="definition speakable-line" id="flash-definition" title="Tap to hear">definition</div>
@@ -383,7 +382,7 @@
             </div>
           </div>
           <button class="pill neutral flash-side-btn" id="flash-next">
-            <span class="btn-label" data-i18n="nextLabel">Next</span><span class="btn-arrow">🌿</span>
+            <span class="btn-label" data-i18n="nextLabel">Next</span><span class="btn-arrow" aria-hidden="true">→</span>
           </button>
         </div>
         <p class="hint" data-i18n="flashHint">Tap the card to flip it • Tap the meaning or example to hear it read aloud</p>
