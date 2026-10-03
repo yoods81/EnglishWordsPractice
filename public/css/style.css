@@ -7258,3 +7258,15 @@ html body #spelling-start-screen.sp-start { position: relative; overflow: hidden
 @media (max-width: 480px) { .sp-fl { width: 38px; height: 46px; font-size: 1.25rem; } .sp-start-card { padding: 10px 12px 14px; } .sp-start-card h3 { font-size: 1.4rem; } }
 @media (prefers-reduced-motion: reduce) { .sp-fl, .sp-fl-star, .sp-step, .sp-start-card, .sp-start-card button.sp-start-btn.pill.accent { animation: none !important; } }
 html body #spelling-start-screen.sp-start[hidden] { display: none !important; }
+
+/* Belly speaker as a printed patch: sized to sit inside the belly oval, centred on it */
+html body #spelling-practice .sp-belly-btn { width: max(36px, calc(var(--kw) * 0.23)); top: 74%; filter: none; opacity: 0.96; }
+html body #spelling-practice .sp-belly-btn::after { inset: -2px; }
+
+/* ⌫ colour: input-border teal while the field is empty, the typed-text colour once there are letters */
+html body #spelling-practice .sp-input-wrap .sp-erase-btn { color: var(--accent-dark); }
+html body #spelling-practice .sp-input-wrap:has(#spelling-input:not(:placeholder-shown)) .sp-erase-btn { color: #1f2a27; }
+@media (max-width: 520px) {
+  html body #spelling-practice .sp-input-wrap #spelling-input { padding-left: 12px; padding-right: 54px; text-overflow: ellipsis; }
+  html body #spelling-practice .sp-input-wrap #spelling-input::placeholder { font-size: 0.95rem; letter-spacing: 0; }
+}
