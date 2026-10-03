@@ -330,6 +330,7 @@ const TRANSLATIONS = {
     spLiveTyping: "Type the letters! ✏️",
     spLiveAlmost: "Almost there! 🔥",
     spListenBtn: "Listen",
+    spListenAria: "Hear the word",
     spellingBackAria: "Previous word",
     spellingNextAria: "Next word",
     spellingBackspaceAria: "Delete last letter",
@@ -818,6 +819,7 @@ const TRANSLATIONS = {
     spLiveTyping: "글자를 눌러 봐요! ✏️",
     spLiveAlmost: "거의 다 왔어요! 🔥",
     spListenBtn: "듣기",
+    spListenAria: "단어 듣기",
     spellingBackAria: "이전 단어",
     spellingNextAria: "다음 단어",
     spellingBackspaceAria: "마지막 글자 지우기",
@@ -3804,10 +3806,10 @@ function comboAfterAnswer(prev, correct, fresh = true) {
 }
 function renderSfxToggles() {
   document.querySelectorAll(".sfx-toggle").forEach((b) => {
-    // In Spelling the toggle reads "🔊 SFX On / 🔇 SFX Off" so it can't be mistaken for the
+    // In Spelling the toggle reads "🔊 Sound On / 🔇 Sound Off" so it can't be mistaken for the
     // big Listen button; elsewhere it stays icon-only.
     const inSpelling = !!b.closest("#spelling-practice");
-    b.textContent = (sfxMuted ? "🔇" : "🔊") + (inSpelling ? " " + (sfxMuted ? rwL("SFX Off", "효과음 꺼짐") : rwL("SFX On", "효과음 켜짐")) : "");
+    b.textContent = (sfxMuted ? "🔇" : "🔊") + (inSpelling ? " " + (sfxMuted ? rwL("Sound Off", "효과음 꺼짐") : rwL("Sound On", "효과음 켜짐")) : "");
     b.classList.toggle("is-off", sfxMuted);
     const label = sfxMuted ? rwL("Sounds off — tap to turn on", "효과음 꺼짐 — 눌러서 켜기") : rwL("Sounds on — tap to turn off", "효과음 켜짐 — 눌러서 끄기");
     b.setAttribute("aria-label", label);
@@ -4022,7 +4024,7 @@ const spellingProgressEl = document.getElementById("spelling-progress");
 // Same koala artwork as the Flashcards helper, dropped in before the bubble.
 // Full-body koala (sitting on a branch) — shares the fk-* class names so the
 // same reaction animations drive it.
-const SPELL_KOALA_SVG = `<svg class="sk-svg" viewBox="0 0 200 205" width="170" height="174">
+const SPELL_KOALA_SVG = `<svg class="sk-svg" viewBox="0 0 200 205" width="170" height="174" aria-hidden="true">
   <rect x="14" y="181" width="172" height="12" rx="6" fill="#b98b5a"/>
   <path d="M150 182 q14 -18 30 -10 q-6 16 -30 10z" fill="#3fb984"/><path d="M28 182 q-10 -16 -24 -8 q6 14 24 8z" fill="#3fb984"/>
   <g class="fk-koala">
@@ -4056,7 +4058,9 @@ const SPELL_KOALA_SVG = `<svg class="sk-svg" viewBox="0 0 200 205" width="170" h
   <text class="fk-spark fk-spark-2" x="172" y="44" font-size="20">⭐</text>
   <text class="sk-heart sk-heart-1" x="30" y="70" font-size="22">💚</text><text class="sk-heart sk-heart-2" x="150" y="64" font-size="22">💚</text><text class="sk-heart sk-heart-3" x="92" y="20" font-size="22">💚</text>
 </svg>`;
-spellingScene.insertAdjacentHTML("afterbegin", SPELL_KOALA_SVG);
+// The koala lives inside .sp-koala-wrap so the belly 🔊 button and the speech
+// bubble move (and bounce) together with it.
+document.getElementById("spelling-koala-wrap").insertAdjacentHTML("afterbegin", SPELL_KOALA_SVG);
 function spellingReact(kind, msgKey) {
   koalaReact(kind, msgKey, spellingScene, spellingBubble, "spLiveIdle");
 }

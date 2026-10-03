@@ -5198,8 +5198,8 @@ body.signed-in .stat-bar { display: none; }
    Spelling game — layout refactor (top to bottom, one calm column)
      1. progress   "Word 1 of 10" + leaf bar        (.sp-header)
         koala coach, small and centred              (.sp-left)
-     2. Listen     big pill CTA with pulse           (.sp-listen-btn)
-     3. input      big field, small ← / → on edges   (.sp-input-row)
+     2. mascot     big koala, 🔊 belly patch, speech bubble (.sp-koala-wrap)
+     3. input      big field; leaf ← / → at far edges (.sp-input-row)
      4. chips      1–2 rows of letters, ⌫ as last key  (.sp-chip-row)
      5. GO!        arcade primary CTA                (.sp-check-btn)
      6. footer     score left; sound + Finish right  (.sp-footer)
@@ -5226,54 +5226,10 @@ body.signed-in .stat-bar { display: none; }
 
 /* koala + speech cloud: one tidy row, no absolute positioning games */
 #spelling-practice .sp-left { display: flex; flex-direction: row; justify-content: center; align-items: center; margin: 0; }
-#spelling-practice .sp-left .sp-live-scene { position: relative; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 6px; width: auto; height: auto; margin: 0; padding: 0; }
-#spelling-practice .sp-left .sp-live-scene .sk-svg { width: 100px; max-width: 100px; height: auto; flex: 0 0 auto; }
-#spelling-practice .sp-cloud { position: relative; top: auto; left: auto; flex: 0 0 auto; width: 196px; height: 110px; }
-#spelling-practice .sp-cloud .bubble-text { left: 16%; right: 16%; top: 9%; height: 62%; padding: 0; font-size: 16px; line-height: 1.15; text-wrap: balance; }
-
-/* 2. Listen — same mint, rim and 3D edge as Check Answer, so the two main
-   buttons read as one family */
-.sp-listen-btn {
-  position: relative; align-self: center;
-  display: inline-flex; align-items: center; justify-content: center; gap: 12px;
-  min-width: 0; padding: 8px 22px;
-  font-family: var(--font-heading); font-weight: 700; font-size: 1.05rem; line-height: 1.1; color: #fff;
-  background: var(--accent);
-  border: 2px solid var(--accent-dark); border-radius: 999px;
-  box-shadow: 0 4px 0 var(--accent-dark);
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: transform 0.08s ease, box-shadow 0.08s ease;
-}
-.sp-listen-icon { font-size: 1.2rem; line-height: 1; }
-.sp-listen-btn:active { transform: translateY(3px) scale(0.98); box-shadow: 0 1px 0 var(--accent-dark); }
-.sp-listen-btn:focus-visible { outline: 3px solid #ffd166; outline-offset: 3px; }
-/* pulse wave: one burst per press, and a steady beat while the word plays */
-.sp-listen-btn::after { content: ""; position: absolute; inset: -2px; border-radius: inherit; pointer-events: none; opacity: 0; }
-.sp-listen-btn.sp-pulse::after { animation: sp-listen-ring 0.7s ease-out; }
-.sp-listen-btn.speak-btn-active::after { animation: sp-listen-ring 1s ease-out infinite; }
-.sp-listen-btn.sk-wave .sp-listen-icon { animation: sk-speaker-wobble 0.5s ease-in-out infinite; }
-@keyframes sp-listen-ring {
-  0%   { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 201, 163, 0.6); }
-  100% { opacity: 0; box-shadow: 0 0 0 18px rgba(34, 201, 163, 0); }
-}
 
 /* 3. Answer field; ← / → are small, quiet ghosts pushed to the outer edges so
    they are hard to hit by accident while typing */
-.sp-input-row { display: flex; align-items: center; gap: 12px; }
 #spelling-practice #spelling-input { flex: 1 1 auto; min-width: 0; width: auto; margin: 0; padding: 14px 12px; font-family: var(--font-heading); font-size: 1.5rem; letter-spacing: 0.04em; border-radius: 18px; text-align: center; }
-#spelling-practice .sp-nav-btn {
-  flex: 0 0 auto; width: 26px; height: 26px; padding: 0; opacity: 0.5;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--font-heading); font-weight: 700; font-size: 0.9rem; line-height: 1;
-  color: var(--muted); background: transparent;
-  border: 1px solid #cfd8d5; border-radius: 50%; box-shadow: none;
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-}
-#spelling-practice .sp-nav-btn:active { transform: scale(0.9); }
-#spelling-practice .sp-nav-btn:disabled { opacity: 0.25; cursor: default; transform: none; }
-/* Next turns mint (and keeps its gentle nudge) once the answer is checked */
-#spelling-practice #spelling-next:not(:disabled) { opacity: 1; background: var(--accent); color: #fff; border-color: var(--accent-dark); }
-
 /* 4. Alphabet pad: letter chips plus a ⌫ chip of the very same size and shape
    as the last key (no separate red button floating beside them) */
 #spelling-practice .spelling-hint-tray { display: grid; grid-template-columns: repeat(var(--cols, 6), minmax(0, 42px)); justify-content: center; gap: 6px; margin: 0; }
@@ -5303,21 +5259,15 @@ body.signed-in .stat-bar { display: none; }
 @media (max-width: 520px) {
   #spelling-practice.sp-game { padding: 10px 10px 10px; }
   #spelling-practice .sp-header #spelling-trail-slot { flex-basis: 100%; }
-  #spelling-practice .sp-left .sp-live-scene .sk-svg { width: 78px; max-width: 78px; }
-  #spelling-practice .sp-cloud { width: 172px; height: 98px; }
-  #spelling-practice .sp-cloud .bubble-text { left: 15%; right: 15%; font-size: 16px; }
   #spelling-practice .sp-footer { gap: 6px; }
   #spelling-practice .sp-footer .score-tag { padding: 5px 10px; font-size: 0.85rem; }
-  #spelling-practice .sp-input-row { gap: 8px; }
   #spelling-practice #spelling-input { padding: 12px 8px; font-size: 1.3rem; }
-  #spelling-practice .sp-nav-btn { width: 24px; height: 24px; }
   #spelling-practice .spelling-hint-tray { gap: 5px; grid-template-columns: repeat(var(--cols, 6), minmax(0, 40px)); }
   #spelling-practice .spelling-hint-tile,
   #spelling-practice .sp-backspace-chip { font-size: 1.05rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sp-listen-btn::after, .sp-listen-btn.sk-wave .sp-listen-icon { animation: none !important; }
 }
 
 /* =====================================================================
@@ -5446,15 +5396,6 @@ body.signed-in .stat-bar { display: none; }
    Nothing here animates in the solving state except what the child triggers.
    ===================================================================== */
 
-/* Next: always still unless the answer is correct (beats the old nudge rule) */
-#spelling-practice #spelling-next { animation: none; }
-#spelling-practice.is-correct #spelling-next:not(:disabled) { animation: sp-next-pulse 1.1s ease-in-out infinite; }
-@keyframes sp-next-pulse {
-  0%, 100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(34, 201, 163, 0.65); }
-  50%      { transform: scale(1.22); box-shadow: 0 0 0 10px rgba(34, 201, 163, 0); }
-}
-#spelling-practice.is-correct #spelling-next:not(:disabled):active { animation: none; transform: scale(0.92); }
-
 /* Check: label swap + finished look (calm green, no sparkle loop) */
 .sp-lbl-done { display: none; }
 #spelling-practice .sp-check-btn.sp-checked .sp-lbl-check { display: none; }
@@ -5467,8 +5408,7 @@ body.signed-in .stat-bar { display: none; }
 
 /* Effect layers never sit on top of anything clickable */
 .sp-spark, .sp-confetti, .sp-leaf-fly,
-#spelling-practice .sp-check-btn::before, #spelling-practice .sp-check-btn::after,
-.sp-listen-btn::after { pointer-events: none; }
+#spelling-practice .sp-check-btn::before, #spelling-practice .sp-check-btn::after { pointer-events: none; }
 .sp-spark { z-index: 1; }
 #spelling-practice .sp-input-row, #spelling-practice .spelling-hint-tray { position: relative; z-index: 2; }
 
@@ -5487,5 +5427,126 @@ body.signed-in .stat-bar { display: none; }
   #spelling-practice .sp-footer .sp-finish-btn { padding: 5px 10px; font-size: 0.75rem; }
 }
 @media (prefers-reduced-motion: reduce) {
+  #spelling-practice.is-correct #spelling-next:not(:disabled) { animation: none !important; }
+}
+
+/* =====================================================================
+   Spelling game — mascot-centred layout (round 5)
+   • big koala with a 🔊 play patch on its belly (replaces the Listen button)
+   • speech bubble to the koala's right; its tail ends at the mouth
+   • leaf-shaped ← / → pushed to the far left/right edges of the input row
+   Geometry: the koala SVG is 200×205; mouth ≈ (50%, 58%), belly ≈ (50%, 74%).
+   ===================================================================== */
+
+/* ---- Mascot group ---- */
+#spelling-practice .sp-koala-wrap {
+  --kw: 150px;                                   /* koala width (≈1.45× the old 104px) */
+  --bw: 176px;                                   /* bubble width */
+  --tail: calc(var(--kw) * 0.3 + 1px);           /* tail reaches from the bubble back to 58% of the koala */
+  position: relative; flex: 0 0 auto; width: var(--kw);
+  margin-right: calc(var(--bw) - var(--kw) * 0.12);  /* reserve the bubble's overhang so the group centres */
+  transform-origin: 50% 100%;
+}
+#spelling-practice .sp-koala-wrap .sk-svg { display: block; width: 100%; max-width: none; height: auto; }
+#spelling-practice .sp-left .sp-live-scene { display: flex; justify-content: center; align-items: flex-end; gap: 0; padding: 0; margin: 0; pointer-events: auto; }
+
+/* Belly play patch */
+#spelling-practice .sp-belly-btn {
+  position: absolute; left: 50%; top: 74%; z-index: 3;
+  width: max(38px, calc(var(--kw) * 0.27)); aspect-ratio: 1 / 1; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: max(16px, calc(var(--kw) * 0.125)); line-height: 1; color: #fff;
+  background: var(--accent); border: 3px solid #fff; border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--accent-dark), 0 4px 0 2px var(--accent-dark);
+  transform: translate(-50%, -50%);
+  cursor: pointer; pointer-events: auto; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+@media (hover: hover) { #spelling-practice .sp-belly-btn:hover { transform: translate(-50%, -50%) scale(1.08); } }
+#spelling-practice .sp-belly-btn.sp-belly-btn:active { transform: translate(-50%, -46%) scale(0.92); box-shadow: 0 0 0 2px var(--accent-dark), 0 1px 0 2px var(--accent-dark); }
+#spelling-practice .sp-belly-btn:focus-visible { outline: 3px solid #ffd166; outline-offset: 4px; }
+/* pulse wave: once per press, and a steady beat only while the word is playing */
+#spelling-practice .sp-belly-btn::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; pointer-events: none; opacity: 0; }
+#spelling-practice .sp-belly-btn.sp-pulse::after { animation: sp-belly-ring 0.7s ease-out; }
+#spelling-practice .sp-belly-btn.speak-btn-active::after { animation: sp-belly-ring 1s ease-out infinite; }
+#spelling-practice .sp-belly-btn.sk-wave .sp-belly-icon { animation: sk-speaker-wobble 0.5s ease-in-out infinite; }
+@keyframes sp-belly-ring {
+  0%   { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 201, 163, 0.65); }
+  100% { opacity: 0; box-shadow: 0 0 0 20px rgba(34, 201, 163, 0); }
+}
+
+/* Koala motion now acts on the whole group (koala + patch + bubble) */
+#spelling-practice .sp-live-scene.fk-hear .sk-svg,
+#spelling-practice .sp-live-scene.sp-cheer .sk-svg { animation: none; }
+#spelling-practice .sp-live-scene.fk-hear .sp-koala-wrap { animation: sp-koala-bounce 0.8s ease-out; }
+#spelling-practice .sp-live-scene.sp-cheer .sp-koala-wrap { animation: sp-koala-jump 0.85s cubic-bezier(0.3, 0.7, 0.4, 1); }
+@keyframes sp-koala-bounce {            /* floaty little bounce when the belly is pressed */
+  0%   { transform: translateY(0) scale(1, 1); }
+  28%  { transform: translateY(-12px) scale(1.03, 1.05); }
+  55%  { transform: translateY(0) scale(1.05, 0.94); }
+  76%  { transform: translateY(-5px) scale(1, 1.02); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+/* Speech bubble: sits beside the koala, tail points at the mouth */
+#spelling-practice .sp-speech {
+  position: absolute; left: 88%; top: 58%; z-index: 2;
+  width: var(--bw); height: auto; padding: 10px 14px;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  background: #fff; border: 3px solid var(--accent-dark); border-radius: 20px;
+  box-shadow: 0 3px 0 rgba(14, 156, 125, 0.22);
+  transform: translateY(-50%); animation: none; pointer-events: none;
+}
+#spelling-practice .sp-speech .bubble-text {
+  position: static; display: block; height: auto; padding: 0;
+  font-family: var(--font-heading); font-weight: 700; font-size: 16px; line-height: 1.2;
+  color: var(--accent-dark); text-wrap: balance;
+}
+/* tail = outline triangle + white triangle on top; tip lands at 58% of the koala width, 58% of its height */
+#spelling-practice .sp-speech::before,
+#spelling-practice .sp-speech::after { content: ""; position: absolute; top: 50%; transform: translateY(-50%); clip-path: polygon(0 50%, 100% 0, 100% 100%); }
+#spelling-practice .sp-speech::before { right: calc(100% + 2px); width: var(--tail); height: 24px; background: var(--accent-dark); }
+#spelling-practice .sp-speech::after  { right: calc(100% - 2px); width: calc(var(--tail) - 5px); height: 16px; background: #fff; }
+
+/* ---- Leaf-shaped Back / Next at the far edges of the input row ---- */
+.sp-input-row { display: grid; grid-template-columns: 42px minmax(0, 1fr) 42px; align-items: center; gap: 8px; }
+#spelling-practice .sp-leaf-btn {
+  position: relative; justify-self: center; width: 46px; height: 34px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: 0; border-radius: 0; box-shadow: none; opacity: 1; animation: none;
+  cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease, filter 0.2s ease;
+}
+.sp-leaf-shape { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.sp-leaf-back .sp-leaf-shape { transform: scaleX(-1); }       /* mirrored leaf for ← */
+.sp-leaf-shape path { fill: #e8f7f1; stroke: var(--accent-dark); stroke-width: 2; stroke-linejoin: round; transition: fill 0.2s ease, stroke 0.2s ease; }
+.sp-leaf-arrow { position: relative; font-family: var(--font-heading); font-weight: 700; font-size: 1.15rem; line-height: 1; color: var(--accent-dark); }
+#spelling-practice .sp-leaf-btn:active { transform: translateY(2px) scale(0.94); box-shadow: none; }
+#spelling-practice .sp-leaf-btn:disabled { background: none; border: 0; box-shadow: none; cursor: default; transform: none; }
+#spelling-practice .sp-leaf-btn:disabled .sp-leaf-shape path { fill: #f1f4f3; stroke: #c3ccc9; }
+#spelling-practice .sp-leaf-btn:disabled .sp-leaf-arrow { color: #b4bfbb; }
+#spelling-practice .sp-leaf-btn:focus-visible { outline: 3px solid #ffd166; outline-offset: 2px; }
+/* Next: still while solving; once the answer is right it turns solid mint and pulses */
+#spelling-practice #spelling-next { animation: none; }
+#spelling-practice.is-correct #spelling-next:not(:disabled) .sp-leaf-shape path { fill: var(--accent); }
+#spelling-practice.is-correct #spelling-next:not(:disabled) .sp-leaf-arrow { color: #fff; }
+#spelling-practice.is-correct #spelling-next:not(:disabled) { animation: sp-next-pulse 1.1s ease-in-out infinite; }
+@keyframes sp-next-pulse {
+  0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(34, 201, 163, 0)); }
+  50%      { transform: scale(1.18); filter: drop-shadow(0 0 8px rgba(34, 201, 163, 0.95)); }
+}
+#spelling-practice.is-correct #spelling-next:not(:disabled):active { animation: none; transform: scale(0.92); }
+
+@media (min-width: 700px) {
+  /* desktop: the row reaches into the stage padding so the leaves sit well clear of the field */
+  .sp-input-row { margin: 0 -32px; gap: 22px; grid-template-columns: 46px minmax(0, 1fr) 46px; }
+}
+@media (max-width: 520px) {
+  #spelling-practice .sp-koala-wrap { --kw: 112px; --bw: 150px; }
+  #spelling-practice .sp-leaf-btn { width: 42px; height: 32px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #spelling-practice .sp-belly-btn::after, #spelling-practice .sp-belly-btn.sk-wave .sp-belly-icon,
+  #spelling-practice .sp-live-scene.fk-hear .sp-koala-wrap, #spelling-practice .sp-live-scene.sp-cheer .sp-koala-wrap,
   #spelling-practice.is-correct #spelling-next:not(:disabled) { animation: none !important; }
 }
