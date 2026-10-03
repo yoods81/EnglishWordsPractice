@@ -6147,14 +6147,14 @@ body.signed-in .stat-bar { display: none; }
   top: 48px;
   left: 8px;
   z-index: 3;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   font-size: 1rem;
   border-width: 1px;
   box-shadow: 0 2px 0 var(--outline);
 }
 .tt-keypad-toggle::after { content: ""; position: absolute; inset: -5px; }
-html body .tt-keypad-toggle[aria-pressed="true"] { background: var(--accent) !important; border-color: var(--accent-dark); color: #fff; }
+html body .tt-keypad-toggle[aria-pressed="true"] { background: #d4f4e8 !important; border-color: var(--accent-dark); color: var(--accent-dark); box-shadow: inset 0 0 0 1px var(--accent); }
 .tt-keypad-toggle { color: var(--accent-dark); }
 .tt-icon-svg { display: block; pointer-events: none; }
 
@@ -6444,6 +6444,53 @@ html body .tt-keypad-toggle[aria-pressed="true"] { background: var(--accent) !im
   --tg-orb-x: 70%; --tg-orb-y: 12%; --tg-orb-op: 0.8;
 }
 #typegame-stage.typegame-stage {
+  background: linear-gradient(180deg, var(--tg-sky-1) 0%, var(--tg-sky-2) 55%, var(--tg-sky-3) 100%) !important;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6), inset 0 0 0 4px rgba(110, 170, 150, 0.28);
+}
+
+/* Times Table shares the same scenery */
+
+#timestable-stage {
+  --tg-sky-1: #d3f1e6; --tg-sky-2: #e8f6dd; --tg-sky-3: #fff4d6;
+  --tg-hill-far: #bfe6c9; --tg-hill-near: #9dd8ae;
+  --tg-tree: #78c79d; --tg-trunk: #f5eddd; --tg-mark: #c9bfa8;
+  --tg-night: 0; --tg-cloud-op: 0.92;
+  --tg-orb-bg: #fff3a6; --tg-orb-cut: #ffe27a; --tg-orb-glow: rgba(255, 226, 120, 0.7);
+  --tg-orb-x: 13%; --tg-orb-y: 9%; --tg-orb-op: 1;
+}
+#timestable-stage.stage-scene-1 { /* peach sunset */
+  --tg-sky-1: #ffe1cd; --tg-sky-2: #ffc9d6; --tg-sky-3: #e6cbff;
+  --tg-hill-far: #f2b9c8; --tg-hill-near: #dba0bd;
+  --tg-tree: #88b9a2; --tg-trunk: #fcece2; --tg-mark: #d9bfb6;
+  --tg-night: 0; --tg-cloud-op: 0.8;
+  --tg-orb-bg: #ffb78f; --tg-orb-cut: #ff9b78; --tg-orb-glow: rgba(255, 160, 130, 0.65);
+  --tg-orb-x: 72%; --tg-orb-y: 30%;
+}
+#timestable-stage.stage-scene-2 { /* plum dusk */
+  --tg-sky-1: #6b4f9e; --tg-sky-2: #a876c2; --tg-sky-3: #f2aacb;
+  --tg-hill-far: #8b60aa; --tg-hill-near: #6f4b90;
+  --tg-tree: #62938e; --tg-trunk: #dccfe9; --tg-mark: #a995c2;
+  --tg-night: 0.55; --tg-cloud-op: 0.5;
+  --tg-orb-bg: #ffeaf3; --tg-orb-cut: #f2c6dc; --tg-orb-glow: rgba(255, 220, 240, 0.55);
+  --tg-orb-x: 76%; --tg-orb-y: 11%;
+}
+#timestable-stage.stage-scene-3 { /* pastel night sky */
+  --tg-sky-1: #2c3472; --tg-sky-2: #4b57a0; --tg-sky-3: #8c96da;
+  --tg-hill-far: #5e6eb2; --tg-hill-near: #4a5aa2;
+  --tg-tree: #5c9ca2; --tg-trunk: #d0d7ef; --tg-mark: #8e9bd0;
+  --tg-night: 1; --tg-cloud-op: 0.24;
+  --tg-orb-bg: #fff8d2; --tg-orb-cut: #e8dba2; --tg-orb-glow: rgba(255, 246, 190, 0.6);
+  --tg-orb-x: 18%; --tg-orb-y: 10%;
+}
+#timestable-stage.stage-scene-4 { /* misty gum forest */
+  --tg-sky-1: #cdeee2; --tg-sky-2: #aadecb; --tg-sky-3: #e9f7ee;
+  --tg-hill-far: #8fd0b5; --tg-hill-near: #6ec09f;
+  --tg-tree: #5db58f; --tg-trunk: #eef3e7; --tg-mark: #b7c4ae;
+  --tg-night: 0; --tg-cloud-op: 0.75;
+  --tg-orb-bg: #fffbe2; --tg-orb-cut: #f3edbf; --tg-orb-glow: rgba(255, 250, 210, 0.7);
+  --tg-orb-x: 70%; --tg-orb-y: 12%; --tg-orb-op: 0.8;
+}
+#timestable-stage.typegame-stage {
   background: linear-gradient(180deg, var(--tg-sky-1) 0%, var(--tg-sky-2) 55%, var(--tg-sky-3) 100%) !important;
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6), inset 0 0 0 4px rgba(110, 170, 150, 0.28);
 }
@@ -7001,3 +7048,11 @@ html[data-theme="dark"] #view-typegame p.hint.tg-hint {
 .tg-cannon-l { left: 8px; transform: rotate(-10deg); }
 .tg-cannon-r { right: 8px; transform: scaleX(-1) rotate(-10deg); }
 @media (prefers-reduced-motion: reduce) { .tg-fw-core { display: none; } }
+
+/* Times Table start card: the stage is short on phones, and the "How to answer"
+   card sits right underneath, so drop the long description there. */
+@media (max-width: 480px) {
+  .tt-start-overlay .tg-start-card p { display: none; }
+  .tt-start-overlay .tg-start-card .kb-strip .kb-scene { width: 56px; height: 55px; }
+  .tt-start-overlay .tg-start-card .kb-strip .kb-scene .sk-svg { width: 56px; }
+}

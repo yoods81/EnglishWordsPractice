@@ -4312,7 +4312,7 @@ const KB_GAME_FULL = 25; // cleared words/facts for a completely full belly
 const CLOUD_SVG = '<svg viewBox="0 0 120 68" class="sp-cloud-bg"><path d="M28 50 C12 50 6 36 16 28 C10 14 28 6 40 14 C46 2 70 2 78 14 C92 6 112 16 104 30 C116 38 108 52 92 50 C80 58 40 58 28 50 Z" fill="#fff" stroke="#0e9c7d" stroke-width="2.6" stroke-linejoin="round"/><circle cx="62" cy="60" r="3.6" fill="#fff" stroke="#0e9c7d" stroke-width="2"/></svg>';
 const KB_ANCHORS = {
   type: () => document.querySelector("#typegame-start-overlay h3"),
-  tt: () => document.getElementById("timestable-start-btn"),
+  tt: () => document.querySelector("#timestable-start-overlay h3"),
   // The in-stage koala that stays visible while a Times Table round is running
   // (the "tt" strip above lives inside the start overlay, so it can't be seen mid-game).
   ttlive: () => document.getElementById("timestable-koala-anchor"),
@@ -6090,7 +6090,24 @@ function applyTimesTableSelection() {
   updateTimesTableMaxTableUI();
 }
 
+// Start screen chips (same idea as Typing Game): which tables are on, and the best score so far.
+function updateTimesTableStartChips() {
+  const rangeEl = document.getElementById("timestable-start-range");
+  const bestEl = document.getElementById("timestable-start-best");
+  if (!rangeEl || !bestEl) return;
+  rangeEl.textContent = `📚 ${timesTableRangeLabel()}`;
+  let best = 0;
+  try {
+    best = timesTableHighScores[timesTableHighScoreKey()] || 0;
+  } catch (e) {
+    /* high scores not loaded yet */
+  }
+  bestEl.hidden = best <= 0;
+  bestEl.textContent = `🏆 ${currentLang === "ko" ? "최고 점수" : "Best"} ${best}`;
+}
+
 function updateTimesTableMaxTableUI() {
+  updateTimesTableStartChips();
   timesTableRangeBtn.textContent = timesTableRangeLabel();
   timesTableRangeBtn.setAttribute("aria-label", t("timesTableMaxTableLabel"));
   timesTableRangeGrid.innerHTML = "";
@@ -6181,12 +6198,29 @@ function timesTableMaxProblems() {
   return Infinity;
 }
 
+let timesTableHeartsRendered = -1;
+function renderTimesTableHearts() {
+  const lives = Math.max(timesTableLives, 0);
+  if (timesTableHeartsRendered === lives) return;
+  const prev = timesTableHeartsRendered;
+  timesTableHeartsRendered = lives;
+  let html = "";
+  for (let i = 0; i < TIMESTABLE_LIVES; i++) {
+    const full = i < lives;
+    let cls = "tg-heart" + (full ? " tg-heart-full" : " tg-heart-empty");
+    if (prev >= 0 && lives < prev && i >= lives && i < prev) cls += " tg-heart-break";
+    else if (prev >= 0 && lives > prev && i >= prev && i < lives) cls += " tg-heart-in";
+    html += `<span class="${cls}">${typeGameHeartSvg(full)}</span>`;
+  }
+  timesTableLivesEl.innerHTML = html;
+  timesTableLivesEl.setAttribute("role", "img");
+  timesTableLivesEl.setAttribute("aria-label", currentLang === "ko" ? `목숨 ${lives}/${TIMESTABLE_LIVES}` : `Lives ${lives} of ${TIMESTABLE_LIVES}`);
+}
+
 function updateTimesTableHud() {
   timesTableScoreEl.textContent = t("timesTableScoreLabel", timesTableScore);
   timesTableStageTagEl.textContent = t("timesTableStageLabel", timesTableStageIndex + 1);
-  const full = "❤️".repeat(Math.max(timesTableLives, 0));
-  const empty = "🖤".repeat(Math.max(TIMESTABLE_LIVES - timesTableLives, 0));
-  timesTableLivesEl.textContent = full + empty;
+  renderTimesTableHearts();
 }
 
 /* ---------- Live fall-speed control ----------
@@ -6296,6 +6330,7 @@ function resetTimesTable() {
   timesTableProblemPool = buildTimesTableProblemPool();
   updateTimesTableMaxTableUI();
   timesTableOverOverlay.hidden = true;
+  updateTimesTableStartChips();
   timesTableStartOverlay.hidden = false;
   // Waiting screen: show the "How to answer" pop-up on its own for the first couple of rounds.
   setTimesTableGuideOpen(timesTableGuideSeenCount() < TIMESTABLE_GUIDE_AUTO_ROUNDS, true);
