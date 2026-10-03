@@ -586,24 +586,22 @@ to Flip!</span></div>
             </div>
           </div>
           <div class="qz-hints" id="quiz-hints">
-            <span class="qz-leaves" id="quiz-leaves" role="img"></span>
-            <button type="button" class="qz-hint-btn" id="quiz-hint-5050" data-i18n="qzHint5050">🌿 50:50</button>
-            <button type="button" class="qz-hint-btn" id="quiz-hint-letter" data-i18n="qzHintLetter">🔤 First letter</button>
-            <span class="qz-hint-text" id="quiz-hint-text" aria-live="polite"></span>
+            <div class="qz-hints-head">
+              <span class="qz-hints-title" data-i18n="qzHintsTitle">💡 Hints</span>
+              <span class="qz-leaves" id="quiz-leaves" role="img"></span>
+            </div>
+            <div class="qz-hints-btns">
+              <button type="button" class="qz-hint-btn" id="quiz-hint-5050" data-i18n="qzHint5050" data-i18n-aria-label="qzHint5050Tip">❌ Remove 2 wrong</button>
+              <button type="button" class="qz-hint-btn" id="quiz-hint-letter" data-i18n="qzHintLetter" data-i18n-aria-label="qzHintLetterTip">🅰️ First letter</button>
+            </div>
+            <div class="qz-hint-note" data-i18n="qzHintNote">Each hint uses 1 🌿. Get 5 right in a row to win a 🌿 back!</div>
+            <div class="qz-hint-text" id="quiz-hint-text" aria-live="polite"></div>
           </div>
           <div class="qz-feedback" id="quiz-feedback" hidden aria-live="polite"></div>
           <div class="quiz-footer">
             <span class="score-tag" id="quiz-score"></span>
             <button class="pill accent" id="quiz-next" style="display:none;" data-i18n="nextQuestionBtn">Next Question ➡</button>
-            <button class="pill accent new-quiz-btn" id="quiz-restart" style="margin-left:auto;">
-              <span class="new-quiz-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4 12a8 8 0 0 1 13.66-5.66M20 12a8 8 0 0 1-13.66 5.66" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
-                  <path d="M17 3v4.5h-4.5M7 21v-4.5h4.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              <span data-i18n="newQuizBtn">New Quiz</span>
-            </button>
+            <button class="pill neutral small qz-end-btn" id="quiz-end" type="button" data-i18n="qzEndBtn">🏁 End</button>
           </div>
         </div>
 

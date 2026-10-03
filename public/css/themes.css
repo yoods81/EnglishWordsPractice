@@ -264,8 +264,7 @@ html[data-theme="dark"] .tt-ok {
 html[data-theme="dark"] .ti-chip {
   background: #131b19 !important;
 }
-html[data-theme="dark"] .stats-tab,
-html[data-theme="dark"] .wrong-subtab:not(.on) {
+html[data-theme="dark"] .stats-tab {
   background: #131b19 !important;
 }
 html[data-theme="dark"] .hbar-track {
@@ -292,6 +291,12 @@ html[data-theme="dark"] .wrong-item {
 }
 html[data-theme="dark"] .wrong-remove {
   background: #131b19 !important;
+}
+html[data-theme="dark"] .wrong-subtab {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .wrong-subtab.on .wrong-subtab-count {
+  background: rgba(19,27,25,0.28) !important;
 }
 html[data-theme="dark"] .offline-banner {
   background: #505b56 !important;
@@ -951,11 +956,24 @@ html[data-theme="dark"] .qz-opt:hover:not(:disabled) {
   background: #15251e !important;
 }
 }
+html[data-theme="dark"] .qz-hints {
+  background: rgba(52,47,29,0.92) !important;
+}
+html[data-theme="dark"] .qz-hints-title {
+  color: #ffa924 !important;
+}
 html[data-theme="dark"] .qz-leaves {
-  background: rgba(19,27,25,0.88) !important;
+  background: #131b19 !important;
+  color: #f38200 !important;
 }
 html[data-theme="dark"] .qz-hint-btn {
-  background: #131b19 !important;
+  color: #f38200 !important;
+}
+html[data-theme="dark"] .qz-hint-note {
+  color: #daad53 !important;
+}
+html[data-theme="dark"] .qz-hint-text {
+  color: #26e9c0 !important;
 }
 html[data-theme="dark"] .qz-feedback {
   background: #131b19 !important;
@@ -1147,8 +1165,7 @@ html[data-theme="ivory"] .tt-demo-problem {
 html[data-theme="ivory"] .ti-chip {
   background: #fdfaf4 !important;
 }
-html[data-theme="ivory"] .stats-tab,
-html[data-theme="ivory"] .wrong-subtab:not(.on) {
+html[data-theme="ivory"] .stats-tab {
   background: #fdfaf4 !important;
 }
 html[data-theme="ivory"] .hbar-track {
@@ -1174,6 +1191,12 @@ html[data-theme="ivory"] .wrong-item {
 }
 html[data-theme="ivory"] .wrong-remove {
   background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .wrong-subtab {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .wrong-subtab.on .wrong-subtab-count {
+  background: rgba(253,250,244,0.28) !important;
 }
 html[data-theme="ivory"] .install-sheet {
   background: #fdfaf4 !important;
@@ -1645,9 +1668,6 @@ html[data-theme="ivory"] .qz-opt:hover:not(:disabled) {
 }
 }
 html[data-theme="ivory"] .qz-leaves {
-  background: rgba(253,250,244,0.88) !important;
-}
-html[data-theme="ivory"] .qz-hint-btn {
   background: #fdfaf4 !important;
 }
 html[data-theme="ivory"] .qz-feedback {

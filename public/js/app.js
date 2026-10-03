@@ -325,8 +325,13 @@ const TRANSLATIONS = {
     qzListenPrompt: "👂 ?",
     qzTypingPlaceholder: "Type the word…",
     qzCheckBtn: "Check 🔍",
-    qzHint5050: "🌿 50:50",
-    qzHintLetter: "🔤 First letter",
+    qzHintsTitle: "💡 Hints",
+    qzHint5050: "❌ Remove 2 wrong",
+    qzHint5050Tip: "Hint: removes 2 wrong answers",
+    qzHintLetter: "🅰️ First letter",
+    qzHintLetterTip: "Hint: shows the first letter of the answer",
+    qzHintNote: "Each hint uses 1 🌿. Get 5 right in a row to win a 🌿 back!",
+    qzEndBtn: "🏁 End",
     qzHintStarts: (c) => `Starts with “${c}”`,
     qzNoLeaves: "No leaves left! Get 5 in a row to win one back 🌿",
     qzLeavesAria: (n) => `${n} hint leaves left`,
@@ -893,8 +898,13 @@ const TRANSLATIONS = {
     qzListenPrompt: "👂 ?",
     qzTypingPlaceholder: "단어를 써 보세요…",
     qzCheckBtn: "확인 🔍",
-    qzHint5050: "🌿 50:50",
-    qzHintLetter: "🔤 첫 글자",
+    qzHintsTitle: "💡 힌트",
+    qzHint5050: "❌ 오답 2개 지우기",
+    qzHint5050Tip: "힌트: 틀린 보기 2개를 지워요",
+    qzHintLetter: "🅰️ 첫 글자 보기",
+    qzHintLetterTip: "힌트: 정답의 첫 글자를 알려줘요",
+    qzHintNote: "힌트를 쓸 때마다 🌿가 1개 줄어요. 5연속 정답이면 🌿 1개를 돌려받아요!",
+    qzEndBtn: "🏁 종료",
     qzHintStarts: (c) => `“${c}”(으)로 시작해요`,
     qzNoLeaves: "잎사귀가 없어요! 5연속 정답이면 하나를 돌려받아요 🌿",
     qzLeavesAria: (n) => `힌트 잎사귀 ${n}개 남음`,
@@ -3733,7 +3743,7 @@ myDeckClearBtn.addEventListener("click", () => {
 
 /* ================= QUIZ ================= */
 const quizCategorySel = document.getElementById("quiz-category");
-const quizRestartBtn = document.getElementById("quiz-restart");
+const quizEndBtn = document.getElementById("quiz-end");
 const quizGoalValueEl = document.getElementById("quiz-goal-value");
 const quizGoalMinusBtn = document.getElementById("quiz-goal-minus");
 const quizGoalPlusBtn = document.getElementById("quiz-goal-plus");
@@ -3841,6 +3851,7 @@ let quizBestCombo = 0;
 let spellingCombo = 0;
 let quizAnswered = false;
 let quizIsRetry = false;
+let quizEndedEarly = false; // ended with the End button before the last question
 let quizMissed = [];
 let quizLeaves = QuizCore.LEAVES_START;
 let quizHints = { fifty: false, letter: false, letterText: "" };
@@ -3966,6 +3977,7 @@ function startQuizRound(retryList) {
   }
 
   quizQuestions = list;
+  quizEndedEarly = false;
   quizIndex = 0;
   quizScore = 0;
   quizCombo = 0;
@@ -4269,7 +4281,7 @@ function showQuizResult() {
   quizPractice.hidden = true;
   quizStartScreen.hidden = true;
 
-  if (!quizIsRetry && canUsePaidFeatures() && total >= 5 && quizScore === total && !quizQuestions._awarded) {
+  if (!quizIsRetry && !quizEndedEarly && canUsePaidFeatures() && total >= 5 && quizScore === total && !quizQuestions._awarded) {
     quizQuestions._awarded = true;
     ensureRewardData();
     progress.counters.quizPerfect++;
@@ -4321,7 +4333,7 @@ function showQuizResult() {
       <div class="qz-result-actions">
         ${quizMissed.length ? `<button type="button" class="pill accent" data-qz-act="retry">${escapeHtml(t("qzRetryBtn", quizMissed.length))}</button>` : ""}
         <button type="button" class="pill ${quizMissed.length ? "neutral" : "accent"}" data-qz-act="again">${escapeHtml(t("qzAgainBtn"))}</button>
-        ${!quizIsRetry && quizScore === total && total >= GOAL_MIN && nextLevelId() ? `<button type="button" class="pill success" data-qz-act="nextlevel">${escapeHtml(t("goalNextLevelBtn"))}</button>` : ""}
+        ${!quizIsRetry && !quizEndedEarly && quizScore === total && total >= GOAL_MIN && nextLevelId() ? `<button type="button" class="pill success" data-qz-act="nextlevel">${escapeHtml(t("goalNextLevelBtn"))}</button>` : ""}
         <button type="button" class="pill neutral" data-qz-act="settings">${escapeHtml(t("qzSettingsBtn"))}</button>
       </div>
     </div>`;
@@ -4547,9 +4559,17 @@ quizResultEl.addEventListener("click", (e) => {
   else if (btn.dataset.qzAct === "nextlevel") { const next = nextLevelId(); if (next) applyLevel(next); }
 });
 
-quizRestartBtn.addEventListener("click", () => {
-  pulseScoreTag(quizRestartBtn, "score-tag-pulse");
-  startQuizRound();
+// 🏁 End: stop here and see the result for the questions answered so far
+// (nothing answered yet -> straight back to the start screen).
+quizEndBtn.addEventListener("click", () => {
+  if (quizPhase !== "play") return;
+  const answered = quizIndex + (quizAnswered ? 1 : 0);
+  stopQuizTimer();
+  if (answered === 0) { showQuizStart(); return; }
+  quizEndedEarly = answered < quizQuestions.length;
+  quizQuestions = quizQuestions.slice(0, answered);
+  quizIndex = answered;
+  showQuizResult();
 });
 quizCategorySel.addEventListener("change", buildQuizQuestions);
 
