@@ -4262,8 +4262,32 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
 /* ===== Flashcards: koala helper + leaf buttons ===== */
 .flash-scene { position: relative; display: flex; justify-content: center; align-items: flex-end; height: 88px; margin: -8px 0 -14px; pointer-events: none; z-index: 3; }
 .fk-svg { width: 170px; height: auto; overflow: visible; }
-.fk-bubble { position: absolute; right: 4%; top: 6px; max-width: 34%; background: #fff; border: 2px solid var(--accent-dark); border-radius: 14px; box-shadow: 0 2px 0 var(--accent-dark); padding: 5px 9px; font-family: var(--font-heading); font-weight: 700; font-size: 0.78rem; color: var(--accent-dark); line-height: 1.2; text-align: center; }
-.fk-bubble::before { content: ""; position: absolute; left: -7px; top: 50%; width: 10px; height: 10px; background: #fff; border-left: 2px solid var(--accent-dark); border-bottom: 2px solid var(--accent-dark); transform: translateY(-50%) rotate(45deg); }
+/* Flashcards speech balloon: a glossy, puffy "balloon" with a thick rim, a solid
+   under-edge for 3D, and a curved tail drawn as two masked layers (rim colour,
+   then fill on top) so the rim flows round the tail and opens cleanly where the
+   tail joins the body — nothing is clipped. */
+.fk-bubble {
+  --bub-fill: #effcf8;
+  --bub-line: var(--accent-dark);
+  position: absolute; right: 4%; top: 6px; max-width: 34%;
+  padding: 8px 17px 10px;
+  background:
+    radial-gradient(ellipse 15px 5px at 22% 20%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle at 50% 0%, #ffffff 0%, var(--bub-fill) 62%, #d6f6ea 100%);
+  border: 2.5px solid var(--bub-line);
+  border-radius: 26px;
+  box-shadow: 0 4px 0 var(--bub-line), 0 10px 14px rgba(14, 156, 125, 0.22), inset 0 -5px 8px rgba(34, 201, 163, 0.2);
+  font-family: var(--font-heading); font-weight: 700; font-size: 0.84rem; color: var(--accent-dark);
+  line-height: 1.2; text-align: center;
+  animation: fk-bubble-bob 3.2s ease-in-out infinite;
+}
+.fk-bubble::before, .fk-bubble::after {
+  content: ""; position: absolute; width: 25px; height: 28px; right: calc(100% - 3px); bottom: -9px;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+}
+.fk-bubble::before { background: var(--bub-line); -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-3 -2 25 28'%3E%3Cpath d='M20 1.5 C12 2 7 9 2.5 23 C10.5 21 16.5 19.5 20 17.5 Z' fill='black'/%3E%3Cpath d='M20 1.5 C12 2 7 9 2.5 23 C10.5 21 16.5 19.5 20 17.5' fill='none' stroke='black' stroke-width='5' stroke-linecap='butt' stroke-linejoin='round'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-3 -2 25 28'%3E%3Cpath d='M20 1.5 C12 2 7 9 2.5 23 C10.5 21 16.5 19.5 20 17.5 Z' fill='black'/%3E%3Cpath d='M20 1.5 C12 2 7 9 2.5 23 C10.5 21 16.5 19.5 20 17.5' fill='none' stroke='black' stroke-width='5' stroke-linecap='butt' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.fk-bubble::after { background: var(--bub-fill); -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-3 -2 25 28'%3E%3Cpath d='M20 1.5 C12 2 7 9 2.5 23 C10.5 21 16.5 19.5 20 17.5 Z' fill='black'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-3 -2 25 28'%3E%3Cpath d='M20 1.5 C12 2 7 9 2.5 23 C10.5 21 16.5 19.5 20 17.5 Z' fill='black'/%3E%3C/svg%3E"); }
+@keyframes fk-bubble-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 .fk-eyes-happy, .fk-spark { opacity: 0; }
 .fk-eyes { animation: fk-blink 4s infinite; transform-box: fill-box; transform-origin: center; }
 .fk-head { animation: fk-idle 3.4s ease-in-out infinite; }
@@ -4372,7 +4396,7 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
   .fk-svg { width: 140px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .fk-koala, .fk-koala *, #flashcard-stage, #flash-know, button.flash-speak-mini { animation: none !important; }
+  .fk-koala, .fk-koala *, .fk-bubble, #flashcard-stage, #flash-know, button.flash-speak-mini { animation: none !important; }
   .flashcard, #flash-prev, #flash-next { transition: none; }
 }
 @media (min-width: 481px) {
@@ -5704,3 +5728,44 @@ body.signed-in .stat-bar { display: none; }
 #spelling-practice .sp-live-scene.fk-sad .sp-koala-wrap { animation: sp-koala-sob 0.5s ease-in-out 2; }
 @keyframes sp-koala-sob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
 @media (prefers-reduced-motion: reduce) { .fk-sad .sk-tear, #spelling-practice .sp-live-scene.fk-sad .sp-koala-wrap { animation: none !important; } .fk-sad .sk-tear { opacity: 1; } }
+
+
+/* =====================================================================
+   Spelling Back / Next: the same Netflix-style glass circles as Flashcards
+   ===================================================================== */
+.sp-input-row { grid-template-columns: 40px minmax(0, 1fr) 40px; }
+@media (min-width: 700px) { .sp-input-row { grid-template-columns: 48px minmax(0, 1fr) 48px; } }
+#spelling-practice .sp-leaf-btn {
+  width: 40px; height: 40px; padding: 0; border-radius: 50%;
+  color: #00a878;
+  background: rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border: 1px solid rgba(2, 195, 154, 0.3);
+  box-shadow: 0 8px 16px rgba(0, 168, 120, 0.2);
+  transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+@media (min-width: 700px) { #spelling-practice .sp-leaf-btn { width: 48px; height: 48px; } }
+#spelling-practice .sp-glass-svg { display: block; width: 20px; height: 20px; transition: transform 0.3s ease; }
+@media (min-width: 700px) { #spelling-practice .sp-glass-svg { width: 24px; height: 24px; } }
+#spelling-practice .sp-leaf-back .sp-glass-svg { transform: translateX(-1px); }
+#spelling-practice .sp-leaf-next .sp-glass-svg { transform: translateX(1px); }
+#spelling-practice .sp-leaf-btn:not(:disabled):hover,
+#spelling-practice .sp-leaf-btn:not(:disabled):focus-visible {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #02c39a;
+  box-shadow: 0 0 0 3px rgba(2, 195, 154, 0.35), 0 0 18px rgba(2, 195, 154, 0.55);
+  outline: none;
+}
+#spelling-practice .sp-leaf-btn:not(:disabled):active { transform: scale(0.95); }
+/* Next isn't pressable until the word is checked: faded glass, no hover glow */
+#spelling-practice .sp-leaf-btn:disabled {
+  opacity: 0.45; cursor: default; transform: none;
+  background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(2, 195, 154, 0.25); box-shadow: none;
+  color: #7fb9ab;
+}
+/* Correct answer: Next turns solid emerald glass and keeps its pulse */
+#spelling-practice.is-correct #spelling-next:not(:disabled) {
+  background: #00a878; color: #fff; border-color: #008a63;
+  box-shadow: 0 0 0 3px rgba(2, 195, 154, 0.3), 0 8px 16px rgba(0, 168, 120, 0.35);
+}

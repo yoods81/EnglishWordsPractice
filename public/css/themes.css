@@ -89,6 +89,21 @@ html[data-theme="dark"] #flash-next:hover {
 html[data-theme="dark"] .flashcard-face {
   box-shadow: 0 20px 25px -5px rgba(0, 168, 120, 0.15), 0 4px 0 rgba(2, 168, 131, 0.55) !important;
 }
+html[data-theme="dark"] #spelling-practice .sp-leaf-btn {
+  background: rgba(19, 27, 25, 0.7) !important;
+  color: #3ddcb8 !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-leaf-btn:disabled {
+  background: rgba(19, 27, 25, 0.5) !important;
+  color: #4d7a6e !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-leaf-btn:not(:disabled):hover {
+  background: rgba(19, 27, 25, 0.95) !important;
+}
+html[data-theme="dark"] #spelling-practice.is-correct #spelling-next:not(:disabled) {
+  background: #00a878 !important;
+  color: #fff !important;
+}
 /* the card front is now dark in dark mode, so lift the word to a brighter mint */
 html[data-theme="dark"] .flashcard-front {
   color: #3ddcb8 !important;
@@ -341,9 +356,7 @@ html[data-theme="dark"] .sp-why {
   background: #15251e !important;
 }
 html[data-theme="dark"] .fk-bubble {
-  background: #131b19 !important;
-}
-html[data-theme="dark"] .fk-bubble::before {
+  --bub-fill: #131b19;
   background: #131b19 !important;
 }
 html[data-theme="dark"] .sp-dot {
@@ -888,9 +901,7 @@ html[data-theme="ivory"] .sp-why {
   background: #f7f4ec !important;
 }
 html[data-theme="ivory"] .fk-bubble {
-  background: #fdfaf4 !important;
-}
-html[data-theme="ivory"] .fk-bubble::before {
+  --bub-fill: #fdfaf4;
   background: #fdfaf4 !important;
 }
 html[data-theme="ivory"] .sp-dot {
