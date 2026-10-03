@@ -11646,3 +11646,20 @@ document.addEventListener("click", (e) => {
     if (b) b.setAttribute("aria-expanded", "false");
   }
 });
+
+
+// ---- Quiz / Spelling / Flashcards share the Typing Game's pastel scenery ----
+// Clone the Typing Game's sky/hills/trees layer into the first card of each view.
+(function addSceneryToPracticeCards() {
+  const src = document.querySelector("#typegame-stage .tg-sky");
+  if (!src) return;
+  ["#view-quiz", "#view-spelling", "#view-flashcards"].forEach((sel) => {
+    const card = document.querySelector(sel + " > .card");
+    if (!card || card.querySelector(":scope > .tg-bg")) return;
+    const layer = src.cloneNode(true);
+    layer.classList.add("tg-bg");
+    layer.setAttribute("aria-hidden", "true");
+    card.classList.add("scene-card");
+    card.insertBefore(layer, card.firstChild);
+  });
+})();

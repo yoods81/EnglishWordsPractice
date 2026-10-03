@@ -7173,3 +7173,38 @@ html[data-theme="dark"] #view-typegame p.hint.tg-hint {
 .tt-start-overlay .tg-start-card .kb-strip .kb-scene { width: 80px; height: 78px; }
 .tt-start-overlay .tg-start-card .kb-strip .kb-scene .sk-svg { width: 80px; }
 .tt-start-overlay .tg-start-card .kb-strip .sp-cloud.kb-cloud { width: 108px; height: 62px; }
+
+/* ---- Scenery behind Quiz / Spelling / Flashcards (same look as the games) ---- */
+html body .card.scene-card {
+  position: relative; overflow: hidden; isolation: isolate;
+  --tg-sky-1: #d3f1e6; --tg-sky-2: #e8f6dd; --tg-sky-3: #fff4d6;
+  --tg-hill-far: #bfe6c9; --tg-hill-near: #9dd8ae;
+  --tg-tree: #78c79d; --tg-trunk: #f5eddd; --tg-mark: #c9bfa8;
+  --tg-night: 0; --tg-cloud-op: 0.92;
+  --tg-orb-bg: #fff3a6; --tg-orb-cut: #ffe27a; --tg-orb-glow: rgba(255, 226, 120, 0.7);
+  --tg-orb-x: 13%; --tg-orb-y: 9%; --tg-orb-op: 1;
+  background: linear-gradient(180deg, var(--tg-sky-1) 0%, var(--tg-sky-2) 55%, var(--tg-sky-3) 100%);
+}
+html[data-theme="dark"] body .card.scene-card {
+  --tg-sky-1: #1c2350; --tg-sky-2: #2a3470; --tg-sky-3: #46509a;
+  --tg-hill-far: #3a4a8a; --tg-hill-near: #2f3d78;
+  --tg-tree: #3f7f86; --tg-trunk: #aab4dc; --tg-mark: #7a86bb;
+  --tg-night: 1; --tg-cloud-op: 0.2;
+  --tg-orb-bg: #fff8d2; --tg-orb-cut: #e8dba2; --tg-orb-glow: rgba(255, 246, 190, 0.5);
+  --tg-orb-x: 18%; --tg-orb-y: 8%;
+}
+.card.scene-card > .tg-bg { z-index: -1; }
+
+/* Flashcards speaker = the same belly patch the Spelling koala wears (green disc, white rim, dark-green ring) */
+html body button.flash-speak-mini.speak-btn {
+  background: transparent !important; color: #fff;
+  width: 48px; height: 48px; border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--accent-dark), 0 4px 0 2px var(--accent-dark) !important;
+}
+html body button.flash-speak-mini.speak-btn:hover { background: transparent !important; transform: scale(1.08); }
+html body button.flash-speak-mini.speak-btn:active { transform: translateY(2px) scale(0.94); box-shadow: 0 0 0 2px var(--accent-dark), 0 1px 0 2px var(--accent-dark) !important; }
+.flash-speak-svg { display: block; width: 100%; height: 100%; }
+@media (max-width: 480px) { html body button.flash-speak-mini.speak-btn { width: 42px; height: 42px; } }
+.scene-card .hint { color: #3f6356; text-shadow: 0 1px 0 rgba(255,255,255,.7); }
+html[data-theme="dark"] .scene-card .hint { color: #c3d3f0; text-shadow: none; }
+html[data-theme="dark"] .scene-card .view-section-title { color: #6ff0cf; }
