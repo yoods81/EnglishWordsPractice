@@ -308,6 +308,7 @@ const TRANSLATIONS = {
     qzModeNoteRelaxed: "Take your time. No clock!",
     qzModeNoteTime: (c, ty) => `${c} seconds a question (${ty} when typing). If time runs out, it counts as a miss.`,
     quizStartBtn: "▶ Start Quiz",
+    flashStartBtn: "▶ Start Flashcards",
     qzChipQuestions: (n) => `🎯 ${n} questions`,
     qzChipTime: "⏱ Time Attack",
     qzDailyLine: (have, goal) => `🎯 Today: ${have} / ${goal} questions`,
@@ -881,6 +882,7 @@ const TRANSLATIONS = {
     qzModeNoteRelaxed: "천천히 풀어요. 시간 제한이 없어요!",
     qzModeNoteTime: (c, ty) => `문제당 ${c}초 (쓰기는 ${ty}초). 시간이 지나면 오답으로 처리돼요.`,
     quizStartBtn: "▶ 퀴즈 시작",
+    flashStartBtn: "▶ 플래시카드 시작",
     qzChipQuestions: (n) => `🎯 ${n}문제`,
     qzChipTime: "⏱ 타임어택",
     qzDailyLine: (have, goal) => `🎯 오늘: ${have} / ${goal}문제`,
@@ -2383,6 +2385,7 @@ function goToTab(view) {
   // itself it would just repeat every menu a second time. See the
   // body.on-landing rules in style.css.
   document.body.classList.toggle("on-landing", view === "landing");
+  if (view === "flashcards" && previousView !== "flashcards") showFlashStart();
   refreshView(view);
 }
 
@@ -3232,6 +3235,21 @@ const flashKnowBtn = document.getElementById("flash-know");
 const flashDontKnowBtn = document.getElementById("flash-dont-know");
 const flashPrevBtn = document.getElementById("flash-prev");
 const flashNextBtn = document.getElementById("flash-next");
+
+// Start screen / practice screen (same pattern as Quiz and Spelling).
+const flashStartScreen = document.getElementById("flash-start-screen");
+const flashPractice = document.getElementById("flash-practice");
+function showFlashStart() {
+  flashStartScreen.hidden = false;
+  flashPractice.hidden = true;
+}
+function startFlashPlay() {
+  flashStartScreen.hidden = true;
+  flashPractice.hidden = false;
+  renderFlashcard();
+}
+document.getElementById("flash-start-btn").addEventListener("click", startFlashPlay);
+document.getElementById("flash-end").addEventListener("click", showFlashStart);
 
 const flashSourceLevelBtn = document.getElementById("flash-source-level");
 const flashSourceMineBtn = document.getElementById("flash-source-mine");
@@ -7880,13 +7898,13 @@ function setupMobileGameImmersive(sectionId, startOverlay, overOverlay) {
   const card = document.querySelector(`#${sectionId} > .card`);
   const section = document.getElementById(sectionId);
   function sync() {
-    const live = mobileGameMQ.matches && startOverlay.hidden && overOverlay.hidden;
+    const live = mobileGameMQ.matches && startOverlay.hidden && (!overOverlay || overOverlay.hidden);
     card.classList.toggle("game-immersive", live);
     document.body.classList.toggle("game-immersive-open", !!document.querySelector(".view.active > .card.game-immersive"));
   }
   const overlayObserver = new MutationObserver(sync);
   overlayObserver.observe(startOverlay, { attributes: true, attributeFilter: ["hidden"] });
-  overlayObserver.observe(overOverlay, { attributes: true, attributeFilter: ["hidden"] });
+  if (overOverlay) overlayObserver.observe(overOverlay, { attributes: true, attributeFilter: ["hidden"] });
   // Leaving/returning to the tab flips the section's "active" class.
   new MutationObserver(sync).observe(section, { attributes: true, attributeFilter: ["class"] });
   mobileGameMQ.addEventListener("change", sync);
@@ -7905,6 +7923,15 @@ setupMobileGameImmersive("view-typegame", typeGameStartOverlay, typeGameOverOver
 // Quiz uses the same phone play mode: once "Start Quiz" is pressed (start
 // screen and result screen both hidden) the quiz card fills the screen.
 setupMobileGameImmersive("view-quiz", quizStartScreen, quizResultEl);
+// Spelling: live while neither the start screen nor the report is showing.
+setupMobileGameImmersive("view-spelling", spellingStartScreen, spellingReport);
+// Flashcards: live from "Start Flashcards" until "End".
+setupMobileGameImmersive("view-flashcards", flashStartScreen, null);
+// On a phone the keyboard shrinks the panel; keep the answer box in view.
+spellingInput.addEventListener("focus", () => {
+  if (!document.body.classList.contains("game-immersive-open")) return;
+  setTimeout(() => spellingInput.scrollIntoView({ block: "nearest" }), 300);
+});
 // With the keyboard up the panel is short; keep the typing box in view.
 quizTypingInput.addEventListener("focus", () => {
   if (!document.body.classList.contains("game-immersive-open")) return;
@@ -11331,6 +11358,7 @@ statsPanels.wrong.addEventListener("click", (e) => {
     const navBtn = document.querySelector('.tab-btn[data-view="flashcards"]');
     if (navBtn) navBtn.click();
     buildFlashDeck();
+    startFlashPlay();
   }
 });
 
@@ -11476,6 +11504,7 @@ function startReviewAll() {
   const navBtn = document.querySelector('.tab-btn[data-view="flashcards"]');
   if (navBtn) navBtn.click();
   buildFlashDeck();
+  startFlashPlay();
 }
 
 function getTodayLearning() {
