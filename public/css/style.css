@@ -1171,7 +1171,8 @@ select:focus-visible {
   font-family: var(--font-heading);
   font-size: clamp(2.25rem, 9vw, 2.5rem);
   line-height: 1.1;
-  font-weight: 700;
+  font-weight: 500;
+  letter-spacing: 0.03em;
 }
 
 /* Word + compact round speaker side by side; wraps under the word only for
@@ -7199,10 +7200,10 @@ html[data-theme="dark"] body .card.scene-card {
 html body button.flash-speak-mini.speak-btn {
   background: transparent !important; color: #fff;
   width: 48px; height: 48px; border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--accent-dark), 0 4px 0 2px var(--accent-dark) !important;
+  box-shadow: 0 0 0 1px var(--accent-dark), 0 2px 0 1px var(--accent-dark) !important;
 }
 html body button.flash-speak-mini.speak-btn:hover { background: transparent !important; transform: scale(1.08); }
-html body button.flash-speak-mini.speak-btn:active { transform: translateY(2px) scale(0.94); box-shadow: 0 0 0 2px var(--accent-dark), 0 1px 0 2px var(--accent-dark) !important; }
+html body button.flash-speak-mini.speak-btn:active { transform: translateY(1px) scale(0.94); box-shadow: 0 0 0 1px var(--accent-dark), 0 1px 0 1px var(--accent-dark) !important; }
 .flash-speak-svg { display: block; width: 100%; height: 100%; }
 @media (max-width: 480px) { html body button.flash-speak-mini.speak-btn { width: 42px; height: 42px; } }
 .scene-card .hint { color: #3f6356; text-shadow: 0 1px 0 rgba(255,255,255,.7); }
