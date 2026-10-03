@@ -328,7 +328,6 @@ const TRANSLATIONS = {
     spListenBtn: "Listen",
     spellingBackAria: "Previous word",
     spellingNextAria: "Next word",
-    spellingBackspaceBtn: "Erase",
     spellingBackspaceAria: "Delete last letter",
     spellingCorrectPrompt: "✅ Correct! Press Next to continue.",
     spellingCorrectNoCreditPrompt: "✅ Correct! (This one already counted as wrong earlier this round, so it won't add to your score.) Press Next to continue.",
@@ -813,7 +812,6 @@ const TRANSLATIONS = {
     spListenBtn: "듣기",
     spellingBackAria: "이전 단어",
     spellingNextAria: "다음 단어",
-    spellingBackspaceBtn: "지우기",
     spellingBackspaceAria: "마지막 글자 지우기",
     spellingCorrectPrompt: "✅ 정답이에요! Next를 눌러 다음 단어로 넘어가세요.",
     spellingCorrectNoCreditPrompt: "✅ 정답이에요! (이 단어는 이번 라운드에서 이미 한 번 틀려서 점수에는 반영되지 않아요.) Next를 눌러 다음 단어로 넘어가세요.",
@@ -3798,7 +3796,11 @@ function comboAfterAnswer(prev, correct, fresh = true) {
 }
 function renderSfxToggles() {
   document.querySelectorAll(".sfx-toggle").forEach((b) => {
-    b.textContent = sfxMuted ? "🔇" : "🔊";
+    // In Spelling the toggle reads "🔊 Sound" so it can't be mistaken for the
+    // big Listen button; elsewhere it stays icon-only.
+    const inSpelling = !!b.closest("#spelling-practice");
+    b.textContent = (sfxMuted ? "🔇" : "🔊") + (inSpelling ? " " + rwL("Sound", "효과음") : "");
+    b.classList.toggle("is-off", sfxMuted);
     const label = sfxMuted ? rwL("Sounds off — tap to turn on", "효과음 꺼짐 — 눌러서 켜기") : rwL("Sounds on — tap to turn off", "효과음 켜짐 — 눌러서 끄기");
     b.setAttribute("aria-label", label);
     b.title = label;
@@ -3923,7 +3925,13 @@ const spellingFeedback = document.getElementById("spelling-feedback");
 const spellingBackBtn = document.getElementById("spelling-back");
 const spellingCheckBtn = document.getElementById("spelling-check");
 const spellingNextBtn = document.getElementById("spelling-next");
-const spellingBackspaceBtn = document.getElementById("spelling-backspace");
+// ⌫ is the last chip of the alphabet pad: same size and shape as the letter
+// chips, re-appended after the letters every time the tray is rebuilt.
+const spellingBackspaceBtn = document.createElement("button");
+spellingBackspaceBtn.type = "button";
+spellingBackspaceBtn.id = "spelling-backspace";
+spellingBackspaceBtn.className = "sp-backspace-chip";
+spellingBackspaceBtn.textContent = "⌫";
 const spellingScoreEl = document.getElementById("spelling-score");
 const spellingGoalValueEl = document.getElementById("spelling-goal-value");
 const spellingGoalMinusBtn = document.getElementById("spelling-goal-minus");
@@ -4298,6 +4306,10 @@ function renderSpellingLetterHints(word) {
     });
     spellingHintTray.appendChild(tile);
   });
+  const eraseLabel = t("spellingBackspaceAria");
+  spellingBackspaceBtn.setAttribute("aria-label", eraseLabel);
+  spellingBackspaceBtn.title = eraseLabel;
+  spellingHintTray.appendChild(spellingBackspaceBtn);
   syncSpellingHintTiles(false);
 }
 

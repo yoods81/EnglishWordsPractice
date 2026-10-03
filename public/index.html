@@ -633,11 +633,8 @@
             <input type="text" id="spelling-input" data-i18n-placeholder="spellingPlaceholder" placeholder="Type what you hear..." autocomplete="off" autocapitalize="off" spellcheck="false" />
             <button class="sp-nav-btn" id="spelling-next" type="button" data-i18n-aria-label="spellingNextAria" aria-label="Next word" disabled>→</button>
           </div>
-          <!-- 4. Alphabet chips (1–2 rows) with Backspace at the right end -->
-          <div class="sp-chip-row">
-            <div class="spelling-hint-tray" id="spelling-hint-tray"></div>
-            <button class="sp-backspace" id="spelling-backspace" type="button" data-i18n-aria-label="spellingBackspaceAria" aria-label="Delete last letter"><span class="sp-backspace-icon" aria-hidden="true">⌫</span><span class="sp-backspace-label" data-i18n="spellingBackspaceBtn">Erase</span></button>
-          </div>
+          <!-- 4. Alphabet chips (1–2 rows); the ⌫ chip is appended as the last chip by JS -->
+          <div class="spelling-hint-tray sp-chip-row" id="spelling-hint-tray"></div>
           <!-- 5. Primary CTA -->
           <div id="spelling-word-audio" class="spelling-action-row">
             <button class="pill accent sp-check-btn" id="spelling-check"><svg class="check-icon-svg" viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="var(--bg)" stroke-width="2" fill="none"/><path d="M7 12.5l3.2 3.2L17 9" stroke="var(--bg)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span data-i18n="spellingCheckBtn">Check Answer</span></button>
