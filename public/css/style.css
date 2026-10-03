@@ -6145,8 +6145,8 @@ body.signed-in .stat-bar { display: none; }
   top: 48px;
   left: 8px;
   z-index: 3;
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   font-size: 1rem;
   border-width: 1px;
   box-shadow: 0 2px 0 var(--outline);
