@@ -429,27 +429,32 @@ html[data-theme="dark"] .review-hear {
 html[data-theme="dark"] .review-input {
   background: #131b19 !important;
 }
-html[data-theme="dark"] .review-card-meaning {
-  background: #2e2711 !important;
-  border-color: #b8921f !important;
-  box-shadow: 0 4px 0 #b8921f !important;
-}
-html[data-theme="dark"] .review-card-example {
-  background: #12283a !important;
-  border-color: #3f7fa8 !important;
-  box-shadow: 0 4px 0 #3f7fa8 !important;
-}
-html[data-theme="dark"] .review-card-text-big { color: #ffe9a8 !important; }
-html[data-theme="dark"] .review-card-text-ex { color: #cde9fb !important; }
-html[data-theme="dark"] .review-card-meaning .review-card-label { color: #e6c15a !important; }
-html[data-theme="dark"] .review-card-example .review-card-label { color: #7fc2ea !important; }
-html[data-theme="dark"] .review-card-text-ex mark { background: #6b5a14 !important; color: #fff !important; }
-html[data-theme="dark"] .review-fix-answer { background: #131b19 !important; }
 html[data-theme="dark"] .review-input.ok {
   background: #17291d !important;
 }
 html[data-theme="dark"] .review-input.bad {
   background: #241414 !important;
+}
+html[data-theme="dark"] .review-card-meaning {
+  background: #36311e !important;
+}
+html[data-theme="dark"] .review-card-example {
+  background: #18232a !important;
+}
+html[data-theme="dark"] .review-card-meaning .review-card-label {
+  color: #ffc134 !important;
+}
+html[data-theme="dark"] .review-card-example .review-card-label {
+  color: #6eb7e3 !important;
+}
+html[data-theme="dark"] .review-card-text-big {
+  color: #d4a900 !important;
+}
+html[data-theme="dark"] .review-card-text-ex {
+  color: #2f8dc9 !important;
+}
+html[data-theme="dark"] .review-fix-answer {
+  background: #131b19 !important;
 }
 html[data-theme="dark"] .pr-tile {
   background: #131b19 !important;
