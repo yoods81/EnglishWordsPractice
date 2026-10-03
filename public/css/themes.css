@@ -73,40 +73,11 @@ html[data-theme="dark"] select option:focus {
 html[data-theme="dark"] .flash-controls:has(#spelling-next:not(:disabled)) #spelling-back {
   background: #22222a !important;
 }
-html[data-theme="dark"] .flashcard-front,
-html[data-theme="dark"] .flashcard-back {
-  background: #131b19 !important;
-}
-html[data-theme="dark"] #flash-prev,
-html[data-theme="dark"] #flash-next {
-  background: rgba(19, 27, 25, 0.7) !important;
-  color: #3ddcb8 !important;
-}
-html[data-theme="dark"] #flash-prev:hover,
-html[data-theme="dark"] #flash-next:hover {
-  background: rgba(19, 27, 25, 0.95) !important;
-}
 html[data-theme="dark"] .flashcard-face {
-  box-shadow: 0 20px 25px -5px rgba(0, 168, 120, 0.15), 0 4px 0 rgba(2, 168, 131, 0.55) !important;
+  background: linear-gradient(145deg, rgba(19,27,25,0.92) 0%, rgba(19,27,25,0.85) 45%, rgba(30,54,46,0.85) 100%) !important;
 }
-html[data-theme="dark"] #spelling-practice .sp-leaf-btn {
-  background: rgba(19, 27, 25, 0.7) !important;
-  color: #3ddcb8 !important;
-}
-html[data-theme="dark"] #spelling-practice .sp-leaf-btn:disabled {
-  background: rgba(19, 27, 25, 0.5) !important;
-  color: #4d7a6e !important;
-}
-html[data-theme="dark"] #spelling-practice .sp-leaf-btn:not(:disabled):hover {
-  background: rgba(19, 27, 25, 0.95) !important;
-}
-html[data-theme="dark"] #spelling-practice.is-correct #spelling-next:not(:disabled) {
-  background: #00a878 !important;
-  color: #fff !important;
-}
-/* the card front is now dark in dark mode, so lift the word to a brighter mint */
 html[data-theme="dark"] .flashcard-front {
-  color: #3ddcb8 !important;
+  color: #42ffc9 !important;
 }
 html[data-theme="dark"] button.pill.neutral {
   background: #131b19 !important;
@@ -119,12 +90,6 @@ html[data-theme="dark"] .select-all-toggle {
 }
 html[data-theme="dark"] .speak-btn {
   background: #161b27 !important;
-}
-html[data-theme="dark"] button.flash-speak-mini {
-  background: #00a878 !important;
-}
-html[data-theme="dark"] button.flash-speak-mini:hover {
-  background: #02c39a !important;
 }
 html[data-theme="dark"] .typegame-stage {
   background: linear-gradient(180deg, #191f2c 0%, #141b24 100%) !important;
@@ -355,10 +320,16 @@ html[data-theme="dark"] .sp-bubble::before {
 html[data-theme="dark"] .sp-why {
   background: #15251e !important;
 }
-html[data-theme="dark"] .fk-bubble,
-html[data-theme="dark"] #spelling-practice .sp-speech.fk-bubble-skin {
-  --bub-fill: #17231f;
-  --bub-top: #22d3aa;
+html[data-theme="dark"] #flash-prev,
+html[data-theme="dark"] #flash-next {
+  color: #42ffc9 !important;
+  background: rgba(19,27,25,0.7) !important;
+}
+html[data-theme="dark"] #flash-prev:hover,
+html[data-theme="dark"] #flash-next:hover,
+html[data-theme="dark"] #flash-prev:focus-visible,
+html[data-theme="dark"] #flash-next:focus-visible {
+  background: rgba(19,27,25,0.95) !important;
 }
 html[data-theme="dark"] .sp-dot {
   background: #1e3029 !important;
@@ -420,15 +391,6 @@ html[data-theme="dark"] .tt-range-chip {
 }
 html[data-theme="dark"] .tt-range-chip.in {
   background: #192d26 !important;
-}
-html[data-theme="dark"] .tt-guide {
-  background: #131b19 !important;
-}
-html[data-theme="dark"] .tt-guide .tt-demo-problem {
-  background: #182a24 !important;
-}
-html[data-theme="dark"] .tt-guide .ti-chip {
-  background: #182a24 !important;
 }
 html[data-theme="dark"] .tt-range-panel {
   background: #131b19 !important;
@@ -645,7 +607,7 @@ html[data-theme="dark"] .home-chip {
   border: 1px solid #3b6959 !important;
 }
 html[data-theme="dark"] .auth-koala-level select {
-  background: #131b19 !important;
+  background-color: #131b19 !important;
 }
 html[data-theme="dark"] .koala-item-tag {
   color: #f79e5a !important;
@@ -690,6 +652,149 @@ html[data-theme="dark"] .sfx-toggle {
 }
 html[data-theme="dark"] .combo-pop-n {
   border: 3px solid #151e1c !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-header .sp-progress {
+  background: #192d26 !important;
+  border: 1px solid #3b6858 !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-backspace-chip {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-footer {
+  border-top: 2px dashed #345c4e !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-footer .sfx-toggle.is-off {
+  border-color: #505e59 !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-footer .sp-finish-btn {
+  border: 1px solid #505e59 !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-check-btn:focus-visible {
+  outline: 3px solid #151e1c !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-footer .sfx-toggle.is-off {
+  background: #192320 !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-footer .sp-finish-btn {
+  background: #271b16 !important;
+  border: 2px solid #6f503e !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-belly-btn {
+  border: 3px solid #151e1c !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-speech {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-speech::after {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .sp-leaf-shape path {
+  fill: #182b24 !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-leaf-btn:disabled .sp-leaf-shape path {
+  fill: #1d2321 !important;
+  stroke: #49655e !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-leaf-btn:disabled .lf {
+  fill: #353e3b !important;
+}
+@media (hover: hover) {
+html[data-theme="dark"] #spelling-practice .sp-erase-btn:hover {
+  background: #182b24 !important;
+}
+}
+html[data-theme="dark"] #spelling-practice .sp-erase-btn:active {
+  background: #1f372f !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-leaf-btn {
+  color: #42ffc9 !important;
+  background: rgba(19,27,25,0.7) !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-leaf-btn:not(:disabled):hover,
+html[data-theme="dark"] #spelling-practice .sp-leaf-btn:not(:disabled):focus-visible {
+  background: rgba(19,27,25,0.95) !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-leaf-btn:disabled {
+  background: rgba(19,27,25,0.55) !important;
+}
+html[data-theme="dark"] .tt-balloon .tt-obj-body {
+  background: radial-gradient(circle at 30% 24%, rgba(19,27,25,0.8) 0 6%, rgba(255, 255, 255, 0) 20%),
+    radial-gradient(circle at 50% 36%, var(--tt-c1) 0%, var(--tt-c2) 100%) !important;
+}
+html[data-theme="dark"] .tt-leaf .tt-obj-body::after {
+  background: rgba(19,27,25,0.38) !important;
+}
+html[data-theme="dark"] .tt-star .tt-obj-body {
+  color: #f38f00 !important;
+  background: radial-gradient(circle at 36% 30%, rgba(19,27,25,0.75), rgba(255, 255, 255, 0) 38%),
+    linear-gradient(160deg, var(--tt-c1), var(--tt-c2)) !important;
+}
+html[data-theme="dark"] .tt-help-btn {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .tt-guide {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .tt-guide .tt-demo-problem {
+  background: #182a24 !important;
+}
+html[data-theme="dark"] .tt-guide .ti-chip {
+  background: #182a24 !important;
+}
+html[data-theme="dark"] .tt-guide-close {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .tg-over-card .tg-review-btn {
+  background: rgba(19,27,25,0.14) !important;
+  border: 1px solid rgba(21,30,28,0.35) !important;
+}
+html[data-theme="dark"] .tg-review-back {
+  background: rgba(19,27,25,0.16) !important;
+}
+html[data-theme="dark"] .tg-review-item {
+  background: rgba(19,27,25,0.1) !important;
+}
+html[data-theme="dark"] .tg-review-say {
+  background: rgba(19,27,25,0.16) !important;
+}
+html[data-theme="dark"] .tg-sky .tg-sky-cloud {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .tg-sky .tg-sky-cloud::before,
+html[data-theme="dark"] .tg-sky .tg-sky-cloud::after {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .tg-sleepy-koala circle {
+  fill: #3a404d !important;
+}
+html[data-theme="dark"] .tg-hearts {
+  background: linear-gradient(180deg, #131b19, #161b27) !important;
+}
+html[data-theme="dark"] #view-typegame .tg-cloud .tw-rest {
+  color: #c3c5d0 !important;
+}
+html[data-theme="dark"] .tg-balloon .tg-body {
+  background: radial-gradient(circle at 30% 24%, rgba(19,27,25,0.85) 0 7%, rgba(255, 255, 255, 0) 22%),
+    radial-gradient(circle at 50% 38%, var(--tg-c1) 0%, var(--tg-c2) 100%) !important;
+}
+html[data-theme="dark"] .tg-leaf .tg-body::after {
+  background: rgba(19,27,25,0.4) !important;
+}
+html[data-theme="dark"] .tg-cloud .tg-body {
+  background: linear-gradient(180deg, #131b19 0%, #151b25 100%) !important;
+}
+html[data-theme="dark"] .tg-cloud .tg-body::before,
+html[data-theme="dark"] .tg-cloud .tg-body::after {
+  background: linear-gradient(180deg, #131b19, #131922) !important;
+}
+html[data-theme="dark"] .tg-reticle {
+  border: 2px solid #151e1c !important;
+}
+html[data-theme="dark"] .tg-reticle i {
+  border: 0 solid #151e1c !important;
+}
+html[data-theme="dark"] .typegame-overlay.tg-over-overlay::before {
+  background: repeating-conic-gradient(from 0deg, rgba(19,27,25,0.1) 0deg 9deg, rgba(255, 255, 255, 0) 9deg 18deg) !important;
 }
 html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; }
 html[data-theme="dark"] img, html[data-theme="dark"] video { filter: brightness(.92); }
@@ -750,9 +855,8 @@ html[data-theme="ivory"] select option:focus {
 html[data-theme="ivory"] .flash-controls:has(#spelling-next:not(:disabled)) #spelling-back {
   background: #f0e9d9 !important;
 }
-html[data-theme="ivory"] .flashcard-front,
-html[data-theme="ivory"] .flashcard-back {
-  background: #fdfaf4 !important;
+html[data-theme="ivory"] .flashcard-face {
+  background: linear-gradient(145deg, rgba(253,250,244,0.92) 0%, rgba(253,250,244,0.85) 45%, rgba(209, 247, 235, 0.85) 100%) !important;
 }
 html[data-theme="ivory"] button.pill.neutral {
   background: #fdfaf4 !important;
@@ -901,9 +1005,15 @@ html[data-theme="ivory"] .sp-bubble::before {
 html[data-theme="ivory"] .sp-why {
   background: #f7f4ec !important;
 }
-html[data-theme="ivory"] .fk-bubble,
-html[data-theme="ivory"] #spelling-practice .sp-speech.fk-bubble-skin {
-  --bub-fill: #fdfaf4;
+html[data-theme="ivory"] #flash-prev,
+html[data-theme="ivory"] #flash-next {
+  background: rgba(253,250,244,0.7) !important;
+}
+html[data-theme="ivory"] #flash-prev:hover,
+html[data-theme="ivory"] #flash-next:hover,
+html[data-theme="ivory"] #flash-prev:focus-visible,
+html[data-theme="ivory"] #flash-next:focus-visible {
+  background: rgba(253,250,244,0.95) !important;
 }
 html[data-theme="ivory"] .sp-dot {
   background: #efe8d8 !important;
@@ -953,15 +1063,6 @@ html[data-theme="ivory"] .tt-range-chip {
 }
 html[data-theme="ivory"] .tt-range-chip.in {
   background: #f2ecdf !important;
-}
-html[data-theme="ivory"] .tt-guide {
-  background: #fdfaf4 !important;
-}
-html[data-theme="ivory"] .tt-guide .tt-demo-problem {
-  background: #f4efe4 !important;
-}
-html[data-theme="ivory"] .tt-guide .ti-chip {
-  background: #f4efe4 !important;
 }
 html[data-theme="ivory"] .tt-range-panel {
   background: #fdfaf4 !important;
@@ -1122,7 +1223,7 @@ html[data-theme="ivory"] .home-chip {
   border: 1px solid #dfd6c4 !important;
 }
 html[data-theme="ivory"] .auth-koala-level select {
-  background: #fdfaf4 !important;
+  background-color: #fdfaf4 !important;
 }
 html[data-theme="ivory"] .levelup-card {
   background: #fdfaf4 !important;
@@ -1148,4 +1249,131 @@ html[data-theme="ivory"] .sfx-toggle {
 }
 html[data-theme="ivory"] .combo-pop-n {
   border: 3px solid #fdfaf4 !important;
+}
+html[data-theme="ivory"] #spelling-practice .sp-header .sp-progress {
+  background: #f2ecdf !important;
+  border: 1px solid #dfd6c4 !important;
+}
+html[data-theme="ivory"] #spelling-practice .sp-backspace-chip {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] #spelling-practice .sp-footer {
+  border-top: 2px dashed #ebe3cf !important;
+}
+html[data-theme="ivory"] #spelling-practice .sp-footer .sfx-toggle.is-off {
+  border-color: #d9cfb9 !important;
+}
+html[data-theme="ivory"] #spelling-practice .sp-footer .sp-finish-btn {
+  border: 1px solid #d9cfb9 !important;
+}
+html[data-theme="ivory"] #spelling-practice .sp-check-btn:focus-visible {
+  outline: 3px solid #fdfaf4 !important;
+}
+html[data-theme="ivory"] #spelling-practice .sp-footer .sfx-toggle.is-off {
+  background: #f6f2ea !important;
+}
+html[data-theme="ivory"] #spelling-practice .sp-belly-btn {
+  border: 3px solid #fdfaf4 !important;
+}
+html[data-theme="ivory"] #spelling-practice .sp-speech {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] #spelling-practice .sp-speech::after {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .sp-leaf-shape path {
+  fill: #f3eee2 !important;
+}
+html[data-theme="ivory"] #spelling-practice .sp-leaf-btn:disabled .sp-leaf-shape path {
+  fill: #f5f0e6 !important;
+}
+@media (hover: hover) {
+html[data-theme="ivory"] #spelling-practice .sp-erase-btn:hover {
+  background: #f3eee2 !important;
+}
+}
+html[data-theme="ivory"] #spelling-practice .sp-erase-btn:active {
+  background: #ebe3cf !important;
+}
+html[data-theme="ivory"] #spelling-practice .sp-leaf-btn {
+  background: rgba(253,250,244,0.7) !important;
+}
+html[data-theme="ivory"] #spelling-practice .sp-leaf-btn:not(:disabled):hover,
+html[data-theme="ivory"] #spelling-practice .sp-leaf-btn:not(:disabled):focus-visible {
+  background: rgba(253,250,244,0.95) !important;
+}
+html[data-theme="ivory"] #spelling-practice .sp-leaf-btn:disabled {
+  background: rgba(253,250,244,0.55) !important;
+}
+html[data-theme="ivory"] .tt-balloon .tt-obj-body {
+  background: radial-gradient(circle at 30% 24%, rgba(253,250,244,0.8) 0 6%, rgba(255, 255, 255, 0) 20%),
+    radial-gradient(circle at 50% 36%, var(--tt-c1) 0%, var(--tt-c2) 100%) !important;
+}
+html[data-theme="ivory"] .tt-leaf .tt-obj-body::after {
+  background: rgba(253,250,244,0.38) !important;
+}
+html[data-theme="ivory"] .tt-star .tt-obj-body {
+  background: radial-gradient(circle at 36% 30%, rgba(253,250,244,0.75), rgba(255, 255, 255, 0) 38%),
+    linear-gradient(160deg, var(--tt-c1), var(--tt-c2)) !important;
+}
+html[data-theme="ivory"] .tt-help-btn {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .tt-guide {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .tt-guide .tt-demo-problem {
+  background: #f4efe4 !important;
+}
+html[data-theme="ivory"] .tt-guide .ti-chip {
+  background: #f4efe4 !important;
+}
+html[data-theme="ivory"] .tt-guide-close {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .tg-over-card .tg-review-btn {
+  background: rgba(253,250,244,0.14) !important;
+  border: 1px solid rgba(253,250,244,0.35) !important;
+}
+html[data-theme="ivory"] .tg-review-back {
+  background: rgba(253,250,244,0.16) !important;
+}
+html[data-theme="ivory"] .tg-review-item {
+  background: rgba(253,250,244,0.1) !important;
+}
+html[data-theme="ivory"] .tg-review-say {
+  background: rgba(253,250,244,0.16) !important;
+}
+html[data-theme="ivory"] .tg-sky .tg-sky-cloud {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .tg-sky .tg-sky-cloud::before,
+html[data-theme="ivory"] .tg-sky .tg-sky-cloud::after {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .tg-hearts {
+  background: linear-gradient(180deg, #fdfaf4, #eef2fb) !important;
+}
+html[data-theme="ivory"] .tg-balloon .tg-body {
+  background: radial-gradient(circle at 30% 24%, rgba(253,250,244,0.85) 0 7%, rgba(255, 255, 255, 0) 22%),
+    radial-gradient(circle at 50% 38%, var(--tg-c1) 0%, var(--tg-c2) 100%) !important;
+}
+html[data-theme="ivory"] .tg-leaf .tg-body::after {
+  background: rgba(253,250,244,0.4) !important;
+}
+html[data-theme="ivory"] .tg-cloud .tg-body {
+  background: linear-gradient(180deg, #fdfaf4 0%, #eef5ff 100%) !important;
+}
+html[data-theme="ivory"] .tg-cloud .tg-body::before,
+html[data-theme="ivory"] .tg-cloud .tg-body::after {
+  background: linear-gradient(180deg, #fdfaf4, #f4f8ff) !important;
+}
+html[data-theme="ivory"] .tg-reticle {
+  border: 2px solid #fdfaf4 !important;
+}
+html[data-theme="ivory"] .tg-reticle i {
+  border: 0 solid #fdfaf4 !important;
+}
+html[data-theme="ivory"] .typegame-overlay.tg-over-overlay::before {
+  background: repeating-conic-gradient(from 0deg, rgba(253,250,244,0.1) 0deg 9deg, rgba(255, 255, 255, 0) 9deg 18deg) !important;
 }

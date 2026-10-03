@@ -2771,7 +2771,17 @@ authMenu.addEventListener("click", (e) => {
 // While the year dropdown is in use the popup must not close under it.
 authMenu.addEventListener("pointerdown", (e) => { if (e.target.closest("select")) authMenuPinned = true; });
 authMenu.addEventListener("focusin", (e) => { if (e.target.closest("select")) authMenuPinned = true; });
+// The native list can't be styled or detected from CSS, so track open/closed
+// ourselves to flip the chevron (down when closed, up while the list is open).
+authMenu.addEventListener("mousedown", (e) => { if (e.target.id === "auth-menu-level-select") e.target.classList.toggle("is-open"); });
+authMenu.addEventListener("keydown", (e) => {
+  if (e.target.id !== "auth-menu-level-select") return;
+  if (e.key === "Escape") e.target.classList.remove("is-open");
+  else if (e.key === "Enter" || e.key === " " || (e.altKey && e.key === "ArrowDown")) e.target.classList.add("is-open");
+});
+authMenu.addEventListener("focusout", (e) => { if (e.target.id === "auth-menu-level-select") e.target.classList.remove("is-open"); });
 authMenu.addEventListener("change", (e) => {
+  if (e.target.id === "auth-menu-level-select") e.target.classList.remove("is-open");
   if (e.target.id === "auth-menu-level-select") { applyLevel(e.target.value); closeAuthMenu(); }
 });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !authMenu.hidden) closeAuthMenu(); });
