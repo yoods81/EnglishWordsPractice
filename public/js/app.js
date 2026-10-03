@@ -266,6 +266,13 @@ const TRANSLATIONS = {
     timesTableExpand: "Expand game area",
     timesTableCollapse: "Collapse game area",
     timesTableStageLabel: (n) => `Stage ${n}`,
+    gameOverNewRecord: "🎉 NEW RECORD!",
+    gameOverGood: "Good Job! 👏",
+    gameOverKeepGoing: "Keep Going! 🔥",
+    gameOverStarsLabel: (n) => `${n} of 3 stars`,
+    gameOverReview: "Review",
+    gameOverReviewTitle: "Missed this round",
+    gameOverReviewBack: "Back",
     timesTableTipLine: "💡 Tip: Type two numbers and the answer, e.g. 8216",
     timesTableHelpLabel: "How to answer",
     timesTableGuideClose: "Close",
@@ -768,6 +775,13 @@ const TRANSLATIONS = {
     timesTableExpand: "화면 확장",
     timesTableCollapse: "화면 축소",
     timesTableStageLabel: (n) => `스테이지 ${n}`,
+    gameOverNewRecord: "🎉 신기록 달성!",
+    gameOverGood: "잘했어요! 👏",
+    gameOverKeepGoing: "계속 도전! 🔥",
+    gameOverStarsLabel: (n) => `별 3개 중 ${n}개`,
+    gameOverReview: "오답 확인",
+    gameOverReviewTitle: "이번에 틀린 문제",
+    gameOverReviewBack: "돌아가기",
     timesTableTipLine: "💡 팁: 두 수와 정답을 이어서 입력하세요. 예) 8216",
     timesTableHelpLabel: "입력 방법 보기",
     timesTableGuideClose: "닫기",
@@ -4912,6 +4926,7 @@ const TYPEGAME_SRS_QUEUE_SIZE = 30;
 // most of a newly-unlocked level from earlier sessions, so the prompt kept
 // re-firing after almost every answer instead of after a real round of play.
 let typeGameRoundSolved = new Set();
+let typeGameMissed = new Set(); // words missed this round, for the Review recap
 
 function loadTypeGameHighScores() {
   try {
@@ -5050,6 +5065,7 @@ function resetTypeGame() {
   typeGameScore = 0;
   typeGameWordsCleared = 0;
   typeGameRoundSolved = new Set();
+  typeGameMissed = new Set();
   typeGameLives = TYPEGAME_LIVES;
   typeGameSpeedLevel = TYPEGAME_SPEED_LEVEL_MIN;
   updateTypeGameSpeedUI();
@@ -5082,6 +5098,7 @@ function startTypeGame() {
   typeGameScore = 0;
   typeGameWordsCleared = 0;
   typeGameRoundSolved = new Set();
+  typeGameMissed = new Set();
   typeGameLives = TYPEGAME_LIVES;
   typeGameSpeedLevel = TYPEGAME_SPEED_LEVEL_MIN;
   updateTypeGameSpeedUI();
@@ -5276,6 +5293,7 @@ function loseTypeGameLife(missedWord) {
     recordSrsResult(missedWord, false);
     recordResult(missedWord, false, "typing");
   }
+  if (missedWord) typeGameMissed.add(missedWord);
   typeGameLives--;
   kb("type")?.oops();
   updateTypeGameHud();
@@ -5423,9 +5441,16 @@ function endTypeGame() {
   }
   typeGameFinalScoreEl.textContent = t("typeGameFinalScore", typeGameScore);
   typeGameHighScoreEl.textContent = isNewBest ? t("typeGameNewHighScore") : t("typeGameHighScore", Math.max(prevBest, typeGameScore));
-  const encourageMessages = TYPEGAME_ENCOURAGE_MESSAGES[currentLang] || TYPEGAME_ENCOURAGE_MESSAGES.en;
-  typeGameEncourageMsg.textContent = encourageMessages[Math.floor(Math.random() * encourageMessages.length)];
-  typeGameEncourageMsg.hidden = false;
+  showGameOverScreen("typegame", {
+    correct: typeGameWordsCleared,
+    isNewBest,
+    reason: "lives",
+    encourage: TYPEGAME_ENCOURAGE_MESSAGES,
+    missed: [...typeGameMissed].map((word) => {
+      const info = findWordInfo(word);
+      return { title: word, sub: info && info.definition ? info.definition : "", say: word };
+    }),
+  });
   typeGameOverOverlay.hidden = false;
 }
 
@@ -5826,6 +5851,7 @@ let timesTableSrsQueue = [];
 // — see typeGameRoundSolved's comment for why this can't just check
 // progress.wordStats (lifetime history) instead.
 let timesTableRoundSolved = new Set();
+let timesTableMissed = new Set(); // facts ("{a}x{b}") missed this round, for the Review recap
 
 function loadTimesTableHighScores() {
   try {
@@ -6105,6 +6131,7 @@ function resetTimesTable() {
   timesTableProblemsShown = 0;
   timesTableStageIndex = 0;
   timesTableRoundSolved = new Set();
+  timesTableMissed = new Set();
   timesTableLives = TIMESTABLE_LIVES;
   timesTableSpeedLevel = TIMESTABLE_SPEED_LEVEL_MIN;
   updateTimesTableSpeedUI();
@@ -6150,6 +6177,7 @@ function startTimesTable() {
   timesTableProblemsShown = 0;
   timesTableStageIndex = 0;
   timesTableRoundSolved = new Set();
+  timesTableMissed = new Set();
   timesTableLives = TIMESTABLE_LIVES;
   timesTableSpeedLevel = TIMESTABLE_SPEED_LEVEL_MIN;
   updateTimesTableSpeedUI();
@@ -6334,6 +6362,7 @@ function loseTimesTableLife(missedKey) {
     recordSrsResult(missedKey, false);
     recordResult(missedKey, false, "tt");
   }
+  if (missedKey) timesTableMissed.add(missedKey);
   timesTableLives--;
   resetTimesTableCombo();
   ttKb((b) => b.oops());
@@ -6496,13 +6525,16 @@ function endTimesTableRound(reason) {
     timesTableLimitMsgEl.hidden = true;
   }
 
-  if (reason === "lives") {
-    const encourageMessages = TIMESTABLE_ENCOURAGE_MESSAGES[currentLang] || TIMESTABLE_ENCOURAGE_MESSAGES.en;
-    timesTableEncourageMsg.textContent = encourageMessages[Math.floor(Math.random() * encourageMessages.length)];
-    timesTableEncourageMsg.hidden = false;
-  } else {
-    timesTableEncourageMsg.hidden = true;
-  }
+  showGameOverScreen("timestable", {
+    correct: timesTableCorrectCount,
+    isNewBest,
+    reason,
+    encourage: TIMESTABLE_ENCOURAGE_MESSAGES,
+    missed: [...timesTableMissed].map((key) => {
+      const [a, b] = key.split("x").map(Number);
+      return { title: `${a} × ${b} = ${a * b}`, sub: "", say: "" };
+    }),
+  });
   timesTableOverOverlay.hidden = false;
 }
 
@@ -6803,6 +6835,128 @@ timesTableExpandBtn.addEventListener("click", () => {
   timesTableExpandBtn.setAttribute("aria-label", label);
   timesTableExpandBtn.setAttribute("title", label);
 });
+
+/* ---------- Game Over screen (shared by Typing Game + Times Table) ----------
+   Koala mascot + title (NEW RECORD / Good Job / Keep Going), 1-3 stars that pop
+   in one after another, a big Play Again button and an optional "Review" panel
+   listing what was missed this round. */
+const GAMEOVER_STAR_STEPS = [5, 10, 20]; // correct answers needed for 1 / 2 / 3 stars
+function gameOverStars(correct) {
+  return GAMEOVER_STAR_STEPS.filter((n) => correct >= n).length;
+}
+
+function launchGameOverConfetti(host) {
+  host.textContent = "";
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const colors = ["#ffd54a", "#ff6b9d", "#4dd6a8", "#6cb7ff", "#ff9f43", "#b388ff"];
+  for (let i = 0; i < 34; i++) {
+    const p = document.createElement("i");
+    p.className = "tg-conf";
+    p.style.setProperty("--x", `${Math.round(Math.random() * 100)}%`);
+    p.style.setProperty("--dx", `${Math.round(Math.random() * 80 - 40)}px`);
+    p.style.setProperty("--d", `${(Math.random() * 0.7).toFixed(2)}s`);
+    p.style.setProperty("--t", `${(1.8 + Math.random() * 1.4).toFixed(2)}s`);
+    p.style.setProperty("--r", `${Math.round(Math.random() * 720 - 360)}deg`);
+    p.style.background = colors[i % colors.length];
+    host.appendChild(p);
+  }
+  setTimeout(() => {
+    host.textContent = "";
+  }, 3800);
+}
+
+function showGameOverScreen(prefix, opts) {
+  const $ = (s) => document.getElementById(`${prefix}-${s}`);
+  const overlay = $("over-overlay");
+  const stars = gameOverStars(opts.correct);
+  const record = !!opts.isNewBest && stars >= 1;
+  const card = overlay.querySelector(".tg-over-card");
+
+  // Title + optional encouragement line
+  $("over-title").textContent = t(record ? "gameOverNewRecord" : stars >= 2 ? "gameOverGoodJob" : "gameOverKeepGoing");
+  const enc = $("encourage-msg");
+  if (!record && opts.reason === "lives" && opts.encourage) {
+    const list = opts.encourage[currentLang] || opts.encourage.en;
+    enc.textContent = list[Math.floor(Math.random() * list.length)];
+    enc.hidden = false;
+  } else {
+    enc.hidden = true;
+  }
+
+  // Koala (always the brand mascot; celebrates on a record or a good run)
+  const koala = card.querySelector(".tg-over-koala");
+  koala.innerHTML = `<div class="kb-scene tg-koala${record ? " tg-koala-record" : stars >= 2 ? " tg-koala-good" : ""}">${SPELL_KOALA_SVG}</div>`;
+
+  // Stars light up one by one
+  const starsEl = $("stars");
+  starsEl.setAttribute("aria-label", t("gameOverStarsLabel", stars));
+  starsEl.classList.remove("tg-stars-go");
+  starsEl.querySelectorAll(".tg-star").forEach((el, i) => {
+    el.classList.toggle("on", i < stars);
+    el.style.setProperty("--d", `${0.35 + i * 0.45}s`);
+  });
+  void starsEl.offsetWidth; // restart the animation
+  starsEl.classList.add("tg-stars-go");
+
+  // Confetti only for a new record
+  const conf = overlay.querySelector(".tg-confetti");
+  if (record) launchGameOverConfetti(conf);
+  else conf.textContent = "";
+
+  // Review panel
+  const panel = $("review-panel");
+  const list = $("review-list");
+  const reviewBtn = $("review-btn");
+  panel.hidden = true;
+  card.hidden = false;
+  list.textContent = "";
+  const missed = opts.missed || [];
+  reviewBtn.hidden = missed.length === 0;
+  missed.forEach((m) => {
+    const li = document.createElement("li");
+    li.className = "tg-review-item";
+    const txt = document.createElement("span");
+    txt.className = "tg-review-text";
+    const strong = document.createElement("strong");
+    strong.textContent = m.title;
+    txt.appendChild(strong);
+    if (m.sub) {
+      const sub = document.createElement("small");
+      sub.textContent = m.sub;
+      txt.appendChild(sub);
+    }
+    li.appendChild(txt);
+    if (m.say) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "tg-review-say";
+      b.textContent = "🔊";
+      b.setAttribute("aria-label", m.say);
+      b.addEventListener("click", () => speak(m.say));
+      li.appendChild(b);
+    }
+    list.appendChild(li);
+  });
+  reviewBtn.onclick = () => {
+    card.hidden = true;
+    panel.hidden = false;
+  };
+  $("review-back").onclick = () => {
+    panel.hidden = true;
+    card.hidden = false;
+  };
+}
+
+// While a Game Over popup is up, the card drops the answer box + tip line so the
+// result is the only thing to look at.
+function syncGameOverCardState(card, overlay) {
+  card.classList.toggle("tg-over", !overlay.hidden);
+}
+(function () {
+  const tgCard = document.querySelector("#view-typegame > .card");
+  new MutationObserver(() => syncGameOverCardState(tgCard, typeGameOverOverlay)).observe(typeGameOverOverlay, { attributes: true, attributeFilter: ["hidden"] });
+  new MutationObserver(() => syncGameOverCardState(timesTableCard, timesTableOverOverlay)).observe(timesTableOverOverlay, { attributes: true, attributeFilter: ["hidden"] });
+})();
 
 // ---- Keyboard play, shared between Typing Game and Times Table since both
 // are built from the same falling-word/falling-problem arcade shell (start
