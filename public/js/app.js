@@ -6996,9 +6996,47 @@ function launchGameOverConfetti(host) {
     p.style.background = colors[i % colors.length];
     host.appendChild(p);
   }
-  setTimeout(() => {
-    host.textContent = "";
-  }, 3800);
+  setTimeout(() => host.querySelectorAll(".tg-conf").forEach((e) => e.remove()), 3800);
+}
+
+let gameOverFxTimer = null;
+function stopGameOverFireworks() {
+  clearInterval(gameOverFxTimer);
+  gameOverFxTimer = null;
+}
+function launchGameOverFireworks(host) {
+  stopGameOverFireworks();
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const colors = ["#ffd54a", "#ff6b9d", "#4dd6a8", "#6cb7ff", "#ff9f43", "#b388ff", "#ffffff"];
+  let waves = 0;
+  [["tg-cannon-l", "🎉"], ["tg-cannon-r", "🎉"]].forEach(([c, e]) => {
+    const el = document.createElement("span");
+    el.className = `tg-cannon ${c}`;
+    el.textContent = e;
+    host.appendChild(el);
+  });
+  const burst = () => {
+    if (!host.isConnected || host.closest("[hidden]")) return stopGameOverFireworks();
+    const core = document.createElement("div");
+    core.className = "tg-fw-core";
+    core.style.setProperty("--fx", `${12 + Math.random() * 76}%`);
+    core.style.setProperty("--fy", `${10 + Math.random() * 38}%`);
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    core.style.setProperty("--fc", color);
+    const n = 16;
+    const dist = 34 + Math.random() * 30;
+    for (let i = 0; i < n; i++) {
+      const sp = document.createElement("i");
+      sp.style.setProperty("--fa", `${Math.round((360 / n) * i + Math.random() * 12)}deg`);
+      sp.style.setProperty("--fd", `${Math.round(dist * (0.8 + Math.random() * 0.4))}px`);
+      core.appendChild(sp);
+    }
+    host.appendChild(core);
+    setTimeout(() => core.remove(), 1300);
+    if (++waves >= 10) stopGameOverFireworks();
+  };
+  burst();
+  gameOverFxTimer = setInterval(burst, 450);
 }
 
 function showGameOverScreen(prefix, opts) {
@@ -7021,7 +7059,7 @@ function showGameOverScreen(prefix, opts) {
 
   // Koala (always the brand mascot; celebrates on a record or a good run)
   const koala = card.querySelector(".tg-over-koala");
-  koala.innerHTML = `<div class="kb-scene tg-koala${record ? " tg-koala-record" : stars >= 2 ? " tg-koala-good" : ""}">${record ? '<span class="tg-trophy">🏆</span>' : ""}${SPELL_KOALA_SVG}<div class="tg-podium"><b>1</b></div></div>`;
+  koala.innerHTML = `<div class="kb-scene tg-koala${record ? " tg-koala-record" : stars >= 2 ? " tg-koala-good" : ""}">${record ? '<span class="tg-trophy">🏆</span><span class="tg-kiss" style="--kd:0s;--kx:34px;--ky:-30px;--kr:14deg">💋</span><span class="tg-kiss" style="--kd:0.12s;--kx:46px;--ky:-8px;--kr:-10deg">❤️</span><span class="tg-kiss" style="--kd:0.24s;--kx:26px;--ky:-50px;--kr:22deg">💖</span>' : ""}${SPELL_KOALA_SVG}<div class="tg-podium"><b>1</b></div></div>`;
 
   // Stars light up one by one
   const starsEl = $("stars");
@@ -7036,8 +7074,13 @@ function showGameOverScreen(prefix, opts) {
 
   // Confetti only for a new record
   const conf = overlay.querySelector(".tg-confetti");
-  if (record) launchGameOverConfetti(conf);
-  else conf.textContent = "";
+  stopGameOverFireworks();
+  if (record) {
+    launchGameOverConfetti(conf);
+    launchGameOverFireworks(conf);
+  } else {
+    conf.textContent = "";
+  }
 
   // Review panel
   const panel = $("review-panel");
