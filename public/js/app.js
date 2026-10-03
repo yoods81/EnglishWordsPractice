@@ -3141,6 +3141,40 @@ function buildFlashDeck() {
   renderFlashcard();
 }
 
+// Keeps the word on one line and never overlapping the speaker button. It
+// starts at the stylesheet's size (36px+); a longer word first shrinks (down to
+// 28px) to stay beside the speaker, and only if it still doesn't fit does the
+// speaker drop under it (class "stacked") with the word fitted to the full card
+// width. So a word is never cut mid-letter or hidden behind the button. The
+// ResizeObserver below re-runs this once a hidden view is shown or resized.
+function fitFlashWord() {
+  const el = flashWordEl;
+  const row = el.parentElement;
+  el.style.fontSize = "";
+  row.classList.remove("stacked");
+  if (flashcardEl.classList.contains("front-meaning")) return;
+  const face = el.closest(".flashcard-face");
+  if (!face || !face.clientWidth) return;
+  const face_cs = getComputedStyle(face);
+  const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+  const inner = face.clientWidth - parseFloat(face_cs.paddingLeft) - parseFloat(face_cs.paddingRight);
+  const shrinkTo = (limit, floor) => {
+    let size = parseFloat(getComputedStyle(el).fontSize);
+    while (el.scrollWidth > limit && size > floor) {
+      size -= 1;
+      el.style.fontSize = size + "px";
+    }
+    return el.scrollWidth <= limit;
+  };
+  if (shrinkTo(inner - flashSpeakBtn.offsetWidth - gap, 28)) return;
+  row.classList.add("stacked");
+  el.style.fontSize = "";
+  shrinkTo(inner, 22);
+}
+if (typeof ResizeObserver !== "undefined") {
+  new ResizeObserver(() => fitFlashWord()).observe(flashcardEl);
+}
+
 function renderFlashcard() {
   flashcardEl.classList.remove("flipped");
   if (flashDeck.length === 0) {
@@ -3148,6 +3182,7 @@ function renderFlashcard() {
     flashWordEl.textContent = usingMyDeck() ? t("myDeckEmptyCard") : t("flashEmptyWord");
     flashDefEl.textContent = usingMyDeck() ? t("myDeckEmptyHint") : t("flashEmptyDef", levelLabel(currentLevel));
     flashExampleEl.textContent = "";
+    fitFlashWord();
     return;
   }
   const item = flashDeck[flashIndex];
@@ -3159,6 +3194,7 @@ function renderFlashcard() {
   flashWordEl.textContent = meaningFirst ? item.definition : item.word;
   flashDefEl.textContent = meaningFirst ? item.word : item.definition;
   flashExampleEl.textContent = item.example;
+  fitFlashWord();
 }
 
 // ---- Koala helper above the card: reacts to flip / next / back / know ----

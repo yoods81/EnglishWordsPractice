@@ -364,15 +364,23 @@
           <div class="fk-bubble" id="flash-bubble" data-i18n="fkIdle">Tap the card to flip!</div>
         </div>
         <div class="flashcard-row">
-          <button class="pill neutral flash-side-btn" id="flash-prev">
-            <span class="btn-arrow" aria-hidden="true">←</span><span class="btn-label" data-i18n="backLabel">Back</span>
+          <button type="button" id="flash-prev" data-i18n-aria-label="backLabel" aria-label="Back">
+            <svg width="46" height="32" viewBox="0 0 48 32" fill="none" aria-hidden="true">
+              <path d="M44 16C44 23.7 34.2 30 22 30C9.8 30 2 23.7 2 16C2 8.3 12 2 24 2C36 2 44 8.3 44 16Z" fill="#2EC4B6" stroke="#FFFFFF" stroke-width="2"/>
+              <path d="M26 10L18 16L26 22" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </button>
           <div id="flashcard-stage">
             <div class="flashcard" id="flashcard">
               <div class="flashcard-face flashcard-front">
                 <div class="flash-word-row">
                   <div class="word" id="flash-word">word</div>
-                  <button class="speak-btn flash-speak-mini" id="flash-speak" type="button" title="Hear it" aria-label="Hear it">🔊</button>
+                  <button class="speak-btn flash-speak-mini" id="flash-speak" type="button" title="Hear it" aria-label="Hear it">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                  </button>
                 </div>
               </div>
               <div class="flashcard-face flashcard-back">
@@ -381,8 +389,11 @@
               </div>
             </div>
           </div>
-          <button class="pill neutral flash-side-btn" id="flash-next">
-            <span class="btn-label" data-i18n="nextLabel">Next</span><span class="btn-arrow" aria-hidden="true">→</span>
+          <button type="button" id="flash-next" data-i18n-aria-label="nextLabel" aria-label="Next">
+            <svg width="46" height="32" viewBox="0 0 48 32" fill="none" aria-hidden="true">
+              <path d="M4 16C4 23.7 13.8 30 26 30C38.2 30 46 23.7 46 16C46 8.3 36 2 24 2C12 2 4 8.3 4 16Z" fill="#2EC4B6" stroke="#FFFFFF" stroke-width="2"/>
+              <path d="M22 10L30 16L22 22" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </button>
         </div>
         <p class="hint" data-i18n="flashHint">Tap the card to flip it • Tap the meaning or example to hear it read aloud</p>

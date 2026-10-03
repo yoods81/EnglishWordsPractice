@@ -70,14 +70,16 @@ html[data-theme="dark"] select option:focus {
   background: #1a2f28 !important;
 }
 }
-html[data-theme="dark"] #flash-prev:hover {
-  background: #22222a !important;
-}
 html[data-theme="dark"] .flash-controls:has(#spelling-next:not(:disabled)) #spelling-back {
   background: #22222a !important;
 }
+html[data-theme="dark"] .flashcard-front,
 html[data-theme="dark"] .flashcard-back {
   background: #131b19 !important;
+}
+/* the card front is now dark in dark mode, so lift the word to a brighter mint */
+html[data-theme="dark"] .flashcard-front {
+  color: #3ddcb8 !important;
 }
 html[data-theme="dark"] button.pill.neutral {
   background: #131b19 !important;
@@ -90,6 +92,12 @@ html[data-theme="dark"] .select-all-toggle {
 }
 html[data-theme="dark"] .speak-btn {
   background: #161b27 !important;
+}
+html[data-theme="dark"] button.flash-speak-mini {
+  background: #00a878 !important;
+}
+html[data-theme="dark"] button.flash-speak-mini:hover {
+  background: #02c39a !important;
 }
 html[data-theme="dark"] .typegame-stage {
   background: linear-gradient(180deg, #191f2c 0%, #141b24 100%) !important;
@@ -713,12 +721,10 @@ html[data-theme="ivory"] select option:focus {
   background: #f1ebdc !important;
 }
 }
-html[data-theme="ivory"] #flash-prev:hover {
-  background: #f0e9d9 !important;
-}
 html[data-theme="ivory"] .flash-controls:has(#spelling-next:not(:disabled)) #spelling-back {
   background: #f0e9d9 !important;
 }
+html[data-theme="ivory"] .flashcard-front,
 html[data-theme="ivory"] .flashcard-back {
   background: #fdfaf4 !important;
 }

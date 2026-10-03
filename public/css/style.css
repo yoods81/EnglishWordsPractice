@@ -1080,21 +1080,7 @@ select:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-}
-
-/* Back and Next both start as plain white/black pills; on hover Back
-   suggests "go back" with a neutral gray fill, while Next picks up the
-   Login button's own mint fill, hinting it moves you forward, without
-   either button needing a permanent color of its own. */
-#flash-prev:hover {
-  background: #e7e7ec;
-}
-
-#flash-next:hover {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent-dark);
+  gap: 4px;
 }
 
 /* Spelling's Back/Next start white/black like Flashcards' pair, but once
@@ -1121,14 +1107,9 @@ select:focus-visible {
   margin-right: 0.35em;
 }
 
-.flash-side-btn {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
 #flashcard-stage {
+  position: relative;
+  z-index: 1; /* below the koala (.flash-scene, z-index 3) so its paws rest on the card */
   perspective: 1200px;
   max-width: 340px;
   flex: 1 1 auto;
@@ -1166,7 +1147,7 @@ select:focus-visible {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 16px 8px;
   text-align: center;
   box-shadow:
     0 6px 0 #02a883,
@@ -1174,7 +1155,7 @@ select:focus-visible {
 }
 
 .flashcard-front {
-  background: var(--bg);
+  background: #fff;
   color: var(--accent-dark);
 }
 
@@ -1182,10 +1163,9 @@ select:focus-visible {
    loads Fredoka's 500 and 700 weights, so 700 is the boldest available. */
 .flashcard-front .word {
   font-family: var(--font-heading);
-  font-size: 2.5rem;
+  font-size: clamp(2.25rem, 9vw, 2.5rem);
   line-height: 1.1;
   font-weight: 700;
-  overflow-wrap: anywhere;
 }
 
 /* Word + compact round speaker side by side; wraps under the word only for
@@ -1194,9 +1174,19 @@ select:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
+  flex-wrap: nowrap;
+  gap: 10px;
   max-width: 100%;
+}
+
+.flashcard:not(.front-meaning) .flashcard-front .word {
+  white-space: nowrap;
+}
+
+/* Set from app.js (fitFlashWord) only when a long word can't fit beside the speaker. */
+.flash-word-row.stacked {
+  flex-direction: column;
+  gap: 8px;
 }
 
 button.flash-speak-mini {
@@ -1207,8 +1197,7 @@ button.flash-speak-mini {
   border-radius: 50%;
   background: #00a878;
   color: #fff;
-  font-size: 1.1rem;
-  line-height: 1;
+  line-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1997,23 +1986,6 @@ button.speak-btn-hero.speak-btn-active {
      left-packed flex-start) reads as tidy rather than off-balance. */
   #view-quiz .setting-row {
     justify-content: center;
-  }
-
-  .flash-side-btn {
-    width: 46px;
-    height: 46px;
-    padding: 0;
-    border-radius: 50%;
-    justify-content: center;
-  }
-
-  .flash-side-btn .btn-label {
-    display: none;
-  }
-
-  .flash-side-btn .btn-arrow {
-    font-size: 1.5rem;
-    line-height: 1;
   }
 
   #flashcard-stage {
@@ -4283,7 +4255,7 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
 }
 
 /* ===== Flashcards: koala helper + leaf buttons ===== */
-.flash-scene { position: relative; display: flex; justify-content: center; align-items: flex-end; height: 88px; margin: -8px 0 -10px; pointer-events: none; z-index: 2; }
+.flash-scene { position: relative; display: flex; justify-content: center; align-items: flex-end; height: 88px; margin: -8px 0 -14px; pointer-events: none; z-index: 3; }
 .fk-svg { width: 170px; height: auto; overflow: visible; }
 .fk-bubble { position: absolute; right: 4%; top: 6px; max-width: 34%; background: #fff; border: 2px solid var(--accent-dark); border-radius: 14px; box-shadow: 0 2px 0 var(--accent-dark); padding: 5px 9px; font-family: var(--font-heading); font-weight: 700; font-size: 0.78rem; color: var(--accent-dark); line-height: 1.2; text-align: center; }
 .fk-bubble::before { content: ""; position: absolute; left: -7px; top: 50%; width: 10px; height: 10px; background: #fff; border-left: 2px solid var(--accent-dark); border-bottom: 2px solid var(--accent-dark); transform: translateY(-50%) rotate(45deg); }
@@ -4321,32 +4293,34 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
 @keyframes fk-slide-next { from { transform: translateX(46px) rotate(4deg); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes fk-slide-prev { from { transform: translateX(-46px) rotate(-4deg); opacity: 0; } to { transform: none; opacity: 1; } }
 
-/* leaf-shaped Back / Next buttons */
+/* Slim leaf-shaped Back / Next: plain SVG buttons (see index.html) that sit at
+   the card's outer edges — no pill, no label, just a leaf with an arrow. */
 #flash-prev, #flash-next {
-  background: linear-gradient(160deg, #6fe0bf, var(--accent));
-  color: #fff;
-  border: 1px solid var(--accent-dark);
-  box-shadow: 0 3px 0 var(--accent-dark);
-  font-family: var(--font-heading);
-  font-weight: 700;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 2px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  line-height: 0;
+  cursor: pointer;
+  filter: drop-shadow(0 2px 2px rgba(14, 156, 125, 0.35));
+  transition: transform 0.15s ease;
 }
-#flash-next { border-radius: 6px 26px 6px 26px; }
-#flash-prev { border-radius: 26px 6px 26px 6px; }
-#flash-prev:hover, #flash-next:hover { background: linear-gradient(160deg, #7aeac9, #1fb894); color: #fff; border-color: var(--accent-dark); }
-#flash-prev:active, #flash-next:active { transform: translateY(3px); box-shadow: none; }
-#flash-prev .btn-arrow, #flash-next .btn-arrow { display: inline-block; transition: transform .25s; }
-#flash-next:hover .btn-arrow { animation: fk-leaf-r .7s ease-in-out infinite; }
-#flash-prev:hover .btn-arrow { animation: fk-leaf-l .7s ease-in-out infinite; }
-@keyframes fk-leaf-r { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(18deg) translateX(3px); } }
-@keyframes fk-leaf-l { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-18deg) translateX(-3px); } }
-
-/* Back / Next carry a clear ← / → arrow; on hover it nudges the way it points
-   (instead of the old leaf-emoji wiggle). */
-#flash-prev .btn-arrow, #flash-next .btn-arrow { font-size: 1.5rem; font-weight: 700; line-height: 1; }
-#flash-next:hover .btn-arrow { animation: fk-arrow-r .7s ease-in-out infinite; }
-#flash-prev:hover .btn-arrow { animation: fk-arrow-l .7s ease-in-out infinite; }
-@keyframes fk-arrow-r { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
-@keyframes fk-arrow-l { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-4px); } }
+#flash-prev svg, #flash-next svg { display: block; width: 46px; height: 32px; }
+#flash-prev:hover, #flash-next:hover { transform: scale(1.1); }
+#flash-prev:active, #flash-next:active { transform: scale(0.95); }
+#flash-prev:focus-visible, #flash-next:focus-visible {
+  outline: 3px solid rgba(2, 195, 154, 0.45);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
 
 /* Gentler rating colours for kids: warm orange instead of alarm red, and one
    emerald green for "I know this!" (id + .pill beats button.pill.error/.success). */
@@ -4370,14 +4344,12 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
   100% { transform: translateY(0) scale(1); }
 }
 @media (max-width: 480px) {
-  #flash-prev, #flash-next { width: 46px; height: 52px; border-radius: 6px 24px 6px 24px; }
-  #flash-prev { border-radius: 24px 6px 24px 6px; }
   .fk-bubble { max-width: 38%; font-size: 0.7rem; right: 0; }
   .fk-svg { width: 140px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .fk-koala, .fk-koala *, #flashcard-stage, .flash-side-btn .btn-arrow, #flash-know, button.flash-speak-mini { animation: none !important; }
-  .flashcard { transition: none; }
+  .fk-koala, .fk-koala *, #flashcard-stage, #flash-know, button.flash-speak-mini { animation: none !important; }
+  .flashcard, #flash-prev, #flash-next { transition: none; }
 }
 @media (min-width: 481px) {
   .fk-bubble { right: auto; left: calc(50% + 84px); max-width: 220px; white-space: nowrap; }
