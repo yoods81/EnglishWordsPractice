@@ -6924,6 +6924,78 @@ html body .tt-keypad-toggle[aria-pressed="true"] { background: var(--accent) !im
 @media (prefers-reduced-motion: reduce) {
   .tg-start-card, .typegame-overlay .tg-start-card button.tg-start-btn.pill.accent { animation: none !important; }
 }
+
+/* ---- Game Over: scales with the play area, so it never needs a scrollbar ----
+   The overlay is a size container; the koala, title, stars and button are sized
+   from its height (cqh) with sensible min/max. Browsers without container units
+   simply keep the fixed sizes above. The scrollbar is hidden as a last resort. */
+.typegame-overlay.tg-over-overlay { container-type: size; padding: 8px; }
+.tg-over-overlay .tg-over-card {
+  --k: clamp(46px, 21cqh, 86px);
+  gap: 3px;
+  scrollbar-width: none;
+}
+.tg-over-overlay .tg-over-card::-webkit-scrollbar { display: none; }
+.tg-over-overlay .tg-over-koala .kb-scene { width: var(--k); height: auto; }
+.tg-over-overlay .tg-over-koala .sk-svg { width: var(--k); }
+.typegame-overlay.tg-over-overlay .tg-over-title { font-size: clamp(1.1rem, 6.5cqh, 1.45rem); }
+.tg-over-overlay .tg-star { font-size: clamp(1.25rem, 7.5cqh, 2rem); }
+.tg-over-overlay .tg-stars { margin: 0; gap: 6px; }
+.tg-over-overlay .tg-over-actions { margin-top: 2px; gap: 6px; }
+.tg-over-overlay .tg-over-card .tg-play-again { min-height: clamp(40px, 13cqh, 52px); font-size: clamp(1rem, 4.2cqh, 1.15rem); }
+.tg-over-overlay .tg-over-card .tg-review-btn { min-height: 30px; }
+
+/* ---- Bottom tip: a friendly koala speech bubble instead of a grey info bar ---- */
+html #view-typegame p.hint.tg-hint {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 48px;
+  margin: 14px 2px 4px;
+  padding: 10px 16px 10px 62px;
+  border-radius: 22px;
+  border: 2px solid #9fdcc0;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #1f6b55 !important;
+  background: linear-gradient(180deg, #f3fcf8, #ddf5e8) !important;
+  box-shadow: 0 3px 0 #bfe8d4, 0 7px 14px rgba(40, 140, 110, 0.12);
+}
+html #view-typegame p.hint.tg-hint::before {
+  content: "🐨";
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  font-size: 1.8rem;
+  line-height: 1;
+  transform: translateY(-50%);
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.12));
+  animation: tg-hint-bob 2.8s ease-in-out infinite;
+}
+html #view-typegame p.hint.tg-hint::after {
+  content: "🍃";
+  position: absolute;
+  right: 14px;
+  top: -12px;
+  font-size: 1.15rem;
+  line-height: 1;
+  transform: rotate(25deg);
+  animation: tg-hint-sway 3.4s ease-in-out infinite;
+}
+@keyframes tg-hint-bob { 0%, 100% { transform: translateY(-50%) rotate(-4deg); } 50% { transform: translateY(-58%) rotate(4deg); } }
+@keyframes tg-hint-sway { 0%, 100% { transform: rotate(18deg); } 50% { transform: rotate(34deg) translateY(-2px); } }
+html[data-theme="dark"] #view-typegame p.hint.tg-hint {
+  color: #c4f1df !important;
+  background: linear-gradient(180deg, #1a342d, #132821) !important;
+  border-color: #2f7a63;
+  box-shadow: 0 3px 0 #0d1f1a;
+}
+@media (prefers-reduced-motion: reduce) {
+  html #view-typegame p.hint.tg-hint::before, html #view-typegame p.hint.tg-hint::after { animation: none; }
+}
 @keyframes tg-fw-flash { from { transform: scale(0.4); opacity: 1; } to { transform: scale(3.4); opacity: 0; } }
 .tg-cannon { position: absolute; bottom: 4px; font-size: 1.7rem; line-height: 1; pointer-events: none; z-index: 2; }
 .tg-cannon-l { left: 8px; transform: rotate(-10deg); }
