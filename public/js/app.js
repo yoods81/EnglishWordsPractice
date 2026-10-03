@@ -642,7 +642,7 @@ const TRANSLATIONS = {
     missionSpelling: (n) => `스펠링 ${n}단어 쓰기`,
     missionQuiz: (n) => `퀴즈 ${n}문제 풀기`,
     missionTT: (n) => `구구단 ${n}문제 연습하기`,
-    missionGo: "가기",
+    missionGo: "GO",
     missionDoneMsg: "🎉 미션 완료! 내일 새로운 미션이 기다려요.",
     missionToast: "미션 완료!",
     promoTitle: "📸 아이의 책에서 바로 퀴즈로",
@@ -666,8 +666,8 @@ const TRANSLATIONS = {
     navWordlist: "📖 단어장",
     navAddword: "➕ 단어 추가",
     navStats: "📊 내 진행상황",
-    navKoala: "🐨 마이 코알라",
-    navKoalaShort: "마이 코알라",
+    navKoala: "🐨 나의 코알라",
+    navKoalaShort: "나의 코알라",
     landingDescKoala: "나의 배지, 연속 학습, 코알라",
     koalaSub: "공부하면서 얻은 모든 것이 여기에 모여요.",
     navHome: "🏠 홈",
@@ -4498,7 +4498,7 @@ function renderSfxToggles() {
     // In Spelling and Quiz the toggle reads "🔊 ON / 🔇 OFF" so it can't be mistaken for the
     // big Listen button; elsewhere it stays icon-only.
     const inSpelling = !!b.closest("#spelling-practice, #quiz-practice");
-    b.textContent = (sfxMuted ? "🔇" : "🔊") + (inSpelling ? " " + (sfxMuted ? "OFF" : "ON") : "");
+    b.textContent = (sfxMuted ? "🔇" : "🔊") + (inSpelling ? " " + rwL(sfxMuted ? "OFF" : "ON", sfxMuted ? "끄기" : "켜기") : "");
     b.classList.toggle("is-off", sfxMuted);
     const label = sfxMuted ? rwL("Sounds off — tap to turn on", "효과음 꺼짐 — 눌러서 켜기") : rwL("Sounds on — tap to turn off", "효과음 켜짐 — 눌러서 끄기");
     b.setAttribute("aria-label", label);
@@ -10865,7 +10865,7 @@ function koalaEarnHtml() {
       <span class="koala-earn-main"><span class="koala-earn-name">${labels[e.why]} <b>+${lp.coins}</b> ${COIN_SVG}</span>
       <span class="koala-level-bar" aria-hidden="true"><span style="width:${Math.round((lp.have / lp.goal) * 100)}%"></span></span>
       <small>${text}</small></span>
-      ${lp.capped ? "" : `<button type="button" class="pill small koala-earn-go" data-koala-go="${e.view}">${rwL("Go", "가기")}</button>`}</li>`;
+      ${lp.capped ? "" : `<button type="button" class="pill small koala-earn-go" data-koala-go="${e.view}">${rwL("Go", "GO")}</button>`}</li>`;
   }).join("");
   const missionDone = progress.missionDone === day;
   return `<div class="koala-earn"><div class="koala-earn-title">${COIN_SVG} ${rwL("Earn more Coins", "코인 더 모으기")}</div>
@@ -10875,7 +10875,7 @@ function koalaEarnHtml() {
     <ul class="koala-earn-list">${rows}
       <li class="koala-earn-row"><span class="koala-earn-emoji" aria-hidden="true">🎯</span><span class="koala-earn-main"><span class="koala-earn-name">${labels.dailyMission} <b>+${cfg.coins.dailyMission}</b> ${COIN_SVG}</span>
         <small>${missionDone ? rwL("✓ Done today", "✓ 오늘 완료") : rwL("Finish all 3 mission tasks", "미션 3개를 모두 끝내요")}</small></span>
-        ${missionDone ? "" : `<button type="button" class="pill small koala-earn-go" data-koala-go="landing">${rwL("Go", "가기")}</button>`}</li>
+        ${missionDone ? "" : `<button type="button" class="pill small koala-earn-go" data-koala-go="landing">${rwL("Go", "GO")}</button>`}</li>
       <li class="koala-earn-row"><span class="koala-earn-emoji" aria-hidden="true">🏆</span><span class="koala-earn-main"><span class="koala-earn-name">${labels.badge} <b>+${cfg.badgeDefault}</b> ${COIN_SVG}</span>
         <small>${rwL("Every new badge pays a bonus", "새 배지를 받을 때마다 보너스")}</small></span>
         <button type="button" class="pill small koala-earn-go" data-koala-tab="badges">${rwL("Badges", "배지")}</button></li>
@@ -11912,7 +11912,7 @@ function renderReviewCard() {
     ? rwL("Meaning, listen, then spell it.", "뜻 보고, 듣고, 직접 써 봐요.")
     : rwL(`${waiting} word${waiting === 1 ? "" : "s"} to retest tomorrow.`, `내일 다시 확인할 단어 ${waiting}개`);
   const btn = document.getElementById("review-card-btn");
-  btn.textContent = rwL("Start", "시작");
+  btn.textContent = rwL("Start", "START");
   btn.hidden = !due;
 }
 document.getElementById("review-card-btn").addEventListener("click", () => startReview());
