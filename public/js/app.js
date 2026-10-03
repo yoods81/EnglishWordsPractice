@@ -11265,8 +11265,8 @@ function renderWrongPanel() {
     ? ""
     : ` <button type="button" class="pill small" id="wrong-study-btn">🃏 ${rwL("Study these words", "오답 단어 공부하기")}</button>`;
   let html = `${subTabs}<p class="wrong-hint">${wrongSubTab === "math"
-    ? rwL("Get a fact right 2 times in a row and it graduates from this notebook.", "같은 문제를 연속 2번 맞히면 오답 노트에서 졸업해요.")
-    : rwL("Get a word right 2 times in a row and it graduates from this notebook.", "같은 단어를 연속 2번 맞히면 오답 노트에서 졸업해요.")}</p>
+    ? rwL("Get a fact right in a review and it graduates from this notebook.", "복습에서 맞히면 오답 노트에서 바로 졸업해요.")
+    : rwL("Get a word right in a review and it graduates from this notebook.", "복습에서 맞히면 오답 노트에서 바로 졸업해요.")}</p>
     <div class="wrong-actions"><button type="button" class="pill accent small" id="wrong-review-btn">🐨 ${rwL("Start review", "복습 시작")}</button>${studyBtn}</div>
     <ul class="wrong-list">`;
   items.forEach((it) => {
@@ -11306,7 +11306,7 @@ statsPanels.wrong.addEventListener("click", (e) => {
     return;
   }
   if (e.target.closest("#wrong-review-btn")) {
-    if (!reviewDueList(wrongSubTab).length) { kidConfirm(rwL("All caught up! These words come back for a retest tomorrow.", "오늘 복습할 단어를 모두 끝냈어요! 내일 다시 확인해요."), "OK"); return; }
+    if (!reviewDueList(wrongSubTab).length) { kidConfirm(rwL("All caught up! Great job! 🎉", "복습할 단어를 모두 끝냈어요! 잘했어요! 🎉"), "OK"); return; }
     startReview(wrongSubTab);
     return;
   }
@@ -11862,11 +11862,11 @@ document.getElementById("promo-btn").addEventListener("click", () => goToTab("ad
 renderHome();
 
 
-/* ================= REVIEW LOOP: meaning → hear → spell → next-day retest ================= */
+/* ================= REVIEW LOOP: meaning → hear → spell ================= */
 // Words in progress.wrong (premium/admin) are reviewed in short sessions.
-// A word answered right is parked until tomorrow (w.retestAt) so the second
-// "right in a row" — which graduates it from the notebook — happens on a
-// different day. A wrong answer keeps it due straight away.
+// A word answered right in a review graduates (is removed from the notebook)
+// immediately. A wrong answer keeps it due, and it is asked again this session.
+// (w.retestAt is legacy: entries parked by the old next-day rule still honour it.)
 const REVIEW_SESSION_MAX = 8;
 let reviewState = null;
 
@@ -12078,7 +12078,7 @@ function reviewAsk(item, info) {
     input.classList.add(ok ? "ok" : "bad");
     fb.className = "review-feedback " + (ok ? "ok" : "bad");
     fb.innerHTML = ok
-      ? `🎉 ${rwL("Correct!", "정답!")} ${reviewState.lastGraduated ? rwL("You graduated this word!", "이 단어 졸업!") : rwL("We'll check it again tomorrow.", "내일 한 번 더 확인해요.")}`
+      ? `🎉 ${rwL("Correct!", "정답!")} ${reviewState.lastGraduated ? rwL("You graduated this word!", "이 단어 졸업!") : rwL("Great job!", "잘했어요!")}`
       : `${rwL("Answer", "정답")}: <b>${escapeHtml(info.math ? info.answer : info.word)}</b>`;
     btn.textContent = rwL("Next →", "다음 →");
     btn.focus();
@@ -12113,14 +12113,20 @@ function reviewRecord(item, ok, isMath) {
   if (!isMath) recordSrsResult(key, ok);
   const w = progress.wrong[key];
   s.lastGraduated = false;
-  if (w) w.retestAt = ok ? reviewNextMidnight() : 0;
-  else if (ok) { s.graduated++; s.lastGraduated = true; }
-  if (ok) s.right++;
-  else {
+  if (ok) {
+    // Answered right in a review → graduate straight away: it leaves the
+    // Wrong notes list (recordResult may already have removed it).
+    if (w) { delete progress.wrong[key]; progress.counters.wrongCleared++; }
+    s.graduated++;
+    s.lastGraduated = true;
+    s.right++;
+  } else {
+    if (w) w.retestAt = 0;
     s.missed.push(key);
     if (!item.retried) s.queue.push({ key, retried: true });
   }
   saveProgress();
+  if (ok) { try { checkBadges(); } catch (e) { /* badges not ready */ } }
 }
 
 function reviewSummary() {
