@@ -573,9 +573,16 @@ to Flip!</span></div>
             <button type="button" class="pill neutral" id="spelling-goal-dismiss" data-i18n="goalKeepGoingBtn">Keep going</button>
           </div>
         </div>
-        <div id="spelling-start-screen" class="spelling-stage-box">
-          <div class="sp-intro">
-            <svg class="sp-scene" viewBox="0 0 300 160" role="img" aria-label="A koala teacher pointing at a chalkboard spelling KOALA">
+        <div id="spelling-start-screen" class="spelling-stage-box sp-start">
+          <!-- Same arcade look as the Typing Game start card: floating letter balloons, chips, glowing Start button -->
+          <div class="sp-start-floaters" aria-hidden="true"><span class="sp-fl" style="left:8%;top:10%;--c1:#ff8da1;--c2:#e8476a;--fd:-0.4s">K</span><span class="sp-fl" style="left:86%;top:14%;--c1:#7fd9a8;--c2:#2e9a6b;--fd:-1.6s">O</span><span class="sp-fl" style="left:90%;top:60%;--c1:#9fd3ff;--c2:#5b9be0;--fd:-2.2s">A</span><span class="sp-fl" style="left:6%;top:58%;--c1:#ffd36e;--c2:#f0a21a;--fd:-1.1s">L</span><span class="sp-fl" style="left:78%;top:86%;--c1:#ff8da1;--c2:#e8476a;--fd:-0.8s">A</span><span class="sp-fl" style="left:16%;top:86%;--c1:#9fd3ff;--c2:#5b9be0;--fd:-1.9s">K</span><span class="sp-fl-star sp-fl-star1">⭐</span><span class="sp-fl-star sp-fl-star2">✨</span></div>
+          <div class="sp-start-card">
+            <h3 data-i18n="spStartTitle">✏️ Spelling</h3>
+            <div class="tg-start-chips">
+              <span class="tg-start-chip" id="spelling-start-level"></span>
+              <span class="tg-start-chip tg-start-best" id="spelling-start-goal"></span>
+            </div>
+            <div class="sp-start-panel"><svg class="sp-scene" viewBox="0 0 300 160" role="img" aria-label="A koala teacher pointing at a chalkboard spelling KOALA">
               <rect x="0" y="0" width="300" height="160" rx="18" fill="#e4f7f0"/>
               <circle cx="40" cy="132" r="0" fill="none"/>
               <text x="262" y="24" font-size="16" class="sp-twinkle sp-tw1">✨</text>
@@ -610,21 +617,23 @@ to Flip!</span></div>
                   <line x1="262" y1="35" x2="262" y2="52" stroke="#ffd166" stroke-width="2.4"/><circle cx="262" cy="54" r="3" fill="#ffd166"/>
                 </g>
               </g>
-            </svg>
+            </svg></div>
+            <ol class="sp-steps" aria-hidden="false">
+              <li class="sp-step sp-step1"><b>👂</b><span data-i18n="spStep1">Listen</span></li>
+              <li class="sp-step-arrow" aria-hidden="true">›</li>
+              <li class="sp-step sp-step2"><b>⌨️</b><span data-i18n="spStep2">Type</span></li>
+              <li class="sp-step-arrow" aria-hidden="true">›</li>
+              <li class="sp-step sp-step3"><b>⭐</b><span data-i18n="spStep3">Win a star</span></li>
+            </ol>
             <button class="pill accent sp-start-btn" id="spelling-start-btn" data-i18n="spellingStartBtn">▶ Start the first word</button>
-            <div class="sp-bubble" aria-live="off">
-              <span class="sp-tip sp-tip1" data-i18n="spIntroTip1">Hear the word 👂</span>
-              <span class="sp-tip sp-tip2" data-i18n="spIntroTip2">Type what you hear ⌨️</span>
-              <span class="sp-tip sp-tip3" data-i18n="spIntroTip3">Check it and win a star! ⭐</span>
-            </div>
-            <div class="sp-why">
-              <div class="sp-why-title" data-i18n="spWhyTitle">Why practise spelling?</div>
+            <details class="sp-why">
+              <summary class="sp-why-title" data-i18n="spWhyTitle">Why practise spelling?</summary>
               <ul>
                 <li><span>📖</span><span data-i18n="spWhy1">Words you can spell are words you read faster.</span></li>
                 <li><span>✍️</span><span data-i18n="spWhy2">Your writing looks clear and confident.</span></li>
                 <li><span>🏅</span><span data-i18n="spWhy3">Spelling is part of school tests like NAPLAN.</span></li>
               </ul>
-            </div>
+            </details>
           </div>
         </div>
         <div id="spelling-practice" class="spelling-stage-box sp-game" hidden>

@@ -104,6 +104,10 @@ const TRANSLATIONS = {
     navQuizShort: "Quiz",
     navTimesTableShort: "Times",
     navStatsShort: "Progress",
+    spStartTitle: "✏️ Spelling",
+    spStep1: "Listen",
+    spStep2: "Type",
+    spStep3: "Win a star",
     spIntroTip1: "Hear the word 👂",
     spIntroTip2: "Type what you hear ⌨️",
     spIntroTip3: "Check it and win a star! ⭐",
@@ -616,6 +620,10 @@ const TRANSLATIONS = {
     navQuizShort: "퀴즈",
     navTimesTableShort: "구구단",
     navStatsShort: "진행상황",
+    spStartTitle: "✏️ 스펠링",
+    spStep1: "듣기",
+    spStep2: "쓰기",
+    spStep3: "별 받기",
     spIntroTip1: "단어를 들어봐요 👂",
     spIntroTip2: "들리는 대로 써봐요 ⌨️",
     spIntroTip3: "정답을 확인하고 별을 받아요! ⭐",
@@ -1554,6 +1562,14 @@ function clampGoalsForRole() {
 // than the number just flatly updating.
 const goalStepperLastValue = { quiz: null, spelling: null };
 
+function updateSpellingStartChips() {
+  const lv = document.getElementById("spelling-start-level");
+  const gl = document.getElementById("spelling-start-goal");
+  if (!lv || !gl) return;
+  lv.textContent = `📚 ${levelLabel(currentLevel)}`;
+  gl.textContent = `🎯 ${goals.spelling} ${currentLang === "ko" ? "단어" : "words"}`;
+}
+
 function renderGoalStepper(mode) {
   const valueEl = mode === "quiz" ? quizGoalValueEl : spellingGoalValueEl;
   const minusBtn = mode === "quiz" ? quizGoalMinusBtn : spellingGoalMinusBtn;
@@ -1562,6 +1578,7 @@ function renderGoalStepper(mode) {
   valueEl.textContent = String(goals[mode]);
   if (changed) pulseScoreTag(valueEl, "option-btn-bounce");
   goalStepperLastValue[mode] = goals[mode];
+  if (mode === "spelling") updateSpellingStartChips();
   minusBtn.disabled = goals[mode] <= GOAL_MIN;
 
   const poolMax = goalPoolSize(mode);
