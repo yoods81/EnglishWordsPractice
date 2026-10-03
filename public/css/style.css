@@ -109,6 +109,24 @@ header {
   box-shadow: 0 2px 0 var(--outline);
 }
 
+.theme-toggle {
+  position: absolute;
+  top: 10px;
+  left: 84px;
+  width: 28px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--outline);
+  background: #fff;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+  box-shadow: 0 2px 0 var(--outline);
+}
+.theme-toggle:active { transform: translateY(1px); box-shadow: none; }
+@media (max-width: 480px) { .theme-toggle { left: 66px; width: 26px; height: 24px; font-size: 0.78rem; } }
+
 .lang-toggle:active {
   transform: translateY(1px);
   box-shadow: none;
@@ -5153,3 +5171,25 @@ body.signed-in .stat-bar { display: none; }
 @media (max-width: 520px) { .koala-row-arrow { width: 32px; height: 54px; font-size: 1.9rem; } }
 .koala-item.is-locked .koala-item-pic { filter: none; opacity: 1; }
 .koala-item.is-locked .koala-icon-svg { filter: grayscale(.75); opacity: .7; }
+
+/* ---- Quiz/Spelling combo popup + sound toggle ---- */
+.sfx-toggle { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--outline); background: #fff; font-size: 1rem; line-height: 1; cursor: pointer; padding: 0; box-shadow: 0 2px 0 var(--outline); flex: 0 0 auto; }
+.sfx-toggle:active { transform: translateY(1px); box-shadow: none; }
+.combo-pop { position: fixed; left: 50%; top: 24%; z-index: 9400; transform: translateX(-50%); pointer-events: none; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; animation: combo-pop-in 1s ease-out forwards; }
+.combo-pop-n { font-family: var(--font-heading); font-weight: 700; font-size: 1.9rem; color: #fff; background: linear-gradient(135deg, #ff9a3c, #ff5e62); border: 3px solid #fff; border-radius: 999px; padding: 4px 20px; box-shadow: 0 6px 18px rgba(255, 94, 98, .45); white-space: nowrap; }
+.combo-pop-big { animation-duration: 1.5s; }
+.combo-pop-big .combo-pop-n { font-size: 2.5rem; background: linear-gradient(135deg, #ffd23c, #ff8a3c 55%, #ff5e62); }
+.combo-pop-sub { font-family: var(--font-heading); font-weight: 700; font-size: 1.1rem; color: #ff7a2c; text-shadow: 0 1px 0 #fff; }
+@keyframes combo-pop-in { 0% { opacity: 0; transform: translateX(-50%) scale(.4); } 18% { opacity: 1; transform: translateX(-50%) scale(1.18); } 32% { transform: translateX(-50%) scale(1); } 80% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } 100% { opacity: 0; transform: translateX(-50%) translateY(-26px) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .combo-pop { animation: combo-fade 1s linear forwards; } @keyframes combo-fade { 0%, 80% { opacity: 1; } 100% { opacity: 0; } } }
+
+/* ---- My Koala: the preview stays pinned while the shop scrolls ---- */
+.koala-view .koala-hero { position: sticky; top: 6px; z-index: 30; box-shadow: 0 6px 14px rgba(0, 0, 0, .12); transition: padding .15s; }
+.koala-view.is-room .koala-hero { position: static; box-shadow: none; }
+.koala-view.is-room .koala-room { position: sticky; top: 6px; z-index: 25; max-height: 38vh; display: flex; justify-content: center; box-shadow: 0 6px 14px rgba(0, 0, 0, .12); background: var(--card-bg); }
+.koala-view.is-room .koala-room > svg.koala-room-svg { width: min(100%, calc(38vh * 320 / 220)); height: auto; aspect-ratio: 320 / 220; }
+.koala-view.is-scrolled .koala-hero { padding: 6px 10px; gap: 10px; }
+.koala-view.is-scrolled .koala-hero-avatar { width: 60px; height: 62px; border-radius: 16px; border-width: 2px; }
+.koala-view.is-scrolled .koala-hero-next, .koala-view.is-scrolled .koala-hero-streak small { display: none; }
+.koala-view.is-scrolled .koala-hero-streak { margin-top: 2px; padding-top: 2px; border: 0; }
+.koala-view.is-scrolled .koala-hero-level { font-size: 1rem; }

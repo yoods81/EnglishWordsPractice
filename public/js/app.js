@@ -1951,6 +1951,36 @@ levelOverlayCloseBtn.addEventListener("click", () => {
   levelOverlay.hidden = true;
 });
 
+/* ================= COLOUR THEME (Light / Ivory / Dark) ================= */
+// themes.css is generated from style.css (scripts/gen-themes.mjs); the choice
+// is stored per device and applied before first paint by a tiny script in <head>.
+const THEME_KEY = "ywp_theme_v1";
+const THEME_ORDER = ["light", "ivory", "dark"];
+const THEME_ICON = { light: "☀️", ivory: "📖", dark: "🌙" };
+const THEME_COLOR = { light: "#22c9a3", ivory: "#f4ecd6", dark: "#13211c" };
+function currentTheme() {
+  const t = document.documentElement.getAttribute("data-theme");
+  return THEME_ORDER.includes(t) ? t : "light";
+}
+function applyTheme(theme) {
+  if (theme === "light") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", theme);
+  try { localStorage.setItem(THEME_KEY, theme); } catch (e) { /* private mode */ }
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", THEME_COLOR[theme]);
+  const btn = document.getElementById("theme-toggle");
+  if (btn) {
+    const names = { light: rwL("Light", "밝은 모드"), ivory: rwL("Ivory (soft)", "아이보리 (부드러움)"), dark: rwL("Dark", "다크 모드") };
+    btn.textContent = THEME_ICON[theme];
+    const label = `${rwL("Colour theme", "화면 테마")}: ${names[theme]}`;
+    btn.setAttribute("aria-label", label);
+    btn.title = label;
+  }
+}
+document.getElementById("theme-toggle").addEventListener("click", () => {
+  applyTheme(THEME_ORDER[(THEME_ORDER.indexOf(currentTheme()) + 1) % THEME_ORDER.length]);
+});
+
 /* ================= LANGUAGE TOGGLE ================= */
 const langToggleBtn = document.getElementById("lang-toggle");
 
@@ -1959,6 +1989,7 @@ function switchLanguage(lang) {
   saveLang(lang);
   currentLevel = savedLevels[lang] || currentSystem_levels_default();
   applyStaticTranslations();
+  if (window.__koalaUiReady) { applyTheme(currentTheme()); renderSfxToggles(); }
   updateLevelBadge();
   resetManualForm();
   renderLevelChoices();
@@ -3501,6 +3532,8 @@ const MIN_POOL_FOR_QUIZ = 4;
 let quizQuestions = [];
 let quizIndex = 0;
 let quizScore = 0;
+let quizCombo = 0; // consecutive right answers (see comboAfterAnswer)
+let spellingCombo = 0;
 let quizAnswered = false;
 
 function buildVocabQuestions(level) {
@@ -3560,6 +3593,7 @@ function buildQuizQuestions() {
   quizQuestions = pickWordsForSession(pool, goals.quiz, (q) => q.target);
   quizIndex = 0;
   quizScore = 0;
+  quizCombo = 0;
   quizAnswered = false;
   renderGoalStepper("quiz");
   renderQuizQuestion();
@@ -3677,11 +3711,111 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+/* ---------- Quiz & Spelling sound effects + combo ----------
+   Short Web Audio tones (nothing to download). Every right answer plays a
+   ding; consecutive right answers climb a little scale, and every 5th in a
+   row plays a fanfare with a bigger popup. A wrong answer resets the combo.
+   One mute switch (🔊/🔇 next to the score) covers Quiz and Spelling and is
+   remembered on this device. */
+const SFX_MUTE_KEY = "ywp_sfx_muted_v1";
+let sfxMuted = (() => { try { return localStorage.getItem(SFX_MUTE_KEY) === "1"; } catch (e) { return false; } })();
+let sfxCtx = null;
+const SFX_SCALE = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66, 1318.51];
+
+function sfxEnsure() {
+  if (sfxMuted) return null;
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if (!Ctx) return null;
+  enableMediaPlaybackAudio();
+  if (!sfxCtx) sfxCtx = new Ctx();
+  if (sfxCtx.state !== "running") sfxCtx.resume().catch(() => {});
+  return sfxCtx;
+}
+function sfxTone(freq, startOffset, duration, type, peak) {
+  const ctx = sfxCtx;
+  if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  const when = ctx.currentTime + startOffset;
+  gain.gain.setValueAtTime(0, when);
+  gain.gain.linearRampToValueAtTime(Math.min(peak * GAME_SFX_BOOST, 0.4), when + 0.015);
+  gain.gain.linearRampToValueAtTime(0, when + duration);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(when);
+  osc.stop(when + duration + 0.02);
+}
+function playCorrectSfx(combo) {
+  if (!sfxEnsure()) return;
+  if (combo >= 5 && combo % 5 === 0) {
+    // fanfare: rising arpeggio ending on a bright chord
+    [0, 2, 4, 5].forEach((n, i) => sfxTone(SFX_SCALE[n], i * 0.08, 0.16, "triangle", 0.08));
+    [5, 7].forEach((n) => sfxTone(SFX_SCALE[n], 0.36, 0.34, "square", 0.04));
+  } else if (combo >= 2) {
+    const steps = Math.min(combo, 5);
+    for (let i = 0; i < steps; i++) sfxTone(SFX_SCALE[Math.min(i + (combo > 5 ? 2 : 0), 7)], i * 0.065, 0.12, "triangle", 0.075);
+  } else {
+    sfxTone(880, 0, 0.1, "triangle", 0.08);
+    sfxTone(1318.51, 0.08, 0.14, "triangle", 0.08);
+  }
+}
+function playWrongSfx() {
+  if (!sfxEnsure()) return;
+  sfxTone(200, 0, 0.16, "sawtooth", 0.06);
+  sfxTone(150, 0.12, 0.2, "sawtooth", 0.06);
+}
+function showComboPopup(n) {
+  if (n < 3) return;
+  document.querySelectorAll(".combo-pop").forEach((e) => e.remove());
+  const big = n % 5 === 0;
+  const el = document.createElement("div");
+  el.className = "combo-pop" + (big ? " combo-pop-big" : "");
+  el.setAttribute("role", "status");
+  const icon = n >= 15 ? "🌟" : n >= 10 ? "⚡" : "🔥";
+  el.innerHTML = `<span class="combo-pop-n">${icon} ${n}${currentLang === "ko" ? "콤보!" : " Combo!"}</span>${big ? `<span class="combo-pop-sub">${currentLang === "ko" ? "대단해요!" : "Amazing!"}</span>` : ""}`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), big ? 1500 : 1000);
+}
+// Called after every graded answer in Quiz / Spelling; returns the new combo.
+function comboAfterAnswer(prev, correct, fresh = true) {
+  if (!correct) { playWrongSfx(); return 0; }
+  if (!fresh) { playCorrectSfx(0); return prev; } // re-check of an already-credited word
+  const n = prev + 1;
+  playCorrectSfx(n);
+  showComboPopup(n);
+  return n;
+}
+function renderSfxToggles() {
+  document.querySelectorAll(".sfx-toggle").forEach((b) => {
+    b.textContent = sfxMuted ? "🔇" : "🔊";
+    const label = sfxMuted ? rwL("Sounds off — tap to turn on", "효과음 꺼짐 — 눌러서 켜기") : rwL("Sounds on — tap to turn off", "효과음 켜짐 — 눌러서 끄기");
+    b.setAttribute("aria-label", label);
+    b.title = label;
+  });
+}
+function initSfxToggles() {
+  [document.getElementById("quiz-score"), document.getElementById("spelling-score")].forEach((tag) => {
+    if (!tag || tag.parentNode.querySelector(".sfx-toggle")) return;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "sfx-toggle";
+    b.addEventListener("click", () => {
+      sfxMuted = !sfxMuted;
+      try { localStorage.setItem(SFX_MUTE_KEY, sfxMuted ? "1" : "0"); } catch (e) { /* private mode */ }
+      renderSfxToggles();
+      if (!sfxMuted) playCorrectSfx(0);
+    });
+    tag.after(b);
+  });
+  renderSfxToggles();
+}
 function handleQuizAnswer(btn, chosen, q) {
   if (quizAnswered) return;
   quizAnswered = true;
   const correct = chosen === q.answer;
   if (correct) quizScore++;
+  quizCombo = comboAfterAnswer(quizCombo, correct);
 
   progress.quiz.total++;
   if (correct) progress.quiz.correct++;
@@ -3830,6 +3964,7 @@ function buildSpellingDeck({ resetScreen = true } = {}) {
   spellingDeck = pickWordsForSession(pool, goals.spelling);
   spellingIndex = 0;
   spellingScore = { correct: 0, total: 0 };
+  spellingCombo = 0;
   spellingTotalCountedWords = new Set();
   spellingWrongThisRound = new Set();
   spellingCreditedWords = new Set();
@@ -4129,49 +4264,47 @@ function renderSpellingLetterHints(word) {
     // tile, so it's skipped in favor of a letter genuinely not needed.
     if (!letters.includes(candidate)) decoys.push(candidate);
   }
-  // Tracks, for every tile currently "used", exactly which character
-  // position in the input it inserted — so tapping the same tile again can
-  // remove that one character instead of just clearing the whole answer,
-  // even when several tiles share the same letter.
-  const activeInsertions = [];
+  // The tray mirrors the input in real time: a tile lights up for every
+  // letter typed (on a keyboard) or tapped, and goes dark again on
+  // Backspace. Tapping a lit tile removes the last copy of that letter.
   shuffle([...letters, ...decoys]).forEach((letter) => {
     const tile = document.createElement("button");
     tile.type = "button";
     tile.className = "spelling-hint-tile";
     tile.textContent = letter;
+    tile.dataset.letter = letter;
     tile.setAttribute("aria-label", `${letter}`);
     tile.addEventListener("click", () => {
-      const record = activeInsertions.find((r) => r.tile === tile);
-      if (record) {
-        // Toggle off: remove the exact character this tile added.
-        const idx = record.index;
-        if (spellingInput.value[idx] === letter) {
-          spellingInput.value = spellingInput.value.slice(0, idx) + spellingInput.value.slice(idx + 1);
-        } else {
-          // The input shifted in some unexpected way (manual edit) — fall
-          // back to removing the last occurrence of the letter instead of
-          // doing nothing.
-          const lastIdx = spellingInput.value.lastIndexOf(letter);
-          if (lastIdx !== -1) {
-            spellingInput.value = spellingInput.value.slice(0, lastIdx) + spellingInput.value.slice(lastIdx + 1);
-          }
-        }
-        // Every insertion recorded after this one just shifted left by one.
-        activeInsertions.forEach((r) => {
-          if (r !== record && r.index > idx) r.index -= 1;
-        });
-        activeInsertions.splice(activeInsertions.indexOf(record), 1);
-        tile.classList.remove("spelling-hint-tile-used");
-        spellingInput.focus();
-        return;
+      const v = spellingInput.value;
+      if (tile.classList.contains("spelling-hint-tile-used")) {
+        const idx = v.toLowerCase().lastIndexOf(letter);
+        if (idx !== -1) spellingInput.value = v.slice(0, idx) + v.slice(idx + 1);
+      } else {
+        spellingInput.value = v + letter;
       }
-      const insertIndex = spellingInput.value.length;
-      spellingInput.value += letter;
-      activeInsertions.push({ tile, index: insertIndex });
+      spellingInput.dispatchEvent(new Event("input"));
       spellingInput.focus();
-      tile.classList.add("spelling-hint-tile-used");
     });
     spellingHintTray.appendChild(tile);
+  });
+  syncSpellingHintTiles(false);
+}
+
+// Lights one tile per typed letter (first matching tiles in tray order).
+function syncSpellingHintTiles(flash = true) {
+  if (!spellingHintTray) return;
+  const counts = {};
+  for (const ch of spellingInput.value.toLowerCase()) counts[ch] = (counts[ch] || 0) + 1;
+  spellingHintTray.querySelectorAll(".spelling-hint-tile").forEach((tile) => {
+    const l = tile.dataset.letter;
+    const on = counts[l] > 0;
+    if (on) counts[l]--;
+    const was = tile.classList.contains("spelling-hint-tile-used");
+    tile.classList.toggle("spelling-hint-tile-used", on);
+    if (on && !was && flash) {
+      tile.classList.add("spelling-hint-tile-hit");
+      setTimeout(() => tile.classList.remove("spelling-hint-tile-hit"), 260);
+    }
   });
 }
 
@@ -4247,6 +4380,7 @@ function checkSpellingAnswer() {
     spellingInput.className = "correct";
     pulseScoreTag(spellingInput, "option-btn-bounce");
     spellingScene.classList.remove("sk-talk");
+    spellingCombo = comboAfterAnswer(spellingCombo, true, earnsCredit);
     spellingConfetti();
     renderSpellingProgress(true);
     showSpellingCorrectFeedback(earnsCredit);
@@ -4259,6 +4393,7 @@ function checkSpellingAnswer() {
       showGoalReached(spellingGoalBanner, spellingGoalMessage, spellingGoalNextLevelBtn, spellingScore.correct);
     }
   } else {
+    spellingCombo = comboAfterAnswer(spellingCombo, false);
     spellingWrongThisRound.add(current.word);
     progress.spellingStatus[current.word] = "wrong";
     spellingSessionWrongWords.set(current.word, { word: current.word, meaning: current.tip || "" });
@@ -4298,6 +4433,7 @@ spellingInput.addEventListener("keydown", (e) => {
   else checkSpellingAnswer();
 });
 spellingInput.addEventListener("input", () => {
+  syncSpellingHintTiles();
   // Editing the guess after a correct check invalidates it — require another
   // check before Next works again, so a stale "correct" state can't be used
   // to skip past a word that was quietly changed.
@@ -9175,6 +9311,12 @@ function koalaUpdateRows(root) {
 }
 document.addEventListener("scroll", (e) => { if (e.target.classList && e.target.classList.contains("koala-row-track")) koalaUpdateRows(e.target.closest(".koala-view") || document); }, true);
 window.addEventListener("resize", () => koalaUpdateRows());
+// The Koala preview stays pinned while the shop scrolls; once the child has
+// scrolled down it shrinks to a compact bar so the items keep the space.
+window.addEventListener("scroll", () => {
+  const view = document.querySelector("#koala-body .koala-view");
+  if (view) view.classList.toggle("is-scrolled", view.getBoundingClientRect().top < -70);
+}, { passive: true });
 
 
 function koalaNextRewardHtml(kind) {
@@ -9355,7 +9497,7 @@ function renderKoala() {
       <div class="koala-level-bar" aria-hidden="true"><span style="width:${badgePct}%"></span></div></div></div>${badgeGridHtml()}`;
   const panel = koalaTab === "badges" ? badgesPanel : koalaTab === "room" ? koalaRoomHtml() : koalaTab === "coins" ? koalaCoinsHtml(k) : koalaCharacterHtml();
 
-  box.innerHTML = `<div class="koala-view">${hero}${tabs}<div class="koala-panel">${panel}</div></div>`;
+  box.innerHTML = `<div class="koala-view${koalaTab === "room" ? " is-room" : ""}">${hero}${tabs}<div class="koala-panel">${panel}</div></div>`;
   koalaUpdateRows(box);
   requestAnimationFrame(() => koalaUpdateRows(box));
 }
@@ -10008,6 +10150,8 @@ resetProgressBtn.addEventListener("click", () => {
 
 /* ================= INIT ================= */
 applyStaticTranslations();
+applyTheme(currentTheme());
+initSfxToggles();
 renderLevelChoices();
 updateLevelBadge();
 renderStreakChip();
