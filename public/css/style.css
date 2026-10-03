@@ -3795,11 +3795,29 @@ html[lang="en"] button.kid-modal-btn {
      (options, hints, feedback) can be taller than a phone screen, so the
      panel scrolls instead of clipping. The Category + Number of Questions
      row is only for the start screen, so it is hidden while playing. */
-  #view-quiz .card.game-immersive {
+  /* The quiz card is also a ".scene-card" whose rule (html body .card.scene-card:
+     position: relative; overflow: hidden) is more specific than
+     ".card.game-immersive", so it has to be beaten explicitly here — otherwise
+     the card never becomes the fixed full-screen panel and, with the page
+     scroll locked, the quiz can't be scrolled at all. */
+  html body #view-quiz .card.scene-card.game-immersive {
+    position: fixed;
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+  }
+
+  /* The sky/hills scenery stays pinned to the visible screen while the
+     question content scrolls over it (inside the card it would scroll away
+     and be cut off). */
+  html body #view-quiz .card.scene-card.game-immersive > .tg-bg {
+    position: fixed;
+    inset: auto;
+    left: 0;
+    top: var(--vv-top, 0px);
+    width: 100%;
+    height: var(--vv-height, 100dvh);
   }
 
   #view-quiz .card.game-immersive > * {
