@@ -5963,7 +5963,7 @@ function renderTimesTableInstructions() {
   // typed one by one, then a ✔ pops. The three accepted formats are shown
   // as chips underneath. Purely decorative (aria-hidden); the caption and
   // chips carry the meaning for screen readers / reduced-motion users.
-  timesTableStartMessage.innerHTML =
+  const ttDemoHtml =
     `<span class="tt-demo" aria-hidden="true">` +
       `<span class="tt-demo-problem">8 × 2</span>` +
       `<span class="tt-demo-input"><span class="tt-d tt-d1">8</span><span class="tt-d tt-d2">2</span><span class="tt-d tt-d3">16</span><span class="tt-ok">✔</span></span>` +
@@ -5972,6 +5972,9 @@ function renderTimesTableInstructions() {
     `<span class="ti-line ti-caption">${t("timesTableDemoCaption2")}</span>` +
     `<span class="ti-line ti-chips">` +
       `<span class="ti-chip">8216</span><span class="ti-chip">82 16</span><span class="ti-chip">8 2 16</span></span>`;
+  timesTableStartMessage.innerHTML = ttDemoHtml;
+  const startDemo = document.getElementById("timestable-start-demo");
+  if (startDemo) startDemo.innerHTML = ttDemoHtml;
 }
 renderTimesTableInstructions();
 

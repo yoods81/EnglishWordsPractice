@@ -6608,7 +6608,9 @@ html body .tt-keypad-toggle[aria-pressed="true"] { background: #d4f4e8 !importan
    .tg-body. The ID selector beats the dark/ivory theme rules that paint every
    .typegame-word with a solid !important background. */
 #view-typegame .typegame-word.tg-obj,
-#view-typegame .typegame-word.tg-obj.tw-lock {
+#view-timestable .tg-start-floaters .typegame-word.tg-obj,
+#view-typegame .typegame-word.tg-obj.tw-lock,
+#view-timestable .tg-start-floaters .typegame-word.tg-obj.tw-lock {
   background: transparent !important;
   border: 0 !important;
   border-radius: 0 !important;
@@ -6618,9 +6620,12 @@ html body .tt-keypad-toggle[aria-pressed="true"] { background: #d4f4e8 !importan
   line-height: 1.05;
   color: #fff;
 }
-#view-typegame .typegame-word.tg-balloon { padding-bottom: 20px; --tg-typed: #fff3a0; }
-#view-typegame .typegame-word.tg-leaf { padding-bottom: 8px; --tg-typed: #fff3a0; }
-#view-typegame .typegame-word.tg-cloud { padding-bottom: 10px; --tg-typed: #ee5a24; }
+#view-typegame .typegame-word.tg-balloon,
+#view-timestable .tg-start-floaters .typegame-word.tg-balloon { padding-bottom: 20px; --tg-typed: #fff3a0; }
+#view-typegame .typegame-word.tg-leaf,
+#view-timestable .tg-start-floaters .typegame-word.tg-leaf { padding-bottom: 8px; --tg-typed: #fff3a0; }
+#view-typegame .typegame-word.tg-cloud,
+#view-timestable .tg-start-floaters .typegame-word.tg-cloud { padding-bottom: 10px; --tg-typed: #ee5a24; }
 
 .tg-obj .tg-body {
   position: relative;
@@ -6658,17 +6663,22 @@ html body .tt-keypad-toggle[aria-pressed="true"] { background: #d4f4e8 !importan
 }
 @keyframes tg-shadow { 0%, 100% { transform: scale(1); opacity: 0.95; } 50% { transform: scale(0.82); opacity: 0.6; } }
 
-#view-typegame .tg-obj .tg-text {
+#view-typegame .tg-obj .tg-text,
+#view-timestable .tg-start-floaters .tg-obj .tg-text {
   position: relative;
   z-index: 1;
   font-size: 1.05rem;
   letter-spacing: 0.3px;
   white-space: nowrap;
 }
-#view-typegame .tg-obj .tw-rest { color: #fff; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.38), 0 0 6px rgba(0, 0, 0, 0.22); }
-#view-typegame .tg-obj .tw-typed { color: var(--tg-typed, #fff3a0); text-shadow: 0 0 8px var(--tg-typed, #fff3a0), 0 1px 0 rgba(0, 0, 0, 0.4); }
-#view-typegame .tg-cloud .tw-rest { color: #34406e; text-shadow: none; }
-#view-typegame .tg-cloud .tw-typed { text-shadow: 0 0 6px rgba(255, 140, 80, 0.55); }
+#view-typegame .tg-obj .tw-rest,
+#view-timestable .tg-start-floaters .tg-obj .tw-rest { color: #fff; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.38), 0 0 6px rgba(0, 0, 0, 0.22); }
+#view-typegame .tg-obj .tw-typed,
+#view-timestable .tg-start-floaters .tg-obj .tw-typed { color: var(--tg-typed, #fff3a0); text-shadow: 0 0 8px var(--tg-typed, #fff3a0), 0 1px 0 rgba(0, 0, 0, 0.4); }
+#view-typegame .tg-cloud .tw-rest,
+#view-timestable .tg-start-floaters .tg-cloud .tw-rest { color: #34406e; text-shadow: none; }
+#view-typegame .tg-cloud .tw-typed,
+#view-timestable .tg-start-floaters .tg-cloud .tw-typed { text-shadow: 0 0 6px rgba(255, 140, 80, 0.55); }
 
 /* Balloon: glossy round body, knot and a wobbling string */
 .tg-balloon .tg-body {
@@ -6754,7 +6764,8 @@ html body .tt-keypad-toggle[aria-pressed="true"] { background: #d4f4e8 !importan
 .tg-cloud .tg-obj-tail { display: none; }
 
 /* ---- Lock-on: neon glow + aiming reticle on the word being typed ---- */
-#view-typegame .typegame-word.tg-obj.tw-lock {
+#view-typegame .typegame-word.tg-obj.tw-lock,
+#view-timestable .tg-start-floaters .typegame-word.tg-obj.tw-lock {
   z-index: 1;
   animation: tg-lock-pulse 0.8s ease-in-out infinite alternate;
 }
@@ -6809,7 +6820,8 @@ html body .tt-keypad-toggle[aria-pressed="true"] { background: #d4f4e8 !importan
 
 /* ---- Hit effect: scale-up & fade-out pop + confetti ------------------ */
 /* The lock class stays on an object for the instant it is cleared — the pop wins. */
-#view-typegame .typegame-word.tg-obj.tw-cleared {
+#view-typegame .typegame-word.tg-obj.tw-cleared,
+#view-timestable .tg-start-floaters .typegame-word.tg-obj.tw-cleared {
   animation: tg-obj-pop 0.42s cubic-bezier(0.3, 1.5, 0.5, 1) forwards;
   filter: none;
   pointer-events: none;
@@ -6845,7 +6857,8 @@ html body .tt-keypad-toggle[aria-pressed="true"] { background: #d4f4e8 !importan
   .tg-hearts .tg-heart { width: 19px; height: 19px; }
   .tg-sky .tg-orb { width: 26px; height: 26px; }
   .tg-sky .tg-trees { height: min(84px, 36%); }
-  #view-typegame .tg-obj .tg-text { font-size: 0.95rem; }
+  #view-typegame .tg-obj .tg-text,
+  #view-timestable .tg-start-floaters .tg-obj .tg-text { font-size: 0.95rem; }
   .tg-balloon .tg-body { min-width: 66px; min-height: 66px; padding: 12px 12px 16px; }
   .tg-leaf .tg-body { min-width: 90px; min-height: 52px; padding: 8px 22px 10px; }
   .tg-cloud .tg-body { min-width: 80px; min-height: 40px; padding: 8px 20px 10px; }
@@ -6858,7 +6871,8 @@ html body .tt-keypad-toggle[aria-pressed="true"] { background: #d4f4e8 !importan
   .tg-over-overlay::before { animation: none !important; }
   .tg-hit { display: none; }
   .tg-obj.tw-lock .tg-body { scale: 1; }
-  #view-typegame .typegame-word.tg-obj.tw-lock { filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 10px var(--tg-c1)); }
+  #view-typegame .typegame-word.tg-obj.tw-lock,
+  #view-timestable .tg-start-floaters .typegame-word.tg-obj.tw-lock { filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 10px var(--tg-c1)); }
   .tg-obj.tw-lock .tg-reticle { opacity: 1; }
 }
 
@@ -7052,7 +7066,7 @@ html[data-theme="dark"] #view-typegame p.hint.tg-hint {
 /* Times Table start card: the stage is short on phones, and the "How to answer"
    card sits right underneath, so drop the long description there. */
 @media (max-width: 480px) {
-  .tt-start-overlay .tg-start-card p { display: none; }
+  .tt-start-demo .ti-caption, .tt-start-demo .ti-chips { display: none; }
   .tt-start-overlay .tg-start-card .kb-strip .kb-scene { width: 56px; height: 55px; }
   .tt-start-overlay .tg-start-card .kb-strip .kb-scene .sk-svg { width: 56px; }
 }
@@ -7152,3 +7166,10 @@ html[data-theme="dark"] #view-typegame p.hint.tg-hint {
   #view-typegame .tg-over-card p.tg-over-sub,
   #view-timestable .tg-over-card p.tg-over-sub { display: none !important; }
 }
+.tt-start-demo { color: #fff; margin: 0; }
+.tt-start-demo .ti-caption { font-size: 0.85rem; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.25); }
+.tt-start-demo .tt-demo-input { min-height: 38px; }
+.tt-start-demo .ti-chips, .tt-start-demo .ti-caption + .ti-caption { display: none; }
+.tt-start-overlay .tg-start-card .kb-strip .kb-scene { width: 80px; height: 78px; }
+.tt-start-overlay .tg-start-card .kb-strip .kb-scene .sk-svg { width: 80px; }
+.tt-start-overlay .tg-start-card .kb-strip .sp-cloud.kb-cloud { width: 108px; height: 62px; }
