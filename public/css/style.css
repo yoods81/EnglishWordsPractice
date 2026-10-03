@@ -4772,12 +4772,6 @@ button.speak-btn-hero.sk-wave { animation: sk-speaker-wobble .5s ease-in-out inf
 #timestable-start-overlay .kb-strip .kb-scene .sk-svg { width: 104px; }
 #timestable-start-overlay .kb-strip .sp-cloud.kb-cloud { width: 136px; height: 78px; }
 #timestable-start-overlay .kb-strip .kb-cloud .bubble-text { font-size: .76rem; top: 12px; height: 34px; }
-.tt-howto { background: #fff; border: 1px solid var(--outline); border-radius: 18px; box-shadow: 0 2px 0 var(--outline); padding: 12px 14px; margin-top: 10px; text-align: center; }
-.tt-howto-title { margin: 0 0 6px; font-family: var(--font-heading); font-size: 1rem; color: var(--accent-dark); }
-.tt-howto .timestable-instructions { max-width: 420px; margin: 0 auto; color: var(--text); }
-.tt-howto .tt-demo-problem { color: var(--accent-dark); background: #e8faf4; border-color: var(--accent); }
-.tt-howto .ti-highlight { color: var(--accent-dark); }
-.tt-howto .ti-chip { background: #e8faf4; border: 1px solid var(--accent); }
 @media (max-width: 699px) {
   #timestable-start-overlay { overflow: hidden; padding: 8px; }
   #timestable-start-overlay .kb-strip .kb-scene { width: 84px; height: 82px; }
@@ -4820,9 +4814,6 @@ button.speak-btn-hero.sk-wave { animation: sk-speaker-wobble .5s ease-in-out inf
 .tt-range-select option { color: #222; background: #fff; }
 .tt-range { display: none !important; }
 #timestable-stage { min-height: 380px; }
-.tt-howto { padding: 8px 12px; margin-top: 8px; }
-.tt-howto-title { font-size: .9rem; margin-bottom: 4px; }
-.card.game-immersive .tt-howto { display: none; }
 @media (max-width: 699px) { #timestable-stage { min-height: 300px; } .card.game-immersive #timestable-stage { min-height: 100px; } }
 .tt-range-quick button.on { background: var(--accent); color: #fff; }
 
@@ -5776,3 +5767,457 @@ body.signed-in .stat-bar { display: none; }
 #spelling-practice .sp-speech.fk-bubble-skin .bubble-text { position: relative; left: auto; right: auto; top: auto; height: auto; z-index: 1; white-space: pre-line; font-size: 0.95rem; }
 #spelling-practice .sp-speech.fk-bubble-skin { text-align: center; display: block; }
 #spelling-practice .sp-speech.fk-bubble-skin .fk-bubble-bg { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; z-index: 0; filter: drop-shadow(0 2px 2px rgba(14, 156, 125, 0.18)); }
+
+/* =====================================================================
+   Times Table refactor: arcade objects (balloon / eucalyptus leaf / star),
+   neon lock-on, compact "How to answer", on-screen number pad, combo
+   feedback and the live koala mascot. Pure CSS — JS only toggles classes
+   and sets --tt-c1/--tt-c2/--tt-tilt on each object.
+   ===================================================================== */
+
+/* ---- Falling objects ---- */
+/* The plain capsule look (.typegame-word) is switched off — the shape is drawn by
+   .tt-obj-body. The !importants beat the dark/ivory theme rules that paint every
+   .typegame-word with a solid background. */
+.typegame-word.timestable-eq.tt-obj,
+.typegame-word.timestable-eq.tt-obj.tw-lock {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0;
+  box-shadow: none !important;
+  padding: 0 0 18px;
+  font-size: 1rem;
+  line-height: 1.05;
+  color: #fff;
+}
+
+.tt-obj-body {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4), 0 0 5px rgba(0, 0, 0, 0.28);
+  transform-origin: 50% 100%;
+  animation: tt-sway 3.4s ease-in-out infinite;
+  animation-delay: var(--tt-sway-delay, 0s);
+  transition: scale 0.15s ease;
+}
+.tt-eq-main { font-size: 1.05rem; letter-spacing: 0.3px; white-space: nowrap; }
+.tt-eq-q { font-size: 0.82rem; opacity: 0.95; white-space: nowrap; }
+
+@keyframes tt-sway {
+  0%, 100% { transform: rotate(calc(var(--tt-tilt, 0deg) - var(--tt-sway, 3deg))); }
+  50% { transform: rotate(calc(var(--tt-tilt, 0deg) + var(--tt-sway, 3deg))); }
+}
+
+/* "Math quiz balloon": glossy round body, knot and a wobbling string */
+.tt-balloon .tt-obj-body {
+  width: 80px;
+  height: 90px;
+  padding-bottom: 6px;
+  box-sizing: border-box;
+  border-radius: 50% 50% 48% 48% / 57% 57% 43% 43%;
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.8) 0 6%, rgba(255, 255, 255, 0) 20%),
+    radial-gradient(circle at 50% 36%, var(--tt-c1) 0%, var(--tt-c2) 100%);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35), inset -6px -9px 14px rgba(0, 0, 0, 0.22), 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+.tt-obj-tail { position: absolute; left: 50%; bottom: 0; width: 0; height: 0; pointer-events: none; }
+.tt-balloon .tt-obj-tail::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  bottom: 12px;
+  border-style: solid;
+  border-width: 0 5px 6px 5px;
+  border-color: transparent transparent var(--tt-c2) transparent;
+}
+.tt-balloon .tt-obj-tail::after {
+  content: "";
+  position: absolute;
+  left: -1px;
+  bottom: 0;
+  width: 2px;
+  height: 13px;
+  border-radius: 2px;
+  background: rgba(90, 100, 120, 0.7);
+  transform-origin: 50% 0;
+  animation: tt-string 2.4s ease-in-out infinite;
+}
+@keyframes tt-string { 0%, 100% { transform: skewX(9deg); } 50% { transform: skewX(-9deg); } }
+
+/* "Eucalyptus leaf": almond shape tilted on its own, text stays upright */
+.typegame-word.timestable-eq.tt-leaf { padding-bottom: 6px; --tt-sway: 7deg; }
+.tt-leaf .tt-obj-body { width: 100px; height: 64px; }
+.tt-leaf .tt-obj-body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 0 100% 0 100% / 0 100% 0 100%;
+  background: linear-gradient(135deg, var(--tt-c1) 0%, var(--tt-c2) 100%);
+  transform: rotate(-12deg) scale(1.03);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.42), inset -5px -7px 12px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.18);
+}
+.tt-leaf .tt-obj-body::after {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 50%;
+  height: 2px;
+  z-index: -1;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.38);
+  transform: rotate(21deg);
+}
+.tt-leaf .tt-obj-tail { left: auto; right: -8px; bottom: 8px; width: 16px; height: 4px; border-radius: 3px; background: #8a6a3d; transform: rotate(32deg); }
+
+/* "Star": fat five-point star, dark text for contrast on the gold */
+.typegame-word.timestable-eq.tt-star { padding-bottom: 2px; --tt-sway: 8deg; }
+.tt-star .tt-obj-body {
+  width: 108px;
+  height: 102px;
+  padding-top: 8px;
+  box-sizing: border-box;
+  color: #5a3500;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+  clip-path: polygon(50% 4%, 66.2% 31.8%, 97.6% 38.5%, 76.2% 62.5%, 79.4% 94.5%, 50% 81.5%, 20.6% 94.5%, 23.8% 62.5%, 2.4% 38.5%, 33.8% 31.8%);
+  background:
+    radial-gradient(circle at 36% 30%, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0) 38%),
+    linear-gradient(160deg, var(--tt-c1), var(--tt-c2));
+}
+.tt-star .tt-eq-main { font-size: 0.98rem; }
+.tt-star .tt-eq-q { font-size: 0.78rem; }
+.tt-star .tt-obj-tail { display: none; }
+
+/* ---- Lock-on: neon glow around the object being typed + twinkling sparkles ---- */
+.typegame-word.timestable-eq.tt-obj.tw-lock {
+  z-index: 1;
+  animation: tt-lock-pulse 0.8s ease-in-out infinite alternate;
+}
+.tt-obj.tw-lock .tt-obj-body { scale: 1.07; }
+@keyframes tt-lock-pulse {
+  from { filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px var(--tt-c1)) drop-shadow(0 0 14px var(--tt-c1)); }
+  to { filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 12px var(--tt-c1)) drop-shadow(0 0 24px var(--tt-c1)); }
+}
+.tt-sp {
+  display: none;
+  position: absolute;
+  font-style: normal;
+  line-height: 1;
+  color: #fff8c4;
+  text-shadow: 0 0 4px #fff, 0 0 10px #ffd54a;
+  pointer-events: none;
+  z-index: 2;
+}
+.tt-sp1 { top: -6px; left: -6px; font-size: 1.05rem; }
+.tt-sp2 { top: 2px; right: -10px; font-size: 0.9rem; }
+.tt-sp3 { bottom: 24px; left: -12px; font-size: 0.8rem; }
+.tt-obj.tw-lock .tt-sp { display: block; animation: tt-twinkle 0.9s ease-in-out infinite; }
+.tt-obj.tw-lock .tt-sp2 { animation-delay: 0.3s; }
+.tt-obj.tw-lock .tt-sp3 { animation-delay: 0.6s; }
+@keyframes tt-twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.6) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.25) rotate(35deg); }
+}
+/* the lock class stays on an object for the instant it is cleared — the pop wins */
+.typegame-word.timestable-eq.tt-obj.tw-cleared {
+  animation: typegame-word-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  filter: none;
+}
+
+/* ---- Answer feedback: score pop-up + number confetti ---- */
+.tt-fx { position: absolute; pointer-events: none; z-index: 1; }
+.tt-score-pop {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #fff;
+  white-space: nowrap;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #ffb300, #ff7a00);
+  box-shadow: 0 3px 0 rgba(150, 70, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.25);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+  animation: tt-score-rise 1.05s ease-out forwards;
+}
+.tt-score-pop.tt-score-fast {
+  background: linear-gradient(145deg, #4dabf7, #7048e8);
+  box-shadow: 0 3px 0 rgba(40, 20, 120, 0.55), 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+@keyframes tt-score-rise {
+  0% { opacity: 0; transform: translate(-50%, 8px) scale(0.5); }
+  18% { opacity: 1; transform: translate(-50%, -4px) scale(1.15); }
+  30% { transform: translate(-50%, -8px) scale(1); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -44px) scale(1); }
+}
+.tt-confetti {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7), 0 0 3px rgba(0, 0, 0, 0.25);
+  animation: tt-confetti-burst 0.95s cubic-bezier(0.2, 0.7, 0.4, 1) forwards;
+}
+@keyframes tt-confetti-burst {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.4) rotate(0deg); }
+  45% { opacity: 1; transform: translate(calc(-50% + var(--dx) * 0.75), calc(-50% + var(--dy) * 0.9)) scale(1.1) rotate(calc(var(--rot) * 0.5)); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) + 46px)) scale(1) rotate(var(--rot)); }
+}
+
+/* ---- Combo badge ---- */
+.tt-combo-badge {
+  position: absolute;
+  top: 26%;
+  left: 50%;
+  z-index: 5;
+  transform: translateX(-50%);
+  pointer-events: none;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #fff;
+  white-space: nowrap;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #ff922b, #f03e3e);
+  box-shadow: 0 4px 0 rgba(120, 20, 20, 0.5), 0 6px 16px rgba(0, 0, 0, 0.25);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+  animation: tt-combo-pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.tt-combo-badge[hidden] { display: none; }
+.tt-combo-big { font-size: 1.5rem; background: linear-gradient(145deg, #f76707, #d6336c); }
+.tt-combo-mega { font-size: 1.7rem; background: linear-gradient(145deg, #ae3ec9, #4263eb); }
+@keyframes tt-combo-pop {
+  0% { opacity: 0; transform: translateX(-50%) scale(0.3) rotate(-8deg); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1) rotate(0deg); }
+}
+
+/* ---- Live koala mascot (bottom centre, behind the falling objects) ---- */
+.tt-koala-slot {
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.card.tt-live .tt-koala-slot { display: block; }
+.tt-koala-slot .kb-strip { display: block; position: relative; margin: 0; min-height: 0; }
+.tt-koala-slot .kb-strip .kb-scene { width: 66px; height: 64px; }
+.tt-koala-slot .kb-strip .kb-scene .sk-svg { width: 66px; }
+.tt-koala-slot .kb-strip .sp-cloud.kb-cloud {
+  position: absolute;
+  top: auto;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -60px;
+  width: 120px;
+  height: 68px;
+  opacity: 0;
+  transform: scale(0.7);
+  transform-origin: 50% 100%;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  animation: none;
+}
+.tt-koala-slot.tt-say .kb-strip .sp-cloud.kb-cloud { opacity: 1; transform: scale(1); }
+.tt-koala-slot .kb-strip .kb-cloud .bubble-text { font-size: 0.76rem; top: 12px; height: 34px; left: 12px; right: 12px; }
+/* combo / super-fast cheer: two big hops */
+.tt-koala-slot .kb-scene.tt-hype .sk-svg { animation: tt-koala-hype 1s cubic-bezier(0.3, 0.7, 0.4, 1); }
+@keyframes tt-koala-hype {
+  0% { transform: translateY(0) scale(1, 1); }
+  12% { transform: translateY(0) scale(1.15, 0.82); }
+  32% { transform: translateY(-30px) scale(1.2, 1.2) rotate(-6deg); }
+  52% { transform: translateY(0) scale(0.95, 1.05); }
+  68% { transform: translateY(-22px) scale(1.15, 1.15) rotate(6deg); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+/* ---- Compact "How to answer": one tip line + a "?" pop-up ---- */
+.tt-input-zone { position: relative; }
+.tt-tip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 0;
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text);
+  opacity: 0.85;
+}
+.tt-help-btn {
+  position: relative;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  background: #fff;
+  color: var(--accent-dark);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.78rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.tt-help-btn::after { content: ""; position: absolute; inset: -11px; } /* 44px touch area */
+.card.tt-live .tt-help-btn { display: none; }
+
+.tt-guide {
+  position: relative;
+  width: auto;
+  max-width: 420px;
+  margin: 10px auto 0;
+  box-sizing: border-box;
+  padding: 8px 36px 10px 12px;
+  text-align: center;
+  background: #fff;
+  border: 2px solid var(--accent);
+  border-radius: 18px;
+  box-shadow: 0 3px 0 var(--accent-dark);
+  animation: tt-guide-in 0.25s ease-out;
+}
+.tt-guide[hidden] { display: none; }
+@keyframes tt-guide-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+/* little arrow pointing up at the tip line / "?" button */
+.tt-guide::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -8px;
+  width: 12px;
+  height: 12px;
+  background: inherit;
+  border-left: 2px solid var(--accent);
+  border-top: 2px solid var(--accent);
+  transform: translateX(-50%) rotate(45deg);
+}
+.tt-guide-title { margin: 0 0 2px; font-family: var(--font-heading); font-size: 0.9rem; color: var(--accent-dark); }
+.tt-guide .timestable-instructions {
+  max-width: none;
+  margin: 0;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 2px 10px;
+  color: var(--text);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+.tt-guide .timestable-instructions .tt-demo { flex: 1 1 100%; justify-content: center; margin: 2px 0; }
+.tt-guide .timestable-instructions .ti-chips { flex: 1 1 100%; justify-content: center; }
+.tt-guide .tt-demo-problem { color: var(--accent-dark); background: #e8faf4; border-color: var(--accent); }
+.tt-guide .ti-highlight { color: var(--accent-dark); }
+.tt-guide .ti-chip { background: #e8faf4; border: 1px solid var(--accent); }
+.tt-guide-close {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--outline);
+  background: #fff;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.tt-guide-close::after { content: ""; position: absolute; inset: -8px; }
+
+/* ---- Number pad toggle (in the play area, under Pause) ---- */
+.tt-keypad-toggle {
+  position: absolute;
+  top: 48px;
+  left: 8px;
+  z-index: 3;
+  width: 34px;
+  height: 34px;
+  font-size: 1rem;
+  border-width: 1px;
+  box-shadow: 0 2px 0 var(--outline);
+}
+.tt-keypad-toggle::after { content: ""; position: absolute; inset: -5px; }
+html body .tt-keypad-toggle[aria-pressed="true"] { background: var(--accent) !important; border-color: var(--accent-dark); }
+
+/* ---- On-screen number pad ---- */
+.tt-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  max-width: 330px;
+  margin: 8px auto 0;
+}
+.tt-keypad[hidden] { display: none; }
+.tt-key {
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.45rem;
+  color: #fff;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  background: linear-gradient(180deg, var(--k1), var(--k2));
+  box-shadow: 0 4px 0 var(--k3), 0 6px 10px rgba(0, 0, 0, 0.15);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+  transition: transform 0.06s ease, box-shadow 0.06s ease;
+}
+.tt-key:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--k3); }
+.tt-key:disabled { opacity: 0.45; cursor: default; }
+.tt-key[data-key="1"] { --k1: #ff6b6b; --k2: #e8505b; --k3: #b8323f; }
+.tt-key[data-key="2"] { --k1: #ff922b; --k2: #f07a14; --k3: #b95a0c; }
+.tt-key[data-key="3"] { --k1: #fcc419; --k2: #f0a800; --k3: #a97400; }
+.tt-key[data-key="4"] { --k1: #94d82d; --k2: #74b816; --k3: #4f8a0a; }
+.tt-key[data-key="5"] { --k1: #38d9a9; --k2: #20b98c; --k3: #12805f; }
+.tt-key[data-key="6"] { --k1: #3bc9db; --k2: #22a9be; --k3: #177a8a; }
+.tt-key[data-key="7"] { --k1: #4dabf7; --k2: #2f8fe6; --k3: #1d62b8; }
+.tt-key[data-key="8"] { --k1: #748ffc; --k2: #5a73e6; --k3: #3b4cb8; }
+.tt-key[data-key="9"] { --k1: #b197fc; --k2: #9770ef; --k3: #6a45c9; }
+.tt-key[data-key="0"] { --k1: #f783ac; --k2: #e8588d; --k3: #b03a68; }
+.tt-key[data-key="back"] { --k1: #868e96; --k2: #6c757d; --k3: #495057; }
+.tt-key[data-key="enter"] { --k1: #20c997; --k2: #12a57b; --k3: #0b7a5b; }
+/* phone-style 3 x 4 pad: 1-9, then ⌫ 0 ↵ */
+.tt-key-back { order: 10; }
+.tt-key-zero { order: 11; }
+.tt-key-enter { order: 12; }
+/* wide screens: two rows of six — 1-6 / 7 8 9 0 ⌫ ↵ */
+@media (min-width: 700px) {
+  .tt-keypad { grid-template-columns: repeat(6, 1fr); max-width: 470px; }
+  .tt-key-zero { order: 10; }
+  .tt-key-back { order: 11; }
+}
+
+/* phone play mode: the answer box + tip + pad stay together under the play area */
+@media (max-width: 700px) {
+  .card.game-immersive .tt-input-zone { flex: 0 0 auto; }
+  .card.game-immersive .tt-tip { margin-top: 4px; font-size: 0.76rem; }
+  .card.game-immersive .tt-keypad { margin-top: 6px; width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tt-obj-body, .tt-balloon .tt-obj-tail::after, .tt-obj.tw-lock .tt-sp, .typegame-word.timestable-eq.tt-obj.tw-lock { animation: none !important; }
+  .tt-confetti { display: none; }
+  .tt-obj.tw-lock .tt-obj-body { scale: 1; }
+  .tt-obj.tw-lock { filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 10px var(--tt-c1)); }
+}

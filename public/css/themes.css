@@ -421,13 +421,13 @@ html[data-theme="dark"] .tt-range-chip {
 html[data-theme="dark"] .tt-range-chip.in {
   background: #192d26 !important;
 }
-html[data-theme="dark"] .tt-howto {
+html[data-theme="dark"] .tt-guide {
   background: #131b19 !important;
 }
-html[data-theme="dark"] .tt-howto .tt-demo-problem {
+html[data-theme="dark"] .tt-guide .tt-demo-problem {
   background: #182a24 !important;
 }
-html[data-theme="dark"] .tt-howto .ti-chip {
+html[data-theme="dark"] .tt-guide .ti-chip {
   background: #182a24 !important;
 }
 html[data-theme="dark"] .tt-range-panel {
@@ -954,13 +954,13 @@ html[data-theme="ivory"] .tt-range-chip {
 html[data-theme="ivory"] .tt-range-chip.in {
   background: #f2ecdf !important;
 }
-html[data-theme="ivory"] .tt-howto {
+html[data-theme="ivory"] .tt-guide {
   background: #fdfaf4 !important;
 }
-html[data-theme="ivory"] .tt-howto .tt-demo-problem {
+html[data-theme="ivory"] .tt-guide .tt-demo-problem {
   background: #f4efe4 !important;
 }
-html[data-theme="ivory"] .tt-howto .ti-chip {
+html[data-theme="ivory"] .tt-guide .ti-chip {
   background: #f4efe4 !important;
 }
 html[data-theme="ivory"] .tt-range-panel {

@@ -266,6 +266,18 @@ const TRANSLATIONS = {
     timesTableExpand: "Expand game area",
     timesTableCollapse: "Collapse game area",
     timesTableStageLabel: (n) => `Stage ${n}`,
+    timesTableTipLine: "💡 Tip: Type two numbers and the answer, e.g. 8216",
+    timesTableHelpLabel: "How to answer",
+    timesTableGuideClose: "Close",
+    timesTableKeypadToggle: "Number pad",
+    timesTableKeyBackspace: "Backspace",
+    timesTableKeyEnter: "Enter",
+    ttPerfect: "Perfect!",
+    ttSuperFast: "Super Fast!",
+    ttCombo: (n) => `${n} Combo!`,
+    kbCheer: "Yay! 🎉",
+    kbCombo: "Combo! 🔥",
+    kbFast: "Zoom! ⚡",
     timesTableChallengePrompt: (table) => `Ready to try the ${table} times table?`,
     categoryLabel: "Category",
     optVocabulary: "Vocabulary",
@@ -756,6 +768,18 @@ const TRANSLATIONS = {
     timesTableExpand: "화면 확장",
     timesTableCollapse: "화면 축소",
     timesTableStageLabel: (n) => `스테이지 ${n}`,
+    timesTableTipLine: "💡 팁: 두 수와 정답을 이어서 입력하세요. 예) 8216",
+    timesTableHelpLabel: "입력 방법 보기",
+    timesTableGuideClose: "닫기",
+    timesTableKeypadToggle: "숫자 키패드",
+    timesTableKeyBackspace: "지우기",
+    timesTableKeyEnter: "입력",
+    ttPerfect: "완벽해요!",
+    ttSuperFast: "슈퍼 패스트!",
+    ttCombo: (n) => `${n} 콤보!`,
+    kbCheer: "야호! 🎉",
+    kbCombo: "콤보! 🔥",
+    kbFast: "번개! ⚡",
     timesTableChallengePrompt: (table) => `${table}단에 도전하시겠습니까?`,
     categoryLabel: "카테고리",
     optVocabulary: "어휘",
@@ -4265,6 +4289,9 @@ const CLOUD_SVG = '<svg viewBox="0 0 120 68" class="sp-cloud-bg"><path d="M28 50
 const KB_ANCHORS = {
   type: () => document.querySelector("#typegame-start-overlay h3"),
   tt: () => document.getElementById("timestable-start-btn"),
+  // The in-stage koala that stays visible while a Times Table round is running
+  // (the "tt" strip above lives inside the start overlay, so it can't be seen mid-game).
+  ttlive: () => document.getElementById("timestable-koala-anchor"),
 };
 const KB_REG = {};
 function kb(key) {
@@ -4281,8 +4308,9 @@ function kb(key) {
   const text = bubble.querySelector(".bubble-text");
   const b = { scene, timers: [], eating: false, target: null };
   const at = (ms, fn) => b.timers.push(setTimeout(fn, ms));
-  const say = (k, keep) => { text.textContent = t(k); clearTimeout(b.sayT); if (!keep) b.sayT = setTimeout(() => { text.textContent = t("kbIdle"); }, 2200); };
+  const say = (k, keep) => { if (b.silent) return; text.textContent = t(k); clearTimeout(b.sayT); if (!keep) b.sayT = setTimeout(() => { text.textContent = t("kbIdle"); }, 2200); };
   b.say = say;
+  b.bubble = bubble;
   b.reset = () => {
     b.timers.forEach(clearTimeout); b.timers = []; b.eating = false; b.target = null;
     scene.classList.remove("sk-eat", "sk-quick", "sk-gulp", "sk-full", "fk-dunno");
@@ -5726,6 +5754,26 @@ const timesTableSpeedValueEl = document.getElementById("timestable-speed-value")
 const timesTablePauseOverlay = document.getElementById("timestable-pause-overlay");
 const timesTableResumeBtn = document.getElementById("timestable-resume-btn");
 
+// --- Refactor additions: compact guide, number pad, combo + mascot. Declared up
+// here (not next to the code that uses them) so they exist before any code path
+// like resetTimesTable() can run at startup.
+const timesTableCard = document.querySelector("#view-timestable > .card");
+const timesTableGuide = document.getElementById("timestable-guide");
+const timesTableGuideClose = document.getElementById("timestable-guide-close");
+const timesTableHelpBtn = document.getElementById("timestable-help-btn");
+const timesTableKeypad = document.getElementById("timestable-keypad");
+const timesTableKeypadToggle = document.getElementById("timestable-keypad-toggle");
+const timesTableComboBadge = document.getElementById("timestable-combo");
+const timesTableKoalaSlot = document.getElementById("timestable-koala-slot");
+const TIMESTABLE_GUIDE_SEEN_KEY = "ywp_timestable_guide_seen_v1";
+const TIMESTABLE_GUIDE_AUTO_ROUNDS = 2; // the guide pops up by itself for this many rounds, then only via the "?" button
+const TIMESTABLE_KEYPAD_KEY = "ywp_timestable_keypad_v1";
+const TIMESTABLE_COMBO_MIN = 3; // streak length where the "N Combo!" badge starts
+const TIMESTABLE_FAST_FRACTION = 0.4; // cleared while still in the top 40% of the stage = "Super Fast!"
+let timesTableCombo = 0;
+let timesTableComboTimer = null;
+let timesTableKoalaTalkTimer = null;
+
 // Built rather than left to the generic data-i18n text swap, so the example
 // numbers can be bold/colored — {{EX}} and {{FMT}} are plain substring
 // markers in the translated sentence, not template syntax. Called once at
@@ -6048,7 +6096,8 @@ function enterTimesTableTab() {
 }
 
 function resetTimesTable() {
-  kb("tt")?.reset();
+  ttKb((b) => b.reset());
+  resetTimesTableCombo();
   timesTableActive.forEach((w) => w.el.remove());
   timesTableActive = [];
   timesTableScore = 0;
@@ -6075,6 +6124,8 @@ function resetTimesTable() {
   updateTimesTableMaxTableUI();
   timesTableOverOverlay.hidden = true;
   timesTableStartOverlay.hidden = false;
+  // Waiting screen: show the "How to answer" pop-up on its own for the first couple of rounds.
+  setTimesTableGuideOpen(timesTableGuideSeenCount() < TIMESTABLE_GUIDE_AUTO_ROUNDS, true);
 }
 
 function startTimesTable() {
@@ -6087,7 +6138,10 @@ function startTimesTable() {
     }, 0);
     return;
   }
-  kb("tt")?.reset();
+  ttKb((b) => b.reset());
+  resetTimesTableCombo();
+  setTimesTableGuideOpen(false);
+  bumpTimesTableGuideSeen();
   timesTableRunning = true;
   updateTimesTableMaxTableUI();
   timesTablePaused = false;
@@ -6176,8 +6230,18 @@ function scheduleTimesTableSpawn() {
   }, timesTableSpawnInterval);
 }
 
+// The arcade objects are much bigger than the old capsules, so only as many as
+// physically fit in the play area (minus one for breathing room) are alive at once.
+// A skipped spawn simply happens on the next tick and doesn't count as a problem shown.
+function timesTableObjectCap() {
+  const cols = Math.max(1, Math.floor(timesTableWordsEl.clientWidth / 108));
+  const rows = Math.max(1, Math.floor(timesTableStage.clientHeight / 100));
+  return Math.max(3, cols * rows - 1);
+}
+
 function spawnTimesTableProblem() {
   if (timesTableProblemsShown >= timesTableMaxProblems()) return;
+  if (timesTableActive.length >= timesTableObjectCap()) return;
 
   const noExpectedCollision = (expected) =>
     !timesTableActive.some((item) => item.expected.startsWith(expected) || expected.startsWith(item.expected));
@@ -6197,9 +6261,7 @@ function spawnTimesTableProblem() {
   if (!problem) return;
   timesTableProblemsShown++;
 
-  const el = document.createElement("div");
-  el.className = "typegame-word timestable-eq";
-  el.textContent = timesTableDisplay(problem);
+  const el = buildTimesTableObject(problem);
   timesTableWordsEl.appendChild(el);
   const startTop = placeFallingItem(el, timesTableWordsEl, timesTableActive);
 
@@ -6209,7 +6271,40 @@ function spawnTimesTableProblem() {
     key: timesTableKey(problem),
     el,
     top: startTop,
+    h: el.offsetHeight || 34, // objects are taller than the old capsule, so "reached the bottom" uses the item's own height
   });
+}
+
+/* ---------- Falling objects: quiz balloons, eucalyptus leaves and stars ----------
+   Each equation is drawn as a chunky arcade object instead of a plain capsule.
+   The kind and colours are purely cosmetic (CSS variables --tt-c1/--tt-c2 drive the
+   gradients in style.css); matching and scoring still read item.expected only. */
+const TIMESTABLE_OBJECT_KINDS = {
+  balloon: [["#ff6b6b", "#c9293a"], ["#4dabf7", "#1d62b8"], ["#ff922b", "#d4561a"], ["#b197fc", "#6a45c9"], ["#38d9a9", "#12805f"]],
+  leaf: [["#5cc79a", "#2a8a63"], ["#6fd0a8", "#2f8f78"], ["#86d36f", "#3a9440"]],
+  star: [["#ffd43b", "#f08c00"], ["#ffe066", "#f59f00"]],
+};
+let timesTableLastObjectKind = "";
+
+function buildTimesTableObject(problem) {
+  const kinds = Object.keys(TIMESTABLE_OBJECT_KINDS).filter((k) => k !== timesTableLastObjectKind); // never the same kind twice in a row
+  const kind = kinds[Math.floor(Math.random() * kinds.length)];
+  timesTableLastObjectKind = kind;
+  const palette = TIMESTABLE_OBJECT_KINDS[kind];
+  const [c1, c2] = palette[Math.floor(Math.random() * palette.length)];
+
+  const el = document.createElement("div");
+  el.className = `typegame-word timestable-eq tt-obj tt-${kind}`;
+  el.style.setProperty("--tt-c1", c1);
+  el.style.setProperty("--tt-c2", c2);
+  el.style.setProperty("--tt-tilt", `${(Math.random() * 8 - 4).toFixed(1)}deg`);
+  el.style.setProperty("--tt-sway-delay", `${(-Math.random() * 3).toFixed(2)}s`);
+  el.setAttribute("aria-label", timesTableDisplay(problem));
+  el.innerHTML =
+    `<span class="tt-obj-body"><span class="tt-eq-main">${problem.a} × ${problem.b}</span><span class="tt-eq-q">= ?</span></span>` +
+    `<span class="tt-obj-tail" aria-hidden="true"></span>` +
+    `<i class="tt-sp tt-sp1" aria-hidden="true">✦</i><i class="tt-sp tt-sp2" aria-hidden="true">★</i><i class="tt-sp tt-sp3" aria-hidden="true">✦</i>`;
+  return el;
 }
 
 function timesTableLoop(ts) {
@@ -6223,7 +6318,8 @@ function timesTableLoop(ts) {
     const w = timesTableActive[i];
     w.top += timesTableEffectiveSpeed() * dt;
     w.el.style.top = `${w.top}px`;
-    if (w.top > stageHeight - 30) {
+    // Lost when the object's bottom edge reaches the floor (for the old 34px capsule this was the same spot as before).
+    if (w.top > stageHeight - w.h + 4) {
       w.el.remove();
       timesTableActive.splice(i, 1);
       loseTimesTableLife(w.key);
@@ -6239,7 +6335,9 @@ function loseTimesTableLife(missedKey) {
     recordResult(missedKey, false, "tt");
   }
   timesTableLives--;
-  kb("tt")?.oops();
+  resetTimesTableCombo();
+  ttKb((b) => b.oops());
+  ttKoalaTalk();
   updateTimesTableHud();
   playTimesTableLifeLostSfx();
   timesTableStage.classList.remove("typegame-shake");
@@ -6273,14 +6371,18 @@ function clearTimesTableProblem(item) {
   recordSrsResult(item.key, true);
   recordResult(item.key, true, "tt");
   timesTableRoundSolved.add(item.key);
+  // "Super Fast!" = answered while the object was still high up in the play area.
+  const fast = item.top < timesTableStage.clientHeight * TIMESTABLE_FAST_FRACTION;
   spawnTimesTablePopFx(item.el);
+  celebrateTimesTableAnswer(item, fast);
+  item.el.classList.remove("tw-lock");
   item.el.classList.add("tw-cleared");
   setTimeout(() => item.el.remove(), 300);
   timesTableActive = timesTableActive.filter((w) => w !== item);
 
   timesTableScore += TIMESTABLE_POINTS_PER_CORRECT;
   timesTableCorrectCount++;
-  kb("tt")?.eat(Math.min(timesTableCorrectCount / KB_GAME_FULL, 1), timesTableCorrectCount >= KB_GAME_FULL, true);
+  ttKb((b) => b.eat(Math.min(timesTableCorrectCount / KB_GAME_FULL, 1), timesTableCorrectCount >= KB_GAME_FULL, true));
   playTimesTableCorrectSfx();
 
   const stage = Math.floor(timesTableCorrectCount / TIMESTABLE_PROBLEMS_PER_STAGE);
@@ -6354,7 +6456,8 @@ const TIMESTABLE_ENCOURAGE_MESSAGES = {
 };
 
 function endTimesTableRound(reason) {
-  kb("tt")?.over();
+  ttKb((b) => b.over());
+  resetTimesTableCombo();
   timesTableRunning = false;
   updateTimesTableMaxTableUI();
   timesTablePaused = false;
@@ -6404,6 +6507,7 @@ function endTimesTableRound(reason) {
 }
 
 function showTimesTableTypo() {
+  resetTimesTableCombo(); // a wrong guess breaks the streak
   timesTableInput.classList.add("typegame-input-error");
   timesTableTypoMsg.hidden = false;
   playTimesTableWrongSfx();
@@ -6444,9 +6548,10 @@ timesTableInput.addEventListener("input", () => {
   }
 });
 
-timesTableInput.addEventListener("keydown", (e) => {
-  if (e.key !== "Enter" || !timesTableRunning) return;
-  e.preventDefault();
+// Enter (keyboard or the on-screen ↵ key): a guess that isn't the start of any
+// falling answer is a typo; anything that still could match is left alone.
+function submitTimesTableGuess() {
+  if (!timesTableRunning) return;
   const val = timesTableInput.value.replace(/\s+/g, "");
   if (!val) return;
   const isValidPrefix = timesTableActive.some((item) => item.expected.startsWith(val));
@@ -6455,7 +6560,231 @@ timesTableInput.addEventListener("keydown", (e) => {
     timesTableInput.value = "";
     clearTimesTableHighlights();
   }
+}
+
+timesTableInput.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" || !timesTableRunning) return;
+  e.preventDefault();
+  submitTimesTableGuess();
 });
+
+/* ---------- Compact "How to answer" guide ----------
+   The big always-visible guide box is gone. The full demo now lives in a small
+   pop-up card that opens by itself on the waiting screen for the first
+   TIMESTABLE_GUIDE_AUTO_ROUNDS rounds; after that it only opens from the "?"
+   button. While a round is running it is never shown — a single tip line under
+   the answer box is all that stays. */
+function timesTableGuideSeenCount() {
+  try {
+    return parseInt(localStorage.getItem(TIMESTABLE_GUIDE_SEEN_KEY), 10) || 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
+function bumpTimesTableGuideSeen() {
+  try {
+    localStorage.setItem(TIMESTABLE_GUIDE_SEEN_KEY, String(timesTableGuideSeenCount() + 1));
+  } catch (e) {
+    /* private mode: the guide just keeps auto-showing, which is harmless */
+  }
+}
+
+// auto = opened by the game itself on the waiting screen (not by the "?" button).
+// An automatic guide ignores outside clicks — otherwise the very click that opened
+// this tab would bubble up and close it again straight away.
+function setTimesTableGuideOpen(open, auto = false) {
+  timesTableGuide.hidden = !open;
+  timesTableGuide.dataset.auto = open && auto ? "1" : "";
+  timesTableHelpBtn.setAttribute("aria-expanded", open ? "true" : "false");
+}
+
+timesTableHelpBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  if (timesTableCard.classList.contains("tt-live")) return;
+  setTimesTableGuideOpen(timesTableGuide.hidden);
+});
+timesTableGuideClose.addEventListener("click", () => setTimesTableGuideOpen(false));
+timesTableGuide.addEventListener("click", (e) => e.stopPropagation());
+document.addEventListener("click", () => {
+  if (!timesTableGuide.hidden && !timesTableGuide.dataset.auto) setTimesTableGuideOpen(false);
+});
+
+/* ---------- Round state -> card class ----------
+   .tt-live is on while a round is on screen (start and game-over overlays both
+   hidden). CSS uses it to show the koala mascot and hide the "?" button; here
+   it also keeps the guide closed and the number pad in step with the answer box. */
+function syncTimesTableChrome() {
+  const live = timesTableStartOverlay.hidden && timesTableOverOverlay.hidden;
+  timesTableCard.classList.toggle("tt-live", live);
+  if (live) setTimesTableGuideOpen(false);
+  syncTimesTableKeypadEnabled();
+}
+new MutationObserver(syncTimesTableChrome).observe(timesTableStartOverlay, { attributes: true, attributeFilter: ["hidden"] });
+new MutationObserver(syncTimesTableChrome).observe(timesTableOverOverlay, { attributes: true, attributeFilter: ["hidden"] });
+
+/* ---------- On-screen number pad ----------
+   Optional, for tablets and phones. The 🔢 button in the play area turns it on or
+   off; the choice is remembered. On touch screens it starts out ON (and then the
+   answer box asks the OS keyboard to stay away, inputmode="none"). The keys just
+   edit the answer box and fire the same "input" event typing does, so matching,
+   locking on and scoring are all shared with the keyboard path. */
+function timesTableKeypadWanted() {
+  try {
+    const saved = localStorage.getItem(TIMESTABLE_KEYPAD_KEY);
+    if (saved === "1") return true;
+    if (saved === "0") return false;
+  } catch (e) {
+    /* fall through to the device default */
+  }
+  return window.matchMedia("(pointer: coarse)").matches;
+}
+
+function applyTimesTableKeypad(on, persist) {
+  timesTableKeypad.hidden = !on;
+  timesTableCard.classList.toggle("tt-keypad-on", on);
+  timesTableKeypadToggle.setAttribute("aria-pressed", on ? "true" : "false");
+  timesTableInput.setAttribute("inputmode", on ? "none" : "numeric");
+  if (persist) {
+    try {
+      localStorage.setItem(TIMESTABLE_KEYPAD_KEY, on ? "1" : "0");
+    } catch (e) {
+      /* not saved, still works for this visit */
+    }
+  }
+  // Re-focusing is what makes the OS keyboard follow the new inputmode.
+  if (timesTableRunning) {
+    timesTableInput.blur();
+    timesTableInput.focus({ preventScroll: true });
+  }
+}
+
+function syncTimesTableKeypadEnabled() {
+  const idle = timesTableInput.disabled;
+  timesTableKeypad.classList.toggle("tt-idle", idle);
+  timesTableKeypad.querySelectorAll(".tt-key").forEach((k) => {
+    k.disabled = idle;
+  });
+}
+
+function pressTimesTableKey(key) {
+  if (!timesTableRunning) return;
+  if (key === "enter") {
+    submitTimesTableGuess();
+  } else {
+    timesTableInput.value = key === "back" ? timesTableInput.value.slice(0, -1) : timesTableInput.value + key;
+    timesTableInput.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  timesTableInput.focus({ preventScroll: true });
+}
+
+timesTableKeypad.addEventListener("mousedown", (e) => e.preventDefault()); // keep the answer box focused on desktop
+timesTableKeypad.addEventListener("click", (e) => {
+  const btn = e.target.closest(".tt-key");
+  if (btn && !btn.disabled) pressTimesTableKey(btn.dataset.key);
+});
+timesTableKeypadToggle.addEventListener("click", () => applyTimesTableKeypad(timesTableKeypad.hidden, true));
+new MutationObserver(syncTimesTableKeypadEnabled).observe(timesTableInput, { attributes: true, attributeFilter: ["disabled"] });
+applyTimesTableKeypad(timesTableKeypadWanted(), false);
+syncTimesTableChrome();
+
+/* ---------- Combos, answer feedback and the koala mascot ---------- */
+// Runs a callback on both koalas: the one in the start overlay and the live one in the stage.
+function ttKb(fn) {
+  const start = kb("tt");
+  if (start) fn(start);
+  const live = kb("ttlive");
+  if (live) {
+    live.silent = true; // its speech cloud is driven by ttKoalaTalk()/the cheer below, not the eating sequence
+    fn(live);
+  }
+}
+
+// The live koala's speech cloud is only visible for a moment after something happens.
+function ttKoalaTalk(ms = 1700) {
+  timesTableKoalaSlot.classList.add("tt-say");
+  clearTimeout(timesTableKoalaTalkTimer);
+  timesTableKoalaTalkTimer = setTimeout(() => timesTableKoalaSlot.classList.remove("tt-say"), ms);
+}
+
+// kind: "normal" | "combo" | "fast" -> decides the cheer and which line the cloud says.
+function ttKoalaCheer(kind) {
+  const live = kb("ttlive");
+  if (!live) return;
+  const msgKey = kind === "combo" ? "kbCombo" : kind === "fast" ? "kbFast" : "kbCheer";
+  koalaReact("know", msgKey, live.scene, live.bubble, "kbIdle"); // happy eyes, arms up, sparkles
+  live.scene.classList.remove("sp-cheer", "tt-hype");
+  void live.scene.offsetWidth; // restart the jump
+  live.scene.classList.add("sp-cheer");
+  if (kind !== "normal") live.scene.classList.add("tt-hype");
+  clearTimeout(live.scene._ttCheerT);
+  live.scene._ttCheerT = setTimeout(() => live.scene.classList.remove("sp-cheer", "tt-hype"), 1100);
+  ttKoalaTalk();
+}
+
+function resetTimesTableCombo() {
+  timesTableCombo = 0;
+  clearTimeout(timesTableComboTimer);
+  timesTableComboBadge.hidden = true;
+}
+
+function showTimesTableComboBadge(n) {
+  const tier = n >= 10 ? "mega" : n >= 5 ? "big" : "base";
+  timesTableComboBadge.className = `tt-combo-badge tt-combo-${tier}`;
+  timesTableComboBadge.textContent = `${n >= 10 ? "🌟" : "🔥"} ${t("ttCombo", n)}`;
+  timesTableComboBadge.hidden = false;
+  timesTableComboBadge.style.animation = "none";
+  void timesTableComboBadge.offsetWidth; // restart the pop
+  timesTableComboBadge.style.animation = "";
+  clearTimeout(timesTableComboTimer);
+  timesTableComboTimer = setTimeout(() => {
+    timesTableComboBadge.hidden = true;
+  }, 1500);
+}
+
+const TIMESTABLE_CONFETTI_COLORS = ["#ff6b6b", "#ffd43b", "#4dabf7", "#38d9a9", "#b197fc", "#ff922b"];
+const TIMESTABLE_CONFETTI_GLYPHS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "×", "★"];
+
+// Number confetti + a "+10! Perfect!" pop-up at the cleared object, then combo / koala reactions.
+function celebrateTimesTableAnswer(item, fast) {
+  timesTableCombo++;
+  const combo = timesTableCombo;
+  const box = timesTableWordsEl.getBoundingClientRect();
+  const r = item.el.getBoundingClientRect();
+  const cx = r.left - box.left + r.width / 2;
+  const cy = r.top - box.top + r.height / 2;
+
+  const label = fast ? t("ttSuperFast") : t("ttPerfect");
+  const pop = document.createElement("div");
+  pop.className = "tt-fx tt-score-pop" + (fast ? " tt-score-fast" : "");
+  pop.textContent = `+${TIMESTABLE_POINTS_PER_CORRECT}! ${label}`;
+  // keep it fully inside the play area even if the object is at an edge or still above the top
+  pop.style.left = `${Math.min(Math.max(cx, 70), Math.max(box.width - 70, 70))}px`;
+  pop.style.top = `${Math.max(cy - 18, 30)}px`;
+  timesTableWordsEl.appendChild(pop);
+  setTimeout(() => pop.remove(), 1100);
+
+  const pieces = combo >= TIMESTABLE_COMBO_MIN ? 20 : 12;
+  for (let i = 0; i < pieces; i++) {
+    const s = document.createElement("span");
+    s.className = "tt-fx tt-confetti";
+    s.textContent = TIMESTABLE_CONFETTI_GLYPHS[Math.floor(Math.random() * TIMESTABLE_CONFETTI_GLYPHS.length)];
+    s.style.color = TIMESTABLE_CONFETTI_COLORS[i % TIMESTABLE_CONFETTI_COLORS.length];
+    const ang = (Math.PI * 2 * i) / pieces + Math.random() * 0.5;
+    const dist = 46 + Math.random() * 56;
+    s.style.left = `${Math.min(Math.max(cx, 10), box.width - 10)}px`;
+    s.style.top = `${Math.max(cy, 10)}px`;
+    s.style.setProperty("--dx", `${(Math.cos(ang) * dist).toFixed(1)}px`);
+    s.style.setProperty("--dy", `${(Math.sin(ang) * dist - 24).toFixed(1)}px`);
+    s.style.setProperty("--rot", `${Math.round((Math.random() - 0.5) * 540)}deg`);
+    s.style.fontSize = `${(0.85 + Math.random() * 0.6).toFixed(2)}rem`;
+    timesTableWordsEl.appendChild(s);
+    setTimeout(() => s.remove(), 1000);
+  }
+
+  if (combo >= TIMESTABLE_COMBO_MIN) showTimesTableComboBadge(combo);
+  ttKoalaCheer(combo >= TIMESTABLE_COMBO_MIN ? "combo" : fast ? "fast" : "normal");
+}
 
 timesTableStartBtn.addEventListener("click", startTimesTable);
 timesTableRestartBtn.addEventListener("click", startTimesTable);

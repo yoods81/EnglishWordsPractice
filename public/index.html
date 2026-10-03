@@ -789,10 +789,18 @@ to Flip!</span></div>
           <button type="button" class="typegame-mute-btn round-icon-btn" id="timestable-mute-btn" data-i18n-aria-label="timesTableMute" aria-label="Mute music">🔊</button>
           <button type="button" class="typegame-expand-btn round-icon-btn" id="timestable-expand-btn" data-i18n-aria-label="timesTableExpand" aria-label="Expand game area">⇕</button>
           <button type="button" class="typegame-end-btn round-icon-btn" id="timestable-end-btn" data-i18n-aria-label="timesTableEndLabel" aria-label="End game" hidden>✕</button>
+          <!-- Optional on-screen number pad (tablets / phones). The little keypad button sits in the left-hand column under Pause. -->
+          <button type="button" class="tt-keypad-toggle round-icon-btn" id="timestable-keypad-toggle" aria-pressed="false" data-i18n-aria-label="timesTableKeypadToggle" aria-label="Number pad">🔢</button>
 
           <div class="typegame-stage-banner" id="timestable-stage-banner" hidden aria-hidden="true">
             <span id="timestable-stage-banner-text"></span>
           </div>
+
+          <!-- Combo badge ("3 Combo!"), shown briefly while a streak is running -->
+          <div class="tt-combo-badge" id="timestable-combo" hidden aria-hidden="true"></div>
+
+          <!-- Live koala mascot: reacts to every answer. Sits behind the falling objects. -->
+          <div class="tt-koala-slot" id="timestable-koala-slot" aria-hidden="true"><span id="timestable-koala-anchor"></span></div>
 
           <div class="typegame-words" id="timestable-words"></div>
 
@@ -825,10 +833,34 @@ to Flip!</span></div>
         </div>
 
         <p class="typegame-typo-msg" id="timestable-typo-msg" hidden data-i18n="timesTableTypoMsg">❌ No matching fact — try again!</p>
-        <input type="text" id="timestable-input" class="typegame-input" inputmode="numeric" data-i18n-placeholder="timesTableInputPlaceholder" placeholder="Type here..." autocomplete="off" autocapitalize="off" spellcheck="false" disabled />
-        <div class="tt-howto">
-          <h3 class="tt-howto-title" data-i18n="timesTableHowTitle">💡 How to answer</h3>
-          <p id="timestable-start-message" class="timestable-instructions"></p>
+        <div class="tt-input-zone" id="timestable-input-zone">
+          <input type="text" id="timestable-input" class="typegame-input" inputmode="numeric" data-i18n-placeholder="timesTableInputPlaceholder" placeholder="Type here..." autocomplete="off" autocapitalize="off" spellcheck="false" disabled />
+          <p class="tt-tip">
+            <span id="timestable-tip" data-i18n="timesTableTipLine">💡 Tip: Type two numbers and the answer, e.g. 8216</span>
+            <button type="button" class="tt-help-btn" id="timestable-help-btn" aria-expanded="false" aria-controls="timestable-guide" data-i18n-aria-label="timesTableHelpLabel" aria-label="How to answer">?</button>
+          </p>
+          <!-- "How to answer" guide: a small card under the tip line. Opens by itself on the
+               start screen for the first couple of rounds, then only when the "?" is tapped. It sits below the
+               answer box (not over the play area) so it never covers the Start button. -->
+          <div class="tt-guide" id="timestable-guide" role="dialog" aria-labelledby="timestable-guide-title" hidden>
+            <button type="button" class="tt-guide-close" id="timestable-guide-close" data-i18n-aria-label="timesTableGuideClose" aria-label="Close">✕</button>
+            <h3 class="tt-guide-title" id="timestable-guide-title" data-i18n="timesTableHowTitle">💡 How to answer</h3>
+            <p id="timestable-start-message" class="timestable-instructions"></p>
+          </div>
+          <div class="tt-keypad" id="timestable-keypad" role="group" data-i18n-aria-label="timesTableKeypadToggle" aria-label="Number pad" hidden>
+            <button type="button" class="tt-key" data-key="1">1</button>
+            <button type="button" class="tt-key" data-key="2">2</button>
+            <button type="button" class="tt-key" data-key="3">3</button>
+            <button type="button" class="tt-key" data-key="4">4</button>
+            <button type="button" class="tt-key" data-key="5">5</button>
+            <button type="button" class="tt-key" data-key="6">6</button>
+            <button type="button" class="tt-key" data-key="7">7</button>
+            <button type="button" class="tt-key" data-key="8">8</button>
+            <button type="button" class="tt-key" data-key="9">9</button>
+            <button type="button" class="tt-key tt-key-back" data-key="back" data-i18n-aria-label="timesTableKeyBackspace" aria-label="Backspace">⌫</button>
+            <button type="button" class="tt-key tt-key-zero" data-key="0">0</button>
+            <button type="button" class="tt-key tt-key-enter" data-key="enter" data-i18n-aria-label="timesTableKeyEnter" aria-label="Enter">↵</button>
+          </div>
         </div>
       </div>
     </section>
