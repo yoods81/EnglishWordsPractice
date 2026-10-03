@@ -7215,3 +7215,7 @@ html[data-theme="dark"] .scene-card .view-section-title { color: #6ff0cf; }
 #spelling-practice .sp-erase-btn svg { width: 100%; height: 100%; display: block; }
 @media (hover: hover) { #spelling-practice .sp-erase-btn:hover { color: var(--accent-dark); background: #e8f7f1; } }
 #spelling-practice .sp-erase-btn:active { transform: scale(0.92); }
+
+/* Spelling game: no inner white panel — the scenery of the outer card shows through */
+html body #spelling-practice.spelling-stage-box.sp-game { border: 0 !important; background: transparent !important; box-shadow: none; }
+html body #spelling-practice .sp-footer { border-top: 0; padding-top: 4px; }
