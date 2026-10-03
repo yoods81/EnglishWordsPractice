@@ -325,6 +325,11 @@ const TRANSLATIONS = {
     spellingBackBtn: "🍃 Back",
     spellingNextBtn: "Next 🌿",
     spellingCheckBtn: "Check Answer",
+    spListenBtn: "Listen",
+    spellingBackAria: "Previous word",
+    spellingNextAria: "Next word",
+    spellingBackspaceBtn: "Erase",
+    spellingBackspaceAria: "Delete last letter",
     spellingCorrectPrompt: "✅ Correct! Press Next to continue.",
     spellingCorrectNoCreditPrompt: "✅ Correct! (This one already counted as wrong earlier this round, so it won't add to your score.) Press Next to continue.",
     spellingWrongPrompt: "Please enter the correct spelling to go to the next word",
@@ -805,6 +810,11 @@ const TRANSLATIONS = {
     spellingBackBtn: "🍃 이전",
     spellingNextBtn: "다음 🌿",
     spellingCheckBtn: "정답 확인",
+    spListenBtn: "듣기",
+    spellingBackAria: "이전 단어",
+    spellingNextAria: "다음 단어",
+    spellingBackspaceBtn: "지우기",
+    spellingBackspaceAria: "마지막 글자 지우기",
     spellingCorrectPrompt: "✅ 정답이에요! Next를 눌러 다음 단어로 넘어가세요.",
     spellingCorrectNoCreditPrompt: "✅ 정답이에요! (이 단어는 이번 라운드에서 이미 한 번 틀려서 점수에는 반영되지 않아요.) Next를 눌러 다음 단어로 넘어가세요.",
     spellingWrongPrompt: "정확한 철자를 입력해야 다음 단어로 넘어갈 수 있어요.",
@@ -3913,6 +3923,7 @@ const spellingFeedback = document.getElementById("spelling-feedback");
 const spellingBackBtn = document.getElementById("spelling-back");
 const spellingCheckBtn = document.getElementById("spelling-check");
 const spellingNextBtn = document.getElementById("spelling-next");
+const spellingBackspaceBtn = document.getElementById("spelling-backspace");
 const spellingScoreEl = document.getElementById("spelling-score");
 const spellingGoalValueEl = document.getElementById("spelling-goal-value");
 const spellingGoalMinusBtn = document.getElementById("spelling-goal-minus");
@@ -4308,7 +4319,23 @@ function syncSpellingHintTiles(flash = true) {
   });
 }
 
+// ⌫ at the right end of the chip row: drops the last typed letter and keeps
+// the chips in sync (the input handler un-lights the matching chip).
+spellingBackspaceBtn.addEventListener("click", () => {
+  const v = spellingInput.value;
+  if (!v) return;
+  spellingInput.value = v.slice(0, -1);
+  spellingInput.dispatchEvent(new Event("input"));
+  spellingInput.focus();
+});
+
 spellingSpeakBtn.addEventListener("click", () => {
+  // Pulse ring on every press (also fires for the automatic play at the
+  // start of each word) — restart the animation if it is still running.
+  spellingSpeakBtn.classList.remove("sp-pulse");
+  void spellingSpeakBtn.offsetWidth;
+  spellingSpeakBtn.classList.add("sp-pulse");
+  setTimeout(() => spellingSpeakBtn.classList.remove("sp-pulse"), 700);
   spellingReact("hear", "spLiveHear");
   if (spellingDeck[spellingIndex]) speak(spellingDeck[spellingIndex].word, {
     onstart: () => { spellingSpeakBtn.classList.add("speak-btn-active"); koalaTalk(true); },
@@ -4550,12 +4577,14 @@ document.addEventListener("keydown", (e) => {
     return;
   }
 
-  if (e.key === "ArrowUp") {
+  // The Number of Questions stepper is hidden while a round is running, so
+  // its Up/Down shortcuts only apply on the start screen.
+  if (spellingPractice.hidden && e.key === "ArrowUp") {
     e.preventDefault();
     spellingGoalPlusBtn.click();
     return;
   }
-  if (e.key === "ArrowDown") {
+  if (spellingPractice.hidden && e.key === "ArrowDown") {
     e.preventDefault();
     spellingGoalMinusBtn.click();
     return;

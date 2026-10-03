@@ -606,10 +606,14 @@
             </div>
           </div>
         </div>
-        <div id="spelling-practice" class="spelling-stage-box" hidden>
-          <div class="sp-progress" id="spelling-progress" aria-live="polite"></div>
-          <div id="spelling-trail-slot"></div>
+        <div id="spelling-practice" class="spelling-stage-box sp-game" hidden>
+          <!-- 1. Progress: "Word 1 of 10" + leaf progress bar only -->
+          <div class="sp-header">
+            <div class="sp-progress" id="spelling-progress" aria-live="polite"></div>
+            <div id="spelling-trail-slot"></div>
+          </div>
           <div class="sp-body">
+          <!-- Koala coach: small and centred so it never fights the controls -->
           <div class="sp-left">
           <div class="sp-live-scene" id="spelling-scene" aria-hidden="true">
             <div class="sp-cloud" id="spelling-bubble">
@@ -619,22 +623,30 @@
           </div>
           </div>
           <div class="sp-right">
-          <div class="sp-answer-row">
-            <button class="speak-btn speak-btn-hero" id="spelling-speak" type="button" title="Hear the word" aria-label="Hear the word">🔊</button>
+          <!-- 2. Main action: big Listen pill -->
+          <button class="sp-listen-btn" id="spelling-speak" type="button" title="Hear the word" aria-label="Hear the word">
+            <span class="sp-listen-icon" aria-hidden="true">🔊</span><span class="sp-listen-label" data-i18n="spListenBtn">Listen</span>
+          </button>
+          <!-- 3. Answer field, with small ← / → word navigation on its two edges -->
+          <div class="sp-input-row">
+            <button class="sp-nav-btn" id="spelling-back" type="button" data-i18n-aria-label="spellingBackAria" aria-label="Previous word">←</button>
             <input type="text" id="spelling-input" data-i18n-placeholder="spellingPlaceholder" placeholder="Type what you hear..." autocomplete="off" autocapitalize="off" spellcheck="false" />
+            <button class="sp-nav-btn" id="spelling-next" type="button" data-i18n-aria-label="spellingNextAria" aria-label="Next word" disabled>→</button>
           </div>
-          <div class="spelling-hint-tray" id="spelling-hint-tray" aria-hidden="true"></div>
+          <!-- 4. Alphabet chips (1–2 rows) with Backspace at the right end -->
+          <div class="sp-chip-row">
+            <div class="spelling-hint-tray" id="spelling-hint-tray"></div>
+            <button class="sp-backspace" id="spelling-backspace" type="button" data-i18n-aria-label="spellingBackspaceAria" aria-label="Delete last letter"><span class="sp-backspace-icon" aria-hidden="true">⌫</span><span class="sp-backspace-label" data-i18n="spellingBackspaceBtn">Erase</span></button>
+          </div>
+          <!-- 5. Primary CTA -->
           <div id="spelling-word-audio" class="spelling-action-row">
-            <button class="pill accent small" id="spelling-check"><svg class="check-icon-svg" viewBox="0 0 24 24" width="14" height="14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="var(--bg)" stroke-width="2" fill="none"/><path d="M7 12.5l3.2 3.2L17 9" stroke="var(--bg)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span data-i18n="spellingCheckBtn">Check Answer</span></button>
+            <button class="pill accent sp-check-btn" id="spelling-check"><svg class="check-icon-svg" viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="var(--bg)" stroke-width="2" fill="none"/><path d="M7 12.5l3.2 3.2L17 9" stroke="var(--bg)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span data-i18n="spellingCheckBtn">Check Answer</span></button>
           </div>
           <div class="spelling-tip" id="spelling-feedback"></div>
-          <div class="flash-controls">
-            <button class="pill neutral small" id="spelling-back" data-i18n="spellingBackBtn">⬅ Back</button>
-            <button class="pill neutral small" id="spelling-next" data-i18n="spellingNextBtn" disabled>Next ➡</button>
-          </div>
-          <div class="quiz-footer">
+          <!-- 6. Score on the left; sound toggle (injected by initSfxToggles) and Finish tucked in the corner -->
+          <div class="quiz-footer sp-footer">
             <span class="score-tag" id="spelling-score">Score: 0 / 0</span>
-            <button class="pill error small" id="spelling-finish-btn" style="margin-left:auto;" data-i18n="spellingFinishBtn">🏁 Finish</button>
+            <button class="pill neutral small sp-finish-btn" id="spelling-finish-btn" data-i18n="spellingFinishBtn">🏁 Finish</button>
           </div>
           </div>
           </div>

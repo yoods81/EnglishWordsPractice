@@ -5193,3 +5193,136 @@ body.signed-in .stat-bar { display: none; }
 .koala-view.is-scrolled .koala-hero-next, .koala-view.is-scrolled .koala-hero-streak small { display: none; }
 .koala-view.is-scrolled .koala-hero-streak { margin-top: 2px; padding-top: 2px; border: 0; }
 .koala-view.is-scrolled .koala-hero-level { font-size: 1rem; }
+
+/* =====================================================================
+   Spelling game — layout refactor (top to bottom, one calm column)
+     1. progress   "Word 1 of 10" + leaf bar        (.sp-header)
+        koala coach, small and centred              (.sp-left)
+     2. Listen     big pill CTA with pulse           (.sp-listen-btn)
+     3. input      big field, small ← / → on edges   (.sp-input-row)
+     4. chips      1–2 rows of letters + ⌫           (.sp-chip-row)
+     5. Check      primary CTA                       (.sp-check-btn)
+     6. footer     score left; sound + Finish right  (.sp-footer)
+   These rules sit last on purpose: they replace the older two-column
+   practice layout without having to untangle its many media queries.
+   ===================================================================== */
+
+/* While a round is running the title and "Number of Questions" row are
+   hidden at every width — they only matter before the round starts. */
+#view-spelling .card:has(#spelling-practice:not([hidden])) > .view-section-title,
+#view-spelling .card:has(#spelling-practice:not([hidden])) > .setting-row { display: none; }
+
+#spelling-practice.sp-game { padding: 14px 16px 12px; }
+
+/* 1. progress header */
+#spelling-practice .sp-header { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; max-width: 560px; margin: 0 auto 8px; }
+#spelling-practice .sp-header .sp-progress { flex: 0 0 auto; margin: 0; text-align: left; font-size: 1rem; padding: 4px 14px; border-radius: 999px; background: #e4f7f0; border: 1px solid #c8f0e2; }
+#spelling-practice .sp-header #spelling-trail-slot { flex: 1 1 180px; min-width: 0; }
+#spelling-practice .sp-header .sp-branch { margin: 0; }
+
+/* single centred column */
+#spelling-practice .sp-body { display: flex; flex-direction: column; align-items: stretch; gap: 10px; max-width: 560px; margin: 0 auto; }
+#spelling-practice .sp-right { display: flex; flex-direction: column; align-items: stretch; gap: 12px; margin: 0; }
+
+/* koala + speech cloud: one tidy row, no absolute positioning games */
+#spelling-practice .sp-left { display: flex; flex-direction: row; justify-content: center; align-items: center; margin: 0; }
+#spelling-practice .sp-left .sp-live-scene { position: relative; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 6px; width: auto; height: auto; margin: 0; padding: 0; }
+#spelling-practice .sp-left .sp-live-scene .sk-svg { width: 104px; max-width: 104px; height: auto; flex: 0 0 auto; }
+#spelling-practice .sp-cloud { position: relative; top: auto; left: auto; flex: 0 0 auto; width: 116px; height: 66px; }
+#spelling-practice .sp-cloud .bubble-text { left: 12px; right: 12px; top: 10px; height: 30px; font-size: 0.72rem; }
+
+/* 2. Listen — large pill CTA */
+.sp-listen-btn {
+  position: relative; align-self: center;
+  display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+  min-width: 230px; padding: 14px 36px;
+  font-family: var(--font-heading); font-weight: 700; font-size: 1.5rem; line-height: 1.1; color: #fff;
+  background: linear-gradient(160deg, #5b92ff, var(--primary));
+  border: 2px solid var(--primary-dark); border-radius: 999px;
+  box-shadow: 0 5px 0 var(--primary-dark);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.sp-listen-icon { font-size: 1.7rem; line-height: 1; }
+.sp-listen-btn:active { transform: translateY(4px) scale(0.98); box-shadow: 0 1px 0 var(--primary-dark); }
+.sp-listen-btn:focus-visible { outline: 3px solid #ffd166; outline-offset: 3px; }
+/* pulse ring: one burst per press, and a steady beat while the word plays */
+.sp-listen-btn::after { content: ""; position: absolute; inset: -2px; border-radius: inherit; pointer-events: none; opacity: 0; }
+.sp-listen-btn.sp-pulse::after { animation: sp-listen-ring 0.7s ease-out; }
+.sp-listen-btn.speak-btn-active::after { animation: sp-listen-ring 1s ease-out infinite; }
+.sp-listen-btn.sk-wave .sp-listen-icon { animation: sk-speaker-wobble 0.5s ease-in-out infinite; }
+@keyframes sp-listen-ring {
+  0%   { opacity: 1; box-shadow: 0 0 0 0 rgba(45, 108, 255, 0.55); }
+  100% { opacity: 0; box-shadow: 0 0 0 24px rgba(45, 108, 255, 0); }
+}
+
+/* 3. Answer field with ← / → on its two edges */
+.sp-input-row { display: flex; align-items: center; gap: 8px; }
+#spelling-practice #spelling-input { flex: 1 1 auto; min-width: 0; width: auto; margin: 0; padding: 14px 12px; font-family: var(--font-heading); font-size: 1.5rem; letter-spacing: 0.04em; border-radius: 18px; text-align: center; }
+#spelling-practice .sp-nav-btn {
+  flex: 0 0 auto; width: 44px; height: 44px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-heading); font-weight: 700; font-size: 1.4rem; line-height: 1;
+  color: var(--accent-dark); background: #fff;
+  border: 2px solid var(--outline); border-radius: 50%; box-shadow: 0 3px 0 var(--outline);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+#spelling-practice .sp-nav-btn:active { transform: translateY(2px) scale(0.92); box-shadow: none; }
+#spelling-practice .sp-nav-btn:disabled { color: #9aa6a2; background: #eef2f0; border-color: #cfd8d5; box-shadow: none; cursor: default; transform: none; }
+/* Next turns mint (and keeps its gentle nudge) once the answer is checked */
+#spelling-practice #spelling-next:not(:disabled) { background: var(--accent); color: #fff; border-color: var(--accent-dark); }
+
+/* 4. Alphabet chips + ⌫ */
+.sp-chip-row { display: flex; align-items: flex-end; justify-content: center; gap: 8px; }
+#spelling-practice .spelling-hint-tray { flex: 1 1 auto; min-width: 0; justify-content: center; gap: 6px; margin: 0; }
+#spelling-practice .spelling-hint-tile { width: 42px; height: 42px; font-size: 1.15rem; border-radius: 12px; -webkit-tap-highlight-color: transparent; }
+#spelling-practice .spelling-hint-tile:active { transform: scale(0.86); box-shadow: 0 1px 0 var(--bg); }
+@media (hover: hover) { #spelling-practice .spelling-hint-tile:hover { transform: scale(1.07); } }
+.sp-backspace {
+  flex: 0 0 auto; align-self: flex-end; height: 42px; min-width: 48px; padding: 0 12px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: var(--font-heading); font-weight: 700; font-size: 0.8rem; color: var(--error-dark);
+  background: #fff1f1; border: 2px solid var(--error); border-radius: 12px; box-shadow: 0 3px 0 var(--error);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.sp-backspace-icon { font-size: 1.2rem; line-height: 1; }
+.sp-backspace:active { transform: scale(0.88) translateY(2px); box-shadow: none; }
+
+/* 5. Check Answer — the strongest element on the screen */
+#spelling-practice .spelling-action-row { display: flex; justify-content: center; margin: 4px 0 0; }
+#spelling-practice .sp-check-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  width: min(100%, 340px); padding: 15px 28px;
+  font-size: 1.35rem; font-weight: 700; border-width: 2px; border-radius: 999px;
+  box-shadow: 0 5px 0 var(--accent-dark);
+}
+#spelling-practice .sp-check-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--accent-dark); }
+#spelling-practice .sp-check-btn .check-icon-svg { width: 1.3em; height: 1.3em; }
+#spelling-practice .spelling-tip { min-height: 24px; margin: 0; font-size: 1rem; text-align: center; }
+
+/* 6. Footer: score on the left; sound toggle + Finish tucked into the corner */
+#spelling-practice .sp-footer { display: flex; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 8px; margin: 4px 0 0; padding-top: 10px; border-top: 2px dashed #d5efe6; }
+#spelling-practice .sp-footer .sfx-toggle { margin-left: auto; }
+#spelling-practice .sp-footer .sp-finish-btn { margin: 0; padding: 5px 12px; font-size: 0.75rem; color: var(--muted); background: transparent; border: 1px solid #cfd8d5; box-shadow: none; }
+#spelling-practice .sp-footer .sp-finish-btn:active { transform: none; }
+
+@media (max-width: 520px) {
+  #spelling-practice.sp-game { padding: 10px 10px 10px; }
+  #spelling-practice .sp-header #spelling-trail-slot { flex-basis: 100%; }
+  #spelling-practice .sp-left .sp-live-scene .sk-svg { width: 84px; max-width: 84px; }
+  #spelling-practice .sp-cloud { width: 104px; height: 60px; }
+  #spelling-practice .sp-cloud .bubble-text { top: 8px; height: 26px; font-size: 0.66rem; }
+  .sp-listen-btn { min-width: 200px; padding: 12px 28px; font-size: 1.3rem; }
+  #spelling-practice #spelling-input { padding: 12px 8px; font-size: 1.3rem; }
+  #spelling-practice .sp-nav-btn { width: 40px; height: 40px; }
+  #spelling-practice .spelling-hint-tray { gap: 5px; }
+  #spelling-practice .spelling-hint-tile { width: 36px; height: 36px; font-size: 1.05rem; }
+  .sp-backspace { height: 36px; min-width: 42px; padding: 0 8px; }
+  .sp-backspace-label { display: none; }
+  #spelling-practice .sp-check-btn { font-size: 1.2rem; padding: 13px 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-listen-btn::after, .sp-listen-btn.sk-wave .sp-listen-icon { animation: none !important; }
+}
