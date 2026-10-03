@@ -295,6 +295,60 @@ const TRANSLATIONS = {
     optSynonyms: "Synonyms",
     optAntonyms: "Antonyms",
     optHomophones: "Homophones",
+    optMeaning: "Word → Meaning",
+    optFillBlank: "Fill in the Blank",
+    optListening: "Listen & Choose",
+    optTyping: "Type the Word",
+    optMixed: "🎲 Mixed",
+    qzStartTitle: "💡 Quiz",
+    qzLevelTitle: "📚 Difficulty",
+    qzModeTitle: "🎮 Mode",
+    qzModeRelaxed: "🌿 Relaxed",
+    qzModeTime: "⏱ Time Attack",
+    qzModeNoteRelaxed: "Take your time. No clock!",
+    qzModeNoteTime: (c, ty) => `${c} seconds a question (${ty} when typing). If time runs out, it counts as a miss.`,
+    quizStartBtn: "▶ Start Quiz",
+    qzChipQuestions: (n) => `🎯 ${n} questions`,
+    qzChipTime: "⏱ Time Attack",
+    qzDailyLine: (have, goal) => `🎯 Today: ${have} / ${goal} questions`,
+    qzDailyDone: "🎉 Daily goal reached!",
+    qzCount: (i, n) => `Question ${i} / ${n}`,
+    qzScoreTag: (n) => `Correct: ${n}`,
+    qzComboChip: (n) => `🔥 ${n} in a row`,
+    qzInstrVocabulary: "Which word matches this meaning?",
+    qzInstrMeaning: "What does this word mean?",
+    qzInstrFillblank: "Which word fits the gap?",
+    qzInstrListening: "Listen, then choose the word you hear.",
+    qzInstrTyping: "Read the meaning, then type the word.",
+    qzInstrSynonyms: "Choose the best match.",
+    qzInstrHomophones: "Choose the right meaning.",
+    qzListenPrompt: "👂 ?",
+    qzTypingPlaceholder: "Type the word…",
+    qzCheckBtn: "Check 🔍",
+    qzHint5050: "🌿 50:50",
+    qzHintLetter: "🔤 First letter",
+    qzHintStarts: (c) => `Starts with “${c}”`,
+    qzNoLeaves: "No leaves left! Get 5 in a row to win one back 🌿",
+    qzLeavesAria: (n) => `${n} hint leaves left`,
+    qzFbCorrect: "✅ Correct!",
+    qzFbWrong: (a) => `❌ The answer is “${a}”`,
+    qzFbTimeUp: (a) => `⏰ Time's up! The answer is “${a}”`,
+    qzFbAlmost: "So close! Check the spelling.",
+    qzResultTitle: "Quiz complete!",
+    qzResultRetryTitle: "Practice round complete!",
+    qzMoodGreat: "Amazing! You're a star! 🌟",
+    qzMoodGood: "Great job! Keep it up! 💪",
+    qzMoodKeep: "Good try! Practice makes perfect 🌱",
+    qzStatCorrect: "Correct",
+    qzStatTime: "Time",
+    qzStatCombo: "Best streak",
+    qzStatCoins: "Coins",
+    qzDailyReached: "🎉 You reached today's goal!",
+    qzMissedTitle: "📝 Words to practise",
+    qzNoMissed: "No mistakes — amazing! 🎉",
+    qzRetryBtn: (n) => `🔁 Retry missed words (${n})`,
+    qzAgainBtn: "▶ Play again",
+    qzSettingsBtn: "⚙️ Change settings",
     flashFrontModeLabel: "Flashcard front side",
     flashSourceLabel: "Flashcard source",
     flashSourceAuto: "🎲 Level words",
@@ -808,6 +862,63 @@ const TRANSLATIONS = {
     optSynonyms: "동의어",
     optAntonyms: "반의어",
     optHomophones: "동음이의어",
+    optMeaning: "단어 → 뜻",
+    optFillBlank: "빈칸 채우기",
+    optListening: "듣고 고르기",
+    optTyping: "철자 쓰기",
+    optMixed: "🎲 섞어서",
+    qzStartTitle: "💡 퀴즈",
+    qzLevelTitle: "📚 난이도",
+    qzModeTitle: "🎮 모드",
+    qzModeRelaxed: "🌿 여유롭게",
+    qzModeTime: "⏱ 타임어택",
+    qzModeNoteRelaxed: "천천히 풀어요. 시간 제한이 없어요!",
+    qzModeNoteTime: (c, ty) => `문제당 ${c}초 (쓰기는 ${ty}초). 시간이 지나면 오답으로 처리돼요.`,
+    quizStartBtn: "▶ 퀴즈 시작",
+    qzChipQuestions: (n) => `🎯 ${n}문제`,
+    qzChipTime: "⏱ 타임어택",
+    qzDailyLine: (have, goal) => `🎯 오늘: ${have} / ${goal}문제`,
+    qzDailyDone: "🎉 오늘의 목표 달성!",
+    qzCount: (i, n) => `${i} / ${n}번 문제`,
+    qzScoreTag: (n) => `정답: ${n}개`,
+    qzComboChip: (n) => `🔥 ${n}연속`,
+    qzInstrVocabulary: "이 뜻에 맞는 단어는 무엇일까요?",
+    qzInstrMeaning: "이 단어의 뜻은 무엇일까요?",
+    qzInstrFillblank: "빈칸에 알맞은 단어를 골라요.",
+    qzInstrListening: "잘 듣고, 들린 단어를 골라요.",
+    qzInstrTyping: "뜻을 읽고 단어를 써 보세요.",
+    qzInstrSynonyms: "가장 알맞은 것을 골라요.",
+    qzInstrHomophones: "알맞은 뜻을 골라요.",
+    qzListenPrompt: "👂 ?",
+    qzTypingPlaceholder: "단어를 써 보세요…",
+    qzCheckBtn: "확인 🔍",
+    qzHint5050: "🌿 50:50",
+    qzHintLetter: "🔤 첫 글자",
+    qzHintStarts: (c) => `“${c}”(으)로 시작해요`,
+    qzNoLeaves: "잎사귀가 없어요! 5연속 정답이면 하나를 돌려받아요 🌿",
+    qzLeavesAria: (n) => `힌트 잎사귀 ${n}개 남음`,
+    qzFbCorrect: "✅ 정답!",
+    qzFbWrong: (a) => `❌ 정답은 “${a}”`,
+    qzFbTimeUp: (a) => `⏰ 시간 초과! 정답은 “${a}”`,
+    qzFbAlmost: "아깝다! 철자를 다시 확인해요.",
+    qzResultTitle: "퀴즈 완료!",
+    qzResultRetryTitle: "복습 라운드 완료!",
+    qzMoodGreat: "대단해요! 최고예요! 🌟",
+    qzMoodGood: "잘했어요! 계속 가요! 💪",
+    qzMoodKeep: "좋은 시도예요! 연습하면 늘어요 🌱",
+    qzStatCorrect: "정답",
+    qzStatTime: "시간",
+    qzStatCombo: "최고 연속",
+    qzStatCoins: "코인",
+    qzDailyReached: "🎉 오늘의 목표를 달성했어요!",
+    qzMissedTitle: "📝 다시 연습할 단어",
+    qzNoMissed: "하나도 안 틀렸어요 — 대단해요! 🎉",
+    qzRetryBtn: (n) => `🔁 틀린 단어 다시 풀기 (${n})`,
+    qzAgainBtn: "▶ 다시 하기",
+    qzSettingsBtn: "⚙️ 설정 바꾸기",
+    qzKoMeaningLabel: "🇰🇷 한국어 뜻",
+    qzKoMeaningHide: "뜻 숨기기",
+    qzKoMeaningShow: "뜻 보기",
     flashFrontModeLabel: "플래시카드 앞면",
     flashSourceLabel: "플래시카드 출처",
     flashSourceAuto: "🎲 레벨 단어",
@@ -1526,10 +1637,7 @@ function goalMaxFor() {
 // builds) can never exceed this, regardless of how high a role's own
 // ceiling goes.
 function quizPoolSizeForCurrentCategory() {
-  const cat = quizCategorySel.value;
-  if (cat === "synonyms") return buildSynonymQuestions(currentLevel).length;
-  if (cat === "homophones") return buildHomophoneQuestions(currentLevel).length;
-  return buildVocabQuestions(currentLevel).length;
+  return buildQuizPool().length;
 }
 
 function spellingPoolSize() {
@@ -1935,6 +2043,7 @@ function applyStaticTranslations() {
   document.documentElement.lang = currentLang === "ko" ? "ko" : "en";
   renderGoalStepper("quiz");
   renderGoalStepper("spelling");
+  if (typeof renderQuizStart === "function" && quizPhase === "start") renderQuizStart();
   if (typeof renderHome === "function") renderHome();
   updateCategoryOptionVisibility();
   // These two show state (not static copy), so re-derive them after the
@@ -2229,7 +2338,7 @@ function refreshCurrentView() {
 function refreshView(view) {
   if (view === "landing") renderHome();
   if (view === "flashcards") buildFlashDeck();
-  if (view === "quiz") buildQuizQuestions();
+  if (view === "quiz") showQuizStart();
   if (view === "spelling") buildSpellingDeck();
   if (view === "typegame") enterTypeGameTab();
   if (view === "timestable") enterTimesTableTab();
@@ -2252,6 +2361,7 @@ function goToTab(view) {
   // switching tabs to check something doesn't cost the player their score.
   if (previousView === "typegame" && view !== "typegame") pauseTypeGame();
   if (previousView === "timestable" && view !== "timestable") pauseTimesTable();
+  if (previousView === "quiz" && view !== "quiz") stopQuizTimer();
 
   tabButtons.forEach((b) => b.classList.toggle("active", b.dataset.view === view));
   syncTabGroupActiveStates(view);
@@ -3681,143 +3791,544 @@ function setQuizProgress(pct) {
   setTrailProgress(quizTrail, quizProgressFill, pct);
 }
 
-const MIN_POOL_FOR_QUIZ = 4;
+const MIN_POOL_FOR_QUIZ = QuizCore.MIN_CHOICES;
+
+/* The Quiz has three screens: a start screen (pick difficulty and mode), the
+   round itself, and a result screen. The question types are merged into the
+   Category menu; building them, the hints and the typed-answer check all live
+   in quiz-core.js. */
+const QUIZ_PREFS_KEY = "ywp_quiz_prefs_v1";
+const QUIZ_KO_MEANING_KEY = "ywp_quiz_ko_meaning_v1";
+const QUIZ_RESULT_MISSED_SHOWN = 8;
+
+const quizStartScreen = document.getElementById("quiz-start-screen");
+const quizPractice = document.getElementById("quiz-practice");
+const quizResultEl = document.getElementById("quiz-result");
+const quizStartBtn = document.getElementById("quiz-start-btn");
+const quizStartChipsEl = document.getElementById("quiz-start-chips");
+const quizLevelSeg = document.getElementById("quiz-level-seg");
+const quizModeSeg = document.getElementById("quiz-mode-seg");
+const quizModeNote = document.getElementById("quiz-mode-note");
+const quizStartDaily = document.getElementById("quiz-start-daily");
+const quizStartWarn = document.getElementById("quiz-start-warn");
+const quizCountEl = document.getElementById("quiz-count");
+const quizComboChip = document.getElementById("quiz-combo");
+const quizTimerEl = document.getElementById("quiz-timer");
+const quizTimerFill = document.getElementById("quiz-timer-fill");
+const quizTimerText = document.getElementById("quiz-timer-text");
+const quizInstructionEl = document.getElementById("quiz-instruction");
+const quizSpeakBtn = document.getElementById("quiz-speak");
+const quizSpeakWrap = document.getElementById("quiz-speak-wrap");
+const quizTypingBox = document.getElementById("quiz-typing");
+const quizTypingInput = document.getElementById("quiz-typing-input");
+const quizTypingCheck = document.getElementById("quiz-typing-check");
+const quizTypingPattern = document.getElementById("quiz-typing-pattern");
+const quizLeavesEl = document.getElementById("quiz-leaves");
+const quizHint5050Btn = document.getElementById("quiz-hint-5050");
+const quizHintLetterBtn = document.getElementById("quiz-hint-letter");
+const quizHintTextEl = document.getElementById("quiz-hint-text");
+const quizFeedbackEl = document.getElementById("quiz-feedback");
+
+let quizPhase = "start"; // "start" | "play" | "result"
+let quizMode = loadQuizMode(); // "relaxed" | "time"
 let quizQuestions = [];
 let quizIndex = 0;
 let quizScore = 0;
 let quizCombo = 0; // consecutive right answers (see comboAfterAnswer)
+let quizBestCombo = 0;
 let spellingCombo = 0;
 let quizAnswered = false;
+let quizIsRetry = false;
+let quizMissed = [];
+let quizLeaves = QuizCore.LEAVES_START;
+let quizHints = { fifty: false, letter: false, letterText: "" };
+let quizTimer = null;
+let quizQuestionShownAt = 0;
+let quizActiveMs = 0;
+let quizCoinsBefore = 0;
+let quizDailyBefore = 0;
+let quizKoMeaningShown = loadQuizKoMeaning();
 
-function buildVocabQuestions(level) {
-  const pool = getVocabPool(level);
-  if (pool.length < MIN_POOL_FOR_QUIZ) return [];
-  return pool.map((item, i) => {
-    const distractors = pickRandom(pool, 3, i).map((d) => d.word);
-    const options = shuffle([item.word, ...distractors]);
-    return { prompt: item.definition, answer: item.word, options, target: item.word };
-  });
+function loadQuizMode() {
+  try {
+    return JSON.parse(localStorage.getItem(QUIZ_PREFS_KEY) || "{}").mode === "time" ? "time" : "relaxed";
+  } catch (e) { return "relaxed"; }
+}
+function saveQuizMode() {
+  try { localStorage.setItem(QUIZ_PREFS_KEY, JSON.stringify({ mode: quizMode })); } catch (e) { /* private mode */ }
+}
+function loadQuizKoMeaning() {
+  try { return localStorage.getItem(QUIZ_KO_MEANING_KEY) !== "0"; } catch (e) { return true; }
+}
+function saveQuizKoMeaning() {
+  try { localStorage.setItem(QUIZ_KO_MEANING_KEY, quizKoMeaningShown ? "1" : "0"); } catch (e) { /* private mode */ }
 }
 
-function buildSynonymQuestions(level) {
-  const pool = getSynonymPool(level);
-  if (pool.length < MIN_POOL_FOR_QUIZ) return [];
-  return pool.map((item, i) => {
-    const distractors = pickRandom(pool, 3, i).map((d) => d.synonym);
-    const options = shuffle([item.synonym, ...distractors]);
-    return { prompt: t("quizSynonymPrompt", item.word), answer: item.synonym, options, target: item.word };
-  });
+// Every question the current category and level can make (one per word, so a
+// word can never be asked twice in a round).
+function buildQuizPool() {
+  return QuizCore.buildQuestions(
+    quizCategorySel.value,
+    { vocab: getVocabPool(currentLevel), synonyms: getSynonymPool(currentLevel), homophones: getHomophonePool(currentLevel) },
+    { shuffle, prompts: { synonym: (w) => t("quizSynonymPrompt", w), homophone: (w) => t("quizHomophonePrompt", w) } }
+  );
 }
 
-function buildHomophoneQuestions(level) {
-  const pool = getHomophonePool(level);
-  if (pool.length < 2) return [];
-  const questions = [];
-  pool.forEach((pairItem, i) => {
-    pairItem.pair.forEach((word, wi) => {
-      const correctDef = pairItem.defs[wi];
-      const otherDefs = pool.filter((_, pi) => pi !== i).flatMap((p) => p.defs);
-      const distractors = shuffle(otherDefs).slice(0, 3);
-      const options = shuffle([correctDef, ...distractors]);
-      questions.push({ prompt: t("quizHomophonePrompt", word), answer: correctDef, options, target: word });
-    });
-  });
-  return questions;
+const quizEarnedCoins = () => (progress.koala && progress.koala.earned) || 0;
+
+/* ---------- Start screen ---------- */
+function showQuizStart() {
+  stopQuizTimer();
+  quizPhase = "start";
+  quizGoalBanner.hidden = true;
+  quizGoalCelebrated = false;
+  quizStartScreen.hidden = false;
+  quizPractice.hidden = true;
+  quizResultEl.hidden = true;
+  renderQuizStart();
 }
 
+function renderQuizStart() {
+  // Difficulty = the level (Year 4 ... / the Korean school grades). It is the
+  // same level the header badge shows, so the two always agree.
+  quizLevelSeg.innerHTML = "";
+  currentSystem().levels.forEach((lv) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "qz-seg-btn" + (lv.id === currentLevel ? " active" : "");
+    btn.setAttribute("role", "radio");
+    btn.setAttribute("aria-checked", String(lv.id === currentLevel));
+    btn.textContent = lv.label;
+    btn.addEventListener("click", () => { if (lv.id !== currentLevel) applyLevel(lv.id); });
+    quizLevelSeg.appendChild(btn);
+  });
+
+  quizModeSeg.querySelectorAll(".qz-seg-btn").forEach((b) => {
+    const on = b.dataset.mode === quizMode;
+    b.classList.toggle("active", on);
+    b.setAttribute("aria-checked", String(on));
+  });
+  quizModeNote.textContent = quizMode === "time"
+    ? t("qzModeNoteTime", QuizCore.TIME_LIMITS_SEC.choice, QuizCore.TIME_LIMITS_SEC.typing)
+    : t("qzModeNoteRelaxed");
+
+  const catOpt = quizCategorySel.selectedOptions[0];
+  const chips = [`📚 ${levelLabel(currentLevel)}`, catOpt ? catOpt.textContent : "", t("qzChipQuestions", goals.quiz)];
+  if (quizMode === "time") chips.push(t("qzChipTime"));
+  quizStartChipsEl.innerHTML = chips.filter(Boolean).map((c) => `<span class="tg-start-chip">${escapeHtml(c)}</span>`).join("");
+
+  const daily = QuizCore.dailyGoalState(answersToday());
+  quizStartDaily.textContent = daily.done ? t("qzDailyDone") : t("qzDailyLine", daily.have, daily.goal);
+  quizStartDaily.classList.toggle("is-done", daily.done);
+
+  const poolSize = buildQuizPool().length;
+  quizStartWarn.hidden = poolSize > 0;
+  quizStartWarn.textContent = poolSize > 0 ? "" : t("quizNotEnough", levelLabel(currentLevel));
+  quizStartBtn.disabled = poolSize === 0;
+}
+
+/* ---------- Starting a round ---------- */
+// Settings changed (category, number of questions, level): mid-round that
+// restarts the round (as it always has); on the start screen it just refreshes
+// the summary; after a result it goes back to the start screen.
 function buildQuizQuestions() {
   quizGoalBanner.hidden = true;
   quizGoalCelebrated = false;
-  const cat = quizCategorySel.value;
-  let pool;
-  if (cat === "synonyms") pool = buildSynonymQuestions(currentLevel);
-  else if (cat === "homophones") pool = buildHomophoneQuestions(currentLevel);
-  else pool = buildVocabQuestions(currentLevel);
+  renderGoalStepper("quiz");
+  if (quizPhase === "play") startQuizRound();
+  else showQuizStart();
+}
 
-  // The stepper can't be dragged past what's actually available, but the
-  // pool itself can shrink out from under a stored preference (switching
-  // category/level, or words disappearing) — clamp down here too so
-  // "Number of Questions" and the Score denominator never disagree.
-  if (pool.length >= GOAL_MIN && goals.quiz > pool.length) {
-    goals.quiz = pool.length;
-    saveGoals();
+function startQuizRound(retryList) {
+  stopQuizTimer();
+  quizGoalBanner.hidden = true;
+  quizGoalCelebrated = false;
+
+  let list;
+  if (retryList) {
+    list = QuizCore.retryQuestions(retryList, shuffle);
+    quizIsRetry = true;
+  } else {
+    const pool = buildQuizPool();
+    if (!pool.length) { showQuizStart(); return; }
+    // The stepper can't be dragged past what's actually available, but the
+    // pool itself can shrink out from under a stored preference (switching
+    // category/level, or words disappearing) — clamp down here too so
+    // "Number of Questions" and the question count never disagree.
+    if (pool.length >= GOAL_MIN && goals.quiz > pool.length) {
+      goals.quiz = pool.length;
+      saveGoals();
+    }
+    list = pickWordsForSession(pool, goals.quiz, (q) => q.target);
+    quizIsRetry = false;
   }
 
-  quizQuestions = pickWordsForSession(pool, goals.quiz, (q) => q.target);
+  quizQuestions = list;
   quizIndex = 0;
   quizScore = 0;
   quizCombo = 0;
+  quizBestCombo = 0;
   quizAnswered = false;
+  quizMissed = [];
+  quizLeaves = QuizCore.LEAVES_START;
+  quizActiveMs = 0;
+  quizCoinsBefore = quizEarnedCoins();
+  quizDailyBefore = answersToday();
   renderGoalStepper("quiz");
+
+  quizPhase = "play";
+  quizStartScreen.hidden = true;
+  quizResultEl.hidden = true;
+  quizPractice.hidden = false;
   renderQuizQuestion();
 }
 
+/* ---------- One question ---------- */
+const quizInstrKey = (type) => "qzInstr" + type.charAt(0).toUpperCase() + type.slice(1);
+const quizCurrent = () => quizQuestions[quizIndex];
+
 function renderQuizQuestion() {
-  quizNextBtn.style.display = "none";
+  stopQuizTimer();
   quizAnswered = false;
+  quizNextBtn.style.display = "none";
+  quizFeedbackEl.hidden = true;
+  quizFeedbackEl.innerHTML = "";
+  quizFeedbackEl.className = "qz-feedback";
+
   const total = quizQuestions.length;
-  // Only the "round complete" state below styles quiz-question as a
-  // celebration card — every other branch clears it back to a plain
-  // question line first.
-  quizQuestionEl.classList.remove("celebration-card", "quiz-complete-card");
+  if (quizIndex >= total) { showQuizResult(); return; }
 
-  if (quizSpeakWrap) quizSpeakWrap.hidden = total === 0 || quizIndex >= total;
-  if (total === 0) {
-    setQuizProgress(0);
-    quizQuestionEl.textContent = t("quizNotEnough", levelLabel(currentLevel));
-    quizOptionsEl.innerHTML = "";
-    updateQuizScoreLabel();
-    return;
-  }
-
+  const q = quizCurrent();
+  quizHints = { fifty: false, letter: false, letterText: "" };
+  quizTypingPattern.textContent = "";
   setQuizProgress((quizIndex / total) * 100);
+  quizCountEl.textContent = t("qzCount", quizIndex + 1, total);
+  quizInstructionEl.textContent = t(quizInstrKey(q.type));
 
-  if (quizIndex >= total) {
-    quizQuestionEl.classList.add("celebration-card", "quiz-complete-card");
-    quizQuestionEl.innerHTML = "";
-    const icon = document.createElement("span");
-    icon.className = "celebration-card-icon";
-    icon.setAttribute("aria-hidden", "true");
-    icon.textContent = "🏆";
-    const text = document.createElement("span");
-    text.className = "celebration-card-text";
-    text.textContent = t("quizComplete", quizScore, total);
-    if (canUsePaidFeatures() && total >= 5 && quizScore === total && !quizQuestions._awarded) {
-      quizQuestions._awarded = true;
-      ensureRewardData();
-      progress.counters.quizPerfect++;
-      saveProgress();
-      checkBadges();
-    }
-    quizQuestionEl.appendChild(icon);
-    quizQuestionEl.appendChild(text);
-    quizOptionsEl.innerHTML = "";
-    setQuizProgress(100);
-    updateQuizScoreLabel();
-    return;
+  quizQuestionEl.textContent = q.hearOnly ? t("qzListenPrompt") : q.prompt;
+  quizQuestionEl.classList.toggle("qz-q-word", !!q.promptIsWord);
+  quizQuestionEl.classList.toggle("qz-q-hear", !!q.hearOnly);
+
+  quizOptionsEl.innerHTML = "";
+  quizOptionsEl.hidden = q.kind !== "choice";
+  quizTypingBox.hidden = q.kind !== "typing";
+  if (q.kind === "choice") {
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "option-btn qz-opt";
+      btn.dataset.idx = String(i);
+      const key = document.createElement("span");
+      key.className = "qz-opt-key";
+      key.setAttribute("aria-hidden", "true");
+      key.textContent = "ABCD".charAt(i);
+      const text = document.createElement("span");
+      text.className = "qz-opt-text";
+      text.textContent = opt;
+      btn.append(key, text);
+      btn.addEventListener("click", () => answerQuizChoice(i));
+      quizOptionsEl.appendChild(btn);
+    });
+    // Arrow-key navigation always starts back on the first option for a fresh
+    // question, so Enter alone (with no arrow press at all) still answers it.
+    quizFocusIndex = 0;
+    highlightQuizOption(quizFocusIndex);
+  } else {
+    quizTypingInput.value = "";
+    quizTypingInput.disabled = false;
+    quizTypingCheck.disabled = false;
+    quizTypingInput.classList.remove("shake");
   }
 
-  const q = quizQuestions[quizIndex];
-  quizQuestionEl.textContent = q.prompt;
-  quizOptionsEl.innerHTML = "";
-  q.options.forEach((opt) => {
-    const btn = document.createElement("button");
-    btn.className = "option-btn";
-    btn.textContent = opt;
-    btn.addEventListener("click", () => handleQuizAnswer(btn, opt, q));
-    quizOptionsEl.appendChild(btn);
-  });
-  // Arrow-key navigation always starts back on the first option for a fresh
-  // question, so Enter alone (with no arrow press at all) still answers it.
-  quizFocusIndex = 0;
-  highlightQuizOption(quizFocusIndex);
-  updateQuizScoreLabel();
+  quizTimerEl.hidden = quizMode !== "time";
+  updateQuizHud();
+  // After "Next" on a phone the new question can be above the fold: scroll back up only if needed.
+  if (quizIndex > 0) quizCountEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  quizQuestionShownAt = Date.now();
+  if (quizMode === "time") startQuizTimer(q);
+  if (q.type === "listening") speakQuizQuestion();
+  if (q.kind === "typing") quizTypingInput.focus({ preventScroll: true });
 }
 
-// ---- Keyboard play: arrow keys move a highlight between the option
-// buttons, Enter answers with whichever one is highlighted, and — once the
-// question is answered — a second Enter presses "Next Question" for you,
-// so a question can be played start to finish without touching the mouse.
+function speakQuizQuestion() {
+  const q = quizCurrent();
+  if (!q) return;
+  speak(q.speak, {
+    onstart: () => quizSpeakBtn.classList.add("speak-btn-active"),
+    onend: () => quizSpeakBtn.classList.remove("speak-btn-active"),
+  });
+}
+
+// Everything that changes after an answer or a hint: score, combo, leaves, hint buttons.
+function updateQuizHud() {
+  const q = quizCurrent();
+  quizScoreEl.textContent = t("qzScoreTag", quizScore);
+  quizComboChip.hidden = quizCombo < 2;
+  quizComboChip.textContent = t("qzComboChip", quizCombo);
+  quizLeavesEl.textContent = quizLeaves > 0 ? "🌿".repeat(quizLeaves) : "🌿 0";
+  quizLeavesEl.setAttribute("aria-label", t("qzLeavesAria", quizLeaves));
+
+  const live = !!q && !quizAnswered;
+  const canSpend = live && quizLeaves > 0;
+  const choice = !!q && q.kind === "choice";
+  quizHint5050Btn.hidden = !choice;
+  quizHint5050Btn.disabled = !(canSpend && choice && !quizHints.fifty && QuizCore.fiftyFiftyRemovals(q, [], (a) => a).length > 0);
+  quizHintLetterBtn.hidden = !q || !q.canFirstLetter;
+  quizHintLetterBtn.disabled = !(canSpend && !quizHints.letter);
+  quizHintTextEl.textContent = quizHints.letterText || (live && quizLeaves === 0 ? t("qzNoLeaves") : "");
+}
+
+/* ---------- Answering ---------- */
+function answerQuizChoice(idx) {
+  if (quizAnswered) return;
+  const q = quizCurrent();
+  finishQuizQuestion({ correct: q.options[idx] === q.answer, chosenIdx: idx });
+}
+
+function submitQuizTyped() {
+  if (quizAnswered) return;
+  const q = quizCurrent();
+  const res = QuizCore.checkTyped(quizTypingInput.value, q.answer);
+  if (res.empty) {
+    quizTypingInput.classList.remove("shake");
+    void quizTypingInput.offsetWidth; // restart the animation
+    quizTypingInput.classList.add("shake");
+    quizTypingInput.focus();
+    return;
+  }
+  finishQuizQuestion({ correct: res.correct, close: res.close, typed: quizTypingInput.value.trim() });
+}
+
+function finishQuizQuestion(outcome) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  stopQuizTimer();
+  const q = quizCurrent();
+  const correct = !!outcome.correct;
+  quizActiveMs += Math.min(Date.now() - quizQuestionShownAt, 120000);
+
+  if (correct) quizScore++;
+  quizCombo = comboAfterAnswer(quizCombo, correct);
+  if (correct) {
+    quizBestCombo = Math.max(quizBestCombo, quizCombo);
+    quizLeaves = QuizCore.leavesAfterCombo(quizLeaves, quizCombo); // 5 in a row wins a leaf back
+  } else {
+    quizMissed.push(q);
+  }
+
+  progress.quiz.total++;
+  if (correct) progress.quiz.correct++;
+  recordResult(q.target, correct, "quiz");
+  recordSrsResult(q.target, correct);
+  saveProgress();
+
+  // Lock the answer area and show what the right answer was.
+  if (q.kind === "choice") {
+    Array.from(quizOptionsEl.children).forEach((b, i) => {
+      b.disabled = true;
+      if (q.options[i] === q.answer) {
+        b.classList.add("correct");
+        if (correct) pulseScoreTag(b, "option-btn-bounce");
+      } else if (i === outcome.chosenIdx) b.classList.add("incorrect");
+    });
+  } else {
+    quizTypingInput.disabled = true;
+    quizTypingCheck.disabled = true;
+    quizTypingPattern.textContent = "";
+  }
+
+  renderQuizFeedback(q, outcome, correct);
+  quizNextBtn.style.display = "inline-block";
+  quizNextBtn.focus({ preventScroll: true });
+  // On a phone the feedback and "Next" can sit below the fold: bring them into view (no scroll if already visible).
+  quizNextBtn.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  updateQuizHud();
+  pulseScoreTag(quizScoreEl);
+
+  const goal = goals.quiz;
+  if (!quizIsRetry && goal && !quizGoalCelebrated && quizScore >= goal) {
+    quizGoalCelebrated = true;
+    showGoalReached(quizGoalBanner, quizGoalMessage, quizGoalNextLevelBtn, quizScore);
+  }
+}
+
+// What the answer was, what it means and how it's used. On the Korean track
+// the meaning is the Korean one, so it gets its own show/hide switch.
+function renderQuizFeedback(q, outcome, correct) {
+  const ko = currentLang === "ko";
+  const answerIsMeaning = q.type === "meaning" || q.type === "homophones";
+  let head;
+  if (correct) head = t("qzFbCorrect");
+  else if (outcome.timedOut) head = t("qzFbTimeUp", q.answer);
+  else head = t("qzFbWrong", q.answer);
+
+  const parts = [`<div class="qz-fb-head">${escapeHtml(head)}</div>`];
+  if (!correct && outcome.close) parts.push(`<div class="qz-fb-note">${escapeHtml(t("qzFbAlmost"))}</div>`);
+  if (!correct && outcome.typed) parts.push(`<div class="qz-fb-note">✍️ ${escapeHtml(outcome.typed)}</div>`);
+
+  if (q.definition && !answerIsMeaning) {
+    const label = ko ? t("qzKoMeaningLabel") : "📖";
+    const toggle = ko
+      ? `<button type="button" class="qz-fb-toggle" data-qz-ko-toggle>${escapeHtml(t(quizKoMeaningShown ? "qzKoMeaningHide" : "qzKoMeaningShow"))}</button>`
+      : "";
+    const hidden = ko && !quizKoMeaningShown;
+    parts.push(`<div class="qz-fb-row qz-fb-def${hidden ? " is-hidden" : ""}"><span class="qz-fb-label">${escapeHtml(label)}</span><span class="qz-fb-text">${escapeHtml(q.definition)}</span></div>${toggle}`);
+  }
+  if (q.example) {
+    const OPEN = "", CLOSE = "";
+    const wrapped = QuizCore.wrapWord(q.example, q.target, OPEN, CLOSE).text;
+    const html = escapeHtml(wrapped).split(OPEN).join("<mark>").split(CLOSE).join("</mark>");
+    parts.push(`<div class="qz-fb-row qz-fb-ex"><span class="qz-fb-label">💬</span><span class="qz-fb-text">${html}</span></div>`);
+  }
+  quizFeedbackEl.className = "qz-feedback " + (correct ? "is-correct" : outcome.timedOut ? "is-timeup" : "is-wrong");
+  quizFeedbackEl.innerHTML = parts.join("");
+  quizFeedbackEl.hidden = false;
+}
+
+quizFeedbackEl.addEventListener("click", (e) => {
+  if (!e.target.closest("[data-qz-ko-toggle]")) return;
+  quizKoMeaningShown = !quizKoMeaningShown;
+  saveQuizKoMeaning();
+  const row = quizFeedbackEl.querySelector(".qz-fb-def");
+  if (row) row.classList.toggle("is-hidden", !quizKoMeaningShown);
+  e.target.closest("[data-qz-ko-toggle]").textContent = t(quizKoMeaningShown ? "qzKoMeaningHide" : "qzKoMeaningShow");
+});
+
+/* ---------- Hints: 🌿 leaves ----------
+   Every round starts with a couple of leaves. A hint costs one, and five
+   correct answers in a row win one back (see QuizCore.leavesAfterCombo). */
+quizHint5050Btn.addEventListener("click", () => {
+  const q = quizCurrent();
+  if (!q || quizAnswered || quizHints.fifty || quizLeaves < 1) return;
+  const removals = QuizCore.fiftyFiftyRemovals(q, [], shuffle);
+  if (!removals.length) return;
+  quizLeaves--;
+  quizHints.fifty = true;
+  removals.forEach((i) => {
+    const b = quizOptionsEl.children[i];
+    if (!b) return;
+    b.disabled = true;
+    b.classList.add("qz-opt-out");
+  });
+  updateQuizHud();
+});
+
+quizHintLetterBtn.addEventListener("click", () => {
+  const q = quizCurrent();
+  if (!q || quizAnswered || quizHints.letter || quizLeaves < 1 || !q.canFirstLetter) return;
+  quizLeaves--;
+  quizHints.letter = true;
+  if (q.kind === "typing") {
+    quizTypingPattern.textContent = QuizCore.letterPattern(q.answer);
+    quizTypingInput.focus();
+  } else {
+    quizHints.letterText = t("qzHintStarts", q.answer.charAt(0).toLowerCase());
+  }
+  updateQuizHud();
+});
+
+/* ---------- Time attack ---------- */
+function startQuizTimer(q) {
+  stopQuizTimer();
+  quizTimer = { limit: QuizCore.timeLimitMs(q), elapsed: 0, last: performance.now(), id: 0 };
+  renderQuizTimer();
+  quizTimer.id = setInterval(quizTimerTick, 100);
+}
+function stopQuizTimer() {
+  if (!quizTimer) return;
+  clearInterval(quizTimer.id);
+  quizTimer = null;
+}
+function quizTimerTick() {
+  if (!quizTimer) return;
+  const now = performance.now();
+  // The clock only runs while the page is actually on screen.
+  if (!document.hidden) quizTimer.elapsed += now - quizTimer.last;
+  quizTimer.last = now;
+  renderQuizTimer();
+  if (quizTimer.elapsed >= quizTimer.limit) finishQuizQuestion({ correct: false, timedOut: true });
+}
+function renderQuizTimer() {
+  if (!quizTimer) return;
+  const frac = QuizCore.timeLeftFraction(quizTimer.elapsed, quizTimer.limit);
+  quizTimerFill.style.width = `${(frac * 100).toFixed(1)}%`;
+  quizTimerText.textContent = String(Math.ceil((quizTimer.limit - quizTimer.elapsed) / 1000));
+  quizTimerEl.classList.toggle("is-urgent", quizTimer.limit * frac <= 5000);
+}
+
+/* ---------- Result screen ---------- */
+function showQuizResult() {
+  stopQuizTimer();
+  quizPhase = "result";
+  const total = quizQuestions.length;
+  setQuizProgress(100);
+  quizPractice.hidden = true;
+  quizStartScreen.hidden = true;
+
+  if (!quizIsRetry && canUsePaidFeatures() && total >= 5 && quizScore === total && !quizQuestions._awarded) {
+    quizQuestions._awarded = true;
+    ensureRewardData();
+    progress.counters.quizPerfect++;
+    saveProgress();
+    checkBadges();
+  }
+
+  const sum = QuizCore.summarize(quizScore, total);
+  const coins = Math.max(0, quizEarnedCoins() - quizCoinsBefore);
+  const answeredNow = answersToday();
+  const daily = QuizCore.dailyGoalState(answeredNow);
+  const reachedToday = quizDailyBefore < QuizCore.DAILY_GOAL && answeredNow >= QuizCore.DAILY_GOAL;
+  const showCoins = canUseAccountFeatures() && !(serverAdmin || isAdmin);
+  const moodKey = { great: "qzMoodGreat", good: "qzMoodGood", keep: "qzMoodKeep" }[sum.mood];
+
+  const stars = [1, 2, 3].map((n) => `<span class="qz-star${n <= sum.stars ? " on" : ""}" aria-hidden="true">${n <= sum.stars ? "★" : "☆"}</span>`).join("");
+  const tiles = [
+    { icon: "✅", label: t("qzStatCorrect"), value: `${quizScore} / ${total}` },
+    { icon: "⏱", label: t("qzStatTime"), value: QuizCore.formatSeconds(quizActiveMs) },
+    { icon: "🔥", label: t("qzStatCombo"), value: String(quizBestCombo) },
+  ];
+  if (showCoins) tiles.push({ icon: "🪙", label: t("qzStatCoins"), value: `+${coins}` });
+
+  const missed = quizMissed.slice(0, QUIZ_RESULT_MISSED_SHOWN);
+  const missedHtml = quizMissed.length
+    ? `<div class="qz-missed"><div class="qz-missed-title">${escapeHtml(t("qzMissedTitle"))}</div><ul>${
+        missed.map((q) => `<li><b>${escapeHtml(q.target)}</b><span>${escapeHtml(q.definition || q.answer)}</span></li>`).join("")
+      }</ul>${quizMissed.length > missed.length ? `<div class="qz-missed-more">+${quizMissed.length - missed.length}</div>` : ""}</div>`
+    : `<p class="qz-no-missed">${escapeHtml(t("qzNoMissed"))}</p>`;
+
+  const koala = canUseAccountFeatures()
+    ? `<div class="qz-koala-card">${koalaNextRewardHtml("character")}<button type="button" class="pill neutral small" data-koala-go="koala">${escapeHtml(rwL("🐨 Open My Koala", "🐨 나의 코알라 열기"))}</button></div>`
+    : "";
+
+  quizResultEl.innerHTML = `
+    <div class="qz-result-card">
+      <div class="qz-result-koala is-${sum.mood}" aria-hidden="true">🐨</div>
+      <h3 class="qz-result-title">${escapeHtml(t(quizIsRetry ? "qzResultRetryTitle" : "qzResultTitle"))}</h3>
+      <div class="qz-stars" role="img" aria-label="${sum.stars} / 3">${stars}</div>
+      <div class="qz-result-score">${quizScore} / ${total} <small>(${sum.pct}%)</small></div>
+      <p class="qz-result-mood">${escapeHtml(t(moodKey))}</p>
+      <div class="qz-stat-row">${tiles.map((x) => `<div class="qz-stat"><span class="qz-stat-icon" aria-hidden="true">${x.icon}</span><b>${escapeHtml(x.value)}</b><small>${escapeHtml(x.label)}</small></div>`).join("")}</div>
+      <div class="qz-daily-card${daily.done ? " is-done" : ""}">
+        <div class="qz-daily-text">${escapeHtml(reachedToday ? t("qzDailyReached") : daily.done ? t("qzDailyDone") : t("qzDailyLine", daily.have, daily.goal))}</div>
+        <div class="qz-daily-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${daily.goal}" aria-valuenow="${daily.have}"><span style="width:${daily.pct}%"></span></div>
+      </div>
+      ${koala}
+      ${missedHtml}
+      <div class="qz-result-actions">
+        ${quizMissed.length ? `<button type="button" class="pill accent" data-qz-act="retry">${escapeHtml(t("qzRetryBtn", quizMissed.length))}</button>` : ""}
+        <button type="button" class="pill ${quizMissed.length ? "neutral" : "accent"}" data-qz-act="again">${escapeHtml(t("qzAgainBtn"))}</button>
+        <button type="button" class="pill neutral" data-qz-act="settings">${escapeHtml(t("qzSettingsBtn"))}</button>
+      </div>
+    </div>`;
+  quizResultEl.hidden = false;
+  if (sum.stars === 3) koalaSparkle();
+}
+
+/* ---------- Keyboard play ----------
+   Start screen: Enter starts. In a round: 1-4 or A-D pick an option, the arrow
+   keys move a highlight between options and Enter answers with the highlighted
+   one; once answered, Enter goes to the next question. Typing questions use
+   their own box (Enter checks). */
 let quizFocusIndex = 0;
 // The highlight ring is only meaningful once someone is actually steering
 // with arrow keys — showing it on every freshly-rendered question (before
@@ -3841,26 +4352,44 @@ document.addEventListener("keydown", (e) => {
   if (!document.getElementById("view-quiz").classList.contains("active")) return;
   const tag = document.activeElement ? document.activeElement.tagName : "";
   if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+  if (quizPhase === "start") {
+    if (e.key === "Enter" && tag !== "BUTTON" && !quizStartBtn.disabled) { e.preventDefault(); quizStartBtn.click(); }
+    return;
+  }
+  if (quizPhase === "result") {
+    if (e.key === "Enter" && tag !== "BUTTON") { e.preventDefault(); startQuizRound(); }
+    return;
+  }
+  const q = quizCurrent();
+  if (!q) return;
+
+  if (quizAnswered) {
+    if (e.key === "Enter" && quizNextBtn.style.display !== "none") {
+      e.preventDefault();
+      quizNextBtn.click();
+    }
+    return;
+  }
+  if (q.kind !== "choice") return;
 
   const opts = Array.from(quizOptionsEl.children);
   if (!opts.length) return;
-
-  if (!quizAnswered) {
-    const cols = quizOptionColumns();
-    let handled = true;
-    if (e.key === "ArrowRight") { quizFocusIndex = Math.min(quizFocusIndex + 1, opts.length - 1); quizKeyboardNavUsed = true; }
-    else if (e.key === "ArrowLeft") { quizFocusIndex = Math.max(quizFocusIndex - 1, 0); quizKeyboardNavUsed = true; }
-    else if (e.key === "ArrowDown") { quizFocusIndex = Math.min(quizFocusIndex + cols, opts.length - 1); quizKeyboardNavUsed = true; }
-    else if (e.key === "ArrowUp") { quizFocusIndex = Math.max(quizFocusIndex - cols, 0); quizKeyboardNavUsed = true; }
-    else if (e.key === "Enter") opts[quizFocusIndex].click();
-    else handled = false;
-    if (handled) {
-      e.preventDefault();
-      highlightQuizOption(quizFocusIndex);
-    }
-  } else if (e.key === "Enter" && quizNextBtn.style.display !== "none") {
+  const cols = quizOptionColumns();
+  let handled = true;
+  const direct = "1234".indexOf(e.key) >= 0 ? "1234".indexOf(e.key) : "abcd".indexOf(e.key.toLowerCase());
+  if (e.key.length === 1 && direct >= 0 && direct < opts.length) {
+    if (!opts[direct].disabled) opts[direct].click();
+  } else if (e.key === "ArrowRight") { quizFocusIndex = Math.min(quizFocusIndex + 1, opts.length - 1); quizKeyboardNavUsed = true; }
+  else if (e.key === "ArrowLeft") { quizFocusIndex = Math.max(quizFocusIndex - 1, 0); quizKeyboardNavUsed = true; }
+  else if (e.key === "ArrowDown") { quizFocusIndex = Math.min(quizFocusIndex + cols, opts.length - 1); quizKeyboardNavUsed = true; }
+  else if (e.key === "ArrowUp") { quizFocusIndex = Math.max(quizFocusIndex - cols, 0); quizKeyboardNavUsed = true; }
+  else if (e.key === "Enter") { if (!opts[quizFocusIndex].disabled) opts[quizFocusIndex].click(); }
+  else handled = false;
+  if (handled) {
     e.preventDefault();
-    quizNextBtn.click();
+    highlightQuizOption(quizFocusIndex);
   }
 });
 
@@ -3941,9 +4470,9 @@ function comboAfterAnswer(prev, correct, fresh = true) {
 }
 function renderSfxToggles() {
   document.querySelectorAll(".sfx-toggle").forEach((b) => {
-    // In Spelling the toggle reads "🔊 ON / 🔇 OFF" so it can't be mistaken for the
+    // In Spelling and Quiz the toggle reads "🔊 ON / 🔇 OFF" so it can't be mistaken for the
     // big Listen button; elsewhere it stays icon-only.
-    const inSpelling = !!b.closest("#spelling-practice");
+    const inSpelling = !!b.closest("#spelling-practice, #quiz-practice");
     b.textContent = (sfxMuted ? "🔇" : "🔊") + (inSpelling ? " " + (sfxMuted ? "OFF" : "ON") : "");
     b.classList.toggle("is-off", sfxMuted);
     const label = sfxMuted ? rwL("Sounds off — tap to turn on", "효과음 꺼짐 — 눌러서 켜기") : rwL("Sounds on — tap to turn off", "효과음 켜짐 — 눌러서 끄기");
@@ -3967,60 +4496,46 @@ function initSfxToggles() {
   });
   renderSfxToggles();
 }
-function handleQuizAnswer(btn, chosen, q) {
-  if (quizAnswered) return;
-  quizAnswered = true;
-  const correct = chosen === q.answer;
-  if (correct) quizScore++;
-  quizCombo = comboAfterAnswer(quizCombo, correct);
+/* ---------- Quiz wiring ---------- */
+quizStartBtn.addEventListener("click", () => startQuizRound());
 
-  progress.quiz.total++;
-  if (correct) progress.quiz.correct++;
-  recordResult(q.target, correct, "quiz");
-  recordSrsResult(q.target, correct);
-  saveProgress();
-
-  Array.from(quizOptionsEl.children).forEach((b) => {
-    b.disabled = true;
-    if (b.textContent === q.answer) {
-      b.classList.add("correct");
-      if (correct) pulseScoreTag(b, "option-btn-bounce");
-    } else if (b === btn) b.classList.add("incorrect");
-  });
-
-  quizNextBtn.style.display = "inline-block";
-  updateQuizScoreLabel();
-
-  const goal = goals.quiz;
-  if (goal && !quizGoalCelebrated && quizScore >= goal) {
-    quizGoalCelebrated = true;
-    showGoalReached(quizGoalBanner, quizGoalMessage, quizGoalNextLevelBtn, quizScore);
-  }
-}
-
-function updateQuizScoreLabel() {
-  quizScoreEl.textContent = t("scoreLabel", quizScore, quizQuestions.length);
-  pulseScoreTag(quizScoreEl);
-}
+quizModeSeg.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-mode]");
+  if (!btn) return;
+  quizMode = btn.dataset.mode === "time" ? "time" : "relaxed";
+  saveQuizMode();
+  renderQuizStart();
+});
 
 quizNextBtn.addEventListener("click", () => {
   quizIndex++;
   renderQuizQuestion();
 });
 
-quizQuestionEl.addEventListener("click", () => speak(quizQuestionEl.textContent));
-const quizSpeakBtn = document.getElementById("quiz-speak");
-const quizSpeakWrap = document.getElementById("quiz-speak-wrap");
-quizSpeakBtn.addEventListener("click", () => {
-  speak(quizQuestionEl.textContent, {
-    onstart: () => quizSpeakBtn.classList.add("speak-btn-active"),
-    onend: () => quizSpeakBtn.classList.remove("speak-btn-active"),
-  });
+quizQuestionEl.addEventListener("click", speakQuizQuestion);
+quizSpeakBtn.addEventListener("click", speakQuizQuestion);
+
+quizTypingCheck.addEventListener("click", submitQuizTyped);
+quizTypingInput.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  // Stop here: once the answer is graded the focus jumps to "Next", and the
+  // page-wide Enter handler must not treat this same keypress as "Next".
+  e.stopPropagation();
+  submitQuizTyped();
+});
+
+quizResultEl.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-qz-act]");
+  if (!btn) return;
+  if (btn.dataset.qzAct === "retry") startQuizRound(quizMissed.slice());
+  else if (btn.dataset.qzAct === "again") startQuizRound();
+  else if (btn.dataset.qzAct === "settings") showQuizStart();
 });
 
 quizRestartBtn.addEventListener("click", () => {
   pulseScoreTag(quizRestartBtn, "score-tag-pulse");
-  buildQuizQuestions();
+  startQuizRound();
 });
 quizCategorySel.addEventListener("change", buildQuizQuestions);
 

@@ -477,8 +477,13 @@ to Flip!</span></div>
           <label for="quiz-category" data-i18n="categoryLabel">Category</label>
           <select id="quiz-category">
             <option value="vocabulary" data-i18n="optVocabulary">Vocabulary</option>
+            <option value="meaning" data-i18n="optMeaning">Word → Meaning</option>
+            <option value="fillblank" data-i18n="optFillBlank">Fill in the Blank</option>
+            <option value="listening" data-i18n="optListening">Listen &amp; Choose</option>
+            <option value="typing" data-i18n="optTyping">Type the Word</option>
             <option value="synonyms" data-i18n="optSynonyms">Synonyms &amp; Antonyms</option>
             <option value="homophones" data-i18n="optHomophones">Homophones</option>
+            <option value="mixed" data-i18n="optMixed">🎲 Mixed</option>
           </select>
           <div class="goal-stepper goal-stepper-fun" id="quiz-goal-stepper">
             <span class="goal-stepper-label" data-i18n="goalLabel">Number of Questions</span>
@@ -497,57 +502,113 @@ to Flip!</span></div>
             <button type="button" class="pill neutral" id="quiz-goal-dismiss" data-i18n="goalKeepGoingBtn">Keep going</button>
           </div>
         </div>
-        <div class="quiz-trail" id="quiz-trail" style="--p:0" aria-hidden="true">
-          <span class="trail-icon trail-start">🌱</span>
-          <div class="trail-track">
-            <span class="trail-leaf" style="--x:0.2">🌿</span>
-            <span class="trail-leaf" style="--x:0.4">🌿</span>
-            <span class="trail-leaf" style="--x:0.6">🌿</span>
-            <span class="trail-leaf" style="--x:0.8">🌿</span>
-            <div class="progress-bar"><div class="progress-bar-fill" id="quiz-progress-fill"></div></div>
-            <div class="trail-koala" id="quiz-koala">
-              <svg class="koala" viewBox="0 0 70 42" width="50" height="30">
-                <g class="leg leg-far-back" style="transform-origin:13px 28px"><line x1="13" y1="28" x2="13" y2="36" stroke="#8d9c97" stroke-width="5" stroke-linecap="round"/></g>
-                <g class="leg leg-far-front" style="transform-origin:38px 28px"><line x1="38" y1="28" x2="38" y2="36" stroke="#8d9c97" stroke-width="5" stroke-linecap="round"/></g>
-                <ellipse cx="26" cy="23" rx="19" ry="10.5" fill="#a9b7b2"/>
-                <ellipse cx="28" cy="28" rx="12" ry="4.6" fill="#e3ebe8"/>
-                <g class="leg leg-near-back" style="transform-origin:20px 28px"><line x1="20" y1="28" x2="20" y2="37" stroke="#a9b7b2" stroke-width="5.4" stroke-linecap="round"/><circle cx="20" cy="37" r="2.8" fill="#7c8985"/></g>
-                <g class="leg leg-near-front" style="transform-origin:44px 28px"><line x1="44" y1="28" x2="44" y2="37" stroke="#a9b7b2" stroke-width="5.4" stroke-linecap="round"/><circle cx="44" cy="37" r="2.8" fill="#7c8985"/></g>
-                <g class="k-head">
-                  <circle cx="44" cy="10" r="5.4" fill="#a9b7b2"/><circle cx="44" cy="10" r="3" fill="#ffb3c1"/>
-                  <circle cx="57" cy="10" r="5.4" fill="#a9b7b2"/><circle cx="57" cy="10" r="3" fill="#ffb3c1"/>
-                  <circle cx="51" cy="19" r="10.5" fill="#a9b7b2"/>
-                  <circle cx="47" cy="24" r="3" fill="#ff7a90" opacity="0.55"/>
-                  <ellipse cx="59.5" cy="21" rx="3.6" ry="4.6" fill="#1f2a27"/>
-                  <circle class="k-eye k-eye-open" cx="53" cy="16.5" r="1.9" fill="#1f2a27"/>
-                  <path class="k-eye k-eye-happy" d="M50 17.6 Q53 13.8 56 17.6" fill="none" stroke="#1f2a27" stroke-width="1.8" stroke-linecap="round"/>
-                  <g class="k-leaf"><path d="M56.5 28 Q63 22 69 27.5 Q63 33 56.5 28Z" fill="#3fb984"/><path d="M57 28 L67 27.6" stroke="#2a8a62" stroke-width="0.9" fill="none"/></g>
-                </g>
-              </svg>
-              <span class="k-heart k-heart-1">❤</span><span class="k-heart k-heart-2">❤</span><span class="k-heart k-heart-3">✨</span>
+
+        <!-- Start screen: pick difficulty and mode, then go -->
+        <div id="quiz-start-screen" class="spelling-stage-box sp-start qz-start">
+          <div class="sp-start-floaters" aria-hidden="true"><span class="sp-fl" style="left:8%;top:8%;--c1:#ff8da1;--c2:#e8476a;--fd:-0.4s">A</span><span class="sp-fl" style="left:86%;top:12%;--c1:#7fd9a8;--c2:#2e9a6b;--fd:-1.6s">B</span><span class="sp-fl" style="left:90%;top:62%;--c1:#9fd3ff;--c2:#5b9be0;--fd:-2.2s">C</span><span class="sp-fl" style="left:6%;top:60%;--c1:#ffd36e;--c2:#f0a21a;--fd:-1.1s">D</span><span class="sp-fl-star sp-fl-star1">⭐</span><span class="sp-fl-star sp-fl-star2">✨</span></div>
+          <div class="sp-start-card qz-start-card">
+            <h3 data-i18n="qzStartTitle">💡 Quiz</h3>
+            <div class="tg-start-chips" id="quiz-start-chips"></div>
+            <div class="qz-pick">
+              <div class="qz-pick-title" data-i18n="qzLevelTitle">📚 Difficulty</div>
+              <div class="qz-seg" id="quiz-level-seg" role="radiogroup" data-i18n-aria-label="qzLevelTitle" aria-label="Difficulty"></div>
+            </div>
+            <div class="qz-pick">
+              <div class="qz-pick-title" data-i18n="qzModeTitle">🎮 Mode</div>
+              <div class="qz-seg" id="quiz-mode-seg" role="radiogroup" data-i18n-aria-label="qzModeTitle" aria-label="Mode">
+                <button type="button" class="qz-seg-btn" role="radio" data-mode="relaxed" data-i18n="qzModeRelaxed">🌿 Relaxed</button>
+                <button type="button" class="qz-seg-btn" role="radio" data-mode="time" data-i18n="qzModeTime">⏱ Time Attack</button>
+              </div>
+              <p class="qz-pick-note" id="quiz-mode-note"></p>
+            </div>
+            <div class="qz-daily" id="quiz-start-daily"></div>
+            <p class="qz-start-warn" id="quiz-start-warn" hidden></p>
+            <button class="pill accent sp-start-btn" id="quiz-start-btn" type="button" data-i18n="quizStartBtn">▶ Start Quiz</button>
+          </div>
+        </div>
+
+        <!-- Practice screen -->
+        <div id="quiz-practice" hidden>
+          <div class="qz-header">
+            <span class="qz-count" id="quiz-count" aria-live="polite"></span>
+            <span class="qz-chip qz-combo-chip" id="quiz-combo" hidden></span>
+          </div>
+          <div class="qz-timer" id="quiz-timer" hidden role="timer" aria-live="off">
+            <span class="qz-timer-fill" id="quiz-timer-fill"></span>
+            <span class="qz-timer-text" id="quiz-timer-text"></span>
+          </div>
+          <div class="quiz-trail" id="quiz-trail" style="--p:0" aria-hidden="true">
+            <span class="trail-icon trail-start">🌱</span>
+            <div class="trail-track">
+              <span class="trail-leaf" style="--x:0.2">🌿</span>
+              <span class="trail-leaf" style="--x:0.4">🌿</span>
+              <span class="trail-leaf" style="--x:0.6">🌿</span>
+              <span class="trail-leaf" style="--x:0.8">🌿</span>
+              <div class="progress-bar"><div class="progress-bar-fill" id="quiz-progress-fill"></div></div>
+              <div class="trail-koala" id="quiz-koala">
+                <svg class="koala" viewBox="0 0 70 42" width="50" height="30">
+                  <g class="leg leg-far-back" style="transform-origin:13px 28px"><line x1="13" y1="28" x2="13" y2="36" stroke="#8d9c97" stroke-width="5" stroke-linecap="round"/></g>
+                  <g class="leg leg-far-front" style="transform-origin:38px 28px"><line x1="38" y1="28" x2="38" y2="36" stroke="#8d9c97" stroke-width="5" stroke-linecap="round"/></g>
+                  <ellipse cx="26" cy="23" rx="19" ry="10.5" fill="#a9b7b2"/>
+                  <ellipse cx="28" cy="28" rx="12" ry="4.6" fill="#e3ebe8"/>
+                  <g class="leg leg-near-back" style="transform-origin:20px 28px"><line x1="20" y1="28" x2="20" y2="37" stroke="#a9b7b2" stroke-width="5.4" stroke-linecap="round"/><circle cx="20" cy="37" r="2.8" fill="#7c8985"/></g>
+                  <g class="leg leg-near-front" style="transform-origin:44px 28px"><line x1="44" y1="28" x2="44" y2="37" stroke="#a9b7b2" stroke-width="5.4" stroke-linecap="round"/><circle cx="44" cy="37" r="2.8" fill="#7c8985"/></g>
+                  <g class="k-head">
+                    <circle cx="44" cy="10" r="5.4" fill="#a9b7b2"/><circle cx="44" cy="10" r="3" fill="#ffb3c1"/>
+                    <circle cx="57" cy="10" r="5.4" fill="#a9b7b2"/><circle cx="57" cy="10" r="3" fill="#ffb3c1"/>
+                    <circle cx="51" cy="19" r="10.5" fill="#a9b7b2"/>
+                    <circle cx="47" cy="24" r="3" fill="#ff7a90" opacity="0.55"/>
+                    <ellipse cx="59.5" cy="21" rx="3.6" ry="4.6" fill="#1f2a27"/>
+                    <circle class="k-eye k-eye-open" cx="53" cy="16.5" r="1.9" fill="#1f2a27"/>
+                    <path class="k-eye k-eye-happy" d="M50 17.6 Q53 13.8 56 17.6" fill="none" stroke="#1f2a27" stroke-width="1.8" stroke-linecap="round"/>
+                    <g class="k-leaf"><path d="M56.5 28 Q63 22 69 27.5 Q63 33 56.5 28Z" fill="#3fb984"/><path d="M57 28 L67 27.6" stroke="#2a8a62" stroke-width="0.9" fill="none"/></g>
+                  </g>
+                </svg>
+                <span class="k-heart k-heart-1">❤</span><span class="k-heart k-heart-2">❤</span><span class="k-heart k-heart-3">✨</span>
+              </div>
+            </div>
+            <span class="trail-icon trail-end">🌳</span>
+          </div>
+          <div class="qz-instruction" id="quiz-instruction"></div>
+          <div class="qz-qcard" id="quiz-qcard">
+            <div class="speak-btn-hero-wrap quiz-speak-wrap" id="quiz-speak-wrap">
+              <button class="speak-btn speak-btn-hero" id="quiz-speak" type="button" title="Hear it" aria-label="Hear it">🔊</button>
+              <span class="speak-btn-hero-label" data-i18n="hearItLabel">Hear it</span>
+            </div>
+            <div id="quiz-question" class="speakable-line" title="Tap to hear">Question</div>
+          </div>
+          <div class="options" id="quiz-options"></div>
+          <div class="qz-typing" id="quiz-typing" hidden>
+            <div class="qz-pattern" id="quiz-typing-pattern" aria-live="polite"></div>
+            <div class="qz-typing-row">
+              <input type="text" id="quiz-typing-input" data-i18n-placeholder="qzTypingPlaceholder" placeholder="Type the word…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" />
+              <button type="button" class="pill accent" id="quiz-typing-check" data-i18n="qzCheckBtn">Check 🔍</button>
             </div>
           </div>
-          <span class="trail-icon trail-end">🌳</span>
+          <div class="qz-hints" id="quiz-hints">
+            <span class="qz-leaves" id="quiz-leaves" role="img"></span>
+            <button type="button" class="qz-hint-btn" id="quiz-hint-5050" data-i18n="qzHint5050">🌿 50:50</button>
+            <button type="button" class="qz-hint-btn" id="quiz-hint-letter" data-i18n="qzHintLetter">🔤 First letter</button>
+            <span class="qz-hint-text" id="quiz-hint-text" aria-live="polite"></span>
+          </div>
+          <div class="qz-feedback" id="quiz-feedback" hidden aria-live="polite"></div>
+          <div class="quiz-footer">
+            <span class="score-tag" id="quiz-score"></span>
+            <button class="pill accent" id="quiz-next" style="display:none;" data-i18n="nextQuestionBtn">Next Question ➡</button>
+            <button class="pill accent new-quiz-btn" id="quiz-restart" style="margin-left:auto;">
+              <span class="new-quiz-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 12a8 8 0 0 1 13.66-5.66M20 12a8 8 0 0 1-13.66 5.66" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                  <path d="M17 3v4.5h-4.5M7 21v-4.5h4.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span data-i18n="newQuizBtn">New Quiz</span>
+            </button>
+          </div>
         </div>
-        <div class="speak-btn-hero-wrap quiz-speak-wrap" id="quiz-speak-wrap">
-          <button class="speak-btn speak-btn-hero" id="quiz-speak" type="button" title="Hear it" aria-label="Hear it">🔊</button>
-          <span class="speak-btn-hero-label" data-i18n="hearItLabel">Hear it</span>
-        </div>
-        <div id="quiz-question" class="speakable-line" title="Tap to hear">Question</div>
-        <div class="options" id="quiz-options"></div>
-        <div class="quiz-footer">
-          <span class="score-tag" id="quiz-score">Score: 0 / 0</span>
-          <button class="pill accent" id="quiz-next" style="display:none;" data-i18n="nextQuestionBtn">Next Question ➡</button>
-          <button class="pill accent new-quiz-btn" id="quiz-restart" style="margin-left:auto;">
-            <span class="new-quiz-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 12a8 8 0 0 1 13.66-5.66M20 12a8 8 0 0 1-13.66 5.66" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
-                <path d="M17 3v4.5h-4.5M7 21v-4.5h4.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-            <span data-i18n="newQuizBtn">New Quiz</span>
-          </button>
-        </div>
+
+        <!-- Result screen (filled in by app.js) -->
+        <div id="quiz-result" class="qz-result" hidden></div>
       </div>
     </section>
 
@@ -1429,6 +1490,7 @@ to Flip!</span></div>
   <script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.2/mammoth.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="js/koala-core.js"></script>
+  <script src="js/quiz-core.js"></script>
   <script src="js/koala-art.js"></script>
   <script src="js/app.js"></script>
 </body>

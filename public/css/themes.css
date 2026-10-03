@@ -744,6 +744,15 @@ html[data-theme="dark"] .tt-guide .ti-chip {
 html[data-theme="dark"] .tt-guide-close {
   background: #131b19 !important;
 }
+html[data-theme="dark"] body .tt-keypad-toggle[aria-pressed="true"] {
+  background: #1e362d !important;
+}
+html[data-theme="dark"] .typegame-overlay.tg-over-overlay {
+  background: #304b55 !important;
+}
+html[data-theme="dark"] .tg-trunk {
+  background: linear-gradient(90deg, #554930, #352d1e 45%, #cdbb97) !important;
+}
 html[data-theme="dark"] .tg-over-card .tg-review-btn {
   background: rgba(19,27,25,0.14) !important;
   border: 1px solid rgba(21,30,28,0.35) !important;
@@ -770,7 +779,8 @@ html[data-theme="dark"] .tg-sleepy-koala circle {
 html[data-theme="dark"] .tg-hearts {
   background: linear-gradient(180deg, #131b19, #161b27) !important;
 }
-html[data-theme="dark"] #view-typegame .tg-cloud .tw-rest {
+html[data-theme="dark"] #view-typegame .tg-cloud .tw-rest,
+html[data-theme="dark"] #view-timestable .tg-start-floaters .tg-cloud .tw-rest {
   color: #c3c5d0 !important;
 }
 html[data-theme="dark"] .tg-balloon .tg-body {
@@ -793,8 +803,175 @@ html[data-theme="dark"] .tg-reticle {
 html[data-theme="dark"] .tg-reticle i {
   border: 0 solid #151e1c !important;
 }
-html[data-theme="dark"] .typegame-overlay.tg-over-overlay::before {
-  background: repeating-conic-gradient(from 0deg, rgba(19,27,25,0.1) 0deg 9deg, rgba(255, 255, 255, 0) 9deg 18deg) !important;
+html[data-theme="dark"] .tg-fw-core::after {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .typegame-overlay.tg-start-overlay {
+  background: radial-gradient(circle at 50% 42%, rgba(19,27,25,0.34) 0%, rgba(19,27,25,0.1) 70%) !important;
+}
+html[data-theme="dark"] .tg-start-card {
+  border: 3px solid #151e1c !important;
+}
+html[data-theme="dark"] .tg-start-chip {
+  color: #26e9c0 !important;
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .tg-start-best {
+  color: #ffa924 !important;
+  background: #453e27 !important;
+}
+html[data-theme="dark"] .typegame-overlay .tg-start-card button.tg-start-btn.pill.accent {
+  color: #f38200 !important;
+}
+html[data-theme="dark"] #view-typegame p.hint.tg-hint {
+  border: 2px solid #3e6f59 !important;
+  color: #55ceab !important;
+  background: linear-gradient(180deg, #14241d, #1c3125) !important;
+}
+html[data-theme="dark"] #view-typegame .tg-over-overlay .tg-over-card,
+html[data-theme="dark"] #view-timestable .tg-over-overlay .tg-over-card {
+  background: linear-gradient(180deg, #14231d 0%, #1e352c 100%) !important;
+  border: 3px solid #151e1c !important;
+}
+html[data-theme="dark"] #view-typegame .tg-over-overlay .tg-over-title,
+html[data-theme="dark"] #view-timestable .tg-over-overlay .tg-over-title {
+  color: #31e2b2 !important;
+}
+html[data-theme="dark"] #view-typegame .tg-over-overlay .tg-over-card p,
+html[data-theme="dark"] #view-timestable .tg-over-overlay .tg-over-card p,
+html[data-theme="dark"] #view-typegame .tg-over-overlay .tg-over-card .tg-final,
+html[data-theme="dark"] #view-timestable .tg-over-overlay .tg-over-card .tg-final {
+  color: #3db99f !important;
+}
+html[data-theme="dark"] #view-typegame .tg-over-overlay .tg-over-card .typegame-encourage-msg,
+html[data-theme="dark"] #view-timestable .tg-over-overlay .tg-over-card .typegame-encourage-msg {
+  color: #3db99f !important;
+}
+html[data-theme="dark"] #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub,
+html[data-theme="dark"] #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub {
+  background: #131b19 !important;
+  color: #42d4ab !important;
+}
+html[data-theme="dark"] #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub::after,
+html[data-theme="dark"] #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub::after {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .tg-over-overlay .tg-over-card .tg-review-btn {
+  color: #31e2b2 !important;
+}
+html[data-theme="dark"] .scene-card .hint {
+  color: #c3d0cb !important;
+}
+html[data-theme="dark"] #spelling-practice .sp-erase-btn {
+  color: #d4dddb !important;
+}
+@media (hover: hover) {
+html[data-theme="dark"] #spelling-practice .sp-erase-btn:hover {
+  background: #182b24 !important;
+}
+}
+html[data-theme="dark"] .sp-start-card {
+  border: 3px solid #151e1c !important;
+}
+html[data-theme="dark"] .sp-start-panel {
+  border: 3px solid rgba(21,30,28,0.85) !important;
+  background: #192d26 !important;
+}
+html[data-theme="dark"] .sp-step {
+  background: rgba(19,27,25,0.18) !important;
+}
+html[data-theme="dark"] .sp-start-card button.sp-start-btn.pill.accent {
+  color: #f38200 !important;
+}
+html[data-theme="dark"] .sp-start-card .sp-why {
+  background: rgba(19,27,25,0.16) !important;
+}
+html[data-theme="dark"] .qz-seg-btn {
+  background: rgba(19,27,25,0.92) !important;
+  color: #26e9c0 !important;
+}
+html[data-theme="dark"] .qz-seg-btn.active {
+  color: #f38200 !important;
+}
+html[data-theme="dark"] .qz-daily {
+  background: rgba(19,27,25,0.2) !important;
+}
+html[data-theme="dark"] .qz-daily.is-done {
+  color: #f38200 !important;
+}
+html[data-theme="dark"] .qz-start-warn {
+  background: #342e1d !important;
+  color: #ffa414 !important;
+}
+html[data-theme="dark"] .qz-count {
+  background: rgba(19,27,25,0.88) !important;
+}
+html[data-theme="dark"] .qz-combo-chip {
+  background: #453e27 !important;
+  color: #ffa924 !important;
+}
+html[data-theme="dark"] .qz-timer {
+  background: rgba(19,27,25,0.8) !important;
+}
+html[data-theme="dark"] .qz-timer.is-urgent .qz-timer-fill {
+  background: linear-gradient(90deg, #4b322a, #e8476a) !important;
+}
+html[data-theme="dark"] .qz-timer-text {
+  color: #1ed5af !important;
+}
+html[data-theme="dark"] .qz-timer.is-urgent .qz-timer-text {
+  color: #dd6565 !important;
+}
+html[data-theme="dark"] .qz-qcard {
+  background: rgba(19,27,25,0.92) !important;
+}
+html[data-theme="dark"] .qz-opt-key {
+  background: #192d24 !important;
+  color: #26e9c0 !important;
+}
+@media (hover: hover) {
+html[data-theme="dark"] .qz-opt:hover:not(:disabled) {
+  background: #15251e !important;
+}
+}
+html[data-theme="dark"] .qz-leaves {
+  background: rgba(19,27,25,0.88) !important;
+}
+html[data-theme="dark"] .qz-hint-btn {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .qz-feedback {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .qz-feedback.is-correct {
+  background: #192d24 !important;
+}
+html[data-theme="dark"] .qz-feedback.is-wrong {
+  background: #281616 !important;
+}
+html[data-theme="dark"] .qz-feedback.is-timeup {
+  background: #302a1b !important;
+}
+html[data-theme="dark"] .qz-fb-toggle {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] #quiz-practice .quiz-footer .sfx-toggle.is-off {
+  background: #192320 !important;
+  border-color: #505e59 !important;
+}
+html[data-theme="dark"] .qz-stat {
+  background: rgba(19,27,25,0.92) !important;
+}
+html[data-theme="dark"] .qz-daily-card,
+html[data-theme="dark"] .qz-koala-card,
+html[data-theme="dark"] .qz-missed {
+  background: rgba(19,27,25,0.92) !important;
+}
+html[data-theme="dark"] .qz-daily-bar {
+  background: #1f2c27 !important;
+}
+html[data-theme="dark"] .qz-missed li {
+  border-top: 1px dashed #3c4f47 !important;
 }
 html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; }
 html[data-theme="dark"] img, html[data-theme="dark"] video { filter: brightness(.92); }
@@ -1331,6 +1508,9 @@ html[data-theme="ivory"] .tt-guide .ti-chip {
 html[data-theme="ivory"] .tt-guide-close {
   background: #fdfaf4 !important;
 }
+html[data-theme="ivory"] body .tt-keypad-toggle[aria-pressed="true"] {
+  background: #ece4d1 !important;
+}
 html[data-theme="ivory"] .tg-over-card .tg-review-btn {
   background: rgba(253,250,244,0.14) !important;
   border: 1px solid rgba(253,250,244,0.35) !important;
@@ -1374,6 +1554,105 @@ html[data-theme="ivory"] .tg-reticle {
 html[data-theme="ivory"] .tg-reticle i {
   border: 0 solid #fdfaf4 !important;
 }
-html[data-theme="ivory"] .typegame-overlay.tg-over-overlay::before {
-  background: repeating-conic-gradient(from 0deg, rgba(253,250,244,0.1) 0deg 9deg, rgba(255, 255, 255, 0) 9deg 18deg) !important;
+html[data-theme="ivory"] .tg-fw-core::after {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .typegame-overlay.tg-start-overlay {
+  background: radial-gradient(circle at 50% 42%, rgba(253,250,244,0.34) 0%, rgba(253,250,244,0.1) 70%) !important;
+}
+html[data-theme="ivory"] .tg-start-card {
+  border: 3px solid #fdfaf4 !important;
+}
+html[data-theme="ivory"] .tg-start-chip {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] #view-typegame p.hint.tg-hint {
+  background: linear-gradient(180deg, #f8f5ed, #efe8d9) !important;
+}
+html[data-theme="ivory"] #view-typegame .tg-over-overlay .tg-over-card,
+html[data-theme="ivory"] #view-timestable .tg-over-overlay .tg-over-card {
+  background: linear-gradient(180deg, #f2fffa 0%, #ede5d2 100%) !important;
+  border: 3px solid #fdfaf4 !important;
+}
+html[data-theme="ivory"] #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub,
+html[data-theme="ivory"] #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub::after,
+html[data-theme="ivory"] #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub::after {
+  background: #fdfaf4 !important;
+}
+@media (hover: hover) {
+html[data-theme="ivory"] #spelling-practice .sp-erase-btn:hover {
+  background: #f3eee2 !important;
+}
+}
+html[data-theme="ivory"] .sp-start-card {
+  border: 3px solid #fdfaf4 !important;
+}
+html[data-theme="ivory"] .sp-start-panel {
+  border: 3px solid rgba(253,250,244,0.85) !important;
+  background: #f2ecdf !important;
+}
+html[data-theme="ivory"] .sp-step {
+  background: rgba(253,250,244,0.18) !important;
+}
+html[data-theme="ivory"] .sp-start-card .sp-why {
+  background: rgba(253,250,244,0.16) !important;
+}
+html[data-theme="ivory"] .qz-seg-btn {
+  background: rgba(253,250,244,0.92) !important;
+}
+html[data-theme="ivory"] .qz-daily {
+  background: rgba(253,250,244,0.2) !important;
+}
+html[data-theme="ivory"] .qz-count {
+  background: rgba(253,250,244,0.88) !important;
+}
+html[data-theme="ivory"] .qz-timer {
+  background: rgba(253,250,244,0.8) !important;
+}
+html[data-theme="ivory"] .qz-qcard {
+  background: rgba(253,250,244,0.92) !important;
+}
+html[data-theme="ivory"] .qz-opt-key {
+  background: #f2ede0 !important;
+}
+@media (hover: hover) {
+html[data-theme="ivory"] .qz-opt:hover:not(:disabled) {
+  background: #f7f4ec !important;
+}
+}
+html[data-theme="ivory"] .qz-leaves {
+  background: rgba(253,250,244,0.88) !important;
+}
+html[data-theme="ivory"] .qz-hint-btn {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .qz-feedback {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .qz-feedback.is-correct {
+  background: #f2ede0 !important;
+}
+html[data-theme="ivory"] .qz-fb-toggle {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] #quiz-practice .quiz-footer .sfx-toggle.is-off {
+  background: #f6f2ea !important;
+  border-color: #d9cfb9 !important;
+}
+html[data-theme="ivory"] .qz-stat {
+  background: rgba(253,250,244,0.92) !important;
+}
+html[data-theme="ivory"] .qz-daily-card,
+html[data-theme="ivory"] .qz-koala-card,
+html[data-theme="ivory"] .qz-missed {
+  background: rgba(253,250,244,0.92) !important;
+}
+html[data-theme="ivory"] .qz-daily-bar {
+  background: #f0eadb !important;
+}
+html[data-theme="ivory"] .qz-missed li {
+  border-top: 1px dashed #ece4d1 !important;
 }
