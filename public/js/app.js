@@ -3806,10 +3806,10 @@ function comboAfterAnswer(prev, correct, fresh = true) {
 }
 function renderSfxToggles() {
   document.querySelectorAll(".sfx-toggle").forEach((b) => {
-    // In Spelling the toggle reads "🔊 Sound On / 🔇 Sound Off" so it can't be mistaken for the
+    // In Spelling the toggle reads "🔊 ON / 🔇 OFF" so it can't be mistaken for the
     // big Listen button; elsewhere it stays icon-only.
     const inSpelling = !!b.closest("#spelling-practice");
-    b.textContent = (sfxMuted ? "🔇" : "🔊") + (inSpelling ? " " + (sfxMuted ? rwL("Sound Off", "효과음 꺼짐") : rwL("Sound On", "효과음 켜짐")) : "");
+    b.textContent = (sfxMuted ? "🔇" : "🔊") + (inSpelling ? " " + (sfxMuted ? "OFF" : "ON") : "");
     b.classList.toggle("is-off", sfxMuted);
     const label = sfxMuted ? rwL("Sounds off — tap to turn on", "효과음 꺼짐 — 눌러서 켜기") : rwL("Sounds on — tap to turn off", "효과음 켜짐 — 눌러서 끄기");
     b.setAttribute("aria-label", label);
@@ -3935,15 +3935,15 @@ const spellingFeedback = document.getElementById("spelling-feedback");
 const spellingBackBtn = document.getElementById("spelling-back");
 const spellingCheckBtn = document.getElementById("spelling-check");
 const spellingNextBtn = document.getElementById("spelling-next");
-// ⌫ is the last chip of the alphabet pad: same size and shape as the letter
-// chips, re-appended after the letters every time the tray is rebuilt.
+// ⌫ lives inside the answer field (right end), like a search-box clear button.
 const spellingBackspaceBtn = document.createElement("button");
 spellingBackspaceBtn.type = "button";
 spellingBackspaceBtn.id = "spelling-backspace";
-spellingBackspaceBtn.className = "sp-backspace-chip";
+spellingBackspaceBtn.className = "sp-erase-btn";
 // Inline SVG rather than the ⌫ glyph: some fonts draw that character as an
 // envelope-like box, which kids read as "mail" instead of "delete".
 spellingBackspaceBtn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6-7 6-7z"/><path d="M12.5 9.5l5 5M17.5 9.5l-5 5"/></svg>';
+spellingInput.parentElement.appendChild(spellingBackspaceBtn);
 const spellingScoreEl = document.getElementById("spelling-score");
 const spellingGoalValueEl = document.getElementById("spelling-goal-value");
 const spellingGoalMinusBtn = document.getElementById("spelling-goal-minus");
@@ -4334,10 +4334,9 @@ function renderSpellingLetterHints(word) {
   const eraseLabel = t("spellingBackspaceAria");
   spellingBackspaceBtn.setAttribute("aria-label", eraseLabel);
   spellingBackspaceBtn.title = eraseLabel;
-  spellingHintTray.appendChild(spellingBackspaceBtn);
   // Two balanced rows: the grid gets ceil(chips/2) columns and ⌫ is pinned to
   // the last column of row 2 (see .spelling-hint-tray in style.css).
-  spellingHintTray.style.setProperty("--cols", String(Math.ceil((spellingHintTray.children.length) / 2)));
+  spellingHintTray.style.setProperty("--cols", String(Math.ceil(spellingHintTray.children.length / 2)));
   syncSpellingHintTiles(false);
 }
 

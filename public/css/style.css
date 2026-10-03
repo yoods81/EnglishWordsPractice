@@ -5550,3 +5550,47 @@ body.signed-in .stat-bar { display: none; }
   #spelling-practice .sp-live-scene.fk-hear .sp-koala-wrap, #spelling-practice .sp-live-scene.sp-cheer .sp-koala-wrap,
   #spelling-practice.is-correct #spelling-next:not(:disabled) { animation: none !important; }
 }
+
+
+/* =====================================================================
+   Round 6 — SVG belly speaker, SVG leaf buttons, ⌫ inside the field,
+   slim Check button
+   ===================================================================== */
+/* belly speaker: the SVG is the whole button (it draws its own ring) */
+#spelling-practice .sp-belly-btn { width: max(40px, calc(var(--kw) * 0.36)); background: none; border: 0; box-shadow: none; border-radius: 50%; color: inherit; font-size: 0; filter: drop-shadow(0 2px 2px rgba(0, 60, 45, 0.3)); }
+#spelling-practice .sp-belly-btn.sp-belly-btn:active { box-shadow: none; }
+#spelling-practice .sp-belly-icon, #spelling-practice .sp-belly-svg { display: block; width: 100%; height: 100%; }
+#spelling-practice .sp-belly-btn::after { inset: 0; }
+
+/* leaf buttons: the supplied SVG, 44x30 */
+#spelling-practice .sp-leaf-btn { width: 44px; height: 30px; }
+#spelling-practice .sp-leaf-svg { display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 2px 2px rgba(0, 90, 80, 0.25)); }
+#spelling-practice .sp-leaf-btn .lf { transition: fill 0.2s ease; }
+#spelling-practice .sp-leaf-btn:disabled .sp-leaf-svg { filter: none; opacity: 0.75; }
+#spelling-practice .sp-leaf-btn:disabled .lf { fill: #c9d3d0; }
+@media (hover: hover) { #spelling-practice .sp-leaf-btn:not(:disabled):hover .sp-leaf-svg { transform: scale(1.08); } }
+#spelling-practice .sp-leaf-svg { transition: transform 0.15s ease; }
+#spelling-practice.is-correct #spelling-next:not(:disabled) .lf { fill: #00A878; }
+@media (max-width: 520px) { #spelling-practice .sp-leaf-btn { width: 40px; height: 27px; } }
+
+/* ⌫ lives at the right end of the answer field */
+#spelling-practice .sp-input-wrap { position: relative; min-width: 0; }
+#spelling-practice .sp-input-wrap #spelling-input { width: 100%; box-sizing: border-box; padding-left: 46px; padding-right: 46px; }
+#spelling-practice .sp-erase-btn {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%); z-index: 2;
+  width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+  color: var(--muted); background: transparent; border: 0; border-radius: 50%;
+  cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+#spelling-practice .sp-erase-btn svg { width: 24px; height: 24px; }
+@media (hover: hover) { #spelling-practice .sp-erase-btn:hover { color: var(--accent-dark); background: #e8f7f1; } }
+#spelling-practice .sp-erase-btn:active { transform: translateY(-50%) scale(0.88); background: #d5efe6; color: var(--accent-dark); }
+#spelling-practice .sp-erase-btn:focus-visible { outline: 3px solid #ffd166; outline-offset: 1px; }
+
+/* slim Check button */
+#spelling-practice .sp-check-btn { width: min(100%, 260px); padding: 8px 20px; font-size: 1.2rem; letter-spacing: 0.03em; border-width: 2px; box-shadow: 0 4px 0 #b8470f, 0 8px 12px rgba(217, 89, 26, 0.28); text-shadow: 0 2px 0 rgba(168, 70, 12, 0.55); }
+@media (hover: hover) { #spelling-practice .sp-check-btn:hover { box-shadow: 0 6px 0 #b8470f, 0 10px 14px rgba(217, 89, 26, 0.32); } }
+#spelling-practice .sp-check-btn.sp-check-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #b8470f; }
+#spelling-practice .sp-check-btn.sp-checked { box-shadow: 0 4px 0 #0f7a38, 0 8px 12px rgba(21, 150, 71, 0.25); }
+@media (max-width: 520px) { #spelling-practice .sp-check-btn { font-size: 1.15rem; padding: 8px 18px; } }

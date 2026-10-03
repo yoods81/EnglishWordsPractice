@@ -618,7 +618,7 @@
           <div class="sp-live-scene" id="spelling-scene">
             <div class="sp-koala-wrap" id="spelling-koala-wrap">
               <!-- koala SVG is inserted here by app.js -->
-              <button class="sp-belly-btn" id="spelling-speak" type="button" data-i18n-aria-label="spListenAria" aria-label="Hear the word"><span class="sp-belly-icon" aria-hidden="true">🔊</span></button>
+              <button class="sp-belly-btn" id="spelling-speak" type="button" data-i18n-aria-label="spListenAria" aria-label="Hear the word"><span class="sp-belly-icon" aria-hidden="true"><svg class="sp-belly-svg" viewBox="0 0 60 60" fill="none" aria-hidden="true"><circle cx="30" cy="30" r="28" fill="#00A878" stroke="#FFFFFF" stroke-width="3"/><circle cx="30" cy="30" r="22" fill="#02C39A"/><path d="M22 24V36H27L34 42V18L27 24H22Z" fill="white"/><path d="M38 24C39.5 26.5 39.5 33.5 38 36" stroke="white" stroke-width="3" stroke-linecap="round"/><path d="M42 20C45 24 45 36 42 40" stroke="white" stroke-width="3" stroke-linecap="round"/></svg></span></button>
               <div class="sp-cloud sp-speech" id="spelling-bubble" aria-live="polite">
                 <span class="bubble-text" data-i18n="spLiveIdle">Can you spell it? ✏️</span>
               </div>
@@ -628,9 +628,9 @@
           <div class="sp-right">
           <!-- 2. Answer field; leaf-shaped Back / Next sit far out at the left and right edges -->
           <div class="sp-input-row">
-            <button class="sp-leaf-btn sp-leaf-back" id="spelling-back" type="button" data-i18n-aria-label="spellingBackAria" aria-label="Previous word"><svg class="sp-leaf-shape" viewBox="0 0 46 34" aria-hidden="true"><path d="M3 22 C5 9 20 2 43 5 C41 24 26 33 3 22Z"/></svg><span class="sp-leaf-arrow" aria-hidden="true">←</span></button>
-            <input type="text" id="spelling-input" data-i18n-placeholder="spellingPlaceholder" placeholder="Type what you hear..." autocomplete="off" autocapitalize="off" spellcheck="false" />
-            <button class="sp-leaf-btn sp-leaf-next" id="spelling-next" type="button" data-i18n-aria-label="spellingNextAria" aria-label="Next word" disabled><svg class="sp-leaf-shape" viewBox="0 0 46 34" aria-hidden="true"><path d="M3 22 C5 9 20 2 43 5 C41 24 26 33 3 22Z"/></svg><span class="sp-leaf-arrow" aria-hidden="true">→</span></button>
+            <button class="sp-leaf-btn sp-leaf-back" id="spelling-back" type="button" data-i18n-aria-label="spellingBackAria" aria-label="Previous word"><svg class="sp-leaf-svg" viewBox="0 0 48 32" fill="none" aria-hidden="true"><path class="lf" d="M44 16C44 23.7 34.2 30 22 30C9.8 30 2 23.7 2 16C2 8.3 12 2 24 2C36 2 44 8.3 44 16Z" fill="#2EC4B6" stroke="#FFFFFF" stroke-width="2"/><path d="M26 10L18 16L26 22" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <div class="sp-input-wrap"><input type="text" id="spelling-input" data-i18n-placeholder="spellingPlaceholder" placeholder="Type what you hear..." autocomplete="off" autocapitalize="off" spellcheck="false" /></div>
+            <button class="sp-leaf-btn sp-leaf-next" id="spelling-next" type="button" data-i18n-aria-label="spellingNextAria" aria-label="Next word" disabled><svg class="sp-leaf-svg" viewBox="0 0 48 32" fill="none" aria-hidden="true"><path class="lf" d="M4 16C4 23.7 13.8 30 26 30C38.2 30 46 23.7 46 16C46 8.3 36 2 24 2C12 2 4 8.3 4 16Z" fill="#2EC4B6" stroke="#FFFFFF" stroke-width="2"/><path d="M22 10L30 16L22 22" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           </div>
           <!-- 3. Alphabet chips (1–2 rows); the ⌫ chip is appended as the last chip by JS -->
           <div class="spelling-hint-tray sp-chip-row" id="spelling-hint-tray"></div>
