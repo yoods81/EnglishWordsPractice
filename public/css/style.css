@@ -5597,8 +5597,25 @@ body.signed-in .stat-bar { display: none; }
 
 /* Round 7 — bigger koala so the belly speaker sits comfortably inside the body */
 #spelling-practice .sp-koala-wrap { --kw: 200px; --bw: 170px; }
-#spelling-practice .sp-belly-btn { width: calc(var(--kw) * 0.3); top: 73%; }
+#spelling-practice .sp-belly-btn { width: calc(var(--kw) * 0.3); top: 77%; }
 @media (max-width: 520px) {
   #spelling-practice .sp-koala-wrap { --kw: 150px; --bw: 134px; }
   #spelling-practice .sp-speech { font-size: 0.88rem; white-space: nowrap; }
 }
+
+
+/* Wrong answer: the koala droops, its eyes well up and tears roll down */
+.fk-eyes-sad, .sk-mouth-sad, .sk-tear { opacity: 0; }
+.fk-sad .fk-eyes, .fk-sad .sk-mouth { opacity: 0; }
+.fk-sad .fk-eyes-sad, .fk-sad .sk-mouth-sad { opacity: 1; }
+.fk-sad .fk-head { animation: fk-droop 0.5s ease-out forwards; }
+.fk-sad .fk-koala { animation: fk-sag 0.5s ease-out forwards; }
+.sk-tear { transform-box: fill-box; transform-origin: 50% 0; }
+.fk-sad .sk-tear { animation: sk-tear 1s ease-in infinite; }
+.fk-sad .sk-tear-r { animation-delay: 0.35s; }
+@keyframes fk-droop { 0% { transform: rotate(0) translateY(0); } 100% { transform: rotate(-3deg) translateY(5px); } }
+@keyframes fk-sag { 0% { transform: translateY(0); } 100% { transform: translateY(3px); } }
+@keyframes sk-tear { 0% { opacity: 0; transform: translateY(-3px) scale(0.6); } 25% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(26px) scale(1); } }
+#spelling-practice .sp-live-scene.fk-sad .sp-koala-wrap { animation: sp-koala-sob 0.5s ease-in-out 2; }
+@keyframes sp-koala-sob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+@media (prefers-reduced-motion: reduce) { .fk-sad .sk-tear, #spelling-practice .sp-live-scene.fk-sad .sp-koala-wrap { animation: none !important; } .fk-sad .sk-tear { opacity: 1; } }

@@ -120,6 +120,7 @@ const TRANSLATIONS = {
     kbOops: "Oops! 😮",
     kbOver: "Good try! 🐨",
     spLiveNo: "Try again 💪",
+    spLiveSad: "Oh no… 💧",
     spLiveNext: "Next! 🍃",
     spLivePrev: "Look back 👀",
     spProgressLabel: (i, n) => `Word ${i} of ${n}`,
@@ -612,6 +613,7 @@ const TRANSLATIONS = {
     kbOops: "앗! 😮",
     kbOver: "잘했어요! 🐨",
     spLiveNo: "다시 해봐요 💪",
+    spLiveSad: "앗… 💧",
     spLiveNext: "다음! 🍃",
     spLivePrev: "다시 보기 👀",
     spProgressLabel: (i, n) => `${n}단어 중 ${i}번째`,
@@ -3165,7 +3167,7 @@ const flashBubble = document.getElementById("flash-bubble");
 const flashStageEl = document.getElementById("flashcard-stage");
 let flashSceneTimer = null;
 const FK_CLASSES = ["fk-flip", "fk-next", "fk-prev", "fk-know", "fk-dunno"];
-FK_CLASSES.push("fk-hear");
+FK_CLASSES.push("fk-hear", "fk-sad");
 function koalaReact(kind, msgKey, scene = flashScene, bubble = flashBubble, idleKey = "fkIdle") {
   if (!scene) return;
   scene.classList.remove(...FK_CLASSES);
@@ -3177,7 +3179,7 @@ function koalaReact(kind, msgKey, scene = flashScene, bubble = flashBubble, idle
   scene._fkTimer = setTimeout(() => {
     scene.classList.remove(...FK_CLASSES);
     bubbleText.textContent = t(idleKey);
-  }, 1700);
+  }, kind === "sad" ? 2800 : 1700);
 }
 function slideFlashStage(dir) {
   flashStageEl.classList.remove("slide-next", "slide-prev");
@@ -4046,6 +4048,9 @@ const SPELL_KOALA_SVG = `<svg class="sk-svg" viewBox="0 0 200 205" width="170" h
       <g class="fk-eyes-happy"><path d="M75 79 Q82 68 89 79" fill="none" stroke="#1f2a27" stroke-width="3" stroke-linecap="round"/><path d="M111 79 Q118 68 125 79" fill="none" stroke="#1f2a27" stroke-width="3" stroke-linecap="round"/></g>
       <ellipse cx="100" cy="92" rx="15" ry="18" fill="#1f2a27"/><ellipse cx="95" cy="85" rx="4.5" ry="2.6" fill="#fff" opacity="0.35"/>
       <path class="sk-mouth" d="M90 116 Q100 123 110 116" stroke="#1f2a27" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      <path class="sk-mouth-sad" d="M89 122 Q100 111 111 122" stroke="#1f2a27" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+      <g class="fk-eyes-sad"><circle cx="82" cy="77" r="6.4" fill="#1f2a27"/><circle cx="118" cy="77" r="6.4" fill="#1f2a27"/><circle cx="84.5" cy="74.5" r="2.4" fill="#fff"/><circle cx="120.5" cy="74.5" r="2.4" fill="#fff"/><circle cx="80" cy="79.5" r="1.3" fill="#fff"/><circle cx="116" cy="79.5" r="1.3" fill="#fff"/><path d="M71 71 L90 63 M129 71 L110 63" stroke="#1f2a27" stroke-width="3" stroke-linecap="round"/></g>
+      <path class="sk-tear sk-tear-l" d="M80 84 q-5 8 0 11 q5 -3 0 -11z" fill="#6ec6ff" stroke="#3aa0e6" stroke-width="1"/><path class="sk-tear sk-tear-r" d="M120 84 q-5 8 0 11 q5 -3 0 -11z" fill="#6ec6ff" stroke="#3aa0e6" stroke-width="1"/>
       <g class="sk-mouth-open"><ellipse cx="100" cy="119" rx="10" ry="8" fill="#7a2233"/><ellipse cx="100" cy="123" rx="6" ry="3.4" fill="#ff7a90"/></g>
       <polygon points="100,26 150,41 100,58 50,41" fill="#26332f"/>
       <rect x="80" y="50" width="40" height="10" rx="3" fill="#26332f"/>
@@ -4457,7 +4462,6 @@ function spellingGoBurst() {
 
 function checkSpellingAnswer() {
   if (spellingDeck.length === 0) return;
-  spellingGoBurst();
   const current = spellingDeck[spellingIndex];
   const guess = spellingInput.value.trim().toLowerCase();
   const correct = guess === current.word.toLowerCase();
@@ -4496,6 +4500,7 @@ function checkSpellingAnswer() {
     setTimeout(() => spellingScene.classList.remove("sp-cheer"), 900);
     spellingCombo = comboAfterAnswer(spellingCombo, true, earnsCredit);
     spellingConfetti();
+    spellingGoBurst();
     renderSpellingProgress(true);
     showSpellingCorrectFeedback(earnsCredit);
     spellingCurrentChecked = true;
@@ -4518,7 +4523,7 @@ function checkSpellingAnswer() {
     spellingInput.classList.remove("sp-shake");
     void spellingInput.offsetWidth;
     spellingInput.classList.add("sp-shake");
-    spellingReact("dunno", "spLiveNo");
+    spellingReact("sad", "spLiveSad");
     showSpellingWrongFeedback(current);
     spellingCurrentChecked = false;
     syncSpellingState();
