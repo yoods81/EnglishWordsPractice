@@ -357,7 +357,7 @@ html[data-theme="dark"] .sp-why {
 }
 html[data-theme="dark"] .fk-bubble {
   --bub-fill: #17231f;
-  --bub-gloss: 0.18;
+  --bub-top: #22d3aa;
 }
 html[data-theme="dark"] .sp-dot {
   background: #1e3029 !important;

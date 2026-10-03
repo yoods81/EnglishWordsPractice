@@ -3204,89 +3204,34 @@ const flashStageEl = document.getElementById("flashcard-stage");
 let flashSceneTimer = null;
 const FK_CLASSES = ["fk-flip", "fk-next", "fk-prev", "fk-know", "fk-dunno"];
 FK_CLASSES.push("fk-hear", "fk-sad");
-// ---- Flashcards speech bubble: cloud body + a tail that ends at the koala's mouth ----
-// The bubble's text size changes (and the layout moves between phone/desktop), so the
-// SVG is rebuilt from the real measured boxes: the bubble's size for the scalloped body,
-// and the koala's position (its mouth is at (110, 82) in the koala SVG's 200x100 viewBox)
-// for the tail tip.
+// ---- Flashcards speech bubble: a clean outlined rounded-rectangle bubble ----
+// One continuous rounded outline (gradient stroke) with a short tail at the bottom-left
+// that points down-left toward the koala's head. Redrawn whenever the text (and so the
+// bubble's size) changes, and once a hidden view is shown.
 function drawFlashBubble() {
   const svg = flashBubble && flashBubble.querySelector(".fk-bubble-bg");
-  const koala = flashScene && flashScene.querySelector(".fk-svg");
-  if (!svg || !koala) return;
+  if (!svg) return;
   const w = flashBubble.offsetWidth;
   const h = flashBubble.offsetHeight;
   if (!w || !h) return; // view hidden — the ResizeObserver redraws once it shows
-  const NS = "http://www.w3.org/2000/svg";
   const f = (n) => Math.round(n * 10) / 10;
-
-  // scalloped ("fluffy") clockwise outline of the w x h box, bumps pointing outward
-  const cr = 14;
-  const seg = 16;
-  let d = `M ${cr} 0`;
-  const edge = (x0, y0, x1, y1) => {
-    const len = Math.hypot(x1 - x0, y1 - y0);
-    const n = Math.max(1, Math.round(len / seg));
-    const r = (len / n) * 0.6;
-    for (let i = 1; i <= n; i++) {
-      d += ` A ${f(r)} ${f(r)} 0 0 1 ${f(x0 + ((x1 - x0) * i) / n)} ${f(y0 + ((y1 - y0) * i) / n)}`;
-    }
-  };
-  edge(cr, 0, w - cr, 0);
-  d += ` A ${cr} ${cr} 0 0 1 ${w} ${cr}`;
-  edge(w, cr, w, h - cr);
-  d += ` A ${cr} ${cr} 0 0 1 ${w - cr} ${h}`;
-  edge(w - cr, h, cr, h);
-  d += ` A ${cr} ${cr} 0 0 1 0 ${h - cr}`;
-  edge(0, h - cr, 0, cr);
-  d += ` A ${cr} ${cr} 0 0 1 ${cr} 0 Z`;
-
-  // tail: base on the bubble's bottom-left, tip on the koala's mouth
-  const kb = koala.getBoundingClientRect();
-  const bb = flashBubble.getBoundingClientRect();
-  const sc = Math.min(kb.width / 200, kb.height / 100);
-  const mouthX = kb.left + (kb.width - 200 * sc) / 2 + 113 * sc;
-  const mouthY = kb.top + (kb.height - 100 * sc) / 2 + 82 * sc;
-  const tx = mouthX - bb.left;
-  const ty = mouthY - bb.top;
-  // base wraps the bottom-left corner (a left-edge point and a bottom-edge point)
-  const b1x = 1;
-  const b1y = h - 17;
-  const b2x = 18;
-  const b2y = h - 1;
-  const hasTail = tx < -10 && ty > h - 14;
-
+  const r = Math.max(10, Math.min(16, h * 0.32));
+  const tx = 20; // where the tail meets the bottom edge
+  const tip = 12; // how far the tail drops below the bubble
+  const d =
+    `M ${r} 0 H ${f(w - r)} A ${r} ${r} 0 0 1 ${w} ${r} V ${f(h - r)} A ${r} ${r} 0 0 1 ${f(w - r)} ${h} ` +
+    `H ${tx + r} L -2 ${h + tip} L 0 ${f(h - 9)} V ${r} A ${r} ${r} 0 0 1 ${r} 0 Z`;
   svg.setAttribute("width", w);
   svg.setAttribute("height", h);
   svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-  let html =
-    `<defs><radialGradient id="fk-gloss" cx="0.28" cy="0.2" r="0.85">` +
-    `<stop offset="0" stop-color="#fff" stop-opacity="0.95"/><stop offset="0.65" stop-color="#fff" stop-opacity="0"/>` +
-    `</radialGradient></defs>` +
-    `<path class="bb-body" d="${d}"/>` +
-    `<path class="bb-gloss" d="${d}" fill="url(#fk-gloss)" stroke="none"/>` +
-    `<path class="bb-inner" d="${d}" transform="translate(${f(w / 2)} ${f(h / 2)}) scale(${f(1 - 11 / w)} ${f(1 - 11 / h)}) translate(${f(-w / 2)} ${f(-h / 2)})"/>` +
-    `<ellipse class="bb-glint" cx="17" cy="11" rx="6" ry="2.4" transform="rotate(-18 17 11)"/>`;
-  if (hasTail) {
-    // the cover patch hides the body's rim where the tail joins it, so the rim flows round the tail
-    // two soft curves meeting at the tip (a little concave, like a tapering pointer)
-    const c1x = (b1x + tx) / 2 + 3;
-    const c1y = (b1y + ty) / 2 + 7;
-    const c2x = (b2x + tx) / 2 - 1;
-    const c2y = (b2y + ty) / 2 - 6;
-    const curve = `M ${f(b1x)} ${f(b1y)} Q ${f(c1x)} ${f(c1y)} ${f(tx)} ${f(ty)} Q ${f(c2x)} ${f(c2y)} ${f(b2x)} ${f(b2y)}`;
-    html +=
-      `<path class="bb-tail-fill" d="M ${f(b1x)} ${f(b1y)} L ${f(b2x)} ${f(b2y)} L ${f(b2x + 2)} ${f(b2y - 4)} L ${f(b1x + 4)} ${f(b1y - 2)} Z"/>` +
-      `<path class="bb-tail-fill" d="${curve} Z"/>` +
-      `<path class="bb-tail-line" d="${curve}"/>`;
-  }
-  svg.innerHTML = html;
+  svg.innerHTML =
+    `<defs><linearGradient id="fk-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="${h + tip}">` +
+    `<stop class="bb-stop-top" offset="0"/><stop class="bb-stop-bottom" offset="1"/></linearGradient></defs>` +
+    `<path class="bb-body" stroke="url(#fk-stroke)" d="${d}"/>`;
 }
 if (flashBubble && typeof ResizeObserver !== "undefined") {
-  const flashBubbleRO = new ResizeObserver(() => drawFlashBubble());
-  flashBubbleRO.observe(flashBubble);
-  flashBubbleRO.observe(flashScene);
+  new ResizeObserver(() => drawFlashBubble()).observe(flashBubble);
 }
-window.addEventListener("resize", drawFlashBubble);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawFlashBubble);
 drawFlashBubble();
 

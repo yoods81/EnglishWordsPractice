@@ -4262,35 +4262,26 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
 /* ===== Flashcards: koala helper + leaf buttons ===== */
 .flash-scene { position: relative; display: flex; justify-content: center; align-items: flex-end; height: 88px; margin: -8px 0 -14px; pointer-events: none; z-index: 3; }
 .fk-svg { width: 170px; height: auto; overflow: visible; }
-/* Flashcards speech bubble: a soft, fluffy cloud. The body (scalloped outline,
-   inner puff line, gloss) and the tail are drawn as inline SVG by drawFlashBubble()
-   in app.js, which measures the bubble and the koala so the tail always ends at
-   the koala's mouth, whatever the screen size. */
+/* Flashcards speech bubble: a clean, outlined rounded-rectangle bubble. The outline
+   (with its short bottom-left tail, pointing toward the koala's head) is one
+   continuous gradient stroke drawn as inline SVG by drawFlashBubble() in app.js. */
 .fk-bubble {
-  --bub-fill: #e3f7ef;
-  --bub-line: var(--accent-dark);
-  --bub-gloss: 1;
+  --bub-fill: #ffffff;
+  --bub-top: #3ee6c6;
+  --bub-bottom: var(--accent-dark);
   position: absolute; right: 4%; top: 6px; max-width: 34%;
-  padding: 10px 18px 11px;
+  padding: 9px 16px 10px;
   font-family: var(--font-heading); font-weight: 700; font-size: 0.84rem; color: var(--accent-dark);
   line-height: 1.2; text-align: center;
 }
 .fk-bubble .bubble-text { position: relative; z-index: 1; }
 .fk-bubble-bg {
   position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; z-index: 0;
-  filter: drop-shadow(0 5px 6px rgba(14, 156, 125, 0.22));
+  filter: drop-shadow(0 4px 5px rgba(14, 156, 125, 0.2));
 }
-.fk-bubble-bg .bb-body { fill: var(--bub-fill); stroke: var(--bub-line); stroke-width: 3; stroke-linejoin: round; }
-.fk-bubble-bg .bb-gloss { opacity: var(--bub-gloss); }
-.fk-bubble-bg .bb-inner { fill: none; stroke: rgba(34, 201, 163, 0.45); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
-.fk-bubble-bg .bb-glint { fill: #fff; opacity: calc(0.95 * var(--bub-gloss)); }
-.fk-bubble-bg .bb-tail-fill { fill: var(--bub-fill); stroke: none; }
-.fk-bubble-bg .bb-tail-line { fill: none; stroke: var(--bub-line); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
-  content: ""; position: absolute; width: 28px; height: 26px; left: 14px; top: calc(100% - 2px);
-  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
-}
-.fk-bubble::before { background: var(--bub-line); -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 26'%3E%3Cpath d='M4 0 L24 0 L4 19 Z' fill='black'/%3E%3Cpath d='M4 2 L4 19 L21.9 2' fill='none' stroke='black' stroke-width='6' stroke-linecap='butt' stroke-linejoin='round'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 26'%3E%3Cpath d='M4 0 L24 0 L4 19 Z' fill='black'/%3E%3Cpath d='M4 2 L4 19 L21.9 2' fill='none' stroke='black' stroke-width='6' stroke-linecap='butt' stroke-linejoin='round'/%3E%3C/svg%3E"); }
-.fk-bubble::after { background: var(--bub-fill); -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 26'%3E%3Cpath d='M4 0 L24 0 L4 19 Z' fill='black' stroke='black' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 26'%3E%3Cpath d='M4 0 L24 0 L4 19 Z' fill='black' stroke='black' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.fk-bubble-bg .bb-body { fill: var(--bub-fill); stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; }
+.fk-bubble-bg .bb-stop-top { stop-color: var(--bub-top); }
+.fk-bubble-bg .bb-stop-bottom { stop-color: var(--bub-bottom); }
 .fk-eyes-happy, .fk-spark { opacity: 0; }
 .fk-eyes { animation: fk-blink 4s infinite; transform-box: fill-box; transform-origin: center; }
 .fk-head { animation: fk-idle 3.4s ease-in-out infinite; }
