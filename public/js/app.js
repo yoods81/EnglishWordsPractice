@@ -111,7 +111,7 @@ const TRANSLATIONS = {
     spWhy1: "Words you can spell are words you read faster.",
     spWhy2: "Your writing looks clear and confident.",
     spWhy3: "Spelling is part of school tests like NAPLAN.",
-    spLiveIdle: "Let's spell! ✏️",
+    spLiveIdle: "Can you spell it? ✏️",
     spLiveHear: "Listening 👂",
     spLiveOk: "Yum! 🍃",
     spLiveFull: "So full & happy! 🥰",
@@ -324,11 +324,11 @@ const TRANSLATIONS = {
     spellingStartBtn: "▶ Start the first word",
     spellingBackBtn: "🍃 Back",
     spellingNextBtn: "Next 🌿",
-    spellingCheckBtn: "GO! 🚀",
+    spellingCheckBtn: "Check 🔍",
+    spellingCheckedBtn: "Checked ✅",
     spellingCheckAria: "Check answer",
     spLiveTyping: "Type the letters! ✏️",
     spLiveAlmost: "Almost there! 🔥",
-    spLiveReady: "Ready? Hit GO! 🚀",
     spListenBtn: "Listen",
     spellingBackAria: "Previous word",
     spellingNextAria: "Next word",
@@ -337,7 +337,7 @@ const TRANSLATIONS = {
     spellingCorrectNoCreditPrompt: "✅ Correct! (This one already counted as wrong earlier this round, so it won't add to your score.) Press Next to continue.",
     spellingWrongPrompt: "Please enter the correct spelling to go to the next word",
     spellingEmpty: (lvl) => `No ${lvl} spelling words yet. Add some in "Add Word"!`,
-    spellingFinishBtn: "🏁 Finish",
+    spellingFinishBtn: "🚩 Quit",
     spellingReportTitle: "📋 Spelling Report",
     spellingReportEmpty: "No mistakes today — great job! 🎉",
     spellingReportRestart: "Practice Again",
@@ -602,7 +602,7 @@ const TRANSLATIONS = {
     spWhy1: "철자를 알면 글을 더 빨리 읽을 수 있어요.",
     spWhy2: "글씨가 또렷하고 자신감 있게 보여요.",
     spWhy3: "호주 학교 시험(NAPLAN)에도 스펠링이 나와요.",
-    spLiveIdle: "철자를 써 봐요! ✏️",
+    spLiveIdle: "철자를 맞춰 볼까요? ✏️",
     spLiveHear: "쫑긋 👂",
     spLiveOk: "냠냠! 🍃",
     spLiveFull: "배불러서 행복해요! 🥰",
@@ -812,11 +812,11 @@ const TRANSLATIONS = {
     spellingStartBtn: "▶ 첫 단어 시작하기",
     spellingBackBtn: "🍃 이전",
     spellingNextBtn: "다음 🌿",
-    spellingCheckBtn: "GO! 🚀",
+    spellingCheckBtn: "제출 🚀",
+    spellingCheckedBtn: "완료 ✅",
     spellingCheckAria: "정답 확인",
     spLiveTyping: "글자를 눌러 봐요! ✏️",
     spLiveAlmost: "거의 다 왔어요! 🔥",
-    spLiveReady: "준비됐나요? GO! 🚀",
     spListenBtn: "듣기",
     spellingBackAria: "이전 단어",
     spellingNextAria: "다음 단어",
@@ -825,7 +825,7 @@ const TRANSLATIONS = {
     spellingCorrectNoCreditPrompt: "✅ 정답이에요! (이 단어는 이번 라운드에서 이미 한 번 틀려서 점수에는 반영되지 않아요.) Next를 눌러 다음 단어로 넘어가세요.",
     spellingWrongPrompt: "정확한 철자를 입력해야 다음 단어로 넘어갈 수 있어요.",
     spellingEmpty: (lvl) => `${lvl} 레벨에는 아직 스펠링 연습 단어가 없어요. "단어 추가"에서 추가해보세요!`,
-    spellingFinishBtn: "🏁 종료",
+    spellingFinishBtn: "🚩 나가기",
     spellingReportTitle: "📋 스펠링 리포트",
     spellingReportEmpty: "오늘은 틀린 단어가 없어요 — 정말 잘했어요! 🎉",
     spellingReportRestart: "다시 연습하기",
@@ -3804,10 +3804,10 @@ function comboAfterAnswer(prev, correct, fresh = true) {
 }
 function renderSfxToggles() {
   document.querySelectorAll(".sfx-toggle").forEach((b) => {
-    // In Spelling the toggle reads "🔊 Sound" so it can't be mistaken for the
+    // In Spelling the toggle reads "🔊 SFX On / 🔇 SFX Off" so it can't be mistaken for the
     // big Listen button; elsewhere it stays icon-only.
     const inSpelling = !!b.closest("#spelling-practice");
-    b.textContent = (sfxMuted ? "🔇" : "🔊") + (inSpelling ? " " + rwL("Sound", "효과음") : "");
+    b.textContent = (sfxMuted ? "🔇" : "🔊") + (inSpelling ? " " + (sfxMuted ? rwL("SFX Off", "효과음 꺼짐") : rwL("SFX On", "효과음 켜짐")) : "");
     b.classList.toggle("is-off", sfxMuted);
     const label = sfxMuted ? rwL("Sounds off — tap to turn on", "효과음 꺼짐 — 눌러서 켜기") : rwL("Sounds on — tap to turn off", "효과음 켜짐 — 눌러서 끄기");
     b.setAttribute("aria-label", label);
@@ -4257,7 +4257,7 @@ function loadSpellingWord(speakAloud = true) {
   spellingFeedback.innerHTML = "";
   spellingCurrentChecked = false;
   spellingNextBtn.disabled = true;
-  spellingCheckBtn.classList.remove("sp-ready");
+  syncSpellingState();
   if (spellingDeck.length === 0) {
     spellingFeedback.textContent = t("spellingEmpty", levelLabel(currentLevel));
     spellingBackBtn.disabled = true;
@@ -4409,6 +4409,16 @@ function showSpellingCorrectFeedback(earnedCredit) {
 // Checks the current guess against the word, but stays on the same word —
 // advancing only happens via goToNextSpellingWord(), and only once a check
 // here has confirmed the guess is correct.
+// One switch for the whole screen's "solving" vs "correct" look. While the
+// child is still working (no correct check yet) the practice box has no
+// .is-correct class: Next is quiet and static, Check is the live button. After
+// a correct check, .is-correct turns on the Next pulse and the Check button
+// shows its finished ("Checked ✅") state. CSS does the rest.
+function syncSpellingState() {
+  spellingPractice.classList.toggle("is-correct", spellingCurrentChecked);
+  spellingCheckBtn.classList.toggle("sp-checked", spellingCurrentChecked);
+}
+
 // ---- Mascot cheer while typing: the speech cloud follows what the child has
 // typed so far (pure text swap; the bubble's pop animation is CSS).
 function spellingCheer() {
@@ -4421,11 +4431,10 @@ function spellingCheer() {
   const v = spellingInput.value.trim().toLowerCase();
   let key = "spLiveIdle";
   if (v) {
-    if (v === word) key = "spLiveReady";
+    if (v === word) key = "spLiveIdle";
     else if (word.startsWith(v) && v.length >= 3 && v.length >= word.length - 2) key = "spLiveAlmost";
     else key = "spLiveTyping";
   }
-  spellingCheckBtn.classList.toggle("sp-ready", key === "spLiveReady");
   const textEl = spellingBubble.querySelector(".bubble-text");
   const msg = t(key);
   if (!textEl || textEl.textContent === msg) return;
@@ -4482,12 +4491,12 @@ function checkSpellingAnswer() {
     void spellingScene.offsetWidth;
     spellingScene.classList.add("sp-cheer"); // koala jumps for joy
     setTimeout(() => spellingScene.classList.remove("sp-cheer"), 900);
-    spellingCheckBtn.classList.remove("sp-ready");
     spellingCombo = comboAfterAnswer(spellingCombo, true, earnsCredit);
     spellingConfetti();
     renderSpellingProgress(true);
     showSpellingCorrectFeedback(earnsCredit);
     spellingCurrentChecked = true;
+    syncSpellingState();
     spellingNextBtn.disabled = false;
 
     const goal = goals.spelling;
@@ -4509,6 +4518,7 @@ function checkSpellingAnswer() {
     spellingReact("dunno", "spLiveNo");
     showSpellingWrongFeedback(current);
     spellingCurrentChecked = false;
+    syncSpellingState();
     spellingNextBtn.disabled = true;
   }
 }
@@ -4544,6 +4554,7 @@ spellingInput.addEventListener("input", () => {
     spellingCurrentChecked = false;
     spellingNextBtn.disabled = true;
   }
+  syncSpellingState();
   spellingCheer();
 });
 

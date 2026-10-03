@@ -5227,9 +5227,9 @@ body.signed-in .stat-bar { display: none; }
 /* koala + speech cloud: one tidy row, no absolute positioning games */
 #spelling-practice .sp-left { display: flex; flex-direction: row; justify-content: center; align-items: center; margin: 0; }
 #spelling-practice .sp-left .sp-live-scene { position: relative; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 6px; width: auto; height: auto; margin: 0; padding: 0; }
-#spelling-practice .sp-left .sp-live-scene .sk-svg { width: 104px; max-width: 104px; height: auto; flex: 0 0 auto; }
-#spelling-practice .sp-cloud { position: relative; top: auto; left: auto; flex: 0 0 auto; width: 116px; height: 66px; }
-#spelling-practice .sp-cloud .bubble-text { left: 12px; right: 12px; top: 10px; height: 30px; font-size: 0.72rem; }
+#spelling-practice .sp-left .sp-live-scene .sk-svg { width: 100px; max-width: 100px; height: auto; flex: 0 0 auto; }
+#spelling-practice .sp-cloud { position: relative; top: auto; left: auto; flex: 0 0 auto; width: 196px; height: 110px; }
+#spelling-practice .sp-cloud .bubble-text { left: 16%; right: 16%; top: 9%; height: 62%; padding: 0; font-size: 16px; line-height: 1.15; text-wrap: balance; }
 
 /* 2. Listen — same mint, rim and 3D edge as Check Answer, so the two main
    buttons read as one family */
@@ -5303,9 +5303,9 @@ body.signed-in .stat-bar { display: none; }
 @media (max-width: 520px) {
   #spelling-practice.sp-game { padding: 10px 10px 10px; }
   #spelling-practice .sp-header #spelling-trail-slot { flex-basis: 100%; }
-  #spelling-practice .sp-left .sp-live-scene .sk-svg { width: 84px; max-width: 84px; }
-  #spelling-practice .sp-cloud { width: 104px; height: 60px; }
-  #spelling-practice .sp-cloud .bubble-text { top: 8px; height: 26px; font-size: 0.66rem; }
+  #spelling-practice .sp-left .sp-live-scene .sk-svg { width: 78px; max-width: 78px; }
+  #spelling-practice .sp-cloud { width: 172px; height: 98px; }
+  #spelling-practice .sp-cloud .bubble-text { left: 15%; right: 15%; font-size: 16px; }
   #spelling-practice .sp-footer { gap: 6px; }
   #spelling-practice .sp-footer .score-tag { padding: 5px 10px; font-size: 0.85rem; }
   #spelling-practice .sp-input-row { gap: 8px; }
@@ -5356,11 +5356,7 @@ body.signed-in .stat-bar { display: none; }
 /* ---- Leaf progress bar ---- */
 #spelling-practice .sp-leaf svg { transition: filter 0.4s ease; }
 /* the leaf for the word being spelled: soft golden glow, slightly larger */
-#spelling-practice .sp-leaf.cur { z-index: 1; animation: sp-leaf-active 1.4s ease-in-out infinite; }
-@keyframes sp-leaf-active {
-  0%, 100% { transform: rotate(var(--r, 0deg)) scale(1.08); filter: drop-shadow(0 0 0 rgba(255, 214, 102, 0)); }
-  50%      { transform: rotate(var(--r, 0deg)) scale(1.22); filter: drop-shadow(0 0 6px rgba(255, 214, 102, 0.95)); }
-}
+#spelling-practice .sp-leaf.cur { z-index: 1; animation: none; transform: rotate(var(--r, 0deg)) scale(1.15); filter: drop-shadow(0 0 5px rgba(255, 214, 102, 0.9)); }
 /* earned leaves stay on the branch as a quieter "done" state */
 #spelling-practice .sp-leaf.eaten {
   opacity: 0.4; filter: grayscale(0.55); animation: none;
@@ -5403,8 +5399,8 @@ body.signed-in .stat-bar { display: none; }
 #spelling-practice .sp-check-btn {
   position: relative; display: inline-flex; align-items: center; justify-content: center;
   width: min(100%, 340px); padding: 12px 28px; margin: 0;
-  font-family: var(--font-heading); font-weight: 700; font-size: 1.9rem; line-height: 1.1;
-  letter-spacing: 0.08em; text-transform: uppercase; color: #fff;
+  font-family: var(--font-heading); font-weight: 700; font-size: 1.7rem; line-height: 1.1;
+  letter-spacing: 0.04em; color: #fff;
   text-shadow: 0 3px 0 rgba(168, 70, 12, 0.6), 0 0 12px rgba(255, 255, 255, 0.35);
   background: linear-gradient(180deg, #ffd24a 0%, #ffa233 52%, #ff7a2c 100%);
   border: 3px solid #d9591a; border-radius: 999px;
@@ -5412,23 +5408,9 @@ body.signed-in .stat-bar { display: none; }
   cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
-/* light streak sweeping across now and then */
-#spelling-practice .sp-check-btn::before {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.55) 50%, transparent 62%);
-  background-size: 250% 100%; background-position: 160% 0;
-  animation: sp-go-shine 3.2s ease-in-out infinite;
-}
-@keyframes sp-go-shine { 0%, 55% { background-position: 160% 0; } 100% { background-position: -60% 0; } }
 @media (hover: hover) { #spelling-practice .sp-check-btn:hover { transform: translateY(-2px); box-shadow: 0 9px 0 #b8470f, 0 16px 22px rgba(217, 89, 26, 0.4); } }
 #spelling-practice .sp-check-btn.sp-check-btn:active { transform: translateY(6px); box-shadow: 0 1px 0 #b8470f, 0 3px 6px rgba(217, 89, 26, 0.3); animation: none; }
 #spelling-practice .sp-check-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; box-shadow: 0 7px 0 #b8470f, 0 0 0 6px #ffa233; }
-/* word fully typed: GO! swells and glows (no sideways/vertical shake, so it stays easy to tap) */
-#spelling-practice .sp-check-btn.sp-ready { animation: sp-go-ready 0.9s ease-in-out infinite; }
-@keyframes sp-go-ready {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.04); box-shadow: 0 7px 0 #b8470f, 0 0 26px rgba(255, 190, 60, 0.85); }
-}
 /* click: expanding ring + six sparks flying out */
 #spelling-practice .sp-check-btn::after { content: ""; position: absolute; inset: -3px; border-radius: inherit; pointer-events: none; opacity: 0; }
 #spelling-practice .sp-check-btn.sp-go-burst::after { animation: sp-go-ring 0.65s ease-out; }
@@ -5445,12 +5427,65 @@ body.signed-in .stat-bar { display: none; }
 }
 
 @media (max-width: 520px) {
-  #spelling-practice .sp-check-btn { font-size: 1.6rem; padding: 11px 22px; }
+  #spelling-practice .sp-check-btn { font-size: 1.5rem; padding: 11px 22px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .sp-live-scene.fk-hear .sk-svg, .sp-live-scene.sp-cheer .sk-svg, .sp-cloud.sp-pop .bubble-text,
   #spelling-practice .sp-leaf.cur, #spelling-practice .sp-leaf.eaten.sp-leaf-pop,
   #spelling-practice .spelling-hint-tile, #spelling-practice .sp-backspace-chip,
-  #spelling-practice .sp-check-btn, #spelling-practice .sp-check-btn::before,
-  #spelling-practice .sp-check-btn.sp-ready, .sp-go-burst .sp-spark, #spelling-practice .sp-check-btn.sp-go-burst::after { animation: none !important; }
+  #spelling-practice .sp-check-btn,
+  #spelling-practice .sp-check-btn.sp-go-burst .sp-spark, #spelling-practice .sp-check-btn.sp-go-burst::after { animation: none !important; }
+}
+
+/* =====================================================================
+   Spelling game — state-driven UI (round 4)
+   Two states, switched by one class on #spelling-practice (see
+   syncSpellingState in app.js):
+     solving  (no class)   input live · Check ready · Next quiet and still
+     .is-correct           input green · Check shows "Checked ✅" · Next pulses
+   Nothing here animates in the solving state except what the child triggers.
+   ===================================================================== */
+
+/* Next: always still unless the answer is correct (beats the old nudge rule) */
+#spelling-practice #spelling-next { animation: none; }
+#spelling-practice.is-correct #spelling-next:not(:disabled) { animation: sp-next-pulse 1.1s ease-in-out infinite; }
+@keyframes sp-next-pulse {
+  0%, 100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(34, 201, 163, 0.65); }
+  50%      { transform: scale(1.22); box-shadow: 0 0 0 10px rgba(34, 201, 163, 0); }
+}
+#spelling-practice.is-correct #spelling-next:not(:disabled):active { animation: none; transform: scale(0.92); }
+
+/* Check: label swap + finished look (calm green, no sparkle loop) */
+.sp-lbl-done { display: none; }
+#spelling-practice .sp-check-btn.sp-checked .sp-lbl-check { display: none; }
+#spelling-practice .sp-check-btn.sp-checked .sp-lbl-done { display: inline; }
+#spelling-practice .sp-check-btn.sp-checked {
+  background: linear-gradient(180deg, #6ee7a8 0%, #34d27a 55%, #22c55e 100%);
+  border-color: #159647; box-shadow: 0 7px 0 #0f7a38, 0 14px 20px rgba(21, 150, 71, 0.3);
+  text-shadow: 0 3px 0 rgba(15, 100, 45, 0.55);
+}
+
+/* Effect layers never sit on top of anything clickable */
+.sp-spark, .sp-confetti, .sp-leaf-fly,
+#spelling-practice .sp-check-btn::before, #spelling-practice .sp-check-btn::after,
+.sp-listen-btn::after { pointer-events: none; }
+.sp-spark { z-index: 1; }
+#spelling-practice .sp-input-row, #spelling-practice .spelling-hint-tray { position: relative; z-index: 2; }
+
+/* Utility row: clear labels, and Quit reads as a real (but gentle) button */
+#spelling-practice .sp-footer .sfx-toggle { font-size: 0.8rem; }
+#spelling-practice .sp-footer .sfx-toggle.is-off { color: #7c8985; background: #f4f6f5; }
+#spelling-practice .sp-footer .sp-finish-btn {
+  padding: 6px 14px; font-size: 0.8rem; font-weight: 700;
+  color: #d9591a; background: #fff1ea; border: 2px solid #ffb48a; box-shadow: 0 2px 0 #ffb48a;
+  cursor: pointer;
+}
+#spelling-practice .sp-footer .sp-finish-btn:active { transform: translateY(2px); box-shadow: none; }
+@media (max-width: 520px) {
+  #spelling-practice .sp-footer { flex-wrap: wrap; row-gap: 8px; }
+  #spelling-practice .sp-footer .sfx-toggle { font-size: 0.75rem; padding: 0 10px; }
+  #spelling-practice .sp-footer .sp-finish-btn { padding: 5px 10px; font-size: 0.75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #spelling-practice.is-correct #spelling-next:not(:disabled) { animation: none !important; }
 }
