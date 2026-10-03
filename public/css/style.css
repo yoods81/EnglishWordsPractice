@@ -7517,3 +7517,38 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
   .qz-combo-chip, .qz-feedback, .qz-result-koala, .qz-star.on, .qz-typing-row input.shake { animation: none; }
   .qz-timer-fill { transition: none; }
 }
+
+/* ---- "No sound?" hint shown when the phone's speech engine can't speak ---- */
+.tts-help {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: calc(84px + env(safe-area-inset-bottom));
+  z-index: 3000;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 10px 12px;
+  border: 2px solid #f0a21a;
+  border-radius: 14px;
+  background: #fff8e1;
+  color: #5a3a00;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+}
+.tts-help button {
+  flex: 0 0 auto;
+  align-self: center;
+  padding: 6px 12px;
+  border: 2px solid #f0a21a;
+  border-radius: 999px;
+  background: #ffe9a8;
+  color: #5a3a00;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}

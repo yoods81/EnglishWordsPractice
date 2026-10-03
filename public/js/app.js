@@ -309,6 +309,9 @@ const TRANSLATIONS = {
     qzModeNoteTime: (c, ty) => `${c} seconds a question (${ty} when typing). If time runs out, it counts as a miss.`,
     quizStartBtn: "▶ Start Quiz",
     flashStartBtn: "▶ Start Flashcards",
+    ttsHelpMsg: "🔇 Can't hear the word? On your phone, search Settings for “text-to-speech” and set the preferred engine to “Speech Services by Google”. Then close and reopen your browser. Also check the volume and that silent mode is off.",
+    ttsHelpMsgIos: "🔇 Can't hear the word? Turn silent mode off (the switch on the side), turn the volume up, then try again.",
+    ttsHelpOk: "Got it",
     qzChipQuestions: (n) => `🎯 ${n} questions`,
     qzChipTime: "⏱ Time Attack",
     qzDailyLine: (have, goal) => `🎯 Today: ${have} / ${goal} questions`,
@@ -883,6 +886,9 @@ const TRANSLATIONS = {
     qzModeNoteTime: (c, ty) => `문제당 ${c}초 (쓰기는 ${ty}초). 시간이 지나면 오답으로 처리돼요.`,
     quizStartBtn: "▶ 퀴즈 시작",
     flashStartBtn: "▶ 플래시카드 시작",
+    ttsHelpMsg: "🔇 단어 소리가 안 나나요? 폰 설정에서 “텍스트 음성 변환”(TTS)을 검색해 기본 엔진을 “Google 음성 서비스”로 바꾼 뒤, 브라우저를 완전히 껐다가 다시 열어 주세요. 볼륨과 무음 모드도 확인해 주세요.",
+    ttsHelpMsgIos: "🔇 단어 소리가 안 나나요? 무음 모드(옆면 스위치)를 끄고 볼륨을 올린 뒤 다시 시도해 주세요.",
+    ttsHelpOk: "확인",
     qzChipQuestions: (n) => `🎯 ${n}문제`,
     qzChipTime: "⏱ 타임어택",
     qzDailyLine: (have, goal) => `🎯 오늘: ${have} / ${goal}문제`,
@@ -1852,6 +1858,32 @@ function pickVoice(lang) {
 // `opts.onstart`/`opts.onend` let a caller show pronunciation-in-progress UI
 // (e.g. the flashcard "Hear it" button below) without every caller having to
 // duplicate the Web Speech API's own event wiring.
+// If a phone's speech engine can't produce any sound (common when its default
+// engine has no English voice installed), say what to do about it instead of
+// leaving the speaker button silently dead. Shown at most once per page load.
+let ttsHelpEl = null;
+let ttsHelpShown = false;
+function showTtsHelp() {
+  if (ttsHelpShown || !IS_MOBILE_TTS) return;
+  ttsHelpShown = true;
+  const el = document.createElement("div");
+  el.className = "tts-help";
+  el.setAttribute("role", "alert");
+  const msg = document.createElement("span");
+  msg.textContent = t(/iPhone|iPad|iPod/i.test(navigator.userAgent || "") ? "ttsHelpMsgIos" : "ttsHelpMsg");
+  const ok = document.createElement("button");
+  ok.type = "button";
+  ok.textContent = t("ttsHelpOk");
+  ok.addEventListener("click", hideTtsHelp);
+  el.append(msg, ok);
+  document.body.appendChild(el);
+  ttsHelpEl = el;
+  setTimeout(hideTtsHelp, 20000);
+}
+function hideTtsHelp() {
+  if (ttsHelpEl) { ttsHelpEl.remove(); ttsHelpEl = null; }
+}
+
 let speakCallId = 0; // newest speak() call wins; stale fallback timers from older calls bail out
 function speak(text, opts = {}) {
   if (!text) return;
@@ -1923,6 +1955,7 @@ function speak(text, opts = {}) {
     };
     utter.onstart = () => {
       started = true;
+      hideTtsHelp();
       if (startTimer) clearTimeout(startTimer);
       if (opts.onstart) opts.onstart();
     };
@@ -1935,7 +1968,10 @@ function speak(text, opts = {}) {
         return;
       }
       console.warn("Speech synthesis failed:", e.error);
-      if (!retry()) finish();
+      if (!retry()) {
+        if (myCallId === speakCallId) showTtsHelp();
+        finish();
+      }
     };
     synth.speak(utter);
 
@@ -1946,7 +1982,10 @@ function speak(text, opts = {}) {
     if (IS_MOBILE_TTS) {
       startTimer = setTimeout(() => {
         if (started || settled || myCallId !== speakCallId) return;
-        if (!retry()) finish();
+        if (!retry()) {
+          showTtsHelp();
+          finish();
+        }
       }, 1800);
     }
 
