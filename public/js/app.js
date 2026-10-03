@@ -1994,6 +1994,14 @@ function speak(text, opts = {}) {
   speakNow();
 }
 
+// Open the site with ?tts (e.g. koalastudymate.com/?tts) to get a sound-check
+// screen that shows what the phone's speech engine does. Only loaded on request.
+if (/[?&]tts(=|&|$)/.test(location.search)) {
+  const ttsDebugScript = document.createElement("script");
+  ttsDebugScript.src = "js/tts-debug.js";
+  document.body.appendChild(ttsDebugScript);
+}
+
 /* ================= LEVEL POOLS ================= */
 
 function getVocabPool(level) {
