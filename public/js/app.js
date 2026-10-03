@@ -1864,14 +1864,18 @@ function speak(text, opts = {}) {
   // out silently — which then blocks every later speak() call from doing
   // anything at all. cancel() clears that stuck state before every attempt,
   // not only to interrupt a genuinely in-progress one.
+  const wasBusy = synth.speaking || synth.pending;
   synth.cancel();
+  // A synthesizer left paused (Android Chrome can do this) swallows every
+  // later utterance until it is resumed.
+  if (synth.paused) synth.resume();
 
   const lang = currentSystem().speechLang;
 
-  const speakNow = () => {
+  const speakNow = (useVoice = true) => {
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = lang;
-    const voice = pickVoice(lang);
+    const voice = useVoice ? pickVoice(lang) : null;
     if (voice) utter.voice = voice;
     // Slightly brighter pitch/pace to read as a younger adult voice.
     utter.rate = 0.95;
@@ -1891,6 +1895,15 @@ function speak(text, opts = {}) {
       // cut this one off — routine, not a real failure worth logging.
       if (e.error !== "interrupted" && e.error !== "canceled") {
         console.warn("Speech synthesis failed:", e.error);
+        // The explicitly chosen voice can be unusable on a phone (not
+        // installed, needs the network, ...), which is silent. Try once more
+        // with just the language and let the device pick its own voice.
+        if (voice && !settled) {
+          settled = true;
+          if (watchdog) clearInterval(watchdog);
+          speakNow(false);
+          return;
+        }
       }
       finish();
     };
@@ -1930,6 +1943,12 @@ function speak(text, opts = {}) {
       setTimeout(speakNow, 80);
       return;
     }
+  }
+  // Phones can drop an utterance queued in the same tick as cancel(); when
+  // something was actually playing, give the engine a moment to settle first.
+  if (IS_MOBILE_TTS && wasBusy) {
+    setTimeout(speakNow, 60);
+    return;
   }
   speakNow();
 }
