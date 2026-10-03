@@ -5594,3 +5594,11 @@ body.signed-in .stat-bar { display: none; }
 #spelling-practice .sp-check-btn.sp-check-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #b8470f; }
 #spelling-practice .sp-check-btn.sp-checked { box-shadow: 0 4px 0 #0f7a38, 0 8px 12px rgba(21, 150, 71, 0.25); }
 @media (max-width: 520px) { #spelling-practice .sp-check-btn { font-size: 1.15rem; padding: 8px 18px; } }
+
+/* Round 7 — bigger koala so the belly speaker sits comfortably inside the body */
+#spelling-practice .sp-koala-wrap { --kw: 200px; --bw: 170px; }
+#spelling-practice .sp-belly-btn { width: calc(var(--kw) * 0.3); top: 73%; }
+@media (max-width: 520px) {
+  #spelling-practice .sp-koala-wrap { --kw: 150px; --bw: 134px; }
+  #spelling-practice .sp-speech { font-size: 0.88rem; white-space: nowrap; }
+}
