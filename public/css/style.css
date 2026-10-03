@@ -5236,16 +5236,16 @@ body.signed-in .stat-bar { display: none; }
 .sp-listen-btn {
   position: relative; align-self: center;
   display: inline-flex; align-items: center; justify-content: center; gap: 12px;
-  min-width: 220px; padding: 13px 34px;
-  font-family: var(--font-heading); font-weight: 700; font-size: 1.4rem; line-height: 1.1; color: #fff;
+  min-width: 0; padding: 8px 22px;
+  font-family: var(--font-heading); font-weight: 700; font-size: 1.05rem; line-height: 1.1; color: #fff;
   background: var(--accent);
   border: 2px solid var(--accent-dark); border-radius: 999px;
-  box-shadow: 0 5px 0 var(--accent-dark);
+  box-shadow: 0 4px 0 var(--accent-dark);
   cursor: pointer; -webkit-tap-highlight-color: transparent;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
-.sp-listen-icon { font-size: 1.6rem; line-height: 1; }
-.sp-listen-btn:active { transform: translateY(4px) scale(0.98); box-shadow: 0 1px 0 var(--accent-dark); }
+.sp-listen-icon { font-size: 1.2rem; line-height: 1; }
+.sp-listen-btn:active { transform: translateY(3px) scale(0.98); box-shadow: 0 1px 0 var(--accent-dark); }
 .sp-listen-btn:focus-visible { outline: 3px solid #ffd166; outline-offset: 3px; }
 /* pulse wave: one burst per press, and a steady beat while the word plays */
 .sp-listen-btn::after { content: ""; position: absolute; inset: -2px; border-radius: inherit; pointer-events: none; opacity: 0; }
@@ -5254,7 +5254,7 @@ body.signed-in .stat-bar { display: none; }
 .sp-listen-btn.sk-wave .sp-listen-icon { animation: sk-speaker-wobble 0.5s ease-in-out infinite; }
 @keyframes sp-listen-ring {
   0%   { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 201, 163, 0.6); }
-  100% { opacity: 0; box-shadow: 0 0 0 26px rgba(34, 201, 163, 0); }
+  100% { opacity: 0; box-shadow: 0 0 0 18px rgba(34, 201, 163, 0); }
 }
 
 /* 3. Answer field; ← / → are small, quiet ghosts pushed to the outer edges so
@@ -5262,23 +5262,24 @@ body.signed-in .stat-bar { display: none; }
 .sp-input-row { display: flex; align-items: center; gap: 12px; }
 #spelling-practice #spelling-input { flex: 1 1 auto; min-width: 0; width: auto; margin: 0; padding: 14px 12px; font-family: var(--font-heading); font-size: 1.5rem; letter-spacing: 0.04em; border-radius: 18px; text-align: center; }
 #spelling-practice .sp-nav-btn {
-  flex: 0 0 auto; width: 32px; height: 32px; padding: 0;
+  flex: 0 0 auto; width: 26px; height: 26px; padding: 0; opacity: 0.5;
   display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--font-heading); font-weight: 700; font-size: 1.05rem; line-height: 1;
+  font-family: var(--font-heading); font-weight: 700; font-size: 0.9rem; line-height: 1;
   color: var(--muted); background: transparent;
   border: 1px solid #cfd8d5; border-radius: 50%; box-shadow: none;
   cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
 #spelling-practice .sp-nav-btn:active { transform: scale(0.9); }
-#spelling-practice .sp-nav-btn:disabled { opacity: 0.35; cursor: default; transform: none; }
+#spelling-practice .sp-nav-btn:disabled { opacity: 0.25; cursor: default; transform: none; }
 /* Next turns mint (and keeps its gentle nudge) once the answer is checked */
-#spelling-practice #spelling-next:not(:disabled) { background: var(--accent); color: #fff; border-color: var(--accent-dark); }
+#spelling-practice #spelling-next:not(:disabled) { opacity: 1; background: var(--accent); color: #fff; border-color: var(--accent-dark); }
 
 /* 4. Alphabet pad: letter chips plus a ⌫ chip of the very same size and shape
    as the last key (no separate red button floating beside them) */
-#spelling-practice .spelling-hint-tray { justify-content: center; gap: 6px; margin: 0; }
+#spelling-practice .spelling-hint-tray { display: grid; grid-template-columns: repeat(var(--cols, 6), minmax(0, 42px)); justify-content: center; gap: 6px; margin: 0; }
+#spelling-practice .sp-backspace-chip { grid-row: 2; grid-column: var(--cols, 6); }
 #spelling-practice .spelling-hint-tile,
-#spelling-practice .sp-backspace-chip { width: 42px; height: 42px; font-size: 1.15rem; border-radius: 12px; -webkit-tap-highlight-color: transparent; }
+#spelling-practice .sp-backspace-chip { width: 100%; height: auto; aspect-ratio: 1 / 1; font-size: 1.15rem; border-radius: 12px; -webkit-tap-highlight-color: transparent; }
 #spelling-practice .spelling-hint-tile:active { transform: scale(0.86); box-shadow: 0 1px 0 var(--bg); }
 @media (hover: hover) { #spelling-practice .spelling-hint-tile:hover, #spelling-practice .sp-backspace-chip:hover { transform: scale(1.07); } }
 #spelling-practice .sp-backspace-chip {
@@ -5318,13 +5319,12 @@ body.signed-in .stat-bar { display: none; }
   #spelling-practice .sp-cloud .bubble-text { top: 8px; height: 26px; font-size: 0.66rem; }
   #spelling-practice .sp-footer { gap: 6px; }
   #spelling-practice .sp-footer .score-tag { padding: 5px 10px; font-size: 0.85rem; }
-  .sp-listen-btn { min-width: 190px; padding: 11px 26px; font-size: 1.25rem; }
   #spelling-practice .sp-input-row { gap: 8px; }
   #spelling-practice #spelling-input { padding: 12px 8px; font-size: 1.3rem; }
-  #spelling-practice .sp-nav-btn { width: 30px; height: 30px; }
-  #spelling-practice .spelling-hint-tray { gap: 5px; }
+  #spelling-practice .sp-nav-btn { width: 24px; height: 24px; }
+  #spelling-practice .spelling-hint-tray { gap: 5px; grid-template-columns: repeat(var(--cols, 6), minmax(0, 40px)); }
   #spelling-practice .spelling-hint-tile,
-  #spelling-practice .sp-backspace-chip { width: 36px; height: 36px; font-size: 1.05rem; }
+  #spelling-practice .sp-backspace-chip { font-size: 1.05rem; }
   #spelling-practice .sp-check-btn { font-size: 1.2rem; padding: 13px 22px; }
 }
 

@@ -111,7 +111,7 @@ const TRANSLATIONS = {
     spWhy1: "Words you can spell are words you read faster.",
     spWhy2: "Your writing looks clear and confident.",
     spWhy3: "Spelling is part of school tests like NAPLAN.",
-    spLiveIdle: "Listen & type!",
+    spLiveIdle: "Let's spell! ✏️",
     spLiveHear: "Listening 👂",
     spLiveOk: "Yum! 🍃",
     spLiveFull: "So full & happy! 🥰",
@@ -598,7 +598,7 @@ const TRANSLATIONS = {
     spWhy1: "철자를 알면 글을 더 빨리 읽을 수 있어요.",
     spWhy2: "글씨가 또렷하고 자신감 있게 보여요.",
     spWhy3: "호주 학교 시험(NAPLAN)에도 스펠링이 나와요.",
-    spLiveIdle: "듣고 써요!",
+    spLiveIdle: "철자를 써 봐요! ✏️",
     spLiveHear: "쫑긋 👂",
     spLiveOk: "냠냠! 🍃",
     spLiveFull: "배불러서 행복해요! 🥰",
@@ -3931,7 +3931,9 @@ const spellingBackspaceBtn = document.createElement("button");
 spellingBackspaceBtn.type = "button";
 spellingBackspaceBtn.id = "spelling-backspace";
 spellingBackspaceBtn.className = "sp-backspace-chip";
-spellingBackspaceBtn.textContent = "⌫";
+// Inline SVG rather than the ⌫ glyph: some fonts draw that character as an
+// envelope-like box, which kids read as "mail" instead of "delete".
+spellingBackspaceBtn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6-7 6-7z"/><path d="M12.5 9.5l5 5M17.5 9.5l-5 5"/></svg>';
 const spellingScoreEl = document.getElementById("spelling-score");
 const spellingGoalValueEl = document.getElementById("spelling-goal-value");
 const spellingGoalMinusBtn = document.getElementById("spelling-goal-minus");
@@ -4310,6 +4312,9 @@ function renderSpellingLetterHints(word) {
   spellingBackspaceBtn.setAttribute("aria-label", eraseLabel);
   spellingBackspaceBtn.title = eraseLabel;
   spellingHintTray.appendChild(spellingBackspaceBtn);
+  // Two balanced rows: the grid gets ceil(chips/2) columns and ⌫ is pinned to
+  // the last column of row 2 (see .spelling-hint-tray in style.css).
+  spellingHintTray.style.setProperty("--cols", String(Math.ceil((spellingHintTray.children.length) / 2)));
   syncSpellingHintTiles(false);
 }
 
