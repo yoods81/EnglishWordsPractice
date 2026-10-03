@@ -12004,31 +12004,83 @@ function reviewAsk(item, info) {
   const hear = document.getElementById("review-hear");
   if (hear) hear.addEventListener("click", () => speak(info.word));
   let answered = false;
+  // English only: after a wrong answer the kid must type the right spelling
+  // before Next unlocks (no extra credit / no extra miss — just practice).
+  let fixing = false;
+  const btn = document.getElementById("review-check");
+  const fb = document.getElementById("review-feedback");
+  const expected = (info.math ? info.answer : info.word).toLowerCase();
+  const matches = () => input.value.trim().toLowerCase() === expected;
+  const fixPromptHtml = () => `<div class="review-fix-title">😮 ${rwL("Oops, not quite!", "앗, 틀렸어요!")}</div>
+    <div class="review-fix-label">${rwL("The right spelling is:", "정답 스펠링은 이거예요:")}</div>
+    <div class="review-fix-answer">${escapeHtml(info.word)}</div>
+    <div class="review-fix-tip">✏️ ${rwL("Look at it carefully, then type it again to go on!", "잘 보고 다시 한 번 써 보면 다음으로 갈 수 있어요!")}</div>`;
+  const enterFixMode = () => {
+    fixing = true;
+    input.value = "";
+    input.disabled = false;
+    input.placeholder = rwL("Type it again…", "다시 써 봐요…");
+    input.classList.remove("ok", "bad");
+    fb.className = "review-feedback bad review-fix";
+    fb.innerHTML = fixPromptHtml();
+    btn.textContent = rwL("Next →", "다음 →");
+    btn.disabled = true;
+    speak(info.word);
+    input.focus();
+  };
   const finish = () => {
-    if (answered) { playNextSfx(); reviewState.i++; reviewShow(); return; }
+    if (answered) {
+      if (fixing && !matches()) {
+        // Enter pressed with the wrong spelling still in the box: a friendly nudge.
+        playWrongSfx();
+        input.classList.remove("shake");
+        void input.offsetWidth;
+        input.classList.add("shake");
+        fb.className = "review-feedback bad review-fix";
+        fb.innerHTML = `<div class="review-fix-title">💪 ${rwL("Almost! Look at the answer and try once more.", "아까워요! 정답을 보고 한 번 더 써 봐요.")}</div>
+          <div class="review-fix-answer">${escapeHtml(info.word)}</div>`;
+        input.focus();
+        return;
+      }
+      playNextSfx(); reviewState.i++; reviewShow(); return;
+    }
     const val = input.value.trim().toLowerCase();
     if (!val) return;
     answered = true;
-    const expected = (info.math ? info.answer : info.word).toLowerCase();
     const ok = val === expected;
     reviewRecord(item, ok, info.math);
     // Right answer: the happy ding (climbs with a streak, fanfare every 5th);
     // wrong answer: the low buzz. Same sounds as Quiz / Spelling.
     reviewState.combo = ok ? (reviewState.combo || 0) + 1 : 0;
     if (ok) playCorrectSfx(reviewState.combo); else playWrongSfx();
-    const fb = document.getElementById("review-feedback");
+    if (!ok && !info.math) { enterFixMode(); return; }
     input.disabled = true;
     input.classList.add(ok ? "ok" : "bad");
     fb.className = "review-feedback " + (ok ? "ok" : "bad");
     fb.innerHTML = ok
       ? `🎉 ${rwL("Correct!", "정답!")} ${reviewState.lastGraduated ? rwL("You graduated this word!", "이 단어 졸업!") : rwL("We'll check it again tomorrow.", "내일 한 번 더 확인해요.")}`
       : `${rwL("Answer", "정답")}: <b>${escapeHtml(info.math ? info.answer : info.word)}</b>`;
-    if (!ok && !info.math) speak(info.word);
-    const btn = document.getElementById("review-check");
     btn.textContent = rwL("Next →", "다음 →");
     btn.focus();
   };
-  document.getElementById("review-check").addEventListener("click", finish);
+  btn.addEventListener("click", finish);
+  input.addEventListener("input", () => {
+    if (!fixing) return;
+    const good = matches();
+    if (good === btn.disabled) { // state flips: disabled=true & good → unlock; disabled=false & !good → lock
+      btn.disabled = !good;
+      input.classList.toggle("ok", good);
+      if (good) {
+        playCorrectSfx(1);
+        fb.className = "review-feedback ok review-fix";
+        fb.innerHTML = `<div class="review-fix-title">👏 ${rwL("Great job! You fixed it.", "잘 고쳤어요!")}</div>
+          <div class="review-fix-tip">${rwL("Now press Next.", "이제 다음을 눌러요.")}</div>`;
+      } else {
+        fb.className = "review-feedback bad review-fix";
+        fb.innerHTML = fixPromptHtml();
+      }
+    }
+  });
   input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); finish(); } });
   if (!info.math) speak(info.word);
   setTimeout(() => input.focus(), 50);

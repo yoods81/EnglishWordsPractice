@@ -439,6 +439,7 @@ html[data-theme="dark"] .review-card-text-ex { color: #cde9fb !important; }
 html[data-theme="dark"] .review-card-meaning .review-card-label { color: #e6c15a !important; }
 html[data-theme="dark"] .review-card-example .review-card-label { color: #7fc2ea !important; }
 html[data-theme="dark"] .review-card-text-ex mark { background: #6b5a14 !important; color: #fff !important; }
+html[data-theme="dark"] .review-fix-answer { background: #131b19 !important; }
 html[data-theme="dark"] .review-input.ok {
   background: #17291d !important;
 }
@@ -1287,6 +1288,9 @@ html[data-theme="ivory"] .review-input {
 }
 html[data-theme="ivory"] .review-input.ok {
   background: #f5f0e6 !important;
+}
+html[data-theme="ivory"] .review-fix-answer {
+  background: #fdfaf4 !important;
 }
 html[data-theme="ivory"] .pr-tile {
   background: #fdfaf4 !important;

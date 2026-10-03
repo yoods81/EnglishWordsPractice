@@ -4879,6 +4879,18 @@ body.review-open { overflow: hidden; }
 .review-card-text-ex mark { background: #ffe066; color: inherit; border-radius: 6px; padding: 0 4px; font-weight: 700; }
 .review-feedback { font-size: 1.15rem; }
 .review-input { font-size: 1.5rem; }
+
+/* Wrong English answer: show the right spelling, kid must retype it to unlock Next */
+.review-feedback.review-fix { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.review-fix-title { font-family: var(--font-heading); font-weight: 700; font-size: 1.2rem; }
+.review-fix-label { font-size: 1rem; color: var(--text); }
+.review-fix-answer { font-family: var(--font-heading); font-weight: 700; font-size: clamp(1.8rem, 8vw, 2.4rem); letter-spacing: 1px; color: var(--accent-dark); background: #fff; border: 2px dashed var(--accent); border-radius: 16px; padding: 4px 18px; word-break: break-word; }
+.review-fix-tip { font-size: 1.05rem; color: var(--text); max-width: 380px; }
+.review-feedback.ok.review-fix .review-fix-title { color: var(--success-dark); }
+.review-next:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; filter: grayscale(.4); }
+.review-input.shake { animation: review-shake .35s; }
+@keyframes review-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+@media (prefers-reduced-motion: reduce) { .review-input.shake { animation: none; } }
 @media (prefers-reduced-motion: reduce) { .review-koala { animation: none; } }
 .review-done-title { margin: 0; font-family: var(--font-heading); color: var(--accent-dark); }
 @media (max-height: 560px) { .review-body { justify-content: flex-start; } }
