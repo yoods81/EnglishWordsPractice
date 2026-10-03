@@ -324,7 +324,11 @@ const TRANSLATIONS = {
     spellingStartBtn: "▶ Start the first word",
     spellingBackBtn: "🍃 Back",
     spellingNextBtn: "Next 🌿",
-    spellingCheckBtn: "Check Answer",
+    spellingCheckBtn: "GO! 🚀",
+    spellingCheckAria: "Check answer",
+    spLiveTyping: "Type the letters! ✏️",
+    spLiveAlmost: "Almost there! 🔥",
+    spLiveReady: "Ready? Hit GO! 🚀",
     spListenBtn: "Listen",
     spellingBackAria: "Previous word",
     spellingNextAria: "Next word",
@@ -808,7 +812,11 @@ const TRANSLATIONS = {
     spellingStartBtn: "▶ 첫 단어 시작하기",
     spellingBackBtn: "🍃 이전",
     spellingNextBtn: "다음 🌿",
-    spellingCheckBtn: "정답 확인",
+    spellingCheckBtn: "GO! 🚀",
+    spellingCheckAria: "정답 확인",
+    spLiveTyping: "글자를 눌러 봐요! ✏️",
+    spLiveAlmost: "거의 다 왔어요! 🔥",
+    spLiveReady: "준비됐나요? GO! 🚀",
     spListenBtn: "듣기",
     spellingBackAria: "이전 단어",
     spellingNextAria: "다음 단어",
@@ -4133,8 +4141,18 @@ function renderSpellingProgress(advanced = false) {
   const leaves = spellingBranch.querySelectorAll(".sp-leaf");
   leaves.forEach((l, i) => {
     const eaten = i < target;
-    if (eaten && !l.classList.contains("eaten") && advanced && i === spellingLeafEaten) flyLeafToKoala(l);
+    const justDone = eaten && !l.classList.contains("eaten") && advanced && i === spellingLeafEaten;
+    if (justDone) flyLeafToKoala(l);
     l.classList.toggle("eaten", eaten);
+    // The leaf for the word being spelled glows gently; when it is earned it
+    // pops (bigger + sparkle) and settles into the "done" look.
+    l.classList.toggle("cur", i === target && target < spellingLeafTotal);
+    if (justDone) {
+      l.classList.remove("sp-leaf-pop");
+      void l.offsetWidth;
+      l.classList.add("sp-leaf-pop");
+      setTimeout(() => l.classList.remove("sp-leaf-pop"), 1000);
+    }
   });
   spellingLeafEaten = target;
   const fed = done / n;
@@ -4239,6 +4257,7 @@ function loadSpellingWord(speakAloud = true) {
   spellingFeedback.innerHTML = "";
   spellingCurrentChecked = false;
   spellingNextBtn.disabled = true;
+  spellingCheckBtn.classList.remove("sp-ready");
   if (spellingDeck.length === 0) {
     spellingFeedback.textContent = t("spellingEmpty", levelLabel(currentLevel));
     spellingBackBtn.disabled = true;
@@ -4390,8 +4409,43 @@ function showSpellingCorrectFeedback(earnedCredit) {
 // Checks the current guess against the word, but stays on the same word —
 // advancing only happens via goToNextSpellingWord(), and only once a check
 // here has confirmed the guess is correct.
+// ---- Mascot cheer while typing: the speech cloud follows what the child has
+// typed so far (pure text swap; the bubble's pop animation is CSS).
+function spellingCheer() {
+  if (spellingPractice.hidden || spellingCurrentChecked || !spellingDeck[spellingIndex]) return;
+  clearTimeout(spellingCheer._t);
+  // A reaction (Listening…, Yum!, Try again…) owns the bubble while it plays.
+  const busy = FK_CLASSES.some((c) => spellingScene.classList.contains(c)) || spellingScene.classList.contains("sk-eat");
+  if (busy) { spellingCheer._t = setTimeout(spellingCheer, 1800); return; }
+  const word = spellingDeck[spellingIndex].word.toLowerCase();
+  const v = spellingInput.value.trim().toLowerCase();
+  let key = "spLiveIdle";
+  if (v) {
+    if (v === word) key = "spLiveReady";
+    else if (word.startsWith(v) && v.length >= 3 && v.length >= word.length - 2) key = "spLiveAlmost";
+    else key = "spLiveTyping";
+  }
+  spellingCheckBtn.classList.toggle("sp-ready", key === "spLiveReady");
+  const textEl = spellingBubble.querySelector(".bubble-text");
+  const msg = t(key);
+  if (!textEl || textEl.textContent === msg) return;
+  textEl.textContent = msg;
+  spellingBubble.classList.remove("sp-pop");
+  void spellingBubble.offsetWidth;
+  spellingBubble.classList.add("sp-pop");
+}
+
+// Sparkle burst around GO! (the sparks are static <i> elements; CSS animates them).
+function spellingGoBurst() {
+  spellingCheckBtn.classList.remove("sp-go-burst");
+  void spellingCheckBtn.offsetWidth;
+  spellingCheckBtn.classList.add("sp-go-burst");
+  setTimeout(() => spellingCheckBtn.classList.remove("sp-go-burst"), 800);
+}
+
 function checkSpellingAnswer() {
   if (spellingDeck.length === 0) return;
+  spellingGoBurst();
   const current = spellingDeck[spellingIndex];
   const guess = spellingInput.value.trim().toLowerCase();
   const correct = guess === current.word.toLowerCase();
@@ -4424,6 +4478,11 @@ function checkSpellingAnswer() {
     spellingInput.className = "correct";
     pulseScoreTag(spellingInput, "option-btn-bounce");
     spellingScene.classList.remove("sk-talk");
+    spellingScene.classList.remove("sp-cheer");
+    void spellingScene.offsetWidth;
+    spellingScene.classList.add("sp-cheer"); // koala jumps for joy
+    setTimeout(() => spellingScene.classList.remove("sp-cheer"), 900);
+    spellingCheckBtn.classList.remove("sp-ready");
     spellingCombo = comboAfterAnswer(spellingCombo, true, earnsCredit);
     spellingConfetti();
     renderSpellingProgress(true);
@@ -4485,6 +4544,7 @@ spellingInput.addEventListener("input", () => {
     spellingCurrentChecked = false;
     spellingNextBtn.disabled = true;
   }
+  spellingCheer();
 });
 
 spellingBackBtn.addEventListener("click", () => {

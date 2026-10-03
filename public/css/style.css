@@ -5201,7 +5201,7 @@ body.signed-in .stat-bar { display: none; }
      2. Listen     big pill CTA with pulse           (.sp-listen-btn)
      3. input      big field, small ← / → on edges   (.sp-input-row)
      4. chips      1–2 rows of letters, ⌫ as last key  (.sp-chip-row)
-     5. Check      primary CTA                       (.sp-check-btn)
+     5. GO!        arcade primary CTA                (.sp-check-btn)
      6. footer     score left; sound + Finish right  (.sp-footer)
    These rules sit last on purpose: they replace the older two-column
    practice layout without having to untangle its many media queries.
@@ -5280,8 +5280,6 @@ body.signed-in .stat-bar { display: none; }
 #spelling-practice .sp-backspace-chip { grid-row: 2; grid-column: var(--cols, 6); }
 #spelling-practice .spelling-hint-tile,
 #spelling-practice .sp-backspace-chip { width: 100%; height: auto; aspect-ratio: 1 / 1; font-size: 1.15rem; border-radius: 12px; -webkit-tap-highlight-color: transparent; }
-#spelling-practice .spelling-hint-tile:active { transform: scale(0.86); box-shadow: 0 1px 0 var(--bg); }
-@media (hover: hover) { #spelling-practice .spelling-hint-tile:hover, #spelling-practice .sp-backspace-chip:hover { transform: scale(1.07); } }
 #spelling-practice .sp-backspace-chip {
   padding: 0; display: inline-flex; align-items: center; justify-content: center;
   font-family: var(--font-heading); font-weight: 700; line-height: 1;
@@ -5289,18 +5287,9 @@ body.signed-in .stat-bar { display: none; }
   border: 3px solid var(--bg); box-shadow: 0 3px 0 var(--bg);
   cursor: pointer; transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
-#spelling-practice .sp-backspace-chip:active { transform: scale(0.86); box-shadow: 0 1px 0 var(--bg); }
 
 /* 5. Check Answer — the strongest element on the screen */
 #spelling-practice .spelling-action-row { display: flex; justify-content: center; margin: 4px 0 0; }
-#spelling-practice .sp-check-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  width: min(100%, 340px); padding: 15px 28px;
-  font-size: 1.35rem; font-weight: 700; border-width: 2px; border-radius: 999px;
-  box-shadow: 0 5px 0 var(--accent-dark);
-}
-#spelling-practice .sp-check-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--accent-dark); }
-#spelling-practice .sp-check-btn .check-icon-svg { width: 1.3em; height: 1.3em; }
 #spelling-practice .spelling-tip { min-height: 24px; margin: 0; font-size: 1rem; text-align: center; }
 
 /* 6. Footer: score on the left; sound toggle + Finish tucked into the corner */
@@ -5325,9 +5314,143 @@ body.signed-in .stat-bar { display: none; }
   #spelling-practice .spelling-hint-tray { gap: 5px; grid-template-columns: repeat(var(--cols, 6), minmax(0, 40px)); }
   #spelling-practice .spelling-hint-tile,
   #spelling-practice .sp-backspace-chip { font-size: 1.05rem; }
-  #spelling-practice .sp-check-btn { font-size: 1.2rem; padding: 13px 22px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .sp-listen-btn::after, .sp-listen-btn.sk-wave .sp-listen-icon { animation: none !important; }
+}
+
+/* =====================================================================
+   Spelling game — play feel (round 3): mascot, leaf bar, tactile chips,
+   arcade GO! button. Pure CSS transitions/keyframes; JS only toggles classes.
+   ===================================================================== */
+
+/* ---- Mascot ---- */
+.sp-live-scene .sk-svg { transform-origin: 50% 100%; }
+/* Listen pressed: the koala wiggles and bounces */
+.sp-live-scene.fk-hear .sk-svg { animation: sp-koala-wave 0.8s ease-in-out; }
+@keyframes sp-koala-wave {
+  0%, 100% { transform: rotate(0) translateY(0); }
+  20% { transform: rotate(-6deg) translateY(-9px); }
+  45% { transform: rotate(6deg) translateY(0); }
+  70% { transform: rotate(-4deg) translateY(-6px); }
+}
+/* Correct answer: squash, big jump with scale-up, small second hop */
+.sp-live-scene.sp-cheer .sk-svg { animation: sp-koala-jump 0.85s cubic-bezier(0.3, 0.7, 0.4, 1); }
+@keyframes sp-koala-jump {
+  0%   { transform: translateY(0) scale(1, 1); }
+  14%  { transform: translateY(0) scale(1.1, 0.88); }
+  40%  { transform: translateY(-20px) scale(1.12, 1.12); }
+  66%  { transform: translateY(0) scale(0.96, 1.05); }
+  82%  { transform: translateY(-6px) scale(1.04, 1.04); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+/* Speech cloud text pops whenever the message changes */
+.sp-cloud.sp-pop .bubble-text { animation: sp-text-pop 0.4s cubic-bezier(0.3, 1.6, 0.5, 1); }
+@keyframes sp-text-pop {
+  0%   { transform: scale(0.6); opacity: 0.2; }
+  60%  { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* ---- Leaf progress bar ---- */
+#spelling-practice .sp-leaf svg { transition: filter 0.4s ease; }
+/* the leaf for the word being spelled: soft golden glow, slightly larger */
+#spelling-practice .sp-leaf.cur { z-index: 1; animation: sp-leaf-active 1.4s ease-in-out infinite; }
+@keyframes sp-leaf-active {
+  0%, 100% { transform: rotate(var(--r, 0deg)) scale(1.08); filter: drop-shadow(0 0 0 rgba(255, 214, 102, 0)); }
+  50%      { transform: rotate(var(--r, 0deg)) scale(1.22); filter: drop-shadow(0 0 6px rgba(255, 214, 102, 0.95)); }
+}
+/* earned leaves stay on the branch as a quieter "done" state */
+#spelling-practice .sp-leaf.eaten {
+  opacity: 0.4; filter: grayscale(0.55); animation: none;
+  transform: rotate(var(--r, 0deg)) scale(0.85);
+  transition: opacity 0.5s ease, transform 0.5s ease, filter 0.5s ease;
+}
+#spelling-practice .sp-leaf.eaten.sp-leaf-pop { animation: sp-leaf-pop 0.95s ease-out; }
+@keyframes sp-leaf-pop {
+  0%   { opacity: 1; filter: drop-shadow(0 0 0 rgba(255, 226, 122, 0)); transform: rotate(var(--r, 0deg)) scale(1.08); }
+  35%  { opacity: 1; filter: drop-shadow(0 0 12px rgba(255, 226, 122, 1)) brightness(1.25); transform: rotate(var(--r, 0deg)) scale(1.75); }
+  100% { opacity: 0.4; filter: grayscale(0.55); transform: rotate(var(--r, 0deg)) scale(0.85); }
+}
+
+/* ---- Tactile chips (letters + ⌫) ---- */
+#spelling-practice .spelling-hint-tile,
+#spelling-practice .sp-backspace-chip {
+  touch-action: manipulation; user-select: none; -webkit-user-select: none;
+  box-shadow: 0 4px 0 #c8f0e2;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease, color 0.15s ease;
+}
+/* mouse hover: the chip floats up and keeps bobbing */
+@media (hover: hover) {
+  #spelling-practice .spelling-hint-tile:not(.spelling-hint-tile-used):hover,
+  #spelling-practice .sp-backspace-chip:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 0 #c8f0e2, 0 10px 14px rgba(14, 156, 125, 0.18);
+    animation: sp-chip-float 1.1s ease-in-out infinite;
+  }
+}
+@keyframes sp-chip-float { 0%, 100% { transform: translateY(-3px); } 50% { transform: translateY(-6px); } }
+/* press (mouse or finger): pushed down into its own edge — instant, no delay */
+#spelling-practice .spelling-hint-tile.spelling-hint-tile:active,
+#spelling-practice .sp-backspace-chip.sp-backspace-chip:active {
+  transform: translateY(3px); box-shadow: 0 1px 0 #c8f0e2; animation: none;
+}
+#spelling-practice .spelling-hint-tile-used { box-shadow: 0 3px 0 var(--accent-dark); }
+#spelling-practice .spelling-hint-tile-used.spelling-hint-tile-used:active { box-shadow: 0 0 0 var(--accent-dark); }
+
+/* ---- GO! — arcade primary button ---- */
+#spelling-practice .sp-check-btn {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  width: min(100%, 340px); padding: 12px 28px; margin: 0;
+  font-family: var(--font-heading); font-weight: 700; font-size: 1.9rem; line-height: 1.1;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #fff;
+  text-shadow: 0 3px 0 rgba(168, 70, 12, 0.6), 0 0 12px rgba(255, 255, 255, 0.35);
+  background: linear-gradient(180deg, #ffd24a 0%, #ffa233 52%, #ff7a2c 100%);
+  border: 3px solid #d9591a; border-radius: 999px;
+  box-shadow: 0 7px 0 #b8470f, 0 14px 20px rgba(217, 89, 26, 0.35);
+  cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+/* light streak sweeping across now and then */
+#spelling-practice .sp-check-btn::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.55) 50%, transparent 62%);
+  background-size: 250% 100%; background-position: 160% 0;
+  animation: sp-go-shine 3.2s ease-in-out infinite;
+}
+@keyframes sp-go-shine { 0%, 55% { background-position: 160% 0; } 100% { background-position: -60% 0; } }
+@media (hover: hover) { #spelling-practice .sp-check-btn:hover { transform: translateY(-2px); box-shadow: 0 9px 0 #b8470f, 0 16px 22px rgba(217, 89, 26, 0.4); } }
+#spelling-practice .sp-check-btn.sp-check-btn:active { transform: translateY(6px); box-shadow: 0 1px 0 #b8470f, 0 3px 6px rgba(217, 89, 26, 0.3); animation: none; }
+#spelling-practice .sp-check-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; box-shadow: 0 7px 0 #b8470f, 0 0 0 6px #ffa233; }
+/* word fully typed: GO! swells and glows (no sideways/vertical shake, so it stays easy to tap) */
+#spelling-practice .sp-check-btn.sp-ready { animation: sp-go-ready 0.9s ease-in-out infinite; }
+@keyframes sp-go-ready {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); box-shadow: 0 7px 0 #b8470f, 0 0 26px rgba(255, 190, 60, 0.85); }
+}
+/* click: expanding ring + six sparks flying out */
+#spelling-practice .sp-check-btn::after { content: ""; position: absolute; inset: -3px; border-radius: inherit; pointer-events: none; opacity: 0; }
+#spelling-practice .sp-check-btn.sp-go-burst::after { animation: sp-go-ring 0.65s ease-out; }
+@keyframes sp-go-ring {
+  0%   { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 170, 50, 0.75); }
+  100% { opacity: 0; box-shadow: 0 0 0 22px rgba(255, 170, 50, 0); }
+}
+.sp-spark { position: absolute; left: 50%; top: 50%; font-style: normal; font-size: 1.3rem; line-height: 1; opacity: 0; pointer-events: none; text-shadow: none; }
+.sp-go-burst .sp-spark { animation: sp-spark-fly 0.75s ease-out; }
+@keyframes sp-spark-fly {
+  0%   { opacity: 1; transform: translate(-50%, -50%) scale(0.4) rotate(0deg); }
+  60%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.3) rotate(160deg); }
+}
+
+@media (max-width: 520px) {
+  #spelling-practice .sp-check-btn { font-size: 1.6rem; padding: 11px 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sp-live-scene.fk-hear .sk-svg, .sp-live-scene.sp-cheer .sk-svg, .sp-cloud.sp-pop .bubble-text,
+  #spelling-practice .sp-leaf.cur, #spelling-practice .sp-leaf.eaten.sp-leaf-pop,
+  #spelling-practice .spelling-hint-tile, #spelling-practice .sp-backspace-chip,
+  #spelling-practice .sp-check-btn, #spelling-practice .sp-check-btn::before,
+  #spelling-practice .sp-check-btn.sp-ready, .sp-go-burst .sp-spark, #spelling-practice .sp-check-btn.sp-go-burst::after { animation: none !important; }
 }
