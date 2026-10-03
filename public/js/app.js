@@ -111,7 +111,7 @@ const TRANSLATIONS = {
     spWhy1: "Words you can spell are words you read faster.",
     spWhy2: "Your writing looks clear and confident.",
     spWhy3: "Spelling is part of school tests like NAPLAN.",
-    spLiveIdle: "Can you spell it? ✏️",
+    spLiveIdle: "Can you\nspell it? ✏️",
     spLiveHear: "Listening 👂",
     spLiveOk: "Yum! 🍃",
     spLiveFull: "So full & happy! 🥰",
@@ -3208,11 +3208,11 @@ FK_CLASSES.push("fk-hear", "fk-sad");
 // One continuous rounded outline (gradient stroke) with a short tail at the bottom-left
 // that points down-left toward the koala's head. Redrawn whenever the text (and so the
 // bubble's size) changes, and once a hidden view is shown.
-function drawFlashBubble() {
-  const svg = flashBubble && flashBubble.querySelector(".fk-bubble-bg");
+function drawBubbleOutline(bubble) {
+  const svg = bubble && bubble.querySelector(".fk-bubble-bg");
   if (!svg) return;
-  const w = flashBubble.offsetWidth;
-  const h = flashBubble.offsetHeight;
+  const w = bubble.offsetWidth;
+  const h = bubble.offsetHeight;
   if (!w || !h) return; // view hidden — the ResizeObserver redraws once it shows
   const f = (n) => Math.round(n * 10) / 10;
   const r = Math.max(10, Math.min(16, h * 0.32));
@@ -3225,10 +3225,11 @@ function drawFlashBubble() {
   svg.setAttribute("height", h);
   svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
   svg.innerHTML =
-    `<defs><linearGradient id="fk-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="${h + tip}">` +
+    `<defs><linearGradient id="fk-stroke-${bubble.id}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="${h + tip}">` +
     `<stop class="bb-stop-top" offset="0"/><stop class="bb-stop-bottom" offset="1"/></linearGradient></defs>` +
-    `<path class="bb-body" stroke="url(#fk-stroke)" d="${d}"/>`;
+    `<path class="bb-body" stroke="url(#fk-stroke-${bubble.id})" d="${d}"/>`;
 }
+function drawFlashBubble() { drawBubbleOutline(flashBubble); }
 if (flashBubble && typeof ResizeObserver !== "undefined") {
   new ResizeObserver(() => drawFlashBubble()).observe(flashBubble);
 }
@@ -4089,6 +4090,15 @@ function buildSpellingDeck({ resetScreen = true } = {}) {
 // ---- Live practice screen: koala coach, star progress, confetti ----
 const spellingScene = document.getElementById("spelling-scene");
 const spellingBubble = document.getElementById("spelling-bubble");
+// Spelling bubble uses the same outlined style as the flashcards bubble
+function drawSpellingBubble() { drawBubbleOutline(spellingBubble); }
+if (spellingBubble) {
+  spellingBubble.classList.add("fk-bubble-skin");
+  spellingBubble.insertAdjacentHTML("afterbegin", '<svg class="fk-bubble-bg" aria-hidden="true"></svg>');
+  if (typeof ResizeObserver !== "undefined") new ResizeObserver(() => drawSpellingBubble()).observe(spellingBubble);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawSpellingBubble);
+  drawSpellingBubble();
+}
 const spellingProgressEl = document.getElementById("spelling-progress");
 // Same koala artwork as the Flashcards helper, dropped in before the bubble.
 // Full-body koala (sitting on a branch) — shares the fk-* class names so the

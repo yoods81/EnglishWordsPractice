@@ -355,7 +355,8 @@ html[data-theme="dark"] .sp-bubble::before {
 html[data-theme="dark"] .sp-why {
   background: #15251e !important;
 }
-html[data-theme="dark"] .fk-bubble {
+html[data-theme="dark"] .fk-bubble,
+html[data-theme="dark"] #spelling-practice .sp-speech.fk-bubble-skin {
   --bub-fill: #17231f;
   --bub-top: #22d3aa;
 }
@@ -900,7 +901,8 @@ html[data-theme="ivory"] .sp-bubble::before {
 html[data-theme="ivory"] .sp-why {
   background: #f7f4ec !important;
 }
-html[data-theme="ivory"] .fk-bubble {
+html[data-theme="ivory"] .fk-bubble,
+html[data-theme="ivory"] #spelling-practice .sp-speech.fk-bubble-skin {
   --bub-fill: #fdfaf4;
 }
 html[data-theme="ivory"] .sp-dot {

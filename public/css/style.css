@@ -5763,3 +5763,16 @@ body.signed-in .stat-bar { display: none; }
   background: #00a878; color: #fff; border-color: #008a63;
   box-shadow: 0 0 0 3px rgba(2, 195, 154, 0.3), 0 8px 16px rgba(0, 168, 120, 0.35);
 }
+
+/* ---- Spelling bubble: same outlined style as flashcards, above the koala's right ear ---- */
+#spelling-practice .sp-speech.fk-bubble-skin {
+  --bub-fill: #ffffff; --bub-top: #3ee6c6; --bub-bottom: var(--accent-dark);
+  left: 82%; top: 20%; width: max-content; max-width: none; padding: 9px 16px 10px;
+  background: none; border: 0; border-radius: 0; box-shadow: none;
+  transform: translateY(-100%); white-space: nowrap;
+}
+#spelling-practice .sp-speech.fk-bubble-skin::before,
+#spelling-practice .sp-speech.fk-bubble-skin::after { content: none; }
+#spelling-practice .sp-speech.fk-bubble-skin .bubble-text { position: relative; left: auto; right: auto; top: auto; height: auto; z-index: 1; white-space: pre-line; font-size: 0.95rem; }
+#spelling-practice .sp-speech.fk-bubble-skin { text-align: center; display: block; }
+#spelling-practice .sp-speech.fk-bubble-skin .fk-bubble-bg { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; z-index: 0; filter: drop-shadow(0 2px 2px rgba(14, 156, 125, 0.18)); }
