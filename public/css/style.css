@@ -6248,11 +6248,6 @@ html body .tt-keypad-toggle[aria-pressed="true"] { background: var(--accent) !im
 .tg-over-koala { line-height: 0; }
 .tg-over-koala .kb-scene { position: relative; width: 96px; height: auto; display: flex; flex-direction: column; align-items: center; margin: 0 auto; padding: 0; pointer-events: none; perspective: 420px; }
 .tg-over-koala .sk-svg { width: 84px; height: auto; max-width: none; display: block; overflow: visible; transform-origin: 50% 90%; }
-/* Podium (Mario-Kart style winner's stand) */
-.tg-podium { width: 78px; height: 16px; margin-top: -2px; border-radius: 4px 4px 2px 2px; background: linear-gradient(180deg, #ffd54a, #f0a500); box-shadow: 0 3px 0 #b87800; display: flex; align-items: center; justify-content: center; }
-.tg-podium b { font: 800 0.7rem/1 var(--font-heading, inherit); color: #7a4a00; }
-.tg-koala-record .tg-podium { width: 90px; height: 20px; }
-.tg-koala-record .tg-podium b { font-size: 0.85rem; }
 /* Winner ceremony: little hop, arms up, then a big kiss blown to the crowd */
 .tg-koala-record .sk-svg { animation: tg-win-hop 2.4s ease-in-out infinite; }
 .tg-koala-record .fk-paw-l { transform: rotate(125deg); animation: tg-arm-l 0.5s ease-in-out infinite alternate; }
@@ -6287,12 +6282,25 @@ html body .tt-keypad-toggle[aria-pressed="true"] { background: var(--accent) !im
 @keyframes tg-koala-hop { 0%, 100% { transform: translateY(0) rotate(0); } 40% { transform: translateY(-8px) rotate(-3deg); } 70% { transform: translateY(0) rotate(2deg); } }
 .tg-koala:not(.tg-koala-record):not(.tg-koala-good) .sk-svg { animation: tg-sway 2.4s ease-in-out infinite; }
 @keyframes tg-sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
-/* Backdrop: soft drifting twinkle stars instead of rotating light beams */
-.typegame-overlay.tg-over-overlay::before, .typegame-overlay.tg-over-overlay::after { content: ""; position: absolute; inset: -20px; pointer-events: none; background-repeat: repeat; }
-.typegame-overlay.tg-over-overlay::before { background-image: radial-gradient(circle, rgba(255,255,255,0.95) 0 1.6px, transparent 2.2px), radial-gradient(circle, rgba(255,226,120,0.9) 0 1.2px, transparent 2px); background-size: 70px 70px, 110px 110px; background-position: 0 0, 35px 50px; animation: tg-twinkle 2.6s ease-in-out infinite alternate, tg-drift 14s linear infinite; }
-.typegame-overlay.tg-over-overlay::after { background-image: radial-gradient(circle, rgba(124,242,214,0.9) 0 1.4px, transparent 2.2px), radial-gradient(circle, rgba(255,255,255,0.8) 0 1px, transparent 1.8px); background-size: 90px 90px, 55px 55px; background-position: 20px 30px, 10px 5px; animation: tg-twinkle 3.4s ease-in-out 1s infinite alternate, tg-drift 20s linear infinite reverse; }
-@keyframes tg-twinkle { from { opacity: 0.25; } to { opacity: 0.95; } }
-@keyframes tg-drift { to { transform: translateY(70px); } }
+/* Backdrop: sunny Australian bush — sky, hills, ghost gums */
+.typegame-overlay.tg-over-overlay { background: #8fd6f2; }
+.tg-over-scenery { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.tg-over-scenery svg { width: 100%; height: 100%; display: block; }
+.tg-sun { animation: tg-sun-pulse 3.2s ease-in-out infinite alternate; transform-origin: 330px 52px; }
+@keyframes tg-sun-pulse { from { transform: scale(0.94); } to { transform: scale(1.08); } }
+.tg-cloud-a { animation: tg-cloud-drift 26s linear infinite alternate; }
+.tg-cloud-b { animation: tg-cloud-drift 34s linear infinite alternate-reverse; }
+@keyframes tg-cloud-drift { from { transform: translateX(-24px); } to { transform: translateX(70px); } }
+.tg-gum-l, .tg-gum-r { animation: tg-gum-sway 4.5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+.tg-gum-r { animation-delay: -2s; }
+@keyframes tg-gum-sway { from { transform: rotate(-1.2deg); } to { transform: rotate(1.2deg); } }
+.tg-bird { animation: tg-bird-fly 9s ease-in-out infinite alternate; }
+.tg-bird-b { animation-duration: 12s; animation-delay: -3s; }
+@keyframes tg-bird-fly { from { transform: translate(-20px, 4px); } to { transform: translate(40px, -10px); } }
+.tg-over-card::before { content: ""; position: absolute; z-index: -1; left: 4px; right: 4px; top: 74px; bottom: 0; border-radius: 18px; background: rgba(12, 44, 48, 0.62); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25); backdrop-filter: blur(2px); }
+.tg-trunk { position: absolute; z-index: -1; left: 50%; top: 82%; width: 20px; height: 40px; margin-left: -10px; border-radius: 4px; background: linear-gradient(90deg, #d9c9a8, #f3e9d6 45%, #cdbb97); }
+.tg-koala.fk-know .fk-koala { animation: none; }
+
 .typegame-overlay .tg-over-title { font-size: 1.45rem; color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35); }
 
 .tg-stars { display: flex; gap: 8px; margin: 2px 0 4px; }
@@ -6368,18 +6376,17 @@ html body .tt-keypad-toggle[aria-pressed="true"] { background: var(--accent) !im
 @media (max-width: 480px), (max-height: 520px) {
   .tg-over-koala .kb-scene { width: 62px; }
   .tg-over-koala .sk-svg { width: 54px; }
-  .tg-podium, .tg-koala-record .tg-podium { width: 58px; height: 12px; }
-  .tg-podium b, .tg-koala-record .tg-podium b { font-size: 0.6rem; }
   .tg-trophy { font-size: 1.15rem; top: -8px; right: -6px; }
   .typegame-overlay .tg-over-title { font-size: 1.2rem; }
   .tg-star { font-size: 1.6rem; }
   .tg-over-sub { display: none; }
   .tg-over-card { gap: 2px; padding-top: 14px; }
+  .tg-over-card::before { top: 62px; }
   .tg-over-actions { flex-direction: row; justify-content: center; gap: 8px; margin-top: 4px; }
   .tg-over-card .tg-review-btn { flex: 0 0 auto; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .tg-koala .sk-svg, .tg-play-again, .tg-trophy, .tg-koala .fk-paw, .tg-over-overlay::before, .tg-over-overlay::after { animation: none !important; }
+  .tg-koala .sk-svg, .tg-play-again, .tg-trophy, .tg-koala .fk-paw, .tg-over-scenery * { animation: none !important; }
   .tg-stars-go .tg-star.on { animation: none; filter: drop-shadow(0 0 6px #ffd54a); opacity: 1; transform: scale(1.1); }
 }
 

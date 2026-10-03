@@ -7009,6 +7009,24 @@ function launchGameOverConfetti(host) {
   setTimeout(() => host.querySelectorAll(".tg-conf").forEach((e) => e.remove()), 3800);
 }
 
+const GAMEOVER_SCENERY_SVG = `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="tgSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4fb8ee"/><stop offset="0.65" stop-color="#a8e3f7"/><stop offset="1" stop-color="#fff1c9"/></linearGradient>
+    <radialGradient id="tgSun"><stop offset="0" stop-color="#fff7c2"/><stop offset="0.45" stop-color="#ffe27a"/><stop offset="1" stop-color="#ffe27a" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#tgSky)"/>
+  <g class="tg-sun"><circle cx="330" cy="52" r="46" fill="url(#tgSun)"/><circle cx="330" cy="52" r="19" fill="#ffd84d"/></g>
+  <g class="tg-cloud tg-cloud-a" fill="#fff" opacity="0.9"><ellipse cx="70" cy="58" rx="30" ry="11"/><ellipse cx="92" cy="52" rx="20" ry="11"/><ellipse cx="52" cy="53" rx="16" ry="9"/></g>
+  <g class="tg-cloud tg-cloud-b" fill="#fff" opacity="0.8"><ellipse cx="210" cy="30" rx="26" ry="9"/><ellipse cx="228" cy="25" rx="16" ry="9"/></g>
+  <path d="M0 205 Q60 160 130 188 T270 176 T400 196 V300 H0Z" fill="#9fdcb4"/>
+  <path d="M0 240 Q90 200 180 228 T400 222 V300 H0Z" fill="#6cc590"/>
+  <g class="tg-gum tg-gum-l"><path d="M44 262 q4 -50 -2 -96 h12 q-4 46 0 96z" fill="#f3e9d6"/><path d="M48 200 q-14 -8 -22 -22" stroke="#e8dcc4" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="46" cy="150" rx="40" ry="26" fill="#4fa37a"/><ellipse cx="22" cy="168" rx="24" ry="16" fill="#5db58a"/><ellipse cx="74" cy="162" rx="24" ry="15" fill="#5db58a"/><ellipse cx="46" cy="136" rx="26" ry="14" fill="#74c79c"/></g>
+  <g class="tg-gum tg-gum-r"><path d="M352 266 q-5 -56 2 -108 h12 q-6 52 -2 108z" fill="#f3e9d6"/><ellipse cx="358" cy="146" rx="42" ry="28" fill="#4fa37a"/><ellipse cx="334" cy="166" rx="22" ry="15" fill="#5db58a"/><ellipse cx="384" cy="162" rx="22" ry="16" fill="#5db58a"/><ellipse cx="360" cy="130" rx="28" ry="15" fill="#74c79c"/></g>
+  <g class="tg-gum tg-gum-s" opacity="0.8"><path d="M130 230 q2 -26 0 -50 h6 q-2 24 0 50z" fill="#efe3cc"/><ellipse cx="133" cy="170" rx="22" ry="14" fill="#6cbf93"/></g>
+  <g class="tg-gum tg-gum-s2" opacity="0.8"><path d="M286 228 q2 -24 0 -46 h6 q-2 22 0 46z" fill="#efe3cc"/><ellipse cx="289" cy="174" rx="20" ry="13" fill="#6cbf93"/></g>
+  <g fill="#4a7d62" opacity="0.8"><path class="tg-bird tg-bird-a" d="M150 70 q6 -7 12 0 q6 -7 12 0" stroke="#4a7d62" stroke-width="2" fill="none" stroke-linecap="round"/><path class="tg-bird tg-bird-b" d="M250 96 q5 -6 10 0 q5 -6 10 0" stroke="#4a7d62" stroke-width="2" fill="none" stroke-linecap="round"/></g>
+</svg>`;
+
 let gameOverFxTimer = null;
 function stopGameOverFireworks() {
   clearInterval(gameOverFxTimer);
@@ -7055,6 +7073,12 @@ function showGameOverScreen(prefix, opts) {
   const stars = gameOverStars(opts.correct);
   const record = !!opts.isNewBest && stars >= 1;
   const card = overlay.querySelector(".tg-over-card");
+  if (!overlay.querySelector(".tg-over-scenery")) {
+    const scenery = document.createElement("div");
+    scenery.className = "tg-over-scenery";
+    scenery.innerHTML = GAMEOVER_SCENERY_SVG;
+    overlay.insertBefore(scenery, overlay.firstChild);
+  }
 
   // Title + optional encouragement line
   $("over-title").textContent = t(record ? "gameOverNewRecord" : stars >= 2 ? "gameOverGoodJob" : "gameOverKeepGoing");
@@ -7069,7 +7093,7 @@ function showGameOverScreen(prefix, opts) {
 
   // Koala (always the brand mascot; celebrates on a record or a good run)
   const koala = card.querySelector(".tg-over-koala");
-  koala.innerHTML = `<div class="kb-scene tg-koala${record ? " tg-koala-record" : stars >= 2 ? " tg-koala-good" : ""}">${record ? '<span class="tg-trophy">🏆</span><span class="tg-kiss" style="--kd:0s;--kx:34px;--ky:-30px;--kr:14deg">💋</span><span class="tg-kiss" style="--kd:0.12s;--kx:46px;--ky:-8px;--kr:-10deg">❤️</span><span class="tg-kiss" style="--kd:0.24s;--kx:26px;--ky:-50px;--kr:22deg">💖</span>' : ""}${SPELL_KOALA_SVG}<div class="tg-podium"><b>1</b></div></div>`;
+  koala.innerHTML = `<div class="kb-scene tg-koala${record ? " tg-koala-record fk-know" : stars >= 2 ? " tg-koala-good fk-know" : ""}">${record ? '<span class="tg-trophy">🏆</span><span class="tg-kiss" style="--kd:0s;--kx:34px;--ky:-30px;--kr:14deg">💋</span><span class="tg-kiss" style="--kd:0.12s;--kx:46px;--ky:-8px;--kr:-10deg">❤️</span><span class="tg-kiss" style="--kd:0.24s;--kx:26px;--ky:-50px;--kr:22deg">💖</span>' : ""}${SPELL_KOALA_SVG}</div>`;
 
   // Stars light up one by one
   const starsEl = $("stars");
