@@ -6152,7 +6152,9 @@ body.signed-in .stat-bar { display: none; }
   box-shadow: 0 2px 0 var(--outline);
 }
 .tt-keypad-toggle::after { content: ""; position: absolute; inset: -5px; }
-html body .tt-keypad-toggle[aria-pressed="true"] { background: var(--accent) !important; border-color: var(--accent-dark); }
+html body .tt-keypad-toggle[aria-pressed="true"] { background: var(--accent) !important; border-color: var(--accent-dark); color: #fff; }
+.tt-keypad-toggle { color: var(--accent-dark); }
+.tt-icon-svg { display: block; pointer-events: none; }
 
 /* ---- On-screen number pad ---- */
 .tt-keypad {
