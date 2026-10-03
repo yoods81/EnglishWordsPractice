@@ -11191,6 +11191,8 @@ function findWordInfo(word) {
   return null;
 }
 
+let wrongSubTab = "en"; // "en" | "math" — which Wrong-notes list is showing
+
 function wrongEntries() {
   return Object.entries(progress.wrong)
     .map(([key, v]) => ({ key, ...v }))
@@ -11203,17 +11205,35 @@ function renderWrongPanel() {
     el.innerHTML = premiumLockHtml();
     return;
   }
-  const items = wrongEntries();
-  if (!items.length) {
+  const all = wrongEntries();
+  if (!all.length) {
     el.innerHTML = `<div class="wrong-empty"><div class="wrong-empty-koala">🐨✨</div><p>${rwL(
       "No mistakes to review. Great job!", "복습할 오답이 없어요. 잘했어요!")}</p></div>`;
     return;
   }
+  // English = vocabulary / spelling / typing words. Math = times-table facts
+  // (and any future maths activity — extend reviewKindMatch / isMath for it).
+  const enItems = all.filter((it) => reviewKindMatch(it.key, "en"));
+  const mathItems = all.filter((it) => reviewKindMatch(it.key, "math"));
+  const items = wrongSubTab === "math" ? mathItems : enItems;
+  const subTabs = `<div class="wrong-subtabs" role="tablist">
+    <button type="button" class="wrong-subtab${wrongSubTab === "en" ? " on" : ""}" role="tab" aria-selected="${wrongSubTab === "en"}" data-wrong-tab="en">🔤 ${rwL("English", "영어")}<span class="wrong-subtab-count">${enItems.length}</span></button>
+    <button type="button" class="wrong-subtab${wrongSubTab === "math" ? " on" : ""}" role="tab" aria-selected="${wrongSubTab === "math"}" data-wrong-tab="math">🧮 ${rwL("Math", "수학")}<span class="wrong-subtab-count">${mathItems.length}</span></button>
+  </div>`;
+  if (!items.length) {
+    el.innerHTML = `${subTabs}<div class="wrong-empty"><div class="wrong-empty-koala">🐨✨</div><p>${wrongSubTab === "math"
+      ? rwL("No maths mistakes to review. Great job!", "복습할 수학 오답이 없어요. 잘했어요!")
+      : rwL("No English mistakes to review. Great job!", "복습할 영어 오답이 없어요. 잘했어요!")}</p></div>`;
+    return;
+  }
   const modeName = { quiz: rwL("Quiz", "퀴즈"), spelling: rwL("Spelling", "스펠링"), typing: rwL("Typing", "타이핑"), tt: rwL("Times Table", "구구단"), flash: rwL("Flashcards", "플래시카드") };
-  let html = `<p class="wrong-hint">${rwL(
-    "Get a word right 2 times in a row and it graduates from this notebook.",
-    "같은 단어를 연속 2번 맞히면 오답 노트에서 졸업해요.")}</p>
-    <div class="wrong-actions"><button type="button" class="pill accent small" id="wrong-review-btn">🐨 ${rwL("Start review", "복습 시작")}</button> <button type="button" class="pill small" id="wrong-study-btn">🃏 ${rwL("Study these words", "오답 단어 공부하기")}</button></div>
+  const studyBtn = wrongSubTab === "math"
+    ? ""
+    : ` <button type="button" class="pill small" id="wrong-study-btn">🃏 ${rwL("Study these words", "오답 단어 공부하기")}</button>`;
+  let html = `${subTabs}<p class="wrong-hint">${wrongSubTab === "math"
+    ? rwL("Get a fact right 2 times in a row and it graduates from this notebook.", "같은 문제를 연속 2번 맞히면 오답 노트에서 졸업해요.")
+    : rwL("Get a word right 2 times in a row and it graduates from this notebook.", "같은 단어를 연속 2번 맞히면 오답 노트에서 졸업해요.")}</p>
+    <div class="wrong-actions"><button type="button" class="pill accent small" id="wrong-review-btn">🐨 ${rwL("Start review", "복습 시작")}</button>${studyBtn}</div>
     <ul class="wrong-list">`;
   items.forEach((it) => {
     const isMath = /^\d+x\d+$/.test(it.key);
@@ -11236,6 +11256,12 @@ function renderWrongPanel() {
 }
 
 statsPanels.wrong.addEventListener("click", (e) => {
+  const sub = e.target.closest("[data-wrong-tab]");
+  if (sub) {
+    wrongSubTab = sub.dataset.wrongTab === "math" ? "math" : "en";
+    renderWrongPanel();
+    return;
+  }
   const say = e.target.closest("[data-say]");
   if (say) { speak(say.dataset.say); return; }
   const rm = e.target.closest("[data-remove]");
@@ -11246,8 +11272,8 @@ statsPanels.wrong.addEventListener("click", (e) => {
     return;
   }
   if (e.target.closest("#wrong-review-btn")) {
-    if (!reviewDueList().length) { kidConfirm(rwL("All caught up! These words come back for a retest tomorrow.", "오늘 복습할 단어를 모두 끝냈어요! 내일 다시 확인해요."), "OK"); return; }
-    startReview();
+    if (!reviewDueList(wrongSubTab).length) { kidConfirm(rwL("All caught up! These words come back for a retest tomorrow.", "오늘 복습할 단어를 모두 끝냈어요! 내일 다시 확인해요."), "OK"); return; }
+    startReview(wrongSubTab);
     return;
   }
   if (e.target.closest("#wrong-study-btn")) {
@@ -11816,17 +11842,26 @@ function reviewNextMidnight() {
   d.setHours(24, 0, 0, 0);
   return d.getTime();
 }
-function reviewDueList() {
+// kind: "en" (words only), "math" (times-table facts and any future maths
+// items) or anything else / omitted for everything.
+function reviewKindMatch(key, kind) {
+  if (kind === "en") return !reviewIsMath(key);
+  if (kind === "math") return reviewIsMath(key);
+  return true;
+}
+function reviewDueList(kind) {
   if (!canUsePaidFeatures()) return [];
   ensureRewardData();
   const now = Date.now();
-  return wrongEntries().filter((it) => !it.retestAt || it.retestAt <= now).sort((a, b) => (b.n || 0) - (a.n || 0));
+  return wrongEntries()
+    .filter((it) => reviewKindMatch(it.key, kind) && (!it.retestAt || it.retestAt <= now))
+    .sort((a, b) => (b.n || 0) - (a.n || 0));
 }
-function reviewWaitingCount() {
+function reviewWaitingCount(kind) {
   if (!canUsePaidFeatures()) return 0;
   ensureRewardData();
   const now = Date.now();
-  return wrongEntries().filter((it) => it.retestAt && it.retestAt > now).length;
+  return wrongEntries().filter((it) => reviewKindMatch(it.key, kind) && it.retestAt && it.retestAt > now).length;
 }
 
 function renderReviewCard() {
@@ -11846,12 +11881,14 @@ function renderReviewCard() {
   btn.textContent = rwL("Start", "시작");
   btn.hidden = !due;
 }
-document.getElementById("review-card-btn").addEventListener("click", startReview);
+document.getElementById("review-card-btn").addEventListener("click", () => startReview());
 
-function startReview() {
-  const due = reviewDueList().slice(0, REVIEW_SESSION_MAX);
+// kind: "en" | "math" limits the session to that Wrong-notes tab; omit for all.
+function startReview(kind) {
+  kind = kind === "en" || kind === "math" ? kind : null;
+  const due = reviewDueList(kind).slice(0, REVIEW_SESSION_MAX);
   if (!due.length) return;
-  reviewState = { queue: due.map((it) => ({ key: it.key, retried: false })), total: due.length, i: 0, right: 0, graduated: 0, missed: [] };
+  reviewState = { kind, queue: due.map((it) => ({ key: it.key, retried: false })), total: due.length, i: 0, right: 0, graduated: 0, missed: [] };
   document.getElementById("review-overlay").hidden = false;
   document.body.classList.add("review-open");
   reviewShow();
@@ -12001,8 +12038,8 @@ function reviewSummary() {
   }
   document.getElementById("review-progress-fill").style.width = "100%";
   document.getElementById("review-count").textContent = "";
-  const waiting = reviewWaitingCount();
-  const left = reviewDueList().length;
+  const waiting = reviewWaitingCount(s.kind);
+  const left = reviewDueList(s.kind).length;
   document.getElementById("review-body").innerHTML = `<div class="review-done-koala">🐨🍃</div>
     <h3 class="review-done-title">${rwL("Review complete!", "복습 완료!")}</h3>
     <p class="review-def">${rwL(`${s.right} correct`, `${s.right}개 맞혔어요`)}${s.graduated ? ` · ${rwL(`${s.graduated} graduated 🎓`, `${s.graduated}개 졸업 🎓`)}` : ""}</p>
@@ -12010,7 +12047,7 @@ function reviewSummary() {
     ${left ? `<button type="button" class="pill accent review-next" id="review-more">${rwL(`Review ${left} more`, `${left}개 더 복습`)}</button>` : ""}
     <button type="button" class="pill review-next" id="review-finish">${rwL("Done", "끝내기")}</button>`;
   const more = document.getElementById("review-more");
-  if (more) more.addEventListener("click", startReview);
+  if (more) more.addEventListener("click", () => startReview(s.kind));
   document.getElementById("review-finish").addEventListener("click", closeReview);
 }
 

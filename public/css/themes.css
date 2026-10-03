@@ -264,7 +264,8 @@ html[data-theme="dark"] .tt-ok {
 html[data-theme="dark"] .ti-chip {
   background: #131b19 !important;
 }
-html[data-theme="dark"] .stats-tab {
+html[data-theme="dark"] .stats-tab,
+html[data-theme="dark"] .wrong-subtab:not(.on) {
   background: #131b19 !important;
 }
 html[data-theme="dark"] .hbar-track {
@@ -1130,7 +1131,8 @@ html[data-theme="ivory"] .tt-demo-problem {
 html[data-theme="ivory"] .ti-chip {
   background: #fdfaf4 !important;
 }
-html[data-theme="ivory"] .stats-tab {
+html[data-theme="ivory"] .stats-tab,
+html[data-theme="ivory"] .wrong-subtab:not(.on) {
   background: #fdfaf4 !important;
 }
 html[data-theme="ivory"] .hbar-track {

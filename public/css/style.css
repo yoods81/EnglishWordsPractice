@@ -4193,6 +4193,17 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
 @media (prefers-reduced-motion: reduce) { .badge-card.earned .badge-medal, .badge-toast { animation: none; } }
 .stats-tab { font-size: 0.8rem; padding: 8px 4px; }
 
+/* Wrong notes: English / Math sub-tabs */
+.wrong-subtabs { display: flex; gap: 8px; margin: 0 0 12px; }
+.wrong-subtab {
+  flex: 1 1 0; min-width: 0; padding: 8px 10px; border-radius: 999px; cursor: pointer;
+  background: #fff; color: var(--accent-dark); font-family: var(--font-heading); font-weight: 700; font-size: 0.9rem;
+  border: 1px solid var(--accent-dark); box-shadow: 0 2px 0 var(--accent-dark);
+}
+.wrong-subtab.on { background: var(--accent); color: #fff; }
+.wrong-subtab-count { margin-left: 6px; background: var(--outline, #cfe7df); color: var(--text); border-radius: 999px; padding: 0 7px; font-size: 0.72rem; }
+.wrong-subtab.on .wrong-subtab-count { background: rgba(255, 255, 255, .28); color: #fff; }
+
 /* ===== Step 3: PWA ===== */
 .install-app-btn { display: block; margin: 0 auto 10px; }
 .install-app-btn[hidden] { display: none; }
