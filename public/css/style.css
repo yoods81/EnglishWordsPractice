@@ -6808,3 +6808,102 @@ html body .tt-keypad-toggle[aria-pressed="true"] { background: var(--accent) !im
   animation: tg-rays 26s linear infinite;
 }
 @keyframes tg-rays { to { transform: rotate(360deg); } }
+
+/* ---- Start screen: bright pastel overlay, centred card, floating preview words ----
+   The scenery stays visible (only a light frosted veil sits over it) and the
+   content lives on a mint card, like the arcade "press start" panel. */
+.typegame-overlay.tg-start-overlay {
+  overflow: auto;
+  padding: 10px;
+  color: #fff;
+  background: radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.1) 70%);
+}
+.tg-start-floaters { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.tg-start-floaters .typegame-word { opacity: 0.95; }
+.tg-start-card {
+  position: relative;
+  z-index: 1;
+  margin: auto;
+  box-sizing: border-box;
+  width: min(100%, 340px);
+  padding: 12px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #36c1a2 0%, #139279 100%);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 3px rgba(19, 146, 121, 0.45), 0 8px 0 rgba(8, 90, 72, 0.4), 0 14px 26px rgba(8, 70, 58, 0.3);
+  animation: tg-start-in 0.5s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+@keyframes tg-start-in { from { opacity: 0; transform: translateY(16px) scale(0.92); } to { opacity: 1; transform: none; } }
+.tg-start-card .kb-strip { margin: 0; min-height: 0; }
+.tg-start-card .kb-strip .kb-scene { width: 96px; height: 94px; }
+.tg-start-card .kb-strip .kb-scene .sk-svg { width: 96px; }
+.tg-start-card .kb-strip .sp-cloud.kb-cloud { width: 124px; height: 70px; }
+.tg-start-card .kb-strip .kb-cloud .bubble-text { font-size: 0.72rem; top: 11px; height: 32px; left: 13px; right: 13px; }
+.typegame-overlay .tg-start-card h3 {
+  margin: 0;
+  font-size: 1.7rem;
+  letter-spacing: 0.3px;
+  color: #fff;
+  text-shadow: 0 3px 0 rgba(8, 90, 72, 0.55), 0 0 12px rgba(255, 255, 255, 0.25);
+}
+.tg-start-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.tg-start-chip {
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #0b6b57;
+  background: #fff;
+  box-shadow: 0 2px 0 rgba(8, 90, 72, 0.35);
+}
+.tg-start-chip[hidden] { display: none; }
+.tg-start-best { color: #8a5400; background: #ffe9a6; }
+.typegame-overlay .tg-start-card p {
+  max-width: 320px;
+  margin: 2px 0 0;
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #fff;
+  text-shadow: 0 1px 0 rgba(8, 90, 72, 0.5);
+}
+.typegame-overlay .tg-start-card button.tg-start-btn.pill.accent {
+  width: 100%;
+  max-width: 260px;
+  min-height: 56px;
+  margin-top: 6px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  border: 0 !important;
+  border-radius: 999px;
+  color: #5a3000 !important;
+  background: linear-gradient(180deg, #ffe066, #ffab1a) !important;
+  box-shadow: 0 5px 0 #c27400, 0 9px 18px rgba(194, 116, 0, 0.4) !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  animation: tg-play-bounce 1.6s ease-in-out infinite;
+}
+.typegame-overlay .tg-start-card button.tg-start-btn.pill.accent:hover { filter: brightness(1.05); }
+.typegame-overlay .tg-start-card button.tg-start-btn.pill.accent:active { animation: none; transform: translateY(4px) scale(0.97); box-shadow: 0 1px 0 #c27400 !important; }
+.typegame-overlay .tg-start-card button.tg-start-btn.pill.accent:disabled { animation: none; filter: grayscale(0.7); opacity: 0.7; }
+
+@media (max-width: 480px), (max-height: 520px) {
+  .typegame-overlay.tg-start-overlay { padding: 6px; }
+  .tg-start-card { padding: 8px 12px 12px; gap: 4px; border-radius: 20px; }
+  .tg-start-card .kb-strip .kb-scene { width: 64px; height: 63px; }
+  .tg-start-card .kb-strip .kb-scene .sk-svg { width: 64px; }
+  .tg-start-card .kb-strip .sp-cloud.kb-cloud { width: 96px; height: 56px; }
+  .tg-start-card .kb-strip .kb-cloud .bubble-text { font-size: 0.62rem; top: 8px; height: 26px; left: 11px; right: 11px; }
+  .typegame-overlay .tg-start-card h3 { font-size: 1.3rem; }
+  .tg-start-chip { font-size: 0.78rem; padding: 2px 10px; }
+  .typegame-overlay .tg-start-card p { font-size: 0.86rem; }
+  .typegame-overlay .tg-start-card button.tg-start-btn.pill.accent { min-height: 46px; font-size: 1.12rem; margin-top: 2px; }
+  .tg-start-floaters { opacity: 0.85; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tg-start-card, .typegame-overlay .tg-start-card button.tg-start-btn.pill.accent { animation: none !important; }
+}

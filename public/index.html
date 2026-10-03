@@ -777,10 +777,23 @@ to Flip!</span></div>
 
           <div class="typegame-words" id="typegame-words"></div>
 
-          <div class="typegame-overlay" id="typegame-start-overlay">
-            <h3 data-i18n="typeGameTitle">⌨️ Typing Game</h3>
-            <p id="typegame-start-message" data-i18n="typeGameDesc">Type each word before it reaches the bottom!</p>
-            <button class="pill accent" id="typegame-start-btn" data-i18n="typeGameStartBtn">▶ Start Game</button>
+          <div class="typegame-overlay tg-start-overlay" id="typegame-start-overlay">
+            <!-- A preview of what will fall: a balloon, a leaf and a cloud floating on the scenery -->
+            <div class="tg-start-floaters" aria-hidden="true">
+              <div class="typegame-word tg-obj tg-balloon" style="left:13%;top:10%;--tg-c1:#ff8da1;--tg-c2:#e8476a;--tg-tilt:-3deg;--tg-float-delay:-0.4s"><span class="tg-shadow"></span><span class="tg-body"><span class="tg-text"><span class="tw-typed"></span><span class="tw-rest">koala</span></span></span><span class="tg-obj-tail"></span></div>
+              <div class="typegame-word tg-obj tg-leaf" style="left:86%;top:16%;--tg-c1:#7fd9a8;--tg-c2:#2e9a6b;--tg-tilt:2deg;--tg-float-delay:-1.6s"><span class="tg-shadow"></span><span class="tg-body"><span class="tg-text"><span class="tw-typed"></span><span class="tw-rest">gum</span></span></span><span class="tg-obj-tail"></span></div>
+              <div class="typegame-word tg-obj tg-cloud" style="left:88%;top:62%;--tg-c1:#9fd3ff;--tg-c2:#5b9be0;--tg-tilt:-2deg;--tg-float-delay:-2.2s"><span class="tg-shadow"></span><span class="tg-body"><span class="tg-text"><span class="tw-typed"></span><span class="tw-rest">joey</span></span></span><span class="tg-obj-tail"></span></div>
+              <div class="typegame-word tg-obj tg-balloon" style="left:11%;top:60%;--tg-c1:#6ec3ff;--tg-c2:#3a86e0;--tg-tilt:3deg;--tg-float-delay:-1.1s"><span class="tg-shadow"></span><span class="tg-body"><span class="tg-text"><span class="tw-typed"></span><span class="tw-rest">wombat</span></span></span><span class="tg-obj-tail"></span></div>
+            </div>
+            <div class="tg-start-card">
+              <h3 data-i18n="typeGameTitle">⌨️ Typing Game</h3>
+              <div class="tg-start-chips">
+                <span class="tg-start-chip" id="typegame-start-level"></span>
+                <span class="tg-start-chip tg-start-best" id="typegame-start-best" hidden></span>
+              </div>
+              <p id="typegame-start-message" data-i18n="typeGameDesc">Type each word before it reaches the bottom!</p>
+              <button class="pill accent tg-start-btn" id="typegame-start-btn" data-i18n="typeGameStartBtn">▶ Start Game</button>
+            </div>
           </div>
 
           <div class="typegame-overlay tg-over-overlay" id="typegame-over-overlay" hidden>

@@ -5092,6 +5092,18 @@ function enterTypeGameTab() {
   }
 }
 
+// The start screen's two little chips: which level's words will fall, and this
+// level's best score so far (hidden until there is one).
+function updateTypeGameStartChips() {
+  const levelEl = document.getElementById("typegame-start-level");
+  const bestEl = document.getElementById("typegame-start-best");
+  if (!levelEl || !bestEl) return;
+  levelEl.textContent = `📚 ${levelLabel(currentLevel)}`;
+  const best = typeGameHighScores[typeGameHighScoreKey()] || 0;
+  bestEl.hidden = best <= 0;
+  bestEl.textContent = `🏆 ${currentLang === "ko" ? "최고 점수" : "Best"} ${best}`;
+}
+
 function resetTypeGame() {
   kb("type")?.reset();
   typeGameActive.forEach((w) => w.el.remove());
@@ -5120,6 +5132,7 @@ function resetTypeGame() {
   const notEnough = typeGameWordPool.length < TYPEGAME_MIN_POOL_SIZE;
   typeGameStartBtn.disabled = notEnough;
   typeGameStartMessage.textContent = notEnough ? t("typeGameNotEnough", levelLabel(currentLevel)) : t("typeGameDesc");
+  updateTypeGameStartChips();
   typeGameOverOverlay.hidden = true;
   typeGameStartOverlay.hidden = false;
 }
