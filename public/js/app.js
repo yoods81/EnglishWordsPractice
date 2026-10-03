@@ -1852,6 +1852,7 @@ function pickVoice(lang) {
 // `opts.onstart`/`opts.onend` let a caller show pronunciation-in-progress UI
 // (e.g. the flashcard "Hear it" button below) without every caller having to
 // duplicate the Web Speech API's own event wiring.
+let speakCallId = 0; // newest speak() call wins; stale fallback timers from older calls bail out
 function speak(text, opts = {}) {
   if (!text) return;
   if (!("speechSynthesis" in window)) {
@@ -1859,6 +1860,7 @@ function speak(text, opts = {}) {
     return;
   }
   const synth = window.speechSynthesis;
+  const myCallId = ++speakCallId;
   // Chrome/Edge can leave the synthesizer stuck reporting speaking === true
   // forever — after a tab is backgrounded, or a previous utterance errored
   // out silently — which then blocks every later speak() call from doing
@@ -1872,42 +1874,81 @@ function speak(text, opts = {}) {
 
   const lang = currentSystem().speechLang;
 
-  const speakNow = (useVoice = true) => {
+  // Fallback chain for phones, where the "obvious" request is often the one
+  // that silently does nothing: (1) a picked voice, with the utterance's
+  // language set to that voice's own language (a mismatch such as voice en-US
+  // + lang en-AU makes Android TTS stay silent); (2) just the language, no
+  // voice; (3) the bare language ("en"). Each step is tried only if the
+  // previous one errored or never started.
+  const attempts = [
+    { voice: true, lang },
+    { voice: false, lang },
+    { voice: false, lang: lang.split("-")[0] },
+  ];
+  let attemptIdx = 0;
+
+  const speakNow = () => {
+    if (myCallId !== speakCallId) return; // a newer speak() has taken over
+    const att = attempts[attemptIdx];
     const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = lang;
-    const voice = useVoice ? pickVoice(lang) : null;
+    const voice = att.voice ? pickVoice(lang) : null;
     if (voice) utter.voice = voice;
+    utter.lang = voice && voice.lang ? voice.lang : att.lang;
     // Slightly brighter pitch/pace to read as a younger adult voice.
     utter.rate = 0.95;
     utter.pitch = 1.08;
     let watchdog = null;
+    let startTimer = null;
     let settled = false;
+    let started = false;
+    const clearTimers = () => {
+      if (watchdog) clearInterval(watchdog);
+      if (startTimer) clearTimeout(startTimer);
+    };
     const finish = () => {
       if (settled) return;
       settled = true;
-      if (watchdog) clearInterval(watchdog);
+      clearTimers();
       if (opts.onend) opts.onend();
     };
-    utter.onstart = opts.onstart || null;
+    // Moves on to the next fallback; false when there is none left.
+    const retry = () => {
+      if (settled || attemptIdx >= attempts.length - 1) return false;
+      settled = true;
+      clearTimers();
+      attemptIdx++;
+      try { synth.cancel(); } catch (e) { /* ignore */ }
+      setTimeout(speakNow, 60);
+      return true;
+    };
+    utter.onstart = () => {
+      started = true;
+      if (startTimer) clearTimeout(startTimer);
+      if (opts.onstart) opts.onstart();
+    };
     utter.onend = finish;
     utter.onerror = (e) => {
       // "interrupted"/"canceled" just mean a newer speak() call's cancel()
       // cut this one off — routine, not a real failure worth logging.
-      if (e.error !== "interrupted" && e.error !== "canceled") {
-        console.warn("Speech synthesis failed:", e.error);
-        // The explicitly chosen voice can be unusable on a phone (not
-        // installed, needs the network, ...), which is silent. Try once more
-        // with just the language and let the device pick its own voice.
-        if (voice && !settled) {
-          settled = true;
-          if (watchdog) clearInterval(watchdog);
-          speakNow(false);
-          return;
-        }
+      if (e.error === "interrupted" || e.error === "canceled") {
+        finish();
+        return;
       }
-      finish();
+      console.warn("Speech synthesis failed:", e.error);
+      if (!retry()) finish();
     };
     synth.speak(utter);
+
+    // Phones can accept an utterance and then never start it, with no error
+    // event at all. If nothing has started shortly after speak(), try the
+    // next fallback (mobile only: desktop network voices can legitimately be
+    // slow to start, and a retry there would read the word twice).
+    if (IS_MOBILE_TTS) {
+      startTimer = setTimeout(() => {
+        if (started || settled || myCallId !== speakCallId) return;
+        if (!retry()) finish();
+      }, 1800);
+    }
 
     // Long-standing Chrome bug: an utterance can silently stop after ~15s
     // unless something nudges the engine in the meantime. A harmless
