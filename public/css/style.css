@@ -7056,3 +7056,99 @@ html[data-theme="dark"] #view-typegame p.hint.tg-hint {
   .tt-start-overlay .tg-start-card .kb-strip .kb-scene { width: 56px; height: 55px; }
   .tt-start-overlay .tg-start-card .kb-strip .kb-scene .sk-svg { width: 56px; }
 }
+
+/* ---- Game Over polish: bright mint card, readable text, visible empty stars ---- */
+#view-typegame .tg-over-overlay .tg-over-card,
+#view-timestable .tg-over-overlay .tg-over-card {
+  background: linear-gradient(180deg, #f2fffa 0%, #d3f6e8 100%);
+  border: 3px solid #fff;
+  border-radius: 22px;
+  box-shadow: 0 8px 22px rgba(10, 60, 50, 0.3), inset 0 0 0 2px rgba(60, 190, 150, 0.25);
+  padding: clamp(6px, 2.4cqh, 16px) 12px clamp(8px, 3cqh, 16px);
+  gap: clamp(2px, 1.2cqh, 8px);
+  max-width: 330px;
+}
+.tg-over-overlay .tg-over-card::before { display: none !important; }
+#view-typegame .tg-over-overlay .tg-over-title,
+#view-timestable .tg-over-overlay .tg-over-title {
+  color: #0f6b52;
+  text-shadow: 0 2px 0 #fff, 0 3px 8px rgba(18, 184, 134, 0.25);
+}
+#view-typegame .tg-over-overlay .tg-over-card p,
+#view-timestable .tg-over-overlay .tg-over-card p,
+#view-typegame .tg-over-overlay .tg-over-card .tg-final,
+#view-timestable .tg-over-overlay .tg-over-card .tg-final { color: #17463c; }
+#view-typegame .tg-over-overlay .tg-over-card .typegame-encourage-msg,
+#view-timestable .tg-over-overlay .tg-over-card .typegame-encourage-msg { color: #17463c; }
+
+/* Stars: empty ones are a soft gold outline, earned ones glow */
+.tg-over-overlay .tg-star {
+  filter: grayscale(1) sepia(1) saturate(2.2) hue-rotate(2deg) brightness(1.25) opacity(0.55) drop-shadow(0 1px 0 #fff);
+  opacity: 1;
+  transform: scale(0.95);
+}
+@keyframes tg-star-pop {
+  0% { transform: scale(0.2) rotate(-40deg); opacity: 0.4; }
+  60% { transform: scale(1.5) rotate(10deg); filter: none; opacity: 1; }
+  100% { transform: scale(1.1) rotate(0); filter: drop-shadow(0 0 8px #ffb300); opacity: 1; }
+}
+.tg-over-overlay .tg-star { font-size: clamp(1.5rem, 9cqh, 2.4rem); }
+
+/* Encourage text: a friendly rounded speech bubble, with room before the buttons */
+#view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub,
+#view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub {
+  position: relative;
+  display: block;
+  max-width: 270px;
+  margin: 6px 0 clamp(10px, 3.2cqh, 20px);
+  padding: 8px 14px;
+  border-radius: 18px;
+  background: #fff;
+  border: 2px solid #8fe3c6;
+  box-shadow: 0 3px 0 #bfeedd;
+  color: #176650;
+  font-family: "Nunito", "Baloo 2", "Comic Sans MS", "Segoe UI Rounded", system-ui, sans-serif;
+  font-size: clamp(0.92rem, 3.6cqh, 1.05rem);
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: center;
+  animation: tg-bubble-bob 3.2s ease-in-out infinite;
+}
+#view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub::after,
+#view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  background: #fff;
+  border-right: 2px solid #8fe3c6;
+  border-bottom: 2px solid #8fe3c6;
+  transform: rotate(45deg);
+}
+@keyframes tg-bubble-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.tg-over-overlay .tg-over-actions { margin-top: clamp(4px, 1.6cqh, 10px); }
+.tg-over-overlay .tg-over-card .tg-review-btn { color: #0f6b52; }
+@media (max-width: 480px), (max-height: 520px) {
+  #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub,
+  #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub,
+  #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub { animation: none; }
+}
+
+/* On the Game Over screen the HUD hearts read as empty */
+.card.tg-over .tg-hearts { opacity: 0.45; filter: grayscale(0.6); }
+#view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub:empty,
+#view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub:empty,
+#view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub[hidden],
+#view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub[hidden] { display: none; }
+@container (max-height: 380px) {
+  #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub,
+  #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub,
+  #view-typegame .tg-over-card p.tg-over-sub,
+  #view-timestable .tg-over-card p.tg-over-sub { display: none !important; }
+}

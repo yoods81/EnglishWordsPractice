@@ -5577,6 +5577,8 @@ function endTypeGame() {
   typeGameActive.forEach((w) => w.el.remove());
   typeGameActive = [];
   stopTypeGameMusic();
+  typeGameLives = 0; // game is over: the HUD hearts show empty even after a manual end
+  renderTypeGameHearts();
 
   const key = typeGameHighScoreKey();
   const prevBest = typeGameHighScores[key] || 0;
