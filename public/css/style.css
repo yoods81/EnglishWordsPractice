@@ -4262,30 +4262,30 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
 /* ===== Flashcards: koala helper + leaf buttons ===== */
 .flash-scene { position: relative; display: flex; justify-content: center; align-items: flex-end; height: 88px; margin: -8px 0 -14px; pointer-events: none; z-index: 3; }
 .fk-svg { width: 170px; height: auto; overflow: visible; }
-/* Flashcards speech bubble: a clean, slightly raised rounded-rectangle bubble —
-   thick emerald rim, a thin light line just inside it, little corner glints, a
-   solid under-edge for depth, and a short tail at the bottom-left. The tail is
-   two masked layers (rim colour, then fill on top) so the rim flows round it and
-   opens cleanly where it joins the body. */
+/* Flashcards speech bubble: a soft, fluffy cloud. The body (scalloped outline,
+   inner puff line, gloss) and the tail are drawn as inline SVG by drawFlashBubble()
+   in app.js, which measures the bubble and the koala so the tail always ends at
+   the koala's mouth, whatever the screen size. */
 .fk-bubble {
-  --bub-fill: #e6f8f1;
+  --bub-fill: #e3f7ef;
   --bub-line: var(--accent-dark);
+  --bub-gloss: 1;
   position: absolute; right: 4%; top: 6px; max-width: 34%;
-  padding: 8px 14px 9px;
-  background:
-    radial-gradient(ellipse 9px 4px at 12px 9px, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 100%),
-    radial-gradient(ellipse 7px 3px at calc(100% - 12px) calc(100% - 9px), rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 100%),
-    var(--bub-fill);
-  border: 3px solid var(--bub-line);
-  border-radius: 14px;
-  box-shadow:
-    inset 0 0 0 2px var(--bub-fill),
-    inset 0 0 0 4px rgba(34, 201, 163, 0.38),
-    0 6px 12px rgba(14, 156, 125, 0.22);
+  padding: 10px 18px 11px;
   font-family: var(--font-heading); font-weight: 700; font-size: 0.84rem; color: var(--accent-dark);
   line-height: 1.2; text-align: center;
 }
-.fk-bubble::before, .fk-bubble::after {
+.fk-bubble .bubble-text { position: relative; z-index: 1; }
+.fk-bubble-bg {
+  position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; z-index: 0;
+  filter: drop-shadow(0 5px 6px rgba(14, 156, 125, 0.22));
+}
+.fk-bubble-bg .bb-body { fill: var(--bub-fill); stroke: var(--bub-line); stroke-width: 3; stroke-linejoin: round; }
+.fk-bubble-bg .bb-gloss { opacity: var(--bub-gloss); }
+.fk-bubble-bg .bb-inner { fill: none; stroke: rgba(34, 201, 163, 0.45); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.fk-bubble-bg .bb-glint { fill: #fff; opacity: calc(0.95 * var(--bub-gloss)); }
+.fk-bubble-bg .bb-tail-fill { fill: var(--bub-fill); stroke: none; }
+.fk-bubble-bg .bb-tail-line { fill: none; stroke: var(--bub-line); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
   content: ""; position: absolute; width: 28px; height: 26px; left: 14px; top: calc(100% - 2px);
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
 }
@@ -4403,7 +4403,7 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
   .flashcard, #flash-prev, #flash-next { transition: none; }
 }
 @media (min-width: 481px) {
-  .fk-bubble { right: auto; left: calc(50% + 84px); max-width: 220px; white-space: nowrap; }
+  .fk-bubble { right: auto; left: calc(50% + 74px); top: 16px; max-width: 220px; white-space: nowrap; }
 }
 
 /* ===== Spelling: live practice screen ===== */

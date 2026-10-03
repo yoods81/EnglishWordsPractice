@@ -356,8 +356,8 @@ html[data-theme="dark"] .sp-why {
   background: #15251e !important;
 }
 html[data-theme="dark"] .fk-bubble {
-  --bub-fill: #131b19;
-  background: #131b19 !important;
+  --bub-fill: #17231f;
+  --bub-gloss: 0.18;
 }
 html[data-theme="dark"] .sp-dot {
   background: #1e3029 !important;
@@ -902,7 +902,6 @@ html[data-theme="ivory"] .sp-why {
 }
 html[data-theme="ivory"] .fk-bubble {
   --bub-fill: #fdfaf4;
-  background: #fdfaf4 !important;
 }
 html[data-theme="ivory"] .sp-dot {
   background: #efe8d8 !important;
