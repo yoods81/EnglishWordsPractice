@@ -124,7 +124,7 @@ const TRANSLATIONS = {
     spLiveNext: "Next! 🍃",
     spLivePrev: "Look back 👀",
     spProgressLabel: (i, n) => `Word ${i} of ${n}`,
-    fkIdle: "Tap the card to flip!",
+    fkIdle: "Tap the card\nto Flip!",
     fkFlip: "Ta-da! ✨",
     fkNext: "Next word! 🍃",
     fkPrev: "Let's look again 👀",

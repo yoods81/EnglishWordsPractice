@@ -4274,10 +4274,10 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
   font-family: var(--font-heading); font-weight: 700; font-size: 0.84rem; color: var(--accent-dark);
   line-height: 1.2; text-align: center;
 }
-.fk-bubble .bubble-text { position: relative; z-index: 1; }
+.fk-bubble .bubble-text { position: relative; z-index: 1; display: block; white-space: pre-line; }
 .fk-bubble-bg {
   position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; z-index: 0;
-  filter: drop-shadow(0 4px 5px rgba(14, 156, 125, 0.2));
+  filter: drop-shadow(0 2px 2px rgba(14, 156, 125, 0.18));
 }
 .fk-bubble-bg .bb-body { fill: var(--bub-fill); stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; }
 .fk-bubble-bg .bb-stop-top { stop-color: var(--bub-top); }
@@ -4386,7 +4386,7 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
   #flash-prev svg, #flash-next svg { width: 20px; height: 20px; }
   .flash-word-row { gap: 10px; }
   button.flash-speak-mini { width: 40px; height: 40px; }
-  .fk-bubble { max-width: 38%; font-size: 0.7rem; right: 0; }
+  .fk-bubble { max-width: 50%; font-size: 0.72rem; right: auto; left: calc(50% + 42px); top: -15px; }
   .fk-svg { width: 140px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -4394,7 +4394,7 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
   .flashcard, #flash-prev, #flash-next { transition: none; }
 }
 @media (min-width: 481px) {
-  .fk-bubble { right: auto; left: calc(50% + 74px); top: 16px; max-width: 220px; white-space: nowrap; }
+  .fk-bubble { right: auto; left: calc(50% + 52px); top: -13px; max-width: 220px; }
 }
 
 /* ===== Spelling: live practice screen ===== */
