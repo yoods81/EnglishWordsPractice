@@ -4860,6 +4860,26 @@ body.review-open { overflow: hidden; }
 .review-feedback.bad { color: var(--error-dark); }
 .review-next { min-width: 180px; }
 .review-done-koala { font-size: 3.5rem; }
+
+/* Kid-friendly Learn / Spell cards: big colourful meaning + example bubbles */
+.review-step { font-size: 1.05rem; padding: 6px 16px; }
+.review-koala { font-size: 3.2rem; line-height: 1; animation: review-bob 2.4s ease-in-out infinite; }
+@keyframes review-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.review-hear { font-size: 1.15rem; padding: 10px 22px; }
+.review-card-meaning, .review-card-example {
+  width: 100%; max-width: 440px; box-sizing: border-box; border-radius: 22px; padding: 14px 18px 16px; text-align: center;
+}
+.review-card-meaning { background: #fff4c9; border: 2px solid #f4c542; box-shadow: 0 4px 0 #f4c542; }
+.review-card-example { background: #e3f4ff; border: 2px solid #6ab7e8; box-shadow: 0 4px 0 #6ab7e8; }
+.review-card-label { font-family: var(--font-heading); font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+.review-card-meaning .review-card-label { color: #9a6b00; }
+.review-card-example .review-card-label { color: #1f6f9f; }
+.review-card-text-big { font-family: var(--font-heading); font-size: clamp(1.5rem, 6.5vw, 2rem); line-height: 1.25; color: #3b2f00; word-break: break-word; }
+.review-card-text-ex { font-size: clamp(1.15rem, 4.8vw, 1.45rem); line-height: 1.4; color: #12364d; font-style: normal; word-break: break-word; }
+.review-card-text-ex mark { background: #ffe066; color: inherit; border-radius: 6px; padding: 0 4px; font-weight: 700; }
+.review-feedback { font-size: 1.15rem; }
+.review-input { font-size: 1.5rem; }
+@media (prefers-reduced-motion: reduce) { .review-koala { animation: none; } }
 .review-done-title { margin: 0; font-family: var(--font-heading); color: var(--accent-dark); }
 @media (max-height: 560px) { .review-body { justify-content: flex-start; } }
 

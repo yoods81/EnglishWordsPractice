@@ -4453,6 +4453,13 @@ function playWrongSfx() {
   sfxTone(200, 0, 0.16, "sawtooth", 0.06);
   sfxTone(150, 0.12, 0.2, "sawtooth", 0.06);
 }
+// Soft "pop" for Next / continue buttons (Wrong-notes review). Shares the
+// Quiz/Spelling mute switch.
+function playNextSfx() {
+  if (!sfxEnsure()) return;
+  sfxTone(660, 0, 0.07, "sine", 0.07);
+  sfxTone(990, 0.05, 0.09, "sine", 0.06);
+}
 function showComboPopup(n) {
   if (n < 3) return;
   document.querySelectorAll(".combo-pop").forEach((e) => e.remove());
@@ -11962,14 +11969,23 @@ function reviewShow() {
 function reviewLearn(item, info) {
   const body = document.getElementById("review-body");
   body.innerHTML = `<div class="review-step">${rwL("Step 1 · Learn it", "1단계 · 익히기")}</div>
+    <div class="review-koala" aria-hidden="true">🐨</div>
     <div class="review-word">${escapeHtml(info.word)}</div>
     <button type="button" class="review-hear" id="review-hear">🔊 ${rwL("Hear it", "들어보기")}</button>
-    ${info.definition ? `<p class="review-def">${escapeHtml(info.definition)}</p>` : ""}
-    ${info.example ? `<p class="review-ex">“${escapeHtml(info.example)}”</p>` : ""}
+    ${info.definition ? `<div class="review-card-meaning"><div class="review-card-label">💡 ${rwL("Meaning", "뜻")}</div><div class="review-card-text-big">${escapeHtml(info.definition)}</div></div>` : ""}
+    ${info.example ? `<div class="review-card-example"><div class="review-card-label">💬 ${rwL("Example", "예문")}</div><div class="review-card-text-ex">${reviewHighlight(info.example, info.word)}</div></div>` : ""}
     <button type="button" class="pill accent review-next" id="review-next">${rwL("Now spell it →", "이제 써 볼게요 →")}</button>`;
   document.getElementById("review-hear").addEventListener("click", () => speak(info.word));
-  document.getElementById("review-next").addEventListener("click", () => reviewAsk(item, info));
+  document.getElementById("review-next").addEventListener("click", () => { playNextSfx(); reviewAsk(item, info); });
   speak(info.word);
+}
+
+// Escapes the sentence, then wraps the target word in <mark> so kids can spot it.
+function reviewHighlight(sentence, word) {
+  const safe = escapeHtml(sentence);
+  const w = escapeHtml(word).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  if (!w) return safe;
+  return safe.replace(new RegExp(`(${w})`, "ig"), "<mark>$1</mark>");
 }
 
 function reviewAsk(item, info) {
@@ -11978,7 +11994,7 @@ function reviewAsk(item, info) {
     ? `<div class="review-word review-math">${info.a} × ${info.b} = ?</div>`
     : `<div class="review-step">${rwL("Step 2 · Spell it", "2단계 · 스펠링 쓰기")}</div>
        <button type="button" class="review-hear" id="review-hear">🔊 ${rwL("Hear it", "들어보기")}</button>
-       ${info.definition ? `<p class="review-def">${escapeHtml(info.definition)}</p>` : ""}`;
+       ${info.definition ? `<div class="review-card-meaning"><div class="review-card-label">💡 ${rwL("Meaning", "뜻")}</div><div class="review-card-text-big">${escapeHtml(info.definition)}</div></div>` : ""}`;
   body.innerHTML = `${prompt}
     <input type="text" class="review-input" id="review-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
       ${info.math ? 'inputmode="numeric"' : ""} placeholder="${rwL("Type here…", "여기에 써요…")}" aria-label="answer">
@@ -11989,13 +12005,17 @@ function reviewAsk(item, info) {
   if (hear) hear.addEventListener("click", () => speak(info.word));
   let answered = false;
   const finish = () => {
-    if (answered) { reviewState.i++; reviewShow(); return; }
+    if (answered) { playNextSfx(); reviewState.i++; reviewShow(); return; }
     const val = input.value.trim().toLowerCase();
     if (!val) return;
     answered = true;
     const expected = (info.math ? info.answer : info.word).toLowerCase();
     const ok = val === expected;
     reviewRecord(item, ok, info.math);
+    // Right answer: the happy ding (climbs with a streak, fanfare every 5th);
+    // wrong answer: the low buzz. Same sounds as Quiz / Spelling.
+    reviewState.combo = ok ? (reviewState.combo || 0) + 1 : 0;
+    if (ok) playCorrectSfx(reviewState.combo); else playWrongSfx();
     const fb = document.getElementById("review-feedback");
     input.disabled = true;
     input.classList.add(ok ? "ok" : "bad");
@@ -12054,8 +12074,8 @@ function reviewSummary() {
     ${left ? `<button type="button" class="pill accent review-next" id="review-more">${rwL(`Review ${left} more`, `${left}개 더 복습`)}</button>` : ""}
     <button type="button" class="pill review-next" id="review-finish">${rwL("Done", "끝내기")}</button>`;
   const more = document.getElementById("review-more");
-  if (more) more.addEventListener("click", () => startReview(s.kind));
-  document.getElementById("review-finish").addEventListener("click", closeReview);
+  if (more) more.addEventListener("click", () => { playNextSfx(); startReview(s.kind); });
+  document.getElementById("review-finish").addEventListener("click", () => { playNextSfx(); closeReview(); });
 }
 
 
