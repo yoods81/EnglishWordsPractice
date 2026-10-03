@@ -5182,7 +5182,7 @@ body.signed-in .stat-bar { display: none; }
 .auth-menu button { display: flex; align-items: center; gap: 9px; }
 .auth-menu-ico { width: 18px; height: 18px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .auth-menu label.auth-koala-level { border: none; background: none; padding: 0; border-radius: 0; text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; font-size: 0.8rem; font-weight: 600; color: var(--text); }
-.auth-koala-level select { flex: 1; min-width: 0; font: inherit; font-weight: 700; color: var(--accent-dark); background: #fff; border: 1px solid var(--accent-dark); border-radius: 999px; padding: 4px 8px; cursor: pointer; }
+.auth-koala-level select { flex: 0 0 98px; width: 98px; margin-left: auto; min-width: 0; text-overflow: ellipsis; box-shadow: 0 1px 0 var(--accent-dark); height: 26px; font: inherit; font-weight: 700; color: var(--accent-dark); background: #fff; border: 1px solid var(--accent-dark); border-radius: 999px; padding: 3px 22px 3px 10px; cursor: pointer; }
 
 /* Phase 6: polish */
 .koala-item-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; color: #b45309; background: #fff3c4; border: 1px solid #f0d28a; border-radius: 999px; padding: 0 7px; margin-top: 2px; }
