@@ -7257,3 +7257,4 @@ html body #spelling-start-screen.sp-start { position: relative; overflow: hidden
 .sp-start-card .sp-why li { color: #fff; text-shadow: 0 1px 0 rgba(8, 90, 72, 0.45); }
 @media (max-width: 480px) { .sp-fl { width: 38px; height: 46px; font-size: 1.25rem; } .sp-start-card { padding: 10px 12px 14px; } .sp-start-card h3 { font-size: 1.4rem; } }
 @media (prefers-reduced-motion: reduce) { .sp-fl, .sp-fl-star, .sp-step, .sp-start-card, .sp-start-card button.sp-start-btn.pill.accent { animation: none !important; } }
+html body #spelling-start-screen.sp-start[hidden] { display: none !important; }
