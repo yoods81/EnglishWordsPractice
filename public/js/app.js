@@ -7008,7 +7008,7 @@ function showGameOverScreen(prefix, opts) {
 
   // Koala (always the brand mascot; celebrates on a record or a good run)
   const koala = card.querySelector(".tg-over-koala");
-  koala.innerHTML = `<div class="kb-scene tg-koala${record ? " tg-koala-record" : stars >= 2 ? " tg-koala-good" : ""}">${SPELL_KOALA_SVG}</div>`;
+  koala.innerHTML = `<div class="kb-scene tg-koala${record ? " tg-koala-record" : stars >= 2 ? " tg-koala-good" : ""}">${record ? '<span class="tg-trophy">🏆</span>' : ""}${SPELL_KOALA_SVG}<div class="tg-podium"><b>1</b></div></div>`;
 
   // Stars light up one by one
   const starsEl = $("stars");
