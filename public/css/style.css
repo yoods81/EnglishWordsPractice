@@ -4262,32 +4262,35 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
 /* ===== Flashcards: koala helper + leaf buttons ===== */
 .flash-scene { position: relative; display: flex; justify-content: center; align-items: flex-end; height: 88px; margin: -8px 0 -14px; pointer-events: none; z-index: 3; }
 .fk-svg { width: 170px; height: auto; overflow: visible; }
-/* Flashcards speech balloon: a glossy, puffy "balloon" with a thick rim, a solid
-   under-edge for 3D, and a curved tail drawn as two masked layers (rim colour,
-   then fill on top) so the rim flows round the tail and opens cleanly where the
-   tail joins the body — nothing is clipped. */
+/* Flashcards speech bubble: a clean, slightly raised rounded-rectangle bubble —
+   thick emerald rim, a thin light line just inside it, little corner glints, a
+   solid under-edge for depth, and a short tail at the bottom-left. The tail is
+   two masked layers (rim colour, then fill on top) so the rim flows round it and
+   opens cleanly where it joins the body. */
 .fk-bubble {
-  --bub-fill: #effcf8;
+  --bub-fill: #e6f8f1;
   --bub-line: var(--accent-dark);
   position: absolute; right: 4%; top: 6px; max-width: 34%;
-  padding: 8px 17px 10px;
+  padding: 8px 14px 9px;
   background:
-    radial-gradient(ellipse 15px 5px at 22% 20%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 100%),
-    radial-gradient(circle at 50% 0%, #ffffff 0%, var(--bub-fill) 62%, #d6f6ea 100%);
-  border: 2.5px solid var(--bub-line);
-  border-radius: 26px;
-  box-shadow: 0 4px 0 var(--bub-line), 0 10px 14px rgba(14, 156, 125, 0.22), inset 0 -5px 8px rgba(34, 201, 163, 0.2);
+    radial-gradient(ellipse 9px 4px at 12px 9px, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 100%),
+    radial-gradient(ellipse 7px 3px at calc(100% - 12px) calc(100% - 9px), rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 100%),
+    var(--bub-fill);
+  border: 3px solid var(--bub-line);
+  border-radius: 14px;
+  box-shadow:
+    inset 0 0 0 2px var(--bub-fill),
+    inset 0 0 0 4px rgba(34, 201, 163, 0.38),
+    0 6px 12px rgba(14, 156, 125, 0.22);
   font-family: var(--font-heading); font-weight: 700; font-size: 0.84rem; color: var(--accent-dark);
   line-height: 1.2; text-align: center;
-  animation: fk-bubble-bob 3.2s ease-in-out infinite;
 }
 .fk-bubble::before, .fk-bubble::after {
-  content: ""; position: absolute; width: 25px; height: 28px; right: calc(100% - 3px); bottom: -9px;
+  content: ""; position: absolute; width: 28px; height: 26px; left: 14px; top: calc(100% - 2px);
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
 }
-.fk-bubble::before { background: var(--bub-line); -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-3 -2 25 28'%3E%3Cpath d='M20 1.5 C12 2 7 9 2.5 23 C10.5 21 16.5 19.5 20 17.5 Z' fill='black'/%3E%3Cpath d='M20 1.5 C12 2 7 9 2.5 23 C10.5 21 16.5 19.5 20 17.5' fill='none' stroke='black' stroke-width='5' stroke-linecap='butt' stroke-linejoin='round'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-3 -2 25 28'%3E%3Cpath d='M20 1.5 C12 2 7 9 2.5 23 C10.5 21 16.5 19.5 20 17.5 Z' fill='black'/%3E%3Cpath d='M20 1.5 C12 2 7 9 2.5 23 C10.5 21 16.5 19.5 20 17.5' fill='none' stroke='black' stroke-width='5' stroke-linecap='butt' stroke-linejoin='round'/%3E%3C/svg%3E"); }
-.fk-bubble::after { background: var(--bub-fill); -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-3 -2 25 28'%3E%3Cpath d='M20 1.5 C12 2 7 9 2.5 23 C10.5 21 16.5 19.5 20 17.5 Z' fill='black'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-3 -2 25 28'%3E%3Cpath d='M20 1.5 C12 2 7 9 2.5 23 C10.5 21 16.5 19.5 20 17.5 Z' fill='black'/%3E%3C/svg%3E"); }
-@keyframes fk-bubble-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.fk-bubble::before { background: var(--bub-line); -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 26'%3E%3Cpath d='M4 0 L24 0 L4 19 Z' fill='black'/%3E%3Cpath d='M4 2 L4 19 L21.9 2' fill='none' stroke='black' stroke-width='6' stroke-linecap='butt' stroke-linejoin='round'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 26'%3E%3Cpath d='M4 0 L24 0 L4 19 Z' fill='black'/%3E%3Cpath d='M4 2 L4 19 L21.9 2' fill='none' stroke='black' stroke-width='6' stroke-linecap='butt' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.fk-bubble::after { background: var(--bub-fill); -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 26'%3E%3Cpath d='M4 0 L24 0 L4 19 Z' fill='black' stroke='black' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 26'%3E%3Cpath d='M4 0 L24 0 L4 19 Z' fill='black' stroke='black' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E"); }
 .fk-eyes-happy, .fk-spark { opacity: 0; }
 .fk-eyes { animation: fk-blink 4s infinite; transform-box: fill-box; transform-origin: center; }
 .fk-head { animation: fk-idle 3.4s ease-in-out infinite; }
