@@ -7902,6 +7902,15 @@ if (window.visualViewport) {
 }
 setupMobileGameImmersive("view-typegame", typeGameStartOverlay, typeGameOverOverlay);
 
+// Quiz uses the same phone play mode: once "Start Quiz" is pressed (start
+// screen and result screen both hidden) the quiz card fills the screen.
+setupMobileGameImmersive("view-quiz", quizStartScreen, quizResultEl);
+// With the keyboard up the panel is short; keep the typing box in view.
+quizTypingInput.addEventListener("focus", () => {
+  if (!document.body.classList.contains("game-immersive-open")) return;
+  setTimeout(() => quizTypingBox.scrollIntoView({ block: "nearest" }), 300);
+});
+
 setupArcadeGameKeyboard({
   viewId: "view-typegame",
   inputEl: typeGameInput,
