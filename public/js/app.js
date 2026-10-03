@@ -4060,7 +4060,7 @@ spellingBackspaceBtn.id = "spelling-backspace";
 spellingBackspaceBtn.className = "sp-erase-btn";
 // Inline SVG rather than the ⌫ glyph: some fonts draw that character as an
 // envelope-like box, which kids read as "mail" instead of "delete".
-spellingBackspaceBtn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6-7 6-7z"/><path d="M12.5 9.5l5 5M17.5 9.5l-5 5"/></svg>';
+spellingBackspaceBtn.innerHTML = '<svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="42" height="42" rx="11"/><path d="M13 24l9-9v5.5h12v7H22V33z"/></svg>';
 spellingInput.parentElement.appendChild(spellingBackspaceBtn);
 const spellingScoreEl = document.getElementById("spelling-score");
 const spellingGoalValueEl = document.getElementById("spelling-goal-value");
