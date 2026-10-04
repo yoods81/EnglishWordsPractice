@@ -5287,6 +5287,10 @@ body.signed-in .stat-bar { display: none; }
 .auth-koala-level select { flex: 0 0 98px; width: 98px; min-width: 0; text-overflow: ellipsis; box-shadow: 0 1px 0 var(--accent-dark); height: 26px; font: inherit; font-weight: 700; color: var(--accent-dark); background-color: #fff; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M4 7.5l6 6 6-6' stroke='%237c8985' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; background-size: 12px; border: 1px solid var(--accent-dark); border-radius: 999px; padding: 6px 22px 0; line-height: 1.2; cursor: pointer; text-align: center; text-align-last: center; }
 .auth-koala-level select.is-open { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M4 12.5l6-6 6 6' stroke='%237c8985' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
 .auth-koala-level select option { text-align: center; }
+/* Korean: the level row sits at the left edge, and the dropdown is wide enough
+   that long grade names such as "초등학교 6학년" stay on a single line. */
+html[lang="ko"] .auth-menu label.auth-koala-level { justify-content: flex-start; }
+html[lang="ko"] .auth-koala-level select { flex: 0 0 150px; width: 150px; white-space: nowrap; }
 
 /* Phase 6: polish */
 .koala-item-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; color: #b45309; background: #fff3c4; border: 1px solid #f0d28a; border-radius: 999px; padding: 0 7px; margin-top: 2px; }
