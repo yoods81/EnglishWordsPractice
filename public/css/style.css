@@ -7681,3 +7681,10 @@ html body #flash-start-screen .qz-seg-btn:disabled { opacity: 0.55; cursor: not-
 @keyframes fs-front { 0%, 30% { opacity: 1; } 36%, 92% { opacity: 0; } 94%, 100% { opacity: 1; } }
 @keyframes fs-back { 0%, 41% { opacity: 0; } 44%, 80% { opacity: 1; } 85%, 100% { opacity: 0; } }
 @keyframes fs-pop { 0%, 52% { opacity: 0; transform: scale(0.2); } 60% { opacity: 1; transform: scale(1.5) rotate(12deg); } 66%, 80% { opacity: 1; transform: scale(1); } 86%, 100% { opacity: 0; } }
+
+/* Flashcards start: one row per picker — title on the left, compact buttons beside it */
+#flash-start-screen .qz-pick { flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; padding: 0 4px; }
+#flash-start-screen .qz-pick-title { flex: 0 0 74px; text-align: left; font-size: 0.85rem; }
+#flash-start-screen .qz-pick .qz-seg { flex: 1 1 auto; width: auto; justify-content: flex-start; flex-wrap: nowrap; gap: 6px; }
+#flash-start-screen .qz-seg .qz-seg-btn { flex: 0 0 auto; width: auto; min-height: 30px; padding: 4px 12px; font-size: 0.78rem; }
+@media (max-width: 480px) { #flash-start-screen .qz-pick-title { flex-basis: 62px; font-size: 0.78rem; } #flash-start-screen .qz-seg .qz-seg-btn { padding: 4px 8px; font-size: 0.72rem; } #flash-start-screen .qz-pick .qz-seg { gap: 4px; flex-wrap: wrap; } }
