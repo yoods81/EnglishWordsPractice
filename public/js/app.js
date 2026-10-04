@@ -11276,16 +11276,17 @@ function koalaSubGroupTitle(kind, group) {
   if (kind === "books") return rwL("📚 Books on the shelf", "📚 책장에 꽂힌 책");
   if (kind === "desk") return group === "drawer" ? rwL("🗄️ In the drawer", "🗄️ 서랍 속") : rwL("✏️ On the desk", "✏️ 책상 위");
   if (kind === "frame") return rwL("🖼️ Pick a picture to hang", "🖼️ 걸 그림 고르기");
+  if (kind === "collage") return rwL("👨‍👩‍👧 Family photos", "👨‍👩‍👧 가족 사진");
   if (kind === "petwear") return { head: rwL("🎩 Head", "🎩 머리"), neck: rwL("🧣 Neck", "🧣 목"), body: rwL("👕 Clothes", "👕 옷"), feet: rwL("👟 Shoes", "👟 신발") }[group];
   return rwL("🧸 Toys in the box", "🧸 상자 속 장난감");
 }
 
 function koalaSubCardHtml(parentId, s, on) {
   const name = escapeHtml(s.name[currentLang === "ko" ? "ko" : "en"]);
-  const owned = KoalaCore.isSubOwned(progress, s.id) || serverAdmin;
+  const owned = KoalaCore.isSubOwned(progress, s.id);
   const status = on ? `<span class="koala-sub-st on">${rwL("✓ In use", "✓ 사용 중")}</span>`
     : owned ? `<span class="koala-sub-st own">${rwL("Mine", "보유")}</span>`
-    : `<span class="koala-sub-st cost">${COIN_SVG} ${s.cost}</span>`;
+    : `<span class="koala-sub-st cost">${COIN_SVG} ${serverAdmin ? rwL("Free", "무료") : s.cost}</span>`;
   return `<button type="button" class="koala-sub${on ? " is-on" : ""}${owned ? "" : " is-locked"}" data-koala-sub="${parentId}|${s.id}" aria-pressed="${on}" aria-label="${name}">
     <span class="koala-sub-pic" aria-hidden="true">${KoalaArt.subIcon(s.id)}</span>
     <span class="koala-sub-name">${name}</span>${status}</button>`;
@@ -11366,33 +11367,33 @@ function koalaSubDetailBodyHtml(parentId, subId, msg, confirmSell) {
   const s = KoalaCore.subById(subId);
   const parent = KoalaCore.itemById(parentId);
   const kind = KoalaCore.subKind(parentId);
-  const owned = KoalaCore.isSubOwned(progress, subId) || serverAdmin;
+  const owned = KoalaCore.isSubOwned(progress, subId);
   const on = KoalaCore.subSelection(progress, parentId).includes(subId);
   const L = currentLang === "ko" ? "ko" : "en";
   const pname = escapeHtml(koalaItemName(parent));
   const k = KoalaCore.ensureKoala(progress);
   let act;
   if (!owned) {
-    const short = s.cost - k.coins;
+    const short = serverAdmin ? 0 : s.cost - k.coins;
     act = short > 0
       ? `<span class="koala-subd-state">${COIN_SVG} ${s.cost} · ${rwL(`${short} more Coins to unlock`, `${short}코인 더 모으면 살 수 있어요`)}</span>`
-      : `<button type="button" class="pill accent" data-koala-sub-buy>${COIN_SVG} ${s.cost} · ${rwL("Buy", "구매하기")}</button>`;
+      : `<button type="button" class="pill accent" data-koala-sub-buy>${COIN_SVG} ${serverAdmin ? rwL("Free for Admin", "관리자는 무료") : s.cost} · ${rwL("Buy", "구매하기")}</button>`;
   } else if (kind === "frame") {
     act = on ? `<span class="koala-subd-state">${rwL("✓ Hanging in the frame", "✓ 액자에 걸려 있어요")}</span>` : `<button type="button" class="pill accent" data-koala-sub-act>${rwL("🖼️ Hang this picture", "🖼️ 이 그림으로 걸기")}</button>`;
   } else {
     act = `<button type="button" class="pill ${on ? "" : "accent"}" data-koala-sub-act>${on ? rwL("Take it off", "빼기") : kind === "petwear" ? rwL(`Put it on the ${pname}`, `${pname}에게 입히기`) : rwL(`Put it in the ${pname}`, `${pname}에 놓기`)}</button>`;
   }
   let sell = "";
-  if (owned && s.cost && !serverAdmin) {
-    const back = KoalaCore.sellValue(s.cost);
+  if (owned && s.cost) {
+    const back = serverAdmin ? 0 : KoalaCore.sellValue(s.cost);
     sell = confirmSell
-      ? `<div class="koala-sell-box" role="alertdialog"><div>${rwL(`Sell it back? You get <b>${back}</b> Coins (80% of ${s.cost}).`, `되팔까요? 가격 ${s.cost}코인의 80%인 <b>${back}코인</b>을 돌려받아요.`)}</div>
+      ? `<div class="koala-sell-box" role="alertdialog"><div>${serverAdmin ? rwL("Put it back in the shop? (Admin: nothing comes back.)", "상점으로 돌려보낼까요? (관리자는 환불이 없어요.)") : rwL(`Sell it back? You get <b>${back}</b> Coins (80% of ${s.cost}).`, `되팔까요? 가격 ${s.cost}코인의 80%인 <b>${back}코인</b>을 돌려받아요.`)}</div>
           <div class="koala-sell-btns"><button type="button" class="pill small" data-koala-sell-no>${rwL("Keep it", "그대로 두기")}</button><button type="button" class="pill small warn" data-koala-sell-yes>${rwL("Sell", "되팔기")}</button></div></div>`
-      : `<button type="button" class="koala-sell-link" data-koala-sell-ask>💰 ${rwL(`Sell back (+${back})`, `되팔기 (+${back}코인)`)}</button>`;
+      : `<button type="button" class="koala-sell-link" data-koala-sell-ask>💰 ${serverAdmin ? rwL("Sell back", "되팔기") : rwL(`Sell back (+${back})`, `되팔기 (+${back}코인)`)}</button>`;
   }
   return `<div class="koala-zoom-head"><span class="koala-subd-from">${pname}</span>
       <button type="button" class="koala-zoom-close" data-koala-zoom-close>${rwL("✕ Close", "✕ 닫기")}</button></div>
-    <div class="koala-subd-stage ${kind === "frame" ? "is-wide" : ""}">${KoalaArt.subIcon(subId)}</div>
+    <div class="koala-subd-stage ${kind === "frame" || kind === "collage" ? "is-wide" : ""}">${KoalaArt.subIcon(subId)}</div>
     <div class="koala-subd-name">${escapeHtml(s.name[L])}</div>
     <p class="koala-subd-desc">${escapeHtml(s.desc[L])}</p>
     <div class="koala-subd-act">${act}</div>${sell}

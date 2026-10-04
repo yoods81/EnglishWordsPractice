@@ -458,13 +458,13 @@ test("sub-items: every one costs coins, and less than the cheapest parent it goe
 });
 
 test("sub-items: owning the parent gives nothing; buying costs coins; limits and swaps", () => {
-  const p = bag(500);
+  const p = bag(3000);
   K.buyItem(p, "woodToyBox");
   assert.deepEqual(K.subSelection(p, "woodToyBox"), []);
   assert.equal(K.toggleSub(p, "woodToyBox", "toyBall").reason, "notOwned");
   assert.equal(K.toggleSub(p, "cozyRug", "toyBall").reason, "notParent");
   assert.equal(K.buySub(p, "woodToyBox", "toyBall").ok, true);
-  assert.equal(p.koala.coins, 500 - 90 - 20);
+  assert.equal(p.koala.coins, 3000 - 90 - 20);
   assert.equal(K.buySub(p, "woodToyBox", "toyBall").reason, "owned");
   assert.deepEqual(K.subSelection(p, "woodToyBox"), ["toyBall"]);
   assert.equal(K.toggleSub(p, "woodToyBox", "toyBall").on, false); // take out, still owned
@@ -485,10 +485,17 @@ test("sub-items: owning the parent gives nothing; buying costs coins; limits and
   assert.deepEqual(K.subSelection(p, "catPet"), ["pwTopHat"]);
   K.buySub(p, "catPet", "pwCollar");
   assert.deepEqual(K.subSelection(p, "catPet").sort(), ["pwCollar", "pwTopHat"]);
-  // admin: free
+  // admin: free, but still has to "buy" it before it goes in
   const adm = bag(0);
+  assert.equal(K.toggleSub(adm, "catPet", "pwCape", { unlimited: true }).reason, "notOwned");
   assert.equal(K.buySub(adm, "catPet", "pwCape", { unlimited: true }).ok, true);
   assert.equal(adm.koala.coins, 0);
+  // family frame holds up to 3 photos
+  K.buyItem(p, "familyFrame");
+  ["photoPicnic", "photoBeach", "photoPark", "photoZoo"].forEach((x) => K.buySub(p, "familyFrame", x));
+  assert.equal(K.subSelection(p, "familyFrame").length, 3);
+  assert.equal(K.subKind("smallFrame"), "frame");
+  assert.ok(K.subItemsFor("bigFrame").length >= 20);
 });
 
 test("selling back: 80% returns to the wallet, the item is gone, history records it", () => {

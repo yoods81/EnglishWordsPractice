@@ -445,6 +445,34 @@
     picNight: `<rect width="56" height="40" fill="#26335f"/><path d="M12 6 a6 6 0 1 0 6 8 a5 5 0 1 1 -6 -8z" fill="#fde68a"/><g fill="#fff"><circle cx="30" cy="8" r="1"/><circle cx="42" cy="14" r="1.2"/><circle cx="48" cy="6" r=".8"/><circle cx="36" cy="22" r=".9"/><circle cx="8" cy="22" r=".8"/></g><path d="M0 34 q16 -8 30 -2 t26 -4 V40 H0z" fill="#1b2548"/>`,
     picBeach: `<rect width="56" height="40" fill="#d6f0ff"/><circle cx="46" cy="8" r="5" fill="#fde047"/><rect y="20" width="56" height="9" fill="#38bdf8"/><path d="M0 28 q28 -6 56 0 V40 H0z" fill="#f6e3b0"/><path d="M18 36 Q20 20 16 10" stroke="#9a6a3d" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M16 10 q-8 -2 -10 4 M16 10 q2 -8 10 -6 M16 10 q8 0 10 6 M16 10 q-6 4 -6 10" stroke="#3fb984" stroke-width="3" fill="none" stroke-linecap="round"/>`,
   };
+  Object.assign(PIC_ART, {
+    picCastle: `<rect width="56" height="40" fill="#cfe8ff"/><rect y="34" width="56" height="6" fill="#6bc487"/><rect x="17" y="17" width="22" height="19" fill="#c4b5fd"/><rect x="12" y="10" width="8" height="26" fill="#a78bfa"/><rect x="36" y="10" width="8" height="26" fill="#a78bfa"/><path d="M10 10 L16 2 L22 10z M34 10 L40 2 L46 10z" fill="#ef4444"/><path d="M24 36 v-8 a4 4 0 0 1 8 0 v8z" fill="#7c3aed"/><path d="M16 2 v-2 M40 2 v-2" stroke="#26332f" stroke-width="1"/>`,
+    picButterfly: `<rect width="56" height="40" fill="#fde7f0"/><path d="M0 34 H56 V40 H0z" fill="#6bc487"/><ellipse cx="22" cy="15" rx="9" ry="7" fill="#fb923c"/><ellipse cx="34" cy="15" rx="9" ry="7" fill="#fb923c"/><ellipse cx="24" cy="24" rx="6" ry="5" fill="#a78bfa"/><ellipse cx="32" cy="24" rx="6" ry="5" fill="#a78bfa"/><rect x="27" y="10" width="2.4" height="20" rx="1.2" fill="#26332f"/><circle cx="21" cy="14" r="2" fill="#fff"/><circle cx="35" cy="14" r="2" fill="#fff"/>`,
+    picPuppy: `<rect width="56" height="40" fill="#fff3c4"/><ellipse cx="15" cy="22" rx="6" ry="11" fill="#8a5a31"/><ellipse cx="41" cy="22" rx="6" ry="11" fill="#8a5a31"/><circle cx="28" cy="21" r="13" fill="#c97b3a"/><ellipse cx="28" cy="27" rx="7.5" ry="5.6" fill="#f3d9b8"/><circle cx="28" cy="24.6" r="2.4" fill="#26332f"/><circle cx="22" cy="18" r="2" fill="#26332f"/><circle cx="34" cy="18" r="2" fill="#26332f"/><path d="M28 28 v5" stroke="#ef4444" stroke-width="3.4" stroke-linecap="round"/>`,
+    picKitten: `<rect width="56" height="40" fill="#e6f4ff"/><path d="M14 18 L16 3 L26 12z M42 18 L40 3 L30 12z" fill="#f59e0b"/><path d="M17 12 L18 7 L22 11z M39 12 L38 7 L34 11z" fill="#fbcfe8"/><circle cx="28" cy="22" r="14" fill="#f59e0b"/><path d="M21 21 q3 -3 6 0 M29 21 q3 -3 6 0" stroke="#26332f" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M26 27 l2 2 l2 -2z" fill="#f472b6"/><path d="M12 25 h8 M12 29 h8 M36 25 h8 M36 29 h8" stroke="#fff" stroke-width="1"/>`,
+    picMountain: `<rect width="56" height="40" fill="#d8efff"/><circle cx="46" cy="9" r="4.4" fill="#fde047"/><path d="M0 36 L18 8 L34 36z" fill="#6b7a99"/><path d="M22 36 L38 14 L56 36z" fill="#8a97b8"/><path d="M18 8 L13.6 15 L18 13 L22 16z" fill="#fff"/><path d="M38 14 L34 20 L38 18.4 L42 21z" fill="#fff"/><rect y="34" width="56" height="6" fill="#6bc487"/>`,
+    picDinoPic: `<rect width="56" height="40" fill="#e5f7d4"/><rect y="34" width="56" height="6" fill="#a3d977"/><path d="M8 30 L2 26 L10 24z" fill="#3fb984"/><ellipse cx="24" cy="27" rx="14" ry="8.4" fill="#3fb984"/><path d="M30 24 Q40 20 38 10" stroke="#3fb984" stroke-width="7" fill="none" stroke-linecap="round"/><ellipse cx="41" cy="9" rx="7" ry="5" fill="#3fb984"/><circle cx="43" cy="7.6" r="1.4" fill="#26332f"/><rect x="15" y="32" width="5" height="6" rx="1.6" fill="#2f8f4e"/><rect x="28" y="32" width="5" height="6" rx="1.6" fill="#2f8f4e"/><path d="M14 20 l2 -4 l2 4 M20 19 l2 -4 l2 4 M26 20 l2 -4 l2 4" fill="#f6c343"/>`,
+    picBalloons: `<rect width="56" height="40" fill="#e9f3ff"/><path d="M16 17 L28 38 M28 14 L28 38 M40 17 L28 38" stroke="#6b7a75" stroke-width=".8" fill="none"/><ellipse cx="16" cy="12" rx="7" ry="9" fill="#ef4444"/><ellipse cx="28" cy="9" rx="7" ry="9" fill="#fbbf24"/><ellipse cx="40" cy="12" rx="7" ry="9" fill="#3b82f6"/><path d="M13 7 q1 -3 4 -3" stroke="#fff" stroke-width="1.4" fill="none" opacity=".7"/>`,
+    picRocketPic: `<rect width="56" height="40" fill="#1f2a55"/><g fill="#fff"><circle cx="8" cy="8" r="1"/><circle cx="48" cy="6" r="1"/><circle cx="44" cy="30" r=".8"/><circle cx="10" cy="30" r=".9"/></g><path d="M28 3 Q36 12 34 26 H22 Q20 12 28 3z" fill="#fff"/><path d="M28 3 Q32 7 33 11 H23 Q24 7 28 3z" fill="#ef4444"/><circle cx="28" cy="17" r="3.2" fill="#38bdf8"/><path d="M22 20 L16 28 L22 26z M34 20 L40 28 L34 26z" fill="#ef4444"/><path d="M24 26 H32 L28 37z" fill="#fbbf24"/>`,
+    picFish: `<rect width="56" height="40" fill="#38bdf8"/><path d="M0 36 q7 -4 14 0 t14 0 t14 0 t14 0 V40 H0z" fill="#0ea5e9"/><ellipse cx="26" cy="21" rx="13" ry="8" fill="#f97316"/><path d="M38 21 L48 13 V29z" fill="#fb923c"/><circle cx="19" cy="19" r="2" fill="#fff"/><circle cx="19" cy="19" r="1" fill="#26332f"/><path d="M26 14 v14" stroke="#fff" stroke-width="1.4" opacity=".6"/><g fill="none" stroke="#fff" stroke-width="1"><circle cx="8" cy="12" r="2"/><circle cx="12" cy="6" r="1.4"/></g>`,
+    picCake: `<rect width="56" height="40" fill="#fff0f5"/><rect x="10" y="22" width="36" height="14" rx="2" fill="#f9a8d4"/><rect x="14" y="14" width="28" height="9" rx="2" fill="#fde68a"/><path d="M10 26 q3 4 6 0 t6 0 t6 0 t6 0 t6 0 t6 0" fill="#fff"/><rect x="20" y="8" width="2.4" height="7" fill="#3b82f6"/><rect x="27" y="8" width="2.4" height="7" fill="#ef4444"/><rect x="34" y="8" width="2.4" height="7" fill="#3fb984"/><path d="M21.2 3 q-2 3 0 4 q2 -1 0 -4 M28.2 3 q-2 3 0 4 q2 -1 0 -4 M35.2 3 q-2 3 0 4 q2 -1 0 -4" fill="#fbbf24"/>`,
+    picForest: `<rect width="56" height="40" fill="#d6f2e6"/><rect y="33" width="56" height="7" fill="#6bc487"/><g fill="#8a5a31"><rect x="12" y="28" width="3" height="7"/><rect x="27" y="26" width="3" height="9"/><rect x="42" y="28" width="3" height="7"/></g><g fill="#3fb984"><path d="M13.5 8 L5 22 H22z M13.5 16 L3 30 H24z"/><path d="M28.5 4 L19 20 H38z M28.5 13 L16 28 H41z"/><path d="M43.5 8 L35 22 H52z M43.5 16 L33 30 H54z"/></g>`,
+    picSnow: `<rect width="56" height="40" fill="#cfe3ff"/><path d="M0 32 q28 -8 56 0 V40 H0z" fill="#fff"/><circle cx="28" cy="29" r="9" fill="#fff" stroke="#dbeafe" stroke-width="1"/><circle cx="28" cy="16" r="6.6" fill="#fff" stroke="#dbeafe" stroke-width="1"/><rect x="23" y="5" width="10" height="6" fill="#26332f"/><rect x="21" y="10" width="14" height="2" fill="#26332f"/><path d="M28 16 l7 1.4 l-7 1.6z" fill="#f97316"/><circle cx="25.6" cy="14" r=".9" fill="#26332f"/><circle cx="30.4" cy="14" r=".9" fill="#26332f"/><g fill="#fff"><circle cx="8" cy="8" r="1.4"/><circle cx="46" cy="14" r="1.4"/><circle cx="12" cy="22" r="1.2"/></g>`,
+  });
+  // Family photos: little cartoon people (x, height, shirt colour) standing on y = 36.
+  const person = (x, h, c) => `<rect x="${x - h * 0.17}" y="${36 - h * 0.72}" width="${h * 0.34}" height="${h * 0.72}" rx="${h * 0.1}" fill="${c}"/><circle cx="${x}" cy="${36 - h + h * 0.18}" r="${h * 0.18}" fill="#f5c9a0"/>`;
+  const people = (list) => list.map(([x, h, c]) => person(x, h, c)).join("");
+  const FAM = [[14, 30, "#ef4444"], [28, 24, "#3b82f6"], [40, 16, "#f59e0b"]];
+  const PHOTO_ART = {
+    photoPicnic: `<rect width="56" height="40" fill="#bfe8ff"/><rect y="26" width="56" height="14" fill="#8fd694"/><circle cx="48" cy="8" r="4.4" fill="#fde047"/><rect x="8" y="30" width="40" height="8" fill="#ef4444"/><path d="M8 30 H48 M8 34 H48 M20 30 V38 M32 30 V38" stroke="#fff" stroke-width="1.4"/>${people([[18, 26, "#3b82f6"], [30, 22, "#f472b6"], [40, 14, "#fbbf24"]])}`,
+    photoBeach: `<rect width="56" height="40" fill="#d6f0ff"/><rect y="16" width="56" height="9" fill="#38bdf8"/><path d="M0 26 q28 -6 56 0 V40 H0z" fill="#f6e3b0"/><circle cx="8" cy="8" r="4.4" fill="#fde047"/><path d="M34 14 a10 10 0 0 1 20 0z" fill="#ef4444"/><path d="M44 14 V34" stroke="#8a5a31" stroke-width="1.6"/>${people([[12, 26, "#3b82f6"], [24, 22, "#f472b6"], [34, 14, "#fbbf24"]])}`,
+    photoBirthday: `<rect width="56" height="40" fill="#ffe9f0"/><rect y="34" width="56" height="6" fill="#f9a8d4"/><ellipse cx="10" cy="10" rx="4" ry="5" fill="#ef4444"/><ellipse cx="46" cy="9" rx="4" ry="5" fill="#3b82f6"/><ellipse cx="38" cy="14" rx="3.6" ry="4.6" fill="#fbbf24"/>${people(FAM)}<path d="M10.6 12 l3.4 -8 l3.4 8z M24.4 10 l3.6 -7 l3.6 7z M37.4 8 l2.6 -6 l2.6 6z" fill="#a78bfa"/>`,
+    photoPark: `<rect width="56" height="40" fill="#d8efff"/><rect y="28" width="56" height="12" fill="#6bc487"/><rect x="44" y="14" width="3" height="16" fill="#8a5a31"/><circle cx="45.5" cy="12" r="8" fill="#3fb984"/>${people([[10, 28, "#8b5cf6"], [22, 24, "#3b82f6"], [31, 15, "#f472b6"]])}`,
+    photoZoo: `<rect width="56" height="40" fill="#e5f7d4"/><rect y="30" width="56" height="10" fill="#a3d977"/><rect x="38" y="6" width="5" height="26" fill="#fbbf24"/><ellipse cx="42" cy="8" rx="6" ry="4" fill="#fbbf24"/><rect x="40" y="2" width="1.6" height="4" fill="#9a6a3d"/><rect x="43.4" y="2" width="1.6" height="4" fill="#9a6a3d"/><g fill="#9a6a3d"><circle cx="40" cy="14" r="1.4"/><circle cx="42" cy="22" r="1.6"/></g>${people([[10, 28, "#ef4444"], [22, 22, "#3b82f6"]])}`,
+    photoCamp: `<rect width="56" height="40" fill="#26335f"/><g fill="#fff"><circle cx="8" cy="6" r="1"/><circle cx="30" cy="4" r=".8"/><circle cx="50" cy="9" r="1"/></g><rect y="33" width="56" height="7" fill="#3f6f55"/><path d="M30 33 L42 12 L54 33z" fill="#f97316"/><path d="M42 12 L38 33 H46z" fill="#c2410c"/><path d="M10 34 l6 -9 l6 9z" fill="#ef4444"/><path d="M13 34 q3 -8 6 0z" fill="#fbbf24"/>${people([[24, 18, "#3b82f6"], [6, 14, "#f472b6"]])}`,
+    photoSnow: `<rect width="56" height="40" fill="#d6e8ff"/><rect y="30" width="56" height="10" fill="#fff"/><circle cx="28" cy="31" r="6.6" fill="#fff" stroke="#bfdbfe"/><circle cx="28" cy="22" r="4.6" fill="#fff" stroke="#bfdbfe"/><path d="M28 22 l5 1 l-5 1z" fill="#f97316"/>${people([[10, 26, "#ef4444"], [46, 22, "#3b82f6"], [38, 14, "#f59e0b"]])}<g fill="#fff"><circle cx="8" cy="8" r="1.4"/><circle cx="24" cy="6" r="1.2"/><circle cx="46" cy="10" r="1.4"/></g>`,
+    photoGrad: `<rect width="56" height="40" fill="#f3e8ff"/><rect y="34" width="56" height="6" fill="#c4b5fd"/><g fill="#26332f"><path d="M6 6 l8 -3 l8 3 l-8 3z M30 4 l8 -3 l8 3 l-8 3z"/></g><g fill="#fbbf24"><polygon points="${starPts(48, 18, 3.6, 1.6)}"/><polygon points="${starPts(8, 20, 3, 1.4)}"/></g>${people([[14, 28, "#26332f"], [28, 24, "#26332f"], [40, 16, "#26332f"]])}<rect x="24" y="22" width="9" height="2.4" fill="#fff"/>`,
+  };
   // colour, height, mark (0 dot, 1 square, 2 diamond, 3 triangle)
   const BOOK_DEF = {
     koalaBook: ["#ef4444", 26, 0], abcBook: ["#3b82f6", 22, 1], spaceBook: ["#26335f", 27, 2], dinoBook: ["#3fb984", 24, 3],
@@ -474,7 +502,26 @@
     const drawer = sel.filter((id) => DRAWER_SUBS.includes(id));
     return top.map((id, i) => placed(DESK_ART[id], 19 + i * 18, 118, 0.9)).join("") + drawer.map((id, i) => placed(DESK_ART[id], [40, 74][i], 146, 0.5)).join("");
   };
-  const frameBuild = (outer, extra) => (sel) => `<g transform="translate(32 24) scale(1.0714 1.1)">${PIC_ART[sel[0]] || PIC_ART.picMeadow}</g><path d="M62 22 L52 12 M62 22 L72 12" stroke="#6b7a75" stroke-width="1" fill="none"/>${outer}${extra || ""}`;
+  // Wall frames: `g` is the outer rectangle, `b` the border; the picture fills the inside.
+  const picAt = (id, x, y, w, h) => `<g transform="translate(${x} ${y}) scale(${(w / 56).toFixed(4)} ${(h / 40).toFixed(4)})">${PIC_ART[id] || PIC_ART.picMeadow}</g>`;
+  const hangStr = (cx, y) => `<path d="M${cx} ${y} L${cx - 10} ${y - 10} M${cx} ${y} L${cx + 10} ${y - 10}" stroke="#6b7a75" stroke-width="1" fill="none"/>`;
+  const frameBuild = (outer, extra, g) => {
+    const r = g || { x: 30, y: 22, w: 64, h: 48, b: 2 };
+    return (sel) => hangStr(r.x + r.w / 2, r.y) + picAt(sel[0], r.x + r.b, r.y + r.b, r.w - 2 * r.b, r.h - 2 * r.b) + outer + (extra || "");
+  };
+  const rectFrame = (r, color, w) => `<rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" rx="3" fill="none" stroke="${color}" stroke-width="${w}"/>`;
+  // a frame that holds up to 3 family photos side by side
+  const collageBuild = (sel) => {
+    const slot = (i) => {
+      const x = 22 + i * 31, y = 33;
+      const id = sel[i];
+      return PHOTO_ART[id]
+        ? `<g transform="translate(${x} ${y}) scale(${(26 / 56).toFixed(4)} ${(30 / 40).toFixed(4)})">${PHOTO_ART[id]}</g>`
+        : `<rect x="${x}" y="${y}" width="26" height="30" fill="#f1ede4"/><path d="M${x + 13} ${y + 10} v10 M${x + 8} ${y + 15} h10" stroke="#d6cfbf" stroke-width="2" stroke-linecap="round"/>`;
+    };
+    return hangStr(62, 28) + `<rect x="14" y="28" width="96" height="40" rx="3" fill="#fff8ec"/>` + [0, 1, 2].map(slot).join("") +
+      `<rect x="14" y="28" width="96" height="40" rx="3" fill="none" stroke="#9a6a3d" stroke-width="4"/><rect x="20" y="31" width="29" height="34" fill="none" stroke="#c99562" stroke-width="1"/><rect x="51" y="31" width="29" height="34" fill="none" stroke="#c99562" stroke-width="1"/><rect x="82" y="31" width="29" height="34" fill="none" stroke="#c99562" stroke-width="1"/>`;
+  };
   const toyBoxBuild = (body, trim, deco) => (sel) =>
     `<rect x="26" y="184" width="52" height="8" fill="#5b3e22"/>` +
     sel.filter((id) => TOY_ART[id]).map((id, i) => placed(TOY_ART[id], [33, 46, 59, 72][i], 193, 0.85)).join("") +
@@ -486,12 +533,21 @@
   subBuild("rainbowShelf", (sel) => shelfFrame("#8a5a31", shelfBooks(sel)));
   subBuild("studyDesk", (sel) => deskBase("#b9824f", "#9a6a3d", "#c99562", "#f3d9a8") + deskSubs(sel));
   subBuild("pinkDesk", (sel) => deskBase("#f9a8d4", "#f472b6", "#fbcfe8", "#be185d") + deskSubs(sel));
+  const FG = { x: 30, y: 22, w: 64, h: 48, b: 2 };
+  const FGS = { x: 44, y: 32, w: 36, h: 28, b: 2 };
+  const FGB = { x: 16, y: 12, w: 92, h: 66, b: 5 };
   const frames = {
-    woodFrame: frameBuild(`<rect x="30" y="22" width="64" height="48" rx="3" fill="none" stroke="#b9824f" stroke-width="4"/>`),
-    goldFrame: frameBuild(`<rect x="30" y="22" width="64" height="48" rx="3" fill="none" stroke="#e0a21a" stroke-width="4"/>`, `<rect x="33" y="25" width="58" height="42" fill="none" stroke="#fde68a" stroke-width="1"/>`),
-    candyFrame: frameBuild(`<rect x="30" y="22" width="64" height="48" rx="3" fill="none" stroke="#f472b6" stroke-width="4"/>`, `<rect x="30" y="22" width="64" height="48" rx="3" fill="none" stroke="#fbbf24" stroke-width="4" stroke-dasharray="7 7"/>`),
+    woodFrame: frameBuild(rectFrame(FG, "#b9824f", 4)),
+    goldFrame: frameBuild(rectFrame(FG, "#e0a21a", 4), `<rect x="33" y="25" width="58" height="42" fill="none" stroke="#fde68a" stroke-width="1"/>`),
+    candyFrame: frameBuild(rectFrame(FG, "#f472b6", 4), `<rect x="30" y="22" width="64" height="48" rx="3" fill="none" stroke="#fbbf24" stroke-width="4" stroke-dasharray="7 7"/>`),
+    smallFrame: frameBuild(rectFrame(FGS, "#6b4a2e", 3), "", FGS),
+    bigFrame: frameBuild(rectFrame(FGB, "#5b3e22", 7), `<rect x="19.5" y="15.5" width="85" height="59" fill="none" stroke="#c99562" stroke-width="1.4"/>`, FGB),
+    aluminumFrame: (sel) => hangStr(62, 22) + `<rect x="30" y="22" width="64" height="48" fill="#fff"/>` + picAt(sel[0], 36, 28, 52, 36) + `<rect x="31.2" y="23.2" width="61.6" height="45.6" fill="none" stroke="#c3ccd4" stroke-width="2.4"/><rect x="30" y="22" width="64" height="48" fill="none" stroke="#8794a1" stroke-width="1.4"/><path d="M31 24 H60" stroke="#fff" stroke-width="1" opacity=".9"/>`,
+    roundFrame: (sel) => hangStr(62, 20) + `<defs><clipPath id="rf-clip"><circle cx="62" cy="46" r="23"/></clipPath></defs><g clip-path="url(#rf-clip)">${picAt(sel[0], 33, 30, 58, 34)}</g><circle cx="62" cy="46" r="24" fill="none" stroke="#14b8a6" stroke-width="4"/><circle cx="62" cy="46" r="21.6" fill="none" stroke="#99f6e4" stroke-width="1"/>`,
   };
-  Object.keys(frames).forEach((id) => { ROOM_ART[id] = { layer: "poster", view: "16 8 100 90", build: frames[id], svg: frames[id]([]) }; });
+  const ROOM_ART_FRAME_VIEW = "8 4 108 90";
+  frames.familyFrame = collageBuild;
+  Object.keys(frames).forEach((id) => { ROOM_ART[id] = { layer: "poster", view: ROOM_ART_FRAME_VIEW, build: frames[id], svg: frames[id]([]) }; });
   const toyBoxes = {
     woodToyBox: toyBoxBuild("#c9915a", "#a9703f", `<path d="M24 197 H80 M24 204 H80" stroke="#a9703f" stroke-width="1.6"/><rect x="40" y="195" width="24" height="10" rx="2" fill="#fff3c4"/><text x="52" y="203" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="7" fill="#b45309">TOYS</text>`),
     rainbowToyBox: toyBoxBuild("#fff", "#a78bfa", ["#ef4444", "#f97316", "#fbbf24", "#3fb984", "#38bdf8", "#a78bfa"].map((c, i) => `<rect x="${24 + i * 9.33}" y="192" width="9.4" height="20" fill="${c}"/>`).join("")),
@@ -543,6 +599,7 @@
   function subIcon(id) {
     const head = `<svg class="koala-icon-svg koala-sub-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" `;
     if (BOOK_DEF[id]) return `${head}viewBox="0 0 40 40">${bigBook(id)}</svg>`;
+    if (PHOTO_ART[id]) return `${head}viewBox="-2 -2 60 44"><g>${PHOTO_ART[id]}</g><rect x="0" y="0" width="56" height="40" fill="none" stroke="#9a6a3d" stroke-width="3"/></svg>`;
     if (PIC_ART[id]) return `${head}viewBox="-2 -2 60 44"><g>${PIC_ART[id]}</g><rect x="0" y="0" width="56" height="40" fill="none" stroke="#b9824f" stroke-width="3"/></svg>`;
     if (PW_ART[id]) return `${head}viewBox="-1 -1 26 26">${PW_ART[id]}</svg>`;
     const art = TOY_ART[id] || DESK_ART[id];

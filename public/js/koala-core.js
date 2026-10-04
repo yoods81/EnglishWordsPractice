@@ -247,6 +247,11 @@
     { id: "woodFrame", kind: "room", slot: "poster", name: { en: "Wooden Frame", ko: "나무 액자" }, unlock: { coins: 70 } },
     { id: "goldFrame", kind: "room", slot: "poster", name: { en: "Golden Frame", ko: "금빛 액자" }, unlock: { coins: 120 } },
     { id: "candyFrame", kind: "room", slot: "poster", name: { en: "Candy Frame", ko: "캔디 액자" }, unlock: { coins: 100 } },
+    { id: "aluminumFrame", kind: "room", slot: "poster", name: { en: "Aluminium Frame", ko: "알루미늄 액자" }, unlock: { coins: 80 } },
+    { id: "smallFrame", kind: "room", slot: "poster", name: { en: "Small Frame", ko: "작은 액자" }, unlock: { coins: 50 } },
+    { id: "bigFrame", kind: "room", slot: "poster", name: { en: "Big Frame", ko: "큰 액자" }, unlock: { coins: 130 } },
+    { id: "roundFrame", kind: "room", slot: "poster", name: { en: "Round Frame", ko: "동그란 액자" }, unlock: { coins: 90 } },
+    { id: "familyFrame", kind: "room", slot: "poster", name: { en: "Family Frame", ko: "가족 액자" }, unlock: { coins: 150 } },
     { id: "woodToyBox", kind: "room", slot: "toy", name: { en: "Wooden Toy Box", ko: "나무 장난감 상자" }, unlock: { coins: 90 } },
     { id: "rainbowToyBox", kind: "room", slot: "toy", name: { en: "Rainbow Toy Box", ko: "무지개 장난감 상자" }, unlock: { coins: 120 } },
     { id: "starToyBox", kind: "room", slot: "toy", name: { en: "Star Toy Box", ko: "별 장난감 상자" }, unlock: { coins: 140 } },
@@ -303,12 +308,14 @@
     desk: { mode: "multi", groups: { top: 5, drawer: 2 } },
     frame: { mode: "single", groups: { main: 1 }, fallback: "picMeadow" },
     toys: { mode: "multi", groups: { main: 4 } },
+    collage: { mode: "multi", groups: { main: 3 } },
     petwear: { mode: "multi", swap: true, groups: { head: 1, neck: 1, body: 1, feet: 1 } },
   };
   const SUB_PARENTS = {
     bookshelf: "books", rainbowShelf: "books",
     studyDesk: "desk", pinkDesk: "desk",
-    woodFrame: "frame", goldFrame: "frame", candyFrame: "frame",
+    woodFrame: "frame", goldFrame: "frame", candyFrame: "frame", aluminumFrame: "frame", smallFrame: "frame", bigFrame: "frame", roundFrame: "frame",
+    familyFrame: "collage",
     woodToyBox: "toys", rainbowToyBox: "toys", starToyBox: "toys",
     catPet: "petwear", dogPet: "petwear", bunnyPet: "petwear", turtlePet: "petwear", parrotPet: "petwear",
     hedgehogPet: "petwear", ducklingPet: "petwear", frogPet: "petwear", joeyPet: "petwear",
@@ -345,6 +352,26 @@
     sb("picKoala", "frame", "main", "Koala Hug", "코알라 안기", "A koala hugging a gum tree.", "나무를 꼭 안은 코알라예요."),
     sb("picNight", "frame", "main", "Starry Night", "별이 빛나는 밤", "Moon and stars say goodnight.", "달님과 별님이 잘 자라고 인사해요."),
     sb("picBeach", "frame", "main", "Palm Beach", "야자수 해변", "Sand, sea and a palm tree.", "모래, 바다, 야자수가 있는 해변!"),
+    sb("picCastle", "frame", "main", "Fairy Castle", "동화 속 성", "Towers, flags and a big gate.", "탑과 깃발, 커다란 대문이 있어요."),
+    sb("picButterfly", "frame", "main", "Butterfly", "나비", "Flutter, flutter in the flowers.", "꽃밭에서 나풀나풀!"),
+    sb("picPuppy", "frame", "main", "Happy Puppy", "신난 강아지", "Woof! Wants to play.", "멍멍! 같이 놀고 싶대요."),
+    sb("picKitten", "frame", "main", "Sleepy Kitten", "졸린 고양이", "Purr… purr…", "그르릉… 그르릉…"),
+    sb("picMountain", "frame", "main", "Snowy Mountain", "눈 덮인 산", "A tall peak with a white cap.", "하얀 모자를 쓴 높은 산이에요."),
+    sb("picDinoPic", "frame", "main", "Friendly Dino", "친절한 공룡", "A big green dino says hi.", "커다란 초록 공룡이 인사해요."),
+    sb("picBalloons", "frame", "main", "Balloons", "풍선", "Red, yellow and blue, floating up!", "빨강, 노랑, 파랑 풍선이 둥실!"),
+    sb("picRocketPic", "frame", "main", "Rocket Launch", "로켓 발사", "Fire up and zoom to space.", "불꽃을 뿜으며 우주로!"),
+    sb("picFish", "frame", "main", "Orange Fish", "주황 물고기", "Blub blub in the deep blue.", "푸른 바다에서 뽀글뽀글!"),
+    sb("picCake", "frame", "main", "Birthday Cake", "생일 케이크", "Make a wish and blow!", "소원을 빌고 후~ 불어요!"),
+    sb("picForest", "frame", "main", "Green Forest", "초록 숲", "Tall trees and fresh air.", "키 큰 나무와 맑은 공기!"),
+    sb("picSnow", "frame", "main", "Snowman", "눈사람", "Frosty with a carrot nose.", "당근 코 눈사람이에요."),
+    sb("photoPicnic", "collage", "main", "Picnic Day", "소풍 날", "A picnic on the grass.", "잔디밭에서 즐거운 소풍!"),
+    sb("photoBeach", "collage", "main", "Beach Trip", "바닷가 여행", "Sun, sand and sea.", "햇살, 모래, 바다!"),
+    sb("photoBirthday", "collage", "main", "Birthday Party", "생일 파티", "Hats on, cake time!", "고깔모자 쓰고 케이크 타임!"),
+    sb("photoPark", "collage", "main", "Park Walk", "공원 산책", "A sunny walk under the trees.", "나무 아래 햇살 산책이에요."),
+    sb("photoZoo", "collage", "main", "Zoo Visit", "동물원 나들이", "Look, a giraffe!", "와, 기린이다!"),
+    sb("photoCamp", "collage", "main", "Camping Night", "캠핑의 밤", "A tent and a warm fire.", "텐트와 따뜻한 모닥불!"),
+    sb("photoSnow", "collage", "main", "Snow Day", "눈 오는 날", "Building a snowman together.", "함께 눈사람을 만들어요."),
+    sb("photoGrad", "collage", "main", "Graduation", "졸업식", "Hats up, hooray!", "모자를 던져요, 만세!"),
     sb("toyTeddy", "toys", "main", "Teddy Bear", "곰 인형", "Soft and huggable.", "폭신폭신 안기 좋아요."),
     sb("toyBall", "toys", "main", "Beach Ball", "비치볼", "Bounce, bounce, bounce!", "통통통 튀어 올라요!"),
     sb("toyCar", "toys", "main", "Toy Car", "장난감 자동차", "Vroom vroom!", "부릉부릉 달려요!"),
@@ -374,6 +401,8 @@
   const SUB_COST = {
     koalaBook: 20, abcBook: 20, spaceBook: 35, dinoBook: 30, fairyBook: 25, mathBook: 25, oceanBook: 30, jokeBook: 20, atlasBook: 40, artBook: 25, animalBook: 30, songBook: 20,
     pencilCup: 10, miniGlobe: 35, alarmClock: 25, miniCactus: 20, notebooks: 15, cocoaMug: 20, crayonBox: 15, stickerBook: 25, secretDiary: 40, marbleBag: 20,
+    picCastle: 40, picButterfly: 25, picPuppy: 35, picKitten: 35, picMountain: 30, picDinoPic: 35, picBalloons: 20, picRocketPic: 40, picFish: 25, picCake: 30, picForest: 25, picSnow: 25,
+    photoPicnic: 40, photoBeach: 40, photoBirthday: 50, photoPark: 35, photoZoo: 45, photoCamp: 55, photoSnow: 45, photoGrad: 60,
     picMeadow: 0, picSea: 25, picRainbow: 30, picSpace: 35, picFlowers: 25, picKoala: 40, picNight: 35, picBeach: 30,
     toyTeddy: 40, toyBall: 20, toyCar: 30, toyRobot: 55, toyDino: 40, toyBlocks: 30, toyDuck: 20, toyRocket: 45, toyBunny: 35, toyDrum: 30,
     pwPartyHat: 15, pwBow: 15, pwTopHat: 30, pwFlowers: 25, pwCollar: 15, pwBell: 20, pwScarf: 25, pwBowTie: 20, pwSweater: 40, pwRaincoat: 40, pwCape: 45, pwBoots: 30, pwSneakers: 30,
@@ -418,17 +447,14 @@
   }
   // Put an OWNED sub-item on / take it off (a frame swaps its picture, a pet's outfit swaps within its group).
   // Returns { ok, on } or { ok:false, reason: notParent | unknown | notOwned | full }.
-  // opts.unlimited (admin) puts it in the collection for free first.
+  // (The admin has to "buy" it too — it just costs nothing.)
   function toggleSub(progress, parentId, subId, opts) {
     const k = ensureKoala(progress);
     const kind = SUB_PARENTS[parentId];
     const it = subById(subId);
     if (!kind) return { ok: false, reason: "notParent" };
     if (!it || it.kind !== kind) return { ok: false, reason: "unknown" };
-    if (!isSubOwned(progress, subId)) {
-      if (opts && opts.unlimited) k.items.subOwned[subId] = (opts && opts.now) || Date.now();
-      else return { ok: false, reason: "notOwned" };
-    }
+    if (!isSubOwned(progress, subId)) return { ok: false, reason: "notOwned" };
     const cur = subSelection(progress, parentId);
     if (SUB_RULES[kind].mode === "single") {
       k.items.sub[parentId] = [subId];
