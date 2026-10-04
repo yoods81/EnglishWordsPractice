@@ -517,7 +517,7 @@ const TRANSLATIONS = {
     exportExcelDone: (n) => `Exported ${n} word${n === 1 ? "" : "s"} to Excel.`,
     myAddedWordsTitle: "📝 My added words",
     myAddedWordsEmpty: "You haven't added any words yet — add your first one above! 🐨",
-    loadMoreWords: (n) => `⬇️ Load More (${n} more)`,
+    loadMoreWords: (n) => `Load More (${n} more)`,
     customSearchPlaceholder: "🔍 Search added words...",
     sortRecent: "🕒 Newest first",
     sortOldest: "🕒 Oldest first",
@@ -1109,7 +1109,7 @@ const TRANSLATIONS = {
     exportExcelDone: (n) => `단어 ${n}개를 엑셀로 내보냈어요.`,
     myAddedWordsTitle: "📝 내가 추가한 단어",
     myAddedWordsEmpty: "아직 추가된 단어가 없어요! 위에서 첫 번째 단어를 추가해 보세요 🐨",
-    loadMoreWords: (n) => `⬇️ 더보기 (${n}개 더)`,
+    loadMoreWords: (n) => `더보기 (${n}개 더)`,
     customSearchPlaceholder: "🔍 추가한 단어 검색...",
     sortRecent: "🕒 최근 추가순",
     sortOldest: "🕒 오래된 순",
@@ -8700,6 +8700,7 @@ const manualAddStatus = document.getElementById("manual-add-status");
 const customWordsGrid = document.getElementById("custom-words-grid");
 const customWordsEmpty = document.getElementById("custom-words-empty");
 const customWordsLoadMoreBtn = document.getElementById("custom-words-load-more-btn");
+const customWordsLoadMoreLabel = document.getElementById("custom-words-load-more-label");
 const customWordsFailedBanner = document.getElementById("custom-words-failed-banner");
 const customWordsFailedText = document.getElementById("custom-words-failed-text");
 const customWordsStatus = document.getElementById("custom-words-status");
@@ -9335,7 +9336,7 @@ function renderCustomWords({ resetPaging = true } = {}) {
   const pageItems = shown.slice(0, customWordsVisibleCount);
   const remaining = shown.length - pageItems.length;
   customWordsLoadMoreBtn.hidden = remaining <= 0;
-  if (remaining > 0) customWordsLoadMoreBtn.textContent = t("loadMoreWords", Math.min(CUSTOM_WORDS_PAGE_SIZE, remaining));
+  if (remaining > 0) customWordsLoadMoreLabel.textContent = t("loadMoreWords", Math.min(CUSTOM_WORDS_PAGE_SIZE, remaining));
   pageItems.forEach((w) => {
       const row = document.createElement("div");
       row.className = "wordlist-item";
@@ -9356,12 +9357,19 @@ function renderCustomWords({ resetPaging = true } = {}) {
 
       const left = document.createElement("div");
       left.className = "wordlist-item-main";
-      const wordEl = document.createElement("div");
-      wordEl.className = "w speakable-line";
-      wordEl.title = "Tap to hear";
+
+      // Same round speaker buttons as Word List's own cards (wl-word-row +
+      // makeWordlistSpeakBtn) instead of the old plain " 🔊" text appended
+      // via .speakable-line — this used to put two mismatched bare emoji on
+      // the card, one after the word and one after the example.
+      const wordRow = document.createElement("div");
+      wordRow.className = "wl-word-row";
+      const wordEl = document.createElement("span");
+      wordEl.className = "w";
       wordEl.textContent = w.word;
-      wordEl.addEventListener("click", () => speak(w.word));
-      left.appendChild(wordEl);
+      wordRow.appendChild(wordEl);
+      wordRow.appendChild(makeWordlistSpeakBtn(w.word, "word", `${t("hearItLabel")}: ${w.word}`));
+      left.appendChild(wordRow);
 
       const defEl = document.createElement("div");
       defEl.className = "d";
@@ -9371,16 +9379,15 @@ function renderCustomWords({ resetPaging = true } = {}) {
       left.appendChild(defEl);
 
       if (w.example) {
-        const exEl = document.createElement("div");
-        exEl.className = "d speakable-line";
-        exEl.style.fontStyle = "italic";
-        exEl.title = "Tap to hear";
-        exEl.textContent = w.example;
-        exEl.addEventListener("click", (e) => {
-          e.stopPropagation();
-          speak(w.example);
-        });
-        left.appendChild(exEl);
+        const exRow = document.createElement("div");
+        exRow.className = "wl-example";
+        const exText = document.createElement("span");
+        exText.className = "wl-example-text";
+        exText.textContent = w.example;
+        exText.title = w.example;
+        exRow.appendChild(exText);
+        exRow.appendChild(makeWordlistSpeakBtn(w.example, "example", t("hearExampleLabel")));
+        left.appendChild(exRow);
       }
       row.appendChild(left);
 
@@ -9391,7 +9398,7 @@ function renderCustomWords({ resetPaging = true } = {}) {
       right.style.alignItems = "flex-end";
 
       const badge = document.createElement("span");
-      badge.className = "mastery";
+      badge.className = "mastery cw-level-badge";
       badge.textContent = levelLabel(cwLevel(w));
       right.appendChild(badge);
 
