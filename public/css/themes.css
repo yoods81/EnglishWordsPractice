@@ -1021,6 +1021,45 @@ html[data-theme="dark"] .tts-help button {
   background: #443d26 !important;
   color: #f39d00 !important;
 }
+html[data-theme="dark"] body #quiz-practice .quiz-footer .qz-end-btn,
+html[data-theme="dark"] body #flash-practice .flash-end-row #flash-end {
+  background: #271b16 !important;
+  border: 2px solid #6f503e !important;
+}
+html[data-theme="dark"] .qz-dd-btn {
+  background-color: rgba(19,27,25,0.95) !important;
+  color: #26e9c0 !important;
+}
+html[data-theme="dark"] .qz-dd-list {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .qz-dd-opt {
+  color: #26e9c0 !important;
+}
+html[data-theme="dark"] .qz-dd-opt:hover,
+html[data-theme="dark"] .qz-dd-opt.is-active {
+  background: #192d26 !important;
+}
+html[data-theme="dark"] .qz-dd-opt.is-selected {
+  background: #223c33 !important;
+}
+html[data-theme="dark"] body #flash-start-screen .qz-seg-btn.on {
+  color: #f38200 !important;
+}
+html[data-theme="dark"] body #flash-start-screen .qz-seg-btn {
+  background: rgba(19,27,25,0.22) !important;
+}
+html[data-theme="dark"] body #flash-start-screen .qz-seg-btn.on {
+  background: #131b19 !important;
+  color: #26e9c0 !important;
+}
+html[data-theme="dark"] body #view-flashcards #flash-start-screen .flash-start-selects select {
+  background-color: #131b19 !important;
+}
+html[data-theme="dark"] body #view-flashcards #flash-start-screen .flash-start-selects select option {
+  background-color: #131b19 !important;
+  color: #26e9c0 !important;
+}
 html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; }
 html[data-theme="dark"] img, html[data-theme="dark"] video { filter: brightness(.92); }
 html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea { color-scheme: dark; }
@@ -1710,14 +1749,25 @@ html[data-theme="ivory"] .qz-daily-bar {
 html[data-theme="ivory"] .qz-missed li {
   border-top: 1px dashed #ece4d1 !important;
 }
-
-/* Quiz / Flashcards Quit button: same dark and ivory treatment as Spelling's. */
-html[data-theme="dark"] #quiz-practice .quiz-footer .qz-end-btn,
-html[data-theme="dark"] #flash-practice .flash-end-row #flash-end {
-  background: #271b16 !important;
-  border: 2px solid #6f503e !important;
+html[data-theme="ivory"] .qz-dd-btn {
+  background-color: rgba(253,250,244,0.95) !important;
 }
-html[data-theme="ivory"] #quiz-practice .quiz-footer .qz-end-btn,
-html[data-theme="ivory"] #flash-practice .flash-end-row #flash-end {
-  border: 1px solid #d9cfb9 !important;
+html[data-theme="ivory"] .qz-dd-list {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .qz-dd-opt:hover,
+html[data-theme="ivory"] .qz-dd-opt.is-active {
+  background: #f2ecdf !important;
+}
+html[data-theme="ivory"] body #flash-start-screen .qz-seg-btn {
+  background: rgba(253,250,244,0.22) !important;
+}
+html[data-theme="ivory"] body #flash-start-screen .qz-seg-btn.on {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] body #view-flashcards #flash-start-screen .flash-start-selects select {
+  background-color: #fdfaf4 !important;
+}
+html[data-theme="ivory"] body #view-flashcards #flash-start-screen .flash-start-selects select option {
+  background-color: #fdfaf4 !important;
 }

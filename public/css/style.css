@@ -7615,10 +7615,10 @@ html body #flash-practice .flash-end-row #flash-end:active { transform: translat
 /* Quiz start card: category + number-of-questions dropdowns (no labels).
    The pill's text is centred; the list that opens under it stays left-aligned. */
 .qz-selects { width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-.qz-dd { position: relative; flex: 1 1 150px; min-width: 0; }
+.qz-dd { position: relative; flex: 0 1 150px; min-width: 0; }
 .qz-dd-native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .qz-dd-btn {
-  position: relative; display: block; width: 100%; min-height: 38px; padding: 6px 30px; border: 0; border-radius: 999px;
+  position: relative; display: block; width: 100%; min-height: 38px; padding: 6px 22px 6px 8px; border: 0; border-radius: 999px;
   background-color: rgba(255, 255, 255, 0.95); color: #0b6b57; text-align: center;
   font-family: var(--font-heading); font-weight: 700; font-size: 0.9rem; line-height: 1.2;
   box-shadow: 0 3px 0 rgba(8, 90, 72, 0.45); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
