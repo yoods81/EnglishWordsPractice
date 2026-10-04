@@ -3268,6 +3268,14 @@ span.admin-role-select {
   color: var(--accent);
 }
 
+/* Fixed width so the dropdown is the same size no matter which role is
+   selected — only the live <select>, not the self-label <span>, which can
+   run longer ("Premium · You") and just sizes to its own content. */
+select.admin-role-select {
+  width: 96px;
+  text-align: center;
+}
+
 /* Inert/muted until the role picker actually differs from what's saved —
    .is-dirty then falls back to .edit-btn's normal solid-accent look, so the
    button itself signals "there's a change waiting" instead of always
@@ -3529,6 +3537,56 @@ button.kid-modal-btn {
    Korean-tuned -0.02em tracking; only Korean needs it pulled in. */
 html[lang="en"] button.kid-modal-btn {
   letter-spacing: 0.02em;
+}
+
+/* Admin: Give/Take reason popup — a slimmer, left-aligned variant of the
+   kid-modal card (a plain list of reason buttons instead of the two-button
+   yes/no layout), reusing its overlay/card/brand/message chrome. */
+.koala-reason-card {
+  max-width: 360px;
+  text-align: left;
+}
+.koala-reason-icon {
+  font-size: 2.3rem;
+  line-height: 1;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.koala-reason-card .kid-modal-brand {
+  text-align: center;
+}
+.koala-reason-message {
+  text-align: center;
+  font-size: 0.95rem;
+  margin: 0 0 14px;
+}
+.koala-reason-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.koala-reason-btn {
+  width: 100%;
+  text-align: left;
+  border: 1.5px solid var(--outline);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--text);
+  padding: 10px 14px;
+  font-family: "Fredoka", "Segoe UI", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.1s ease, border-color 0.1s ease;
+}
+.koala-reason-btn:hover,
+.koala-reason-btn:focus-visible {
+  background: #e3f7f1;
+  border-color: var(--accent);
+}
+.koala-reason-btn:active {
+  transform: translateY(1px);
 }
 
 .auth-card {
@@ -5744,8 +5802,9 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
   border-color: var(--accent-dark);
 }
 
-/* Give: solid emerald, the common/expected action. Take: soft pink outline
-   rather than alarm-red — a correction, not a destructive action. */
+/* Give: solid emerald, the common/expected action. Take: same red as the
+   site's .delete-btn, so every "this removes something" action reads the
+   same color everywhere in the admin panel. */
 .admin-koala-give-btn,
 .admin-koala-take-btn {
   border-radius: 999px;
@@ -5765,12 +5824,23 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
 }
 .admin-koala-give-btn:active { transform: translateY(1px); box-shadow: none; }
 .admin-koala-take-btn {
-  background: #fdf1f3;
-  color: #c2577a;
-  border: 1px solid #f3d3dc;
-  box-shadow: 0 2px 0 #f3d3dc;
+  background: #ff8787;
+  color: #fff;
+  border: 1px solid #e2605f;
+  box-shadow: 0 2px 0 #e2605f;
 }
 .admin-koala-take-btn:active { transform: translateY(1px); box-shadow: none; }
+
+/* The card description is read at length in Korean, so it gets its own
+   size/color instead of the same washed-out .muted styling used for short
+   English hints elsewhere — Fredoka's Hangul fallback is also dropped in
+   favor of the system UI font, same reasoning as .kid-modal-message. */
+.admin-koala-desc {
+  font-family: "Fredoka", "Segoe UI", sans-serif;
+  font-size: 0.92rem;
+  color: var(--text);
+  line-height: 1.5;
+}
 
 .admin-koala-recent-more {
   display: block;

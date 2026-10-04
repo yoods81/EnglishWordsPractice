@@ -131,6 +131,18 @@
     </div>
   </div>
 
+  <!-- Admin: Give/Take a reason, shown as a small popup instead of a plain
+       confirm() so an admin can pick why they adjusted a student's coins. -->
+  <div id="koala-reason-overlay" class="kid-modal-overlay" hidden>
+    <div class="kid-modal-card koala-reason-card">
+      <div class="koala-reason-icon" aria-hidden="true"><svg class="koala-coin" viewBox="0 0 24 24" width="1.1em" height="1.1em" focusable="false"><circle cx="12" cy="12" r="10.5" fill="#f6c343" stroke="#c98a12" stroke-width="1.5"/><circle cx="12" cy="12" r="7" fill="none" stroke="#e0a21a" stroke-width="1.2"/><path d="M12 7.2v9.6M9.3 9.6c0-1.2 1.2-1.9 2.7-1.9s2.7.7 2.7 1.9c0 2.7-5.4 1.5-5.4 4.2 0 1.2 1.2 2 2.7 2s2.7-.8 2.7-2" fill="none" stroke="#a86f0c" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+      <div class="kid-modal-brand" id="koala-reason-title"></div>
+      <p class="kid-modal-message koala-reason-message" id="koala-reason-message"></p>
+      <div class="koala-reason-list" id="koala-reason-list"></div>
+      <button type="button" class="pill neutral kid-modal-btn" id="koala-reason-cancel-btn"></button>
+    </div>
+  </div>
+
   <header>
     <div class="auth-toggle-wrap">
       <button id="auth-toggle" class="auth-toggle" type="button">🔑 Log In</button>
@@ -1440,7 +1452,7 @@ to Flip!</span></div>
       <div class="stats-grid" id="admin-stats-grid">
         <div class="stat-box"><div class="num" id="admin-stat-total-users">0</div><div class="lbl" data-i18n="adminStatTotalUsers">👥 Total Users</div></div>
         <div class="stat-box"><div class="num" id="admin-stat-premium-users">0</div><div class="lbl" data-i18n="adminStatPremiumUsers">⭐ Premium</div></div>
-        <div class="stat-box"><div class="num" id="admin-stat-total-coins">0</div><div class="lbl" data-i18n="adminStatTotalCoins">🪙 Coins Issued</div></div>
+        <div class="stat-box"><div class="num" id="admin-stat-total-coins">0</div><div class="lbl"><svg class="koala-coin" viewBox="0 0 24 24" width="1.1em" height="1.1em" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10.5" fill="#f6c343" stroke="#c98a12" stroke-width="1.5"/><circle cx="12" cy="12" r="7" fill="none" stroke="#e0a21a" stroke-width="1.2"/><path d="M12 7.2v9.6M9.3 9.6c0-1.2 1.2-1.9 2.7-1.9s2.7.7 2.7 1.9c0 2.7-5.4 1.5-5.4 4.2 0 1.2 1.2 2 2.7 2s2.7-.8 2.7-2" fill="none" stroke="#a86f0c" stroke-width="1.3" stroke-linecap="round"/></svg> <span data-i18n="adminStatTotalCoins">Coins Issued</span></div></div>
         <div class="stat-box"><div class="num" id="admin-stat-unused-codes">0</div><div class="lbl" data-i18n="adminStatUnusedCodes">🎟️ Unused Codes</div></div>
       </div>
 
@@ -1464,8 +1476,8 @@ to Flip!</span></div>
       </div>
 
       <div class="card" id="admin-koala-card">
-        <h3>🪙 Koala Coins</h3>
-        <p class="muted">Your own coins are unlimited. Give coins to a student, or take some back. A student receives them the next time they open the app.</p>
+        <h3><svg class="koala-coin" viewBox="0 0 24 24" width="1.1em" height="1.1em" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10.5" fill="#f6c343" stroke="#c98a12" stroke-width="1.5"/><circle cx="12" cy="12" r="7" fill="none" stroke="#e0a21a" stroke-width="1.2"/><path d="M12 7.2v9.6M9.3 9.6c0-1.2 1.2-1.9 2.7-1.9s2.7.7 2.7 1.9c0 2.7-5.4 1.5-5.4 4.2 0 1.2 1.2 2 2.7 2s2.7-.8 2.7-2" fill="none" stroke="#a86f0c" stroke-width="1.3" stroke-linecap="round"/></svg> <span id="admin-koala-title-text">Koala Coins</span></h3>
+        <p class="muted admin-koala-desc" id="admin-koala-desc-text">Your own coins are unlimited. Give coins to a student, or take some back. A student receives them the next time they open the app.</p>
         <div class="admin-panel-search-row">
           <input type="text" id="admin-koala-search" class="wordlist-search admin-panel-search-inline" placeholder="Search by username" />
         </div>
@@ -1490,7 +1502,7 @@ to Flip!</span></div>
       </div>
 
       <div class="card">
-        <h3 data-i18n="adminCodesTitle">🎟️ Premium Signup Codes</h3>
+        <h3 data-i18n="adminCodesTitle">🎁 Premium Signup Codes</h3>
         <p class="muted" data-i18n="adminCodesDesc">Generate a one-time code and send it to someone so they can sign up as a paid account instead of free.</p>
         <div class="admin-panel-toolbar">
           <button type="button" class="pill accent" id="admin-codes-generate-btn" data-i18n="adminCodesGenerateBtn">🎲 Generate New Code</button>

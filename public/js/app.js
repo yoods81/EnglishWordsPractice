@@ -160,7 +160,7 @@ const TRANSLATIONS = {
     statsInsightsBullet1: "📧 Weekly progress email reports",
     statsInsightsBullet2: "🎯 Category-by-category accuracy breakdown",
     statsInsightsBullet3: "👨‍👩‍👧‍👦 Track multiple children in one account",
-    adminCodesTitle: "🎟️ Premium Signup Codes",
+    adminCodesTitle: "🎁 Premium Signup Codes",
     adminCodesDesc: "Generate a one-time code and send it to someone so they can sign up as a premium account instead of general.",
     adminCodesGenerateBtn: "🎲 Generate New Code",
     adminCodesEmpty: "No codes generated yet.",
@@ -181,7 +181,7 @@ const TRANSLATIONS = {
     adminRequestActionFailed: "That didn't work — please try again.",
     adminStatTotalUsers: "👥 Total Users",
     adminStatPremiumUsers: "⭐ Premium",
-    adminStatTotalCoins: "🪙 Coins Issued",
+    adminStatTotalCoins: "Coins Issued",
     adminStatUnusedCodes: "🎟️ Unused Codes",
     adminUsersTitle: "🧑‍🤝‍🧑 User Accounts",
     adminUsersDesc: "Search for an account, change its role or password, or approve a pending upgrade request — a user waiting on one is pinned to the top.",
@@ -201,7 +201,7 @@ const TRANSLATIONS = {
     adminUserResetPasswordBtn: "Reset password",
     adminUserResetPasswordPrompt: (username) => `New password for ${username} (min. 8 characters):`,
     adminUserResetPasswordDone: (username) => `${username}'s password has been reset.`,
-    adminUserDeleteBtn: "Delete account",
+    adminUserDeleteBtn: "🗑️ Delete account",
     adminUserConfirmDelete: (username) => `Permanently delete ${username}'s account? This also deletes their own private words. This can't be undone.`,
     adminRole_free: "General",
     adminRole_paid: "Premium",
@@ -757,7 +757,7 @@ const TRANSLATIONS = {
     statsInsightsBullet1: "📧 주간 학습 리포트 이메일",
     statsInsightsBullet2: "🎯 카테고리별 정확도 분석",
     statsInsightsBullet3: "👨‍👩‍👧‍👦 여러 자녀 계정 함께 관리",
-    adminCodesTitle: "🎟️ 프리미엄 가입 코드",
+    adminCodesTitle: "🎁 프리미엄 가입 코드",
     adminCodesDesc: "1회용 코드를 생성해서 전달하면, 받은 사람이 일반 대신 프리미엄 계정으로 가입할 수 있어요.",
     adminCodesGenerateBtn: "🎲 새 코드 생성",
     adminCodesEmpty: "아직 생성된 코드가 없어요.",
@@ -778,7 +778,7 @@ const TRANSLATIONS = {
     adminRequestActionFailed: "처리하지 못했어요 — 다시 시도해주세요.",
     adminStatTotalUsers: "👥 총 회원",
     adminStatPremiumUsers: "⭐ 프리미엄",
-    adminStatTotalCoins: "🪙 발급된 코인",
+    adminStatTotalCoins: "발급된 코인",
     adminStatUnusedCodes: "🎟️ 미사용 코드",
     adminUsersTitle: "🧑‍🤝‍🧑 사용자 계정",
     adminUsersDesc: "계정을 검색하고 역할이나 비밀번호를 변경하거나, 업그레이드 요청을 승인할 수 있어요 — 요청 대기 중인 사용자는 맨 위에 고정돼요.",
@@ -798,7 +798,7 @@ const TRANSLATIONS = {
     adminUserResetPasswordBtn: "비밀번호 재설정",
     adminUserResetPasswordPrompt: (username) => `${username}님의 새 비밀번호 (최소 8자):`,
     adminUserResetPasswordDone: (username) => `${username}님의 비밀번호를 재설정했어요.`,
-    adminUserDeleteBtn: "계정 삭제",
+    adminUserDeleteBtn: "🗑️ 계정 삭제",
     adminUserConfirmDelete: (username) => `${username}님의 계정을 영구적으로 삭제할까요? 그 계정의 개인 단어도 함께 삭제되고, 되돌릴 수 없어요.`,
     adminRole_free: "일반",
     adminRole_paid: "프리미엄",
@@ -10144,10 +10144,8 @@ function renderAdminUsers() {
       actions.appendChild(resetPasswordBtn);
 
       const deleteUserBtn = document.createElement("button");
-      deleteUserBtn.className = "delete-btn admin-delete-icon-btn";
-      deleteUserBtn.textContent = "🗑️";
-      deleteUserBtn.title = t("adminUserDeleteBtn");
-      deleteUserBtn.setAttribute("aria-label", t("adminUserDeleteBtn"));
+      deleteUserBtn.className = "delete-btn";
+      deleteUserBtn.textContent = t("adminUserDeleteBtn");
       deleteUserBtn.addEventListener("click", async () => {
         const ok = await kidConfirm(t("adminUserConfirmDelete", u.username), t("deleteConfirmYesBtn"), t("deleteConfirmNoBtn"));
         if (!ok) return;
@@ -12167,6 +12165,11 @@ let adminKoalaRecentVisibleCount = ADMIN_KOALA_RECENT_PAGE_SIZE;
 function renderAdminKoalaTableHeaders() {
   const head = document.getElementById("admin-koala-table-head");
   if (!head) return;
+  document.getElementById("admin-koala-title-text").textContent = rwL("Koala Coins", "코알라 코인");
+  document.getElementById("admin-koala-desc-text").textContent = rwL(
+    "Your own coins are unlimited. Give coins to a student, or take some back. A student receives them the next time they open the app.",
+    "관리자의 코인은 무제한이에요. 학생에게 코인을 주거나 다시 가져올 수 있어요. 학생은 다음에 앱을 열 때 코인을 받아요."
+  );
   document.getElementById("admin-koala-th-user").textContent = rwL("User", "사용자");
   document.getElementById("admin-koala-th-coins").textContent = rwL("Coins", "코인");
   document.getElementById("admin-koala-th-adjust").textContent = rwL("Quick adjustment", "빠른 조정");
@@ -12194,8 +12197,9 @@ function renderAdminKoala({ resetRecentPaging = true } = {}) {
   grid.innerHTML = users.map((u) => {
     const bal = u.coins == null ? rwL("not seen", "기록 없음") : `${u.coins}`;
     const pend = u.pending ? ` <small class="admin-koala-pending">(${u.pending > 0 ? "+" : ""}${u.pending} ${rwL("pending", "대기")})</small>` : "";
+    const roleIcon = u.role === "admin" ? "👑" : u.role === "paid" ? "⭐" : "🙂";
     return `<div class="admin-koala-table-row" data-uid="${escapeHtml(u.id)}" data-coins="${u.coins == null ? "" : u.coins}">
-      <span class="admin-koala-cell-user">👤 ${escapeHtml(u.username)}</span>
+      <span class="admin-koala-cell-user">${roleIcon} ${escapeHtml(u.username)}</span>
       <span class="admin-koala-cell-coins">${COIN_SVG} ${escapeHtml(bal)}${pend}</span>
       <div class="admin-koala-cell-adjust">
         <div class="admin-koala-chips">${chipsHtml}</div>
@@ -12230,6 +12234,79 @@ function renderAdminKoala({ resetRecentPaging = true } = {}) {
   if (recRemaining > 0) recentMoreBtn.textContent = rwL(`Load more (${Math.min(ADMIN_KOALA_RECENT_PAGE_SIZE, recRemaining)} more)`, `더보기 (${Math.min(ADMIN_KOALA_RECENT_PAGE_SIZE, recRemaining)}개 더)`);
 }
 
+// Give/Take reason popup — picking a reason both confirms the action and
+// supplies the note that shows up in Recent Adjustments, in one small
+// step instead of a plain yes/no confirm followed by a separate memo box.
+const ADMIN_KOALA_GIVE_REASONS = [
+  { en: "Welcome Bonus", ko: "가입 환영" },
+  { en: "Event Prize", ko: "이벤트 경품" },
+  { en: "Christmas Event", ko: "크리스마스 이벤트" },
+  { en: "Voucher", ko: "바우처" },
+  { en: "Study Streak Bonus", ko: "학습 스트릭 보너스" },
+];
+const ADMIN_KOALA_TAKE_REASONS = [
+  { en: "Mistake Correction", ko: "입력 오류 수정" },
+  { en: "Refund", ko: "환불" },
+  { en: "Policy Violation", ko: "약관 위반" },
+];
+const koalaReasonOverlay = document.getElementById("koala-reason-overlay");
+const koalaReasonTitle = document.getElementById("koala-reason-title");
+const koalaReasonMessage = document.getElementById("koala-reason-message");
+const koalaReasonList = document.getElementById("koala-reason-list");
+const koalaReasonCancelBtn = document.getElementById("koala-reason-cancel-btn");
+let koalaReasonResolve = null;
+
+function closeKoalaReason(result) {
+  koalaReasonOverlay.hidden = true;
+  const resolve = koalaReasonResolve;
+  koalaReasonResolve = null;
+  if (resolve) resolve(result);
+}
+
+// Resolves to the note string to send (possibly "" for "no particular
+// reason"), or null if the admin cancelled.
+function pickAdminKoalaReason(amt, name, give) {
+  return new Promise((resolve) => {
+    koalaReasonResolve = resolve;
+    koalaReasonTitle.textContent = give
+      ? rwL(`Give ${amt} Coins to ${name}`, `${name}에게 ${amt}코인 지급`)
+      : rwL(`Take ${amt} Coins from ${name}`, `${name}의 코인 ${amt}개 차감`);
+    koalaReasonMessage.textContent = rwL("Pick a reason:", "사유를 선택하세요:");
+    const reasons = give ? ADMIN_KOALA_GIVE_REASONS : ADMIN_KOALA_TAKE_REASONS;
+    koalaReasonList.innerHTML = reasons.map((r, i) => `<button type="button" class="koala-reason-btn" data-reason-idx="${i}">${rwL(r.en, r.ko)}</button>`).join("")
+      + `<button type="button" class="koala-reason-btn" data-reason-idx="manual">${rwL("Other (no reason)", "기타 (사유 없음)")}</button>`;
+    koalaReasonCancelBtn.textContent = rwL("Cancel", "취소");
+    koalaReasonList.querySelectorAll("[data-reason-idx]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = btn.dataset.reasonIdx;
+        closeKoalaReason(idx === "manual" ? "" : rwL(reasons[idx].en, reasons[idx].ko));
+      });
+    });
+    koalaReasonOverlay.hidden = false;
+    const card = koalaReasonOverlay.querySelector(".kid-modal-card");
+    card.style.animation = "none";
+    void card.offsetWidth;
+    card.style.animation = "";
+  });
+}
+
+koalaReasonCancelBtn.addEventListener("click", () => closeKoalaReason(null));
+koalaReasonOverlay.addEventListener("click", (e) => {
+  if (e.target === koalaReasonOverlay) closeKoalaReason(null);
+});
+document.addEventListener(
+  "keydown",
+  (e) => {
+    if (koalaReasonOverlay.hidden) return;
+    if (e.key === "Escape") {
+      e.preventDefault();
+      e.stopPropagation();
+      closeKoalaReason(null);
+    }
+  },
+  true
+);
+
 document.addEventListener("click", async (e) => {
   const chip = e.target.closest("[data-set-amt]");
   if (chip) {
@@ -12251,17 +12328,14 @@ document.addEventListener("click", async (e) => {
     return;
   }
   const give = btn.dataset.adminKoala === "give";
-  const name = row.querySelector(".admin-koala-cell-user").textContent.replace(/^👤\s*/, "");
-  const ok = await kidConfirm(
-    give ? rwL(`Give ${amt} Koala Coins to ${name}?`, `${name}에게 코알라 코인 ${amt}개를 줄까요?`)
-         : rwL(`Take ${amt} Koala Coins from ${name}?`, `${name}의 코알라 코인 ${amt}개를 뺄까요?`),
-    give ? rwL("Give", "주기") : rwL("Take", "빼기"), rwL("Cancel", "취소"));
-  if (!ok) return;
+  const name = row.querySelector(".admin-koala-cell-user").textContent.replace(/^\S+\s*/, "");
+  const note = await pickAdminKoalaReason(amt, name, give);
+  if (note === null) return;
   btn.disabled = true;
   try {
     await api("/admin/koala/grant", {
       method: "POST",
-      body: JSON.stringify({ userId: row.dataset.uid, amount: give ? amt : -amt, note: "" }),
+      body: JSON.stringify({ userId: row.dataset.uid, amount: give ? amt : -amt, note }),
     });
     // Nudge first (loadAdminKoala() below overwrites with the authoritative
     // total whenever it does its own unfiltered recompute, so this only
