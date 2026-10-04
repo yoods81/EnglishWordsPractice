@@ -1021,14 +1021,6 @@ html[data-theme="dark"] .tts-help button {
   background: #443d26 !important;
   color: #f39d00 !important;
 }
-html[data-theme="dark"] #quiz-practice .quiz-footer .qz-end-btn {
-  background: #2b1818 !important;
-  color: #e6716a !important;
-  border: 2px solid #6f3e3e !important;
-}
-html[data-theme="dark"] #quiz-practice .quiz-footer .qz-end-btn:hover {
-  background: #321c1c !important;
-}
 html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; }
 html[data-theme="dark"] img, html[data-theme="dark"] video { filter: brightness(.92); }
 html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea { color-scheme: dark; }
@@ -1717,4 +1709,15 @@ html[data-theme="ivory"] .qz-daily-bar {
 }
 html[data-theme="ivory"] .qz-missed li {
   border-top: 1px dashed #ece4d1 !important;
+}
+
+/* Quiz / Flashcards Quit button: same dark and ivory treatment as Spelling's. */
+html[data-theme="dark"] #quiz-practice .quiz-footer .qz-end-btn,
+html[data-theme="dark"] #flash-practice .flash-end-row #flash-end {
+  background: #271b16 !important;
+  border: 2px solid #6f503e !important;
+}
+html[data-theme="ivory"] #quiz-practice .quiz-footer .qz-end-btn,
+html[data-theme="ivory"] #flash-practice .flash-end-row #flash-end {
+  border: 1px solid #d9cfb9 !important;
 }

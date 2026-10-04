@@ -7593,8 +7593,16 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
 @keyframes qz-next-in { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { #quiz-qcard > #quiz-next { animation: none !important; } }
 
-/* Quiz "End" button: soft red so it reads as a stop action */
-#quiz-practice .quiz-footer .qz-end-btn {
-  background: #ffe1e1; color: #b3261e; border: 2px solid #f5a9a9;
+/* Quiz and Flashcards "Quit" = the same soft orange button Spelling uses. */
+html body #quiz-practice .quiz-footer .qz-end-btn,
+html body #flash-practice .flash-end-row #flash-end {
+  padding: 6px 14px; font-size: 0.8rem; font-weight: 700; white-space: nowrap;
+  color: #d9591a; background: #fff1ea; border: 2px solid #ffb48a; box-shadow: 0 2px 0 #ffb48a;
+  cursor: pointer;
 }
-#quiz-practice .quiz-footer .qz-end-btn:hover { background: #ffd0d0; }
+html body #quiz-practice .quiz-footer .qz-end-btn:active,
+html body #flash-practice .flash-end-row #flash-end:active { transform: translateY(2px); box-shadow: none; }
+@media (max-width: 520px) {
+  html body #quiz-practice .quiz-footer .qz-end-btn,
+  html body #flash-practice .flash-end-row #flash-end { padding: 5px 10px; font-size: 0.75rem; }
+}
