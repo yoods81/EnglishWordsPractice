@@ -454,6 +454,7 @@ const TRANSLATIONS = {
     bulkWordsPlaceholder: "resilient\nmagnificent\ncurious",
     bulkWordsHint: "We'll automatically look up each word's meaning and example, and guess a matching level for it.",
     bulkAddSaveBtn: "Save words",
+    bulkAnalyzing: "Analyzing words...",
     bulkNoWords: "Please enter at least one word.",
     bulkAddedStatus: (n) => `Added ${n} word${n === 1 ? "" : "s"}!`,
     bulkAddedWithSkipped: (added, skipped) =>
@@ -476,6 +477,8 @@ const TRANSLATIONS = {
     ocrChooseBtn: "📁 Choose Photo or File",
     ocrExtractBtn: "🔍 Extract",
     ocrNoFileChosen: "No file chosen",
+    ocrDropzoneCaption: "Or drag a file here — Photos, TXT, PDF, Word, Excel supported · Max 10MB",
+    ocrFileTooLarge: "That file is too big — please choose one under 10MB.",
     ocrProgressDefault: "Reading image...",
     ocrProgressReadingFile: "Reading file...",
     ocrProgressStatus: (status, pct) => `${status} (${pct}%)`,
@@ -513,7 +516,8 @@ const TRANSLATIONS = {
     exportExcelNoWords: "You don't have any words to export yet.",
     exportExcelDone: (n) => `Exported ${n} word${n === 1 ? "" : "s"} to Excel.`,
     myAddedWordsTitle: "📝 My added words",
-    myAddedWordsEmpty: "You haven't added any words yet.",
+    myAddedWordsEmpty: "You haven't added any words yet — add your first one above! 🐨",
+    loadMoreWords: (n) => `⬇️ Load More (${n} more)`,
     customSearchPlaceholder: "🔍 Search added words...",
     sortRecent: "🕒 Newest first",
     sortOldest: "🕒 Oldest first",
@@ -525,6 +529,7 @@ const TRANSLATIONS = {
     selectIncompleteNoneFound: "Every word here already has a meaning and an example.",
     selectIncompleteDone: (n) => `Selected ${n} word${n === 1 ? "" : "s"} missing a meaning or example.`,
     wordManagementLabel: "🛠️ Word Management",
+    adminModeBadge: "🔑 ADMIN MODE",
     sortFilterLabel: "Sort & Filter",
     mergeDuplicatesBtn: "🧹 Merge Duplicates",
     noDuplicatesFound: "No duplicate words found — your list is clean!",
@@ -556,6 +561,8 @@ const TRANSLATIONS = {
     deleteBtn: "Delete",
     retryBtn: "🔄 Retry",
     deleteConfirm: "Delete this word?",
+    deleteConfirmYesBtn: "🗑️ Delete",
+    deleteConfirmNoBtn: "Cancel",
     failedWordsBanner: (n) => (n === 1 ? "⚠️ 1 word still needs a meaning." : `⚠️ ${n} words still need a meaning.`),
     retryAllBtn: "🔄 Retry All",
     deleteAllFailedBtn: "🗑️ Delete All Failed",
@@ -1040,6 +1047,7 @@ const TRANSLATIONS = {
     bulkWordsPlaceholder: "resilient\nmagnificent\ncurious",
     bulkWordsHint: "각 단어의 뜻과 예문을 자동으로 찾아드리고, 알맞은 레벨도 자동으로 추정해드려요.",
     bulkAddSaveBtn: "단어 저장하기",
+    bulkAnalyzing: "단어 분석 중...",
     bulkNoWords: "단어를 최소 1개 이상 입력해주세요.",
     bulkAddedStatus: (n) => `${n}개의 단어를 추가했어요!`,
     bulkAddedWithSkipped: (added, skipped) => `${added}개의 단어를 추가했어요. ${skipped}개는 이미 있어서 건너뛰었어요.`,
@@ -1061,6 +1069,8 @@ const TRANSLATIONS = {
     ocrChooseBtn: "📁 사진 또는 파일 선택하기",
     ocrExtractBtn: "🔍 추출하기",
     ocrNoFileChosen: "선택된 파일 없음",
+    ocrDropzoneCaption: "또는 파일을 여기로 끌어다 놓으세요 — 사진, TXT, PDF, Word, Excel 지원 · 최대 10MB",
+    ocrFileTooLarge: "파일이 너무 커요 — 10MB 이하의 파일을 선택해주세요.",
     ocrProgressDefault: "이미지를 읽는 중...",
     ocrProgressReadingFile: "파일을 읽는 중...",
     ocrProgressStatus: (status, pct) => `${status} (${pct}%)`,
@@ -1098,7 +1108,8 @@ const TRANSLATIONS = {
     exportExcelNoWords: "아직 내보낼 단어가 없어요.",
     exportExcelDone: (n) => `단어 ${n}개를 엑셀로 내보냈어요.`,
     myAddedWordsTitle: "📝 내가 추가한 단어",
-    myAddedWordsEmpty: "아직 추가한 단어가 없어요.",
+    myAddedWordsEmpty: "아직 추가된 단어가 없어요! 위에서 첫 번째 단어를 추가해 보세요 🐨",
+    loadMoreWords: (n) => `⬇️ 더보기 (${n}개 더)`,
     customSearchPlaceholder: "🔍 추가한 단어 검색...",
     sortRecent: "🕒 최근 추가순",
     sortOldest: "🕒 오래된 순",
@@ -1110,6 +1121,7 @@ const TRANSLATIONS = {
     selectIncompleteNoneFound: "모든 단어에 뜻과 예문이 있어요.",
     selectIncompleteDone: (n) => `뜻이나 예문이 빠진 단어 ${n}개를 선택했어요.`,
     wordManagementLabel: "🛠️ 단어 관리",
+    adminModeBadge: "🔑 관리자 모드",
     sortFilterLabel: "정렬 및 필터",
     mergeDuplicatesBtn: "🧹 중복 단어 정리",
     noDuplicatesFound: "중복된 단어가 없어요 — 목록이 깨끗해요!",
@@ -1137,6 +1149,8 @@ const TRANSLATIONS = {
     deleteBtn: "삭제",
     retryBtn: "🔄 다시 찾기",
     deleteConfirm: "이 단어를 삭제할까요?",
+    deleteConfirmYesBtn: "🗑️ 삭제하기",
+    deleteConfirmNoBtn: "취소",
     failedWordsBanner: (n) => `⚠️ 아직 뜻을 찾지 못한 단어 ${n}개가 있어요.`,
     retryAllBtn: "🔄 전체 다시 찾기",
     deleteAllFailedBtn: "🗑️ 실패한 단어 전체 삭제",
@@ -2862,6 +2876,11 @@ function updateAdminUI() {
   // admin session ever sees it.
   const homeAdminGroup = document.getElementById("home-admin-group");
   if (homeAdminGroup) homeAdminGroup.hidden = !serverAdmin;
+  // One persistent, hard-to-miss marker across the whole app for a
+  // server-confirmed admin session — not just on Add Word, so switching
+  // tabs never loses the "this is the real shared word list" context.
+  const adminModeBadgeEl = document.getElementById("admin-mode-badge");
+  if (adminModeBadgeEl) adminModeBadgeEl.hidden = !serverAdmin;
   const koalaView = document.getElementById("view-koala");
   if (koalaView && koalaView.classList.contains("active")) renderKoala();
   // Keep the label short (just the username) so it never fights the centered
@@ -8680,6 +8699,7 @@ const manualCancelBtn = document.getElementById("manual-cancel-btn");
 const manualAddStatus = document.getElementById("manual-add-status");
 const customWordsGrid = document.getElementById("custom-words-grid");
 const customWordsEmpty = document.getElementById("custom-words-empty");
+const customWordsLoadMoreBtn = document.getElementById("custom-words-load-more-btn");
 const customWordsFailedBanner = document.getElementById("custom-words-failed-banner");
 const customWordsFailedText = document.getElementById("custom-words-failed-text");
 const customWordsStatus = document.getElementById("custom-words-status");
@@ -8699,6 +8719,11 @@ const customFilterToggleBtn = document.getElementById("custom-filter-toggle-btn"
 const customFilterPanel = document.getElementById("custom-filter-panel");
 const customFilterLevelGroup = document.getElementById("custom-filter-level-group");
 let selectedCustomWordIds = new Set();
+// How many of the current (filtered/sorted) list's rows renderCustomWords()
+// actually puts in the DOM — Load More just raises this and re-renders,
+// instead of the whole list sitting in one tall, separately-scrolling box.
+const CUSTOM_WORDS_PAGE_SIZE = 30;
+let customWordsVisibleCount = CUSTOM_WORDS_PAGE_SIZE;
 // Empty set means no level filter (show every level) — "All levels" is
 // represented implicitly rather than as a sentinel member of the set.
 let customLevelFilterSet = new Set();
@@ -8712,9 +8737,12 @@ let customSortFlags = new Set(["recent"]);
 const ocrLevelSelectEl = document.getElementById("ocr-level");
 const addModeSingleBtn = document.getElementById("add-mode-single-btn");
 const addModeBulkBtn = document.getElementById("add-mode-bulk-btn");
+const addmodeBulkLock = document.getElementById("addmode-bulk-lock");
 const bulkAddForm = document.getElementById("bulk-add-form");
 const bulkWordsInput = document.getElementById("bulk-words-input");
 const bulkAddSaveBtn = document.getElementById("bulk-add-save-btn");
+const bulkAddSpinner = document.getElementById("bulk-add-spinner");
+const bulkAddSaveLabel = document.getElementById("bulk-add-save-label");
 const bulkAddStatus = document.getElementById("bulk-add-status");
 
 function genId() {
@@ -8801,7 +8829,18 @@ function setAddMode(mode) {
 }
 
 addModeSingleBtn.addEventListener("click", () => setAddMode("single"));
-addModeBulkBtn.addEventListener("click", () => setAddMode("bulk"));
+addModeBulkBtn.addEventListener("click", () => {
+  // The whole card is already overlay-gated for a locked account, but that
+  // overlay only catches mouse/touch — same keyboard-focus backstop as
+  // ocrChooseBtn's handler. Showing the prompt here (rather than silently
+  // switching to a bulk form they can't submit anyway) is also what makes
+  // the 🔒 on this tab mean something instead of just decoration.
+  if (!canUsePaidFeatures()) {
+    promptUpgradeForFeature();
+    return;
+  }
+  setAddMode("bulk");
+});
 
 bulkAddSaveBtn.addEventListener("click", async () => {
   if (!canUsePaidFeatures()) {
@@ -8831,6 +8870,8 @@ bulkAddSaveBtn.addEventListener("click", async () => {
   let added = [];
   let failedCount = 0;
   if (words.length > 0) {
+    bulkAddSpinner.hidden = false;
+    bulkAddSaveLabel.textContent = t("bulkAnalyzing");
     bulkAddStatus.textContent = t("ocrAddingStatus", words.length);
 
     const infos = await mapWithConcurrency(words, 4, (w) => fetchWordInfo(w), (done, total) => {
@@ -8890,6 +8931,8 @@ bulkAddSaveBtn.addEventListener("click", async () => {
     bulkAddStatus.textContent = withQuotaNote(t("bulkAddedStatus", added.length));
   }
   bulkWordsInput.value = "";
+  bulkAddSpinner.hidden = true;
+  bulkAddSaveLabel.textContent = t("bulkAddSaveBtn");
   bulkAddSaveBtn.disabled = false;
   renderCustomWords();
   renderWordList();
@@ -9085,13 +9128,15 @@ function startEditCustomWord(id) {
 }
 
 function deleteCustomWord(id) {
-  if (!confirm(t("deleteConfirm"))) return;
-  const removed = customWords.find((w) => w.id === id);
-  customWords = customWords.filter((w) => w.id !== id);
-  saveCustomWords();
-  renderCustomWords();
-  renderWordList();
-  if (removed && removed.remote) removeSharedWords([id]);
+  kidConfirm(t("deleteConfirm"), t("deleteConfirmYesBtn"), t("deleteConfirmNoBtn")).then((ok) => {
+    if (!ok) return;
+    const removed = customWords.find((w) => w.id === id);
+    customWords = customWords.filter((w) => w.id !== id);
+    saveCustomWords();
+    renderCustomWords();
+    renderWordList();
+    if (removed && removed.remote) removeSharedWords([id]);
+  });
 }
 
 // Applies a freshly fetched {definitionEn, definitionKo, example} result to a
@@ -9205,7 +9250,22 @@ function isIncompleteCustomWord(w) {
   return cwNoDefinition(w) || !w.example;
 }
 
-function renderCustomWords() {
+// Unlike updateSelectAllCheckboxState() (generic, DOM-scoped — fine for a
+// list that's entirely on the page at once), Select All here needs to
+// reflect the full filtered list, not just whichever page Load More has
+// revealed so far, or ticking it would silently miss every row that hasn't
+// been scrolled to yet.
+function updateCustomSelectAllState() {
+  const shown = visibleCustomWords(myCustomWords());
+  customSelectAllCheckbox.checked = shown.length > 0 && shown.every((w) => selectedCustomWordIds.has(w.id));
+}
+
+// resetPaging stays true for every normal re-render (a word added/edited/
+// deleted, a filter or search changed) — Load More's own click handler is
+// the one case that passes false, so clicking it doesn't immediately wipe
+// out the extra rows it just revealed.
+function renderCustomWords({ resetPaging = true } = {}) {
+  if (resetPaging) customWordsVisibleCount = CUSTOM_WORDS_PAGE_SIZE;
   // Any highlight from a previous "Incomplete words first" selection is
   // cleared on every re-render; the checkbox handler that sets it re-applies
   // it after calling this function, so it isn't wiped by its own render.
@@ -9241,7 +9301,8 @@ function renderCustomWords() {
   if (mine.length === 0) {
     customWordsEmpty.hidden = false;
     customWordsCountEl.textContent = "";
-    updateSelectAllCheckboxState(customSelectAllCheckbox, customWordsGrid);
+    customWordsLoadMoreBtn.hidden = true;
+    updateCustomSelectAllState();
     return;
   }
   customWordsEmpty.hidden = true;
@@ -9271,7 +9332,11 @@ function renderCustomWords() {
   });
 
   customWordsCountEl.textContent = t("customWordsCount", shown.length);
-  shown.forEach((w) => {
+  const pageItems = shown.slice(0, customWordsVisibleCount);
+  const remaining = shown.length - pageItems.length;
+  customWordsLoadMoreBtn.hidden = remaining <= 0;
+  if (remaining > 0) customWordsLoadMoreBtn.textContent = t("loadMoreWords", Math.min(CUSTOM_WORDS_PAGE_SIZE, remaining));
+  pageItems.forEach((w) => {
       const row = document.createElement("div");
       row.className = "wordlist-item";
 
@@ -9284,7 +9349,7 @@ function renderCustomWords() {
         else selectedCustomWordIds.delete(w.id);
         if (!suppressSelectionUpdates) {
           updateDeleteSelectedBtn();
-          updateSelectAllCheckboxState(customSelectAllCheckbox, customWordsGrid);
+          updateCustomSelectAllState();
         }
       });
       row.appendChild(checkbox);
@@ -9322,7 +9387,7 @@ function renderCustomWords() {
       const right = document.createElement("div");
       right.style.display = "flex";
       right.style.flexDirection = "column";
-      right.style.gap = "6px";
+      right.style.gap = "10px";
       right.style.alignItems = "flex-end";
 
       const badge = document.createElement("span");
@@ -9332,7 +9397,7 @@ function renderCustomWords() {
 
       const btnRow = document.createElement("div");
       btnRow.style.display = "flex";
-      btnRow.style.gap = "6px";
+      btnRow.style.gap = "10px";
 
       if (cwNoDefinition(w)) {
         const retryBtn = document.createElement("button");
@@ -9362,13 +9427,18 @@ function renderCustomWords() {
       row.appendChild(right);
       customWordsGrid.appendChild(row);
     });
-  updateSelectAllCheckboxState(customSelectAllCheckbox, customWordsGrid);
+  updateCustomSelectAllState();
 }
 
 customRetryAllBtn.addEventListener("click", retryAllFailedWords);
 customDeleteFailedBtn.addEventListener("click", deleteAllFailedWords);
 
 customSearchInput.addEventListener("input", renderCustomWords);
+
+customWordsLoadMoreBtn.addEventListener("click", () => {
+  customWordsVisibleCount += CUSTOM_WORDS_PAGE_SIZE;
+  renderCustomWords({ resetPaging: false });
+});
 
 // Bulk levels are set for the language track you're looking at; the other
 // track keeps the level that was guessed for it, the same as editing one word.
@@ -9445,13 +9515,14 @@ customDeleteSelectedBtn.addEventListener("click", () => {
 
 customSelectAllCheckbox.addEventListener("change", () => {
   if (customSelectAllCheckbox.checked) {
-    selectAllInGrid(customWordsGrid, () => {
-      updateDeleteSelectedBtn();
-      updateSelectAllCheckboxState(customSelectAllCheckbox, customWordsGrid);
-    });
+    // Selects every word in the full filtered list, not just whatever page
+    // Load More has rendered so far — see updateCustomSelectAllState().
+    visibleCustomWords(myCustomWords()).forEach((w) => selectedCustomWordIds.add(w.id));
+    updateDeleteSelectedBtn();
+    renderCustomWords({ resetPaging: false });
   } else {
     selectedCustomWordIds.clear();
-    renderCustomWords();
+    renderCustomWords({ resetPaging: false });
   }
 });
 
@@ -10098,6 +10169,8 @@ function updatePaidFeatureGates() {
 
   customWordMgmtSelect.hidden = !isAdmin;
   customExportBtn.hidden = !isAdmin;
+
+  addmodeBulkLock.hidden = !locked;
 }
 
 refreshPaidFeatureGates = updatePaidFeatureGates;
@@ -10302,6 +10375,8 @@ ocrChooseBtn.addEventListener("click", () => {
   ocrFileInput.click();
 });
 
+const OCR_MAX_FILE_BYTES = 10 * 1024 * 1024;
+
 // Picking a file only stages it — nothing is read or processed until the
 // Extract button (revealed here) is actually clicked. A tool that's
 // missing (CDN didn't load) or a fundamentally unsupported file type is
@@ -10309,8 +10384,10 @@ ocrChooseBtn.addEventListener("click", () => {
 // either. An Excel file's overwrite-or-skip choice is asked right here too,
 // before any of its rows have been read — see excelOverwriteConfirm's
 // wording, which doesn't presuppose the file actually contains a duplicate.
-ocrFileInput.addEventListener("change", (e) => {
-  const file = e.target.files && e.target.files[0];
+// Shared by both the file-input's change event and dropping a file onto
+// the dropzone — the two are just different ways of handing over the same
+// File object.
+function handleOcrFileChosen(file) {
   ocrExtractBtn.hidden = true;
   ocrPendingFile = null;
   ocrPendingKind = null;
@@ -10319,6 +10396,13 @@ ocrFileInput.addEventListener("change", (e) => {
   if (!file) {
     ocrLastFileName = null;
     ocrFileNameEl.textContent = t("ocrNoFileChosen");
+    return;
+  }
+
+  if (file.size > OCR_MAX_FILE_BYTES) {
+    ocrStatus.textContent = t("ocrFileTooLarge");
+    ocrReview.hidden = false;
+    ocrFileInput.value = "";
     return;
   }
 
@@ -10368,6 +10452,38 @@ ocrFileInput.addEventListener("change", (e) => {
   ocrPendingFile = file;
   ocrPendingKind = kind;
   ocrExtractBtn.hidden = false;
+}
+
+ocrFileInput.addEventListener("change", (e) => {
+  handleOcrFileChosen(e.target.files && e.target.files[0]);
+});
+
+// Drag-and-drop onto the dropzone — the premium-gate overlay already sits on
+// top of this whole card for a locked account, so a dropped file there never
+// reaches these listeners; canUsePaidFeatures() backstops it the same way
+// ocrChooseBtn's click handler does, in case a drop event somehow slips
+// past the overlay (e.g. a browser that fires it on a disabled ancestor).
+const ocrDropzone = document.getElementById("ocr-dropzone");
+["dragenter", "dragover"].forEach((evt) => {
+  ocrDropzone.addEventListener(evt, (e) => {
+    e.preventDefault();
+    if (!canUsePaidFeatures()) return;
+    ocrDropzone.classList.add("ocr-dropzone-active");
+  });
+});
+["dragleave", "dragend"].forEach((evt) => {
+  ocrDropzone.addEventListener(evt, () => ocrDropzone.classList.remove("ocr-dropzone-active"));
+});
+ocrDropzone.addEventListener("drop", (e) => {
+  e.preventDefault();
+  ocrDropzone.classList.remove("ocr-dropzone-active");
+  if (!canUsePaidFeatures()) {
+    promptUpgradeForFeature();
+    return;
+  }
+  const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (!file) return;
+  handleOcrFileChosen(file);
 });
 
 ocrExtractBtn.addEventListener("click", async () => {

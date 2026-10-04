@@ -136,6 +136,25 @@ header {
   position: absolute;
   top: 10px;
   right: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+/* A persistent, unmistakable marker across the whole app (not just Add
+   Word) for a server-confirmed admin session — dark/emerald so it reads as
+   "mode", distinct from every other pill's accent/primary/error coloring. */
+.admin-mode-badge {
+  background: #0d1f1a;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  font-weight: 700;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
 }
 
 .auth-toggle {
@@ -1338,6 +1357,27 @@ button.pill:disabled {
   opacity: 0.5;
   cursor: default;
   transform: none;
+}
+
+/* A small ring spinner for in-button loading states (e.g. bulk-add-save-btn
+   while the dictionary lookups run) — shown next to a swapped-in "working"
+   label, hidden the rest of the time. */
+.btn-spinner {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-top-color: #fff;
+  border-radius: 50%;
+  vertical-align: -0.15em;
+  animation: btn-spin 0.7s linear infinite;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .my-added-words-header {
@@ -3014,6 +3054,42 @@ button.speak-btn-hero.speak-btn-active {
   padding-right: 2px;
 }
 
+/* My Added Words gets its own un-trapped flow instead of .wordlist-grid's
+   shared fixed-height scrollbox — with Load More now capping how many rows
+   render at once (see renderCustomWords()), there's no need for a second,
+   inner scrollbar fighting the page's own; the list just grows with the
+   page like every other block of content. */
+#custom-words-grid {
+  max-height: none;
+  overflow: visible;
+  padding-right: 0;
+}
+
+#custom-words-load-more-btn {
+  display: block;
+  margin: 14px auto 0;
+}
+
+/* A friendlier empty state than a single muted line — the same koala the
+   rest of the app uses for encouragement, not a new illustration asset. */
+.empty-state {
+  text-align: center;
+  padding: 32px 16px;
+}
+
+.empty-state-icon {
+  font-size: 2.6rem;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.empty-state-text {
+  color: var(--muted);
+  font-size: 0.95rem;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
 .wordlist-item {
   background: #fff;
   border: 1px solid var(--outline);
@@ -3624,6 +3700,34 @@ html[lang="en"] button.kid-modal-btn {
   font-size: 0.82rem;
 }
 
+/* A dashed drop target wraps the existing choose-file row — dragging a file
+   anywhere onto it (see the dragover/drop handlers near ocr-dropzone in
+   app.js) works exactly like picking one, it's just another entry point
+   into the same handleOcrFileChosen() path. */
+.ocr-dropzone {
+  border: 2px dashed var(--outline);
+  border-radius: var(--radius);
+  padding: 14px;
+  text-align: center;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.ocr-dropzone.ocr-dropzone-active {
+  border-color: var(--accent);
+  background-color: rgba(34, 201, 163, 0.08);
+}
+
+.ocr-dropzone .file-picker-row {
+  justify-content: center;
+  margin: 0;
+}
+
+.ocr-dropzone-caption {
+  margin: 10px 0 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
 .file-picker-row {
   display: flex;
   align-items: center;
@@ -3683,8 +3787,13 @@ html[lang="en"] button.kid-modal-btn {
   background: #eef2fb;
   color: var(--primary-dark);
   border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 0.8rem;
+  /* Padding alone won't reach a 44px touch target at this font-size — the
+     explicit min-height is what actually gets it there, padding just keeps
+     the label from looking cramped inside that taller box. */
+  padding: 10px 16px;
+  min-height: 42px;
+  min-width: 42px;
+  font-size: 0.82rem;
   cursor: pointer;
   white-space: nowrap;
 }
