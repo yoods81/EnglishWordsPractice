@@ -7764,17 +7764,34 @@ html body .sp-start-row .qz-dd-btn[aria-expanded="true"]::after { margin-top: -2
 }
 .wl-selected-chip[hidden] { display: none; }
 
-#wordlist-add-deck-btn {
-  min-height: 40px;
+/* Slim controls: search box, level dropdown and the add button share one
+   ~34px height instead of the chunky default pills. */
+#view-wordlist .wordlist-filters { margin-bottom: 16px; }
+#view-wordlist .wordlist-search { padding: 4px 14px; min-height: 34px; box-sizing: border-box; }
+#view-wordlist .wordlist-level-select {
+  height: 34px;
+  min-height: 34px;
+  padding: 0 28px 0 14px;
+  line-height: 30px;
+  font-size: 0.8rem;
+  box-shadow: none;
+}
+
+#view-wordlist #wordlist-add-deck-btn {
+  min-height: 34px;
+  padding: 4px 14px;
+  font-size: 0.78rem;
+  line-height: 1.2;
   white-space: nowrap;
+  box-shadow: 0 1px 0 var(--pill-shadow);
 }
 
 .wl-toolbar + .wordlist-count { margin-top: 10px; padding-left: 15px; }
 
 @media (max-width: 440px) {
-  /* Narrow phones: the button drops to its own full-width row (big tap target). */
+  /* Narrow phones: the button wraps under "All", left-aligned with the word text. */
   #view-wordlist .wl-toolbar { grid-template-columns: 22px minmax(0, 1fr); }
-  #wordlist-add-deck-btn { grid-column: 1 / -1; width: 100%; justify-content: center; }
+  #view-wordlist #wordlist-add-deck-btn { grid-column: 2; justify-self: start; }
 }
 
 /* --- Rows: roomier for touch ---------------------------------------------- */
