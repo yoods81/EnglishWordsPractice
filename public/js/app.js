@@ -11214,7 +11214,7 @@ function koalaStudioTopHtml(k, mode) {
       <span class="koala-studio-lv">${rwL(`Lv. ${lv.level}`, `Lv. ${lv.level}`)}</span>
       <span class="koala-studio-coins" aria-label="${rwL("Koala Coins", "코알라 코인")}">${COIN_SVG} <b>${serverAdmin ? "∞" : k.coins.toLocaleString()}</b></span>
     </div>
-    <div class="koala-stage is-${mode}" id="koala-stage">${scene}</div>
+    <div class="koala-stage is-${mode}" id="koala-stage" role="button" tabindex="0" data-koala-zoom="${mode === "room" ? "room" : "koala"}" aria-label="${rwL("Tap to see it bigger", "눌러서 크게 보기")}">${scene}<span class="koala-zoom-tag" aria-hidden="true">${rwL("🔍 Bigger", "🔍 크게 보기")}</span></div>
     ${koalaTryBarHtml()}</div>
     <div class="koala-cats" role="tablist" aria-label="${rwL("Item categories", "아이템 종류")}">${cats}</div>
   </div>`;
@@ -11363,14 +11363,23 @@ function renderKoala() {
   const cat = buildBadgeCatalog();
   const badgeCount = cat.filter((b) => progress.badges[b.id]).length;
 
+  // Kid-friendly streak card: a flame that flickers once today's flame is lit, short cheerful lines, a goal bar.
+  const goal = st.nextMilestone || 0;
+  const goalPct = goal ? Math.min(100, Math.round((st.count / goal) * 100)) : 100;
+  const streakTitle = st.count > 0
+    ? rwL(`<b>${st.count}</b>-day fire streak!`, `<b>${st.count}</b>일 연속 불꽃 학습!`)
+    : rwL("Let's light your first flame!", "첫 불꽃을 켜 볼까요?");
   const streakSub = st.countedToday
-    ? rwL("✅ Today counted!", "✅ 오늘 완료!")
-    : rwL(`Answer ${st.answersToGo} more today`, `오늘 ${st.answersToGo}문제 더 풀어요`);
-  const streakNote = `${rwL(
-    `Best streak: ${st.best} ${st.best === 1 ? "day" : "days"}. A day counts when you answer ${cfg.minAnswersPerDay} questions.`,
-    `최고 연속 기록: ${st.best}일. 하루에 ${cfg.minAnswersPerDay}문제를 풀면 그날이 인정돼요.`)}
-    ${st.restAvailable ? rwL("🌙 You have a rest day this week — missing one day won't break your streak.", "🌙 이번 주에는 쉬는 날이 있어요. 하루 쉬어도 연속 기록이 끊기지 않아요.") : ""}
-    ${st.nextMilestone ? rwL(`Next streak goal: ${st.nextMilestone} days.`, `다음 목표: ${st.nextMilestone}일 연속.`) : ""}`;
+    ? rwL("✅ Today's flame is ON — great job!", "✅ 오늘의 불꽃 ON! 정말 멋져요!")
+    : rwL(`Answer ${st.answersToGo} more to light today's flame!`, `${st.answersToGo}문제만 더 풀면 오늘의 불꽃이 켜져요!`);
+  const streakGoal = goal ? `<div class="koala-streak-goal"><span class="koala-streak-goal-lbl">${rwL(`🎯 Next goal: ${st.count} / ${goal} days`, `🎯 다음 목표까지 ${st.count} / ${goal}일`)}</span>
+      <div class="koala-level-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${Math.min(st.count, goal)}"
+        aria-label="${rwL("Progress to the next streak goal", "다음 연속 목표까지")}"><span style="width:${goalPct}%"></span></div></div>` : "";
+  const streakChips = [
+    rwL(`📝 ${cfg.minAnswersPerDay} questions a day`, `📝 하루 ${cfg.minAnswersPerDay}문제`),
+    rwL(`🏅 Best: ${st.best} ${st.best === 1 ? "day" : "days"}`, `🏅 최고 ${st.best}일`),
+    st.restAvailable ? rwL("🌙 1 rest day — your flame stays on!", "🌙 쉬는 날 1번! 쉬어도 불꽃은 그대로!") : "",
+  ].filter(Boolean).map((c) => `<span class="koala-streak-chip">${c}</span>`).join("");
 
   const studio = koalaTab === "character" || koalaTab === "room";
   const heroAvatar = `<div class="koala-hero-avatar">${KoalaArt.avatar(k.items.equipped, { label: rwL("Your Koala", "나의 코알라") })}</div>`;
@@ -11379,9 +11388,11 @@ function renderKoala() {
         <div class="koala-hero-level">${rwL(`Koala Lv. ${lv.level}`, `코알라 Lv. ${lv.level}`)}</div>
         <div class="koala-level-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${lv.span}" aria-valuenow="${lv.intoLevel}"
           aria-label="${rwL("Progress to next Koala level", "다음 코알라 레벨까지")}"><span style="width:${lv.pct}%"></span></div>
-        <div class="koala-hero-next">${serverAdmin ? rwL("Admin: unlimited Coins ∞", "관리자: 코인 무제한 ∞") : rwL(`${lv.toNext} more Coins to reach Lv. ${lv.level + 1}`, `Lv. ${lv.level + 1}까지 코인 ${lv.toNext}개 남았어요`)}</div>
-        <div class="koala-hero-streak"><span class="koala-hero-streak-main"><span aria-hidden="true">🔥</span> <b>${st.count}</b> ${rwL("day streak", "일 연속")} · ${streakSub}</span>
-          <small>${streakNote}</small></div>
+        <div class="koala-hero-next">${serverAdmin ? rwL("Admin: unlimited Coins ∞", "관리자: 코인 무제한 ∞") : rwL(`🎉 Just ${lv.toNext} more Coins to reach Lv. ${lv.level + 1}!`, `🎉 Lv. ${lv.level + 1}까지 코인 ${lv.toNext}개만 더!`)}</div>
+        <div class="koala-hero-streak">
+          <div class="koala-streak-row"><span class="koala-flame${st.countedToday ? " on" : ""}" aria-hidden="true">🔥</span>
+            <div class="koala-streak-text"><div class="koala-streak-title">${streakTitle}</div><div class="koala-streak-sub">${streakSub}</div></div></div>
+          ${streakGoal}<div class="koala-streak-chips">${streakChips}</div></div>
       </div>
     </div>`;
 
@@ -11486,6 +11497,45 @@ function handleKoalaItem(id) {
   koalaSparkle();
 }
 
+// Big preview popup: tap the preview to see the koala (or the whole room) larger, then close it.
+function koalaZoomScene(view) {
+  const k = KoalaCore.ensureKoala(progress);
+  const eq = koalaPreviewEq(k);
+  return KoalaArt.room(eq, eq, {
+    label: view === "room" ? rwL("Your Koala's Study Room", "나의 코알라 공부방") : rwL("Your Koala", "나의 코알라"),
+    shadow: true,
+    view: view === "room" ? undefined : "60 78 200 137.5",
+  });
+}
+function closeKoalaZoom() {
+  const z = document.getElementById("koala-zoom");
+  if (z) z.remove();
+  document.removeEventListener("keydown", koalaZoomKey);
+}
+function koalaZoomKey(e) { if (e.key === "Escape") closeKoalaZoom(); }
+function openKoalaZoom(view) {
+  closeKoalaZoom();
+  const tryIt = koalaTry ? KoalaCore.itemById(koalaTry) : null;
+  const el = document.createElement("div");
+  el.id = "koala-zoom";
+  el.className = "koala-zoom-overlay";
+  const viewBtn = (id, label) => `<button type="button" class="koala-cat${view === id ? " on" : ""}" data-koala-zoom-view="${id}" aria-pressed="${view === id}">${label}</button>`;
+  el.innerHTML = `<div class="koala-zoom-card" role="dialog" aria-modal="true" aria-label="${rwL("Big preview", "크게 보기")}">
+    <div class="koala-zoom-head"><div class="koala-zoom-views">${viewBtn("koala", rwL("🐨 Koala", "🐨 코알라"))}${viewBtn("room", rwL("🏠 Whole room", "🏠 방 전체"))}</div>
+      <button type="button" class="koala-zoom-close" data-koala-zoom-close>${rwL("✕ Close", "✕ 닫기")}</button></div>
+    <div class="koala-zoom-stage">${koalaZoomScene(view)}</div>
+    ${tryIt ? `<div class="koala-zoom-caption">${rwL(`👀 Trying on: ${escapeHtml(koalaItemName(tryIt))}`, `👀 입어 보는 중: ${escapeHtml(koalaItemName(tryIt))}`)}</div>` : ""}</div>`;
+  el.addEventListener("click", (e) => {
+    if (e.target === el || e.target.closest("[data-koala-zoom-close]")) { closeKoalaZoom(); return; }
+    const v = e.target.closest("[data-koala-zoom-view]");
+    if (v) { openKoalaZoom(v.dataset.koalaZoomView); }
+  });
+  document.body.appendChild(el);
+  document.addEventListener("keydown", koalaZoomKey);
+  const close = el.querySelector("[data-koala-zoom-close]");
+  if (close) close.focus();
+}
+
 // Tapping a shop card changes the preview straight away:
 //   worn item      -> taken off          owned item     -> put on
 //   locked / buyable item -> tried on in the preview only (nothing is spent until "Unlock")
@@ -11512,8 +11562,13 @@ document.addEventListener("click", (e) => {
   const buy = e.target.closest("[data-koala-buy]");
   if (buy) { handleKoalaItem(buy.dataset.koalaBuy); return; }
   if (e.target.closest("[data-koala-try-clear]")) { koalaTry = null; renderKoala(); return; }
+  const zoom = e.target.closest("[data-koala-zoom]");
+  if (zoom) { openKoalaZoom(zoom.dataset.koalaZoom); return; }
   const card = e.target.closest("[data-koala-item]");
   if (card) koalaTap(card.dataset.koalaItem);
+});
+document.addEventListener("keydown", (e) => {
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("[data-koala-zoom]")) { e.preventDefault(); openKoalaZoom(e.target.dataset.koalaZoom); }
 });
 
 /* ---- Admin: Koala Coins ---- */

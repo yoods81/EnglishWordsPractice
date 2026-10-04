@@ -1778,3 +1778,8 @@ html[data-theme="ivory"] .koala-try-bar { background: #f7f4ec !important; border
 html[data-theme="ivory"] .koala-try-bar:not(.is-idle), html[data-theme="ivory"] .koala-item.is-trying { background: #f6efdc !important; border-color: #e8d4a6 !important; }
 html[data-theme="dark"] .koala-studio-preview { background: #131b19 !important; border-color: #354944 !important; }
 html[data-theme="ivory"] .koala-studio-preview { background: #fdfaf4 !important; border-color: #eee7d6 !important; }
+html[data-theme="dark"] #view-koala > .card { background: linear-gradient(180deg, #1a2f27 0%, #15251e 100%) !important; }
+html[data-theme="ivory"] #view-koala > .card { background: linear-gradient(180deg, #f6efdc 0%, #fbf6ea 100%) !important; }
+html[data-theme="dark"] .koala-streak-chip { background: #131b19 !important; }
+html[data-theme="ivory"] .koala-streak-chip { background: #fdfaf4 !important; }
+html[data-theme="dark"] .koala-zoom-stage { border-color: #354944 !important; background: #131b19 !important; }
