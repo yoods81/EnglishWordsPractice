@@ -7668,20 +7668,16 @@ html body #flash-start-screen .qz-seg-btn.on { background: linear-gradient(180de
 @keyframes fs-pop { 0%, 54% { opacity: 0; transform: scale(0.2); } 62% { opacity: 1; transform: scale(1.5) rotate(12deg); } 68%, 86% { opacity: 1; transform: scale(1); } 92%, 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .fs-scene .fs-card, .fs-scene .fs-front, .fs-scene .fs-back, .fs-scene .fs-pop { animation: none !important; } .fs-scene .fs-back { opacity: 0; } }
 html body #view-flashcards #flash-start-screen .flash-start-selects select { flex: 1 1 0; width: auto; min-width: 0; padding: 6px 28px 6px 14px; text-align: center; text-align-last: center; }
-html[data-theme] body #flash-start-screen .flash-start-selects select,
-html[data-theme] body #flash-start-screen .qz-seg-btn { background-color: rgba(255, 255, 255, 0.95) !important; color: #0b6b57 !important; border: 0 !important; }
-html[data-theme] body #flash-start-screen .qz-seg-btn.on { background: linear-gradient(180deg, #ffe066, #ffab1a) !important; color: #5a3000 !important; }
-/* Flashcards start: centre the selected value (Windows Chrome ignores text-align on native selects), keep the opened list left-aligned */
-html body #view-flashcards #flash-start-screen .flash-start-selects select {
-  -webkit-appearance: none; appearance: none;
-  height: 40px; min-height: 40px; line-height: 40px; padding: 0 30px 0 14px;
-  text-align: center; text-align-last: center; -moz-text-align-last: center;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1.5 1.5 6 6l4.5-4.5' fill='none' stroke='%230b6b57' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 12px center; background-size: 12px 8px;
-}
-html body #view-flashcards #flash-start-screen .flash-start-selects select option { text-align: left; direction: ltr; }
-
-/* front-side picker is now two buttons; the select stays in the DOM as the single source of truth */
-#flash-start-screen .flash-front-hidden { display: none !important; }
-html body #view-flashcards #flash-start-screen .flash-start-selects select { background-color: #ffffff !important; flex: 1 1 100%; }
-html body #view-flashcards #flash-start-screen .flash-start-selects select option { background-color: #ffffff; color: #0b6b57; line-height: normal; padding: 6px 10px; }
+html body #flash-start-screen .qz-seg-btn { border: 0 !important; background: rgba(255, 255, 255, 0.22) !important; color: #fff !important; box-shadow: none !important; text-shadow: 0 1px 0 rgba(8, 90, 72, 0.45); }
+html body #flash-start-screen .qz-seg-btn.on { background: #fff !important; color: #0b6b57 !important; text-shadow: none; box-shadow: 0 3px 0 rgba(8, 90, 72, 0.45) !important; }
+html body #flash-start-screen .qz-seg-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+#flash-start-screen .qz-seg .qz-seg-btn { flex: 1 1 0; min-width: 0; padding: 6px 8px; white-space: nowrap; }
+#flash-start-screen .qz-start-card { gap: 8px; }
+/* explanation scene: small, fixed, centred so Start stays on screen */
+#flash-start-screen .fs-panel { max-width: 280px; margin: 0 auto; }
+/* card flip: squeeze first, swap faces only while the card is edge-on */
+.fs-scene .fs-card { animation: fs-flip 6s ease-in-out infinite; }
+@keyframes fs-flip { 0%, 33% { transform: scaleX(1); } 40% { transform: scaleX(0); } 47%, 82% { transform: scaleX(1); } 89% { transform: scaleX(0); } 96%, 100% { transform: scaleX(1); } }
+@keyframes fs-front { 0%, 30% { opacity: 1; } 36%, 92% { opacity: 0; } 94%, 100% { opacity: 1; } }
+@keyframes fs-back { 0%, 41% { opacity: 0; } 44%, 80% { opacity: 1; } 85%, 100% { opacity: 0; } }
+@keyframes fs-pop { 0%, 52% { opacity: 0; transform: scale(0.2); } 60% { opacity: 1; transform: scale(1.5) rotate(12deg); } 66%, 80% { opacity: 1; transform: scale(1); } 86%, 100% { opacity: 0; } }

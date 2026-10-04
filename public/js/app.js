@@ -2211,6 +2211,7 @@ function updateCategoryOptionVisibility() {
     });
     if (sel.selectedOptions[0] && sel.selectedOptions[0].hidden) sel.value = "vocabulary";
   });
+  if (typeof syncFlashCategorySeg === "function") syncFlashCategorySeg();
 }
 
 /* ================= LEVEL SELECT OVERLAY ================= */
@@ -3479,6 +3480,7 @@ function buildFlashDeck() {
   // The category only applies to the generated deck, and the deck editor
   // (with its list of your cards) shows whenever "My cards" is on.
   flashCategorySel.disabled = !flashUseLevel || !!flashWrongOverride;
+  if (typeof syncFlashCategorySeg === "function") syncFlashCategorySeg();
   myDeckCard.hidden = !flashUseMine;
   syncFlashSourceSwitches();
   if (flashUseMine) renderMyDeck();
@@ -3701,6 +3703,31 @@ flashDontKnowBtn.addEventListener("click", () => {
 });
 
 flashCategorySel.addEventListener("change", buildFlashDeck);
+// Category picker as buttons (the hidden <select> stays the source of truth)
+const FLASH_CAT_ICONS = { vocabulary: "📚", synonyms: "🤝", antonyms: "↔️" };
+const flashCategorySeg = document.getElementById("flash-category-seg");
+function syncFlashCategorySeg() {
+  if (!flashCategorySeg) return;
+  flashCategorySeg.textContent = "";
+  Array.from(flashCategorySel.options).forEach((opt) => {
+    if (opt.hidden) return;
+    const b = document.createElement("button");
+    const on = opt.value === flashCategorySel.value;
+    b.type = "button";
+    b.className = "qz-seg-btn" + (on ? " on" : "");
+    b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", on ? "true" : "false");
+    b.disabled = flashCategorySel.disabled;
+    b.textContent = (FLASH_CAT_ICONS[opt.value] || "") + " " + opt.textContent.trim();
+    b.addEventListener("click", () => {
+      flashCategorySel.value = opt.value;
+      flashCategorySel.dispatchEvent(new Event("change"));
+    });
+    flashCategorySeg.appendChild(b);
+  });
+}
+flashCategorySel.addEventListener("change", syncFlashCategorySeg);
+syncFlashCategorySeg();
 flashFrontModeSel.addEventListener("change", renderFlashcard);
 document.querySelectorAll("#flash-front-seg [data-front]").forEach((btn) => {
   btn.addEventListener("click", () => {

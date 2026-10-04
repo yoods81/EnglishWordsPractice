@@ -361,16 +361,20 @@
           <div class="sp-start-floaters" aria-hidden="true"><span class="sp-fl" style="left:8%;top:8%;--c1:#ff8da1;--c2:#e8476a;--fd:-0.4s">W</span><span class="sp-fl" style="left:86%;top:12%;--c1:#7fd9a8;--c2:#2e9a6b;--fd:-1.6s">O</span><span class="sp-fl" style="left:90%;top:62%;--c1:#9fd3ff;--c2:#5b9be0;--fd:-2.2s">R</span><span class="sp-fl" style="left:6%;top:60%;--c1:#ffd36e;--c2:#f0a21a;--fd:-1.1s">D</span><span class="sp-fl-star sp-fl-star1">⭐</span><span class="sp-fl-star sp-fl-star2">✨</span></div>
           <div class="sp-start-card qz-start-card">
             <h3 data-i18n="flashcardsSectionTitle">🃏 Flashcards</h3>
-        <div class="qz-selects flash-start-selects">
+        <div class="flash-hidden-selects" hidden>
           <select id="flash-category">
             <option value="vocabulary" data-i18n="optVocabulary">Vocabulary</option>
             <option value="synonyms" data-i18n="optSynonyms">Synonyms</option>
             <option value="antonyms" data-i18n="optAntonyms">Antonyms</option>
           </select>
-          <select id="flash-front-mode" class="flash-front-hidden" tabindex="-1" aria-hidden="true" data-i18n-aria-label="flashFrontModeLabel" aria-label="Flashcard front side">
+          <select id="flash-front-mode" tabindex="-1" aria-hidden="true" data-i18n-aria-label="flashFrontModeLabel" aria-label="Flashcard front side">
             <option value="word" data-i18n="flashFrontWord">📝 Word</option>
             <option value="meaning" data-i18n="flashFrontMeaning">💡 Meaning</option>
           </select>
+        </div>
+        <div class="qz-pick">
+          <div class="qz-pick-title" data-i18n="categoryLabel">Category</div>
+          <div class="qz-seg" id="flash-category-seg" role="radiogroup" data-i18n-aria-label="categoryLabel" aria-label="Category"></div>
         </div>
         <div class="qz-pick">
           <div class="qz-pick-title" data-i18n="flashFrontTitle">🃏 Front of the card</div>
@@ -386,7 +390,7 @@
             <button type="button" class="source-btn qz-seg-btn" id="flash-source-mine" aria-pressed="false" data-i18n="flashSourceMine">⭐ My cards</button>
           </div>
         </div>
-        <div class="sp-start-panel"><svg class="sp-scene fs-scene" viewBox="0 0 300 150" role="img" aria-label="A koala holding up a flashcard that flips over to show the meaning">
+        <div class="sp-start-panel fs-panel"><svg class="sp-scene fs-scene" viewBox="0 0 300 150" role="img" aria-label="A koala holding up a flashcard that flips over to show the meaning">
           <rect x="0" y="0" width="300" height="150" rx="18" fill="#e4f7f0"/>
           <text x="262" y="22" font-size="15" class="sp-twinkle sp-tw1">✨</text>
           <text x="22" y="24" font-size="12" class="sp-twinkle sp-tw2">⭐</text>
