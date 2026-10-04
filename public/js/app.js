@@ -11266,16 +11266,22 @@ function koalaEarnHtml() {
   const day = localDateKey(new Date());
   const today = (progress.daily && progress.daily[day]) || {};
   const labels = KOALA_REASON_LABELS();
+  // A done-for-today row can't be acted on further, so it gets a quieter
+  // pastel background and its GO button turns into a disabled "Done ✓"
+  // pill — same pattern as the daily-mission row below — instead of the
+  // button just vanishing, which read as a blank space rather than
+  // "you already finished this."
+  const doneBtnHtml = () => `<button type="button" class="pill small neutral koala-earn-done" disabled>${rwL("Done ✓", "완료됨 ✓")}</button>`;
   const rows = KOALA_EARN.map((e) => {
     const lp = KoalaCore.learningProgress(e.mode, (today[e.mode] && today[e.mode][0]) || 0);
     const text = lp.capped
       ? rwL("✓ All done for today", "✓ 오늘은 다 했어요")
       : rwL(`${lp.have} / ${lp.goal} correct`, `${lp.have} / ${lp.goal} 정답`);
-    return `<li class="koala-earn-row"><span class="koala-earn-emoji" aria-hidden="true">${e.emoji}</span>
+    return `<li class="koala-earn-row${lp.capped ? " koala-earn-row--done" : ""}"><span class="koala-earn-emoji" aria-hidden="true">${e.emoji}</span>
       <span class="koala-earn-main"><span class="koala-earn-name">${labels[e.why]} <b>+${lp.coins}</b> ${COIN_SVG}</span>
       <span class="koala-level-bar" aria-hidden="true"><span style="width:${Math.round((lp.have / lp.goal) * 100)}%"></span></span>
       <small>${text}</small></span>
-      ${lp.capped ? "" : `<button type="button" class="pill small koala-earn-go" data-koala-go="${e.view}">${rwL("Go", "GO")}</button>`}</li>`;
+      ${lp.capped ? doneBtnHtml() : `<button type="button" class="pill small koala-earn-go" data-koala-go="${e.view}">${rwL("Go", "GO")}</button>`}</li>`;
   }).join("");
   const missionDone = progress.missionDone === day;
   return `<div class="koala-earn"><div class="koala-earn-title">${COIN_SVG} ${rwL("Earn more Coins", "코인 더 모으기")}</div>
@@ -11283,9 +11289,9 @@ function koalaEarnHtml() {
       `Every ${cfg.learning.correctPerReward} correct answers earn Coins (up to ${cfg.learning.dailyRewardsPerMode} times per activity each day). Wrong answers never cost Coins.`,
       `정답 ${cfg.learning.correctPerReward}개마다 코인을 받아요 (활동마다 하루 ${cfg.learning.dailyRewardsPerMode}번까지). 틀려도 코인은 줄지 않아요.`)}</p>
     <ul class="koala-earn-list">${rows}
-      <li class="koala-earn-row"><span class="koala-earn-emoji" aria-hidden="true">🎯</span><span class="koala-earn-main"><span class="koala-earn-name">${labels.dailyMission} <b>+${cfg.coins.dailyMission}</b> ${COIN_SVG}</span>
+      <li class="koala-earn-row${missionDone ? " koala-earn-row--done" : ""}"><span class="koala-earn-emoji" aria-hidden="true">🎯</span><span class="koala-earn-main"><span class="koala-earn-name">${labels.dailyMission} <b>+${cfg.coins.dailyMission}</b> ${COIN_SVG}</span>
         <small>${missionDone ? rwL("✓ Done today", "✓ 오늘 완료") : rwL("Finish all 3 mission tasks", "미션 3개를 모두 끝내요")}</small></span>
-        ${missionDone ? "" : `<button type="button" class="pill small koala-earn-go" data-koala-go="landing">${rwL("Go", "GO")}</button>`}</li>
+        ${missionDone ? doneBtnHtml() : `<button type="button" class="pill small koala-earn-go" data-koala-go="landing">${rwL("Go", "GO")}</button>`}</li>
       <li class="koala-earn-row"><span class="koala-earn-emoji" aria-hidden="true">🏆</span><span class="koala-earn-main"><span class="koala-earn-name">${labels.badge} <b>+${cfg.badgeDefault}</b> ${COIN_SVG}</span>
         <small>${rwL("Every new badge pays a bonus", "새 배지를 받을 때마다 보너스")}</small></span>
         <button type="button" class="pill small koala-earn-go" data-koala-tab="badges">${rwL("Badges", "배지")}</button></li>
