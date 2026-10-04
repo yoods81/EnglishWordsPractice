@@ -7552,3 +7552,40 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
   font-weight: 700;
   cursor: pointer;
 }
+
+/* ---- Phone quiz: "Next" is a translucent mint arrow on the right edge of the
+   question box (streaming-app style), and the footer mute button is gone. ---- */
+@media (max-width: 700px) {
+  #quiz-practice .quiz-footer .sfx-toggle { display: none; }
+
+  #view-quiz .qz-qcard { position: relative; }
+
+  #quiz-qcard > #quiz-next {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 40px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0 18px 18px 0;
+    background-color: rgba(2, 195, 154, 0.38);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 4.5l7.5 7.5L9 19.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 30px 30px;
+    box-shadow: none;
+    color: transparent;
+    font-size: 0;
+    line-height: 0;
+    animation: qz-next-in 0.25s ease-out;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #quiz-qcard > #quiz-next:active { background-color: rgba(2, 195, 154, 0.6); transform: none; }
+  #quiz-qcard > #quiz-next:focus-visible { outline: 2px solid #0e9c7d; outline-offset: -2px; }
+  /* Keep long questions from running underneath the arrow. */
+  #view-quiz .qz-qcard:has(> #quiz-next:not([style*="none"])) { padding-right: 46px; }
+}
+@keyframes qz-next-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { #quiz-qcard > #quiz-next { animation: none !important; } }
