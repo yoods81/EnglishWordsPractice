@@ -490,7 +490,8 @@ html[data-theme="dark"] .dash-eyebrow {
   color: #f4be5c !important;
 }
 html[data-theme="dark"] .dash-missed {
-  background: #281616 !important;
+  background: #33200f !important;
+  color: #ffb27a !important;
 }
 html[data-theme="dark"] .dash-due {
   background: #30291b !important;
@@ -972,7 +973,8 @@ html[data-theme="dark"] .qz-leaves {
   color: #f38200 !important;
 }
 html[data-theme="dark"] .qz-hint-btn {
-  color: #f38200 !important;
+  /* the button keeps its bright yellow/orange fill in dark mode, so it needs dark text */
+  color: #1E293B !important;
 }
 html[data-theme="dark"] .qz-hint-note {
   color: #daad53 !important;

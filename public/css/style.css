@@ -5022,7 +5022,7 @@ body.review-open { overflow: hidden; }
 .dash-words li { display: flex; align-items: center; gap: 8px; }
 .dash-words .pr-word { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .dash-chip { font-size: .72rem; border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
-.dash-missed { background: #fdeaea; color: var(--error-dark); } .dash-due { background: #fff1d6; color: #b87a0c; } .dash-learning { background: #e3f8f1; color: var(--accent-dark); }
+.dash-missed { background: #ffe4d0; color: #a63f08; font-weight: 600; } .dash-due { background: #fff1d6; color: #b87a0c; } .dash-learning { background: #e3f8f1; color: var(--accent-dark); }
 .dash-cat { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid #e3efeb; }
 .dash-cat:first-of-type { border-top: 0; }
 .dash-cat-main { flex: 1; min-width: 0; }
@@ -5427,10 +5427,14 @@ html[lang="ko"] .auth-koala-level select { flex: 0 0 auto; width: auto; white-sp
 #spelling-practice #spelling-input { flex: 1 1 auto; min-width: 0; width: auto; margin: 0; padding: 14px 12px; font-family: var(--font-heading); font-size: 1.5rem; letter-spacing: 0.04em; border-radius: 18px; text-align: center; }
 /* 4. Alphabet pad: letter chips plus a ⌫ chip of the very same size and shape
    as the last key (no separate red button floating beside them) */
-#spelling-practice .spelling-hint-tray { display: grid; grid-template-columns: repeat(var(--cols, 6), minmax(0, 42px)); justify-content: center; gap: 6px; margin: 0; }
+/* Row gap is a little larger than the column gap so the 4px "key edge" shadow under
+   each chip is cleared and the spacing looks even in both directions. */
+#spelling-practice .spelling-hint-tray { display: grid; grid-template-columns: repeat(var(--cols, 6), minmax(0, 42px)); justify-content: center; gap: 10px 6px; margin: 0; }
 #spelling-practice .sp-backspace-chip { grid-row: 2; grid-column: var(--cols, 6); }
+/* One shared box for every chip (letters and ⌫): identical size, zero padding, content centred */
 #spelling-practice .spelling-hint-tile,
-#spelling-practice .sp-backspace-chip { width: 100%; height: auto; aspect-ratio: 1 / 1; font-size: 1.15rem; border-radius: 12px; -webkit-tap-highlight-color: transparent; }
+#spelling-practice .sp-backspace-chip { box-sizing: border-box; width: 100%; height: auto; aspect-ratio: 1 / 1; padding: 0; display: inline-flex; align-items: center; justify-content: center; line-height: 1; font-size: 1.15rem; border-radius: 12px; -webkit-tap-highlight-color: transparent; }
+#spelling-practice .sp-backspace-chip svg { width: 58%; height: 58%; display: block; pointer-events: none; }
 #spelling-practice .sp-backspace-chip {
   padding: 0; display: inline-flex; align-items: center; justify-content: center;
   font-family: var(--font-heading); font-weight: 700; line-height: 1;
@@ -5457,7 +5461,7 @@ html[lang="ko"] .auth-koala-level select { flex: 0 0 auto; width: auto; white-sp
   #spelling-practice .sp-footer { gap: 6px; }
   #spelling-practice .sp-footer .score-tag { padding: 5px 10px; font-size: 0.85rem; }
   #spelling-practice #spelling-input { padding: 12px 8px; font-size: 1.3rem; }
-  #spelling-practice .spelling-hint-tray { gap: 5px; grid-template-columns: repeat(var(--cols, 6), minmax(0, 40px)); }
+  #spelling-practice .spelling-hint-tray { gap: 9px 5px; grid-template-columns: repeat(var(--cols, 6), minmax(0, 40px)); }
   #spelling-practice .spelling-hint-tile,
   #spelling-practice .sp-backspace-chip { font-size: 1.05rem; }
 }
@@ -5768,20 +5772,9 @@ html[lang="ko"] .auth-koala-level select { flex: 0 0 auto; width: auto; white-sp
 #spelling-practice.is-correct #spelling-next:not(:disabled) .lf { fill: #00A878; }
 @media (max-width: 520px) { #spelling-practice .sp-leaf-btn { width: 40px; height: 27px; } }
 
-/* ⌫ lives at the right end of the answer field */
+/* Answer field (⌫ now lives in the alphabet pad below, so the field needs no side room for it) */
 #spelling-practice .sp-input-wrap { position: relative; min-width: 0; }
-#spelling-practice .sp-input-wrap #spelling-input { width: 100%; box-sizing: border-box; padding-left: 46px; padding-right: 46px; }
-#spelling-practice .sp-erase-btn {
-  position: absolute; right: 8px; top: 50%; transform: translateY(-50%); z-index: 2;
-  width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
-  color: var(--muted); background: transparent; border: 0; border-radius: 50%;
-  cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
-}
-#spelling-practice .sp-erase-btn svg { width: 24px; height: 24px; }
-@media (hover: hover) { #spelling-practice .sp-erase-btn:hover { color: var(--accent-dark); background: #e8f7f1; } }
-#spelling-practice .sp-erase-btn:active { transform: translateY(-50%) scale(0.88); background: #d5efe6; color: var(--accent-dark); }
-#spelling-practice .sp-erase-btn:focus-visible { outline: 3px solid #ffd166; outline-offset: 1px; }
+#spelling-practice .sp-input-wrap #spelling-input { width: 100%; box-sizing: border-box; }
 
 /* slim Check button */
 #spelling-practice .sp-check-btn { width: min(100%, 260px); padding: 8px 20px; font-size: 1.2rem; letter-spacing: 0.03em; border-width: 2px; box-shadow: 0 4px 0 #b8470f, 0 8px 12px rgba(217, 89, 26, 0.28); text-shadow: 0 2px 0 rgba(168, 70, 12, 0.55); }
@@ -7307,13 +7300,7 @@ html body button.flash-speak-mini.speak-btn:active { transform: translateY(1px) 
 .scene-card .hint { color: #3f6356; text-shadow: 0 1px 0 rgba(255,255,255,.7); }
 html[data-theme="dark"] .scene-card .hint { color: #c3d3f0; text-shadow: none; }
 html[data-theme="dark"] .scene-card .view-section-title { color: #6ff0cf; }
-/* Round 8 — ⌫ as a rounded square key (arrow-in-a-box), almost the full height of the field */
 #spelling-practice .sp-input-wrap { display: flex; }
-#spelling-practice .sp-input-wrap #spelling-input { padding-left: 62px; padding-right: 62px; }
-#spelling-practice .sp-erase-btn { right: 7px; top: 7px; bottom: 7px; width: auto; height: auto; aspect-ratio: 1 / 1; transform: none; border-radius: 12px; color: #1f2a27; }
-#spelling-practice .sp-erase-btn svg { width: 100%; height: 100%; display: block; }
-@media (hover: hover) { #spelling-practice .sp-erase-btn:hover { color: var(--accent-dark); background: #e8f7f1; } }
-#spelling-practice .sp-erase-btn:active { transform: scale(0.92); }
 
 /* Spelling game: no inner white panel — the scenery of the outer card shows through */
 html body #spelling-practice.spelling-stage-box.sp-game { border: 0 !important; background: transparent !important; box-shadow: none; }
@@ -7361,11 +7348,8 @@ html body #spelling-start-screen.sp-start[hidden] { display: none !important; }
 html body #spelling-practice .sp-belly-btn { width: max(36px, calc(var(--kw) * 0.23)); top: 74%; filter: none; opacity: 0.96; }
 html body #spelling-practice .sp-belly-btn::after { inset: -2px; }
 
-/* ⌫ colour: the field's resting (pale) border colour while empty, its active teal border colour once there are letters */
-html body #spelling-practice .sp-input-wrap .sp-erase-btn { color: var(--bg); }
-html body #spelling-practice .sp-input-wrap:has(#spelling-input:not(:placeholder-shown)) .sp-erase-btn { color: var(--accent-dark); }
 @media (max-width: 520px) {
-  html body #spelling-practice .sp-input-wrap #spelling-input { padding-left: 12px; padding-right: 54px; text-overflow: ellipsis; }
+  html body #spelling-practice .sp-input-wrap #spelling-input { text-overflow: ellipsis; }
   html body #spelling-practice .sp-input-wrap #spelling-input::placeholder { font-size: 0.95rem; letter-spacing: 0; }
 }
 
@@ -7436,7 +7420,7 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
 .qz-hints-title { font-family: var(--font-heading); font-weight: 800; font-size: 0.95rem; color: #8a5400; }
 .qz-leaves { min-width: 44px; padding: 2px 10px; border: 1px solid #e0b84a; border-radius: 999px; background: #fff; text-align: center; font-size: 1rem; letter-spacing: 1px; color: #5a3000; }
 .qz-hints-btns { display: flex; flex-wrap: wrap; gap: 8px; }
-.qz-hint-btn { flex: 1 1 150px; min-height: 40px; padding: 6px 12px; border: 1px solid #c27400; border-radius: 999px; background: linear-gradient(180deg, #ffe066, #ffbf33); color: #5a3000; box-shadow: 0 3px 0 #c27400; font-family: var(--font-heading); font-weight: 800; font-size: 0.9rem; line-height: 1.15; cursor: pointer; transition: transform 0.08s ease, box-shadow 0.08s ease; }
+.qz-hint-btn { flex: 1 1 150px; min-height: 40px; padding: 6px 12px; border: 1px solid #c27400; border-radius: 999px; background: linear-gradient(180deg, #ffe066, #ffbf33); color: #1E293B; box-shadow: 0 3px 0 #c27400; font-family: var(--font-heading); font-weight: 800; font-size: 0.9rem; line-height: 1.15; cursor: pointer; transition: transform 0.08s ease, box-shadow 0.08s ease; }
 .qz-hint-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #c27400; }
 .qz-hint-btn:disabled { opacity: 0.45; box-shadow: none; cursor: not-allowed; filter: grayscale(0.4); }
 .qz-hint-note { font-size: 0.75rem; font-weight: 600; line-height: 1.3; color: #7a5a1a; }

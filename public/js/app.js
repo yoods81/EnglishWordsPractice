@@ -279,7 +279,7 @@ const TRANSLATIONS = {
     gameOverReview: "Review",
     gameOverReviewTitle: "Missed this round",
     gameOverReviewBack: "Back",
-    timesTableTipLine: "💡 Tip: Type two numbers and the answer, e.g. 8216",
+    timesTableTipLine: "💡 Type both numbers and the answer together! (e.g. 8 × 4 → 8432)",
     timesTableHelpLabel: "How to answer",
     timesTableGuideClose: "Close",
     timesTableKeypadToggle: "Number pad",
@@ -862,7 +862,7 @@ const TRANSLATIONS = {
     gameOverReview: "오답 확인",
     gameOverReviewTitle: "이번에 틀린 문제",
     gameOverReviewBack: "돌아가기",
-    timesTableTipLine: "💡 팁: 두 수와 정답을 이어서 입력하세요. 예) 8216",
+    timesTableTipLine: "💡 문제의 두 수와 정답을 붙여서 입력하세요! (예: 8 × 4 문제 → 8432)",
     timesTableHelpLabel: "입력 방법 보기",
     timesTableGuideClose: "닫기",
     timesTableKeypadToggle: "숫자 키패드",
@@ -4917,15 +4917,17 @@ const spellingFeedback = document.getElementById("spelling-feedback");
 const spellingBackBtn = document.getElementById("spelling-back");
 const spellingCheckBtn = document.getElementById("spelling-check");
 const spellingNextBtn = document.getElementById("spelling-next");
-// ⌫ lives inside the answer field (right end), like a search-box clear button.
+// ⌫ is the last chip of the alphabet pad: same size and shape as the letter
+// chips, pinned to the bottom-right cell. renderSpellingLetterHints() appends
+// it after the letter chips every time the pad is rebuilt.
 const spellingBackspaceBtn = document.createElement("button");
 spellingBackspaceBtn.type = "button";
 spellingBackspaceBtn.id = "spelling-backspace";
-spellingBackspaceBtn.className = "sp-erase-btn";
+spellingBackspaceBtn.className = "sp-backspace-chip";
 // Inline SVG rather than the ⌫ glyph: some fonts draw that character as an
-// envelope-like box, which kids read as "mail" instead of "delete".
-spellingBackspaceBtn.innerHTML = '<svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="42" height="42" rx="11"/><path d="M13 24l9-9v5.5h12v7H22V33z"/></svg>';
-spellingInput.parentElement.appendChild(spellingBackspaceBtn);
+// envelope-like box, which kids read as "mail" instead of "delete". This is the
+// standard keyboard backspace shape (pointed left end + ✕), sized by CSS.
+spellingBackspaceBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="M16.5 9.5l-5 5M11.5 9.5l5 5"/></svg>';
 const spellingScoreEl = document.getElementById("spelling-score");
 const spellingGoalSelect = document.getElementById("spelling-goal-select");
 const spellingGoalBanner = document.getElementById("spelling-goal-banner");
@@ -5330,8 +5332,11 @@ function renderSpellingLetterHints(word) {
   const eraseLabel = t("spellingBackspaceAria");
   spellingBackspaceBtn.setAttribute("aria-label", eraseLabel);
   spellingBackspaceBtn.title = eraseLabel;
-  // Two balanced rows: the grid gets ceil(chips/2) columns and ⌫ is pinned to
-  // the last column of row 2 (see .spelling-hint-tray in style.css).
+  // ⌫ joins the pad as its last chip. Two balanced rows: the grid gets
+  // ceil(chips/2) columns — counting ⌫ itself, so it never bumps a letter chip
+  // into a third row — and ⌫ is pinned to the last column of row 2
+  // (see .spelling-hint-tray in style.css).
+  spellingHintTray.appendChild(spellingBackspaceBtn);
   spellingHintTray.style.setProperty("--cols", String(Math.ceil(spellingHintTray.children.length / 2)));
   syncSpellingHintTiles(false);
 }
@@ -5358,7 +5363,10 @@ function syncSpellingHintTiles(flash = true) {
 // the chips in sync (the input handler un-lights the matching chip).
 spellingBackspaceBtn.addEventListener("click", () => {
   const v = spellingInput.value;
-  if (!v) return;
+  if (!v) {
+    spellingInput.focus({ preventScroll: true });
+    return;
+  }
   spellingInput.value = v.slice(0, -1);
   spellingInput.dispatchEvent(new Event("input"));
   spellingInput.focus();
@@ -5519,6 +5527,9 @@ function checkSpellingAnswer() {
     spellingCurrentChecked = false;
     syncSpellingState();
     spellingNextBtn.disabled = true;
+    // Clicking Check moved focus onto the button; hand it back so the child can
+    // fix the spelling straight away.
+    spellingInput.focus({ preventScroll: true });
   }
 }
 
@@ -7630,6 +7641,19 @@ timesTableInput.addEventListener("keydown", (e) => {
   e.preventDefault();
   submitTimesTableGuess();
 });
+
+// Keep the answer box focused for the whole round. Starting a round and resuming
+// already focus it; this also puts focus back when it drifts off (a tap on the
+// play area or empty space) — unless it moved to a real control such as Pause or
+// the keypad, which must keep working.
+function keepTimesTableFocus() {
+  if (!timesTableRunning || timesTableInput.disabled) return;
+  const a = document.activeElement;
+  if (a === timesTableInput) return;
+  if (a && a !== document.body && a.matches("button, a, input, select, textarea, summary, [tabindex]")) return;
+  timesTableInput.focus({ preventScroll: true });
+}
+timesTableInput.addEventListener("blur", () => setTimeout(keepTimesTableFocus, 0));
 
 /* ---------- Compact "How to answer" guide ----------
    The big always-visible guide box is gone. The full demo now lives in a small

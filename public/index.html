@@ -777,7 +777,7 @@ to Flip!</span></div>
           <!-- 2. Answer field; leaf-shaped Back / Next sit far out at the left and right edges -->
           <div class="sp-input-row">
             <button class="sp-leaf-btn sp-leaf-back" id="spelling-back" type="button" data-i18n-aria-label="spellingBackAria" aria-label="Previous word"><svg class="sp-glass-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 19l-7-7 7-7"/></svg></button>
-            <div class="sp-input-wrap"><input type="text" id="spelling-input" data-i18n-placeholder="spellingPlaceholder" placeholder="Type what you hear..." autocomplete="off" autocapitalize="off" spellcheck="false" /></div>
+            <div class="sp-input-wrap"><input type="text" id="spelling-input" data-i18n-placeholder="spellingPlaceholder" placeholder="Type what you hear..." autocomplete="off" autocapitalize="off" spellcheck="false" autofocus /></div>
             <button class="sp-leaf-btn sp-leaf-next" id="spelling-next" type="button" data-i18n-aria-label="spellingNextAria" aria-label="Next word" disabled><svg class="sp-glass-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
           </div>
           <!-- 3. Alphabet chips (1–2 rows); the ⌫ chip is appended as the last chip by JS -->
@@ -1124,9 +1124,9 @@ to Flip!</span></div>
 
         <p class="typegame-typo-msg" id="timestable-typo-msg" hidden data-i18n="timesTableTypoMsg">❌ No matching fact — try again!</p>
         <div class="tt-input-zone" id="timestable-input-zone">
-          <input type="text" id="timestable-input" class="typegame-input" inputmode="numeric" data-i18n-placeholder="timesTableInputPlaceholder" placeholder="Type here..." autocomplete="off" autocapitalize="off" spellcheck="false" disabled />
+          <input type="text" id="timestable-input" class="typegame-input" inputmode="numeric" data-i18n-placeholder="timesTableInputPlaceholder" placeholder="Type here..." autocomplete="off" autocapitalize="off" spellcheck="false" autofocus disabled />
           <p class="tt-tip">
-            <span id="timestable-tip" data-i18n="timesTableTipLine">💡 Tip: Type two numbers and the answer, e.g. 8216</span>
+            <span id="timestable-tip" data-i18n="timesTableTipLine">💡 Type both numbers and the answer together! (e.g. 8 × 4 → 8432)</span>
             <button type="button" class="tt-help-btn" id="timestable-help-btn" aria-expanded="false" aria-controls="timestable-guide" data-i18n-aria-label="timesTableHelpLabel" aria-label="How to answer">?</button>
           </p>
           <!-- "How to answer" guide: a small card under the tip line. Opens by itself on the
