@@ -3822,56 +3822,44 @@ html[lang="en"] button.kid-modal-btn {
   color: var(--muted);
 }
 
-/* A plain bouncing "drop it here" arrow + label beneath the caption — a
-   custom file+tray icon duo turned out too abstract to read as anything in
-   particular, so this spells it out in words instead of relying on iconography
-   alone. flex: 1 claims the dropzone's leftover vertical space for itself (a
-   flex-grow child absorbs all of a flex-column parent's free space before
-   justify-content ever gets a say), which is what pushes the button+caption
-   above it up near the top instead of the whole group sitting centered with
-   equal dead space above and below. */
+/* A "document with a download arrow" guide icon + label beneath the
+   caption, with the label directly under the icon. flex: 1 claims the
+   dropzone's leftover vertical space for itself (a flex-grow child absorbs
+   all of a flex-column parent's free space before justify-content ever gets
+   a say), which is what pushes the button+caption above it up near the top
+   instead of the whole group sitting centered with equal dead space above
+   and below. */
 .ocr-dropzone-anim {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   margin-top: 16px;
   min-height: 70px;
-  color: var(--accent-dark);
 }
 
-.ocr-dropzone-anim-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(14, 156, 125, 0.12);
-  animation: ocr-dropzone-arrow-bounce 1.4s ease-in-out infinite;
-}
-
-.ocr-dropzone-anim-badge svg {
-  width: 20px;
-  height: 20px;
+.ocr-dropzone-anim-icon {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+  animation: ocr-dropzone-icon-bounce 1.8s ease-in-out infinite;
 }
 
 .ocr-dropzone-anim-label {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: var(--accent-dark);
-  opacity: 0.8;
+  color: var(--muted);
 }
 
-@keyframes ocr-dropzone-arrow-bounce {
+@keyframes ocr-dropzone-icon-bounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(6px); }
+  50% { transform: translateY(5px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ocr-dropzone-anim-badge {
+  .ocr-dropzone-anim-icon {
     animation: none;
   }
 }
