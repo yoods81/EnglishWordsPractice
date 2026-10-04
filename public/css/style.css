@@ -7709,6 +7709,5 @@ html body #view-flashcards #flash-start-screen .flash-start-selects select optio
 #flash-start-screen .qz-pick-title { flex-basis: 60px; font-size: 0.78rem; }
 #flash-start-screen .qz-pick .qz-seg { gap: 4px; }
 #flash-start-screen .qz-seg .qz-seg-btn { padding: 4px 8px; font-size: 0.72rem; }
-=======
 .koala-float-wrap { position: sticky; top: 6px; z-index: 25; display: flex; justify-content: center; margin-bottom: 10px; pointer-events: none; }
 .koala-float-avatar { --fs: min(100%, 38vh, 340px); width: var(--fs); height: auto; aspect-ratio: 1 / 1; box-shadow: 0 6px 14px rgba(0, 0, 0, .18); pointer-events: auto; }
