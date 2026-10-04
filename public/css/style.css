@@ -3822,6 +3822,54 @@ html[lang="en"] button.kid-modal-btn {
   color: var(--muted);
 }
 
+/* A small looping "file drops into the tray" guide beneath the caption.
+   flex: 1 claims the dropzone's leftover vertical space for itself (a
+   flex-grow child absorbs all of a flex-column parent's free space before
+   justify-content ever gets a say), which is what pushes the button+caption
+   above it up near the top instead of the whole group sitting centered with
+   equal dead space above and below. */
+.ocr-dropzone-anim {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 16px;
+  min-height: 70px;
+  color: var(--accent-dark);
+  opacity: 0.5;
+}
+
+.ocr-dropzone-anim-file {
+  width: 36px;
+  height: 36px;
+  animation: ocr-dropzone-file-drop 2s ease-in-out infinite;
+}
+
+.ocr-dropzone-anim-tray {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+}
+
+/* Falls from above the tray down into its opening, fades out right as it
+   lands, then resets (invisible) and fades back in at the start position —
+   reads as a steady stream of files dropping in, one at a time. */
+@keyframes ocr-dropzone-file-drop {
+  0% { transform: translateY(-16px); opacity: 1; }
+  45% { transform: translateY(8px); opacity: 1; }
+  55% { transform: translateY(10px); opacity: 0; }
+  56% { transform: translateY(-16px); opacity: 0; }
+  100% { transform: translateY(-16px); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ocr-dropzone-anim-file {
+    animation: none;
+    transform: translateY(-4px);
+  }
+}
+
 .file-picker-row {
   display: flex;
   align-items: center;
