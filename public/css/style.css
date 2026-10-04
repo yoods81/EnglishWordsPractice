@@ -5386,19 +5386,11 @@ html[lang="ko"] .auth-koala-level select { flex: 0 0 auto; width: auto; white-sp
 @keyframes combo-pop-in { 0% { opacity: 0; transform: translateX(-50%) scale(.4); } 18% { opacity: 1; transform: translateX(-50%) scale(1.18); } 32% { transform: translateX(-50%) scale(1); } 80% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } 100% { opacity: 0; transform: translateX(-50%) translateY(-26px) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .combo-pop { animation: combo-fade 1s linear forwards; } @keyframes combo-fade { 0%, 80% { opacity: 1; } 100% { opacity: 0; } } }
 
-/* ---- My Koala: the preview stays pinned while the shop scrolls ---- */
-.koala-view .koala-hero { position: sticky; top: 6px; z-index: 30; box-shadow: 0 6px 14px rgba(0, 0, 0, .12); transition: padding .15s; }
-.koala-view.is-room .koala-hero { position: static; box-shadow: none; }
+/* ---- My Koala: only the preview floats (fixed size, never changes while scrolling) ---- */
 .koala-view.is-room .koala-room { position: sticky; top: 6px; z-index: 25; max-height: 38vh; display: flex; justify-content: center; box-shadow: 0 6px 14px rgba(0, 0, 0, .12); background: var(--card-bg); }
 .koala-view.is-room .koala-room > svg.koala-room-svg { width: min(100%, calc(38vh * 320 / 220)); height: auto; aspect-ratio: 320 / 220; }
-.koala-view.is-scrolled .koala-hero { padding: 6px 10px; gap: 10px; }
-.koala-view.is-scrolled .koala-hero-avatar { width: 60px; height: 62px; border-radius: 16px; border-width: 2px; }
-.koala-view.is-scrolled .koala-hero-next, .koala-view.is-scrolled .koala-hero-streak small { display: none; }
-.koala-view.is-scrolled .koala-hero-streak { margin-top: 2px; padding-top: 2px; border: 0; }
-.koala-view.is-scrolled .koala-hero-level { font-size: 1rem; }
 
-/* =====================================================================
-   Spelling game — layout refactor (top to bottom, one calm column)
+/* ==============================================================   Spelling game — layout refactor (top to bottom, one calm column)
      1. progress   "Word 1 of 10" + leaf bar        (.sp-header)
         koala coach, small and centred              (.sp-left)
      2. mascot     big koala, 🔊 belly patch, speech bubble (.sp-koala-wrap)
@@ -7717,3 +7709,6 @@ html body #view-flashcards #flash-start-screen .flash-start-selects select optio
 #flash-start-screen .qz-pick-title { flex-basis: 60px; font-size: 0.78rem; }
 #flash-start-screen .qz-pick .qz-seg { gap: 4px; }
 #flash-start-screen .qz-seg .qz-seg-btn { padding: 4px 8px; font-size: 0.72rem; }
+=======
+.koala-float-wrap { position: sticky; top: 6px; z-index: 25; display: flex; justify-content: center; margin-bottom: 10px; pointer-events: none; }
+.koala-float-avatar { --fs: min(100%, 38vh, 340px); width: var(--fs); height: auto; aspect-ratio: 1 / 1; box-shadow: 0 6px 14px rgba(0, 0, 0, .18); pointer-events: auto; }

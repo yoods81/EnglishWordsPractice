@@ -10857,7 +10857,7 @@ function buildBadgeCatalog() {
       desc: rwL("Practise 14 days in a row", "14일 연속 학습"), test: () => (progress.streak.count || 0) >= 14 },
     { id: "mission7", emoji: "🎯", group: "habit", name: rwL("Mission Master", "미션 마스터"),
       desc: rwL("Complete Today's Mission 7 times", "오늘의 미션을 7번 완료"), test: () => (progress.counters.missions || 0) >= 7 },
-    { id: "coins500", emoji: "🪙", group: "koala", name: rwL("Coin Collector", "코인 수집가"),
+    { id: "coins500", emoji: "💰", group: "koala", name: rwL("Coin Collector", "코인 수집가"),
       desc: rwL("Earn 500 Koala Coins in total", "코알라 코인을 모두 500개 모아요"), test: () => KoalaCore.ensureKoala(progress).earned >= 500 },
     { id: "level5", emoji: "⭐", group: "koala", name: rwL("Level 5 Koala", "레벨 5 코알라"),
       desc: rwL("Reach Koala Level 5", "코알라 레벨 5 달성"), test: () => KoalaCore.levelInfo(KoalaCore.ensureKoala(progress).earned).level >= 5 },
@@ -11112,12 +11112,6 @@ function koalaUpdateRows(root) {
 }
 document.addEventListener("scroll", (e) => { if (e.target.classList && e.target.classList.contains("koala-row-track")) koalaUpdateRows(e.target.closest(".koala-view") || document); }, true);
 window.addEventListener("resize", () => koalaUpdateRows());
-// The Koala preview stays pinned while the shop scrolls; once the child has
-// scrolled down it shrinks to a compact bar so the items keep the space.
-window.addEventListener("scroll", () => {
-  const view = document.querySelector("#koala-body .koala-view");
-  if (view) view.classList.toggle("is-scrolled", view.getBoundingClientRect().top < -70);
-}, { passive: true });
 
 
 function koalaNextRewardHtml(kind) {
@@ -11271,8 +11265,8 @@ function renderKoala() {
     ${st.restAvailable ? rwL("🌙 You have a rest day this week — missing one day won't break your streak.", "🌙 이번 주에는 쉬는 날이 있어요. 하루 쉬어도 연속 기록이 끊기지 않아요.") : ""}
     ${st.nextMilestone ? rwL(`Next streak goal: ${st.nextMilestone} days.`, `다음 목표: ${st.nextMilestone}일 연속.`) : ""}`;
 
-  const hero = `<div class="koala-hero">
-      <div class="koala-hero-avatar">${KoalaArt.avatar(k.items.equipped, { label: rwL("Your Koala", "나의 코알라") })}</div>
+  const heroAvatar = `<div class="koala-hero-avatar">${KoalaArt.avatar(k.items.equipped, { label: rwL("Your Koala", "나의 코알라") })}</div>`;
+  const hero = `<div class="koala-hero">${koalaTab === "character" ? "" : heroAvatar}
       <div class="koala-hero-main">
         <div class="koala-hero-level">${rwL(`Koala Lv. ${lv.level}`, `코알라 Lv. ${lv.level}`)}</div>
         <div class="koala-level-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${lv.span}" aria-valuenow="${lv.intoLevel}"
@@ -11286,7 +11280,7 @@ function renderKoala() {
   const tabDefs = [
     ["character", rwL("🐨 Character", "🐨 캐릭터")],
     ["room", rwL("🏠 Room", "🏠 방")],
-    ["coins", rwL("🪙 Coins", "🪙 코인")],
+    ["coins", rwL(COIN_SVG + " Coins", COIN_SVG + " 코인")],
     ["badges", rwL("🏆 Badges", "🏆 배지")],
   ];
   const tabs = `<div class="stats-tabs koala-tabs" role="tablist">${tabDefs.map(([id, label]) =>
@@ -11298,7 +11292,9 @@ function renderKoala() {
       <div class="koala-level-bar" aria-hidden="true"><span style="width:${badgePct}%"></span></div></div></div>${badgeGridHtml()}`;
   const panel = koalaTab === "badges" ? badgesPanel : koalaTab === "room" ? koalaRoomHtml() : koalaTab === "coins" ? koalaCoinsHtml(k) : koalaCharacterHtml();
 
-  box.innerHTML = `<div class="koala-view${koalaTab === "room" ? " is-room" : ""}">${hero}${tabs}<div class="koala-panel">${panel}</div></div>`;
+  const floatAvatar = koalaTab === "character"
+    ? `<div class="koala-float-wrap"><div class="koala-hero-avatar koala-float-avatar">${KoalaArt.avatar(k.items.equipped, { label: rwL("Your Koala", "나의 코알라") })}</div></div>` : "";
+  box.innerHTML = `<div class="koala-view${koalaTab === "room" ? " is-room" : ""}">${hero}${tabs}${floatAvatar}<div class="koala-panel">${panel}</div></div>`;
   koalaUpdateRows(box);
   requestAnimationFrame(() => koalaUpdateRows(box));
 }
