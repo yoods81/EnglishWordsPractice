@@ -504,26 +504,6 @@ to Flip!</span></div>
     <section id="view-quiz" class="view">
       <div class="card">
         <h3 class="view-section-title" data-i18n="quizSectionTitle">💡 Quiz</h3>
-        <div class="setting-row">
-          <label for="quiz-category" data-i18n="categoryLabel">Category</label>
-          <select id="quiz-category">
-            <option value="vocabulary" data-i18n="optVocabulary">Vocabulary</option>
-            <option value="meaning" data-i18n="optMeaning">Word → Meaning</option>
-            <option value="fillblank" data-i18n="optFillBlank">Fill in the Blank</option>
-            <option value="listening" data-i18n="optListening">Listen &amp; Choose</option>
-            <option value="synonyms" data-i18n="optSynonyms">Synonyms &amp; Antonyms</option>
-            <option value="homophones" data-i18n="optHomophones">Homophones</option>
-          </select>
-          <div class="goal-stepper goal-stepper-fun" id="quiz-goal-stepper">
-            <span class="goal-stepper-label" data-i18n="goalLabel">Number of Questions</span>
-            <button type="button" class="goal-step-btn" id="quiz-goal-minus" data-i18n-aria-label="goalDecreaseLabel" aria-label="Decrease">−</button>
-            <span class="goal-stepper-value-wrap">
-              <span class="goal-stepper-icon" aria-hidden="true">🎯</span>
-              <span class="goal-stepper-value" id="quiz-goal-value">10</span>
-            </span>
-            <button type="button" class="goal-step-btn" id="quiz-goal-plus" data-i18n-aria-label="goalIncreaseLabel" aria-label="Increase">+</button>
-          </div>
-        </div>
         <div class="goal-banner" id="quiz-goal-banner" hidden>
           <p class="goal-message" id="quiz-goal-message"></p>
           <div class="goal-actions">
@@ -537,7 +517,17 @@ to Flip!</span></div>
           <div class="sp-start-floaters" aria-hidden="true"><span class="sp-fl" style="left:8%;top:8%;--c1:#ff8da1;--c2:#e8476a;--fd:-0.4s">A</span><span class="sp-fl" style="left:86%;top:12%;--c1:#7fd9a8;--c2:#2e9a6b;--fd:-1.6s">B</span><span class="sp-fl" style="left:90%;top:62%;--c1:#9fd3ff;--c2:#5b9be0;--fd:-2.2s">C</span><span class="sp-fl" style="left:6%;top:60%;--c1:#ffd36e;--c2:#f0a21a;--fd:-1.1s">D</span><span class="sp-fl-star sp-fl-star1">⭐</span><span class="sp-fl-star sp-fl-star2">✨</span></div>
           <div class="sp-start-card qz-start-card">
             <h3 data-i18n="qzStartTitle">💡 Quiz</h3>
-            <div class="tg-start-chips" id="quiz-start-chips"></div>
+            <div class="qz-selects">
+              <select id="quiz-category" data-i18n-aria-label="categoryLabel" aria-label="Category">
+            <option value="vocabulary" data-i18n="optVocabulary">Vocabulary</option>
+            <option value="meaning" data-i18n="optMeaning">Word → Meaning</option>
+            <option value="fillblank" data-i18n="optFillBlank">Fill in the Blank</option>
+            <option value="listening" data-i18n="optListening">Listen &amp; Choose</option>
+            <option value="synonyms" data-i18n="optSynonyms">Synonyms &amp; Antonyms</option>
+            <option value="homophones" data-i18n="optHomophones">Homophones</option>
+              </select>
+              <select id="quiz-goal-select" data-i18n-aria-label="goalLabel" aria-label="Number of Questions"></select>
+            </div>
             <div class="qz-pick">
               <div class="qz-pick-title" data-i18n="qzLevelTitle">📚 Difficulty</div>
               <div class="qz-seg" id="quiz-level-seg" role="radiogroup" data-i18n-aria-label="qzLevelTitle" aria-label="Difficulty"></div>

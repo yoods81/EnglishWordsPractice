@@ -7606,3 +7606,13 @@ html body #flash-practice .flash-end-row #flash-end:active { transform: translat
   html body #quiz-practice .quiz-footer .qz-end-btn,
   html body #flash-practice .flash-end-row #flash-end { padding: 5px 10px; font-size: 0.75rem; }
 }
+
+/* Quiz start card: category + number-of-questions dropdowns (no labels). */
+.qz-selects { width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.qz-selects select {
+  flex: 1 1 150px; min-width: 0; max-width: 100%; min-height: 38px; padding: 6px 30px 6px 14px;
+  border: 0; border-radius: 999px; background-color: rgba(255, 255, 255, 0.95); color: #0b6b57;
+  font-family: var(--font-heading); font-weight: 700; font-size: 0.9rem; line-height: 1.1;
+  box-shadow: 0 3px 0 rgba(8, 90, 72, 0.45); cursor: pointer; text-overflow: ellipsis;
+}
+.qz-selects select:focus-visible { outline: 3px solid #ffe066; outline-offset: 2px; }

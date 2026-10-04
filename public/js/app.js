@@ -315,6 +315,7 @@ const TRANSLATIONS = {
     ttsHelpMsgIos: "🔇 Can't hear the word? Turn silent mode off (the switch on the side), turn the volume up, then try again.",
     ttsHelpOk: "Got it",
     qzChipQuestions: (n) => `🎯 ${n} questions`,
+    qzGoalMore: "🔒 More questions…",
     qzChipTime: "⏱ Time Attack",
     qzDailyLine: (have, goal) => `🎯 Today: ${have} / ${goal} questions`,
     qzDailyDone: "🎉 Daily goal reached!",
@@ -894,6 +895,7 @@ const TRANSLATIONS = {
     ttsHelpMsgIos: "🔇 단어 소리가 안 나나요? 무음 모드(옆면 스위치)를 끄고 볼륨을 올린 뒤 다시 시도해 주세요.",
     ttsHelpOk: "확인",
     qzChipQuestions: (n) => `🎯 ${n}문제`,
+    qzGoalMore: "🔒 더 많은 문제…",
     qzChipTime: "⏱ 타임어택",
     qzDailyLine: (have, goal) => `🎯 오늘: ${have} / ${goal}문제`,
     qzDailyDone: "🎉 오늘의 목표 달성!",
@@ -1702,10 +1704,43 @@ function updateSpellingStartChips() {
   gl.textContent = `🎯 ${goals.spelling} ${currentLang === "ko" ? "단어" : "words"}`;
 }
 
+// The quiz's "Number of Questions" is a dropdown inside the start card (the
+// spelling one is still a − / + stepper). It offers 5, 10, 15 ... up to what
+// this account's tier and the current category/level can actually supply.
+// Signed-out and free accounts also get a final "More questions…" entry when
+// the pool holds more than their ceiling; picking it opens the same
+// sign-up / upgrade nudge the old "+" button did.
+function renderQuizGoalSelect() {
+  const poolMax = goalPoolSize("quiz");
+  const roleMax = goalMaxFor();
+  const hasUpsellAbove = !currentUser || currentUser.role === "free";
+  const limit = Math.min(roleMax, poolMax);
+  const values = new Set();
+  for (let n = GOAL_MIN; n <= limit; n += GOAL_STEP) values.add(n);
+  if (limit > 0 && limit % GOAL_STEP !== 0 && limit <= poolMax) values.add(limit); // "all there is"
+  if (goals.quiz > 0) values.add(goals.quiz); // never drop the value that is in effect
+  const sorted = [...values].sort((a, b) => a - b);
+  quizGoalSelect.innerHTML = "";
+  sorted.forEach((n) => {
+    const o = document.createElement("option");
+    o.value = String(n);
+    o.textContent = t("qzChipQuestions", n);
+    quizGoalSelect.appendChild(o);
+  });
+  if (hasUpsellAbove && poolMax > roleMax) {
+    const o = document.createElement("option");
+    o.value = "more";
+    o.textContent = t("qzGoalMore");
+    quizGoalSelect.appendChild(o);
+  }
+  quizGoalSelect.value = String(goals.quiz);
+}
+
 function renderGoalStepper(mode) {
-  const valueEl = mode === "quiz" ? quizGoalValueEl : spellingGoalValueEl;
-  const minusBtn = mode === "quiz" ? quizGoalMinusBtn : spellingGoalMinusBtn;
-  const plusBtn = mode === "quiz" ? quizGoalPlusBtn : spellingGoalPlusBtn;
+  if (mode === "quiz") { renderQuizGoalSelect(); return; }
+  const valueEl = spellingGoalValueEl;
+  const minusBtn = spellingGoalMinusBtn;
+  const plusBtn = spellingGoalPlusBtn;
   const changed = goalStepperLastValue[mode] !== null && goalStepperLastValue[mode] !== goals[mode];
   valueEl.textContent = String(goals[mode]);
   if (changed) pulseScoreTag(valueEl, "option-btn-bounce");
@@ -3877,9 +3912,7 @@ myDeckClearBtn.addEventListener("click", () => {
 /* ================= QUIZ ================= */
 const quizCategorySel = document.getElementById("quiz-category");
 const quizEndBtn = document.getElementById("quiz-end");
-const quizGoalValueEl = document.getElementById("quiz-goal-value");
-const quizGoalMinusBtn = document.getElementById("quiz-goal-minus");
-const quizGoalPlusBtn = document.getElementById("quiz-goal-plus");
+const quizGoalSelect = document.getElementById("quiz-goal-select");
 const quizGoalBanner = document.getElementById("quiz-goal-banner");
 const quizGoalMessage = document.getElementById("quiz-goal-message");
 const quizGoalNextLevelBtn = document.getElementById("quiz-goal-next-level");
@@ -3950,7 +3983,6 @@ const quizStartScreen = document.getElementById("quiz-start-screen");
 const quizPractice = document.getElementById("quiz-practice");
 const quizResultEl = document.getElementById("quiz-result");
 const quizStartBtn = document.getElementById("quiz-start-btn");
-const quizStartChipsEl = document.getElementById("quiz-start-chips");
 const quizLevelSeg = document.getElementById("quiz-level-seg");
 const quizModeSeg = document.getElementById("quiz-mode-seg");
 const quizModeNote = document.getElementById("quiz-mode-note");
@@ -4058,10 +4090,7 @@ function renderQuizStart() {
     ? t("qzModeNoteTime", QuizCore.TIME_LIMITS_SEC.choice, QuizCore.TIME_LIMITS_SEC.typing)
     : t("qzModeNoteRelaxed");
 
-  const catOpt = quizCategorySel.selectedOptions[0];
-  const chips = [`📚 ${levelLabel(currentLevel)}`, catOpt ? catOpt.textContent : "", t("qzChipQuestions", goals.quiz)];
-  if (quizMode === "time") chips.push(t("qzChipTime"));
-  quizStartChipsEl.innerHTML = chips.filter(Boolean).map((c) => `<span class="tg-start-chip">${escapeHtml(c)}</span>`).join("");
+  renderQuizGoalSelect();
 
   const daily = QuizCore.dailyGoalState(answersToday());
   quizStartDaily.textContent = daily.done ? t("qzDailyDone") : t("qzDailyLine", daily.have, daily.goal);
@@ -4721,25 +4750,16 @@ quizEndBtn.addEventListener("click", () => {
 });
 quizCategorySel.addEventListener("change", buildQuizQuestions);
 
-quizGoalMinusBtn.addEventListener("click", () => {
-  goals.quiz = Math.max(GOAL_MIN, goals.quiz - GOAL_STEP);
-  saveGoals();
-  renderGoalStepper("quiz");
-  buildQuizQuestions();
-});
-
-quizGoalPlusBtn.addEventListener("click", () => {
-  const poolMax = quizPoolSizeForCurrentCategory();
-  if (goals.quiz >= poolMax) return; // no more questions available at all, regardless of tier
-  if (!currentUser && goals.quiz >= GOAL_MAX_ANONYMOUS) {
-    promptSignupForMoreQuestions();
+quizGoalSelect.addEventListener("change", () => {
+  if (quizGoalSelect.value === "more") {
+    quizGoalSelect.value = String(goals.quiz); // nothing changes; just the nudge
+    if (!currentUser) promptSignupForMoreQuestions();
+    else if (currentUser.role === "free") openUpgradeOverlay();
     return;
   }
-  if (currentUser && currentUser.role === "free" && goals.quiz >= GOAL_MAX_FREE) {
-    openUpgradeOverlay();
-    return;
-  }
-  goals.quiz = Math.min(goalMaxFor(), poolMax, goals.quiz + GOAL_STEP);
+  const n = parseInt(quizGoalSelect.value, 10);
+  if (!(n > 0)) return;
+  goals.quiz = n;
   saveGoals();
   renderGoalStepper("quiz");
   buildQuizQuestions();
