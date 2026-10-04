@@ -11049,13 +11049,23 @@ function badgeGridHtml() {
   html += `<p class="badge-summary">${rwL(`Collected ${got} of ${cat.length} koala badges`, `코알라 배지 ${cat.length}개 중 ${got}개 모았어요`)}</p>`;
   groups.forEach(([g, title]) => {
     html += `<h4 class="badge-group-title">${title}</h4><div class="badge-grid">`;
-    cat.filter((b) => b.group === g).forEach((b) => {
+    cat.filter((b) => b.group === g).forEach((b, i) => {
       const on = signedIn && !!progress.badges[b.id];
       const premiumNote = b.paidOnly && !paid ? `<div class="badge-desc badge-premium">${rwL("Premium", "프리미엄")}</div>` : "";
-      html += `<div class="badge-card ${on ? "earned" : "locked"}" title="${escapeHtml(b.desc)}">
-        <div class="badge-medal"><span class="badge-koala">${b.emoji}</span><span class="badge-sticker">${on ? "🐨" : "🔒"}</span></div>
-        <div class="badge-name">${escapeHtml(b.name)}</div>
-        <div class="badge-desc">${escapeHtml(b.desc)}</div>${on ? "" : premiumNote}</div>`;
+      if (on) {
+        // Earned: full colour + a soft glow / shine (staggered so they don't all pulse together).
+        html += `<div class="badge-card earned" style="--badge-delay:${(i % 5) * 0.45}s" title="${escapeHtml(b.desc)}">
+          <div class="badge-medal-wrap"><div class="badge-medal"><span class="badge-koala">${b.emoji}</span></div><span class="badge-sticker" aria-hidden="true">🐨</span></div>
+          <div class="badge-name">${escapeHtml(b.name)}</div>
+          <div class="badge-desc">${escapeHtml(b.desc)}</div></div>`;
+      } else {
+        // Locked: the medal itself turns into a faded grey silhouette with a tiny
+        // padlock patch on top; tapping the card opens the unlock-condition tooltip.
+        html += `<div class="badge-card locked" role="button" tabindex="0" data-badge-id="${escapeHtml(b.id)}" aria-label="${escapeHtml(b.name)} — ${rwL("locked, tap to see how to unlock", "잠김, 눌러서 해금 조건 보기")}">
+          <div class="badge-medal-wrap"><div class="badge-medal"><span class="badge-koala">${b.emoji}</span></div><span class="badge-lock-patch" aria-hidden="true">🔒</span></div>
+          <div class="badge-name">${escapeHtml(b.name)}</div>
+          <div class="badge-desc">${escapeHtml(b.desc)}</div>${premiumNote}</div>`;
+      }
     });
     html += `</div>`;
   });
@@ -11063,8 +11073,71 @@ function badgeGridHtml() {
 }
 
 function renderBadgePanel() {
+  hideBadgeTip();
   statsPanels.badges.innerHTML = badgeGridHtml();
 }
+
+/* ---- Locked-badge tooltip: tap a locked badge to see its name + how to unlock it ---- */
+let badgeTipEl = null;
+let badgeTipOwner = null; // the .badge-card the tooltip currently points at
+
+function hideBadgeTip() {
+  if (badgeTipEl) { badgeTipEl.remove(); badgeTipEl = null; }
+  if (badgeTipOwner) { badgeTipOwner.classList.remove("tip-open"); badgeTipOwner.removeAttribute("aria-describedby"); badgeTipOwner = null; }
+}
+
+function showBadgeTip(card) {
+  const b = buildBadgeCatalog().find((x) => x.id === card.dataset.badgeId);
+  if (!b) return;
+  hideBadgeTip();
+  const premiumOnly = b.paidOnly && !canUsePaidFeatures();
+  const tip = document.createElement("div");
+  tip.className = "badge-tip";
+  tip.id = "badge-tip";
+  tip.setAttribute("role", "tooltip");
+  tip.innerHTML = `<div class="badge-tip-name"><span aria-hidden="true">${b.emoji}</span> ${escapeHtml(b.name)}</div>
+    <div class="badge-tip-label">${rwL("🎯 How to unlock", "🎯 해금 조건")}</div>
+    <div class="badge-tip-desc">${escapeHtml(b.desc)}</div>
+    ${premiumOnly ? `<div class="badge-tip-premium">${rwL("Premium members only", "프리미엄 회원 전용 배지예요")}</div>` : ""}
+    <span class="badge-tip-arrow" aria-hidden="true"></span>`;
+  document.body.appendChild(tip);
+
+  // Position above the card (or below if there's no room), clamped to the viewport.
+  const r = card.getBoundingClientRect();
+  const tw = tip.offsetWidth, th = tip.offsetHeight, margin = 8;
+  let left = r.left + r.width / 2 - tw / 2;
+  left = Math.max(margin, Math.min(left, window.innerWidth - tw - margin));
+  const above = r.top - th - 12 >= margin;
+  const top = above ? r.top - th - 12 : Math.min(r.bottom + 12, window.innerHeight - th - margin);
+  tip.classList.toggle("below", !above);
+  tip.style.left = `${Math.round(left)}px`;
+  tip.style.top = `${Math.round(top)}px`;
+  tip.style.setProperty("--arrow-x", `${Math.round(Math.max(18, Math.min(r.left + r.width / 2 - left, tw - 18)))}px`);
+
+  card.classList.add("tip-open");
+  card.setAttribute("aria-describedby", "badge-tip");
+  badgeTipEl = tip;
+  badgeTipOwner = card;
+}
+
+document.addEventListener("click", (e) => {
+  const card = e.target.closest(".badge-card.locked");
+  if (card) {
+    if (card === badgeTipOwner) hideBadgeTip(); else showBadgeTip(card);
+    return;
+  }
+  if (badgeTipEl && !e.target.closest("#badge-tip")) hideBadgeTip();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") { hideBadgeTip(); return; }
+  if ((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("badge-card") && e.target.classList.contains("locked")) {
+    e.preventDefault();
+    if (e.target === badgeTipOwner) hideBadgeTip(); else showBadgeTip(e.target);
+  }
+});
+// The tooltip is positioned in viewport coordinates, so close it when the page moves under it.
+window.addEventListener("scroll", hideBadgeTip, { passive: true, capture: true });
+window.addEventListener("resize", hideBadgeTip);
 
 /* ================= MY KOALA (reward hub — Phase 1 foundation + Phase 2 character) ================= */
 // Everything the child has earned lives here: Koala level, Koala Coins,

@@ -283,6 +283,14 @@ html[data-theme="dark"] .badge-card.locked .badge-medal {
   background: #1e2926 !important;
   border-color: #49655e !important;
 }
+html[data-theme="dark"] .badge-lock-patch {
+  background: #131b19 !important;
+  border-color: #49655e !important;
+  box-shadow: 0 2px 0 #49655e, 0 3px 6px rgba(0,0,0,.5) !important;
+}
+html[data-theme="dark"] .badge-tip {
+  background: #131b19 !important;
+}
 html[data-theme="dark"] .badge-toast {
   background: #131b19 !important;
 }
@@ -1220,6 +1228,12 @@ html[data-theme="ivory"] .badge-sticker {
 }
 html[data-theme="ivory"] .badge-card.locked .badge-medal {
   background: #f2ecde !important;
+}
+html[data-theme="ivory"] .badge-lock-patch {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .badge-tip {
+  background: #fdfaf4 !important;
 }
 html[data-theme="ivory"] .badge-toast {
   background: #fdfaf4 !important;
