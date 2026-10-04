@@ -5290,7 +5290,8 @@ body.signed-in .stat-bar { display: none; }
 /* Korean: the level row sits at the left edge, and the dropdown is wide enough
    that long grade names such as "초등학교 6학년" stay on a single line. */
 html[lang="ko"] .auth-menu label.auth-koala-level { justify-content: flex-start; }
-html[lang="ko"] .auth-koala-level select { flex: 0 0 150px; width: 150px; white-space: nowrap; }
+html[lang="ko"] .auth-koala-level > span { flex: 0 0 auto; white-space: nowrap; }
+html[lang="ko"] .auth-koala-level select { flex: 0 0 auto; width: auto; white-space: nowrap; }
 
 /* Phase 6: polish */
 .koala-item-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; color: #b45309; background: #fff3c4; border: 1px solid #f0d28a; border-radius: 999px; padding: 0 7px; margin-top: 2px; }
