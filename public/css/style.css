@@ -7938,3 +7938,25 @@ html body .sp-start-row .qz-dd-btn[aria-expanded="true"]::after { margin-top: -2
 /* Badges sit inside the picture (they were clipped by the card edge); locked state shows in the status line. */
 .koala-grid .koala-item-badge { right: 4px; bottom: 4px; font-size: .75rem; }
 .koala-grid .koala-item-badge.season { right: auto; left: 4px; top: 4px; bottom: auto; }
+
+/* Wide screens: left/right split — preview stays on the left, the whole shop fills the right. */
+@media (min-width: 720px) {
+  .koala-studio { display: grid; grid-template-columns: minmax(280px, 330px) minmax(0, 1fr); column-gap: 16px; align-items: start; }
+  .koala-studio-top { display: contents; }
+  .koala-studio-preview { grid-column: 1; grid-row: 1 / span 99; position: sticky; top: 6px; z-index: 25; align-self: start; background: var(--card-bg); border: 2px solid var(--outline, #cfe7df); border-radius: 18px; padding: 6px 8px 4px; box-shadow: 0 6px 14px rgba(0, 0, 0, .12); }
+  .koala-studio > :not(.koala-studio-top), .koala-studio-top > .koala-cats { grid-column: 2; }
+  .koala-stage { width: 100%; }
+  .koala-cats { flex-wrap: wrap; overflow: visible; padding-top: 0; }
+  .koala-cat { min-height: 38px; padding: 0 12px; font-size: .88rem; }
+}
+/* Phones: 3 item columns and a one-line hint (the bigger sizes above are for wide screens). */
+.koala-grid { grid-template-columns: repeat(auto-fill, minmax(82px, 1fr)); gap: 8px; }
+.koala-grid .koala-item-name { font-size: .76rem; }
+.koala-grid .koala-item .koala-item-pic { height: 58px; }
+.koala-try-bar.is-idle { font-size: .74rem; }
+@media (min-width: 720px) {
+  .koala-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+  .koala-grid .koala-item-name { font-size: .82rem; }
+  .koala-grid .koala-item .koala-item-pic { height: 66px; }
+  .koala-try-bar.is-idle { font-size: .85rem; }
+}

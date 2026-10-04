@@ -1776,3 +1776,5 @@ html[data-theme="ivory"] .koala-studio-coins { background: #f6efdc !important; b
 html[data-theme="ivory"] .koala-back, html[data-theme="ivory"] .koala-cat:not(.on) { background: #fdfaf4 !important; border-color: #eee7d6 !important; }
 html[data-theme="ivory"] .koala-try-bar { background: #f7f4ec !important; border-color: #eee7d6 !important; }
 html[data-theme="ivory"] .koala-try-bar:not(.is-idle), html[data-theme="ivory"] .koala-item.is-trying { background: #f6efdc !important; border-color: #e8d4a6 !important; }
+html[data-theme="dark"] .koala-studio-preview { background: #131b19 !important; border-color: #354944 !important; }
+html[data-theme="ivory"] .koala-studio-preview { background: #fdfaf4 !important; border-color: #eee7d6 !important; }

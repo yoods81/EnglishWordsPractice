@@ -11208,14 +11208,14 @@ function koalaStudioTopHtml(k, mode) {
   const slots = mode === "room" ? KoalaCore.ROOM_SLOTS : KoalaCore.ITEM_SLOTS;
   const titles = KOALA_SLOT_TITLES();
   const cats = slots.map((s) => `<button type="button" class="koala-cat${koalaSlotPick[mode] === s ? " on" : ""}" role="tab" aria-selected="${koalaSlotPick[mode] === s}" data-koala-cat="${s}">${titles[s]}</button>`).join("");
-  return `<div class="koala-studio-top">
+  return `<div class="koala-studio-top"><div class="koala-studio-preview">
     <div class="koala-studio-bar">
       <button type="button" class="koala-back" data-koala-go="landing">${rwL("‹ Back", "‹ 돌아가기")}</button>
       <span class="koala-studio-lv">${rwL(`Lv. ${lv.level}`, `Lv. ${lv.level}`)}</span>
       <span class="koala-studio-coins" aria-label="${rwL("Koala Coins", "코알라 코인")}">${COIN_SVG} <b>${serverAdmin ? "∞" : k.coins.toLocaleString()}</b></span>
     </div>
     <div class="koala-stage is-${mode}" id="koala-stage">${scene}</div>
-    ${koalaTryBarHtml()}
+    ${koalaTryBarHtml()}</div>
     <div class="koala-cats" role="tablist" aria-label="${rwL("Item categories", "아이템 종류")}">${cats}</div>
   </div>`;
 }
@@ -11231,8 +11231,8 @@ function koalaShopGridHtml(mode) {
 
 // One shop panel for both tabs: Character (what the koala wears) and Room (what is in the room).
 function koalaStudioHtml(k, mode) {
-  return `${koalaStudioTopHtml(k, mode)}<div class="koala-shelf">${koalaShopGridHtml(mode)}</div>
-    ${koalaNextRewardHtml(mode)}${mode === "room" ? koalaTrophyWallHtml() : ""}`;
+  return `<div class="koala-studio">${koalaStudioTopHtml(k, mode)}<div class="koala-shelf">${koalaShopGridHtml(mode)}</div>
+    ${koalaNextRewardHtml(mode)}${mode === "room" ? koalaTrophyWallHtml() : ""}</div>`;
 }
 
 function koalaNextRewardHtml(kind) {
