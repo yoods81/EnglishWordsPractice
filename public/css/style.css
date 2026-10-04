@@ -5663,6 +5663,7 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
   gap: 10px;
 }
 .admin-koala-table-head {
+  margin-top: 14px;
   padding: 0 12px 6px;
   font-size: 0.7rem;
   font-weight: 700;
@@ -5732,9 +5733,15 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
 .admin-koala-chip:active { transform: translateY(1px); }
 
 .admin-koala-amt {
-  width: 46px;
-  padding: 3px 6px;
+  width: 58px;
+  padding: 4px 8px;
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
   font-size: 0.78rem;
+}
+.admin-koala-amt:focus {
+  outline: none;
+  border-color: var(--accent-dark);
 }
 
 /* Give: solid emerald, the common/expected action. Take: soft pink outline
@@ -5761,8 +5768,9 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
   background: #fdf1f3;
   color: #c2577a;
   border: 1px solid #f3d3dc;
+  box-shadow: 0 2px 0 #f3d3dc;
 }
-.admin-koala-take-btn:active { transform: translateY(1px); }
+.admin-koala-take-btn:active { transform: translateY(1px); box-shadow: none; }
 
 .admin-koala-recent-more {
   display: block;
@@ -5788,6 +5796,7 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
 .admin-koala-log-head {
   padding: 0 4px;
   margin-top: 6px;
+  margin-bottom: 10px;
   font-size: 0.7rem;
   font-weight: 700;
   color: var(--muted);
