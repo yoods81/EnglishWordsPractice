@@ -3805,7 +3805,7 @@ html[lang="en"] button.kid-modal-btn {
 }
 
 .ocr-dropzone-caption {
-  margin: 10px 0 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -3822,21 +3822,19 @@ html[lang="en"] button.kid-modal-btn {
   color: var(--muted);
 }
 
-/* A "document with a download arrow" guide icon + label beneath the
-   caption, with the label directly under the icon. flex: 1 claims the
-   dropzone's leftover vertical space for itself (a flex-grow child absorbs
-   all of a flex-column parent's free space before justify-content ever gets
-   a say), which is what pushes the button+caption above it up near the top
-   instead of the whole group sitting centered with equal dead space above
-   and below. */
+/* The icon + its caption sit together as one group, truly centered (both
+   axes) in whatever room is left under the file-picker row — flex: 1 claims
+   the dropzone's leftover vertical space for itself (a flex-grow child
+   absorbs all of a flex-column parent's free space before justify-content
+   ever gets a say), and align/justify-content: center then centers this
+   group within that space. */
 .ocr-dropzone-anim {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin-top: 16px;
+  gap: 14px;
   min-height: 70px;
 }
 
@@ -3845,12 +3843,6 @@ html[lang="en"] button.kid-modal-btn {
   height: 56px;
   flex: 0 0 auto;
   animation: ocr-dropzone-icon-bounce 1.8s ease-in-out infinite;
-}
-
-.ocr-dropzone-anim-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--muted);
 }
 
 @keyframes ocr-dropzone-icon-bounce {
