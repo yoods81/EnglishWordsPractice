@@ -1718,17 +1718,17 @@ function updateSpellingStartChips() {
 // sign-up / upgrade nudge the old "+" button did.
 const QUIZ_GOAL_MAX = 100; // the dropdown never offers more than this
 function renderQuizGoalSelect() {
-  const poolMax = goalPoolSize("quiz");
   const roleMax = goalMaxFor();
   // Only a signed-out visitor (ceiling below QUIZ_GOAL_MAX) has anything to
   // unlock; everyone else already reaches the top of the list.
   const hasUpsellAbove = (!currentUser || currentUser.role === "free") && roleMax < QUIZ_GOAL_MAX;
   if (goals.quiz > QUIZ_GOAL_MAX) { goals.quiz = QUIZ_GOAL_MAX; saveGoals(); }
-  const limit = Math.min(roleMax, poolMax, QUIZ_GOAL_MAX);
+  // Always a clean 5, 10, 15 ... ladder up to the account's ceiling (max 100);
+  // a round never runs longer than the pool, startQuizRound clamps it.
+  const limit = Math.min(roleMax, QUIZ_GOAL_MAX);
   const values = new Set();
   for (let n = GOAL_MIN; n <= limit; n += GOAL_STEP) values.add(n);
-  if (limit > 0 && limit % GOAL_STEP !== 0 && limit <= poolMax) values.add(limit); // "all there is"
-  if (goals.quiz > 0) values.add(goals.quiz); // never drop the value that is in effect
+  if (goals.quiz > 0 && goals.quiz % GOAL_STEP === 0 && goals.quiz <= limit) values.add(goals.quiz);
   const sorted = [...values].sort((a, b) => a - b);
   quizGoalSelect.innerHTML = "";
   sorted.forEach((n) => {
@@ -1737,7 +1737,7 @@ function renderQuizGoalSelect() {
     o.textContent = t("qzChipQuestions", n);
     quizGoalSelect.appendChild(o);
   });
-  if (hasUpsellAbove && poolMax > roleMax) {
+  if (hasUpsellAbove) {
     const o = document.createElement("option");
     o.value = "more";
     o.textContent = t("qzGoalMore");
@@ -3970,12 +3970,12 @@ function enhanceSelect(sel, maxRows) {
     const label = sel.getAttribute("aria-label");
     if (label) btn.setAttribute("aria-label", label);
   };
-  const highlight = (i) => {
+  const highlight = (i, noScroll) => {
     const items = list.children;
     if (!items.length) return;
     active = Math.max(0, Math.min(items.length - 1, i));
     Array.from(items).forEach((el, k) => el.classList.toggle("is-active", k === active));
-    items[active].scrollIntoView({ block: "nearest" });
+    if (!noScroll) items[active].scrollIntoView({ block: "nearest" });
   };
   const close = () => {
     if (list.hidden) return;
@@ -4010,7 +4010,8 @@ function enhanceSelect(sel, maxRows) {
     list.hidden = false;
     btn.setAttribute("aria-expanded", "true");
     openDropdown = close;
-    highlight(opts().findIndex((o) => o.selected));
+    list.scrollTop = 0; // always open showing the first rows
+    highlight(opts().findIndex((o) => o.selected), true);
   };
 
   btn.addEventListener("click", () => (list.hidden ? open() : close()));
@@ -4254,11 +4255,9 @@ function startQuizRound(retryList) {
     // pool itself can shrink out from under a stored preference (switching
     // category/level, or words disappearing) — clamp down here too so
     // "Number of Questions" and the question count never disagree.
-    if (pool.length >= GOAL_MIN && goals.quiz > pool.length) {
-      goals.quiz = pool.length;
-      saveGoals();
-    }
-    list = pickWordsForSession(pool, goals.quiz, (q) => q.target);
+    // The saved preference is kept as picked (5, 10 ... 100); only this round
+    // is shortened to what the pool can supply.
+    list = pickWordsForSession(pool, Math.min(goals.quiz, pool.length), (q) => q.target);
     quizIsRetry = false;
   }
 
@@ -4449,7 +4448,7 @@ function finishQuizQuestion(outcome) {
   updateQuizHud();
   pulseScoreTag(quizScoreEl);
 
-  const goal = goals.quiz;
+  const goal = Math.min(goals.quiz, quizQuestions.length);
   if (!quizIsRetry && goal && !quizGoalCelebrated && quizScore >= goal) {
     quizGoalCelebrated = true;
     showGoalReached(quizGoalBanner, quizGoalMessage, quizGoalNextLevelBtn, quizScore);

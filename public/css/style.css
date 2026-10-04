@@ -7631,6 +7631,11 @@ html body #flash-practice .flash-end-row #flash-end:active { transform: translat
   box-shadow: 0 8px 22px rgba(8, 60, 48, 0.35), 0 0 0 1px rgba(8, 90, 72, 0.18);
 }
 .qz-dd-list[hidden] { display: none; }
+.qz-dd-list { scrollbar-width: thin; scrollbar-color: #8fd6bf transparent; }
+.qz-dd-list::-webkit-scrollbar { width: 8px; }
+.qz-dd-list::-webkit-scrollbar-track { background: transparent; margin: 6px 0; }
+.qz-dd-list::-webkit-scrollbar-thumb { background: #8fd6bf; border-radius: 8px; }
+.qz-dd-list::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
 .qz-dd-opt {
   min-height: 38px; box-sizing: border-box; padding: 9px 12px; border-radius: 10px; text-align: left; white-space: nowrap;
   color: #0b6b57; font-family: var(--font-heading); font-weight: 700; font-size: 0.9rem; line-height: 1.2; cursor: pointer;
