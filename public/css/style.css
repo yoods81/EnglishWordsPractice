@@ -142,21 +142,6 @@ header {
   gap: 4px;
 }
 
-/* A persistent, unmistakable marker across the whole app (not just Add
-   Word) for a server-confirmed admin session — dark/emerald so it reads as
-   "mode", distinct from every other pill's accent/primary/error coloring. */
-.admin-mode-badge {
-  background: #0d1f1a;
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  font-weight: 700;
-  font-size: 0.65rem;
-  letter-spacing: 0.04em;
-  padding: 3px 10px;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-
 .auth-toggle {
   border: 1px solid var(--accent-dark);
   background: var(--accent);
@@ -192,6 +177,23 @@ header {
 }
 
 .auth-toggle.auth-toggle-active:active {
+  box-shadow: none;
+}
+
+/* A server-confirmed admin session replaces the usual "signed in" look with
+   this dark/emerald one instead — distinct from every other pill's
+   accent/primary/error coloring, so it reads as "mode" rather than just
+   "signed in as admin". Takes over from the standalone ADMIN MODE badge
+   that used to sit beside this button; folding the two into one avoids
+   saying the same thing twice in the header. */
+.auth-toggle.auth-toggle-admin {
+  background: #0d1f1a;
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 2px 0 #000;
+}
+
+.auth-toggle.auth-toggle-admin:active {
   box-shadow: none;
 }
 
@@ -379,17 +381,17 @@ nav.tabs button.tab-btn-highlight.active:active {
   box-shadow: none;
 }
 
-/* The Admin nav tab is a permanently mint-filled button — same look as the
-   Login button — rather than the plain white/outline style every other tab
-   uses, so it reads as its own elevated action instead of just another
-   destination in the row. */
-nav.tabs button[data-view="admincodes"] {
+/* The Admin nav tab now follows the same selected/unselected pattern as
+   every other tab (plain white/outline unselected, mint only once it's the
+   active view) instead of staying permanently mint-filled regardless of
+   whether the admin page is actually open. */
+nav.tabs button[data-view="admincodes"].active {
   background: var(--accent);
   border-color: var(--accent-dark);
   color: #fff;
   box-shadow: 0 2px 0 var(--accent-dark);
 }
-nav.tabs button[data-view="admincodes"]:active {
+nav.tabs button[data-view="admincodes"].active:active {
   box-shadow: none;
 }
 

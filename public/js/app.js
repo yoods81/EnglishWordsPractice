@@ -2878,21 +2878,20 @@ function updateAdminUI() {
   // admin session ever sees it.
   const homeAdminGroup = document.getElementById("home-admin-group");
   if (homeAdminGroup) homeAdminGroup.hidden = !serverAdmin;
-  // One persistent, hard-to-miss marker across the whole app for a
-  // server-confirmed admin session — not just on Add Word, so switching
-  // tabs never loses the "this is the real shared word list" context.
-  const adminModeBadgeEl = document.getElementById("admin-mode-badge");
-  if (adminModeBadgeEl) adminModeBadgeEl.hidden = !serverAdmin;
   const koalaView = document.getElementById("view-koala");
   if (koalaView && koalaView.classList.contains("active")) renderKoala();
-  // Keep the label short (just the username) so it never fights the centered
-  // title for space on narrow screens — the full "tap to log out" meaning
-  // lives in the tooltip and the green "signed in" coloring instead.
-  authToggleBtn.textContent = currentUser ? `👤 ${currentUser.username}` : t("authHeaderLoginBtn");
+  // A server-confirmed admin session swaps the usual "👤 username" label for
+  // the same ADMIN MODE wording/coloring that used to sit in a separate
+  // badge beside this button — one persistent, hard-to-miss marker across
+  // the whole app (not just Add Word) instead of two things saying it.
+  authToggleBtn.textContent = !currentUser ? t("authHeaderLoginBtn") : serverAdmin ? t("adminModeBadge") : `👤 ${currentUser.username}`;
   // Signed out, the tooltip carries the actual reason to bother — "why
-  // would I sign in?" — rather than repeating the button's own label back.
-  authToggleBtn.title = currentUser ? t("myAccountMenuItem") : t("authToggleLoggedOutHint");
-  authToggleBtn.classList.toggle("auth-toggle-active", !!currentUser);
+  // would I sign in?" rather than repeating the button's own label back; as
+  // admin, it still names the account since the button's own label no
+  // longer does.
+  authToggleBtn.title = !currentUser ? t("authToggleLoggedOutHint") : serverAdmin ? `${currentUser.username} · ${t("myAccountMenuItem")}` : t("myAccountMenuItem");
+  authToggleBtn.classList.toggle("auth-toggle-active", !!currentUser && !serverAdmin);
+  authToggleBtn.classList.toggle("auth-toggle-admin", !!serverAdmin);
   // Signed in: level picker + streak live in the account popover instead.
   document.body.classList.toggle("signed-in", !!currentUser);
   if (currentUser) levelOverlay.hidden = true;
