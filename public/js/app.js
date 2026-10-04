@@ -11160,7 +11160,7 @@ function koalaItemCardHtml(it) {
   const plain = koalaItemStatusText(st).replace(/<[^>]*>/g, "");
   const trying = koalaTry === it.id;
   const badge = st.state === "equipped" ? `<span class="koala-item-badge on" aria-hidden="true">✓</span>`
-    : st.state === "locked" ? `<span class="koala-item-badge" aria-hidden="true">🔒</span>` : "";
+    : "";
   return `<button type="button" class="koala-item is-${st.state}${trying ? " is-trying" : ""}" data-koala-item="${it.id}"${st.state === "equipped" || trying ? ' aria-pressed="true"' : ""}
       aria-label="${escapeHtml(name)} — ${escapeHtml(plain)}" title="${escapeHtml(name)}">
       <span class="koala-item-pic" aria-hidden="true">${KoalaArt.itemIcon(it.id)}${badge}${it.season ? `<span class="koala-item-badge season" aria-hidden="true">⏳</span>` : ""}</span>

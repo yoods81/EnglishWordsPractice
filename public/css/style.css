@@ -7896,17 +7896,18 @@ html body .sp-start-row .qz-dd-btn[aria-expanded="true"]::after { margin-top: -2
 /* ---- My Koala shop: 2-split studio — live preview on top, items below ---- */
 .koala-studio-top { position: sticky; top: 6px; z-index: 25; background: var(--card-bg); border: 2px solid var(--outline, #cfe7df); border-radius: 18px; padding: 6px 8px 4px; margin: 0 0 10px; box-shadow: 0 6px 14px rgba(0, 0, 0, .12); }
 .koala-studio-bar { display: flex; align-items: center; gap: 8px; padding: 0 2px 6px; }
-.koala-back { min-height: 36px; padding: 0 12px; border-radius: 999px; border: 2px solid var(--outline, #cfe7df); background: var(--card-bg); color: var(--text); font: inherit; font-weight: 700; font-size: .85rem; cursor: pointer; }
-.koala-studio-lv { margin-left: auto; font-family: var(--font-heading); font-weight: 700; color: var(--accent-dark); }
+.koala-back { min-height: 38px; padding: 0 14px; border-radius: 999px; border: 2px solid var(--outline, #cfe7df); background: var(--card-bg); color: var(--text); font: inherit; font-weight: 700; font-size: .95rem; cursor: pointer; }
+.koala-studio-lv { margin-left: auto; font-family: var(--font-heading); font-weight: 700; font-size: 1.1rem; color: var(--accent-dark); }
 .koala-studio-coins { display: inline-flex; align-items: center; gap: 5px; background: #fff8e1; border: 2px solid #f0d28a; border-radius: 999px; padding: 2px 12px; }
-.koala-studio-coins b { font-family: var(--font-heading); font-size: 1.05rem; }
+.koala-studio-coins b { font-family: var(--font-heading); font-size: 1.2rem; }
 .koala-studio-coins .koala-coin { width: 1.2rem; height: 1.2rem; }
 /* The stage is a floor-and-wall scene: the koala stands on the floor (with a soft shadow), nothing floats. */
-.koala-stage { position: relative; width: min(100%, calc(36vh * 320 / 220)); aspect-ratio: 320 / 220; margin: 0 auto; border-radius: 14px; overflow: hidden; border: 2px solid #e6e9e7; background: #fff; }
+.koala-stage { position: relative; width: min(100%, calc(30vh * 320 / 220)); aspect-ratio: 320 / 220; margin: 0 auto; border-radius: 14px; overflow: hidden; border: 2px solid #e6e9e7; background: #fff; }
 .koala-stage > svg { display: block; width: 100%; height: 100%; }
 .koala-stage > svg > svg { animation: none; }
 .koala-stage .koala-eyes { transform-box: fill-box; transform-origin: center; animation: koala-blink 5s infinite; }
-.koala-try-bar { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; margin-top: 6px; padding: 4px 8px; border-radius: 12px; background: #f3faf7; border: 1px dashed var(--outline, #cfe7df); font-size: .82rem; color: var(--text); text-align: center; line-height: 1.25; }
+.koala-try-bar { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; margin-top: 4px; padding: 3px 8px; border-radius: 12px; background: transparent; border: 2px solid transparent; font-size: .9rem; color: var(--text); text-align: center; line-height: 1.25; }
+.koala-try-bar.is-idle { color: var(--muted); font-size: .85rem; }
 .koala-try-bar:not(.is-idle) { background: #fff8e6; border: 2px solid #f0d28a; }
 .koala-try-name { flex: 1 1 auto; min-width: 0; text-align: left; font-family: var(--font-heading); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .koala-try-bar.is-locked .koala-try-name { flex: 0 0 auto; max-width: 38%; }
@@ -7914,18 +7915,18 @@ html body .sp-start-row .qz-dd-btn[aria-expanded="true"]::after { margin-top: -2
 .koala-try-bar .pill { min-height: 34px; flex: 0 0 auto; }
 .koala-cats { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 6px 2px 4px; -webkit-overflow-scrolling: touch; }
 .koala-cats::-webkit-scrollbar { display: none; }
-.koala-cat { flex: 0 0 auto; min-height: 38px; padding: 0 12px; border-radius: 999px; border: 2px solid var(--outline, #cfe7df); background: var(--card-bg); color: var(--text); font: inherit; font-weight: 700; font-size: .82rem; white-space: nowrap; cursor: pointer; }
+.koala-cat { flex: 0 0 auto; min-height: 42px; padding: 0 14px; border-radius: 999px; border: 2px solid var(--outline, #cfe7df); background: var(--card-bg); color: var(--text); font: inherit; font-weight: 700; font-size: .95rem; white-space: nowrap; cursor: pointer; }
 .koala-cat.on { background: var(--accent); border-color: var(--accent-dark); color: #fff; }
 .koala-cat:focus-visible, .koala-back:focus-visible { outline: 3px solid var(--accent-dark); outline-offset: 2px; }
 .koala-shelf-head { display: flex; align-items: baseline; margin: 2px 2px 8px; }
-.koala-shelf-title { font-family: var(--font-heading); font-weight: 700; }
+.koala-shelf-title { font-family: var(--font-heading); font-weight: 700; font-size: 1.05rem; }
 .koala-shelf-title small { color: var(--muted); font-weight: 600; }
-.koala-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; margin-bottom: 10px; }
+.koala-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; margin-bottom: 10px; }
 .koala-grid .koala-item { width: auto; min-height: 0; padding: 5px 3px 6px; gap: 3px; border-radius: 12px; }
-.koala-grid .koala-item .koala-item-pic { position: relative; display: block; width: 100%; height: 58px; border-radius: 8px; padding: 3px; box-sizing: border-box; }
-.koala-grid .koala-item-name { font-size: .7rem; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: keep-all; min-height: 2.3em; }
-.koala-grid .koala-item-status { display: inline-flex; align-items: center; justify-content: center; gap: 3px; font-size: .72rem; font-weight: 700; color: var(--muted); }
-.koala-grid .koala-item-status .koala-coin { width: .85rem; height: .85rem; }
+.koala-grid .koala-item .koala-item-pic { position: relative; display: block; width: 100%; height: 66px; border-radius: 8px; padding: 3px; box-sizing: border-box; }
+.koala-grid .koala-item-name { font-size: .82rem; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: keep-all; min-height: 2.3em; }
+.koala-grid .koala-item-status { display: inline-flex; align-items: center; justify-content: center; gap: 3px; font-size: .82rem; font-weight: 700; color: var(--muted); }
+.koala-grid .koala-item-status .koala-coin { width: 1rem; height: 1rem; }
 .koala-grid .koala-item-status.on, .koala-grid .koala-item-status.own { color: var(--accent-dark); }
 .koala-grid .koala-item-status.cost { color: #a86f0c; }
 .koala-grid .koala-item.is-locked { cursor: pointer; }
@@ -7934,3 +7935,6 @@ html body .sp-start-row .qz-dd-btn[aria-expanded="true"]::after { margin-top: -2
 .koala-stage { position: relative; }
 .koala-try-bar.is-locked .koala-try-name { max-width: 34%; }
 .koala-try-bar.is-locked .koala-try-price { flex: 1 1 0; min-width: 0; justify-content: flex-start; text-align: left; font-size: .78rem; }
+/* Badges sit inside the picture (they were clipped by the card edge); locked state shows in the status line. */
+.koala-grid .koala-item-badge { right: 4px; bottom: 4px; font-size: .75rem; }
+.koala-grid .koala-item-badge.season { right: auto; left: 4px; top: 4px; bottom: auto; }
