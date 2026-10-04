@@ -7634,3 +7634,12 @@ html body #view-flashcards #flash-start-screen .flash-start-selects select { fle
 html[data-theme] body #flash-start-screen .flash-start-selects select,
 html[data-theme] body #flash-start-screen .qz-seg-btn { background-color: rgba(255, 255, 255, 0.95) !important; color: #0b6b57 !important; border: 0 !important; }
 html[data-theme] body #flash-start-screen .qz-seg-btn.on { background: linear-gradient(180deg, #ffe066, #ffab1a) !important; color: #5a3000 !important; }
+/* Flashcards start: centre the selected value (Windows Chrome ignores text-align on native selects), keep the opened list left-aligned */
+html body #view-flashcards #flash-start-screen .flash-start-selects select {
+  -webkit-appearance: none; appearance: none;
+  height: 40px; min-height: 40px; line-height: 40px; padding: 0 30px 0 14px;
+  text-align: center; text-align-last: center; -moz-text-align-last: center;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1.5 1.5 6 6l4.5-4.5' fill='none' stroke='%230b6b57' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; background-size: 12px 8px;
+}
+html body #view-flashcards #flash-start-screen .flash-start-selects select option { text-align: left; direction: ltr; }
