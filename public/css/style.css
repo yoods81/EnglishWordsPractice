@@ -7706,3 +7706,201 @@ html body .sp-start-row .sp-level-chip { min-height: 30px; padding: 0 12px; font
 html body .sp-start-row .qz-dd-btn { min-height: 30px; padding: 4px 26px; font-size: 0.82rem; box-shadow: 0 2px 0 rgba(8, 90, 72, 0.45); }
 html body .sp-start-row .qz-dd-btn::after { right: 11px; width: 6px; height: 6px; margin-top: -5px; }
 html body .sp-start-row .qz-dd-btn[aria-expanded="true"]::after { margin-top: -2px; }
+
+/* ==========================================================================
+   Word list screen — mastery tags, selection toolbar, speaker hierarchy.
+   Scoped to #view-wordlist / .wl-* because .wordlist-item is shared with the
+   custom-words, admin and wrong-notes lists, which must stay as they were.
+   ========================================================================== */
+
+/* --- Selection toolbar: same column grid as the rows below it ------------- */
+#view-wordlist .wl-toolbar {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 10px;
+  /* 1px row border + 14px row padding: puts the "All" checkbox directly above
+     the per-word checkboxes instead of a few pixels off. */
+  padding: 2px 15px 0;
+}
+
+#view-wordlist .wl-check,
+#wordlist-grid .wordlist-item .cw-select {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  flex: 0 0 auto;
+  cursor: pointer;
+  accent-color: var(--accent-dark);
+}
+
+.wl-toolbar-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  min-width: 0;
+}
+
+.wl-toolbar-status label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* "3 selected" — appears as soon as one row is ticked. */
+.wl-selected-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid #6ee7b7;
+  background: #d1fae5;
+  color: #065f46;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.wl-selected-chip[hidden] { display: none; }
+
+#wordlist-add-deck-btn {
+  min-height: 40px;
+  white-space: nowrap;
+}
+
+.wl-toolbar + .wordlist-count { margin-top: 10px; padding-left: 15px; }
+
+@media (max-width: 440px) {
+  /* Narrow phones: the button drops to its own full-width row (big tap target). */
+  #view-wordlist .wl-toolbar { grid-template-columns: 22px minmax(0, 1fr); }
+  #wordlist-add-deck-btn { grid-column: 1 / -1; width: 100%; justify-content: center; }
+}
+
+/* --- Rows: roomier for touch ---------------------------------------------- */
+#wordlist-grid { gap: 12px; }
+
+#wordlist-grid .wordlist-item {
+  padding: 12px 14px;
+  gap: 10px;
+}
+
+/* Centre the checkbox on the 36px first line (word + big speaker). */
+#wordlist-grid .wordlist-item .cw-select { margin-top: 7px; }
+
+.wl-word-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+}
+
+#wordlist-grid .wordlist-item .w {
+  min-width: 0;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+#wordlist-grid .wordlist-item .d { margin-top: 2px; }
+
+/* --- Speaker buttons: big filled one for the word, small outlined for the sentence --- */
+.wl-speak {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  line-height: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease;
+}
+.wl-speak:active { transform: scale(0.92); }
+.wl-speak:focus-visible { outline: 3px solid #fbbf24; outline-offset: 2px; }
+.wl-speak svg { display: block; }
+
+.wl-speak--word {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  background: var(--accent-dark);
+  color: #fff;
+  box-shadow: 0 2px 0 rgba(8, 90, 72, 0.4);
+}
+.wl-speak--word svg { width: 20px; height: 20px; }
+
+.wl-speak--example {
+  width: 24px;
+  height: 24px;
+  margin-top: 1px;
+  border: 1px solid #a7f3d0;
+  background: #ecfdf5;
+  color: #047857;
+}
+.wl-speak--example svg { width: 13px; height: 13px; }
+/* The visible circle is 24px; this invisible halo makes the tap target ~40px. */
+.wl-speak--example::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+}
+
+.wl-speak.is-speaking { animation: wl-speak-pulse 0.7s ease-in-out infinite; }
+@keyframes wl-speak-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wl-speak.is-speaking { animation: none; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.5); }
+}
+
+/* Example sentence with its speaker right beside the text. */
+.wl-example {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 6px;
+}
+.wl-example-text {
+  min-width: 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* --- Tags (mastery + level) ----------------------------------------------- */
+.wl-tags {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.wl-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+.wl-tag-check { font-size: 0.9em; }
+
+.wl-tag--done     { background: #10b981; color: #fff; }       /* emerald-500, 100% */
+.wl-tag--progress { background: #fbbf24; color: #0f172a; }    /* amber-400 / slate-900, 50% or below */
+.wl-tag--good     { background: #d1fae5; color: #065f46; }    /* 51–99% */
+.wl-tag--new      { background: #f1f5f9; color: #475569; }
+.wl-tag--wrong    { background: #ffe4e6; color: #be123c; }
+.wl-tag--level    { background: #eef2fb; color: var(--primary-dark); font-weight: 600; }

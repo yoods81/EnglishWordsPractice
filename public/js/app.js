@@ -454,7 +454,8 @@ const TRANSLATIONS = {
         : `Added ${added} of ${picked} — the rest were already in your flashcards.`,
     wordlistCount: (n) => `${n} word${n === 1 ? "" : "s"}`,
     customWordsCount: (n) => `Total ${n} word${n === 1 ? "" : "s"}`,
-    wordlistSelectedCount: (n, total) => `${n} word${n === 1 ? "" : "s"} selected / ${t("customWordsCount", total)}`,
+    wordlistSelectedChip: (n) => `${n} selected`,
+    hearExampleLabel: "Hear the example sentence",
     masteryNew: "New",
     masteryPct: (pct) => `${pct}% mastered`,
     addWordManualTitle: "➕ Add a word manually",
@@ -1038,7 +1039,8 @@ const TRANSLATIONS = {
         : `${picked}개 중 ${added}개를 추가했어요 — 나머지는 이미 들어있어요.`,
     wordlistCount: (n) => `단어 ${n}개`,
     customWordsCount: (n) => `총 ${n}개 단어`,
-    wordlistSelectedCount: (n, total) => `${n}개 선택됨 / ${t("customWordsCount", total)}`,
+    wordlistSelectedChip: (n) => `${n}개 선택됨`,
+    hearExampleLabel: "예문 듣기",
     masteryNew: "신규",
     masteryPct: (pct) => `${pct}% 숙달`,
     addWordManualTitle: "➕ 단어 직접 추가하기",
@@ -8425,6 +8427,7 @@ const wordlistLevelSelect = document.getElementById("wordlist-level");
 const wordlistCountEl = document.getElementById("wordlist-count");
 const wordlistAddDeckBtn = document.getElementById("wordlist-add-deck-btn");
 const wordlistSelectAllCheckbox = document.getElementById("wordlist-select-all-checkbox");
+const wordlistSelectedChip = document.getElementById("wordlist-selected-chip");
 // Keyed by word, since the same word can be reached under several levels.
 const selectedWordlistWords = new Map();
 
@@ -8469,11 +8472,13 @@ function updateSelectAllCheckboxState(checkbox, grid) {
 // filter/search pass just to know the total again.
 let wordlistLastTotal = 0;
 
+// The line under the toolbar always shows the total; how many are ticked lives
+// in the chip beside "All" (hidden at zero) so it reads as live selection state.
 function updateWordlistCountLabel() {
-  wordlistCountEl.textContent =
-    selectedWordlistWords.size > 0
-      ? t("wordlistSelectedCount", selectedWordlistWords.size, wordlistLastTotal)
-      : t("customWordsCount", wordlistLastTotal);
+  wordlistCountEl.textContent = t("customWordsCount", wordlistLastTotal);
+  const picked = selectedWordlistWords.size;
+  wordlistSelectedChip.hidden = picked === 0;
+  wordlistSelectedChip.textContent = picked > 0 ? t("wordlistSelectedChip", picked) : "";
 }
 
 function updateWordlistSelectionButtons() {
@@ -8483,15 +8488,60 @@ function updateWordlistSelectionButtons() {
   updateWordlistCountLabel();
 }
 
+// tone drives the tag colour on the word list (see .wl-tag--* in style.css):
+//   done     100% right      -> solid emerald with a ✓
+//   good     51–99%          -> soft emerald
+//   progress 50% or below    -> amber, "needs review"
+//   wrong    marked wrong in Spelling
+//   new      never practised
 function masteryLabel(word) {
-  if (progress.spellingStatus[word] === "wrong") return { text: t("spellingWrongBadge"), cls: "low" };
+  if (progress.spellingStatus[word] === "wrong") return { text: t("spellingWrongBadge"), tone: "wrong" };
   const s = progress.wordStats[word];
-  if (!s || s.correct + s.incorrect === 0) return { text: t("masteryNew"), cls: "" };
+  if (!s || s.correct + s.incorrect === 0) return { text: t("masteryNew"), tone: "new" };
   const total = s.correct + s.incorrect;
-  const pct = Math.round((s.correct / total) * 100);
-  if (pct >= 75) return { text: t("masteryPct", pct), cls: "high" };
-  if (pct <= 35) return { text: t("masteryPct", pct), cls: "low" };
-  return { text: t("masteryPct", pct), cls: "" };
+  if (s.correct === total) return { text: t("masteryPct", 100), tone: "done" };
+  // Never show "100%" for a word that has had a miss (e.g. 249/250 rounds to 100).
+  const pct = Math.min(99, Math.round((s.correct / total) * 100));
+  return { text: t("masteryPct", pct), tone: pct <= 50 ? "progress" : "good" };
+}
+
+// Static trusted markup (no user text), so innerHTML is safe here.
+const WL_SPEAKER_SVG =
+  '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+  '<path fill="currentColor" d="M3 10v4a1 1 0 0 0 1 1h3.2l4.3 3.6a1 1 0 0 0 1.6-.8V6.2a1 1 0 0 0-1.6-.8L7.2 9H4a1 1 0 0 0-1 1z"/>' +
+  '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M16 9.2a4 4 0 0 1 0 5.6M18.7 6.5a8 8 0 0 1 0 11"/>' +
+  "</svg>";
+
+// kind: "word" (large, filled) or "example" (small round, sits beside the sentence).
+function makeWordlistSpeakBtn(text, kind, label) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = `wl-speak wl-speak--${kind}`;
+  btn.title = label;
+  btn.setAttribute("aria-label", label);
+  btn.innerHTML = WL_SPEAKER_SVG;
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    speak(text, {
+      onstart: () => btn.classList.add("is-speaking"),
+      onend: () => btn.classList.remove("is-speaking"),
+    });
+  });
+  return btn;
+}
+
+function makeWordlistTag(tone, text) {
+  const tag = document.createElement("span");
+  tag.className = `wl-tag wl-tag--${tone}`;
+  if (tone === "done") {
+    const check = document.createElement("span");
+    check.className = "wl-tag-check";
+    check.setAttribute("aria-hidden", "true");
+    check.textContent = "✓";
+    tag.appendChild(check);
+  }
+  tag.appendChild(document.createTextNode(text));
+  return tag;
 }
 
 function buildWordRow(w) {
@@ -8512,12 +8562,15 @@ function buildWordRow(w) {
   const left = document.createElement("div");
   left.className = "wordlist-item-main";
 
-  const wordEl = document.createElement("div");
-  wordEl.className = "w speakable-line";
+  // Word + its (large) speaker button on one line.
+  const wordRow = document.createElement("div");
+  wordRow.className = "wl-word-row";
+  const wordEl = document.createElement("span");
+  wordEl.className = "w";
   wordEl.textContent = w.word;
-  wordEl.title = "Tap to hear";
-  wordEl.addEventListener("click", () => speak(w.word));
-  left.appendChild(wordEl);
+  wordRow.appendChild(wordEl);
+  wordRow.appendChild(makeWordlistSpeakBtn(w.word, "word", `${t("hearItLabel")}: ${w.word}`));
+  left.appendChild(wordRow);
 
   const defEl = document.createElement("div");
   defEl.className = "d";
@@ -8525,40 +8578,30 @@ function buildWordRow(w) {
   defEl.title = w.definition;
   left.appendChild(defEl);
 
+  // Example sentence with a small round speaker hugging the end of the text.
   if (w.example) {
-    const exEl = document.createElement("div");
-    exEl.className = "d speakable-line";
-    exEl.style.fontStyle = "italic";
-    exEl.textContent = w.example;
-    exEl.title = "Tap to hear";
-    exEl.addEventListener("click", (e) => {
-      e.stopPropagation();
-      speak(w.example);
-    });
-    left.appendChild(exEl);
+    const exRow = document.createElement("div");
+    exRow.className = "wl-example";
+    const exText = document.createElement("span");
+    exText.className = "wl-example-text";
+    exText.textContent = w.example;
+    exText.title = w.example;
+    exRow.appendChild(exText);
+    exRow.appendChild(makeWordlistSpeakBtn(w.example, "example", t("hearExampleLabel")));
+    left.appendChild(exRow);
   }
 
   row.appendChild(left);
 
-  const badges = document.createElement("div");
-  badges.style.display = "flex";
-  badges.style.gap = "6px";
-  badges.style.alignItems = "center";
+  const tags = document.createElement("div");
+  tags.className = "wl-tags";
 
   // Set only on search hits from a level other than the one being browsed.
-  if (w.level) {
-    const levelBadge = document.createElement("span");
-    levelBadge.className = "mastery";
-    levelBadge.textContent = levelLabel(w.level);
-    badges.appendChild(levelBadge);
-  }
+  if (w.level) tags.appendChild(makeWordlistTag("level", levelLabel(w.level)));
 
   const m = masteryLabel(w.word);
-  const badge = document.createElement("span");
-  badge.className = `mastery ${m.cls}`;
-  badge.textContent = m.text;
-  badges.appendChild(badge);
-  row.appendChild(badges);
+  tags.appendChild(makeWordlistTag(m.tone, m.text));
+  row.appendChild(tags);
 
   return row;
 }

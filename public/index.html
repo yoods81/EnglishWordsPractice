@@ -1162,11 +1162,14 @@ to Flip!</span></div>
           <input type="text" class="wordlist-search" id="wordlist-search" data-i18n-placeholder="wordlistSearchPlaceholder" placeholder="🔍 Search words..." />
           <select id="wordlist-level" class="wordlist-level-select"></select>
         </div>
-        <div class="my-added-words-header-actions">
-          <label class="select-all-toggle" for="wordlist-select-all-checkbox">
-            <input type="checkbox" id="wordlist-select-all-checkbox" />
-            <span data-i18n="allLabel">All</span>
-          </label>
+        <!-- Same column grid as the rows below (checkbox | text), so the "All"
+             checkbox sits exactly above the per-word checkboxes. -->
+        <div class="wl-toolbar">
+          <input type="checkbox" id="wordlist-select-all-checkbox" class="wl-check" />
+          <div class="wl-toolbar-status">
+            <label for="wordlist-select-all-checkbox" data-i18n="allLabel">All</label>
+            <span class="wl-selected-chip" id="wordlist-selected-chip" role="status" aria-live="polite" hidden></span>
+          </div>
           <button type="button" class="pill accent small" id="wordlist-add-deck-btn" data-i18n="addToMyDeckBtn" disabled>⭐ Add to my flashcards</button>
         </div>
         <p class="muted wordlist-count" id="wordlist-count"></p>

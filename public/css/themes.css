@@ -1773,3 +1773,14 @@ html[data-theme="ivory"] body #view-flashcards #flash-start-screen .flash-start-
 html[data-theme="ivory"] body #view-flashcards #flash-start-screen .flash-start-selects select option {
   background-color: #fdfaf4 !important;
 }
+
+/* Word list screen: the light-tinted tags/chips need darker twins on dark/ivory.
+   The solid emerald ("100%") and amber ("50% or below") tags read fine as-is. */
+html[data-theme="dark"] .wl-tag--good,
+html[data-theme="dark"] .wl-selected-chip { background: #153d31; color: #6ee7b7; border-color: #1f5a47; }
+html[data-theme="dark"] .wl-tag--new { background: #1f2937; color: #cbd5e1; }
+html[data-theme="dark"] .wl-tag--wrong { background: #3b1820; color: #fda4af; }
+html[data-theme="dark"] .wl-tag--level { background: #161b27; color: #c7d2fe; }
+html[data-theme="dark"] .wl-speak--example { background: #153d31; border-color: #1f5a47; color: #6ee7b7; }
+html[data-theme="ivory"] .wl-tag--new,
+html[data-theme="ivory"] .wl-tag--level { background: #f2ede0; }
