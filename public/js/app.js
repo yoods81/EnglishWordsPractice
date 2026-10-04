@@ -1714,11 +1714,15 @@ function updateSpellingStartChips() {
 // Signed-out and free accounts also get a final "More questions…" entry when
 // the pool holds more than their ceiling; picking it opens the same
 // sign-up / upgrade nudge the old "+" button did.
+const QUIZ_GOAL_MAX = 100; // the dropdown never offers more than this
 function renderQuizGoalSelect() {
   const poolMax = goalPoolSize("quiz");
   const roleMax = goalMaxFor();
-  const hasUpsellAbove = !currentUser || currentUser.role === "free";
-  const limit = Math.min(roleMax, poolMax);
+  // Only a signed-out visitor (ceiling below QUIZ_GOAL_MAX) has anything to
+  // unlock; everyone else already reaches the top of the list.
+  const hasUpsellAbove = (!currentUser || currentUser.role === "free") && roleMax < QUIZ_GOAL_MAX;
+  if (goals.quiz > QUIZ_GOAL_MAX) { goals.quiz = QUIZ_GOAL_MAX; saveGoals(); }
+  const limit = Math.min(roleMax, poolMax, QUIZ_GOAL_MAX);
   const values = new Set();
   for (let n = GOAL_MIN; n <= limit; n += GOAL_STEP) values.add(n);
   if (limit > 0 && limit % GOAL_STEP !== 0 && limit <= poolMax) values.add(limit); // "all there is"
@@ -3917,6 +3921,107 @@ myDeckClearBtn.addEventListener("click", () => {
 const quizCategorySel = document.getElementById("quiz-category");
 const quizEndBtn = document.getElementById("quiz-end");
 const quizGoalSelect = document.getElementById("quiz-goal-select");
+
+// A styled stand-in for a <select>: a centred pill that opens a left-aligned
+// list showing `maxRows` rows and scrolling beyond that (a native popup can't
+// be sized or aligned from CSS). The real <select> stays in the DOM, hidden,
+// as the single source of truth: choosing an entry sets its value and fires
+// "change", and the pill's text follows whatever the <select> currently holds.
+let openDropdown = null;
+function enhanceSelect(sel, maxRows) {
+  const wrap = document.createElement("div");
+  wrap.className = "qz-dd";
+  wrap.style.setProperty("--rows", String(maxRows));
+  sel.before(wrap);
+  wrap.appendChild(sel);
+  sel.classList.add("qz-dd-native");
+  sel.tabIndex = -1;
+  sel.setAttribute("aria-hidden", "true");
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "qz-dd-btn";
+  btn.setAttribute("aria-haspopup", "listbox");
+  btn.setAttribute("aria-expanded", "false");
+  const list = document.createElement("div");
+  list.className = "qz-dd-list";
+  list.setAttribute("role", "listbox");
+  list.hidden = true;
+  wrap.append(btn, list);
+
+  let active = -1;
+  const opts = () => Array.from(sel.options);
+  const sync = () => {
+    const o = sel.selectedOptions[0];
+    btn.textContent = o ? o.textContent : "";
+    const label = sel.getAttribute("aria-label");
+    if (label) btn.setAttribute("aria-label", label);
+  };
+  const highlight = (i) => {
+    const items = list.children;
+    if (!items.length) return;
+    active = Math.max(0, Math.min(items.length - 1, i));
+    Array.from(items).forEach((el, k) => el.classList.toggle("is-active", k === active));
+    items[active].scrollIntoView({ block: "nearest" });
+  };
+  const close = () => {
+    if (list.hidden) return;
+    list.hidden = true;
+    btn.setAttribute("aria-expanded", "false");
+    if (openDropdown === close) openDropdown = null;
+  };
+  const choose = (i) => {
+    const o = opts()[i];
+    close();
+    if (!o) return;
+    const changed = sel.value !== o.value;
+    sel.value = o.value;
+    sync();
+    if (changed || o.value === "more") sel.dispatchEvent(new Event("change", { bubbles: true }));
+    btn.focus({ preventScroll: true });
+  };
+  const open = () => {
+    if (!list.hidden) return;
+    if (openDropdown) openDropdown();
+    list.innerHTML = "";
+    opts().forEach((o, i) => {
+      const item = document.createElement("div");
+      item.className = "qz-dd-opt" + (o.selected ? " is-selected" : "");
+      item.setAttribute("role", "option");
+      item.setAttribute("aria-selected", o.selected ? "true" : "false");
+      item.textContent = o.textContent;
+      item.addEventListener("pointerdown", (e) => e.preventDefault()); // keep focus on the pill
+      item.addEventListener("click", () => choose(i));
+      list.appendChild(item);
+    });
+    list.hidden = false;
+    btn.setAttribute("aria-expanded", "true");
+    openDropdown = close;
+    highlight(opts().findIndex((o) => o.selected));
+  };
+
+  btn.addEventListener("click", () => (list.hidden ? open() : close()));
+  btn.addEventListener("keydown", (e) => {
+    if (list.hidden) {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); open(); }
+      return;
+    }
+    if (e.key === "ArrowDown") { e.preventDefault(); highlight(active + 1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); highlight(active - 1); }
+    else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); choose(active); }
+    else if (e.key === "Escape" || e.key === "Tab") { if (e.key === "Escape") e.preventDefault(); close(); }
+  });
+  btn.addEventListener("blur", () => setTimeout(close, 120));
+  new MutationObserver(sync).observe(sel, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["aria-label"] });
+  sel.addEventListener("change", sync);
+  sync();
+  return sync;
+}
+document.addEventListener("pointerdown", (e) => {
+  if (openDropdown && !e.target.closest(".qz-dd")) openDropdown();
+});
+const syncQuizCategoryDd = enhanceSelect(quizCategorySel, 6);
+const syncQuizGoalDd = enhanceSelect(quizGoalSelect, 6); // 6 rows = 5 ... 30, then scroll
 const quizGoalBanner = document.getElementById("quiz-goal-banner");
 const quizGoalMessage = document.getElementById("quiz-goal-message");
 const quizGoalNextLevelBtn = document.getElementById("quiz-goal-next-level");
@@ -4095,6 +4200,8 @@ function renderQuizStart() {
     : t("qzModeNoteRelaxed");
 
   renderQuizGoalSelect();
+  syncQuizCategoryDd();
+  syncQuizGoalDd();
 
   const daily = QuizCore.dailyGoalState(answersToday());
   quizStartDaily.textContent = daily.done ? t("qzDailyDone") : t("qzDailyLine", daily.have, daily.goal);
@@ -4757,6 +4864,7 @@ quizCategorySel.addEventListener("change", buildQuizQuestions);
 quizGoalSelect.addEventListener("change", () => {
   if (quizGoalSelect.value === "more") {
     quizGoalSelect.value = String(goals.quiz); // nothing changes; just the nudge
+    syncQuizGoalDd();
     if (!currentUser) promptSignupForMoreQuestions();
     else if (currentUser.role === "free") openUpgradeOverlay();
     return;

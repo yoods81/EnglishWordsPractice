@@ -7607,15 +7607,47 @@ html body #flash-practice .flash-end-row #flash-end:active { transform: translat
   html body #flash-practice .flash-end-row #flash-end { padding: 5px 10px; font-size: 0.75rem; }
 }
 
-/* Quiz start card: category + number-of-questions dropdowns (no labels). */
+/* Quiz start card: category + number-of-questions dropdowns (no labels).
+   The pill's text is centred; the list that opens under it stays left-aligned. */
 .qz-selects { width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-.qz-selects select {
-  flex: 1 1 150px; min-width: 0; max-width: 100%; min-height: 38px; padding: 6px 30px 6px 14px;
-  border: 0; border-radius: 999px; background-color: rgba(255, 255, 255, 0.95); color: #0b6b57;
-  font-family: var(--font-heading); font-weight: 700; font-size: 0.9rem; line-height: 1.1;
-  box-shadow: 0 3px 0 rgba(8, 90, 72, 0.45); cursor: pointer; text-overflow: ellipsis;
+.qz-dd { position: relative; flex: 1 1 150px; min-width: 0; }
+.qz-dd-native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.qz-dd-btn {
+  position: relative; display: block; width: 100%; min-height: 38px; padding: 6px 30px; border: 0; border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.95); color: #0b6b57; text-align: center;
+  font-family: var(--font-heading); font-weight: 700; font-size: 0.9rem; line-height: 1.2;
+  box-shadow: 0 3px 0 rgba(8, 90, 72, 0.45); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.qz-selects select:focus-visible { outline: 3px solid #ffe066; outline-offset: 2px; }
+.qz-dd-btn::after {
+  content: ""; position: absolute; right: 13px; top: 50%; width: 7px; height: 7px; margin-top: -6px;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg);
+}
+.qz-dd-btn[aria-expanded="true"]::after { margin-top: -2px; transform: rotate(-135deg); }
+.qz-dd-btn:focus-visible { outline: 3px solid #ffe066; outline-offset: 2px; }
+.qz-dd-list {
+  position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 6px);
+  max-height: calc(var(--rows, 6) * 38px + 8px); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  padding: 4px; border-radius: 14px; background: #fff; text-align: left;
+  box-shadow: 0 8px 22px rgba(8, 60, 48, 0.35), 0 0 0 1px rgba(8, 90, 72, 0.18);
+}
+.qz-dd-list[hidden] { display: none; }
+.qz-dd-opt {
+  min-height: 38px; box-sizing: border-box; padding: 9px 12px; border-radius: 10px; text-align: left; white-space: nowrap;
+  color: #0b6b57; font-family: var(--font-heading); font-weight: 700; font-size: 0.9rem; line-height: 1.2; cursor: pointer;
+}
+.qz-dd-opt:hover, .qz-dd-opt.is-active { background: #e4f7f0; }
+.qz-dd-opt.is-selected { background: #c9f0e2; }
+
+/* The start card is the quiz's only heading now, so the big card's own title goes. */
+#view-quiz .card:has(> #quiz-start-screen:not([hidden])) > .view-section-title { display: none; }
+
+/* A bit wider on larger screens; phones keep their current, roomier-margin width. */
+@media (min-width: 700px) { .qz-start-card { width: min(100%, 540px); } }
+@media (max-width: 480px) {
+  .qz-dd-btn { padding-left: 22px; padding-right: 22px; font-size: 0.84rem; }
+  .qz-dd-btn::after { right: 10px; }
+  .qz-dd-opt { font-size: 0.86rem; }
+}
 
 /* ---- Flashcards start screen: tidy picker + koala flipping a card ---- */
 html body #flash-start-screen .qz-seg-btn.on { background: linear-gradient(180deg, #ffe066, #ffab1a); color: #5a3000; box-shadow: 0 3px 0 #c27400; }
