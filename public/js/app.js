@@ -11379,7 +11379,7 @@ function renderKoala() {
         <div class="koala-hero-level">${rwL(`Koala Lv. ${lv.level}`, `코알라 Lv. ${lv.level}`)}</div>
         <div class="koala-level-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${lv.span}" aria-valuenow="${lv.intoLevel}"
           aria-label="${rwL("Progress to next Koala level", "다음 코알라 레벨까지")}"><span style="width:${lv.pct}%"></span></div>
-        <div class="koala-hero-next">${rwL(`${lv.toNext} more Coins to reach Lv. ${lv.level + 1}`, `Lv. ${lv.level + 1}까지 코인 ${lv.toNext}개 남았어요`)}</div>
+        <div class="koala-hero-next">${serverAdmin ? rwL("Admin: unlimited Coins ∞", "관리자: 코인 무제한 ∞") : rwL(`${lv.toNext} more Coins to reach Lv. ${lv.level + 1}`, `Lv. ${lv.level + 1}까지 코인 ${lv.toNext}개 남았어요`)}</div>
         <div class="koala-hero-streak"><span class="koala-hero-streak-main"><span aria-hidden="true">🔥</span> <b>${st.count}</b> ${rwL("day streak", "일 연속")} · ${streakSub}</span>
           <small>${streakNote}</small></div>
       </div>
