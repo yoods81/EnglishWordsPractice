@@ -5673,6 +5673,45 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
 .admin-koala-chip:hover { background: #e3f7f1; border-color: var(--accent); }
 .admin-koala-chip:active { transform: translateY(1px); }
 
+/* Note field + its own quick-pick reason chips, stacked so the chips don't
+   compete with the amount/give/take controls for the same line. */
+.admin-koala-note-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.admin-koala-note-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.admin-koala-note-chip {
+  padding: 2px 8px;
+  font-size: 0.66rem;
+  color: var(--muted);
+}
+.admin-koala-note-chip:hover { color: var(--accent-dark); }
+
+/* Give/Take now carry a live "→ 225" preview of the resulting balance
+   (see updateAdminKoalaPreview()), so the label needs room to grow without
+   wrapping mid-word. */
+.wordlist-item .admin-koala-actions .edit-btn,
+.wordlist-item .admin-koala-actions .delete-btn {
+  white-space: nowrap;
+}
+
+.admin-koala-recent-more {
+  display: block;
+  margin: 10px auto 0;
+}
+/* display: block above has the same specificity as the browser's own
+   [hidden] { display: none } and, as an author rule, wins regardless of
+   source order — without this the button would show even while hidden
+   (same class of bug fixed twice already this session on other buttons). */
+.admin-koala-recent-more[hidden] {
+  display: none;
+}
+
 /* Recent Adjustments: date | user | amount | note as explicit grid columns
    instead of everything run together in one sentence-like line. */
 #admin-koala-recent .admin-koala-log-row {

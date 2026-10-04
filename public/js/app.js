@@ -12157,39 +12157,90 @@ async function loadAdminKoala() {
 }
 
 const ADMIN_KOALA_QUICK_AMOUNTS = [10, 50, 100];
+// Common reasons an admin gives/takes coins, offered as one-tap chips next
+// to the note field — mirrors the amount chips, so a well-labeled
+// adjustment costs no more effort than an unlabeled one.
+const ADMIN_KOALA_QUICK_NOTES = [
+  { en: "Event", ko: "이벤트 지급" },
+  { en: "Bonus", ko: "보너스" },
+  { en: "Correction", ko: "오류 수정" },
+];
+const ADMIN_KOALA_RECENT_PAGE_SIZE = 10;
+let adminKoalaRecentVisibleCount = ADMIN_KOALA_RECENT_PAGE_SIZE;
 
-function renderAdminKoala() {
+function renderAdminKoala({ resetRecentPaging = true } = {}) {
   const grid = document.getElementById("admin-koala-grid");
   const empty = document.getElementById("admin-koala-empty");
   const recent = document.getElementById("admin-koala-recent");
+  const recentMoreBtn = document.getElementById("admin-koala-recent-more-btn");
   if (!grid) return;
+  if (resetRecentPaging) adminKoalaRecentVisibleCount = ADMIN_KOALA_RECENT_PAGE_SIZE;
   const users = adminKoala.users || [];
   empty.hidden = users.length > 0;
-  const chipsHtml = ADMIN_KOALA_QUICK_AMOUNTS.map((n) => `<button type="button" class="admin-koala-chip" data-set-amt="${n}">+${n}</button>`).join("");
+  // Plain numbers rather than "+10" — the chips only fill in a quantity,
+  // and with both a Give and a Take button sitting right next to them, a
+  // "+" prefix reads as "this always adds" even when Take is what runs.
+  const chipsHtml = ADMIN_KOALA_QUICK_AMOUNTS.map((n) => `<button type="button" class="admin-koala-chip" data-set-amt="${n}">${n}</button>`).join("");
+  const noteChipsHtml = ADMIN_KOALA_QUICK_NOTES.map((n) => {
+    const label = rwL(n.en, n.ko);
+    return `<button type="button" class="admin-koala-chip admin-koala-note-chip" data-set-note="${escapeHtml(label)}">${escapeHtml(label)}</button>`;
+  }).join("");
   grid.innerHTML = users.map((u) => {
     const bal = u.coins == null ? rwL("not seen yet", "아직 기록 없음") : `${u.coins}`;
     const pend = u.pending ? ` · ${rwL("waiting", "대기")}: ${u.pending > 0 ? "+" : ""}${u.pending}` : "";
     const sub = `${u.role}${u.coins == null ? "" : ` · ${rwL("streak", "연속")} ${u.streak}`}${pend}`;
-    return `<div class="wordlist-item admin-koala-row" data-uid="${escapeHtml(u.id)}">
+    return `<div class="wordlist-item admin-koala-row" data-uid="${escapeHtml(u.id)}" data-coins="${u.coins == null ? "" : u.coins}">
       <div class="wordlist-item-main"><div class="w">${escapeHtml(u.username)}</div>
         <div class="d">${COIN_SVG} <b>${escapeHtml(bal)}</b> · ${escapeHtml(sub)}</div></div>
       <div class="admin-koala-actions">
         <div class="admin-koala-chips">${chipsHtml}</div>
         <input type="number" class="admin-koala-amt" min="1" max="100000" step="1" placeholder="10" value="10" aria-label="${rwL("Coins", "코인")}" />
-        <input type="text" class="admin-koala-note" maxlength="80" placeholder="${rwL("Note (optional)", "메모(선택)")}" />
+        <div class="admin-koala-note-wrap">
+          <input type="text" class="admin-koala-note" maxlength="80" placeholder="${rwL("Note (optional)", "메모(선택)")}" />
+          <div class="admin-koala-note-chips">${noteChipsHtml}</div>
+        </div>
         <button type="button" class="edit-btn" data-admin-koala="give">${rwL("Give", "주기")}</button>
         <button type="button" class="delete-btn" data-admin-koala="take">${rwL("Take", "빼기")}</button>
       </div></div>`;
   }).join("");
+  grid.querySelectorAll(".admin-koala-row").forEach(updateAdminKoalaPreview);
+
   const rec = adminKoala.recent || [];
-  recent.innerHTML = rec.length
-    ? rec.map((g) => `<li class="admin-koala-log-row">
+  const recPage = rec.slice(0, adminKoalaRecentVisibleCount);
+  const recRemaining = rec.length - recPage.length;
+  recent.innerHTML = recPage.length
+    ? recPage.map((g) => `<li class="admin-koala-log-row">
         <span class="admin-koala-log-date">${new Date(g.createdAt).toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { day: "numeric", month: "short" })}</span>
         <span class="admin-koala-log-user">${escapeHtml(g.username)}</span>
         <span class="admin-koala-log-amount${g.amount < 0 ? " spent" : ""}">${g.amount < 0 ? "−" : "+"}${Math.abs(g.amount)} ${COIN_SVG}</span>
         <span class="admin-koala-log-note">${g.note ? escapeHtml(g.note) : ""}${g.appliedAt ? "" : (g.note ? " · " : "") + rwL("waiting", "대기 중")}</span>
       </li>`).join("")
     : `<li class="muted admin-koala-log-empty">${rwL("Nothing yet.", "아직 없어요.")}</li>`;
+  recentMoreBtn.hidden = recRemaining <= 0;
+  if (recRemaining > 0) recentMoreBtn.textContent = rwL(`Load more (${Math.min(ADMIN_KOALA_RECENT_PAGE_SIZE, recRemaining)} more)`, `더보기 (${Math.min(ADMIN_KOALA_RECENT_PAGE_SIZE, recRemaining)}개 더)`);
+}
+
+// Updates the Give/Take buttons' own labels to show the balance they'd
+// result in — "Give → 225" — so the effect of a click is visible before
+// it's made, instead of needing to do that arithmetic by eye. Falls back
+// to the plain label when the account's current balance isn't known yet
+// (data-coins is empty) or the amount field isn't a usable number.
+function updateAdminKoalaPreview(row) {
+  const giveBtn = row.querySelector('[data-admin-koala="give"]');
+  const takeBtn = row.querySelector('[data-admin-koala="take"]');
+  if (!giveBtn || !takeBtn) return;
+  const giveLabel = rwL("Give", "주기");
+  const takeLabel = rwL("Take", "빼기");
+  const amt = Math.floor(Number(row.querySelector(".admin-koala-amt").value));
+  const coinsAttr = row.dataset.coins;
+  if (coinsAttr === "" || !Number.isFinite(amt) || amt < 1) {
+    giveBtn.textContent = giveLabel;
+    takeBtn.textContent = takeLabel;
+    return;
+  }
+  const base = Number(coinsAttr);
+  giveBtn.textContent = `${giveLabel} → ${base + amt}`;
+  takeBtn.textContent = `${takeLabel} → ${Math.max(0, base - amt)}`;
 }
 
 document.addEventListener("click", async (e) => {
@@ -12199,6 +12250,18 @@ document.addEventListener("click", async (e) => {
     const amtInput = row.querySelector(".admin-koala-amt");
     amtInput.value = chip.dataset.setAmt;
     amtInput.focus();
+    updateAdminKoalaPreview(row);
+    return;
+  }
+  const noteChip = e.target.closest("[data-set-note]");
+  if (noteChip) {
+    const row = noteChip.closest(".admin-koala-row");
+    row.querySelector(".admin-koala-note").value = noteChip.dataset.setNote;
+    return;
+  }
+  if (e.target.closest("#admin-koala-recent-more-btn")) {
+    adminKoalaRecentVisibleCount += ADMIN_KOALA_RECENT_PAGE_SIZE;
+    renderAdminKoala({ resetRecentPaging: false });
     return;
   }
   const btn = e.target.closest("[data-admin-koala]");
@@ -12234,6 +12297,10 @@ document.addEventListener("click", async (e) => {
   }
 });
 document.addEventListener("input", (e) => {
+  if (e.target.classList.contains("admin-koala-amt")) {
+    updateAdminKoalaPreview(e.target.closest(".admin-koala-row"));
+    return;
+  }
   if (e.target.id !== "admin-koala-search") return;
   adminKoalaQuery = e.target.value.trim();
   clearTimeout(window.__akT);
