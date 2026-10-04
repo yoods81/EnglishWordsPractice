@@ -7800,7 +7800,12 @@ html body .sp-start-row .qz-dd-btn[aria-expanded="true"]::after { margin-top: -2
 
 /* Slim controls: search box, level dropdown and the add button share one
    ~34px height instead of the chunky default pills. */
-#view-wordlist .wordlist-filters { margin-bottom: 16px; }
+#view-wordlist .wordlist-filters {
+  margin-bottom: 16px;
+  /* Same right inset as the toolbar: grid's 2px + its scrollbar (--wl-sb), so the
+     level dropdown ends where the row cards end. */
+  padding-right: calc(var(--wl-sb, 0px) + 2px);
+}
 #view-wordlist .wordlist-search { padding: 4px 14px; min-height: 34px; box-sizing: border-box; }
 #view-wordlist .wordlist-level-select {
   height: 34px;
