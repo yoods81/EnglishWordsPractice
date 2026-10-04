@@ -21,22 +21,11 @@ const LANG_KEY = "ywp_lang_v1";
 const ADMIN_KEY = "ywp_admin_v1";
 let flashWrongOverride = null; // set by the Wrong-notes "Study these words" button
 const TYPEGAME_HIGH_SCORE_KEY = "ywp_typegame_highscores_v1";
+// Only used to recognise a login attempt against the reserved admin
+// username, for the "server's unreachable" message below — admin login
+// itself is checked exclusively by the server now (see loginForm's submit
+// handler).
 const ADMIN_USERNAME = "admin";
-// SHA-256 of the admin password, so the password itself isn't sitting in
-// plain text in the page source. This is still a static site with no
-// backend, so it's not real security (the hash and check both run in the
-// browser, and this short a password could be brute-forced offline against
-// the hash) — it just stops a casual glance at "view source" from handing
-// the password over directly.
-const ADMIN_PASSWORD_HASH = "ac9689e2272427085e35b9d3e3e8bed88cb3434828b43b86fc0596cad4c6e270";
-
-async function sha256Hex(text) {
-  const bytes = new TextEncoder().encode(text);
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return Array.from(new Uint8Array(digest))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
 
 /* ================= TRANSLATIONS ================= */
 const TRANSLATIONS = {
@@ -611,6 +600,7 @@ const TRANSLATIONS = {
     authLoginBtn: "Login",
     authSignupBtn: "Sign Up",
     authLoginErrorText: "Incorrect username or password.",
+    authAdminOfflineErrorText: "Can't reach the server right now, so admin login isn't available. Please try again later.",
     authSignupErrorTaken: "That username is already taken.",
     authSignupErrorCode: "That special code isn't valid, or has already been used.",
     authSignupErrorUsername: "Username must be 3-20 characters: letters, numbers, underscore.",
@@ -1191,6 +1181,7 @@ const TRANSLATIONS = {
     authLoginBtn: "로그인",
     authSignupBtn: "회원가입",
     authLoginErrorText: "아이디 또는 비밀번호가 올바르지 않아요.",
+    authAdminOfflineErrorText: "지금은 서버에 연결할 수 없어서 관리자 로그인을 할 수 없어요. 잠시 후 다시 시도해 주세요.",
     authSignupErrorTaken: "이미 사용 중인 아이디예요.",
     authSignupErrorCode: "특별 코드가 올바르지 않거나 이미 사용됐어요.",
     authSignupErrorUsername: "아이디는 3~20자의 영문/숫자/밑줄(_)만 가능해요.",
@@ -3177,16 +3168,14 @@ loginForm.addEventListener("submit", async (e) => {
     serverRejected = err && err.status === 401;
   }
 
-  // Only when the server couldn't answer at all does the offline fallback
-  // apply, and only for the one reserved admin username — it unlocks editing
-  // this browser's own words, not a real account.
-  if (!currentUser && !isAdmin && !serverRejected) {
-    const enteredHash = await sha256Hex(password);
-    if (username === ADMIN_USERNAME && enteredHash === ADMIN_PASSWORD_HASH) isAdmin = true;
-  }
-
+  // Admin login is checked by the server only now — there is no local
+  // fallback. If the server couldn't be reached at all (not a plain wrong
+  // password) and this was an attempt at the admin username, say so
+  // explicitly instead of the generic "wrong password" message, since the
+  // real reason is connectivity, not the credentials.
   if (!currentUser && !isAdmin) {
-    loginError.textContent = t("authLoginErrorText");
+    loginError.textContent =
+      username === ADMIN_USERNAME && !serverRejected ? t("authAdminOfflineErrorText") : t("authLoginErrorText");
     loginError.hidden = false;
     return;
   }
