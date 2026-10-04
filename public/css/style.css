@@ -7688,3 +7688,13 @@ html body #flash-start-screen .qz-seg-btn:disabled { opacity: 0.55; cursor: not-
 #flash-start-screen .qz-pick .qz-seg { flex: 1 1 auto; width: auto; justify-content: flex-start; flex-wrap: nowrap; gap: 6px; }
 #flash-start-screen .qz-seg .qz-seg-btn { flex: 0 0 auto; width: auto; min-height: 30px; padding: 4px 12px; font-size: 0.78rem; }
 @media (max-width: 480px) { #flash-start-screen .qz-pick-title { flex-basis: 62px; font-size: 0.78rem; } #flash-start-screen .qz-seg .qz-seg-btn { padding: 4px 8px; font-size: 0.72rem; } #flash-start-screen .qz-pick .qz-seg { gap: 4px; flex-wrap: wrap; } }
+/* front-side picker is now two buttons; the select stays in the DOM as the single source of truth */
+#flash-start-screen .flash-front-hidden { display: none !important; }
+html body #view-flashcards #flash-start-screen .flash-start-selects select { background-color: #ffffff !important; flex: 1 1 100%; }
+html body #view-flashcards #flash-start-screen .flash-start-selects select option { background-color: #ffffff; color: #0b6b57; line-height: normal; padding: 6px 10px; }
+
+
+/* Spelling start: level chip and question-count dropdown share one row */
+.sp-start-row { flex-wrap: nowrap; align-items: center; }
+.sp-start-row .sp-level-chip { flex: 0 0 auto; display: inline-flex; align-items: center; min-height: 38px; padding: 0 14px; font-size: 0.9rem; box-shadow: 0 3px 0 rgba(8, 90, 72, 0.45); white-space: nowrap; }
+.sp-start-row .qz-dd { flex: 1 1 0; }
