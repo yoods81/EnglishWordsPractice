@@ -7715,3 +7715,10 @@ html body #view-flashcards #flash-start-screen .flash-start-selects select optio
 /* Quiz start: one line of space under the title; dropdowns match the Difficulty / Mode buttons */
 .qz-start-card > h3 { margin-bottom: 1.1em; }
 .qz-dd-btn { font-size: 0.82rem; min-height: 34px; padding-top: 6px; padding-bottom: 6px; line-height: 1.1; box-shadow: 0 3px 0 rgba(8, 90, 72, 0.45); }
+
+/* Spelling start row: one blank line under the title, and a slimmer chip + dropdown */
+html body .sp-start-card .sp-start-row { margin-top: 18px; }
+html body .sp-start-row .sp-level-chip { min-height: 30px; padding: 0 12px; font-size: 0.82rem; box-shadow: 0 2px 0 rgba(8, 90, 72, 0.45); }
+html body .sp-start-row .qz-dd-btn { min-height: 30px; padding: 4px 26px; font-size: 0.82rem; box-shadow: 0 2px 0 rgba(8, 90, 72, 0.45); }
+html body .sp-start-row .qz-dd-btn::after { right: 11px; width: 6px; height: 6px; margin-top: -5px; }
+html body .sp-start-row .qz-dd-btn[aria-expanded="true"]::after { margin-top: -2px; }
