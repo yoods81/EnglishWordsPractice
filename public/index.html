@@ -681,18 +681,6 @@ to Flip!</span></div>
     <!-- Spelling -->
     <section id="view-spelling" class="view">
       <div class="card">
-        <h3 class="view-section-title" data-i18n="spellingSectionTitle">✏️ Spelling</h3>
-        <div class="setting-row setting-row-nowrap setting-row-center">
-          <div class="goal-stepper goal-stepper-fun" id="spelling-goal-stepper">
-            <span class="goal-stepper-label" data-i18n="goalLabel">Number of Questions</span>
-            <button type="button" class="goal-step-btn" id="spelling-goal-minus" data-i18n-aria-label="goalDecreaseLabel" aria-label="Decrease">−</button>
-            <span class="goal-stepper-value-wrap">
-              <span class="goal-stepper-icon" aria-hidden="true">🎯</span>
-              <span class="goal-stepper-value" id="spelling-goal-value">10</span>
-            </span>
-            <button type="button" class="goal-step-btn" id="spelling-goal-plus" data-i18n-aria-label="goalIncreaseLabel" aria-label="Increase">+</button>
-          </div>
-        </div>
         <div class="goal-banner" id="spelling-goal-banner" hidden>
           <p class="goal-message" id="spelling-goal-message"></p>
           <div class="goal-actions">
@@ -707,7 +695,9 @@ to Flip!</span></div>
             <h3 data-i18n="spStartTitle">✏️ Spelling</h3>
             <div class="tg-start-chips">
               <span class="tg-start-chip" id="spelling-start-level"></span>
-              <span class="tg-start-chip tg-start-best" id="spelling-start-goal"></span>
+            </div>
+            <div class="qz-selects">
+              <select id="spelling-goal-select" data-i18n-aria-label="goalLabel" aria-label="Number of Questions"></select>
             </div>
             <div class="sp-start-panel"><svg class="sp-scene" viewBox="0 0 300 160" role="img" aria-label="A koala teacher pointing at a chalkboard spelling KOALA">
               <rect x="0" y="0" width="300" height="160" rx="18" fill="#e4f7f0"/>

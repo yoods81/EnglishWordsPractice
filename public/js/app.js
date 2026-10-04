@@ -1700,14 +1700,11 @@ function clampGoalsForRole() {
 // opposed to every other, unrelated reason renderGoalStepper() gets called —
 // a language switch, a level change, ...) can play a little bounce, rather
 // than the number just flatly updating.
-const goalStepperLastValue = { quiz: null, spelling: null };
 
 function updateSpellingStartChips() {
   const lv = document.getElementById("spelling-start-level");
-  const gl = document.getElementById("spelling-start-goal");
-  if (!lv || !gl) return;
+  if (!lv) return;
   lv.textContent = `📚 ${levelLabel(currentLevel)}`;
-  gl.textContent = `🎯 ${goals.spelling} ${currentLang === "ko" ? "단어" : "words"}`;
 }
 
 // The quiz's "Number of Questions" is a dropdown inside the start card (the
@@ -1717,57 +1714,39 @@ function updateSpellingStartChips() {
 // the pool holds more than their ceiling; picking it opens the same
 // sign-up / upgrade nudge the old "+" button did.
 const QUIZ_GOAL_MAX = 100; // the dropdown never offers more than this
-function renderQuizGoalSelect() {
+function renderQuizGoalSelect(mode = "quiz") {
+  const sel = mode === "quiz" ? quizGoalSelect : spellingGoalSelect;
   const roleMax = goalMaxFor();
   // Only a signed-out visitor (ceiling below QUIZ_GOAL_MAX) has anything to
   // unlock; everyone else already reaches the top of the list.
   const hasUpsellAbove = (!currentUser || currentUser.role === "free") && roleMax < QUIZ_GOAL_MAX;
-  if (goals.quiz > QUIZ_GOAL_MAX) { goals.quiz = QUIZ_GOAL_MAX; saveGoals(); }
+  if (goals[mode] > QUIZ_GOAL_MAX) { goals[mode] = QUIZ_GOAL_MAX; saveGoals(); }
   // Always a clean 5, 10, 15 ... ladder up to the account's ceiling (max 100);
   // a round never runs longer than the pool, startQuizRound clamps it.
   const limit = Math.min(roleMax, QUIZ_GOAL_MAX);
   const values = new Set();
   for (let n = GOAL_MIN; n <= limit; n += GOAL_STEP) values.add(n);
-  if (goals.quiz > 0 && goals.quiz % GOAL_STEP === 0 && goals.quiz <= limit) values.add(goals.quiz);
+  if (goals[mode] > 0 && goals[mode] % GOAL_STEP === 0 && goals[mode] <= limit) values.add(goals[mode]);
   const sorted = [...values].sort((a, b) => a - b);
-  quizGoalSelect.innerHTML = "";
+  sel.innerHTML = "";
   sorted.forEach((n) => {
     const o = document.createElement("option");
     o.value = String(n);
     o.textContent = t("qzChipQuestions", n);
-    quizGoalSelect.appendChild(o);
+    sel.appendChild(o);
   });
   if (hasUpsellAbove) {
     const o = document.createElement("option");
     o.value = "more";
     o.textContent = t("qzGoalMore");
-    quizGoalSelect.appendChild(o);
+    sel.appendChild(o);
   }
-  quizGoalSelect.value = String(goals.quiz);
+  sel.value = String(goals[mode]);
 }
 
 function renderGoalStepper(mode) {
-  if (mode === "quiz") { renderQuizGoalSelect(); return; }
-  const valueEl = spellingGoalValueEl;
-  const minusBtn = spellingGoalMinusBtn;
-  const plusBtn = spellingGoalPlusBtn;
-  const changed = goalStepperLastValue[mode] !== null && goalStepperLastValue[mode] !== goals[mode];
-  valueEl.textContent = String(goals[mode]);
-  if (changed) pulseScoreTag(valueEl, "option-btn-bounce");
-  goalStepperLastValue[mode] = goals[mode];
+  renderQuizGoalSelect(mode);
   if (mode === "spelling") updateSpellingStartChips();
-  minusBtn.disabled = goals[mode] <= GOAL_MIN;
-
-  const poolMax = goalPoolSize(mode);
-  const roleMax = goalMaxFor();
-  // A paid/admin account has no upsell above its own ceiling, so both the
-  // pool and the role ceiling act as hard stops for it. A signed-out
-  // visitor or a free account keeps + enabled right at their role ceiling
-  // (as long as the pool genuinely has more) — tapping it there triggers
-  // the sign-up/upgrade nudge instead of just going inert.
-  const hasUpsellAbove = !currentUser || currentUser.role === "free";
-  const hardCeiling = hasUpsellAbove ? poolMax : Math.min(roleMax, poolMax);
-  plusBtn.disabled = goals[mode] >= hardCeiling;
 }
 
 /* ---------- Kid-friendly confirm modal ----------
@@ -4921,9 +4900,7 @@ spellingBackspaceBtn.className = "sp-erase-btn";
 spellingBackspaceBtn.innerHTML = '<svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="42" height="42" rx="11"/><path d="M13 24l9-9v5.5h12v7H22V33z"/></svg>';
 spellingInput.parentElement.appendChild(spellingBackspaceBtn);
 const spellingScoreEl = document.getElementById("spelling-score");
-const spellingGoalValueEl = document.getElementById("spelling-goal-value");
-const spellingGoalMinusBtn = document.getElementById("spelling-goal-minus");
-const spellingGoalPlusBtn = document.getElementById("spelling-goal-plus");
+const spellingGoalSelect = document.getElementById("spelling-goal-select");
 const spellingGoalBanner = document.getElementById("spelling-goal-banner");
 const spellingGoalMessage = document.getElementById("spelling-goal-message");
 const spellingGoalNextLevelBtn = document.getElementById("spelling-goal-next-level");
@@ -5612,24 +5589,18 @@ spellingReportRestartBtn.addEventListener("click", () => {
   buildSpellingDeck();
 });
 
-spellingGoalMinusBtn.addEventListener("click", () => {
-  goals.spelling = Math.max(GOAL_MIN, goals.spelling - GOAL_STEP);
-  saveGoals();
-  buildSpellingDeck({ resetScreen: false });
-});
-
-spellingGoalPlusBtn.addEventListener("click", () => {
-  const poolMax = spellingPoolSize();
-  if (goals.spelling >= poolMax) return; // no more words available at all, regardless of tier
-  if (!currentUser && goals.spelling >= GOAL_MAX_ANONYMOUS) {
-    promptSignupForMoreQuestions();
+const syncSpellingGoalDd = enhanceSelect(spellingGoalSelect, 6);
+spellingGoalSelect.addEventListener("change", () => {
+  if (spellingGoalSelect.value === "more") {
+    spellingGoalSelect.value = String(goals.spelling); // nothing changes; just the nudge
+    syncSpellingGoalDd();
+    if (!currentUser) promptSignupForMoreQuestions();
+    else if (currentUser.role === "free") openUpgradeOverlay();
     return;
   }
-  if (currentUser && currentUser.role === "free" && goals.spelling >= GOAL_MAX_FREE) {
-    openUpgradeOverlay();
-    return;
-  }
-  goals.spelling = Math.min(goalMaxFor(), poolMax, goals.spelling + GOAL_STEP);
+  const n = parseInt(spellingGoalSelect.value, 10);
+  if (!(n > 0)) return;
+  goals.spelling = n;
   saveGoals();
   buildSpellingDeck({ resetScreen: false });
 });
@@ -5657,19 +5628,6 @@ document.addEventListener("keydown", (e) => {
       e.preventDefault();
       spellingReportRestartBtn.click();
     }
-    return;
-  }
-
-  // The Number of Questions stepper is hidden while a round is running, so
-  // its Up/Down shortcuts only apply on the start screen.
-  if (spellingPractice.hidden && e.key === "ArrowUp") {
-    e.preventDefault();
-    spellingGoalPlusBtn.click();
-    return;
-  }
-  if (spellingPractice.hidden && e.key === "ArrowDown") {
-    e.preventDefault();
-    spellingGoalMinusBtn.click();
     return;
   }
 
