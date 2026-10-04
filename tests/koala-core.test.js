@@ -435,45 +435,109 @@ test("shop expansion: Jewelry and Shoes exist and every character category has 1
 test("shop expansion: every Study Room category has 10+ items with art", () => {
   K.ROOM_SLOTS.forEach((slot) => {
     const n = K.ITEMS.filter((i) => i.slot === slot && !i.season).length;
-    assert.ok(n >= 10, slot + " has " + n);
+    // toys live in toy boxes now (as sub-items), so that slot only lists the boxes
+    assert.ok(n >= (slot === "toy" ? 3 : 10), slot + " has " + n);
   });
   assert.ok(K.ROOM_SLOTS.length >= 11);
   K.ITEMS.filter((i) => i.kind === "room").forEach((i) => assert.ok(A.hasArt(i.id), i.id));
 });
 
-test("sub-items: parents, limits and frame single-select", () => {
-  const p = { koala: { coins: 0, earned: 0, ledger: [], items: { owned: {}, equipped: {} } } };
-  assert.equal(K.subKind("bookshelf"), "books");
-  assert.equal(K.subKind("studyDesk"), "desk");
-  assert.equal(K.subKind("woodFrame"), "frame");
-  assert.equal(K.subKind("woodToyBox"), "toys");
-  assert.equal(K.subKind("cozyRug"), null);
-  assert.equal(K.toggleSub(p, "cozyRug", "koalaBook").reason, "notParent");
-  assert.equal(K.toggleSub(p, "bookshelf", "toyBall").reason, "unknown");
-  assert.deepEqual(K.toggleSub(p, "bookshelf", "koalaBook"), { ok: true, on: true });
-  assert.deepEqual(K.subSelection(p, "bookshelf"), ["koalaBook"]);
-  assert.equal(K.toggleSub(p, "bookshelf", "koalaBook").on, false);
-  // toys are limited to 4
-  ["toyTeddy", "toyBall", "toyCar", "toyRobot"].forEach((s) => assert.ok(K.toggleSub(p, "woodToyBox", s).ok));
-  assert.equal(K.toggleSub(p, "woodToyBox", "toyDino").reason, "full");
-  // desk groups are separate
-  K.subItemsFor("studyDesk").filter((s) => s.group === "drawer").forEach((s) => K.toggleSub(p, "studyDesk", s.id));
-  assert.ok(K.toggleSub(p, "studyDesk", "pencilCup").ok);
-  // a frame holds exactly one picture and starts with the default
-  assert.deepEqual(K.subSelection(p, "goldFrame"), ["picMeadow"]);
-  K.toggleSub(p, "goldFrame", "picSea");
-  K.toggleSub(p, "goldFrame", "picSpace");
-  assert.deepEqual(K.subSelection(p, "goldFrame"), ["picSpace"]);
+const bag = (coins) => ({ koala: { coins, earned: coins, ledger: [], items: { owned: {}, equipped: {} } } });
+
+test("sub-items: every one costs coins, and less than the cheapest parent it goes with", () => {
+  K.SUB_ITEMS.forEach((sub) => {
+    const parents = Object.keys(K.SUB_PARENTS).filter((p) => K.SUB_PARENTS[p] === sub.kind);
+    const cheapest = Math.min(...parents.map((p) => K.itemById(p).unlock.coins));
+    assert.ok(sub.cost < cheapest, sub.id + " " + sub.cost + " vs " + cheapest);
+    if (!sub.cost) assert.equal(sub.id, "picMeadow");
+  });
+  // all toys are sub-items of the toy boxes; pets get outfits
+  assert.equal(K.ITEMS.filter((i) => i.slot === "toy").every((i) => K.subKind(i.id) === "toys"), true);
+  assert.equal(K.subKind("catPet"), "petwear");
+  assert.equal(K.subKind("fishBowlPet"), null);
 });
 
-test("sub-items: ensureKoala cleans bad data and mergeRewards keeps both sides", () => {
-  const p = { koala: { coins: 0, earned: 0, ledger: [], items: { owned: {}, equipped: {}, sub: { bookshelf: ["koalaBook", "koalaBook", "nope", "toyBall"], cozyRug: ["x"], woodToyBox: ["a"] } } } };
+test("sub-items: owning the parent gives nothing; buying costs coins; limits and swaps", () => {
+  const p = bag(500);
+  K.buyItem(p, "woodToyBox");
+  assert.deepEqual(K.subSelection(p, "woodToyBox"), []);
+  assert.equal(K.toggleSub(p, "woodToyBox", "toyBall").reason, "notOwned");
+  assert.equal(K.toggleSub(p, "cozyRug", "toyBall").reason, "notParent");
+  assert.equal(K.buySub(p, "woodToyBox", "toyBall").ok, true);
+  assert.equal(p.koala.coins, 500 - 90 - 20);
+  assert.equal(K.buySub(p, "woodToyBox", "toyBall").reason, "owned");
+  assert.deepEqual(K.subSelection(p, "woodToyBox"), ["toyBall"]);
+  assert.equal(K.toggleSub(p, "woodToyBox", "toyBall").on, false); // take out, still owned
+  assert.equal(K.isSubOwned(p, "toyBall"), true);
+  assert.equal(K.buySub(bag(5), "woodToyBox", "toyBall").reason, "notEnoughCoins");
+  assert.equal(K.buySub(p, "bookshelf", "toyBall").reason, "unknown");
+  // toys: at most 4
+  ["toyTeddy", "toyCar", "toyRobot", "toyDino"].forEach((s) => assert.ok(K.buySub(p, "woodToyBox", s).placed));
+  K.buySub(p, "woodToyBox", "toyBall"); // owned already -> reason owned
+  K.toggleSub(p, "woodToyBox", "toyBall");
+  assert.equal(K.subSelection(p, "woodToyBox").length, 4);
+  // a frame holds one picture, starts with the free one
+  assert.deepEqual(K.subSelection(p, "goldFrame"), ["picMeadow"]);
+  K.buySub(p, "goldFrame", "picSea");
+  assert.deepEqual(K.subSelection(p, "goldFrame"), ["picSea"]);
+  // pet outfit swaps within its group
+  K.buySub(p, "catPet", "pwBow"); K.buySub(p, "catPet", "pwTopHat");
+  assert.deepEqual(K.subSelection(p, "catPet"), ["pwTopHat"]);
+  K.buySub(p, "catPet", "pwCollar");
+  assert.deepEqual(K.subSelection(p, "catPet").sort(), ["pwCollar", "pwTopHat"]);
+  // admin: free
+  const adm = bag(0);
+  assert.equal(K.buySub(adm, "catPet", "pwCape", { unlimited: true }).ok, true);
+  assert.equal(adm.koala.coins, 0);
+});
+
+test("selling back: 80% returns to the wallet, the item is gone, history records it", () => {
+  const p = bag(300);
+  K.buyItem(p, "bookshelf"); // 100
+  K.buySub(p, "bookshelf", "spaceBook"); // 35
+  assert.equal(p.koala.coins, 165);
+  const r = K.sellSub(p, "spaceBook");
+  assert.equal(r.refund, 28);
+  assert.equal(r.fee, 7);
+  assert.equal(p.koala.coins, 193);
+  assert.equal(K.isSubOwned(p, "spaceBook"), false);
+  assert.deepEqual(K.subSelection(p, "bookshelf"), []);
+  const s = K.sellItem(p, "bookshelf");
+  assert.equal(s.refund, 80);
+  assert.equal(p.koala.coins, 273);
+  assert.equal(p.koala.items.owned.bookshelf, undefined);
+  assert.equal(p.koala.items.equipped.shelf, undefined);
+  assert.equal(p.koala.refunded, 108);
+  assert.equal(p.koala.spent, 135);
+  assert.deepEqual(p.koala.ledger.map((e) => e.why), ["item:bookshelf", "sub:spaceBook", "sellsub:spaceBook", "sell:bookshelf"]);
+  assert.ok(p.koala.coins <= p.koala.earned);
+  assert.equal(K.sellItem(p, "bookshelf").reason, "notOwned");
+  assert.equal(K.sellItem(p, "creamWall").reason, "notForSale");
+  assert.equal(K.sellSub(p, "picMeadow").reason, "notForSale");
+  // buy it again: works, and nothing is free
+  assert.equal(K.buyItem(p, "bookshelf").ok, true);
+  // admin gets nothing back
+  const adm = bag(0);
+  K.buyItem(adm, "bookshelf", { unlimited: true });
+  assert.equal(K.sellItem(adm, "bookshelf", { unlimited: true }).refund, 0);
+  assert.equal(adm.koala.coins, 0);
+});
+
+test("sub-items: old floor toys become owned toy-box toys; bad data is cleaned; sold items stay sold after sync", () => {
+  const p = { koala: { coins: 0, earned: 0, ledger: [], items: { owned: { teddyToy: 5, ballToy: 6 }, equipped: { toy: "teddyToy" }, sub: { bookshelf: ["koalaBook", "koalaBook", "nope"], cozyRug: ["x"] } } } };
   const k = K.ensureKoala(p);
-  assert.deepEqual(k.items.sub, { bookshelf: ["koalaBook"] });
+  assert.deepEqual(Object.keys(k.items.subOwned).sort(), ["toyBall", "toyTeddy"]);
+  assert.equal(k.items.owned.teddyToy, undefined);
+  assert.equal(k.items.equipped.toy, undefined);
+  assert.deepEqual(k.items.sub, {}); // koalaBook is not owned
   K.SUB_ITEMS.forEach((s) => assert.ok(A.subIcon(s.id).includes("<svg"), s.id));
-  const a = { koala: { coins: 1, earned: 1, ledger: [], items: { owned: {}, equipped: {}, sub: { bookshelf: ["abcBook"] } } } };
-  const b = { koala: { coins: 1, earned: 1, ledger: [], items: { owned: {}, equipped: {}, sub: { studyDesk: ["pencilCup"] } } } };
+  // sold on one device, still owned on the other
+  const a = bag(500);
+  K.buySub(a, "woodToyBox", "toyCar", { unlimited: true });
+  const b = JSON.parse(JSON.stringify(a));
+  K.sellSub(a, "toyCar", { unlimited: true, now: Date.now() + 10 });
+  K.mergeRewards(b, a);
+  assert.equal(K.isSubOwned(b, "toyCar"), false);
   K.mergeRewards(a, b);
-  const sub = a.koala.items.sub;
-  assert.ok(sub.bookshelf && sub.studyDesk);
+  assert.equal(K.isSubOwned(a, "toyCar"), false);
 });

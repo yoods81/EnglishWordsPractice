@@ -243,16 +243,6 @@
     { id: "ducklingPet", kind: "room", slot: "pet", name: { en: "Duckling", ko: "병아리 오리" }, unlock: { coins: 85 } },
     { id: "frogPet", kind: "room", slot: "pet", name: { en: "Frog", ko: "개구리" }, unlock: { coins: 95 } },
     { id: "joeyPet", kind: "room", slot: "pet", name: { en: "Baby Kangaroo", ko: "아기 캥거루" }, unlock: { coins: 150 } },
-    { id: "teddyToy", kind: "room", slot: "toy", name: { en: "Teddy Bear", ko: "곰 인형" }, unlock: { coins: 80 } },
-    { id: "ballToy", kind: "room", slot: "toy", name: { en: "Beach Ball", ko: "비치볼" }, unlock: { coins: 50 } },
-    { id: "blocksToy", kind: "room", slot: "toy", name: { en: "ABC Blocks", ko: "ABC 블록" }, unlock: { coins: 60 } },
-    { id: "carToy", kind: "room", slot: "toy", name: { en: "Toy Car", ko: "장난감 자동차" }, unlock: { coins: 70 } },
-    { id: "robotToy", kind: "room", slot: "toy", name: { en: "Robot", ko: "로봇" }, unlock: { coins: 100 } },
-    { id: "drumToy", kind: "room", slot: "toy", name: { en: "Drum", ko: "드럼" }, unlock: { coins: 75 } },
-    { id: "horseToy", kind: "room", slot: "toy", name: { en: "Rocking Horse", ko: "흔들 목마" }, unlock: { coins: 110 } },
-    { id: "trainToy", kind: "room", slot: "toy", name: { en: "Toy Train", ko: "장난감 기차" }, unlock: { coins: 95 } },
-    { id: "dinoToy", kind: "room", slot: "toy", name: { en: "Dino Toy", ko: "공룡 장난감" }, unlock: { coins: 85 } },
-    { id: "giftToy", kind: "room", slot: "toy", name: { en: "Surprise Gift", ko: "깜짝 선물" }, unlock: { coins: 65 } },
     // Picture frames (pick the picture) and toy boxes (pick the toys): both hold sub-items, see SUB_PARENTS.
     { id: "woodFrame", kind: "room", slot: "poster", name: { en: "Wooden Frame", ko: "나무 액자" }, unlock: { coins: 70 } },
     { id: "goldFrame", kind: "room", slot: "poster", name: { en: "Golden Frame", ko: "금빛 액자" }, unlock: { coins: 120 } },
@@ -313,12 +303,15 @@
     desk: { mode: "multi", groups: { top: 5, drawer: 2 } },
     frame: { mode: "single", groups: { main: 1 }, fallback: "picMeadow" },
     toys: { mode: "multi", groups: { main: 4 } },
+    petwear: { mode: "multi", swap: true, groups: { head: 1, neck: 1, body: 1, feet: 1 } },
   };
   const SUB_PARENTS = {
     bookshelf: "books", rainbowShelf: "books",
     studyDesk: "desk", pinkDesk: "desk",
     woodFrame: "frame", goldFrame: "frame", candyFrame: "frame",
     woodToyBox: "toys", rainbowToyBox: "toys", starToyBox: "toys",
+    catPet: "petwear", dogPet: "petwear", bunnyPet: "petwear", turtlePet: "petwear", parrotPet: "petwear",
+    hedgehogPet: "petwear", ducklingPet: "petwear", frogPet: "petwear", joeyPet: "petwear",
   };
   const sb = (id, kind, group, en, ko, denEn, denKo) => ({ id, kind, group, name: { en, ko }, desc: { en: denEn, ko: denKo } });
   const SUB_ITEMS = [
@@ -362,7 +355,34 @@
     sb("toyRocket", "toys", "main", "Toy Rocket", "장난감 로켓", "3, 2, 1… blast off!", "3, 2, 1… 발사!"),
     sb("toyBunny", "toys", "main", "Bunny", "토끼 인형", "Long ears, soft fur.", "긴 귀에 보들보들 털!"),
     sb("toyDrum", "toys", "main", "Drum", "북", "Boom ba-da-boom!", "둥둥 두둥둥!"),
+    sb("pwPartyHat", "petwear", "head", "Party Hat", "파티 모자", "Every day is a party!", "매일매일이 파티예요!"),
+    sb("pwBow", "petwear", "head", "Ribbon Bow", "리본", "A big pink bow on top.", "머리 위에 커다란 분홍 리본!"),
+    sb("pwTopHat", "petwear", "head", "Top Hat", "신사 모자", "Very fancy indeed.", "아주 멋진 신사 모자예요."),
+    sb("pwFlowers", "petwear", "head", "Flower Crown", "꽃관", "Fresh flowers for a sunny day.", "화창한 날 어울리는 꽃관이에요."),
+    sb("pwCollar", "petwear", "neck", "Red Collar", "빨간 목줄", "A collar with a shiny tag.", "반짝이는 이름표가 달린 목줄!"),
+    sb("pwBell", "petwear", "neck", "Bell Collar", "방울 목줄", "Jingle jingle when it moves.", "움직이면 딸랑딸랑!"),
+    sb("pwScarf", "petwear", "neck", "Warm Scarf", "따뜻한 목도리", "Cosy for chilly days.", "쌀쌀한 날도 포근해요."),
+    sb("pwBowTie", "petwear", "neck", "Bow Tie", "나비넥타이", "Looking sharp!", "멋쟁이 나비넥타이예요!"),
+    sb("pwSweater", "petwear", "body", "Knit Sweater", "털 스웨터", "Soft stripes, warm and snug.", "줄무늬가 예쁜 포근한 스웨터!"),
+    sb("pwRaincoat", "petwear", "body", "Raincoat", "노란 우비", "Splash in the puddles!", "물웅덩이에서 첨벙첨벙!"),
+    sb("pwCape", "petwear", "body", "Hero Cape", "영웅 망토", "Up, up and away!", "슈웅~ 날아라 영웅!"),
+    sb("pwBoots", "petwear", "feet", "Rain Boots", "장화", "Stomp stomp stomp!", "쿵쿵쿵 걸어요!"),
+    sb("pwSneakers", "petwear", "feet", "Sneakers", "운동화", "Ready to run fast.", "씽씽 달릴 준비 완료!"),
   ];
+  // Every sub-item is bought with Koala Coins, and always costs LESS than the cheapest item it goes with.
+  // Cost 0 = comes with the parent (a frame's first picture).
+  const SUB_COST = {
+    koalaBook: 20, abcBook: 20, spaceBook: 35, dinoBook: 30, fairyBook: 25, mathBook: 25, oceanBook: 30, jokeBook: 20, atlasBook: 40, artBook: 25, animalBook: 30, songBook: 20,
+    pencilCup: 10, miniGlobe: 35, alarmClock: 25, miniCactus: 20, notebooks: 15, cocoaMug: 20, crayonBox: 15, stickerBook: 25, secretDiary: 40, marbleBag: 20,
+    picMeadow: 0, picSea: 25, picRainbow: 30, picSpace: 35, picFlowers: 25, picKoala: 40, picNight: 35, picBeach: 30,
+    toyTeddy: 40, toyBall: 20, toyCar: 30, toyRobot: 55, toyDino: 40, toyBlocks: 30, toyDuck: 20, toyRocket: 45, toyBunny: 35, toyDrum: 30,
+    pwPartyHat: 15, pwBow: 15, pwTopHat: 30, pwFlowers: 25, pwCollar: 15, pwBell: 20, pwScarf: 25, pwBowTie: 20, pwSweater: 40, pwRaincoat: 40, pwCape: 45, pwBoots: 30, pwSneakers: 30,
+  };
+  SUB_ITEMS.forEach((x) => { x.cost = SUB_COST[x.id] || 0; });
+  // The toys that used to stand on the floor by themselves now live in toy boxes.
+  const LEGACY_TOYS = { teddyToy: "toyTeddy", ballToy: "toyBall", blocksToy: "toyBlocks", carToy: "toyCar", robotToy: "toyRobot", drumToy: "toyDrum", dinoToy: "toyDino", horseToy: "toyRocket", trainToy: "toyDuck", giftToy: "toyBunny" };
+  const SELL_RATE = 0.8; // selling gives back 80% — a 20% fee
+  const sellValue = (cost) => Math.floor(Math.max(0, Number(cost) || 0) * SELL_RATE);
   const subKind = (parentId) => SUB_PARENTS[parentId] || null;
   const subById = (id) => SUB_ITEMS.find((s) => s.id === id) || null;
   const subItemsFor = (parentId) => { const kind = SUB_PARENTS[parentId]; return kind ? SUB_ITEMS.filter((s) => s.kind === kind) : []; };
@@ -389,13 +409,26 @@
     const sel = (k.items.sub || {})[parentId] || [];
     return sel.length || !SUB_RULES[kind].fallback ? sel.slice() : [SUB_RULES[kind].fallback];
   }
-  // Put a sub-item on / take it off (a frame swaps its picture). Returns { ok, on } or { ok:false, reason }.
-  function toggleSub(progress, parentId, subId) {
+  // Is this sub-item in the child's collection? (Free ones always are.)
+  function isSubOwned(progress, subId) {
+    const it = subById(subId);
+    if (!it) return false;
+    if (!it.cost) return true;
+    return !!ensureKoala(progress).items.subOwned[subId];
+  }
+  // Put an OWNED sub-item on / take it off (a frame swaps its picture, a pet's outfit swaps within its group).
+  // Returns { ok, on } or { ok:false, reason: notParent | unknown | notOwned | full }.
+  // opts.unlimited (admin) puts it in the collection for free first.
+  function toggleSub(progress, parentId, subId, opts) {
     const k = ensureKoala(progress);
     const kind = SUB_PARENTS[parentId];
     const it = subById(subId);
     if (!kind) return { ok: false, reason: "notParent" };
     if (!it || it.kind !== kind) return { ok: false, reason: "unknown" };
+    if (!isSubOwned(progress, subId)) {
+      if (opts && opts.unlimited) k.items.subOwned[subId] = (opts && opts.now) || Date.now();
+      else return { ok: false, reason: "notOwned" };
+    }
     const cur = subSelection(progress, parentId);
     if (SUB_RULES[kind].mode === "single") {
       k.items.sub[parentId] = [subId];
@@ -405,10 +438,68 @@
       k.items.sub[parentId] = cur.filter((x) => x !== subId);
       return { ok: true, on: false };
     }
-    const inGroup = cur.filter((x) => subById(x).group === it.group).length;
-    if (inGroup >= subLimit(kind, it.group)) return { ok: false, reason: "full", group: it.group };
+    const inGroup = cur.filter((x) => subById(x).group === it.group);
+    if (inGroup.length >= subLimit(kind, it.group)) {
+      if (!SUB_RULES[kind].swap) return { ok: false, reason: "full", group: it.group };
+      k.items.sub[parentId] = cur.filter((x) => !inGroup.includes(x)).concat(subId);
+      return { ok: true, on: true };
+    }
     k.items.sub[parentId] = cur.concat(subId);
     return { ok: true, on: true };
+  }
+  // Buy a sub-item with Koala Coins and put it straight into its parent when there is room.
+  function buySub(progress, parentId, subId, opts) {
+    const k = ensureKoala(progress);
+    const it = subById(subId);
+    if (!SUB_PARENTS[parentId]) return { ok: false, reason: "notParent" };
+    if (!it || it.kind !== SUB_PARENTS[parentId]) return { ok: false, reason: "unknown" };
+    if (isSubOwned(progress, subId)) return { ok: false, reason: "owned" };
+    if (!(opts && opts.unlimited) && !spendCoins(progress, it.cost, "sub:" + subId, opts)) return { ok: false, reason: "notEnoughCoins" };
+    k.items.subOwned[subId] = (opts && opts.now) || Date.now();
+    delete k.items.sold[subId];
+    const put = toggleSub(progress, parentId, subId, opts);
+    return { ok: true, sub: it, placed: !!(put.ok && put.on) };
+  }
+
+  /* ---------- Selling back ---------- */
+  function recordSale(k, n, why, opts) {
+    if (n > 0) {
+      k.coins += n;
+      k.refunded += n;
+      k.ledger.push({ t: (opts && opts.now) != null ? opts.now : Date.now(), n, why });
+      if (k.ledger.length > REWARD_CONFIG.ledgerMax) k.ledger.splice(0, k.ledger.length - REWARD_CONFIG.ledgerMax);
+    }
+  }
+  // Sell a bought room / character item back: 80% of its price returns to the coin wallet.
+  // Free and streak/badge items can't be sold. The admin has unlimited coins, so gets nothing back.
+  function sellItem(progress, id, opts) {
+    const k = ensureKoala(progress);
+    const it = itemById(id);
+    if (!it || !it.unlock.coins) return { ok: false, reason: "notForSale" };
+    if (!k.items.owned[id]) return { ok: false, reason: "notOwned" };
+    const unlimited = !!(opts && opts.unlimited);
+    const refund = unlimited ? 0 : sellValue(it.unlock.coins);
+    if (k.items.equipped[it.slot] === id) delete k.items.equipped[it.slot];
+    delete k.items.owned[id];
+    k.items.sold[id] = (opts && opts.now) || Date.now();
+    recordSale(k, refund, "sell:" + id, opts);
+    return { ok: true, item: it, refund, fee: unlimited ? 0 : it.unlock.coins - refund };
+  }
+  function sellSub(progress, subId, opts) {
+    const k = ensureKoala(progress);
+    const it = subById(subId);
+    if (!it || !it.cost) return { ok: false, reason: "notForSale" };
+    if (!k.items.subOwned[subId]) return { ok: false, reason: "notOwned" };
+    const unlimited = !!(opts && opts.unlimited);
+    const refund = unlimited ? 0 : sellValue(it.cost);
+    delete k.items.subOwned[subId];
+    k.items.sold[subId] = (opts && opts.now) || Date.now();
+    Object.keys(k.items.sub).forEach((pid) => {
+      k.items.sub[pid] = k.items.sub[pid].filter((x) => x !== subId);
+      if (!k.items.sub[pid].length) delete k.items.sub[pid];
+    });
+    recordSale(k, refund, "sellsub:" + subId, opts);
+    return { ok: true, sub: it, refund, fee: unlimited ? 0 : it.cost - refund };
   }
 
   /* ---------- Koala state ---------- */
@@ -424,8 +515,21 @@
     if (!k.items.owned || typeof k.items.owned !== "object") k.items.owned = {};
     if (!k.items.equipped || typeof k.items.equipped !== "object") k.items.equipped = {};
     if (!k.items.sub || typeof k.items.sub !== "object" || Array.isArray(k.items.sub)) k.items.sub = {};
+    ["subOwned", "sold"].forEach((key) => { if (!k.items[key] || typeof k.items[key] !== "object" || Array.isArray(k.items[key])) k.items[key] = {}; });
+    // coin wallet totals (spent in the shop / given back by selling)
+    k.spent = Number.isFinite(k.spent) && k.spent >= 0 ? Math.floor(k.spent) : Math.max(0, k.earned - k.coins);
+    k.refunded = Number.isFinite(k.refunded) && k.refunded >= 0 ? Math.floor(k.refunded) : 0;
+    // Toys used to be single room items; they are toy-box sub-items now. Keep what the child owned.
+    Object.keys(LEGACY_TOYS).forEach((old) => {
+      const ts = k.items.owned[old];
+      if (!ts) return;
+      const to = LEGACY_TOYS[old];
+      if (!(k.items.sold[to] >= ts)) k.items.subOwned[to] = Math.min(k.items.subOwned[to] || ts, ts);
+      delete k.items.owned[old];
+    });
+    Object.keys(k.items.subOwned).forEach((id) => { const it = subById(id); if (!it || !it.cost) delete k.items.subOwned[id]; });
     Object.keys(k.items.sub).forEach((pid) => {
-      const clean = cleanSub(pid, k.items.sub[pid]);
+      const clean = cleanSub(pid, k.items.sub[pid]).filter((id) => !subById(id).cost || k.items.subOwned[id]);
       if (clean.length) k.items.sub[pid] = clean; else delete k.items.sub[pid];
     });
     // Free items are owned from the start; drop anything the catalogue no
@@ -468,6 +572,7 @@
     const k = ensureKoala(progress);
     if (k.coins < n) return false;
     k.coins -= n;
+    k.spent += n;
     k.ledger.push({ t: o.now != null ? o.now : Date.now(), n: -n, why: String(why || "") });
     if (k.ledger.length > REWARD_CONFIG.ledgerMax) k.ledger.splice(0, k.ledger.length - REWARD_CONFIG.ledgerMax);
     return true;
@@ -747,9 +852,17 @@
     }));
     const equipped = Object.assign({}, other.items.equipped, base.items.equipped);
     const sub = Object.assign({}, other.items.sub, base.items.sub);
+    // owned sub-items and "sold" marks: a sale newer than the purchase wins, so a sold item can't come back from the other device
+    const sold = {};
+    [other.items.sold, base.items.sold].forEach((o) => Object.keys(o).forEach((id) => { sold[id] = Math.max(sold[id] || 0, o[id]); }));
+    const subOwned = {};
+    [other.items.subOwned, base.items.subOwned].forEach((o) => Object.keys(o).forEach((id) => {
+      subOwned[id] = subOwned[id] ? Math.min(subOwned[id], o[id]) : o[id];
+    }));
+    [owned, subOwned].forEach((o) => Object.keys(o).forEach((id) => { if (sold[id] && sold[id] >= o[id]) delete o[id]; }));
     progress.koala = {
-      v: 1, coins: base.coins, earned: Math.max(base.earned, other.earned),
-      ledger: base.ledger.slice(), items: { owned, equipped, sub },
+      v: 1, coins: base.coins, earned: Math.max(base.earned, other.earned), spent: base.spent, refunded: base.refunded,
+      ledger: base.ledger.slice(), items: { owned, equipped, sub, subOwned, sold },
     };
     // keep ledger keys from the other side so an applied gift is never applied twice
     other.ledger.forEach((e) => { if (e.key && !progress.koala.ledger.some((x) => x.key === e.key)) progress.koala.ledger.push(e); });
@@ -769,7 +882,7 @@
     dateKey, daysBetween, shiftDay, weekKey,
     ensureKoala, awardCoins, spendCoins, adjustCoins, awardLearning, learningProgress, awardMission, awardBadge, awardReview, rewardSlice, mergeRewards,
     ITEM_SLOTS, ROOM_SLOTS, ITEMS, isSeasonActive, visibleItems, itemById, itemStatus, buyItem, equipItem, unequipSlot, syncStreakUnlocks, nextReward,
-    SUB_RULES, SUB_PARENTS, SUB_ITEMS, subKind, subById, subItemsFor, subLimit, subSelection, toggleSub,
+    SUB_RULES, SUB_PARENTS, SUB_ITEMS, subKind, subById, subItemsFor, subLimit, subSelection, toggleSub, isSubOwned, buySub, sellItem, sellSub, sellValue, SELL_RATE, SUB_COST,
     levelInfo,
     ensureStreak, advanceStreak, streakStatus,
   };

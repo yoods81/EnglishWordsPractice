@@ -1807,3 +1807,11 @@ html[data-theme="ivory"] .koala-subbox { background: #fbf6e8 !important; border-
 html[data-theme="ivory"] .koala-subchip, html[data-theme="ivory"] .koala-sub, html[data-theme="ivory"] .koala-subbox-x { background: #fdfaf4 !important; border-color: #eee7d6 !important; }
 html[data-theme="ivory"] .koala-sub.is-on { background: #eef5e6 !important; border-color: var(--accent) !important; }
 html[data-theme="ivory"] .koala-subd-stage { background: #f6efdc !important; border-color: #e8d4a6 !important; }
+html[data-theme="dark"] .koala-wallet { background: linear-gradient(160deg, #2b2615, #3a3119) !important; border-color: #8a7330 !important; box-shadow: 0 4px 0 #5b4b1c !important; }
+html[data-theme="dark"] .koala-wallet-lbl, html[data-theme="dark"] .koala-wallet-stat span, html[data-theme="dark"] .koala-wallet-note { color: #e6cf8a !important; }
+html[data-theme="dark"] .koala-wallet-val, html[data-theme="dark"] .koala-wallet-stat b { color: #f3efe0 !important; }
+html[data-theme="dark"] .koala-wallet-stat, html[data-theme="dark"] .koala-sell-math > div { background: rgba(255, 255, 255, .08) !important; }
+html[data-theme="dark"] .koala-sell-box, html[data-theme="dark"] .koala-item.is-sell { background: #292417 !important; border-color: #6f613e !important; }
+html[data-theme="dark"] .koala-sell-math .total { background: #15251e !important; }
+html[data-theme="ivory"] .koala-wallet { background: linear-gradient(160deg, #f9f1d9, #f1e2b0) !important; border-color: #d8bd73 !important; }
+html[data-theme="ivory"] .koala-sell-box, html[data-theme="ivory"] .koala-item.is-sell { background: #f6efdc !important; border-color: #e8d4a6 !important; }

@@ -405,16 +405,6 @@
     joeyPet: RPET(`<path d="M254 202 q10 -2 8 -12 q-8 4 -14 10z" fill="#b8763a"/><ellipse cx="238" cy="192" rx="12" ry="14" fill="#c97b3a"/><ellipse cx="238" cy="196" rx="7" ry="8" fill="#e6b27a"/><circle cx="238" cy="172" r="9" fill="#c97b3a"/><path d="M231 166 l-3 -12 l7 8z M245 166 l3 -12 l-7 8z" fill="#c97b3a"/><path d="M231 164 l-2 -7 l4 5z M245 164 l2 -7 l-4 5z" fill="#fbcfe8"/><circle cx="234" cy="171" r="1.6" fill="#26332f"/><circle cx="242" cy="171" r="1.6" fill="#26332f"/><ellipse cx="238" cy="176" rx="2.4" ry="1.8" fill="#26332f"/><ellipse cx="238" cy="207" rx="14" ry="3" fill="#a8602a"/>`),
 
     /* toys: on the floor to the left, in front of the desk */
-    teddyToy: RT(`<circle cx="40" cy="170" r="6" fill="#b9824f"/><circle cx="64" cy="170" r="6" fill="#b9824f"/><circle cx="52" cy="178" r="13" fill="#c9915a"/><ellipse cx="52" cy="198" rx="13" ry="14" fill="#c9915a"/><ellipse cx="52" cy="199" rx="7" ry="9" fill="#ecc89a"/><ellipse cx="52" cy="182" rx="5" ry="3.6" fill="#ecc89a"/><circle cx="52" cy="181" r="1.8" fill="#26332f"/><circle cx="47" cy="176" r="1.5" fill="#26332f"/><circle cx="57" cy="176" r="1.5" fill="#26332f"/><circle cx="38" cy="196" r="5" fill="#c9915a"/><circle cx="66" cy="196" r="5" fill="#c9915a"/><path d="M44 189 L60 189 L52 193Z" fill="#ef4444"/>`),
-    ballToy: RT(`<circle cx="52" cy="190" r="17" fill="#fff" stroke="#e5e7eb" stroke-width="1.6"/><path d="M52 173 a17 17 0 0 1 14 8 L52 190Z" fill="#ef4444"/><path d="M66 181 a17 17 0 0 1 3 14 L52 190Z" fill="#fbbf24"/><path d="M52 190 L69 195 a17 17 0 0 1 -12 12Z" fill="#3b82f6"/><path d="M52 190 L45 206 a17 17 0 0 1 -12 -14Z" fill="#3fb984"/><circle cx="52" cy="190" r="3.4" fill="#fff"/>`),
-    blocksToy: RT(`<g stroke="#fff" stroke-width="1.6"><rect x="30" y="192" width="18" height="18" fill="#ef4444"/><rect x="50" y="192" width="18" height="18" fill="#3b82f6"/><rect x="40" y="174" width="18" height="18" fill="#fbbf24"/></g><g fill="#fff" font-family="Arial, sans-serif" font-weight="800" font-size="12" text-anchor="middle"><text x="39" y="206">A</text><text x="59" y="206">B</text><text x="49" y="188">C</text></g>`),
-    carToy: RT(`<path d="M24 200 q0 -6 6 -8 l8 -10 q3 -3 8 -3 h14 q5 0 8 4 l8 9 q6 1 6 8 v4 H24z" fill="#ef4444"/><path d="M40 186 h10 v10 H34z M54 186 h8 l6 10 H54z" fill="#bfe3ff"/><circle cx="38" cy="206" r="7" fill="#374151"/><circle cx="66" cy="206" r="7" fill="#374151"/><circle cx="38" cy="206" r="3" fill="#cbd5e1"/><circle cx="66" cy="206" r="3" fill="#cbd5e1"/>`),
-    robotToy: RT(`<path d="M52 166 v-6" stroke="#6b7a75" stroke-width="2.6"/><circle cx="52" cy="159" r="3.4" fill="#ef4444"/><rect x="38" y="166" width="28" height="22" rx="5" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.6"/><circle cx="46" cy="176" r="3.6" fill="#38bdf8"/><circle cx="58" cy="176" r="3.6" fill="#38bdf8"/><path d="M45 183 h14" stroke="#6b7a75" stroke-width="2"/><rect x="34" y="190" width="36" height="20" rx="4" fill="#94a3b8"/><circle cx="52" cy="200" r="4" fill="#fbbf24"/><rect x="26" y="192" width="8" height="14" rx="3" fill="#cbd5e1"/><rect x="70" y="192" width="8" height="14" rx="3" fill="#cbd5e1"/>`),
-    drumToy: RT(`<ellipse cx="52" cy="184" rx="22" ry="7" fill="#fde7d0" stroke="#ef4444" stroke-width="2"/><path d="M30 184 v20 q22 10 44 0 v-20 q-22 8 -44 0z" fill="#ef4444"/><path d="M34 188 l9 14 l9 -14 l9 14 l9 -14" stroke="#fde7d0" stroke-width="2" fill="none"/><path d="M42 178 l-8 -14 M62 178 l8 -14" stroke="#c9915a" stroke-width="3" stroke-linecap="round"/><circle cx="33" cy="162" r="3" fill="#c9915a"/><circle cx="71" cy="162" r="3" fill="#c9915a"/>`),
-    horseToy: RT(`<path d="M24 208 Q52 220 80 208" stroke="#b9824f" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M34 190 q-4 -18 12 -22 l6 -8 l4 8 q14 2 14 12 q2 10 -4 20 l-4 8 l-4 -8 h-12 l-4 8 l-4 -8z" fill="#c9915a"/><path d="M46 168 q-8 2 -10 10" stroke="#6b3d1c" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="58" cy="172" r="1.6" fill="#26332f"/><path d="M42 188 h22 v6 h-22z" fill="#ef4444"/>`),
-    trainToy: RT(`<rect x="22" y="188" width="30" height="16" rx="3" fill="#3b82f6"/><rect x="26" y="178" width="14" height="10" fill="#2563eb"/><rect x="44" y="172" width="8" height="16" fill="#374151"/><rect x="56" y="192" width="22" height="12" rx="2" fill="#fbbf24"/><path d="M52 198 h4" stroke="#374151" stroke-width="3"/><g fill="#374151"><circle cx="30" cy="206" r="5"/><circle cx="46" cy="206" r="5"/><circle cx="64" cy="206" r="5"/><circle cx="74" cy="206" r="5"/></g><g fill="#e5e7eb" opacity=".8"><circle cx="48" cy="166" r="3"/><circle cx="53" cy="160" r="2.4"/></g>`),
-    dinoToy: RT(`<ellipse cx="50" cy="196" rx="18" ry="11" fill="#3fb06a"/><path d="M62 190 q10 -4 10 -16" stroke="#3fb06a" stroke-width="8" fill="none" stroke-linecap="round"/><circle cx="73" cy="172" r="7" fill="#3fb06a"/><circle cx="75" cy="170" r="1.6" fill="#fff"/><rect x="38" y="202" width="7" height="9" rx="2" fill="#2f8f4e"/><rect x="56" y="202" width="7" height="9" rx="2" fill="#2f8f4e"/><path d="M26 198 q-10 0 -12 8 q12 -2 16 -6z" fill="#3fb06a"/><path d="M40 187 l3 -7 l3 7 M50 185 l3 -7 l3 7" fill="#fbbf24"/>`),
-    giftToy: RT(`<rect x="30" y="184" width="44" height="26" rx="2" fill="#ef4444"/><rect x="28" y="176" width="48" height="10" rx="2" fill="#dc2626"/><rect x="48" y="176" width="8" height="34" fill="#fde047"/><path d="M52 176 q-14 -14 -10 -4 q6 4 10 4 q4 0 10 -4 q4 -10 -10 4z" fill="#fde047" stroke="#e0a21a" stroke-width="1.4"/>`),
   });
 
   /* ---------- Sub-items: art for what sits on / in a room item ----------
@@ -508,11 +498,53 @@
     starToyBox: toyBoxBuild("#3b82f6", "#1d4ed8", `<polygon points="${starPts(38, 201, 6, 2.6)}" fill="#fde047"/><polygon points="${starPts(54, 205, 4.6, 2)}" fill="#fff"/><polygon points="${starPts(68, 199, 4, 1.8)}" fill="#fde047"/>`),
   };
   Object.keys(toyBoxes).forEach((id) => { ROOM_ART[id] = { layer: "toy", view: "14 156 76 58", build: toyBoxes[id], svg: toyBoxes[id]([]) }; });
+  // Pet outfits: 24 x 24 pieces. Head pieces sit on the head (bottom edge at y 22), the rest are centred.
+  const PW_ART = {
+    pwPartyHat: `<path d="M12 2 L19 21 H5z" fill="#a78bfa"/><path d="M8.6 12 h6.8 M7 17 h10" stroke="#fde047" stroke-width="2"/><circle cx="12" cy="2.6" r="2.2" fill="#f472b6"/><rect x="4" y="20.5" width="16" height="2" rx="1" fill="#7c3aed"/>`,
+    pwBow: `<path d="M12 14 L2 7 V20z M12 14 L22 7 V20z" fill="#f472b6"/><circle cx="12" cy="14" r="3.4" fill="#ec4899"/>`,
+    pwTopHat: `<rect x="3" y="19" width="18" height="3.4" rx="1.4" fill="#26332f"/><rect x="6.5" y="4" width="11" height="16" rx="1" fill="#26332f"/><rect x="6.5" y="14.6" width="11" height="3.2" fill="#ef4444"/>`,
+    pwFlowers: `<path d="M1 19 q11 -5 22 0" stroke="#3fb984" stroke-width="2.2" fill="none"/><g stroke="#fff" stroke-width=".8"><circle cx="4" cy="17" r="3.2" fill="#f472b6"/><circle cx="9" cy="14.6" r="3.2" fill="#fde047"/><circle cx="14.4" cy="14.6" r="3.2" fill="#fb923c"/><circle cx="20" cy="17" r="3.2" fill="#a78bfa"/></g><circle cx="12" cy="17.4" r="3.4" fill="#ef4444" stroke="#fff" stroke-width=".8"/>`,
+    pwCollar: `<path d="M2 8 Q12 20 22 8" stroke="#ef4444" stroke-width="3.6" fill="none" stroke-linecap="round"/><circle cx="12" cy="17.4" r="3.2" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>`,
+    pwBell: `<path d="M2 8 Q12 20 22 8" stroke="#3b82f6" stroke-width="3.6" fill="none" stroke-linecap="round"/><path d="M8 20 a4 4 0 0 1 8 0z" fill="#fbbf24" stroke="#d97706" stroke-width=".8"/><circle cx="12" cy="21.4" r="1.2" fill="#92400e"/>`,
+    pwScarf: `<path d="M2 7 Q12 18 22 7 V12 Q12 23 2 12z" fill="#f97316"/><rect x="14.6" y="13" width="5.4" height="10" rx="1.6" fill="#f97316"/><path d="M14.6 17 h5.4 M14.6 20 h5.4" stroke="#fff" stroke-width="1.1"/>`,
+    pwBowTie: `<path d="M12 12 L2.4 5.6 V18.4z M12 12 L21.6 5.6 V18.4z" fill="#3b82f6"/><rect x="9.6" y="9.4" width="4.8" height="5.2" rx="1.4" fill="#1d4ed8"/>`,
+    pwSweater: `<path d="M5 3 H19 L23 12 L19 13.6 V23 H5 V13.6 L1 12z" fill="#38bdf8"/><path d="M5 9 h14 M5 14 h14 M5 19 h14" stroke="#fff" stroke-width="1.8"/><path d="M8.6 3 q3.4 5 6.8 0" fill="#0ea5e9"/>`,
+    pwRaincoat: `<path d="M4 2 H20 L23 23 H1z" fill="#fbbf24"/><path d="M12 2 V23" stroke="#d97706" stroke-width="1.4"/><circle cx="9.6" cy="10" r="1.2" fill="#d97706"/><circle cx="9.6" cy="15" r="1.2" fill="#d97706"/><path d="M6 2 q6 6 12 0" fill="#f59e0b"/>`,
+    pwCape: `<path d="M5 2 H19 L24 23 Q12 18 0 23z" fill="#ef4444"/><circle cx="12" cy="3.4" r="2.6" fill="#fbbf24"/>`,
+    pwBoots: `<path d="M1.6 4 H9.6 V15 H11.6 V21 H1.6z" fill="#16a34a"/><path d="M14.4 4 H22.4 V15 H24 V21 H14.4z" fill="#16a34a"/><rect x="1.6" y="18.4" width="10" height="2.6" fill="#14532d"/><rect x="14.4" y="18.4" width="9.6" height="2.6" fill="#14532d"/>`,
+    pwSneakers: `<path d="M1 11 H7 L10.6 16 H11.6 V21 H1z" fill="#ef4444"/><path d="M13 11 H19 L22.6 16 H23.6 V21 H13z" fill="#ef4444"/><rect x="1" y="19" width="10.6" height="2.4" fill="#fff"/><rect x="13" y="19" width="10.6" height="2.4" fill="#fff"/><path d="M3 14 h4 M15 14 h4" stroke="#fff" stroke-width="1.2"/>`,
+  };
+  // where each pet wears things: head (top of the head), neck, body, feet
+  const PET_WEAR = {
+    catPet: { head: [238, 164], neck: [238, 185], body: [238, 194], feet: [238, 207] },
+    dogPet: { head: [238, 165], neck: [238, 187], body: [238, 197], feet: [238, 207] },
+    bunnyPet: { head: [238, 171], neck: [238, 187], body: [238, 197], feet: [238, 207] },
+    turtlePet: { head: [257, 194], neck: [250, 200], body: [238, 196], feet: [238, 205] },
+    parrotPet: { head: [238, 165], neck: [238, 181], body: [238, 193], feet: [238, 207] },
+    hedgehogPet: { head: [257, 195], neck: [251, 200], body: [240, 193], feet: [240, 206] },
+    ducklingPet: { head: [244, 171], neck: [242, 190], body: [238, 197], feet: [238, 208] },
+    frogPet: { head: [238, 178], neck: [238, 191], body: [238, 198], feet: [238, 207] },
+    joeyPet: { head: [238, 164], neck: [238, 181], body: [238, 193], feet: [238, 207] },
+  };
+  const PW_SCALE = { head: 0.62, neck: 0.72, body: 0.95, feet: 0.62 };
+  const PW_GROUP = { pwPartyHat: "head", pwBow: "head", pwTopHat: "head", pwFlowers: "head", pwCollar: "neck", pwBell: "neck", pwScarf: "neck", pwBowTie: "neck", pwSweater: "body", pwRaincoat: "body", pwCape: "body", pwBoots: "feet", pwSneakers: "feet" };
+  const wearSvg = (petId, sel) => ["body", "neck", "feet", "head"].map((g) => {
+    const id = sel.find((x) => PW_GROUP[x] === g);
+    if (!id) return "";
+    const [ax, ay0] = PET_WEAR[petId][g], ay = g === "feet" ? ay0 - 3 : ay0;
+    const sc = PW_SCALE[g], oy = g === "head" ? 22 : 12;
+    return `<g transform="translate(${(ax - 12 * sc).toFixed(1)} ${(ay - oy * sc).toFixed(1)}) scale(${sc})">${PW_ART[id]}</g>`;
+  }).join("");
+  Object.keys(PET_WEAR).forEach((petId) => {
+    const base = ROOM_ART[petId].svg;
+    ROOM_ART[petId].build = (sel) => base + wearSvg(petId, sel);
+  });
   // Small picture of one sub-item for cards and the detail popup.
   function subIcon(id) {
     const head = `<svg class="koala-icon-svg koala-sub-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" `;
     if (BOOK_DEF[id]) return `${head}viewBox="0 0 40 40">${bigBook(id)}</svg>`;
     if (PIC_ART[id]) return `${head}viewBox="-2 -2 60 44"><g>${PIC_ART[id]}</g><rect x="0" y="0" width="56" height="40" fill="none" stroke="#b9824f" stroke-width="3"/></svg>`;
+    if (PW_ART[id]) return `${head}viewBox="-1 -1 26 26">${PW_ART[id]}</svg>`;
     const art = TOY_ART[id] || DESK_ART[id];
     return art ? `${head}viewBox="-3 -1 26 27">${art}</svg>` : "";
   }
