@@ -334,6 +334,22 @@
       </div>
         </div>
       </div>
+      <!-- Admin card: same data-view as the (admin-only) nav tab, so the
+           existing tab wiring opens the Admin view. The whole group stays
+           hidden until updateAdminUI() sees a server-confirmed admin, and the
+           click handler in app.js refuses non-admins as a second guard. -->
+      <div class="home-admin-group" id="home-admin-group" hidden>
+        <h2 class="home-section-title" data-i18n="homeAdmin">Admin</h2>
+        <div class="landing-tiles">
+          <button data-view="admincodes" class="tab-btn landing-tile landing-tile-highlight" id="home-admin-tile">
+            <span class="landing-tile-icon" aria-hidden="true">🛠️</span>
+            <span class="landing-tile-body">
+              <span class="landing-tile-title" data-i18n="navAdminCodes">🛠️ Admin</span>
+              <span class="landing-tile-desc" data-i18n="landingDescAdmin">Codes, users and Koala Coins</span>
+            </span>
+          </button>
+        </div>
+      </div>
     </section>
 
     <!-- Flashcards -->

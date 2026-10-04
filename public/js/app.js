@@ -86,6 +86,8 @@ const TRANSLATIONS = {
     koalaSub: "Everything you earn while you learn lives here.",
     navHome: "🏠 Home",
     navAdminCodes: "🛠️ Admin",
+    homeAdmin: "Admin",
+    landingDescAdmin: "Codes, users and Koala Coins",
     // Section titles shown at the top of the Quiz/Spelling/Flashcards cards
     // themselves (not the nav) — separate from navQuiz/navSpelling/
     // navFlashcards above since those carry the nav's own emoji/short-form.
@@ -676,6 +678,8 @@ const TRANSLATIONS = {
     koalaSub: "공부하면서 얻은 모든 것이 여기에 모여요.",
     navHome: "🏠 홈",
     navAdminCodes: "🛠️ 관리자",
+    homeAdmin: "관리자",
+    landingDescAdmin: "코드, 사용자, 코알라 코인 관리",
     quizSectionTitle: "💡 퀴즈",
     spellingSectionTitle: "✏️ 스펠링",
     flashcardsSectionTitle: "🃏 플래시카드",
@@ -2836,6 +2840,10 @@ function updateAdminUI() {
   // the click handler above). admincodes is the one tab that's genuinely
   // hidden, since it's admin-only rather than sign-in-gated.
   if (adminCodesTabButton) adminCodesTabButton.hidden = !serverAdmin;
+  // The home-screen Admin card follows the same gate: only a server-confirmed
+  // admin session ever sees it.
+  const homeAdminGroup = document.getElementById("home-admin-group");
+  if (homeAdminGroup) homeAdminGroup.hidden = !serverAdmin;
   const koalaView = document.getElementById("view-koala");
   if (koalaView && koalaView.classList.contains("active")) renderKoala();
   // Keep the label short (just the username) so it never fights the centered

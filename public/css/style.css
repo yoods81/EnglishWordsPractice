@@ -4824,6 +4824,9 @@ button.speak-btn-hero.sk-wave { animation: sk-speaker-wobble .5s ease-in-out inf
 .home-groups-row { margin-top: 16px; }
 .home-group + .home-group .home-section-title { margin-top: 16px; }
 @media (min-width: 700px) { .home-group + .home-group .home-section-title { margin-top: 6px; } }
+/* Admin card on the home screen — only un-hidden for a server-confirmed admin. */
+.home-admin-group { margin-top: 16px; }
+.home-admin-group[hidden] { display: none !important; }
 
 /* ---- Times Table: table-range chips, slim start screen, how-to card ---- */
 .tt-range { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 8px; }
