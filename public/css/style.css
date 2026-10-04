@@ -7753,9 +7753,10 @@ html body .sp-start-row .qz-dd-btn[aria-expanded="true"]::after { margin-top: -2
   align-items: center;
   column-gap: 10px;
   row-gap: 10px;
-  /* 1px row border + 14px row padding: puts the "All" checkbox directly above
-     the per-word checkboxes instead of a few pixels off. */
-  padding: 2px 15px 0;
+  /* Left: 1px row border + 14px row padding, so "All" sits above the per-word
+     checkboxes. Right: the grid's own 2px + its scrollbar (--wl-sb, measured in
+     app.js), so the add button ends exactly where the row cards end. */
+  padding: 2px calc(var(--wl-sb, 0px) + 2px) 0 15px;
 }
 
 #view-wordlist .wl-check,

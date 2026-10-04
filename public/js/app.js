@@ -8595,6 +8595,15 @@ function buildWordRow(w) {
   return row;
 }
 
+// The word grid scrolls (max-height) and its scrollbar eats into the row width,
+// so rows end a little before the toolbar does. Expose that width so the toolbar
+// can pull its right edge in to line up with the row cards.
+function syncWordlistScrollbarGap() {
+  const sb = Math.max(0, wordlistGrid.offsetWidth - wordlistGrid.clientWidth);
+  wordlistGrid.parentElement.style.setProperty("--wl-sb", `${sb}px`);
+}
+window.addEventListener("resize", syncWordlistScrollbarGap);
+
 function renderWordList() {
   const query = wordlistSearch.value.trim().toLowerCase();
   wordlistGrid.innerHTML = "";
@@ -8624,10 +8633,12 @@ function renderWordList() {
     p.textContent = t("wordlistEmpty");
     wordlistGrid.appendChild(p);
     updateSelectAllCheckboxState(wordlistSelectAllCheckbox, wordlistGrid);
+    requestAnimationFrame(syncWordlistScrollbarGap);
     return;
   }
   words.forEach((w) => wordlistGrid.appendChild(buildWordRow(w)));
   updateSelectAllCheckboxState(wordlistSelectAllCheckbox, wordlistGrid);
+  requestAnimationFrame(syncWordlistScrollbarGap);
 }
 
 wordlistSearch.addEventListener("input", renderWordList);
