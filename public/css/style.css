@@ -3107,6 +3107,14 @@ button.speak-btn-hero.speak-btn-active {
   cursor: pointer;
   transition: background-color 0.15s ease, transform 0.08s ease;
 }
+/* display: flex above has the same specificity as the browser's own
+   [hidden] { display: none }, and as an author rule it wins regardless of
+   source order — without this the bar showed up (empty, with just its
+   chevron) on every word list, including the empty-state one, instead of
+   only when there's actually a next page to load. */
+#custom-words-load-more-btn[hidden] {
+  display: none;
+}
 #custom-words-load-more-btn:hover {
   background: rgba(14, 156, 125, 0.2);
 }
@@ -3798,6 +3806,18 @@ html[lang="en"] button.kid-modal-btn {
 
 .ocr-dropzone-caption {
   margin: 10px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ocr-dropzone-caption-main {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ocr-dropzone-caption-sub {
   font-size: 0.75rem;
   color: var(--muted);
 }
@@ -3857,8 +3877,9 @@ html[lang="en"] button.kid-modal-btn {
 /* Same raised-rim look as the site's .pill buttons (solid fill + a flat
    bottom shadow in the fill's own -dark shade, sinking flat on :active) —
    kept as their own rules instead of the .pill classes themselves, since
-   .pill.small's smaller padding would win the specificity fight against the
-   42px touch-target sizing below and shrink these back past 42px. */
+   .pill.small's own padding would win the specificity fight against the
+   sizing below. Shorter than the original 42px touch target by request —
+   still comfortably tappable, just less chunky next to the level badge. */
 .wordlist-item .edit-btn,
 .wordlist-item .delete-btn,
 .wordlist-item .retry-btn {
@@ -3866,13 +3887,10 @@ html[lang="en"] button.kid-modal-btn {
   background: #fff;
   color: var(--text);
   border-radius: 999px;
-  /* Padding alone won't reach a 44px touch target at this font-size — the
-     explicit min-height is what actually gets it there, padding just keeps
-     the label from looking cramped inside that taller box. */
-  padding: 10px 16px;
-  min-height: 42px;
-  min-width: 42px;
-  font-size: 0.82rem;
+  padding: 6px 14px;
+  min-height: 32px;
+  min-width: 32px;
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -3895,10 +3913,10 @@ html[lang="en"] button.kid-modal-btn {
 }
 
 .wordlist-item .delete-btn {
-  background: var(--error);
+  background: #ff8787;
   color: #fff;
-  border-color: var(--error-dark);
-  box-shadow: 0 2px 0 var(--error-dark);
+  border-color: #e2605f;
+  box-shadow: 0 2px 0 #e2605f;
 }
 
 .wordlist-item .retry-btn {
