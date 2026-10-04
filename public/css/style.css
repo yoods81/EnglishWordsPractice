@@ -3209,11 +3209,126 @@ button.speak-btn-hero.speak-btn-active {
   font-weight: 700;
 }
 
+/* User Accounts row: info (left) / role status (center) / actions (right)
+   as three explicit grid columns, rather than everything but the username
+   packed into one right-hand flex blob. Each row is its own independent
+   grid (one .wordlist-item per user), so plain `auto` columns would size
+   to that row's own content alone — the admin's own row, with just a
+   badge and no buttons, would then drift out of alignment with every
+   other row's role/action columns. The minmax() floor keeps columns 2 and
+   3 a consistent width across rows regardless of how little any one row
+   puts in them, while still letting a wider row's content grow past it. */
+.wordlist-item.admin-user-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(170px, auto) minmax(195px, auto);
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-user-role,
+.admin-user-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+/* The role <select> doubles as its own status badge — colored by whichever
+   role is currently showing (including, live, whatever the admin just
+   picked but hasn't applied yet) instead of sitting next to a separate
+   static badge that could say something different. */
+.admin-role-select {
+  border: 1px solid var(--outline);
+  border-radius: 999px;
+  padding: 6px 26px 6px 12px;
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 700;
+  background-color: #fff;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+span.admin-role-select {
+  padding-right: 12px;
+  cursor: default;
+}
+
+.admin-role-select[data-role="paid"] {
+  background-color: #e3f7f1;
+  border-color: var(--accent);
+  color: var(--accent-dark);
+}
+
+.admin-role-select[data-role="admin"] {
+  background-color: #0d1f1a;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Inert/muted until the role picker actually differs from what's saved —
+   .is-dirty then falls back to .edit-btn's normal solid-accent look, so the
+   button itself signals "there's a change waiting" instead of always
+   looking equally clickable. */
+.wordlist-item .admin-apply-btn:not(.is-dirty) {
+  background: #fff;
+  color: var(--muted);
+  border-color: var(--outline);
+  box-shadow: 0 2px 0 var(--outline);
+  cursor: default;
+}
+
+/* Deliberately smaller than every other row action and icon-only — the one
+   irreversible button in this row shouldn't be as easy to land a stray tap
+   on as Apply/Reset Password beside it. */
+.wordlist-item .admin-delete-icon-btn {
+  padding: 6px 10px;
+  min-width: 32px;
+  min-height: 32px;
+  font-size: 0.85rem;
+  margin-left: 4px;
+}
+
+@media (max-width: 560px) {
+  .wordlist-item.admin-user-row {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+  .admin-user-role,
+  .admin-user-actions {
+    justify-content: flex-start;
+  }
+}
+
 .wordlist-item .admin-code-text,
 .admin-code-text {
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 1rem;
   letter-spacing: 0.5px;
+}
+
+/* A code's status as a colored pill rather than a plain muted sentence —
+   green for still claimable, purple once it's been redeemed, so a long
+   list reads at a glance instead of needing each line read in turn. */
+.admin-code-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.admin-code-status.unused {
+  background: #e4f8ef;
+  color: var(--success);
+}
+.admin-code-status.used {
+  background: #f1e6fb;
+  color: #7c3aed;
 }
 
 #upgrade-request-fulfilled-code {
@@ -5537,8 +5652,78 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
 /* Admin: Koala Coins */
 .admin-koala-row{flex-wrap:wrap;gap:8px}
 .admin-koala-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
-.admin-koala-amt{width:76px}
-.admin-koala-note{width:140px;max-width:100%}
+/* Slimmer than before — the quick-give chips do most of the work now, so
+   the number field itself only needs to show/tweak a couple of digits. */
+.admin-koala-amt{width:52px}
+.admin-koala-note{width:110px;max-width:100%}
+
+.admin-koala-chips { display: flex; gap: 4px; }
+.admin-koala-chip {
+  border: 1px solid var(--outline);
+  background: #fff;
+  color: var(--accent-dark);
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.admin-koala-chip:hover { background: #e3f7f1; border-color: var(--accent); }
+.admin-koala-chip:active { transform: translateY(1px); }
+
+/* Recent Adjustments: date | user | amount | note as explicit grid columns
+   instead of everything run together in one sentence-like line. */
+#admin-koala-recent .admin-koala-log-row {
+  display: grid;
+  grid-template-columns: auto auto auto 1fr;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+}
+#admin-koala-recent .admin-koala-log-date {
+  color: var(--muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+#admin-koala-recent .admin-koala-log-user {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+#admin-koala-recent .admin-koala-log-amount {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--accent-dark);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+#admin-koala-recent .admin-koala-log-amount.spent { color: var(--muted); }
+#admin-koala-recent .admin-koala-log-note {
+  color: var(--muted);
+  font-size: 0.8rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#admin-koala-recent .admin-koala-log-empty { display: block; }
+
+@media (max-width: 480px) {
+  #admin-koala-recent .admin-koala-log-row {
+    grid-template-columns: auto 1fr;
+    row-gap: 2px;
+  }
+  #admin-koala-recent .admin-koala-log-note {
+    grid-column: 1 / -1;
+    white-space: normal;
+  }
+}
 .koala-hero{flex-wrap:wrap}
 .koala-hero-main{min-width:140px}
 

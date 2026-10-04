@@ -165,12 +165,12 @@ const TRANSLATIONS = {
     adminCodesGenerateBtn: "🎲 Generate New Code",
     adminCodesEmpty: "No codes generated yet.",
     adminCodesCount: (n) => `${n} code${n === 1 ? "" : "s"}`,
-    adminCodeUsedBy: (username) => `Used by ${username}`,
-    adminCodeUnused: "Not used yet",
-    adminCodeCopyBtn: "Copy",
-    adminCodeCopiedBtn: "Copied!",
+    adminCodeUsedBy: (username) => `🟣 Used: ${username}`,
+    adminCodeUnused: "🟢 Available",
+    adminCodeCopyBtn: "📋 Copy",
+    adminCodeCopiedBtn: "✅ Copied!",
     adminCodeGenerateFailed: "Could not generate a code — please try again.",
-    adminCodeDeleteBtn: "Delete",
+    adminCodeDeleteBtn: "🗑️ Delete",
     adminCodeConfirmDelete: (code) => `Delete code ${code}? This can't be undone.`,
     adminCodesSortLabel: "Sort by",
     adminCodesSortNewest: "Newest",
@@ -179,6 +179,10 @@ const TRANSLATIONS = {
     adminRequestApproveBtn: "✅ Approve",
     adminRequestDismissBtn: "Dismiss",
     adminRequestActionFailed: "That didn't work — please try again.",
+    adminStatTotalUsers: "👥 Total Users",
+    adminStatPremiumUsers: "⭐ Premium",
+    adminStatTotalCoins: "🪙 Coins Issued",
+    adminStatUnusedCodes: "🎟️ Unused Codes",
     adminUsersTitle: "🧑‍🤝‍🧑 User Accounts",
     adminUsersDesc: "Search for an account, change its role or password, or approve a pending upgrade request — a user waiting on one is pinned to the top.",
     adminUsersSearchPlaceholder: "Search by username",
@@ -758,12 +762,12 @@ const TRANSLATIONS = {
     adminCodesGenerateBtn: "🎲 새 코드 생성",
     adminCodesEmpty: "아직 생성된 코드가 없어요.",
     adminCodesCount: (n) => `코드 ${n}개`,
-    adminCodeUsedBy: (username) => `${username}님이 사용함`,
-    adminCodeUnused: "아직 사용 안 됨",
-    adminCodeCopyBtn: "복사",
-    adminCodeCopiedBtn: "복사됨!",
+    adminCodeUsedBy: (username) => `🟣 사용 완료 : ${username}`,
+    adminCodeUnused: "🟢 사용 가능",
+    adminCodeCopyBtn: "📋 복사",
+    adminCodeCopiedBtn: "✅ 복사됨!",
     adminCodeGenerateFailed: "코드를 생성하지 못했어요 — 다시 시도해주세요.",
-    adminCodeDeleteBtn: "삭제",
+    adminCodeDeleteBtn: "🗑️ 삭제",
     adminCodeConfirmDelete: (code) => `코드 ${code}를 삭제할까요? 되돌릴 수 없어요.`,
     adminCodesSortLabel: "정렬",
     adminCodesSortNewest: "최신순",
@@ -772,6 +776,10 @@ const TRANSLATIONS = {
     adminRequestApproveBtn: "✅ 승인",
     adminRequestDismissBtn: "거절",
     adminRequestActionFailed: "처리하지 못했어요 — 다시 시도해주세요.",
+    adminStatTotalUsers: "👥 총 회원",
+    adminStatPremiumUsers: "⭐ 프리미엄",
+    adminStatTotalCoins: "🪙 발급된 코인",
+    adminStatUnusedCodes: "🎟️ 미사용 코드",
     adminUsersTitle: "🧑‍🤝‍🧑 사용자 계정",
     adminUsersDesc: "계정을 검색하고 역할이나 비밀번호를 변경하거나, 업그레이드 요청을 승인할 수 있어요 — 요청 대기 중인 사용자는 맨 위에 고정돼요.",
     adminUsersSearchPlaceholder: "사용자명으로 검색",
@@ -9766,6 +9774,26 @@ customWordMgmtSelect.addEventListener("change", async () => {
   else if (action === "checkKorean") await checkKoreanMeaningsForCustomWords();
 });
 
+/* ---------- Admin: dashboard summary stat cards ---------- */
+// Totals come from each panel's own unfiltered load (loadAdminUsers()/
+// loadAdminKoala() with no search query) and are then nudged in place by
+// mutations (delete/role-change/grant/generate/delete-code) rather than
+// refetched — so a stat stays correct even while the admin is mid-search in
+// the panel it belongs to, instead of silently shrinking to match a filter.
+const adminStats = { totalUsers: 0, premiumUsers: 0, totalCoins: 0, unusedCodes: 0 };
+
+function renderAdminStats() {
+  const totalUsersEl = document.getElementById("admin-stat-total-users");
+  const premiumUsersEl = document.getElementById("admin-stat-premium-users");
+  const totalCoinsEl = document.getElementById("admin-stat-total-coins");
+  const unusedCodesEl = document.getElementById("admin-stat-unused-codes");
+  if (!totalUsersEl) return;
+  totalUsersEl.textContent = adminStats.totalUsers;
+  premiumUsersEl.textContent = adminStats.premiumUsers;
+  totalCoinsEl.textContent = adminStats.totalCoins.toLocaleString();
+  unusedCodesEl.textContent = adminStats.unusedCodes;
+}
+
 /* ---------- Admin: paid-signup special codes ---------- */
 const adminCodesGenerateBtn = document.getElementById("admin-codes-generate-btn");
 const adminCodesSort = document.getElementById("admin-codes-sort");
@@ -9795,6 +9823,8 @@ function sortedAdminCodes() {
 }
 
 function renderAdminCodes() {
+  adminStats.unusedCodes = adminCodes.filter((c) => !c.redeemedByUsername).length;
+  renderAdminStats();
   adminCodesGrid.innerHTML = "";
   if (adminCodes.length === 0) {
     adminCodesEmpty.hidden = false;
@@ -9805,6 +9835,7 @@ function renderAdminCodes() {
   adminCodesCountEl.textContent = t("adminCodesCount", adminCodes.length);
 
   sortedAdminCodes().forEach((c) => {
+    const used = !!c.redeemedByUsername;
     const row = document.createElement("div");
     row.className = "wordlist-item";
 
@@ -9815,11 +9846,12 @@ function renderAdminCodes() {
     codeEl.textContent = c.code;
     left.appendChild(codeEl);
 
-    const statusEl = document.createElement("div");
-    statusEl.className = "d";
-    statusEl.textContent = c.redeemedByUsername
-      ? t("adminCodeUsedBy", c.redeemedByUsername)
-      : t("adminCodeUnused");
+    // A colored status badge rather than a plain muted line — green/"used
+    // by nobody yet" vs. purple/"already claimed" reads at a glance across
+    // a long list, instead of needing to read each status sentence in turn.
+    const statusEl = document.createElement("span");
+    statusEl.className = `admin-code-status ${used ? "used" : "unused"}`;
+    statusEl.textContent = used ? t("adminCodeUsedBy", c.redeemedByUsername) : t("adminCodeUnused");
     left.appendChild(statusEl);
     row.appendChild(left);
 
@@ -9828,9 +9860,14 @@ function renderAdminCodes() {
     btnRow.style.display = "flex";
     btnRow.style.gap = "6px";
 
+    // The useful action differs by state — copying a code that's already
+    // claimed does nothing for anyone, and deleting one that's still live
+    // is the riskier move — so each row leads with whichever one actually
+    // applies, instead of showing both at equal weight always.
     const copyBtn = document.createElement("button");
-    copyBtn.className = "edit-btn";
+    copyBtn.className = used ? "retry-btn" : "edit-btn";
     copyBtn.textContent = t("adminCodeCopyBtn");
+    copyBtn.disabled = used;
     copyBtn.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(c.code);
@@ -9846,7 +9883,7 @@ function renderAdminCodes() {
     btnRow.appendChild(copyBtn);
 
     const deleteBtn = document.createElement("button");
-    deleteBtn.className = "delete-btn";
+    deleteBtn.className = used ? "delete-btn" : "retry-btn";
     deleteBtn.textContent = t("adminCodeDeleteBtn");
     deleteBtn.addEventListener("click", async () => {
       if (!confirm(t("adminCodeConfirmDelete", c.code))) return;
@@ -9897,6 +9934,13 @@ async function loadAdminUsers(query) {
     const q = query ? `?q=${encodeURIComponent(query)}` : "";
     const { users } = await api(`/admin/users${q}`);
     adminUsers = users;
+    // Only an unfiltered load reflects the true total — a search's result
+    // count would otherwise make the dashboard tiles shrink to match it.
+    if (!query) {
+      adminStats.totalUsers = users.length;
+      adminStats.premiumUsers = users.filter((u) => u.role === "paid").length;
+      renderAdminStats();
+    }
   } catch (e) {
     console.warn("Could not load users", e);
   }
@@ -9932,35 +9976,107 @@ function renderAdminUsers() {
 
   sortedAdminUsers().forEach((u) => {
     const row = document.createElement("div");
-    row.className = "wordlist-item";
+    row.className = "wordlist-item admin-user-row";
 
-    const left = document.createElement("div");
-    left.className = "wordlist-item-main";
+    // Left: who they are and when they joined.
+    const info = document.createElement("div");
+    info.className = "admin-user-info";
     const nameEl = document.createElement("div");
     nameEl.className = "w";
     nameEl.textContent = u.username;
-    left.appendChild(nameEl);
+    info.appendChild(nameEl);
     const whenEl = document.createElement("div");
     whenEl.className = "d";
     whenEl.textContent =
       t("adminUserCreatedAt", formatDate(u.createdAt)) +
       (u.upgradedAt ? " · " + t("adminUserUpgradedAt", formatDate(u.upgradedAt)) : "");
-    left.appendChild(whenEl);
+    info.appendChild(whenEl);
     if (u.pendingRequestId) {
       const pendingBadge = document.createElement("div");
       pendingBadge.className = "d admin-pending-badge";
       pendingBadge.textContent = t("adminUserPendingRequest");
-      left.appendChild(pendingBadge);
+      info.appendChild(pendingBadge);
     }
-    row.appendChild(left);
+    row.appendChild(info);
 
-    const right = document.createElement("div");
-    const btnRow = document.createElement("div");
-    btnRow.style.display = "flex";
-    btnRow.style.flexWrap = "wrap";
-    btnRow.style.gap = "6px";
-    btnRow.style.alignItems = "center";
-    btnRow.style.justifyContent = "flex-end";
+    // Center: current role, as a colored badge — a live <select> rather
+    // than plain text, but styled and positioned as the status indicator
+    // the role actually is, separate from the reset/delete actions on the
+    // right.
+    const roleCol = document.createElement("div");
+    roleCol.className = "admin-user-role";
+
+    // admin's own account can't be re-roled or password-reset from here —
+    // no lockout risk, and password changes go through My Account instead.
+    const isSelf = currentUser && u.id === currentUser.id;
+    if (isSelf) {
+      const meLabel = document.createElement("span");
+      meLabel.className = "admin-role-select";
+      meLabel.dataset.role = u.role;
+      meLabel.textContent = roleLabel(u.role) + " · " + t("adminUserYou");
+      roleCol.appendChild(meLabel);
+    } else {
+      const roleSelect = document.createElement("select");
+      roleSelect.className = "admin-role-select";
+      roleSelect.dataset.role = u.role;
+      ADMIN_ROLE_OPTIONS.forEach((role) => {
+        const opt = document.createElement("option");
+        opt.value = role;
+        opt.textContent = roleLabel(role);
+        if (role === u.role) opt.selected = true;
+        roleSelect.appendChild(opt);
+      });
+      roleCol.appendChild(roleSelect);
+
+      // Muted and inert until the dropdown actually differs from the saved
+      // role, then lights up accent-green — the button itself shows there's
+      // a pending change to apply, instead of looking identically clickable
+      // whether anything changed or not.
+      const applyBtn = document.createElement("button");
+      applyBtn.className = "edit-btn admin-apply-btn";
+      applyBtn.textContent = t("adminUserApplyRoleBtn");
+      applyBtn.disabled = true;
+      roleSelect.addEventListener("change", () => {
+        const changed = roleSelect.value !== u.role;
+        roleSelect.dataset.role = roleSelect.value;
+        applyBtn.classList.toggle("is-dirty", changed);
+        applyBtn.disabled = !changed;
+      });
+      applyBtn.addEventListener("click", async () => {
+        const newRole = roleSelect.value;
+        if (newRole === u.role) return;
+        if (!confirm(t("adminUserConfirmRoleChange", u.username, roleLabel(newRole)))) return;
+        applyBtn.disabled = true;
+        try {
+          const { user } = await api("/admin/users/set-role", {
+            method: "POST",
+            body: JSON.stringify({ userId: u.id, role: newRole }),
+          });
+          const wasPaid = u.role === "paid";
+          u.role = user.role;
+          u.upgradedAt = user.upgradedAt;
+          // Nudge the dashboard's premium count rather than a full reload —
+          // only matters when the change crosses in or out of "paid".
+          if (wasPaid !== (u.role === "paid")) {
+            adminStats.premiumUsers += u.role === "paid" ? 1 : -1;
+            renderAdminStats();
+          }
+          renderAdminUsers();
+        } catch (e) {
+          alert(t("adminRequestActionFailed"));
+          applyBtn.disabled = false;
+        }
+      });
+      roleCol.appendChild(applyBtn);
+    }
+    row.appendChild(roleCol);
+
+    // Right: the actions themselves — upgrade-request approve/dismiss (when
+    // pending), then an outline password-reset button and a small,
+    // icon-only delete button kept visually apart from it so a reset-
+    // password tap can't land on delete by mistake.
+    const actions = document.createElement("div");
+    actions.className = "admin-user-actions";
 
     if (u.pendingRequestId) {
       const approveBtn = document.createElement("button");
@@ -9980,7 +10096,7 @@ function renderAdminUsers() {
           approveBtn.disabled = false;
         }
       });
-      btnRow.appendChild(approveBtn);
+      actions.appendChild(approveBtn);
 
       const dismissBtn = document.createElement("button");
       dismissBtn.className = "delete-btn";
@@ -9999,53 +10115,12 @@ function renderAdminUsers() {
           dismissBtn.disabled = false;
         }
       });
-      btnRow.appendChild(dismissBtn);
+      actions.appendChild(dismissBtn);
     }
 
-    // admin's own account can't be re-roled or password-reset from here —
-    // no lockout risk, and password changes go through My Account instead.
-    const isSelf = currentUser && u.id === currentUser.id;
-    if (isSelf) {
-      const meLabel = document.createElement("span");
-      meLabel.className = "mastery";
-      meLabel.textContent = roleLabel(u.role) + " · " + t("adminUserYou");
-      btnRow.appendChild(meLabel);
-    } else {
-      const roleSelect = document.createElement("select");
-      ADMIN_ROLE_OPTIONS.forEach((role) => {
-        const opt = document.createElement("option");
-        opt.value = role;
-        opt.textContent = roleLabel(role);
-        if (role === u.role) opt.selected = true;
-        roleSelect.appendChild(opt);
-      });
-      btnRow.appendChild(roleSelect);
-
-      const applyBtn = document.createElement("button");
-      applyBtn.className = "edit-btn";
-      applyBtn.textContent = t("adminUserApplyRoleBtn");
-      applyBtn.addEventListener("click", async () => {
-        const newRole = roleSelect.value;
-        if (newRole === u.role) return;
-        if (!confirm(t("adminUserConfirmRoleChange", u.username, roleLabel(newRole)))) return;
-        applyBtn.disabled = true;
-        try {
-          const { user } = await api("/admin/users/set-role", {
-            method: "POST",
-            body: JSON.stringify({ userId: u.id, role: newRole }),
-          });
-          u.role = user.role;
-          u.upgradedAt = user.upgradedAt;
-          renderAdminUsers();
-        } catch (e) {
-          alert(t("adminRequestActionFailed"));
-          applyBtn.disabled = false;
-        }
-      });
-      btnRow.appendChild(applyBtn);
-
+    if (!isSelf) {
       const resetPasswordBtn = document.createElement("button");
-      resetPasswordBtn.className = "edit-btn";
+      resetPasswordBtn.className = "retry-btn";
       resetPasswordBtn.textContent = t("adminUserResetPasswordBtn");
       resetPasswordBtn.addEventListener("click", async () => {
         const newPassword = prompt(t("adminUserResetPasswordPrompt", u.username));
@@ -10066,28 +10141,33 @@ function renderAdminUsers() {
         }
         resetPasswordBtn.disabled = false;
       });
-      btnRow.appendChild(resetPasswordBtn);
+      actions.appendChild(resetPasswordBtn);
 
       const deleteUserBtn = document.createElement("button");
-      deleteUserBtn.className = "delete-btn";
-      deleteUserBtn.textContent = t("adminUserDeleteBtn");
+      deleteUserBtn.className = "delete-btn admin-delete-icon-btn";
+      deleteUserBtn.textContent = "🗑️";
+      deleteUserBtn.title = t("adminUserDeleteBtn");
+      deleteUserBtn.setAttribute("aria-label", t("adminUserDeleteBtn"));
       deleteUserBtn.addEventListener("click", async () => {
-        if (!confirm(t("adminUserConfirmDelete", u.username))) return;
+        const ok = await kidConfirm(t("adminUserConfirmDelete", u.username), t("deleteConfirmYesBtn"), t("deleteConfirmNoBtn"));
+        if (!ok) return;
         deleteUserBtn.disabled = true;
         try {
           await api("/admin/users/delete", { method: "POST", body: JSON.stringify({ userId: u.id }) });
           adminUsers = adminUsers.filter((x) => x.id !== u.id);
+          adminStats.totalUsers = Math.max(0, adminStats.totalUsers - 1);
+          if (u.role === "paid") adminStats.premiumUsers = Math.max(0, adminStats.premiumUsers - 1);
+          renderAdminStats();
           renderAdminUsers();
         } catch (e) {
           alert(t("adminRequestActionFailed"));
           deleteUserBtn.disabled = false;
         }
       });
-      btnRow.appendChild(deleteUserBtn);
+      actions.appendChild(deleteUserBtn);
     }
 
-    right.appendChild(btnRow);
-    row.appendChild(right);
+    row.appendChild(actions);
     adminUsersGrid.appendChild(row);
   });
 }
@@ -12062,11 +12142,21 @@ async function loadAdminKoala() {
   try {
     const q = adminKoalaQuery ? `?q=${encodeURIComponent(adminKoalaQuery)}` : "";
     adminKoala = await api(`/admin/koala${q}`);
+    // Only an unfiltered load reflects every account's balance — see the
+    // same reasoning on loadAdminUsers() above. Includes coins still
+    // pending sync (a student hasn't opened the app since the last grant)
+    // — issued is issued, whether or not the recipient has seen it yet.
+    if (!adminKoalaQuery) {
+      adminStats.totalCoins = (adminKoala.users || []).reduce((sum, u) => sum + (u.coins || 0) + (u.pending || 0), 0);
+      renderAdminStats();
+    }
   } catch (e) {
     console.warn("Could not load Koala Coins", e);
   }
   renderAdminKoala();
 }
+
+const ADMIN_KOALA_QUICK_AMOUNTS = [10, 50, 100];
 
 function renderAdminKoala() {
   const grid = document.getElementById("admin-koala-grid");
@@ -12075,6 +12165,7 @@ function renderAdminKoala() {
   if (!grid) return;
   const users = adminKoala.users || [];
   empty.hidden = users.length > 0;
+  const chipsHtml = ADMIN_KOALA_QUICK_AMOUNTS.map((n) => `<button type="button" class="admin-koala-chip" data-set-amt="${n}">+${n}</button>`).join("");
   grid.innerHTML = users.map((u) => {
     const bal = u.coins == null ? rwL("not seen yet", "아직 기록 없음") : `${u.coins}`;
     const pend = u.pending ? ` · ${rwL("waiting", "대기")}: ${u.pending > 0 ? "+" : ""}${u.pending}` : "";
@@ -12083,7 +12174,8 @@ function renderAdminKoala() {
       <div class="wordlist-item-main"><div class="w">${escapeHtml(u.username)}</div>
         <div class="d">${COIN_SVG} <b>${escapeHtml(bal)}</b> · ${escapeHtml(sub)}</div></div>
       <div class="admin-koala-actions">
-        <input type="number" class="admin-koala-amt" min="1" max="100000" step="1" placeholder="10" aria-label="${rwL("Coins", "코인")}" />
+        <div class="admin-koala-chips">${chipsHtml}</div>
+        <input type="number" class="admin-koala-amt" min="1" max="100000" step="1" placeholder="10" value="10" aria-label="${rwL("Coins", "코인")}" />
         <input type="text" class="admin-koala-note" maxlength="80" placeholder="${rwL("Note (optional)", "메모(선택)")}" />
         <button type="button" class="edit-btn" data-admin-koala="give">${rwL("Give", "주기")}</button>
         <button type="button" class="delete-btn" data-admin-koala="take">${rwL("Take", "빼기")}</button>
@@ -12091,13 +12183,24 @@ function renderAdminKoala() {
   }).join("");
   const rec = adminKoala.recent || [];
   recent.innerHTML = rec.length
-    ? rec.map((g) => `<li><span class="koala-history-n${g.amount < 0 ? " spent" : ""}">${g.amount < 0 ? "−" : "+"}${Math.abs(g.amount)} ${COIN_SVG}</span>
-        <span class="koala-history-why">${escapeHtml(g.username)}${g.note ? " — " + escapeHtml(g.note) : ""}${g.appliedAt ? "" : " · " + rwL("waiting", "대기 중")}</span>
-        <span class="koala-history-day">${new Date(g.createdAt).toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { day: "numeric", month: "short" })}</span></li>`).join("")
-    : `<li class="muted">${rwL("Nothing yet.", "아직 없어요.")}</li>`;
+    ? rec.map((g) => `<li class="admin-koala-log-row">
+        <span class="admin-koala-log-date">${new Date(g.createdAt).toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { day: "numeric", month: "short" })}</span>
+        <span class="admin-koala-log-user">${escapeHtml(g.username)}</span>
+        <span class="admin-koala-log-amount${g.amount < 0 ? " spent" : ""}">${g.amount < 0 ? "−" : "+"}${Math.abs(g.amount)} ${COIN_SVG}</span>
+        <span class="admin-koala-log-note">${g.note ? escapeHtml(g.note) : ""}${g.appliedAt ? "" : (g.note ? " · " : "") + rwL("waiting", "대기 중")}</span>
+      </li>`).join("")
+    : `<li class="muted admin-koala-log-empty">${rwL("Nothing yet.", "아직 없어요.")}</li>`;
 }
 
 document.addEventListener("click", async (e) => {
+  const chip = e.target.closest("[data-set-amt]");
+  if (chip) {
+    const row = chip.closest(".admin-koala-row");
+    const amtInput = row.querySelector(".admin-koala-amt");
+    amtInput.value = chip.dataset.setAmt;
+    amtInput.focus();
+    return;
+  }
   const btn = e.target.closest("[data-admin-koala]");
   if (!btn || !serverAdmin) return;
   const row = btn.closest(".admin-koala-row");
@@ -12119,6 +12222,11 @@ document.addEventListener("click", async (e) => {
       method: "POST",
       body: JSON.stringify({ userId: row.dataset.uid, amount: give ? amt : -amt, note: row.querySelector(".admin-koala-note").value }),
     });
+    // Nudge first (loadAdminKoala() below overwrites with the authoritative
+    // total whenever it does its own unfiltered recompute, so this only
+    // matters — and stays correct — while a search is narrowing the list).
+    adminStats.totalCoins += give ? amt : -amt;
+    renderAdminStats();
     await loadAdminKoala();
   } catch (err) {
     alert(rwL("Could not save that. Please try again.", "저장하지 못했어요. 다시 시도해 주세요."));
