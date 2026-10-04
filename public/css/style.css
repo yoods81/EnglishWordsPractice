@@ -7675,3 +7675,8 @@ html body #view-flashcards #flash-start-screen .flash-start-selects select {
   background-repeat: no-repeat; background-position: right 12px center; background-size: 12px 8px;
 }
 html body #view-flashcards #flash-start-screen .flash-start-selects select option { text-align: left; direction: ltr; }
+
+/* front-side picker is now two buttons; the select stays in the DOM as the single source of truth */
+#flash-start-screen .flash-front-hidden { display: none !important; }
+html body #view-flashcards #flash-start-screen .flash-start-selects select { background-color: #ffffff !important; flex: 1 1 100%; }
+html body #view-flashcards #flash-start-screen .flash-start-selects select option { background-color: #ffffff; color: #0b6b57; line-height: normal; padding: 6px 10px; }

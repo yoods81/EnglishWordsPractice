@@ -367,6 +367,7 @@ const TRANSLATIONS = {
     flashSourceAuto: "🎲 Level words",
     flashSourceMine: "⭐ My cards",
     flashSourceTitle: "🎴 Cards from",
+    flashFrontTitle: "🃏 Front of the card",
     flashIntroNote: "Look at the word, tap the card to flip it, then say if you know it!",
     myDeckTitle: "⭐ My flashcards",
     myDeckAddBtn: "Add to my cards",
@@ -387,7 +388,7 @@ const TRANSLATIONS = {
     myDeckEmptyHint: "Add your own words below, or pick some in the Word List tab.",
     myDeckAdded: (n) => `Added ${n} card${n === 1 ? "" : "s"}.`,
     myDeckDuplicate: "That word is already in your cards.",
-    flashFrontWord: "📖 Word",
+    flashFrontWord: "📝 Word",
     flashFrontMeaning: "💡 Meaning",
     hearItLabel: "Hear it",
     backLabel: "Back",
@@ -952,6 +953,7 @@ const TRANSLATIONS = {
     flashSourceAuto: "🎲 레벨 단어",
     flashSourceMine: "⭐ 나만의 카드",
     flashSourceTitle: "🎴 카드 선택",
+    flashFrontTitle: "🃏 카드 앞면",
     flashIntroNote: "단어를 보고, 카드를 눌러 뒤집은 다음 알고 있는지 알려 주세요!",
     myDeckTitle: "⭐ 나만의 플래시카드",
     myDeckAddBtn: "내 카드에 추가",
@@ -972,7 +974,7 @@ const TRANSLATIONS = {
     myDeckEmptyHint: "아래에서 단어를 추가하거나 단어장 탭에서 골라보세요.",
     myDeckAdded: (n) => `카드 ${n}개를 추가했어요.`,
     myDeckDuplicate: "이미 내 카드에 있는 단어예요.",
-    flashFrontWord: "📖 단어",
+    flashFrontWord: "📝 단어",
     flashFrontMeaning: "💡 뜻",
     hearItLabel: "들어보기",
     backLabel: "이전",
@@ -3721,6 +3723,17 @@ flashDontKnowBtn.addEventListener("click", () => {
 
 flashCategorySel.addEventListener("change", buildFlashDeck);
 flashFrontModeSel.addEventListener("change", renderFlashcard);
+document.querySelectorAll("#flash-front-seg [data-front]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    flashFrontModeSel.value = btn.dataset.front;
+    document.querySelectorAll("#flash-front-seg [data-front]").forEach((b) => {
+      const on = b === btn;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-checked", on ? "true" : "false");
+    });
+    flashFrontModeSel.dispatchEvent(new Event("change"));
+  });
+});
 flashSourceLevelBtn.addEventListener("click", () => {
   // Can't switch the last remaining source off.
   if (flashUseLevel && !flashUseMine) return;

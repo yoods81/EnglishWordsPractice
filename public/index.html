@@ -367,10 +367,17 @@
             <option value="synonyms" data-i18n="optSynonyms">Synonyms</option>
             <option value="antonyms" data-i18n="optAntonyms">Antonyms</option>
           </select>
-          <select id="flash-front-mode" data-i18n-aria-label="flashFrontModeLabel" aria-label="Flashcard front side">
-            <option value="word" data-i18n="flashFrontWord">📖 Word</option>
+          <select id="flash-front-mode" class="flash-front-hidden" tabindex="-1" aria-hidden="true" data-i18n-aria-label="flashFrontModeLabel" aria-label="Flashcard front side">
+            <option value="word" data-i18n="flashFrontWord">📝 Word</option>
             <option value="meaning" data-i18n="flashFrontMeaning">💡 Meaning</option>
           </select>
+        </div>
+        <div class="qz-pick">
+          <div class="qz-pick-title" data-i18n="flashFrontTitle">🃏 Front of the card</div>
+          <div class="qz-seg" id="flash-front-seg" role="radiogroup" data-i18n-aria-label="flashFrontModeLabel" aria-label="Flashcard front side">
+            <button type="button" class="qz-seg-btn on" data-front="word" role="radio" aria-checked="true" data-i18n="flashFrontWord">📝 Word</button>
+            <button type="button" class="qz-seg-btn" data-front="meaning" role="radio" aria-checked="false" data-i18n="flashFrontMeaning">💡 Meaning</button>
+          </div>
         </div>
         <div class="qz-pick">
           <div class="qz-pick-title" data-i18n="flashSourceTitle">🎴 Cards from</div>
