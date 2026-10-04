@@ -7709,3 +7709,11 @@ html body #view-flashcards #flash-start-screen .flash-start-selects select optio
 #flash-start-screen .qz-start-card { width: min(100%, 380px); }
 #flash-start-screen .qz-start-card > h3 { margin-bottom: 1.1em; }
 #flash-start-screen .qz-pick .qz-seg { flex-wrap: wrap; }
+
+/* Flashcards start: the three picker rows share the animation panel's width/left edge */
+#flash-start-screen .qz-pick { width: 280px; max-width: 100%; margin: 0 auto; padding: 0; box-sizing: border-box; }
+#flash-start-screen .fs-panel, #flash-start-screen .qz-pick { width: 300px; max-width: 100%; }
+#flash-start-screen .qz-pick { gap: 8px; }
+#flash-start-screen .qz-pick-title { flex-basis: 60px; font-size: 0.78rem; }
+#flash-start-screen .qz-pick .qz-seg { gap: 4px; }
+#flash-start-screen .qz-seg .qz-seg-btn { padding: 4px 8px; font-size: 0.72rem; }
