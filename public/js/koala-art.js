@@ -438,11 +438,15 @@
     const parts = [`<g data-item="${byLayer.wall}">${roomItem(byLayer.wall)}</g>`, ROOM_BASE_FLOOR];
     ROOM_ORDER.slice(1).forEach((l) => { if (byLayer[l]) parts.push(`<g data-item="${byLayer[l]}">${roomItem(byLayer[l])}</g>`); });
     const koala = avatar(koalaEq, { view: "full" }).replace('class="koala-avatar-svg" ', "").replace("<svg ", '<svg x="106" y="84" width="108" height="111" ');
+    // Studio preview: a soft shadow on the floor so the koala stands on the
+    // ground instead of hovering in front of the wall.
+    if (o.shadow) parts.push('<ellipse cx="160" cy="182" rx="42" ry="5.5" fill="#000" opacity=".16"/>');
     parts.push(koala);
     if (byLayer.pet) parts.push(`<g data-item="${byLayer.pet}">${roomItem(byLayer.pet)}</g>`);
     if (byLayer.plant) parts.push(`<g data-item="${byLayer.plant}">${roomItem(byLayer.plant)}</g>`);
     const label = o.label ? ` role="img" aria-label="${String(o.label).replace(/"/g, "&quot;")}"` : ` aria-hidden="true"`;
-    return `<svg class="koala-room-svg" viewBox="${ROOM_VIEW}" xmlns="http://www.w3.org/2000/svg"${label} focusable="false">${parts.join("")}</svg>`;
+    // opts.view crops the scene (e.g. zoom in on the koala); default: the whole room.
+    return `<svg class="koala-room-svg" viewBox="${o.view || ROOM_VIEW}" xmlns="http://www.w3.org/2000/svg"${label} focusable="false">${parts.join("")}</svg>`;
   }
 
   // A card picture for one room item: an empty cream room cropped to the item.

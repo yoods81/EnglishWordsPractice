@@ -656,24 +656,8 @@ html[data-theme="dark"] .koala-balance {
 html[data-theme="dark"] .koala-badge-sum {
   background: #15251e !important;
 }
-html[data-theme="dark"] .koala-row-arrow {
-  background: rgba(64,86,79,0.72) !important;
-}
-html[data-theme="dark"] .koala-row-arrow:hover,
-html[data-theme="dark"] .koala-row-arrow:focus-visible {
-  background: rgba(64,86,79,0.92) !important;
-}
 html[data-theme="dark"] .koala-item-badge {
   background: #131b19 !important;
-}
-html[data-theme="dark"] .koala-modal-overlay {
-  background: rgba(44,67,60,0.55) !important;
-}
-html[data-theme="dark"] .koala-modal {
-  background: #131b19 !important;
-}
-html[data-theme="dark"] .koala-modal-pic {
-  background: #1c322c !important;
 }
 html[data-theme="dark"] .sfx-toggle {
   background: #131b19 !important;
@@ -1513,12 +1497,6 @@ html[data-theme="ivory"] .koala-badge-sum {
 html[data-theme="ivory"] .koala-item-badge {
   background: #fdfaf4 !important;
 }
-html[data-theme="ivory"] .koala-modal {
-  background: #fdfaf4 !important;
-}
-html[data-theme="ivory"] .koala-modal-pic {
-  background: #eee7d6 !important;
-}
 html[data-theme="ivory"] .sfx-toggle {
   background: #fdfaf4 !important;
 }
@@ -1784,3 +1762,17 @@ html[data-theme="dark"] .wl-tag--level { background: #161b27; color: #c7d2fe; }
 html[data-theme="dark"] .wl-speak--example { background: #153d31; border-color: #1f5a47; color: #6ee7b7; }
 html[data-theme="ivory"] .wl-tag--new,
 html[data-theme="ivory"] .wl-tag--level { background: #f2ede0; }
+
+/* My Koala shop studio */
+html[data-theme="dark"] .koala-studio-top { background: #131b19 !important; border-color: #354944 !important; }
+html[data-theme="dark"] .koala-stage { border-color: #354944 !important; background: #131b19 !important; }
+html[data-theme="dark"] .koala-studio-coins { background: #292417 !important; border-color: #6f613e !important; }
+html[data-theme="dark"] .koala-back, html[data-theme="dark"] .koala-cat:not(.on) { background: #131b19 !important; border-color: #354944 !important; }
+html[data-theme="dark"] .koala-try-bar { background: #15251e !important; border-color: #354944 !important; }
+html[data-theme="dark"] .koala-try-bar:not(.is-idle), html[data-theme="dark"] .koala-item.is-trying { background: #292417 !important; border-color: #6f613e !important; }
+html[data-theme="ivory"] .koala-studio-top { background: #fdfaf4 !important; border-color: #eee7d6 !important; }
+html[data-theme="ivory"] .koala-stage { border-color: #eee7d6 !important; background: #fdfaf4 !important; }
+html[data-theme="ivory"] .koala-studio-coins { background: #f6efdc !important; border-color: #e8d4a6 !important; }
+html[data-theme="ivory"] .koala-back, html[data-theme="ivory"] .koala-cat:not(.on) { background: #fdfaf4 !important; border-color: #eee7d6 !important; }
+html[data-theme="ivory"] .koala-try-bar { background: #f7f4ec !important; border-color: #eee7d6 !important; }
+html[data-theme="ivory"] .koala-try-bar:not(.is-idle), html[data-theme="ivory"] .koala-item.is-trying { background: #f6efdc !important; border-color: #e8d4a6 !important; }
