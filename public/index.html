@@ -1469,9 +1469,22 @@ to Flip!</span></div>
         <div class="admin-panel-search-row">
           <input type="text" id="admin-koala-search" class="wordlist-search admin-panel-search-inline" placeholder="Search by username" />
         </div>
-        <div class="wordlist-grid" id="admin-koala-grid"></div>
+        <div class="admin-koala-table-head" id="admin-koala-table-head">
+          <span id="admin-koala-th-user">User</span>
+          <span id="admin-koala-th-coins">Coins</span>
+          <span id="admin-koala-th-adjust">Quick adjustment</span>
+          <span id="admin-koala-th-actions">Actions</span>
+        </div>
+        <div class="admin-koala-table" id="admin-koala-grid"></div>
         <p class="muted" id="admin-koala-empty" hidden>No accounts found.</p>
         <h4 class="badge-group-title">Recent adjustments</h4>
+        <div class="admin-koala-log-head" id="admin-koala-log-head">
+          <span id="admin-koala-lh-date">Date</span>
+          <span id="admin-koala-lh-user">User</span>
+          <span id="admin-koala-lh-change">Change</span>
+          <span id="admin-koala-lh-reason">Reason</span>
+          <span id="admin-koala-lh-status">Status</span>
+        </div>
         <ul class="koala-history" id="admin-koala-recent"></ul>
         <button type="button" class="pill neutral small admin-koala-recent-more" id="admin-koala-recent-more-btn" hidden></button>
       </div>

@@ -5649,23 +5649,81 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
 .koala-history-n.spent { color: var(--muted); }
 .koala-panel { min-height: 40px; }
 
-/* Admin: Koala Coins */
-.admin-koala-row{flex-wrap:wrap;gap:8px}
-.admin-koala-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
-/* Slimmer than before — the quick-give chips do most of the work now, so
-   the number field itself only needs to show/tweak a couple of digits. */
-.admin-koala-amt{width:52px}
-.admin-koala-note{width:110px;max-width:100%}
+/* Admin: Koala Coins — a real table: one slim row per user (user / coins /
+   quick adjustment / actions), capped around 50px tall, instead of a stack
+   of per-user mini-forms. Header and rows share the same grid-template-
+   columns with minmax() floors so columns line up even though each row is
+   its own independent grid (one div per user) rather than true <table>
+   markup — see the identical reasoning on .admin-user-row above. */
+.admin-koala-table-head,
+.admin-koala-table-row {
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) minmax(90px, auto) minmax(190px, auto) minmax(150px, auto);
+  align-items: center;
+  gap: 10px;
+}
+.admin-koala-table-head {
+  padding: 0 12px 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.admin-koala-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.admin-koala-table-row {
+  min-height: 50px;
+  padding: 6px 12px;
+  background: #fff;
+  border: 1px solid var(--outline);
+  border-radius: 12px;
+  box-shadow: 0 1px 0 var(--outline);
+}
+.admin-koala-cell-user {
+  font-weight: 700;
+  font-size: 0.86rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.admin-koala-cell-coins {
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+.admin-koala-pending {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.72rem;
+}
+.admin-koala-cell-adjust {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.admin-koala-cell-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+}
 
+/* Quick-amount chips: subtle gray/mint pill, not a loud 3D button. */
 .admin-koala-chips { display: flex; gap: 4px; }
 .admin-koala-chip {
   border: 1px solid var(--outline);
-  background: #fff;
+  background: #f3f6f5;
   color: var(--accent-dark);
   border-radius: 999px;
-  padding: 4px 9px;
+  padding: 2px 8px;
   font-family: var(--font-heading);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
@@ -5673,32 +5731,38 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
 .admin-koala-chip:hover { background: #e3f7f1; border-color: var(--accent); }
 .admin-koala-chip:active { transform: translateY(1px); }
 
-/* Note field + its own quick-pick reason chips, stacked so the chips don't
-   compete with the amount/give/take controls for the same line. */
-.admin-koala-note-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.admin-koala-amt {
+  width: 46px;
+  padding: 3px 6px;
+  font-size: 0.78rem;
 }
-.admin-koala-note-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-.admin-koala-note-chip {
-  padding: 2px 8px;
-  font-size: 0.66rem;
-  color: var(--muted);
-}
-.admin-koala-note-chip:hover { color: var(--accent-dark); }
 
-/* Give/Take now carry a live "→ 225" preview of the resulting balance
-   (see updateAdminKoalaPreview()), so the label needs room to grow without
-   wrapping mid-word. */
-.wordlist-item .admin-koala-actions .edit-btn,
-.wordlist-item .admin-koala-actions .delete-btn {
+/* Give: solid emerald, the common/expected action. Take: soft pink outline
+   rather than alarm-red — a correction, not a destructive action. */
+.admin-koala-give-btn,
+.admin-koala-take-btn {
+  border-radius: 999px;
+  padding: 6px 11px;
+  font-family: var(--font-heading);
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
   white-space: nowrap;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
+.admin-koala-give-btn {
+  background: #02c39a;
+  color: #fff;
+  border: 1px solid #028a73;
+  box-shadow: 0 2px 0 #028a73;
+}
+.admin-koala-give-btn:active { transform: translateY(1px); box-shadow: none; }
+.admin-koala-take-btn {
+  background: #fdf1f3;
+  color: #c2577a;
+  border: 1px solid #f3d3dc;
+}
+.admin-koala-take-btn:active { transform: translateY(1px); }
 
 .admin-koala-recent-more {
   display: block;
@@ -5712,14 +5776,23 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
   display: none;
 }
 
-/* Recent Adjustments: date | user | amount | note as explicit grid columns
-   instead of everything run together in one sentence-like line. */
+/* Recent Adjustments: a slim table with its own header — date | user |
+   change | reason | status as explicit, aligned columns. */
+.admin-koala-log-head,
 #admin-koala-recent .admin-koala-log-row {
   display: grid;
-  grid-template-columns: auto auto auto 1fr;
+  grid-template-columns: minmax(55px, auto) minmax(90px, 1fr) minmax(80px, auto) minmax(100px, 1.3fr) minmax(90px, auto);
   align-items: center;
   gap: 10px;
-  font-size: 0.85rem;
+}
+.admin-koala-log-head {
+  padding: 0 4px;
+  margin-top: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 #admin-koala-recent .admin-koala-log-date {
   color: var(--muted);
@@ -5731,7 +5804,6 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 140px;
 }
 #admin-koala-recent .admin-koala-log-amount {
   font-family: var(--font-heading);
@@ -5743,7 +5815,7 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
   gap: 4px;
 }
 #admin-koala-recent .admin-koala-log-amount.spent { color: var(--muted); }
-#admin-koala-recent .admin-koala-log-note {
+#admin-koala-recent .admin-koala-log-reason {
   color: var(--muted);
   font-size: 0.8rem;
   min-width: 0;
@@ -5751,16 +5823,39 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.admin-koala-log-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.admin-koala-log-status.completed { color: var(--success); }
+.admin-koala-log-status.pending { color: #b8860b; }
 #admin-koala-recent .admin-koala-log-empty { display: block; }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
+  .admin-koala-table-head { display: none; }
+  .admin-koala-table-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "user coins" "adjust adjust" "actions actions";
+    row-gap: 6px;
+  }
+  .admin-koala-cell-user { grid-area: user; }
+  .admin-koala-cell-coins { grid-area: coins; text-align: right; }
+  .admin-koala-cell-adjust { grid-area: adjust; }
+  .admin-koala-cell-actions { grid-area: actions; justify-content: flex-start; }
+
+  .admin-koala-log-head { display: none; }
+  .admin-koala-log-head,
   #admin-koala-recent .admin-koala-log-row {
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto 1fr auto;
     row-gap: 2px;
   }
-  #admin-koala-recent .admin-koala-log-note {
+  #admin-koala-recent .admin-koala-log-reason,
+  #admin-koala-recent .admin-koala-log-status {
     grid-column: 1 / -1;
-    white-space: normal;
   }
 }
 .koala-hero{flex-wrap:wrap}
