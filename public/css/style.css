@@ -7392,6 +7392,75 @@ html[data-theme="dark"] #view-typegame p.hint.tg-hint {
 @media (prefers-reduced-motion: reduce) {
   html #view-typegame p.hint.tg-hint::before, html #view-typegame p.hint.tg-hint::after { animation: none; }
 }
+/* ---- Times Table bottom tip: the same koala speech bubble as the Typing Game hint ----
+   (re-uses the tg-hint-bob / tg-hint-sway keyframes above; the "?" button stays at the right end) */
+html #view-timestable p.tt-tip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  gap: 8px;
+  box-sizing: border-box;
+  min-height: 48px;
+  margin: 14px 2px 4px;
+  padding: 10px 12px 10px 62px;
+  border-radius: 22px;
+  border: 2px solid #9fdcc0;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #1f6b55;
+  opacity: 1;
+  background: linear-gradient(180deg, #f3fcf8, #ddf5e8);
+  box-shadow: 0 3px 0 #bfe8d4, 0 7px 14px rgba(40, 140, 110, 0.12);
+}
+html #view-timestable p.tt-tip > span { flex: 1 1 auto; min-width: 0; }
+html #view-timestable p.tt-tip .tt-help-btn { margin-left: auto; }
+html #view-timestable p.tt-tip::before {
+  content: "🐨";
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  font-size: 1.8rem;
+  line-height: 1;
+  transform: translateY(-50%);
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.12));
+  animation: tg-hint-bob 2.8s ease-in-out infinite;
+}
+html #view-timestable p.tt-tip::after {
+  content: "🍃";
+  position: absolute;
+  right: 54px;
+  top: -12px;
+  font-size: 1.15rem;
+  line-height: 1;
+  transform: rotate(25deg);
+  animation: tg-hint-sway 3.4s ease-in-out infinite;
+}
+html[data-theme="dark"] #view-timestable p.tt-tip {
+  color: #55ceab;
+  background: linear-gradient(180deg, #14241d, #1c3125);
+  border-color: #3e6f59;
+  box-shadow: 0 3px 0 #0d1f1a;
+}
+html[data-theme="ivory"] #view-timestable p.tt-tip {
+  background: linear-gradient(180deg, #f8f5ed, #efe8d9);
+}
+@media (max-width: 480px) {
+  html #view-timestable p.tt-tip { padding-left: 54px; font-size: 0.85rem; }
+  html #view-timestable p.tt-tip::before { left: 11px; font-size: 1.6rem; }
+}
+/* phone play mode keeps the bubble compact so the pad still fits */
+@media (max-width: 700px) {
+  html #view-timestable .card.game-immersive p.tt-tip { min-height: 40px; margin: 10px 2px 2px; padding: 6px 10px 6px 46px; font-size: 0.76rem; }
+  html #view-timestable .card.game-immersive p.tt-tip::before { left: 9px; font-size: 1.5rem; }
+  html #view-timestable .card.game-immersive p.tt-tip::after { top: -9px; font-size: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html #view-timestable p.tt-tip::before, html #view-timestable p.tt-tip::after { animation: none; }
+}
 @keyframes tg-fw-flash { from { transform: scale(0.4); opacity: 1; } to { transform: scale(3.4); opacity: 0; } }
 .tg-cannon { position: absolute; bottom: 4px; font-size: 1.7rem; line-height: 1; pointer-events: none; z-index: 2; }
 .tg-cannon-l { left: 8px; transform: rotate(-10deg); }
