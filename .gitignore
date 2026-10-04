@@ -1,3 +1,6 @@
 node_modules/
 .wrangler/
 .dev.vars
+.env
+wrangler admin password and session secret.txt
+*.pdf
