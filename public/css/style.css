@@ -7589,3 +7589,9 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
 }
 @keyframes qz-next-in { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { #quiz-qcard > #quiz-next { animation: none !important; } }
+
+/* Quiz "End" button: soft red so it reads as a stop action */
+#quiz-practice .quiz-footer .qz-end-btn {
+  background: #ffe1e1; color: #b3261e; border: 2px solid #f5a9a9;
+}
+#quiz-practice .quiz-footer .qz-end-btn:hover { background: #ffd0d0; }
