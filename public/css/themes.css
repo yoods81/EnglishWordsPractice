@@ -1797,3 +1797,13 @@ html[data-theme="ivory"] #view-koala > .card { background: linear-gradient(180de
 html[data-theme="dark"] .koala-streak-chip { background: #131b19 !important; }
 html[data-theme="ivory"] .koala-streak-chip { background: #fdfaf4 !important; }
 html[data-theme="dark"] .koala-zoom-stage { border-color: #354944 !important; background: #131b19 !important; }
+
+/* Koala sub-item box */
+html[data-theme="dark"] .koala-subbox { background: #1c2420 !important; border-color: #6f613e !important; }
+html[data-theme="dark"] .koala-subchip, html[data-theme="dark"] .koala-sub, html[data-theme="dark"] .koala-subbox-x { background: #131b19 !important; border-color: #354944 !important; color: #e8efec !important; }
+html[data-theme="dark"] .koala-sub.is-on { background: #15251e !important; border-color: var(--accent) !important; }
+html[data-theme="dark"] .koala-subd-stage { background: #292417 !important; border-color: #6f613e !important; }
+html[data-theme="ivory"] .koala-subbox { background: #fbf6e8 !important; border-color: #e8d4a6 !important; }
+html[data-theme="ivory"] .koala-subchip, html[data-theme="ivory"] .koala-sub, html[data-theme="ivory"] .koala-subbox-x { background: #fdfaf4 !important; border-color: #eee7d6 !important; }
+html[data-theme="ivory"] .koala-sub.is-on { background: #eef5e6 !important; border-color: var(--accent) !important; }
+html[data-theme="ivory"] .koala-subd-stage { background: #f6efdc !important; border-color: #e8d4a6 !important; }

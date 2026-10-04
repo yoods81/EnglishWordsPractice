@@ -253,6 +253,13 @@
     { id: "trainToy", kind: "room", slot: "toy", name: { en: "Toy Train", ko: "장난감 기차" }, unlock: { coins: 95 } },
     { id: "dinoToy", kind: "room", slot: "toy", name: { en: "Dino Toy", ko: "공룡 장난감" }, unlock: { coins: 85 } },
     { id: "giftToy", kind: "room", slot: "toy", name: { en: "Surprise Gift", ko: "깜짝 선물" }, unlock: { coins: 65 } },
+    // Picture frames (pick the picture) and toy boxes (pick the toys): both hold sub-items, see SUB_PARENTS.
+    { id: "woodFrame", kind: "room", slot: "poster", name: { en: "Wooden Frame", ko: "나무 액자" }, unlock: { coins: 70 } },
+    { id: "goldFrame", kind: "room", slot: "poster", name: { en: "Golden Frame", ko: "금빛 액자" }, unlock: { coins: 120 } },
+    { id: "candyFrame", kind: "room", slot: "poster", name: { en: "Candy Frame", ko: "캔디 액자" }, unlock: { coins: 100 } },
+    { id: "woodToyBox", kind: "room", slot: "toy", name: { en: "Wooden Toy Box", ko: "나무 장난감 상자" }, unlock: { coins: 90 } },
+    { id: "rainbowToyBox", kind: "room", slot: "toy", name: { en: "Rainbow Toy Box", ko: "무지개 장난감 상자" }, unlock: { coins: 120 } },
+    { id: "starToyBox", kind: "room", slot: "toy", name: { en: "Star Toy Box", ko: "별 장난감 상자" }, unlock: { coins: 140 } },
   ];
   const ROOM_SLOTS = ["wallpaper", "window", "garland", "poster", "lamp", "shelf", "desk", "rug", "toy", "pet", "plant"];
   // Seasonal items are on sale only inside their yearly window (it may wrap
@@ -297,6 +304,113 @@
     return shiftDay(key, -dow);
   }
 
+/* ---------- Sub-items: things that sit on / in a room item ----------
+   Tap a bookshelf in the room and its books are listed; a desk has things on top and in
+   the drawer; a frame holds one picture; a toy box holds toys. Sub-items are free once the
+   parent item is in the room. What is picked is saved in koala.items.sub[parentId]. */
+  const SUB_RULES = {
+    books: { mode: "multi", groups: { main: 18 } },
+    desk: { mode: "multi", groups: { top: 5, drawer: 2 } },
+    frame: { mode: "single", groups: { main: 1 }, fallback: "picMeadow" },
+    toys: { mode: "multi", groups: { main: 4 } },
+  };
+  const SUB_PARENTS = {
+    bookshelf: "books", rainbowShelf: "books",
+    studyDesk: "desk", pinkDesk: "desk",
+    woodFrame: "frame", goldFrame: "frame", candyFrame: "frame",
+    woodToyBox: "toys", rainbowToyBox: "toys", starToyBox: "toys",
+  };
+  const sb = (id, kind, group, en, ko, denEn, denKo) => ({ id, kind, group, name: { en, ko }, desc: { en: denEn, ko: denKo } });
+  const SUB_ITEMS = [
+    sb("koalaBook", "books", "main", "Koala's Big Day", "코알라의 하루", "A koala naps, munches and naps again!", "낮잠 자고, 잎 먹고, 또 낮잠 자는 코알라 이야기예요!"),
+    sb("abcBook", "books", "main", "ABC Stories", "ABC 이야기", "Every page starts with a new letter.", "한 장 한 장 새로운 알파벳이 나와요."),
+    sb("spaceBook", "books", "main", "Space Atlas", "우주 도감", "Planets, stars and rockets!", "행성과 별, 로켓이 가득해요!"),
+    sb("dinoBook", "books", "main", "Dino Facts", "공룡 이야기", "Which dino was the biggest? Find out!", "가장 큰 공룡은 누구일까요?"),
+    sb("fairyBook", "books", "main", "Fairy Tales", "요정 동화", "Tiny wings and big magic.", "작은 날개, 커다란 마법!"),
+    sb("mathBook", "books", "main", "Math Fun", "신나는 수학", "Puzzles that make numbers fun.", "숫자가 재밌어지는 퍼즐 책이에요."),
+    sb("oceanBook", "books", "main", "Ocean Life", "바다 친구들", "Meet fish, whales and turtles.", "물고기, 고래, 거북이를 만나요."),
+    sb("jokeBook", "books", "main", "Funny Jokes", "웃긴 이야기", "Giggles guaranteed!", "깔깔 웃음 보장!"),
+    sb("atlasBook", "books", "main", "World Atlas", "세계 지도책", "Find Australia — and every other country!", "호주도, 다른 나라도 찾아봐요!"),
+    sb("artBook", "books", "main", "Drawing Fun", "그림 그리기", "Step-by-step drawing lessons.", "차근차근 따라 그리는 그림책이에요."),
+    sb("animalBook", "books", "main", "Animal Friends", "동물 친구들", "Kangaroos, emus and wombats!", "캥거루, 에뮤, 웜뱃이 나와요!"),
+    sb("songBook", "books", "main", "Sing-along Songs", "노래 책", "Sing every song out loud.", "큰 소리로 함께 불러요!"),
+    sb("pencilCup", "desk", "top", "Pencil Cup", "연필꽂이", "Sharp pencils, ready to write!", "뾰족한 연필이 준비됐어요!"),
+    sb("miniGlobe", "desk", "top", "Mini Globe", "작은 지구본", "Spin it and pick a country.", "빙글 돌려서 나라를 골라요."),
+    sb("alarmClock", "desk", "top", "Alarm Clock", "알람 시계", "Time to study — ring ring!", "공부 시간이에요, 따르릉!"),
+    sb("miniCactus", "desk", "top", "Mini Cactus", "작은 선인장", "Prickly, but so cute.", "뾰족하지만 정말 귀여워요."),
+    sb("notebooks", "desk", "top", "Notebook Stack", "공책 탑", "A different colour for every subject.", "과목마다 색깔이 달라요."),
+    sb("cocoaMug", "desk", "top", "Cocoa Mug", "코코아 머그", "Warm cocoa for cosy study time.", "따끈한 코코아로 공부 시간을 포근하게!"),
+    sb("crayonBox", "desk", "drawer", "Crayon Box", "크레용 상자", "Lots of colours to draw with.", "알록달록 그림 도구예요."),
+    sb("stickerBook", "desk", "drawer", "Sticker Book", "스티커 북", "Shiny stars for good work!", "잘했을 때 붙이는 반짝 별!"),
+    sb("secretDiary", "desk", "drawer", "Secret Diary", "비밀 일기장", "Shh… only the koala knows.", "쉿! 코알라만 아는 비밀이에요."),
+    sb("marbleBag", "desk", "drawer", "Marble Bag", "구슬 주머니", "Click-clack, rolling marbles.", "데구르르 굴러가는 구슬!"),
+    sb("picMeadow", "frame", "main", "Sunny Meadow", "햇살 들판", "Flowers dancing in the sun.", "햇살 아래 춤추는 꽃들이에요."),
+    sb("picSea", "frame", "main", "Sailing Boat", "바다 위 배", "Sail away on the blue water.", "파란 바다를 가르는 돛단배예요."),
+    sb("picRainbow", "frame", "main", "Rainbow", "무지개", "After the rain comes a rainbow.", "비가 그치면 무지개가 떠요."),
+    sb("picSpace", "frame", "main", "Space Trip", "우주 여행", "Zoom past the planets!", "행성 곁을 쌩! 지나가요."),
+    sb("picFlowers", "frame", "main", "Flower Garden", "꽃밭", "Pink, yellow and red blooms.", "분홍, 노랑, 빨강 꽃이 활짝!"),
+    sb("picKoala", "frame", "main", "Koala Hug", "코알라 안기", "A koala hugging a gum tree.", "나무를 꼭 안은 코알라예요."),
+    sb("picNight", "frame", "main", "Starry Night", "별이 빛나는 밤", "Moon and stars say goodnight.", "달님과 별님이 잘 자라고 인사해요."),
+    sb("picBeach", "frame", "main", "Palm Beach", "야자수 해변", "Sand, sea and a palm tree.", "모래, 바다, 야자수가 있는 해변!"),
+    sb("toyTeddy", "toys", "main", "Teddy Bear", "곰 인형", "Soft and huggable.", "폭신폭신 안기 좋아요."),
+    sb("toyBall", "toys", "main", "Beach Ball", "비치볼", "Bounce, bounce, bounce!", "통통통 튀어 올라요!"),
+    sb("toyCar", "toys", "main", "Toy Car", "장난감 자동차", "Vroom vroom!", "부릉부릉 달려요!"),
+    sb("toyRobot", "toys", "main", "Robot", "로봇", "Beep boop, hello!", "삐빅! 안녕하세요!"),
+    sb("toyDino", "toys", "main", "Dino", "공룡", "Roar! A friendly roar.", "어흥! 착한 공룡이에요."),
+    sb("toyBlocks", "toys", "main", "Blocks", "쌓기 블록", "Build a tall tower!", "높이높이 쌓아 봐요!"),
+    sb("toyDuck", "toys", "main", "Rubber Duck", "오리 인형", "Quack quack!", "꽥꽥!"),
+    sb("toyRocket", "toys", "main", "Toy Rocket", "장난감 로켓", "3, 2, 1… blast off!", "3, 2, 1… 발사!"),
+    sb("toyBunny", "toys", "main", "Bunny", "토끼 인형", "Long ears, soft fur.", "긴 귀에 보들보들 털!"),
+    sb("toyDrum", "toys", "main", "Drum", "북", "Boom ba-da-boom!", "둥둥 두둥둥!"),
+  ];
+  const subKind = (parentId) => SUB_PARENTS[parentId] || null;
+  const subById = (id) => SUB_ITEMS.find((s) => s.id === id) || null;
+  const subItemsFor = (parentId) => { const kind = SUB_PARENTS[parentId]; return kind ? SUB_ITEMS.filter((s) => s.kind === kind) : []; };
+  const subLimit = (kind, group) => (SUB_RULES[kind] && SUB_RULES[kind].groups[group]) || 0;
+  // Keep only valid sub-items of the right kind, no repeats, within each group's limit.
+  function cleanSub(parentId, ids) {
+    const kind = SUB_PARENTS[parentId];
+    if (!kind || !Array.isArray(ids)) return [];
+    const count = {};
+    const out = [];
+    ids.forEach((id) => {
+      const it = subById(id);
+      if (!it || it.kind !== kind || out.includes(id)) return;
+      count[it.group] = (count[it.group] || 0) + 1;
+      if (count[it.group] <= subLimit(kind, it.group)) out.push(id);
+    });
+    return out;
+  }
+  // What is on / in a room item right now (a frame always shows a picture).
+  function subSelection(progress, parentId) {
+    const k = ensureKoala(progress);
+    const kind = SUB_PARENTS[parentId];
+    if (!kind) return [];
+    const sel = (k.items.sub || {})[parentId] || [];
+    return sel.length || !SUB_RULES[kind].fallback ? sel.slice() : [SUB_RULES[kind].fallback];
+  }
+  // Put a sub-item on / take it off (a frame swaps its picture). Returns { ok, on } or { ok:false, reason }.
+  function toggleSub(progress, parentId, subId) {
+    const k = ensureKoala(progress);
+    const kind = SUB_PARENTS[parentId];
+    const it = subById(subId);
+    if (!kind) return { ok: false, reason: "notParent" };
+    if (!it || it.kind !== kind) return { ok: false, reason: "unknown" };
+    const cur = subSelection(progress, parentId);
+    if (SUB_RULES[kind].mode === "single") {
+      k.items.sub[parentId] = [subId];
+      return { ok: true, on: true };
+    }
+    if (cur.includes(subId)) {
+      k.items.sub[parentId] = cur.filter((x) => x !== subId);
+      return { ok: true, on: false };
+    }
+    const inGroup = cur.filter((x) => subById(x).group === it.group).length;
+    if (inGroup >= subLimit(kind, it.group)) return { ok: false, reason: "full", group: it.group };
+    k.items.sub[parentId] = cur.concat(subId);
+    return { ok: true, on: true };
+  }
+
   /* ---------- Koala state ---------- */
   function ensureKoala(progress) {
     let k = progress.koala;
@@ -309,6 +423,11 @@
     if (!k.items || typeof k.items !== "object") k.items = {};
     if (!k.items.owned || typeof k.items.owned !== "object") k.items.owned = {};
     if (!k.items.equipped || typeof k.items.equipped !== "object") k.items.equipped = {};
+    if (!k.items.sub || typeof k.items.sub !== "object" || Array.isArray(k.items.sub)) k.items.sub = {};
+    Object.keys(k.items.sub).forEach((pid) => {
+      const clean = cleanSub(pid, k.items.sub[pid]);
+      if (clean.length) k.items.sub[pid] = clean; else delete k.items.sub[pid];
+    });
     // Free items are owned from the start; drop anything the catalogue no
     // longer knows about so a removed item can never stay equipped.
     ITEMS.forEach((it) => { if (it.unlock.free && !k.items.owned[it.id]) k.items.owned[it.id] = 1; });
@@ -627,9 +746,10 @@
       owned[id] = owned[id] ? Math.min(owned[id], o[id]) : o[id];
     }));
     const equipped = Object.assign({}, other.items.equipped, base.items.equipped);
+    const sub = Object.assign({}, other.items.sub, base.items.sub);
     progress.koala = {
       v: 1, coins: base.coins, earned: Math.max(base.earned, other.earned),
-      ledger: base.ledger.slice(), items: { owned, equipped },
+      ledger: base.ledger.slice(), items: { owned, equipped, sub },
     };
     // keep ledger keys from the other side so an applied gift is never applied twice
     other.ledger.forEach((e) => { if (e.key && !progress.koala.ledger.some((x) => x.key === e.key)) progress.koala.ledger.push(e); });
@@ -649,6 +769,7 @@
     dateKey, daysBetween, shiftDay, weekKey,
     ensureKoala, awardCoins, spendCoins, adjustCoins, awardLearning, learningProgress, awardMission, awardBadge, awardReview, rewardSlice, mergeRewards,
     ITEM_SLOTS, ROOM_SLOTS, ITEMS, isSeasonActive, visibleItems, itemById, itemStatus, buyItem, equipItem, unequipSlot, syncStreakUnlocks, nextReward,
+    SUB_RULES, SUB_PARENTS, SUB_ITEMS, subKind, subById, subItemsFor, subLimit, subSelection, toggleSub,
     levelInfo,
     ensureStreak, advanceStreak, streakStatus,
   };

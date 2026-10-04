@@ -440,3 +440,40 @@ test("shop expansion: every Study Room category has 10+ items with art", () => {
   assert.ok(K.ROOM_SLOTS.length >= 11);
   K.ITEMS.filter((i) => i.kind === "room").forEach((i) => assert.ok(A.hasArt(i.id), i.id));
 });
+
+test("sub-items: parents, limits and frame single-select", () => {
+  const p = { koala: { coins: 0, earned: 0, ledger: [], items: { owned: {}, equipped: {} } } };
+  assert.equal(K.subKind("bookshelf"), "books");
+  assert.equal(K.subKind("studyDesk"), "desk");
+  assert.equal(K.subKind("woodFrame"), "frame");
+  assert.equal(K.subKind("woodToyBox"), "toys");
+  assert.equal(K.subKind("cozyRug"), null);
+  assert.equal(K.toggleSub(p, "cozyRug", "koalaBook").reason, "notParent");
+  assert.equal(K.toggleSub(p, "bookshelf", "toyBall").reason, "unknown");
+  assert.deepEqual(K.toggleSub(p, "bookshelf", "koalaBook"), { ok: true, on: true });
+  assert.deepEqual(K.subSelection(p, "bookshelf"), ["koalaBook"]);
+  assert.equal(K.toggleSub(p, "bookshelf", "koalaBook").on, false);
+  // toys are limited to 4
+  ["toyTeddy", "toyBall", "toyCar", "toyRobot"].forEach((s) => assert.ok(K.toggleSub(p, "woodToyBox", s).ok));
+  assert.equal(K.toggleSub(p, "woodToyBox", "toyDino").reason, "full");
+  // desk groups are separate
+  K.subItemsFor("studyDesk").filter((s) => s.group === "drawer").forEach((s) => K.toggleSub(p, "studyDesk", s.id));
+  assert.ok(K.toggleSub(p, "studyDesk", "pencilCup").ok);
+  // a frame holds exactly one picture and starts with the default
+  assert.deepEqual(K.subSelection(p, "goldFrame"), ["picMeadow"]);
+  K.toggleSub(p, "goldFrame", "picSea");
+  K.toggleSub(p, "goldFrame", "picSpace");
+  assert.deepEqual(K.subSelection(p, "goldFrame"), ["picSpace"]);
+});
+
+test("sub-items: ensureKoala cleans bad data and mergeRewards keeps both sides", () => {
+  const p = { koala: { coins: 0, earned: 0, ledger: [], items: { owned: {}, equipped: {}, sub: { bookshelf: ["koalaBook", "koalaBook", "nope", "toyBall"], cozyRug: ["x"], woodToyBox: ["a"] } } } };
+  const k = K.ensureKoala(p);
+  assert.deepEqual(k.items.sub, { bookshelf: ["koalaBook"] });
+  K.SUB_ITEMS.forEach((s) => assert.ok(A.subIcon(s.id).includes("<svg"), s.id));
+  const a = { koala: { coins: 1, earned: 1, ledger: [], items: { owned: {}, equipped: {}, sub: { bookshelf: ["abcBook"] } } } };
+  const b = { koala: { coins: 1, earned: 1, ledger: [], items: { owned: {}, equipped: {}, sub: { studyDesk: ["pencilCup"] } } } };
+  K.mergeRewards(a, b);
+  const sub = a.koala.items.sub;
+  assert.ok(sub.bookshelf && sub.studyDesk);
+});

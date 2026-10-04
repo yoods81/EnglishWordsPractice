@@ -417,12 +417,117 @@
     giftToy: RT(`<rect x="30" y="184" width="44" height="26" rx="2" fill="#ef4444"/><rect x="28" y="176" width="48" height="10" rx="2" fill="#dc2626"/><rect x="48" y="176" width="8" height="34" fill="#fde047"/><path d="M52 176 q-14 -14 -10 -4 q6 4 10 4 q4 0 10 -4 q4 -10 -10 4z" fill="#fde047" stroke="#e0a21a" stroke-width="1.4"/>`),
   });
 
+  /* ---------- Sub-items: art for what sits on / in a room item ----------
+     Things on a desk or in a toy box are drawn in a 20 x 24 box standing on y = 24;
+     frame pictures in 56 x 40; books are drawn by bookSvg(). */
+  const TOY_ART = {
+    toyTeddy: `<circle cx="4.5" cy="4.5" r="2.6" fill="#b9824f"/><circle cx="15.5" cy="4.5" r="2.6" fill="#b9824f"/><circle cx="10" cy="8" r="6.4" fill="#c9915a"/><ellipse cx="10" cy="19" rx="6.6" ry="5.2" fill="#c9915a"/><ellipse cx="10" cy="10" rx="2.8" ry="2.1" fill="#f3d9b8"/><circle cx="7.6" cy="7" r=".9" fill="#26332f"/><circle cx="12.4" cy="7" r=".9" fill="#26332f"/><circle cx="10" cy="9.4" r=".9" fill="#26332f"/>`,
+    toyBall: `<circle cx="10" cy="14.5" r="9.5" fill="#fff" stroke="#e5e7eb"/><path d="M10 5 a9.5 9.5 0 0 1 8 6 L10 14.5Z" fill="#ef4444"/><path d="M18.5 15 a9.5 9.5 0 0 1 -4 7 L10 14.5Z" fill="#3b82f6"/><path d="M1.5 14 a9.5 9.5 0 0 1 3 -6 L10 14.5Z" fill="#fbbf24"/>`,
+    toyCar: `<path d="M1 22 q0 -4 3 -5 l3 -4 q1.4 -1.6 4 -1.6 h3.4 q2.2 0 3.6 1.8 l2 3.4 q2 .6 2 3.8 v2.6 H1z" fill="#ef4444"/><path d="M7.6 14.4 h4 v3.4 H5.4z M13 14.4 h2 l2.4 3.4 H13z" fill="#bfe3ff"/><circle cx="6" cy="22" r="2.2" fill="#26332f"/><circle cx="15" cy="22" r="2.2" fill="#26332f"/>`,
+    toyRobot: `<path d="M10 1 v3" stroke="#6b7a75" stroke-width="1.2"/><circle cx="10" cy="1.4" r="1.3" fill="#ef4444"/><rect x="4.5" y="4" width="11" height="8" rx="2" fill="#cbd5e1" stroke="#94a3b8" stroke-width=".8"/><circle cx="8" cy="8" r="1.4" fill="#38bdf8"/><circle cx="12" cy="8" r="1.4" fill="#38bdf8"/><rect x="5.5" y="13" width="9" height="8" rx="1.6" fill="#94a3b8"/><rect x="2.5" y="13.4" width="2.4" height="6" rx="1" fill="#cbd5e1"/><rect x="15.1" y="13.4" width="2.4" height="6" rx="1" fill="#cbd5e1"/><rect x="6.4" y="21" width="2.8" height="3" fill="#6b7a75"/><rect x="10.8" y="21" width="2.8" height="3" fill="#6b7a75"/>`,
+    toyDino: `<ellipse cx="9" cy="17.5" rx="7" ry="5.5" fill="#3fb06a"/><path d="M13.5 14 q4 -2 3.4 -8" stroke="#3fb06a" stroke-width="3.6" fill="none" stroke-linecap="round"/><circle cx="17" cy="5.2" r="3.2" fill="#3fb06a"/><circle cx="17.6" cy="4.6" r=".7" fill="#26332f"/><path d="M5 12.6 l1.6 -2.6 l1.6 2.6 M8.6 12 l1.6 -2.6 l1.6 2.6" fill="#2f8f4e"/><rect x="5" y="21" width="2.8" height="3" fill="#2f8f4e"/><rect x="10.4" y="21" width="2.8" height="3" fill="#2f8f4e"/><path d="M2.4 18 q-2 1 -1.8 3.4" stroke="#3fb06a" stroke-width="2.6" fill="none" stroke-linecap="round"/>`,
+    toyBlocks: `<g stroke="#fff" stroke-width=".8"><rect x="1" y="16" width="8" height="8" fill="#ef4444"/><rect x="10" y="16" width="8" height="8" fill="#3b82f6"/><rect x="5.5" y="8" width="8" height="8" fill="#fbbf24"/></g><text x="5.2" y="23" font-family="Arial,sans-serif" font-weight="800" font-size="6" fill="#fff">A</text>`,
+    toyDuck: `<ellipse cx="9" cy="18.5" rx="7.4" ry="5.5" fill="#fde047"/><circle cx="13" cy="9" r="5" fill="#fde047"/><path d="M16.6 9.4 l3.2 1 l-3.2 1.4z" fill="#f97316"/><circle cx="14" cy="8" r=".9" fill="#26332f"/><path d="M4 18 q4 4 8 0" fill="none" stroke="#f5c400" stroke-width="1.2"/>`,
+    toyRocket: `<path d="M10 1 q5 5 4.4 14 H5.6 Q5 6 10 1z" fill="#f8fafc" stroke="#cbd5e1" stroke-width=".8"/><circle cx="10" cy="9" r="2.2" fill="#38bdf8"/><path d="M5.6 12 l-3.4 5.4 l3.6 -1z M14.4 12 l3.4 5.4 l-3.6 -1z" fill="#ef4444"/><path d="M7.4 15 h5.2 l-1.4 4 q-1.2 2.4 -2.4 0z" fill="#f97316"/><path d="M8.2 20 h3.6 l-1.8 4z" fill="#fde047"/>`,
+    toyBunny: `<ellipse cx="7" cy="4.5" rx="1.8" ry="4.4" fill="#f1f5f9" stroke="#e2e8f0" stroke-width=".6"/><ellipse cx="13" cy="4.5" rx="1.8" ry="4.4" fill="#f1f5f9" stroke="#e2e8f0" stroke-width=".6"/><circle cx="10" cy="11" r="5" fill="#f1f5f9" stroke="#e2e8f0" stroke-width=".6"/><ellipse cx="10" cy="19.2" rx="5.8" ry="4.8" fill="#f1f5f9" stroke="#e2e8f0" stroke-width=".6"/><circle cx="8.2" cy="10.4" r=".8" fill="#26332f"/><circle cx="11.8" cy="10.4" r=".8" fill="#26332f"/><circle cx="10" cy="12.2" r=".9" fill="#f9a8d4"/><circle cx="14.6" cy="22" r="1.8" fill="#fff"/>`,
+    toyDrum: `<ellipse cx="10" cy="11" rx="8.4" ry="3" fill="#fde7d0" stroke="#ef4444" stroke-width="1.2"/><path d="M1.6 11 v9 q8.4 5 16.8 0 v-9 q-8.4 4.4 -16.8 0z" fill="#ef4444"/><path d="M4 14 l3 6 M10 15 v7 M16 14 l-3 6" stroke="#fff" stroke-width=".8" fill="none"/><path d="M5 2 l5 7 M15 2 l-5 7" stroke="#b9824f" stroke-width="1.4" stroke-linecap="round"/>`,
+  };
+  const DESK_ART = {
+    pencilCup: `<path d="M4 24 h12 l-1.2 -11 H5.2z" fill="#60a5fa"/><path d="M7 13 V5" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round"/><path d="M10 13 V2" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"/><path d="M13 13 V4" stroke="#3fb984" stroke-width="2.2" stroke-linecap="round"/>`,
+    miniGlobe: `<circle cx="10" cy="9" r="7.4" fill="#5aa9e6"/><path d="M5 6 q4 -3 6 1 q-1 4 -4 4 q-3 -1 -2 -5z M12 11 q3 -1 4 2 q-3 2 -4 -2z" fill="#5fb878"/><path d="M3 9 a7 7 0 0 0 14 0" fill="none" stroke="#b9824f" stroke-width="1.2"/><rect x="9" y="16" width="2" height="4" fill="#b9824f"/><rect x="5.5" y="20" width="9" height="4" rx="1.5" fill="#9a6a3d"/>`,
+    alarmClock: `<circle cx="5" cy="4" r="2.6" fill="#ef4444"/><circle cx="15" cy="4" r="2.6" fill="#ef4444"/><circle cx="10" cy="14" r="8.4" fill="#fff" stroke="#ef4444" stroke-width="2"/><path d="M10 14 V9 M10 14 L13.4 15.6" stroke="#26332f" stroke-width="1.4" stroke-linecap="round"/><path d="M4 22 l-1.6 2 M16 22 l1.6 2" stroke="#ef4444" stroke-width="1.6" stroke-linecap="round"/>`,
+    miniCactus: `<rect x="7.4" y="3" width="5.2" height="15" rx="2.6" fill="#4fae6a"/><path d="M7.4 11 h-2.4 q-1.6 0 -1.6 -1.8 V7" stroke="#4fae6a" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M12.6 9 h2.4 q1.6 0 1.6 -1.8 V5" stroke="#4fae6a" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="10" cy="3" r="1.4" fill="#f472b6"/><path d="M4 17 h12 l-1.4 7 H5.4z" fill="#d97a4a"/><rect x="3.4" y="16" width="13.2" height="2.6" rx="1" fill="#c4683a"/>`,
+    notebooks: `<rect x="1.5" y="17" width="17" height="6.4" rx="1" fill="#3b82f6"/><rect x="3" y="11" width="14" height="6.4" rx="1" fill="#ef4444"/><rect x="2" y="5" width="16" height="6.4" rx="1" fill="#3fb984"/><path d="M4 20 h6 M5 14 h6 M4 8 h6" stroke="#fff" stroke-width="1" stroke-linecap="round"/>`,
+    cocoaMug: `<path d="M5 3 q-1.4 2 0 4 M9 2 q-1.4 2 0 4 M13 3 q-1.4 2 0 4" stroke="#cbd5e1" stroke-width="1.2" fill="none" stroke-linecap="round"/><rect x="3" y="9" width="12" height="14.6" rx="2.4" fill="#ec6b8a"/><path d="M15 12 q5 0 5 4.6 t-5 4.6" stroke="#ec6b8a" stroke-width="2.4" fill="none"/><ellipse cx="9" cy="9.4" rx="6" ry="1.8" fill="#7b4a2b"/>`,
+    crayonBox: `<path d="M4.5 9 V4" stroke="#ef4444" stroke-width="2.4" stroke-linecap="round"/><path d="M8 9 V2" stroke="#3b82f6" stroke-width="2.4" stroke-linecap="round"/><path d="M11.5 9 V3" stroke="#3fb984" stroke-width="2.4" stroke-linecap="round"/><path d="M15 9 V5" stroke="#a78bfa" stroke-width="2.4" stroke-linecap="round"/><rect x="1.5" y="9" width="17" height="14.4" rx="1.6" fill="#fbbf24"/><rect x="4" y="13" width="12" height="6" rx="1" fill="#fff"/>`,
+    stickerBook: `<rect x="2" y="2" width="16" height="21.4" rx="1.6" fill="#a78bfa"/><rect x="4" y="4.4" width="12" height="16.6" rx="1" fill="#fff"/><polygon points="${starPts(7.8, 9, 2.8, 1.2)}" fill="#fbbf24"/><polygon points="${starPts(13, 13.4, 2.6, 1.1)}" fill="#ef4444"/><polygon points="${starPts(8.4, 17.4, 2.4, 1)}" fill="#3b82f6"/>`,
+    secretDiary: `<rect x="2.5" y="2" width="15" height="21.4" rx="1.6" fill="#7c3aed"/><rect x="2.5" y="2" width="3" height="21.4" rx="1" fill="#5b21b6"/><rect x="8.6" y="10" width="6" height="5.6" rx="1" fill="#fbbf24"/><path d="M10.4 10 v-1.8 a1.2 1.2 0 0 1 2.4 0 V10" stroke="#fbbf24" stroke-width="1" fill="none"/>`,
+    marbleBag: `<path d="M5 8 q-3 4 -3 9 q0 6.4 8 6.4 t8 -6.4 q0 -5 -3 -9z" fill="#c9915a"/><path d="M5 8 h10 l1.2 -3 H3.8z" fill="#b9824f"/><circle cx="7.4" cy="17" r="2.2" fill="#38bdf8"/><circle cx="12.4" cy="16.4" r="2.2" fill="#ef4444"/><circle cx="10" cy="20.4" r="2.2" fill="#fde047"/>`,
+  };
+  const DRAWER_SUBS = ["crayonBox", "stickerBook", "secretDiary", "marbleBag"];
+  const PIC_ART = {
+    picMeadow: `<rect width="56" height="40" fill="#bfe3ff"/><circle cx="46" cy="9" r="5" fill="#fde047"/><path d="M0 30 q14 -10 28 -2 t28 -4 V40 H0z" fill="#6bc487"/><path d="M0 35 q18 -7 34 0 t22 -2 V40 H0z" fill="#4fae6a"/><circle cx="12" cy="30" r="2" fill="#f472b6"/><circle cx="24" cy="33" r="2" fill="#ef4444"/><circle cx="38" cy="31" r="2" fill="#fde047"/>`,
+    picSea: `<rect width="56" height="40" fill="#cfeaff"/><circle cx="12" cy="9" r="5" fill="#fde047"/><rect y="22" width="56" height="18" fill="#3b82f6"/><path d="M0 26 q7 -4 14 0 t14 0 t14 0 t14 0" stroke="#93c5fd" stroke-width="1.6" fill="none"/><path d="M24 24 h16 l-3 7 H27z" fill="#b9824f"/><path d="M32 8 V24" stroke="#6b4a2b" stroke-width="1.4"/><path d="M33 9 L44 22 H33z" fill="#fff"/><path d="M31 12 L22 22 h9z" fill="#fecaca"/>`,
+    picRainbow: `<rect width="56" height="40" fill="#d8efff"/><g fill="none" stroke-width="3.2"><path d="M6 36 a22 22 0 0 1 44 0" stroke="#ef4444"/><path d="M10 36 a18 18 0 0 1 36 0" stroke="#fbbf24"/><path d="M14 36 a14 14 0 0 1 28 0" stroke="#3fb984"/><path d="M18 36 a10 10 0 0 1 20 0" stroke="#3b82f6"/></g><ellipse cx="9" cy="35" rx="9" ry="5" fill="#fff"/><ellipse cx="47" cy="35" rx="9" ry="5" fill="#fff"/>`,
+    picSpace: `<rect width="56" height="40" fill="#1f2a55"/><g fill="#fff"><circle cx="8" cy="8" r="1"/><circle cx="22" cy="5" r=".8"/><circle cx="46" cy="10" r="1"/><circle cx="36" cy="32" r=".9"/><circle cx="6" cy="32" r=".8"/></g><circle cx="38" cy="16" r="9" fill="#f59e0b"/><ellipse cx="38" cy="16" rx="14" ry="3.4" fill="none" stroke="#fde68a" stroke-width="1.6" transform="rotate(-18 38 16)"/><circle cx="14" cy="26" r="5" fill="#38bdf8"/><circle cx="12.6" cy="24.6" r="1.4" fill="#7dd3fc"/>`,
+    picFlowers: `<rect width="56" height="40" fill="#fde7f0"/><path d="M0 34 H56 V40 H0z" fill="#6bc487"/><path d="M12 36 V22 M28 36 V16 M44 36 V24" stroke="#3fb984" stroke-width="1.6"/><circle cx="12" cy="20" r="5" fill="#ef4444"/><circle cx="12" cy="20" r="2" fill="#fde047"/><circle cx="28" cy="14" r="6" fill="#f472b6"/><circle cx="28" cy="14" r="2.4" fill="#fde047"/><circle cx="44" cy="22" r="5" fill="#fbbf24"/><circle cx="44" cy="22" r="2" fill="#b45309"/>`,
+    picKoala: `<rect width="56" height="40" fill="#d6f2e6"/><rect x="24" y="0" width="8" height="40" fill="#9a6a3d"/><path d="M32 8 q14 -2 20 6 M24 24 q-12 -2 -18 4" stroke="#4fae6a" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="21" cy="11" r="3.8" fill="#a9b6b1"/><circle cx="35" cy="11" r="3.8" fill="#a9b6b1"/><ellipse cx="28" cy="31" rx="8" ry="7" fill="#a9b6b1"/><circle cx="28" cy="18" r="7.4" fill="#a9b6b1"/><ellipse cx="28" cy="20.4" rx="2.4" ry="3" fill="#26332f"/><circle cx="24.6" cy="16.4" r="1" fill="#26332f"/><circle cx="31.4" cy="16.4" r="1" fill="#26332f"/>`,
+    picNight: `<rect width="56" height="40" fill="#26335f"/><path d="M12 6 a6 6 0 1 0 6 8 a5 5 0 1 1 -6 -8z" fill="#fde68a"/><g fill="#fff"><circle cx="30" cy="8" r="1"/><circle cx="42" cy="14" r="1.2"/><circle cx="48" cy="6" r=".8"/><circle cx="36" cy="22" r=".9"/><circle cx="8" cy="22" r=".8"/></g><path d="M0 34 q16 -8 30 -2 t26 -4 V40 H0z" fill="#1b2548"/>`,
+    picBeach: `<rect width="56" height="40" fill="#d6f0ff"/><circle cx="46" cy="8" r="5" fill="#fde047"/><rect y="20" width="56" height="9" fill="#38bdf8"/><path d="M0 28 q28 -6 56 0 V40 H0z" fill="#f6e3b0"/><path d="M18 36 Q20 20 16 10" stroke="#9a6a3d" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M16 10 q-8 -2 -10 4 M16 10 q2 -8 10 -6 M16 10 q8 0 10 6 M16 10 q-6 4 -6 10" stroke="#3fb984" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+  };
+  // colour, height, mark (0 dot, 1 square, 2 diamond, 3 triangle)
+  const BOOK_DEF = {
+    koalaBook: ["#ef4444", 26, 0], abcBook: ["#3b82f6", 22, 1], spaceBook: ["#26335f", 27, 2], dinoBook: ["#3fb984", 24, 3],
+    fairyBook: ["#f472b6", 23, 0], mathBook: ["#f59e0b", 27, 1], oceanBook: ["#06b6d4", 22, 2], jokeBook: ["#fde047", 25, 3],
+    atlasBook: ["#c9915a", 28, 0], artBook: ["#a78bfa", 24, 1], animalBook: ["#84cc16", 26, 2], songBook: ["#8b5cf6", 22, 3],
+  };
+  const bookMark = (m, cx, cy, s, fill) => [
+    `<circle cx="${cx}" cy="${cy}" r="${s}" fill="${fill}"/>`,
+    `<rect x="${cx - s}" y="${cy - s}" width="${2 * s}" height="${2 * s}" fill="${fill}"/>`,
+    `<path d="M${cx} ${cy - s * 1.2} L${cx + s} ${cy} L${cx} ${cy + s * 1.2} L${cx - s} ${cy}z" fill="${fill}"/>`,
+    `<path d="M${cx} ${cy - s} L${cx + s} ${cy + s} H${cx - s}z" fill="${fill}"/>`,
+  ][m];
+  const bookSvg = (id, x, base) => {
+    const [c, h, m] = BOOK_DEF[id];
+    const w = 8.4, y = base - h;
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1" fill="${c}"/><rect x="${x}" y="${y + 3}" width="${w}" height="1.4" fill="#fff" opacity=".55"/><rect x="${x}" y="${base - 5}" width="${w}" height="1.4" fill="#fff" opacity=".55"/>${bookMark(m, +(x + w / 2).toFixed(1), +(y + h / 2).toFixed(1), 1.7, "#fff")}`;
+  };
+  const bigBook = (id) => {
+    const [c, , m] = BOOK_DEF[id];
+    return `<rect x="9" y="3" width="22" height="34" rx="2.4" fill="${c}"/><rect x="9" y="3" width="4.4" height="34" rx="2" fill="#000" opacity=".18"/><rect x="15.5" y="8" width="12" height="11" rx="1.6" fill="#fff" opacity=".88"/>${bookMark(m, 21.5, 13.5, 3.2, c)}<path d="M16 25 h11 M16 30 h7" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".85"/>`;
+  };
+  // Put a 20 x 24 piece of art at centre cx, standing on y = base, scaled by s.
+  const placed = (art, cx, base, s) => `<g transform="translate(${(cx - 10 * s).toFixed(1)} ${(base - 24 * s).toFixed(1)}) scale(${s})">${art}</g>`;
+  const shelfBooks = (sel) => sel.filter((id) => BOOK_DEF[id]).map((id, i) => bookSvg(id, +(236 + (i % 6) * 9.6).toFixed(1), [68, 104, 146][Math.floor(i / 6)] || 146)).join("");
+  const deskSubs = (sel) => {
+    const top = sel.filter((id) => DESK_ART[id] && !DRAWER_SUBS.includes(id));
+    const drawer = sel.filter((id) => DRAWER_SUBS.includes(id));
+    return top.map((id, i) => placed(DESK_ART[id], 19 + i * 18, 118, 0.9)).join("") + drawer.map((id, i) => placed(DESK_ART[id], [40, 74][i], 146, 0.5)).join("");
+  };
+  const frameBuild = (outer, extra) => (sel) => `<g transform="translate(32 24) scale(1.0714 1.1)">${PIC_ART[sel[0]] || PIC_ART.picMeadow}</g><path d="M62 22 L52 12 M62 22 L72 12" stroke="#6b7a75" stroke-width="1" fill="none"/>${outer}${extra || ""}`;
+  const toyBoxBuild = (body, trim, deco) => (sel) =>
+    `<rect x="26" y="184" width="52" height="8" fill="#5b3e22"/>` +
+    sel.filter((id) => TOY_ART[id]).map((id, i) => placed(TOY_ART[id], [33, 46, 59, 72][i], 193, 0.85)).join("") +
+    `<rect x="24" y="190" width="56" height="22" rx="3" fill="${body}"/>${deco}<rect x="22" y="186" width="60" height="6" rx="2" fill="${trim}"/>`;
+  // A parent item whose picture changes with its sub-items. `base` is its normal picture when nothing is on it.
+  const subBuild = (id, fn) => { const a = ROOM_ART[id]; const base = a.svg; a.build = (sel) => (sel && sel.length ? fn(sel) : base); };
+  const bareBookshelf = `<rect x="228" y="30" width="72" height="122" rx="3" fill="#a9703f"/><rect x="234" y="36" width="60" height="32" fill="#8a5a31"/><rect x="234" y="72" width="60" height="32" fill="#8a5a31"/><rect x="234" y="108" width="60" height="38" fill="#8a5a31"/>`;
+  subBuild("bookshelf", (sel) => bareBookshelf + shelfBooks(sel));
+  subBuild("rainbowShelf", (sel) => shelfFrame("#8a5a31", shelfBooks(sel)));
+  subBuild("studyDesk", (sel) => deskBase("#b9824f", "#9a6a3d", "#c99562", "#f3d9a8") + deskSubs(sel));
+  subBuild("pinkDesk", (sel) => deskBase("#f9a8d4", "#f472b6", "#fbcfe8", "#be185d") + deskSubs(sel));
+  const frames = {
+    woodFrame: frameBuild(`<rect x="30" y="22" width="64" height="48" rx="3" fill="none" stroke="#b9824f" stroke-width="4"/>`),
+    goldFrame: frameBuild(`<rect x="30" y="22" width="64" height="48" rx="3" fill="none" stroke="#e0a21a" stroke-width="4"/>`, `<rect x="33" y="25" width="58" height="42" fill="none" stroke="#fde68a" stroke-width="1"/>`),
+    candyFrame: frameBuild(`<rect x="30" y="22" width="64" height="48" rx="3" fill="none" stroke="#f472b6" stroke-width="4"/>`, `<rect x="30" y="22" width="64" height="48" rx="3" fill="none" stroke="#fbbf24" stroke-width="4" stroke-dasharray="7 7"/>`),
+  };
+  Object.keys(frames).forEach((id) => { ROOM_ART[id] = { layer: "poster", view: "16 8 100 90", build: frames[id], svg: frames[id]([]) }; });
+  const toyBoxes = {
+    woodToyBox: toyBoxBuild("#c9915a", "#a9703f", `<path d="M24 197 H80 M24 204 H80" stroke="#a9703f" stroke-width="1.6"/><rect x="40" y="195" width="24" height="10" rx="2" fill="#fff3c4"/><text x="52" y="203" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="7" fill="#b45309">TOYS</text>`),
+    rainbowToyBox: toyBoxBuild("#fff", "#a78bfa", ["#ef4444", "#f97316", "#fbbf24", "#3fb984", "#38bdf8", "#a78bfa"].map((c, i) => `<rect x="${24 + i * 9.33}" y="192" width="9.4" height="20" fill="${c}"/>`).join("")),
+    starToyBox: toyBoxBuild("#3b82f6", "#1d4ed8", `<polygon points="${starPts(38, 201, 6, 2.6)}" fill="#fde047"/><polygon points="${starPts(54, 205, 4.6, 2)}" fill="#fff"/><polygon points="${starPts(68, 199, 4, 1.8)}" fill="#fde047"/>`),
+  };
+  Object.keys(toyBoxes).forEach((id) => { ROOM_ART[id] = { layer: "toy", view: "14 156 76 58", build: toyBoxes[id], svg: toyBoxes[id]([]) }; });
+  // Small picture of one sub-item for cards and the detail popup.
+  function subIcon(id) {
+    const head = `<svg class="koala-icon-svg koala-sub-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" `;
+    if (BOOK_DEF[id]) return `${head}viewBox="0 0 40 40">${bigBook(id)}</svg>`;
+    if (PIC_ART[id]) return `${head}viewBox="-2 -2 60 44"><g>${PIC_ART[id]}</g><rect x="0" y="0" width="56" height="40" fill="none" stroke="#b9824f" stroke-width="3"/></svg>`;
+    const art = TOY_ART[id] || DESK_ART[id];
+    return art ? `${head}viewBox="-3 -1 26 27">${art}</svg>` : "";
+  }
+
   // Draw order inside the room: back to front.
   const ROOM_ORDER = ["wall", "garland", "window", "poster", "shelf", "lamp", "rug", "desk", "toy"];
   const ROOM_SLOT_LAYER = { wallpaper: "wall", rug: "rug", poster: "poster", desk: "desk", lamp: "lamp", shelf: "shelf", plant: "plant", window: "window", garland: "garland", pet: "pet", toy: "toy" };
   const ROOM_BASE_FLOOR = `<rect y="150" width="320" height="70" fill="#dcbd8c"/><path d="M0 172H320M0 194H320" stroke="#cda973" stroke-width="2"/><rect y="146" width="320" height="6" fill="#c9a36b"/>`;
 
-  function roomItem(id) { return ROOM_ART[id] ? ROOM_ART[id].svg : ""; }
+  // opts.sub: { parentId: [subIds] } drawn on / in their parent item.
+  function roomItem(id, sub) {
+    const a = ROOM_ART[id];
+    if (!a) return "";
+    return a.build ? a.build((sub && sub[id]) || []) : a.svg;
+  }
 
   // The whole scene. roomEq: { slot: itemId } for the room; koalaEq: what the
   // koala wears. Without a wallpaper the Cream Wall shows.
@@ -435,15 +540,17 @@
       if (ROOM_ART[id] && ROOM_SLOT_LAYER[slot] === ROOM_ART[id].layer) byLayer[ROOM_ART[id].layer] = id;
     });
     if (!byLayer.wall) byLayer.wall = "creamWall";
-    const parts = [`<g data-item="${byLayer.wall}">${roomItem(byLayer.wall)}</g>`, ROOM_BASE_FLOOR];
-    ROOM_ORDER.slice(1).forEach((l) => { if (byLayer[l]) parts.push(`<g data-item="${byLayer[l]}">${roomItem(byLayer[l])}</g>`); });
+    // Items that hold sub-items get a class so the studio can make them tappable / highlight the picked one.
+    const grp = (id) => `<g data-item="${id}"${ROOM_ART[id].build ? ` class="koala-hit${o.pick === id ? " koala-picked" : ""}"` : ""}>${roomItem(id, o.sub)}</g>`;
+    const parts = [grp(byLayer.wall), ROOM_BASE_FLOOR];
+    ROOM_ORDER.slice(1).forEach((l) => { if (byLayer[l]) parts.push(grp(byLayer[l])); });
     const koala = avatar(koalaEq, { view: "full" }).replace('class="koala-avatar-svg" ', "").replace("<svg ", '<svg x="106" y="84" width="108" height="111" ');
     // Studio preview: a soft shadow on the floor so the koala stands on the
     // ground instead of hovering in front of the wall.
     if (o.shadow) parts.push('<ellipse cx="160" cy="182" rx="42" ry="5.5" fill="#000" opacity=".16"/>');
     parts.push(koala);
-    if (byLayer.pet) parts.push(`<g data-item="${byLayer.pet}">${roomItem(byLayer.pet)}</g>`);
-    if (byLayer.plant) parts.push(`<g data-item="${byLayer.plant}">${roomItem(byLayer.plant)}</g>`);
+    if (byLayer.pet) parts.push(grp(byLayer.pet));
+    if (byLayer.plant) parts.push(grp(byLayer.plant));
     const label = o.label ? ` role="img" aria-label="${String(o.label).replace(/"/g, "&quot;")}"` : ` aria-hidden="true"`;
     // opts.view crops the scene (e.g. zoom in on the koala); default: the whole room.
     return `<svg class="koala-room-svg" viewBox="${o.view || ROOM_VIEW}" xmlns="http://www.w3.org/2000/svg"${label} focusable="false">${parts.join("")}</svg>`;
@@ -557,5 +664,5 @@
     return avatar(Object.assign({}, equipped || {}, { [SLOT_OF[id]]: id }), { view: art.view === "head" ? "head" : "full" });
   }
 
-  return { avatar, room, itemPicture, itemIcon, previewFor, artIds: () => Object.keys(ART), hasArt: (id) => !!ART[id] || !!ROOM_ART[id] };
+  return { avatar, room, itemPicture, itemIcon, previewFor, subIcon, artIds: () => Object.keys(ART), hasArt: (id) => !!ART[id] || !!ROOM_ART[id] };
 });
