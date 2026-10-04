@@ -7698,3 +7698,9 @@ html body #view-flashcards #flash-start-screen .flash-start-selects select optio
 .sp-start-row { flex-wrap: nowrap; align-items: center; }
 .sp-start-row .sp-level-chip { flex: 0 0 auto; display: inline-flex; align-items: center; min-height: 38px; padding: 0 14px; font-size: 0.9rem; box-shadow: 0 3px 0 rgba(8, 90, 72, 0.45); white-space: nowrap; }
 .sp-start-row .qz-dd { flex: 1 1 0; }
+
+/* Flashcards start: no big-box title, narrower card (matches Spelling's start card), a line of space under the card title */
+#view-flashcards .card:has(#flash-start-screen:not([hidden])) > .view-section-title { display: none; }
+#flash-start-screen .qz-start-card { width: min(100%, 380px); }
+#flash-start-screen .qz-start-card > h3 { margin-bottom: 1.1em; }
+#flash-start-screen .qz-pick .qz-seg { flex-wrap: wrap; }
