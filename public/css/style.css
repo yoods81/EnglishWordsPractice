@@ -8361,7 +8361,7 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
     color: transparent;
     font-size: 0;
     line-height: 0;
-    animation: qz-next-in 0.25s ease-out;
+    animation: qz-next-in 0.25s ease-out, qz-next-pulse 1.2s ease-in-out 0.25s infinite;
     -webkit-tap-highlight-color: transparent;
   }
   #quiz-qcard > #quiz-next:active { background-color: rgba(2, 195, 154, 0.6); transform: none; }
@@ -8370,6 +8370,9 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
   #view-quiz .qz-qcard:has(> #quiz-next:not([style*="none"])) { padding-right: 46px; }
 }
 @keyframes qz-next-in { from { opacity: 0; } to { opacity: 1; } }
+/* A gentle, ongoing blink once the arrow has faded in — the one-shot fade-in
+   alone was too easy to miss next to a bold feedback card. */
+@keyframes qz-next-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
 @media (prefers-reduced-motion: reduce) { #quiz-qcard > #quiz-next { animation: none !important; } }
 
 /* Quiz and Flashcards "Quit" = the same soft orange button Spelling uses. */
