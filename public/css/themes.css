@@ -85,6 +85,10 @@ html[data-theme="dark"] button.pill.neutral {
 html[data-theme="dark"] button.pill.dark {
   background: #374055 !important;
 }
+html[data-theme="dark"] .btn-spinner {
+  border: 2px solid rgba(21,30,28,0.5) !important;
+  border-top-color: #151e1c !important;
+}
 html[data-theme="dark"] .select-all-toggle {
   background: #1a1e2e !important;
 }
@@ -202,6 +206,21 @@ html[data-theme="dark"] .wordlist-item {
 html[data-theme="dark"] .admin-pending-badge {
   color: #31efc4 !important;
 }
+html[data-theme="dark"] .admin-role-select {
+  background-color: #131b19 !important;
+}
+html[data-theme="dark"] .admin-role-select[data-role="paid"] {
+  background-color: #1a2e28 !important;
+}
+html[data-theme="dark"] .wordlist-item .admin-apply-btn:not(.is-dirty) {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .admin-code-status.unused {
+  background: #192d24 !important;
+}
+html[data-theme="dark"] .admin-code-status.used {
+  background: #22182a !important;
+}
 html[data-theme="dark"] .wordlist-item .mastery {
   background: #161b27 !important;
 }
@@ -211,11 +230,21 @@ html[data-theme="dark"] .wordlist-item .mastery.high {
 html[data-theme="dark"] .wordlist-item .mastery.low {
   background: #281616 !important;
 }
+html[data-theme="dark"] .wordlist-item .mastery.cw-level-badge {
+  background: #1a2e28 !important;
+}
 html[data-theme="dark"] .stat-box {
   background: #131b19 !important;
 }
 html[data-theme="dark"] .kid-modal-card {
   background: #131b19 !important;
+}
+html[data-theme="dark"] .koala-reason-btn {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .koala-reason-btn:hover,
+html[data-theme="dark"] .koala-reason-btn:focus-visible {
+  background: #1a2e28 !important;
 }
 html[data-theme="dark"] .auth-card {
   background: #131b19 !important;
@@ -238,14 +267,13 @@ html[data-theme="dark"] .candidate-chip.selected {
 html[data-theme="dark"] .wordlist-item .edit-btn,
 html[data-theme="dark"] .wordlist-item .delete-btn,
 html[data-theme="dark"] .wordlist-item .retry-btn {
-  background: #161b27 !important;
+  background: #131b19 !important;
 }
 html[data-theme="dark"] .wordlist-item .delete-btn {
-  background: #281616 !important;
+  background: #532f2f !important;
 }
 html[data-theme="dark"] .wordlist-item .retry-btn {
-  background: #1a2e26 !important;
-  color: #47ebc6 !important;
+  background: #131b19 !important;
 }
 html[data-theme="dark"] .failed-words-banner {
   background: #172922 !important;
@@ -285,11 +313,16 @@ html[data-theme="dark"] .badge-card.locked .badge-medal {
 }
 html[data-theme="dark"] .badge-lock-patch {
   background: #131b19 !important;
-  border-color: #49655e !important;
-  box-shadow: 0 2px 0 #49655e, 0 3px 6px rgba(0,0,0,.5) !important;
+}
+html[data-theme="dark"] .badge-card.earned .badge-medal::after {
+  background: linear-gradient(100deg, transparent, rgba(19,27,25,0.75), transparent) !important;
 }
 html[data-theme="dark"] .badge-tip {
   background: #131b19 !important;
+}
+html[data-theme="dark"] .badge-tip-premium {
+  background: #302a1b !important;
+  color: #ffc024 !important;
 }
 html[data-theme="dark"] .badge-toast {
   background: #131b19 !important;
@@ -498,8 +531,8 @@ html[data-theme="dark"] .dash-eyebrow {
   color: #f4be5c !important;
 }
 html[data-theme="dark"] .dash-missed {
-  background: #33200f !important;
-  color: #ffb27a !important;
+  background: #32261c !important;
+  color: #f78a50 !important;
 }
 html[data-theme="dark"] .dash-due {
   background: #30291b !important;
@@ -613,9 +646,27 @@ html[data-theme="dark"] .koala-item.is-equipped {
 html[data-theme="dark"] .koala-item.is-locked {
   background: #1a1f1d !important;
 }
+html[data-theme="dark"] .admin-koala-table-row {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .admin-koala-chip {
+  background: #1b221f !important;
+}
+html[data-theme="dark"] .admin-koala-chip:hover {
+  background: #1a2e28 !important;
+}
+html[data-theme="dark"] .admin-koala-take-btn {
+  background: #532f2f !important;
+}
+html[data-theme="dark"] .admin-koala-log-status.pending {
+  color: #f5c95b !important;
+}
 html[data-theme="dark"] .koala-earn {
   background: #131b19 !important;
   border: 2px solid #354944 !important;
+}
+html[data-theme="dark"] .koala-earn-row--done {
+  background: #1b2523 !important;
 }
 html[data-theme="dark"] .koala-room {
   border: 2px solid #354944 !important;
@@ -717,14 +768,6 @@ html[data-theme="dark"] #spelling-practice .sp-leaf-btn:disabled .sp-leaf-shape 
 }
 html[data-theme="dark"] #spelling-practice .sp-leaf-btn:disabled .lf {
   fill: #353e3b !important;
-}
-@media (hover: hover) {
-html[data-theme="dark"] #spelling-practice .sp-erase-btn:hover {
-  background: #182b24 !important;
-}
-}
-html[data-theme="dark"] #spelling-practice .sp-erase-btn:active {
-  background: #1f372f !important;
 }
 html[data-theme="dark"] #spelling-practice .sp-leaf-btn {
   color: #42ffc9 !important;
@@ -848,6 +891,17 @@ html[data-theme="dark"] #view-typegame p.hint.tg-hint {
   color: #55ceab !important;
   background: linear-gradient(180deg, #14241d, #1c3125) !important;
 }
+html[data-theme="dark"] #view-timestable p.tt-tip {
+  border: 2px solid #3e6f59 !important;
+  color: #55ceab !important;
+  background: linear-gradient(180deg, #14241d, #1c3125) !important;
+}
+html[data-theme="dark"][data-theme="dark"] #view-timestable p.tt-tip {
+  background: linear-gradient(180deg, #2a4b3d, #325842) !important;
+}
+html[data-theme="dark"][data-theme="ivory"] #view-timestable p.tt-tip {
+  background: linear-gradient(180deg, #292417, #362e1e) !important;
+}
 html[data-theme="dark"] #view-typegame .tg-over-overlay .tg-over-card,
 html[data-theme="dark"] #view-timestable .tg-over-overlay .tg-over-card {
   background: linear-gradient(180deg, #14231d 0%, #1e352c 100%) !important;
@@ -881,14 +935,6 @@ html[data-theme="dark"] .tg-over-overlay .tg-over-card .tg-review-btn {
 }
 html[data-theme="dark"] .scene-card .hint {
   color: #c3d0cb !important;
-}
-html[data-theme="dark"] #spelling-practice .sp-erase-btn {
-  color: #d4dddb !important;
-}
-@media (hover: hover) {
-html[data-theme="dark"] #spelling-practice .sp-erase-btn:hover {
-  background: #182b24 !important;
-}
 }
 html[data-theme="dark"] .sp-start-card {
   border: 3px solid #151e1c !important;
@@ -954,6 +1000,13 @@ html[data-theme="dark"] .qz-opt:hover:not(:disabled) {
   background: #15251e !important;
 }
 }
+html[data-theme="dark"] .qz-opt-speak {
+  background: #192d26 !important;
+  color: #26e9c0 !important;
+}
+html[data-theme="dark"] .qz-opt-speak:hover {
+  background: #213b31 !important;
+}
 html[data-theme="dark"] .qz-hints {
   background: rgba(52,47,29,0.92) !important;
 }
@@ -965,8 +1018,7 @@ html[data-theme="dark"] .qz-leaves {
   color: #f38200 !important;
 }
 html[data-theme="dark"] .qz-hint-btn {
-  /* the button keeps its bright yellow/orange fill in dark mode, so it needs dark text */
-  color: #1E293B !important;
+  color: #d1d5db !important;
 }
 html[data-theme="dark"] .qz-hint-note {
   color: #daad53 !important;
@@ -993,19 +1045,16 @@ html[data-theme="dark"] #quiz-practice .quiz-footer .sfx-toggle.is-off {
   background: #192320 !important;
   border-color: #505e59 !important;
 }
-html[data-theme="dark"] .qz-stat {
-  background: rgba(19,27,25,0.92) !important;
-}
-html[data-theme="dark"] .qz-daily-card,
-html[data-theme="dark"] .qz-koala-card,
-html[data-theme="dark"] .qz-missed {
-  background: rgba(19,27,25,0.92) !important;
-}
-html[data-theme="dark"] .qz-daily-bar {
-  background: #1f2c27 !important;
+html[data-theme="dark"] .qz-coin-chip {
+  background: #2f2a1a !important;
+  border: 1px solid #6f613e !important;
+  color: #ffb324 !important;
 }
 html[data-theme="dark"] .qz-missed li {
   border-top: 1px dashed #3c4f47 !important;
+}
+html[data-theme="dark"] .qz-result-primary {
+  color: #f38200 !important;
 }
 html[data-theme="dark"] .tts-help {
   background: #2b2618 !important;
@@ -1053,6 +1102,150 @@ html[data-theme="dark"] body #view-flashcards #flash-start-screen .flash-start-s
 html[data-theme="dark"] body #view-flashcards #flash-start-screen .flash-start-selects select option {
   background-color: #131b19 !important;
   color: #26e9c0 !important;
+}
+html[data-theme="dark"] .wl-selected-chip {
+  background: #1d3429 !important;
+  color: #0fefb0 !important;
+}
+html[data-theme="dark"] .wl-speak--example {
+  border: 1px solid #3e6f59 !important;
+  background: #16271f !important;
+  color: #1ef7b9 !important;
+}
+html[data-theme="dark"] .wl-tag--progress {
+  color: #d7dae0 !important;
+}
+html[data-theme="dark"] .wl-tag--good {
+  background: #1d3429 !important;
+  color: #0fefb0 !important;
+}
+html[data-theme="dark"] .wl-tag--new {
+  background: #161e26 !important;
+  color: #c0c6cd !important;
+}
+html[data-theme="dark"] .wl-tag--wrong {
+  background: #291719 !important;
+  color: #f06184 !important;
+}
+html[data-theme="dark"] .wl-tag--level {
+  background: #161b27 !important;
+}
+html[data-theme="dark"] .koala-studio-coins {
+  background: #2b2618 !important;
+  border: 2px solid #6f613e !important;
+}
+html[data-theme="dark"] .koala-stage {
+  border: 2px solid #354944 !important;
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .koala-try-bar:not(.is-idle) {
+  background: #292417 !important;
+  border: 2px solid #6f613e !important;
+}
+html[data-theme="dark"] .koala-grid .koala-item-status.cost {
+  color: #f3bb5a !important;
+}
+html[data-theme="dark"] .koala-item.is-trying {
+  background: #292417 !important;
+}
+html[data-theme="dark"] #view-koala > .card {
+  background: url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%27150%27%20height=%27150%27%3E%3Cg%20opacity=%27.9%27%3E%3Cellipse%20cx=%2728%27%20cy=%2732%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%28-35%2028%2032%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cellipse%20cx=%27112%27%20cy=%2796%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%2830%20112%2096%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cpolygon%20points=%27100%2C20%20103%2C28%20112%2C28%20105%2C33%20108%2C42%20100%2C37%2092%2C42%2095%2C33%2088%2C28%2097%2C28%27%20fill=%27%23f6c343%27%20opacity=%27.3%27/%3E%3Cpolygon%20points=%2740%2C108%2042%2C114%2049%2C114%2043%2C118%2045%2C125%2040%2C121%2035%2C125%2037%2C118%2031%2C114%2038%2C114%27%20fill=%27%23f6c343%27%20opacity=%27.25%27/%3E%3Ccircle%20cx=%2770%27%20cy=%2760%27%20r=%273%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%27136%27%20cy=%2750%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%2714%27%20cy=%2788%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3C/g%3E%3C/svg%3E") 0 0 / 150px 150px, radial-gradient(circle at 10% 6%, rgba(81,72,46,0.55) 0 70px, transparent 71px), radial-gradient(circle at 94% 20%, rgba(45,80,67,0.65) 0 80px, transparent 81px), linear-gradient(180deg, #1c3229 0%, #1c2917 55%, #332d1d 100%) !important;
+}
+html[data-theme="dark"] .koala-streak-goal .koala-level-bar > span::after {
+  background: linear-gradient(90deg, transparent, rgba(19,27,25,0.55), transparent) !important;
+}
+html[data-theme="dark"] .koala-streak-chip {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .koala-zoom-tag {
+  background: rgba(64,86,79,0.72) !important;
+}
+html[data-theme="dark"] .koala-zoom-overlay {
+  background: rgba(44,67,60,0.6) !important;
+}
+html[data-theme="dark"] .koala-zoom-stage {
+  border: 2px solid #354944 !important;
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .koala-nosub {
+  background: rgba(64,86,79,0.88) !important;
+}
+html[data-theme="dark"] .koala-subbox {
+  border: 2px solid #6f613e !important;
+  background: #241f14 !important;
+}
+html[data-theme="dark"] .koala-subchip {
+  border: 2px solid #6f613e !important;
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .koala-subbox-x {
+  border: 2px solid #6f623e !important;
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .koala-sub {
+  border: 2px solid #6f623e !important;
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .koala-sub.is-on {
+  background: #16271f !important;
+}
+html[data-theme="dark"] .koala-subd-stage {
+  background: radial-gradient(circle at 50% 40%, #232014, #393220) !important;
+  border: 2px solid #6f613e !important;
+}
+html[data-theme="dark"] .koala-subd-msg {
+  color: #f5885c !important;
+}
+html[data-theme="dark"] .koala-sub-st.cost {
+  color: #ffb324 !important;
+}
+html[data-theme="dark"] .koala-sell-link {
+  color: #f79e5a !important;
+}
+html[data-theme="dark"] .koala-sell-box {
+  background: #2b2518 !important;
+}
+html[data-theme="dark"] .koala-sell-math > div {
+  background: #292417 !important;
+}
+html[data-theme="dark"] .koala-sell-math .total {
+  background: #182b1f !important;
+}
+html[data-theme="dark"] .koala-sellmode.on {
+  background: #2b2518 !important;
+}
+html[data-theme="dark"] .koala-sell-hint {
+  color: #f79e5a !important;
+}
+html[data-theme="dark"] .koala-item.is-sell {
+  background: #241f14 !important;
+}
+html[data-theme="dark"] .koala-item-status.sell {
+  color: #f79e5a !important;
+}
+html[data-theme="dark"] .koala-wallet {
+  background: linear-gradient(160deg, #2f2a1a 0%, #443d26 100%) !important;
+}
+html[data-theme="dark"] .koala-wallet::after {
+  background: rgba(19,27,25,0.35) !important;
+}
+html[data-theme="dark"] .koala-wallet-lbl {
+  color: #ffb214 !important;
+}
+html[data-theme="dark"] .koala-wallet-val {
+  color: #d1dbd8 !important;
+}
+html[data-theme="dark"] .koala-wallet-stat {
+  background: rgba(19,27,25,0.72) !important;
+}
+html[data-theme="dark"] .koala-wallet-stat span {
+  color: #ffb214 !important;
+}
+html[data-theme="dark"] .koala-wallet-stat b {
+  color: #d1dbd8 !important;
+}
+html[data-theme="dark"] .koala-wallet-note {
+  color: #d2cec5 !important;
 }
 html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; }
 html[data-theme="dark"] img, html[data-theme="dark"] video { filter: brightness(.92); }
@@ -1119,6 +1312,10 @@ html[data-theme="ivory"] .flashcard-face {
 html[data-theme="ivory"] button.pill.neutral {
   background: #fdfaf4 !important;
 }
+html[data-theme="ivory"] .btn-spinner {
+  border: 2px solid rgba(253,250,244,0.5) !important;
+  border-top-color: #fdfaf4 !important;
+}
 html[data-theme="ivory"] .round-icon-btn {
   background: #fdfaf4 !important;
 }
@@ -1177,14 +1374,36 @@ html[data-theme="ivory"] .celebration-card {
 html[data-theme="ivory"] .wordlist-item {
   background: #fdfaf4 !important;
 }
+html[data-theme="ivory"] .admin-role-select {
+  background-color: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .admin-role-select[data-role="paid"] {
+  background-color: #f2ecde !important;
+}
+html[data-theme="ivory"] .wordlist-item .admin-apply-btn:not(.is-dirty) {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .admin-code-status.unused {
+  background: #f2ede0 !important;
+}
 html[data-theme="ivory"] .wordlist-item .mastery.high {
   background: #f2ede0 !important;
+}
+html[data-theme="ivory"] .wordlist-item .mastery.cw-level-badge {
+  background: #f2ecde !important;
 }
 html[data-theme="ivory"] .stat-box {
   background: #fdfaf4 !important;
 }
 html[data-theme="ivory"] .kid-modal-card {
   background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .koala-reason-btn {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .koala-reason-btn:hover,
+html[data-theme="ivory"] .koala-reason-btn:focus-visible {
+  background: #f2ecde !important;
 }
 html[data-theme="ivory"] .auth-card {
   background: #fdfaf4 !important;
@@ -1198,8 +1417,13 @@ html[data-theme="ivory"] .level-overlay-close {
 html[data-theme="ivory"] .level-choice {
   background: #fdfaf4 !important;
 }
+html[data-theme="ivory"] .wordlist-item .edit-btn,
+html[data-theme="ivory"] .wordlist-item .delete-btn,
 html[data-theme="ivory"] .wordlist-item .retry-btn {
-  background: #f1ebdd !important;
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .wordlist-item .retry-btn {
+  background: #fdfaf4 !important;
 }
 html[data-theme="ivory"] .failed-words-banner {
   background: #f4f0e5 !important;
@@ -1231,6 +1455,9 @@ html[data-theme="ivory"] .badge-card.locked .badge-medal {
 }
 html[data-theme="ivory"] .badge-lock-patch {
   background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .badge-card.earned .badge-medal::after {
+  background: linear-gradient(100deg, transparent, rgba(253,250,244,0.75), transparent) !important;
 }
 html[data-theme="ivory"] .badge-tip {
   background: #fdfaf4 !important;
@@ -1473,9 +1700,21 @@ html[data-theme="ivory"] .koala-item.is-equipped {
 html[data-theme="ivory"] .koala-item.is-locked {
   background: #f7f4ec !important;
 }
+html[data-theme="ivory"] .admin-koala-table-row {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .admin-koala-chip {
+  background: #f6f2e9 !important;
+}
+html[data-theme="ivory"] .admin-koala-chip:hover {
+  background: #f2ecde !important;
+}
 html[data-theme="ivory"] .koala-earn {
   background: #fdfaf4 !important;
   border: 2px solid #eee7d6 !important;
+}
+html[data-theme="ivory"] .koala-earn-row--done {
+  background: #f5f0e5 !important;
 }
 html[data-theme="ivory"] .koala-room {
   border: 2px solid #eee7d6 !important;
@@ -1553,14 +1792,6 @@ html[data-theme="ivory"] .sp-leaf-shape path {
 }
 html[data-theme="ivory"] #spelling-practice .sp-leaf-btn:disabled .sp-leaf-shape path {
   fill: #f5f0e6 !important;
-}
-@media (hover: hover) {
-html[data-theme="ivory"] #spelling-practice .sp-erase-btn:hover {
-  background: #f3eee2 !important;
-}
-}
-html[data-theme="ivory"] #spelling-practice .sp-erase-btn:active {
-  background: #ebe3cf !important;
 }
 html[data-theme="ivory"] #spelling-practice .sp-leaf-btn {
   background: rgba(253,250,244,0.7) !important;
@@ -1659,6 +1890,9 @@ html[data-theme="ivory"] .tg-start-chip {
 html[data-theme="ivory"] #view-typegame p.hint.tg-hint {
   background: linear-gradient(180deg, #f8f5ed, #efe8d9) !important;
 }
+html[data-theme="ivory"] #view-timestable p.tt-tip {
+  background: linear-gradient(180deg, #f8f5ed, #efe8d9) !important;
+}
 html[data-theme="ivory"] #view-typegame .tg-over-overlay .tg-over-card,
 html[data-theme="ivory"] #view-timestable .tg-over-overlay .tg-over-card {
   background: linear-gradient(180deg, #f2fffa 0%, #ede5d2 100%) !important;
@@ -1671,11 +1905,6 @@ html[data-theme="ivory"] #view-timestable .tg-over-overlay .tg-over-card p.tg-ov
 html[data-theme="ivory"] #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub::after,
 html[data-theme="ivory"] #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub::after {
   background: #fdfaf4 !important;
-}
-@media (hover: hover) {
-html[data-theme="ivory"] #spelling-practice .sp-erase-btn:hover {
-  background: #f3eee2 !important;
-}
 }
 html[data-theme="ivory"] .sp-start-card {
   border: 3px solid #fdfaf4 !important;
@@ -1713,6 +1942,9 @@ html[data-theme="ivory"] .qz-opt:hover:not(:disabled) {
   background: #f7f4ec !important;
 }
 }
+html[data-theme="ivory"] .qz-opt-speak {
+  background: #f2ecdf !important;
+}
 html[data-theme="ivory"] .qz-leaves {
   background: #fdfaf4 !important;
 }
@@ -1728,17 +1960,6 @@ html[data-theme="ivory"] .qz-fb-toggle {
 html[data-theme="ivory"] #quiz-practice .quiz-footer .sfx-toggle.is-off {
   background: #f6f2ea !important;
   border-color: #d9cfb9 !important;
-}
-html[data-theme="ivory"] .qz-stat {
-  background: rgba(253,250,244,0.92) !important;
-}
-html[data-theme="ivory"] .qz-daily-card,
-html[data-theme="ivory"] .qz-koala-card,
-html[data-theme="ivory"] .qz-missed {
-  background: rgba(253,250,244,0.92) !important;
-}
-html[data-theme="ivory"] .qz-daily-bar {
-  background: #f0eadb !important;
 }
 html[data-theme="ivory"] .qz-missed li {
   border-top: 1px dashed #ece4d1 !important;
@@ -1765,53 +1986,44 @@ html[data-theme="ivory"] body #view-flashcards #flash-start-screen .flash-start-
 html[data-theme="ivory"] body #view-flashcards #flash-start-screen .flash-start-selects select option {
   background-color: #fdfaf4 !important;
 }
-
-/* Word list screen: the light-tinted tags/chips need darker twins on dark/ivory.
-   The solid emerald ("100%") and amber ("50% or below") tags read fine as-is. */
-html[data-theme="dark"] .wl-tag--good,
-html[data-theme="dark"] .wl-selected-chip { background: #153d31; color: #6ee7b7; border-color: #1f5a47; }
-html[data-theme="dark"] .wl-tag--new { background: #1f2937; color: #cbd5e1; }
-html[data-theme="dark"] .wl-tag--wrong { background: #3b1820; color: #fda4af; }
-html[data-theme="dark"] .wl-tag--level { background: #161b27; color: #c7d2fe; }
-html[data-theme="dark"] .wl-speak--example { background: #153d31; border-color: #1f5a47; color: #6ee7b7; }
-html[data-theme="ivory"] .wl-tag--new,
-html[data-theme="ivory"] .wl-tag--level { background: #f2ede0; }
-
-/* My Koala shop studio */
-html[data-theme="dark"] .koala-studio-top { background: #131b19 !important; border-color: #354944 !important; }
-html[data-theme="dark"] .koala-stage { border-color: #354944 !important; background: #131b19 !important; }
-html[data-theme="dark"] .koala-studio-coins { background: #292417 !important; border-color: #6f613e !important; }
-html[data-theme="dark"] .koala-back, html[data-theme="dark"] .koala-cat:not(.on) { background: #131b19 !important; border-color: #354944 !important; }
-html[data-theme="dark"] .koala-try-bar { background: #15251e !important; border-color: #354944 !important; }
-html[data-theme="dark"] .koala-try-bar:not(.is-idle), html[data-theme="dark"] .koala-item.is-trying { background: #292417 !important; border-color: #6f613e !important; }
-html[data-theme="ivory"] .koala-studio-top { background: #fdfaf4 !important; border-color: #eee7d6 !important; }
-html[data-theme="ivory"] .koala-stage { border-color: #eee7d6 !important; background: #fdfaf4 !important; }
-html[data-theme="ivory"] .koala-studio-coins { background: #f6efdc !important; border-color: #e8d4a6 !important; }
-html[data-theme="ivory"] .koala-back, html[data-theme="ivory"] .koala-cat:not(.on) { background: #fdfaf4 !important; border-color: #eee7d6 !important; }
-html[data-theme="ivory"] .koala-try-bar { background: #f7f4ec !important; border-color: #eee7d6 !important; }
-html[data-theme="ivory"] .koala-try-bar:not(.is-idle), html[data-theme="ivory"] .koala-item.is-trying { background: #f6efdc !important; border-color: #e8d4a6 !important; }
-html[data-theme="dark"] .koala-studio-preview { background: #131b19 !important; border-color: #354944 !important; }
-html[data-theme="ivory"] .koala-studio-preview { background: #fdfaf4 !important; border-color: #eee7d6 !important; }
-html[data-theme="dark"] #view-koala > .card { background: linear-gradient(180deg, #1a2f27 0%, #15251e 100%) !important; }
-html[data-theme="ivory"] #view-koala > .card { background: linear-gradient(180deg, #f6efdc 0%, #fbf6ea 100%) !important; }
-html[data-theme="dark"] .koala-streak-chip { background: #131b19 !important; }
-html[data-theme="ivory"] .koala-streak-chip { background: #fdfaf4 !important; }
-html[data-theme="dark"] .koala-zoom-stage { border-color: #354944 !important; background: #131b19 !important; }
-
-/* Koala sub-item box */
-html[data-theme="dark"] .koala-subbox { background: #1c2420 !important; border-color: #6f613e !important; }
-html[data-theme="dark"] .koala-subchip, html[data-theme="dark"] .koala-sub, html[data-theme="dark"] .koala-subbox-x { background: #131b19 !important; border-color: #354944 !important; color: #e8efec !important; }
-html[data-theme="dark"] .koala-sub.is-on { background: #15251e !important; border-color: var(--accent) !important; }
-html[data-theme="dark"] .koala-subd-stage { background: #292417 !important; border-color: #6f613e !important; }
-html[data-theme="ivory"] .koala-subbox { background: #fbf6e8 !important; border-color: #e8d4a6 !important; }
-html[data-theme="ivory"] .koala-subchip, html[data-theme="ivory"] .koala-sub, html[data-theme="ivory"] .koala-subbox-x { background: #fdfaf4 !important; border-color: #eee7d6 !important; }
-html[data-theme="ivory"] .koala-sub.is-on { background: #eef5e6 !important; border-color: var(--accent) !important; }
-html[data-theme="ivory"] .koala-subd-stage { background: #f6efdc !important; border-color: #e8d4a6 !important; }
-html[data-theme="dark"] .koala-wallet { background: linear-gradient(160deg, #2b2615, #3a3119) !important; border-color: #8a7330 !important; box-shadow: 0 4px 0 #5b4b1c !important; }
-html[data-theme="dark"] .koala-wallet-lbl, html[data-theme="dark"] .koala-wallet-stat span, html[data-theme="dark"] .koala-wallet-note { color: #e6cf8a !important; }
-html[data-theme="dark"] .koala-wallet-val, html[data-theme="dark"] .koala-wallet-stat b { color: #f3efe0 !important; }
-html[data-theme="dark"] .koala-wallet-stat, html[data-theme="dark"] .koala-sell-math > div { background: rgba(255, 255, 255, .08) !important; }
-html[data-theme="dark"] .koala-sell-box, html[data-theme="dark"] .koala-item.is-sell { background: #292417 !important; border-color: #6f613e !important; }
-html[data-theme="dark"] .koala-sell-math .total { background: #15251e !important; }
-html[data-theme="ivory"] .koala-wallet { background: linear-gradient(160deg, #f9f1d9, #f1e2b0) !important; border-color: #d8bd73 !important; }
-html[data-theme="ivory"] .koala-sell-box, html[data-theme="ivory"] .koala-item.is-sell { background: #f6efdc !important; border-color: #e8d4a6 !important; }
+html[data-theme="ivory"] .wl-speak--example {
+  border: 1px solid #d5c9b1 !important;
+}
+html[data-theme="ivory"] .koala-stage {
+  border: 2px solid #eee7d6 !important;
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] #view-koala > .card {
+  background: url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%27150%27%20height=%27150%27%3E%3Cg%20opacity=%27.9%27%3E%3Cellipse%20cx=%2728%27%20cy=%2732%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%28-35%2028%2032%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cellipse%20cx=%27112%27%20cy=%2796%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%2830%20112%2096%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cpolygon%20points=%27100%2C20%20103%2C28%20112%2C28%20105%2C33%20108%2C42%20100%2C37%2092%2C42%2095%2C33%2088%2C28%2097%2C28%27%20fill=%27%23f6c343%27%20opacity=%27.3%27/%3E%3Cpolygon%20points=%2740%2C108%2042%2C114%2049%2C114%2043%2C118%2045%2C125%2040%2C121%2035%2C125%2037%2C118%2031%2C114%2038%2C114%27%20fill=%27%23f6c343%27%20opacity=%27.25%27/%3E%3Ccircle%20cx=%2770%27%20cy=%2760%27%20r=%273%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%27136%27%20cy=%2750%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%2714%27%20cy=%2788%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3C/g%3E%3C/svg%3E") 0 0 / 150px 150px, radial-gradient(circle at 10% 6%, rgba(255, 226, 140, .55) 0 70px, transparent 71px), radial-gradient(circle at 94% 20%, rgba(168, 230, 207, .65) 0 80px, transparent 81px), linear-gradient(180deg, #eee7d6 0%, #f5f0e5 55%, #fff3cf 100%) !important;
+}
+html[data-theme="ivory"] .koala-streak-goal .koala-level-bar > span::after {
+  background: linear-gradient(90deg, transparent, rgba(253,250,244,0.55), transparent) !important;
+}
+html[data-theme="ivory"] .koala-streak-chip {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .koala-zoom-stage {
+  border: 2px solid #eee7d6 !important;
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .koala-subchip {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .koala-subbox-x {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .koala-sub {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .koala-sub.is-on {
+  background: #f6f2e8 !important;
+}
+html[data-theme="ivory"] .koala-sell-math .total {
+  background: #f3eee2 !important;
+}
+html[data-theme="ivory"] .koala-wallet::after {
+  background: rgba(253,250,244,0.35) !important;
+}
+html[data-theme="ivory"] .koala-wallet-stat {
+  background: rgba(253,250,244,0.72) !important;
+}

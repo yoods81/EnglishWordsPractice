@@ -339,21 +339,15 @@ const TRANSLATIONS = {
     qzFbWrong: (a) => `❌ The answer is “${a}”`,
     qzFbTimeUp: (a) => `⏰ Time's up! The answer is “${a}”`,
     qzFbAlmost: "So close! Check the spelling.",
-    qzResultTitle: "Quiz complete!",
-    qzResultRetryTitle: "Practice round complete!",
     qzMoodGreat: "Amazing! You're a star! 🌟",
     qzMoodGood: "Great job! Keep it up! 💪",
     qzMoodKeep: "Good try! Practice makes perfect 🌱",
-    qzStatCorrect: "Correct",
-    qzStatTime: "Time",
-    qzStatCombo: "Best streak",
-    qzStatCoins: "Coins",
-    qzDailyReached: "🎉 You reached today's goal!",
     qzMissedTitle: "📝 Words to practise",
-    qzNoMissed: "No mistakes — amazing! 🎉",
+    qzNoMissed: "You didn't miss a single one! 🎉",
     qzRetryBtn: (n) => `🔁 Retry missed words (${n})`,
     qzAgainBtn: "▶ Play again",
     qzSettingsBtn: "⚙️ Change settings",
+    qzGiftBtn: "🎁 Open gift",
     qzSeeResults: "See results 🏁",
     flashFrontModeLabel: "Flashcard front side",
     flashSourceLabel: "Flashcard source",
@@ -936,21 +930,15 @@ const TRANSLATIONS = {
     qzFbWrong: (a) => `❌ 정답은 “${a}”`,
     qzFbTimeUp: (a) => `⏰ 시간 초과! 정답은 “${a}”`,
     qzFbAlmost: "아깝다! 철자를 다시 확인해요.",
-    qzResultTitle: "퀴즈 완료!",
-    qzResultRetryTitle: "복습 라운드 완료!",
     qzMoodGreat: "대단해요! 최고예요! 🌟",
     qzMoodGood: "잘했어요! 계속 가요! 💪",
     qzMoodKeep: "좋은 시도예요! 연습하면 늘어요 🌱",
-    qzStatCorrect: "정답",
-    qzStatTime: "시간",
-    qzStatCombo: "최고 연속",
-    qzStatCoins: "코인",
-    qzDailyReached: "🎉 오늘의 목표를 달성했어요!",
     qzMissedTitle: "📝 다시 연습할 단어",
-    qzNoMissed: "하나도 안 틀렸어요 — 대단해요! 🎉",
+    qzNoMissed: "하나도 안 틀렸어요! 🎉",
     qzRetryBtn: (n) => `🔁 틀린 단어 다시 풀기 (${n})`,
     qzAgainBtn: "▶ 다시 하기",
     qzSettingsBtn: "⚙️ 설정 바꾸기",
+    qzGiftBtn: "🎁 선물 열기",
     qzSeeResults: "결과 보기 🏁",
     qzKoMeaningLabel: "🇰🇷 한국어 뜻",
     qzKoMeaningHide: "뜻 숨기기",
@@ -4172,7 +4160,6 @@ let quizTimer = null;
 let quizQuestionShownAt = 0;
 let quizActiveMs = 0;
 let quizCoinsBefore = 0;
-let quizDailyBefore = 0;
 let quizKoMeaningShown = loadQuizKoMeaning();
 let quizHideMainSpeak = false; // true when the current prompt is Korean text with nothing to read aloud
 
@@ -4298,7 +4285,6 @@ function startQuizRound(retryList) {
   quizLeaves = QuizCore.LEAVES_START;
   quizActiveMs = 0;
   quizCoinsBefore = quizEarnedCoins();
-  quizDailyBefore = answersToday();
   renderGoalStepper("quiz");
 
   quizPhase = "play";
@@ -4641,54 +4627,74 @@ function showQuizResult() {
 
   const sum = QuizCore.summarize(quizScore, total);
   const coins = Math.max(0, quizEarnedCoins() - quizCoinsBefore);
-  const answeredNow = answersToday();
-  const daily = QuizCore.dailyGoalState(answeredNow);
-  const reachedToday = quizDailyBefore < QuizCore.DAILY_GOAL && answeredNow >= QuizCore.DAILY_GOAL;
   const showCoins = canUseAccountFeatures() && !(serverAdmin || isAdmin);
   const moodKey = { great: "qzMoodGreat", good: "qzMoodGood", keep: "qzMoodKeep" }[sum.mood];
+  // One praise line, not two: a perfect round says so directly instead of
+  // also repeating the mood line right above it.
+  const praiseText = quizMissed.length === 0 ? t("qzNoMissed") : t(moodKey);
 
   const stars = [1, 2, 3].map((n) => `<span class="qz-star${n <= sum.stars ? " on" : ""}" aria-hidden="true">${n <= sum.stars ? "★" : "☆"}</span>`).join("");
-  const tiles = [
-    { icon: "✅", label: t("qzStatCorrect"), value: `${quizScore} / ${total}` },
-    { icon: "⏱", label: t("qzStatTime"), value: QuizCore.formatSeconds(quizActiveMs) },
-    { icon: "🔥", label: t("qzStatCombo"), value: String(quizBestCombo) },
-  ];
-  if (showCoins) tiles.push({ icon: "🪙", label: t("qzStatCoins"), value: `+${coins}` });
+  const coinChipHtml = showCoins && coins > 0 ? `<div class="qz-coin-chip">${COIN_SVG} +${coins}</div>` : "";
+
+  // The gift button only shows up when there's something to open right now —
+  // no progress bar or "coming soon" card sitting here the rest of the time.
+  const nextReward = showCoins ? KoalaCore.nextReward(progress, Object.assign({ kind: "character" }, koalaOpts())) : null;
+  const giftHtml = nextReward && nextReward.affordable
+    ? `<button type="button" class="pill accent qz-gift-btn" data-qz-act="opengift">${escapeHtml(t("qzGiftBtn"))}</button>`
+    : "";
 
   const missed = quizMissed.slice(0, QUIZ_RESULT_MISSED_SHOWN);
   const missedHtml = quizMissed.length
-    ? `<div class="qz-missed"><div class="qz-missed-title">${escapeHtml(t("qzMissedTitle"))}</div><ul>${
+    ? `<details class="qz-missed"><summary class="qz-missed-toggle">${escapeHtml(t("qzMissedTitle"))} (${quizMissed.length})</summary><ul>${
         missed.map((q) => `<li><b>${escapeHtml(q.target)}</b><span>${escapeHtml(q.definition || q.answer)}</span></li>`).join("")
-      }</ul>${quizMissed.length > missed.length ? `<div class="qz-missed-more">+${quizMissed.length - missed.length}</div>` : ""}</div>`
-    : `<p class="qz-no-missed">${escapeHtml(t("qzNoMissed"))}</p>`;
+      }</ul>${quizMissed.length > missed.length ? `<div class="qz-missed-more">+${quizMissed.length - missed.length}</div>` : ""}</details>`
+    : "";
 
-  const koala = canUseAccountFeatures()
-    ? `<div class="qz-koala-card">${koalaNextRewardHtml("character")}<button type="button" class="pill neutral small" data-koala-go="koala">${escapeHtml(rwL("🐨 Open My Koala", "🐨 나의 코알라 열기"))}</button></div>`
+  // One big primary action: retry just the missed words when there are any,
+  // otherwise a plain replay — never both at once.
+  const primaryAct = quizMissed.length ? "retry" : "again";
+  const primaryLabel = quizMissed.length ? t("qzRetryBtn", quizMissed.length) : t("qzAgainBtn");
+  const nextLevelHtml = !quizIsRetry && !quizEndedEarly && quizScore === total && total >= GOAL_MIN && nextLevelId()
+    ? `<button type="button" class="qz-result-link" data-qz-act="nextlevel">${escapeHtml(t("goalNextLevelBtn"))}</button>`
     : "";
 
   quizResultEl.innerHTML = `
     <div class="qz-result-card">
       <div class="qz-result-koala is-${sum.mood}" aria-hidden="true">🐨</div>
-      <h3 class="qz-result-title">${escapeHtml(t(quizIsRetry ? "qzResultRetryTitle" : "qzResultTitle"))}</h3>
       <div class="qz-stars" role="img" aria-label="${sum.stars} / 3">${stars}</div>
-      <div class="qz-result-score">${quizScore} / ${total} <small>(${sum.pct}%)</small></div>
-      <p class="qz-result-mood">${escapeHtml(t(moodKey))}</p>
-      <div class="qz-stat-row">${tiles.map((x) => `<div class="qz-stat"><span class="qz-stat-icon" aria-hidden="true">${x.icon}</span><b>${escapeHtml(x.value)}</b><small>${escapeHtml(x.label)}</small></div>`).join("")}</div>
-      <div class="qz-daily-card${daily.done ? " is-done" : ""}">
-        <div class="qz-daily-text">${escapeHtml(reachedToday ? t("qzDailyReached") : daily.done ? t("qzDailyDone") : t("qzDailyLine", daily.have, daily.goal))}</div>
-        <div class="qz-daily-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${daily.goal}" aria-valuenow="${daily.have}"><span style="width:${daily.pct}%"></span></div>
-      </div>
-      ${koala}
+      <div class="qz-result-score">${quizScore} / ${total}</div>
+      <p class="qz-result-mood">${escapeHtml(praiseText)}</p>
+      ${coinChipHtml}
+      ${giftHtml}
       ${missedHtml}
       <div class="qz-result-actions">
-        ${quizMissed.length ? `<button type="button" class="pill accent" data-qz-act="retry">${escapeHtml(t("qzRetryBtn", quizMissed.length))}</button>` : ""}
-        <button type="button" class="pill ${quizMissed.length ? "neutral" : "accent"}" data-qz-act="again">${escapeHtml(t("qzAgainBtn"))}</button>
-        ${!quizIsRetry && !quizEndedEarly && quizScore === total && total >= GOAL_MIN && nextLevelId() ? `<button type="button" class="pill success" data-qz-act="nextlevel">${escapeHtml(t("goalNextLevelBtn"))}</button>` : ""}
-        <button type="button" class="pill neutral" data-qz-act="settings">${escapeHtml(t("qzSettingsBtn"))}</button>
+        <button type="button" class="qz-result-primary" data-qz-act="${primaryAct}">${escapeHtml(primaryLabel)}</button>
+        <div class="qz-result-links">
+          <button type="button" class="qz-result-link" data-qz-act="settings">${escapeHtml(t("qzSettingsBtn"))}</button>
+          ${nextLevelHtml}
+        </div>
       </div>
     </div>`;
   quizResultEl.hidden = false;
   if (sum.stars === 3) koalaSparkle();
+}
+
+// "🎁 Open gift" on the result screen — straight purchase-and-wear of
+// whatever the next affordable reward is, with the same toast/sparkle
+// feedback as buying one from the Koala tab, then a fresh render so the
+// button reflects the new (or now-unaffordable) next reward.
+function quizOpenGift() {
+  const nr = KoalaCore.nextReward(progress, Object.assign({ kind: "character" }, koalaOpts()));
+  if (!nr || !nr.affordable) { showQuizResult(); return; }
+  const name = koalaItemName(nr.item);
+  const res = KoalaCore.buyItem(progress, nr.item.id, koalaOpts());
+  if (!res.ok) { showQuizResult(); return; }
+  rwToastQueue.push({ emoji: KOALA_SLOT_EMOJI[nr.item.slot], title: rwL("New item unlocked!", "새 아이템 해금!"), name: rwL(`${name} — now wearing it!`, `${name} — 바로 입었어요!`) });
+  showNextBadgeToast();
+  checkBadges();
+  saveProgress();
+  koalaSparkle();
+  showQuizResult();
 }
 
 /* ---------- Keyboard play ----------
@@ -4919,6 +4925,7 @@ quizResultEl.addEventListener("click", (e) => {
   else if (btn.dataset.qzAct === "again") startQuizRound();
   else if (btn.dataset.qzAct === "settings") showQuizStart();
   else if (btn.dataset.qzAct === "nextlevel") { const next = nextLevelId(); if (next) applyLevel(next); }
+  else if (btn.dataset.qzAct === "opengift") quizOpenGift();
 });
 
 // 🏁 End: stop here and see the result for the questions answered so far
