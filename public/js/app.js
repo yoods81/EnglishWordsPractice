@@ -342,7 +342,6 @@ const TRANSLATIONS = {
     qzMoodGreat: "Amazing! You're a star! 🌟",
     qzMoodGood: "Great job! Keep it up! 💪",
     qzMoodKeep: "Good try! Practice makes perfect 🌱",
-    qzMissedTitle: "📝 Words to practise",
     qzNoMissed: "You didn't miss a single one! 🎉",
     qzRetryBtn: (n) => `🔁 Retry missed words (${n})`,
     qzAgainBtn: "▶ Play again",
@@ -933,7 +932,6 @@ const TRANSLATIONS = {
     qzMoodGreat: "대단해요! 최고예요! 🌟",
     qzMoodGood: "잘했어요! 계속 가요! 💪",
     qzMoodKeep: "좋은 시도예요! 연습하면 늘어요 🌱",
-    qzMissedTitle: "📝 다시 연습할 단어",
     qzNoMissed: "하나도 안 틀렸어요! 🎉",
     qzRetryBtn: (n) => `🔁 틀린 단어 다시 풀기 (${n})`,
     qzAgainBtn: "▶ 다시 하기",
@@ -4113,7 +4111,7 @@ const MIN_POOL_FOR_QUIZ = QuizCore.MIN_CHOICES;
    in quiz-core.js. */
 const QUIZ_PREFS_KEY = "ywp_quiz_prefs_v1";
 const QUIZ_KO_MEANING_KEY = "ywp_quiz_ko_meaning_v1";
-const QUIZ_RESULT_MISSED_SHOWN = 8;
+const QUIZ_RESULT_MISSED_SHOWN = 5;
 
 const quizStartScreen = document.getElementById("quiz-start-screen");
 const quizPractice = document.getElementById("quiz-practice");
@@ -4638,16 +4636,23 @@ function showQuizResult() {
 
   // The gift button only shows up when there's something to open right now —
   // no progress bar or "coming soon" card sitting here the rest of the time.
+  // It's a small icon next to the coin chip, not a second big CTA competing
+  // with the primary button below.
   const nextReward = showCoins ? KoalaCore.nextReward(progress, Object.assign({ kind: "character" }, koalaOpts())) : null;
   const giftHtml = nextReward && nextReward.affordable
-    ? `<button type="button" class="pill accent qz-gift-btn" data-qz-act="opengift">${escapeHtml(t("qzGiftBtn"))}</button>`
+    ? `<button type="button" class="qz-gift-icon-btn" data-qz-act="opengift" aria-label="${escapeHtml(t("qzGiftBtn"))}" title="${escapeHtml(t("qzGiftBtn"))}">🎁</button>`
     : "";
+  const rewardRowHtml = coinChipHtml || giftHtml ? `<div class="qz-reward-row">${coinChipHtml}${giftHtml}</div>` : "";
 
-  const missed = quizMissed.slice(0, QUIZ_RESULT_MISSED_SHOWN);
+  // Up to 5 missed words as small tap-to-hear chips, right above the primary
+  // button — the retry button's own "(N)" count already says how many there
+  // are, so no separate collapsed list repeating that.
+  const missedChips = quizMissed.slice(0, QUIZ_RESULT_MISSED_SHOWN);
+  const missedOverflow = quizMissed.length - missedChips.length;
   const missedHtml = quizMissed.length
-    ? `<details class="qz-missed"><summary class="qz-missed-toggle">${escapeHtml(t("qzMissedTitle"))} (${quizMissed.length})</summary><ul>${
-        missed.map((q) => `<li><b>${escapeHtml(q.target)}</b><span>${escapeHtml(q.definition || q.answer)}</span></li>`).join("")
-      }</ul>${quizMissed.length > missed.length ? `<div class="qz-missed-more">+${quizMissed.length - missed.length}</div>` : ""}</details>`
+    ? `<div class="qz-missed-chips">${
+        missedChips.map((q) => `<button type="button" class="qz-missed-chip" data-say="${escapeHtml(q.target)}">${escapeHtml(q.target)}</button>`).join("")
+      }${missedOverflow > 0 ? `<span class="qz-missed-chip qz-missed-chip-more">+${missedOverflow}</span>` : ""}</div>`
     : "";
 
   // One big primary action: retry just the missed words when there are any,
@@ -4664,8 +4669,7 @@ function showQuizResult() {
       <div class="qz-stars" role="img" aria-label="${sum.stars} / 3">${stars}</div>
       <div class="qz-result-score">${quizScore} / ${total}</div>
       <p class="qz-result-mood">${escapeHtml(praiseText)}</p>
-      ${coinChipHtml}
-      ${giftHtml}
+      ${rewardRowHtml}
       ${missedHtml}
       <div class="qz-result-actions">
         <button type="button" class="qz-result-primary" data-qz-act="${primaryAct}">${escapeHtml(primaryLabel)}</button>
@@ -4919,6 +4923,8 @@ quizTypingInput.addEventListener("keydown", (e) => {
 });
 
 quizResultEl.addEventListener("click", (e) => {
+  const say = e.target.closest("[data-say]");
+  if (say) { speak(say.dataset.say); return; }
   const btn = e.target.closest("[data-qz-act]");
   if (!btn) return;
   if (btn.dataset.qzAct === "retry") startQuizRound(quizMissed.slice());

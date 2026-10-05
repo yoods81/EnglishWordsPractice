@@ -8253,32 +8253,41 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
    scrolling: koala, stars, a big score, one praise line, then whatever
    optional bits actually apply (coin chip, gift button, collapsed missed
    list), then a single primary action plus small text-link extras. */
-.qz-result-card { padding: 4px 2px 2px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.qz-result-card { padding: 4px 2px 2px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .qz-result-koala { font-size: 3rem; line-height: 1; animation: qz-bounce 1.2s ease-in-out infinite; }
 .qz-result-koala.is-keep { animation-duration: 2.4s; }
 @keyframes qz-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-.qz-stars { font-size: 1.8rem; letter-spacing: 4px; color: #c9d3cf; }
+/* Unfilled stars read as a soft gold outline (not-yet-earned), not flat gray. */
+.qz-stars { font-size: 1.8rem; letter-spacing: 4px; color: #f5d98a; }
 .qz-star.on { display: inline-block; color: #ffb400; text-shadow: 0 2px 0 #c27400; animation: qz-pop 0.5s both; }
 .qz-star.on:nth-child(2) { animation-delay: 0.15s; }
 .qz-star.on:nth-child(3) { animation-delay: 0.3s; }
 /* The score is the one thing that should jump out — everything else here
    is a size step smaller so the eye lands on it first, then the primary
-   button below. */
-.qz-result-score { font-family: var(--font-heading); font-weight: 800; font-size: 3rem; line-height: 1; color: var(--accent-dark); }
+   button below. A deep, saturated green holds contrast against the pale
+   scene background behind the card, where --accent-dark reads too close
+   in hue to blend in. */
+.qz-result-score { font-family: var(--font-heading); font-weight: 800; font-size: 3rem; line-height: 1; color: #0b6b57; }
 .qz-result-mood { margin: 0; font-size: 0.95rem; font-weight: 700; }
 .qz-coin-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 12px; border-radius: 999px; background: #fff6d8; border: 1px solid #f0d28a; color: #8a5a00; font-family: var(--font-heading); font-weight: 800; font-size: 0.85rem; }
-.qz-gift-btn { font-size: 1rem; padding: 10px 22px; }
-.qz-missed { margin: 2px 0; text-align: left; width: 100%; }
-.qz-missed-toggle { cursor: pointer; list-style: none; font-family: var(--font-heading); font-weight: 800; font-size: 0.85rem; color: var(--accent-dark); padding: 4px 0; }
-.qz-missed-toggle::-webkit-details-marker { display: none; }
-.qz-missed-toggle::before { content: "▸ "; }
-.qz-missed[open] .qz-missed-toggle::before { content: "▾ "; }
-.qz-missed ul { margin: 6px 0 0; padding: 0; list-style: none; }
-.qz-missed li { display: flex; gap: 8px; padding: 4px 0; border-top: 1px dashed #dfe8e4; font-size: 0.85rem; }
-.qz-missed li:first-child { border-top: 0; }
-.qz-missed li b { flex: 0 0 auto; color: var(--accent-dark); }
-.qz-missed li span { min-width: 0; color: var(--muted); overflow-wrap: anywhere; }
-.qz-missed-more { padding-top: 2px; font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+/* The gift is a small icon next to the coin chip, not a second big button
+   competing with the primary CTA below. */
+.qz-reward-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.qz-gift-icon-btn {
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid #f0d28a; border-radius: 50%; background: #fff6d8; font-size: 1.05rem; cursor: pointer;
+}
+.qz-gift-icon-btn:hover { background: #ffecb0; }
+.qz-gift-icon-btn:active { transform: translateY(1px); }
+/* Missed words as small tap-to-hear chips instead of a second, redundant
+   "words to practise" list duplicating the retry button's own count. */
+.qz-missed-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: 100%; }
+.qz-missed-chip {
+  border: 1px solid var(--outline); border-radius: 999px; background: #fff; color: var(--accent-dark);
+  padding: 4px 12px; font-family: var(--font-heading); font-weight: 700; font-size: 0.8rem; cursor: pointer;
+}
+.qz-missed-chip:hover { background: #f2fcf8; }
+.qz-missed-chip-more { color: var(--muted); cursor: default; background: transparent; }
 .qz-result-actions { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 4px; width: 100%; }
 .qz-result-primary {
   width: 100%; max-width: 280px; min-height: 52px; padding: 10px 20px;
@@ -8289,9 +8298,19 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
 }
 .qz-result-primary:hover { filter: brightness(1.05); }
 .qz-result-primary:active { transform: translateY(4px); box-shadow: 0 1px 0 #c27400; }
-.qz-result-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; }
-.qz-result-link { border: 0; background: none; padding: 4px 6px; font-size: 0.82rem; font-weight: 700; color: var(--muted); text-decoration: underline; cursor: pointer; }
-.qz-result-link:hover { color: var(--accent-dark); }
+.qz-result-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 10px; }
+/* A translucent white pill plus dark text (not the muted gray used for
+   plain links elsewhere) so this stays readable over the scene art behind
+   the card, and a 44px-tall tap target despite the small-looking label. */
+.qz-result-link {
+  border: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.88); color: var(--text);
+  min-height: 44px; padding: 0 16px; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.82rem; font-weight: 700; cursor: pointer;
+}
+.qz-result-link:hover { background: #fff; color: var(--accent-dark); }
+
+/* The result screen speaks for itself — no "💡 Quiz" caption needed above it. */
+#view-quiz .card:has(> #quiz-result:not([hidden])) > .view-section-title { display: none; }
 
 /* Quiz scenery: one faint cloud and the sun tucked in a corner, so nothing drifts behind the trail or the question */
 #view-quiz .card.scene-card { --tg-orb-x: 90%; --tg-orb-y: 3%; }
