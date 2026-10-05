@@ -425,12 +425,13 @@ const TRANSLATIONS = {
     spellingFinishBtn: "🚩 Quit",
     spellingReportTitle: "⭐ Spelling Report",
     spReportNone: "No questions answered yet. Ready to try? 🐨",
-    spReportSome: (n) => `Just ${n} word${n === 1 ? "" : "s"} to review — you can do it! 💪`,
+    spReportSome: (n) => `${n} to review — you can do it! 💪`,
     spReportLevel: "📚 Change level",
     spReportGame: "⌨️ Try the Typing Game",
+    spReportReview: "Words to review · tap to hear 🔊",
     spReportPerfect: "Perfect! Every word right! 🎉",
     spReportGoodStart: "Great start! Shall we do more? 🌟",
-    spReportScore: (c, n, p) => `${c} / ${n} · ${p}%`,
+    spReportScore: (c, n, p) => (c > 0 ? `${c} / ${n} · ${p}%` : `${c} / ${n}`),
     spReportStreak: (d) => `🔥 ${d}-day streak`,
     spReportStars: (n) => `⭐ +${n}`,
     spellingReportEmpty: "No mistakes today — great job! 🎉",
@@ -1034,9 +1035,10 @@ const TRANSLATIONS = {
     spReportSome: (n) => `${n}개만 다시 보면 돼요 — 할 수 있어요! 💪`,
     spReportLevel: "📚 레벨 바꾸기",
     spReportGame: "⌨️ 타이핑 게임 해보기",
+    spReportReview: "다시 볼 단어 · 탭하면 소리가 나요 🔊",
     spReportPerfect: "완벽해요! 전부 맞혔어요! 🎉",
     spReportGoodStart: "좋은 시작이에요! 더 해볼까요? 🌟",
-    spReportScore: (c, n, p) => `${c} / ${n} · ${p}%`,
+    spReportScore: (c, n, p) => (c > 0 ? `${c} / ${n} · ${p}%` : `${c} / ${n}`),
     spReportStreak: (d) => `🔥 ${d}일 연속`,
     spReportStars: (n) => `⭐ +${n}`,
     spellingReportEmpty: "오늘은 틀린 단어가 없어요 — 정말 잘했어요! 🎉",
@@ -5778,9 +5780,12 @@ function renderSpellingReport() {
   starEl.textContent = t("spReportStars", spellingScore.correct);
   const flLayer = document.getElementById("spelling-report-fl");
   flLayer.innerHTML = state === "perfect" ? ["⭐", "✨", "💚", "⭐", "✨", "💛"].map((c, i) => `<span class="sr-fl" style="--i:${i}">${c}</span>`).join("") : "";
+  const rv = document.getElementById("spelling-report-review");
+  rv.hidden = !words.length;
+  rv.textContent = t("spReportReview");
   spellingReport.classList.toggle("sr-big", state === "perfect" && big);
   if (!spellingReportKoala.firstChild) spellingReportKoala.innerHTML = SPELL_KOALA_SVG;
-  spellingReportKoala.classList.toggle("sp-cheer", state === "perfect");
+  spellingReportKoala.classList.toggle("sp-cheer", state === "perfect" || (state === "some" && spellingScore.correct > 0));
 
   words.forEach((w) => {
     const row = document.createElement("div");
@@ -5802,11 +5807,8 @@ function renderSpellingReport() {
     }
     row.appendChild(left);
 
-    const badge = document.createElement("span");
-    badge.className = "mastery low";
-    badge.textContent = t("spellingWrongBadge");
-    row.appendChild(badge);
-
+    row.classList.add("sp-report-row");
+    row.addEventListener("click", () => speak(w.word));
     spellingReportList.appendChild(row);
   });
 

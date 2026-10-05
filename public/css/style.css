@@ -9209,3 +9209,13 @@ html body #spelling-practice .spelling-wrong-prompt::before { content: "👆 "; 
 }
 html body #spelling-practice .spelling-meaning-line { font-size: 1.02rem; }
 @media (prefers-reduced-motion: reduce) { html body #spelling-practice .spelling-wrong-prompt { animation: none; } }
+
+/* ===== Spelling report pass 4: review list ===== */
+.sp-report-review { margin: 4px 0 0; width: 100%; text-align: left; font-family: var(--font-heading); font-weight: 800; font-size: 0.95rem; color: var(--accent-dark); }
+.sp-report-review[hidden] { display: none; }
+html body .sp-report-card .wordlist-item.sp-report-row { cursor: pointer; padding: 10px 14px; -webkit-tap-highlight-color: transparent; }
+html body .sp-report-card .wordlist-item.sp-report-row:active { background: #e8f7f1; }
+html body .sp-report-card .sp-report-row .w { font-size: 1.3rem; font-weight: 800; }
+html body .sp-report-card .sp-report-row .d { font-size: 0.95rem; }
+html body .sp-report-card .wordlist-grid { gap: 8px; }
+html body #spelling-report[data-state="some"] .sp-report-koala .sk-svg { animation: sp-koala-jump 0.85s cubic-bezier(0.3, 0.7, 0.4, 1) 1; }
