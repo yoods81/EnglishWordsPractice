@@ -9219,3 +9219,25 @@ html body .sp-report-card .sp-report-row .w { font-size: 1.3rem; font-weight: 80
 html body .sp-report-card .sp-report-row .d { font-size: 0.95rem; }
 html body .sp-report-card .wordlist-grid { gap: 8px; }
 html body #spelling-report[data-state="some"] .sp-report-koala .sk-svg { animation: sp-koala-jump 0.85s cubic-bezier(0.3, 0.7, 0.4, 1) 1; }
+
+/* ===== Spelling report pass 5: calmer card, coloured actions, no clipped rows ===== */
+html body .sp-report-card { background: rgba(255, 255, 255, 0.5); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); border: 0; box-shadow: none; gap: 6px; }
+html body .sp-report-card h3 { font-size: 1.15rem; }
+html body .sp-report-koala, html body .sp-report-koala .sk-svg { width: 84px; }
+html body .sp-report-koala { height: 88px; }
+html body .sp-report-star { font-size: 1.15rem; padding: 0 12px; }
+html body .sp-report-msg { font-size: 1rem; }
+html body .sp-report-stats .score-tag { font-size: 0.8rem; padding: 3px 10px; box-shadow: none; border: 1px solid #cfe9df; background: rgba(255, 255, 255, 0.8); }
+html body .sp-report-review { font-size: 0.82rem; font-weight: 700; color: #4f7f70; margin-top: 2px; }
+/* list rows: flat, never clipped at the bottom */
+html body .sp-report-card .wordlist-grid { max-height: 38vh; padding: 2px 2px 6px; gap: 6px; }
+html body .sp-report-card .wordlist-item.sp-report-row { box-shadow: none; border: 1px solid #cfe9df; background: rgba(255, 255, 255, 0.92); padding: 8px 14px; }
+html body .sp-report-card .sp-report-row .w { font-size: 1.2rem; }
+html body .sp-report-card .sp-report-row .d { font-size: 0.88rem; }
+/* actions: one gold primary, two coloured secondaries */
+html body .sp-report-next .pill { border: 0; color: #fff; font-weight: 800; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18); }
+html body .sp-report-next #spelling-report-level { background: linear-gradient(180deg, #36c1a2, #139279); box-shadow: 0 3px 0 #0d6f5b; }
+html body .sp-report-next #spelling-report-game { background: linear-gradient(180deg, #8f7cff, #6a52e0); box-shadow: 0 3px 0 #4b37b8; }
+html body #spelling-report.sr-big #spelling-report-level { background: linear-gradient(180deg, #36c1a2, #139279); border: 0; box-shadow: 0 3px 0 #0d6f5b; color: #fff; }
+html body .sp-report-next .pill:active { transform: translateY(2px); box-shadow: none; }
+html body .sp-report-next { margin-top: 8px; }
