@@ -709,7 +709,7 @@ to Flip!</span></div>
           <div class="sp-start-card">
             <h3 data-i18n="spStartTitle">✏️ Spelling</h3>
             <div class="qz-selects sp-start-row">
-              <span class="tg-start-chip sp-level-chip" id="spelling-start-level"></span>
+              <button type="button" class="tg-start-chip sp-level-chip" id="spelling-start-level" aria-label="Change level"></button>
               <select id="spelling-goal-select" data-i18n-aria-label="goalLabel" aria-label="Number of Questions"></select>
             </div>
             <div class="sp-start-panel"><svg class="sp-scene" viewBox="0 0 300 160" role="img" aria-label="A koala teacher pointing at a chalkboard spelling KOALA">
@@ -755,6 +755,7 @@ to Flip!</span></div>
               <li class="sp-step-arrow" aria-hidden="true">›</li>
               <li class="sp-step sp-step3"><b>⭐</b><span data-i18n="spStep3">Win a star</span></li>
             </ol>
+            <div class="sp-start-stats" id="spelling-start-stats" aria-live="off"></div>
             <button class="pill accent sp-start-btn" id="spelling-start-btn" data-i18n="spellingStartBtn">▶ Start the first word</button>
             <details class="sp-why">
               <summary class="sp-why-title" data-i18n="spWhyTitle">Why practise spelling?</summary>

@@ -1709,8 +1709,18 @@ function clampGoalsForRole() {
 function updateSpellingStartChips() {
   const lv = document.getElementById("spelling-start-level");
   if (!lv) return;
-  lv.textContent = `📚 ${levelLabel(currentLevel)}`;
+  lv.textContent = `📚 ${levelLabel(currentLevel)} ▾`;
+  lv.setAttribute("aria-label", rwL("Change level", "레벨 바꾸기"));
+  // A little scoreboard so there is something to come back for: today's correct
+  // spelling answers and the daily streak.
+  const stats = document.getElementById("spelling-start-stats");
+  if (!stats) return;
+  const rec = (progress.daily && progress.daily[localDateKey(new Date())]) || {};
+  const today = (rec.spelling && rec.spelling[0]) || 0;
+  const streak = currentStreakStatus().count || 0;
+  stats.innerHTML = `<span>⭐ ${rwL("Today", "오늘")} ${today}</span><span>🔥 ${rwL(`${streak}-day streak`, `${streak}일 연속`)}</span>`;
 }
+document.getElementById("spelling-start-level")?.addEventListener("click", () => document.getElementById("level-badge")?.click());
 
 // The quiz's "Number of Questions" is a dropdown inside the start card (the
 // spelling one is still a − / + stepper). It offers 5, 10, 15 ... up to what
