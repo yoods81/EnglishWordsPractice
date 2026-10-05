@@ -9060,3 +9060,26 @@ html body #spelling-practice #spelling-input:placeholder-shown { caret-color: tr
   html body #spelling-practice .sp-input-wrap #spelling-input { padding-left: 54px; }
 }
 html body #spelling-practice #spelling-input:not(:focus):not(.correct):not(.incorrect) { border-color: #b8e3d6; }
+
+/* ===== Spelling practice — UX pass 3 ===== */
+/* (2) bubble nearer the koala → short, fat tail */
+html body #spelling-practice .sp-speech.fk-bubble-skin { left: 80%; }
+/* (3) no reserved gap for the feedback line until there is feedback */
+html body #spelling-practice .spelling-tip:empty { display: none; }
+/* (5) tall phones: a bigger koala and airier spacing instead of empty hills */
+@media (max-width: 520px) {
+  html body #spelling-practice .sp-koala-wrap { --kw: clamp(150px, 21vh, 215px); --bw: 140px; }
+  html body #spelling-practice .sp-body { gap: clamp(10px, 2vh, 22px); }
+  html body #spelling-practice .sp-header { margin-bottom: clamp(0px, 1.5vh, 14px); }
+}
+/* (6) ⌨️ reads as a button */
+@media (pointer: coarse) {
+  html body #spelling-practice .sp-kb-toggle { color: var(--accent-dark); background: #eef9f5; box-shadow: inset 0 0 0 2px #b8e3d6; }
+  html body #spelling-practice .sp-kb-toggle.is-on { color: #fff; background: var(--accent-dark); box-shadow: none; }
+}
+/* (7) once the word is right, Next says so out loud */
+#spelling-practice .sp-leaf-next { position: relative; }
+html body #spelling-practice.is-correct #spelling-next:not(:disabled)::after {
+  content: attr(data-hint); position: absolute; top: calc(100% + 3px); left: 50%; transform: translateX(-50%);
+  font-family: var(--font-heading); font-weight: 800; font-size: 0.78rem; line-height: 1; color: #008a63; white-space: nowrap; pointer-events: none;
+}

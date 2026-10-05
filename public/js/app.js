@@ -3589,10 +3589,11 @@ function drawBubbleOutline(bubble) {
     // (58% across the koala wrap the bubble sits in).
     const wrap = bubble.offsetParent;
     const len = Math.max(14, wrap ? bubble.offsetLeft - wrap.offsetWidth * 0.58 + 3 : 24);
-    const cy = h / 2, hw = Math.min(6, (h - 2 * r) / 2 - 1);
+    const rr = Math.min(r, 9);
+    const cy = h / 2, hw = Math.min(8, (h - 2 * rr) / 2 - 1);
     pad = len;
-    d = `M ${r} 0 H ${f(w - r)} A ${r} ${r} 0 0 1 ${w} ${r} V ${f(h - r)} A ${r} ${r} 0 0 1 ${f(w - r)} ${h} ` +
-        `H ${r} A ${r} ${r} 0 0 1 0 ${f(h - r)} V ${f(cy + hw)} L ${f(-len)} ${f(cy)} L 0 ${f(cy - hw)} V ${r} A ${r} ${r} 0 0 1 ${r} 0 Z`;
+    d = `M ${rr} 0 H ${f(w - rr)} A ${rr} ${rr} 0 0 1 ${w} ${rr} V ${f(h - rr)} A ${rr} ${rr} 0 0 1 ${f(w - rr)} ${h} ` +
+        `H ${rr} A ${rr} ${rr} 0 0 1 0 ${f(h - rr)} V ${f(cy + hw)} L ${f(-len)} ${f(cy)} L 0 ${f(cy - hw)} V ${rr} A ${rr} ${rr} 0 0 1 ${rr} 0 Z`;
   } else {
     const tx = 20; // where the tail meets the bottom edge
     tip = 12; // how far the tail drops below the bubble
@@ -4888,7 +4889,7 @@ function renderSfxToggles() {
     // In Spelling and Quiz the toggle reads "🔊 ON / 🔇 OFF" so it can't be mistaken for the
     // big Listen button; elsewhere it stays icon-only.
     const inSpelling = !!b.closest("#spelling-practice, #quiz-practice");
-    b.textContent = (sfxMuted ? "🔇" : "🔊") + (inSpelling ? " " + rwL(sfxMuted ? "OFF" : "ON", sfxMuted ? "끄기" : "켜기") : "");
+    b.textContent = (sfxMuted ? "🔇" : "🔊") + (inSpelling ? " " + rwL(sfxMuted ? "OFF" : "ON", sfxMuted ? "꺼짐" : "켜짐") : "");
     b.classList.toggle("is-off", sfxMuted);
     const label = sfxMuted ? rwL("Sounds off — tap to turn on", "효과음 꺼짐 — 눌러서 켜기") : rwL("Sounds on — tap to turn off", "효과음 켜짐 — 눌러서 끄기");
     b.setAttribute("aria-label", label);
@@ -5566,6 +5567,7 @@ function showSpellingCorrectFeedback(earnedCredit) {
 // a correct check, .is-correct turns on the Next pulse and the Check button
 // shows its finished ("Checked ✅") state. CSS does the rest.
 function syncSpellingState() {
+  if (typeof spellingNextBtn !== "undefined" && spellingNextBtn) spellingNextBtn.dataset.hint = rwL("Next", "다음");
   spellingPractice.classList.toggle("is-correct", spellingCurrentChecked);
   spellingCheckBtn.classList.toggle("sp-checked", spellingCurrentChecked);
 }
@@ -5605,6 +5607,8 @@ function spellingGoBurst() {
 
 function checkSpellingAnswer() {
   if (spellingDeck.length === 0) return;
+  spellingTappedSpeaker = true; // they are clearly hearing the words fine; stop nagging
+  spellingSpeakBtn.classList.remove("sp-belly-hint");
   const current = spellingDeck[spellingIndex];
   const guess = spellingInput.value.trim().toLowerCase();
   const correct = guess === current.word.toLowerCase();
