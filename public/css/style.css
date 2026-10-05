@@ -9446,3 +9446,20 @@ html body #flash-practice #flash-prev, html body #flash-practice #flash-next { t
 html body #flash-practice #flash-prev { left: 3px; border-radius: 21px 0 0 21px; }
 html body #flash-practice #flash-next { right: 3px; border-radius: 0 21px 21px 0; }
 html body #flash-practice #flashcard-stage.slide-next, html body #flash-practice #flashcard-stage.slide-prev { animation: none; }
+
+/* ---- Flashcard report: same look as the Spelling report ---- */
+html body #flash-report.sp-report { display: flex; flex-direction: column; gap: 12px; padding: 4px 0 8px; }
+html body #flash-report.sp-report[hidden] { display: none !important; }
+html body #flash-report-restart { min-height: 50px; padding: 0 28px; font-size: 1.1rem; font-weight: 800; color: #5a3000 !important; border: 0 !important; background: linear-gradient(180deg, #ffe066, #ffab1a) !important; box-shadow: 0 4px 0 #c27400, 0 6px 12px rgba(194, 116, 0, 0.3) !important; }
+html body #flash-report-restart:active { transform: translateY(3px); box-shadow: 0 1px 0 #c27400 !important; }
+html body #flash-report[data-state="perfect"] .sp-report-koala .sk-svg { animation: sp-koala-jump 1.1s cubic-bezier(0.3, 0.7, 0.4, 1) infinite; }
+html body #flash-report.sr-big .sp-report-card { border-color: #ffd166; box-shadow: 0 0 0 3px rgba(255, 209, 102, 0.4), 0 6px 16px rgba(14, 120, 95, 0.12); }
+html body #flash-report.sr-big #flash-report-level { background: var(--accent); color: #fff; border-color: var(--accent-dark); box-shadow: 0 2px 0 var(--accent-dark); }
+@media (prefers-reduced-motion: reduce) { .sr-fl, .sp-report-star, html body #flash-report[data-state="perfect"] .sp-report-koala .sk-svg { animation: none !important; } }
+html body #flash-report[data-state="some"] .sp-report-koala .sk-svg { animation: sp-koala-jump 0.85s cubic-bezier(0.3, 0.7, 0.4, 1) 1; }
+html body .sp-report-next #flash-report-level { background: linear-gradient(180deg, #36c1a2, #139279); box-shadow: 0 3px 0 #0d6f5b; }
+html body .sp-report-next #flash-report-game { background: linear-gradient(180deg, #8f7cff, #6a52e0); box-shadow: 0 3px 0 #4b37b8; }
+html body #flash-report.sr-big #flash-report-level { background: linear-gradient(180deg, #36c1a2, #139279); border: 0; box-shadow: 0 3px 0 #0d6f5b; color: #fff; }
+html body .sp-report-next #flash-report-level, html body .sp-report-next #flash-report-game,
+html body #flash-report.sr-big #flash-report-level { background: #e3f6ef; color: var(--accent-dark); border: 2px solid #9fd8c6; box-shadow: 0 2px 0 #9fd8c6; text-shadow: none; }
+html body #flash-report.sr-big #flash-report-level { background: #c9efe2; border-color: #4cc3a3; box-shadow: 0 2px 0 #4cc3a3; }

@@ -434,6 +434,14 @@ const TRANSLATIONS = {
     spellingReportTitle: "⭐ Spelling Report",
     spReportNone: "No questions answered yet. Ready to try?",
     spReportSome: (n) => `${n} to review — you can do it! 💪`,
+    flashReportTitle: "⭐ Flashcard Report",
+    flReportNone: "You haven't rated any cards yet. Ready to try?",
+    flReportSome: (n) => `${n} to study again — you can do it! 💪`,
+    flReportPerfect: "Wow! You knew every card! 🎉",
+    flReportReview: "Words to study again · tap to hear 🔊",
+    flReportKnown: (k, r) => `Knew ${k} / ${r}`,
+    flReportSeen: (n) => `📖 ${n} card${n === 1 ? "" : "s"} seen`,
+    flReportRestart: "Study again",
     spReportLevel: "📚 Change level",
     spReportGame: "⌨️ Typing Game",
     spReportReview: "Words to review · tap to hear 🔊",
@@ -1049,6 +1057,14 @@ const TRANSLATIONS = {
     spellingReportTitle: "⭐ 스펠링 리포트",
     spReportNone: "아직 푼 문제가 없어요. 한번 해볼까요?",
     spReportSome: (n) => `${n}개만 다시 보면 돼요 — 할 수 있어요! 💪`,
+    flashReportTitle: "⭐ 플래시카드 리포트",
+    flReportNone: "아직 평가한 카드가 없어요. 한번 해볼까요?",
+    flReportSome: (n) => `${n}개만 다시 보면 돼요 — 할 수 있어요! 💪`,
+    flReportPerfect: "우와! 모든 카드를 알고 있었어요! 🎉",
+    flReportReview: "다시 공부할 단어 · 탭하면 소리가 나요 🔊",
+    flReportKnown: (k, r) => `알고 있어요 ${k} / ${r}`,
+    flReportSeen: (n) => `📖 본 카드 ${n}장`,
+    flReportRestart: "다시 공부하기",
     spReportLevel: "📚 레벨 바꾸기",
     spReportGame: "⌨️ 타이핑 게임",
     spReportReview: "다시 볼 단어 · 탭하면 소리가 나요 🔊",
@@ -3441,17 +3457,68 @@ const flashNextBtn = document.getElementById("flash-next");
 // Start screen / practice screen (same pattern as Quiz and Spelling).
 const flashStartScreen = document.getElementById("flash-start-screen");
 const flashPractice = document.getElementById("flash-practice");
+const flashReport = document.getElementById("flash-report");
+// What happened this round: cards seen, cards rated "know", cards rated "still learning".
+const flashSession = { seen: new Set(), known: new Set(), still: new Map() };
+function resetFlashSession() { flashSession.seen.clear(); flashSession.known.clear(); flashSession.still.clear(); }
 function showFlashStart() {
+  flashReport.hidden = true;
   flashStartScreen.hidden = false;
   flashPractice.hidden = true;
 }
 function startFlashPlay() {
+  resetFlashSession();
+  flashReport.hidden = true;
   flashStartScreen.hidden = true;
   flashPractice.hidden = false;
   renderFlashcard();
 }
+function renderFlashReport() {
+  flashPractice.hidden = true;
+  flashStartScreen.hidden = true;
+  flashReport.hidden = false;
+  const known = flashSession.known.size, still = Array.from(flashSession.still.values());
+  const rated = known + still.length;
+  const state = rated === 0 ? "none" : still.length ? "some" : "perfect";
+  flashReport.dataset.state = state;
+  flashReport.classList.toggle("sr-big", state === "perfect" && rated >= 5);
+  document.getElementById("flash-report-msg").textContent = state === "none" ? t("flReportNone") : state === "some" ? t("flReportSome", still.length) : t("flReportPerfect");
+  const star = document.getElementById("flash-report-star");
+  star.hidden = known <= 0;
+  star.textContent = t("spReportStars", known);
+  document.getElementById("flash-report-score").textContent = t("flReportKnown", known, rated);
+  const seenEl = document.getElementById("flash-report-pct");
+  seenEl.hidden = flashSession.seen.size === 0;
+  seenEl.textContent = t("flReportSeen", flashSession.seen.size);
+  document.getElementById("flash-report-fl").innerHTML = state === "perfect" ? ["⭐", "✨", "💚", "⭐", "✨", "💛"].map((c, i) => `<span class="sr-fl" style="--i:${i}">${c}</span>`).join("") : "";
+  const rv = document.getElementById("flash-report-review");
+  rv.hidden = !still.length;
+  rv.textContent = t("flReportReview");
+  const koalaEl = document.getElementById("flash-report-koala");
+  if (!koalaEl.firstChild) koalaEl.innerHTML = SPELL_KOALA_SVG;
+  koalaEl.classList.toggle("sp-cheer", state === "perfect" || (state === "some" && known > 0));
+  const list = document.getElementById("flash-report-list");
+  list.innerHTML = "";
+  still.forEach((w) => {
+    const row = document.createElement("div");
+    row.className = "wordlist-item sp-report-row";
+    const left = document.createElement("div");
+    left.className = "wordlist-item-main";
+    const we = document.createElement("div");
+    we.className = "w speakable-line";
+    we.textContent = w.word;
+    left.appendChild(we);
+    if (w.definition) { const d = document.createElement("div"); d.className = "d"; d.textContent = w.definition; left.appendChild(d); }
+    row.appendChild(left);
+    row.addEventListener("click", () => speak(w.word));
+    list.appendChild(row);
+  });
+}
 document.getElementById("flash-start-btn").addEventListener("click", startFlashPlay);
-document.getElementById("flash-end").addEventListener("click", showFlashStart);
+document.getElementById("flash-end").addEventListener("click", renderFlashReport);
+document.getElementById("flash-report-restart").addEventListener("click", showFlashStart);
+document.getElementById("flash-report-level")?.addEventListener("click", () => document.getElementById("level-badge")?.click());
+document.getElementById("flash-report-game")?.addEventListener("click", () => goToTab("typegame"));
 
 const flashSourceLevelBtn = document.getElementById("flash-source-level");
 const flashSourceMineBtn = document.getElementById("flash-source-mine");
@@ -3604,6 +3671,7 @@ function renderFlashcard() {
   }
   const item = flashDeck[flashIndex];
   flashPrevBtn.disabled = flashIndex === 0;
+  flashSession.seen.add(item.word);
   const fpl = document.getElementById("flash-progress-label"), fpf = document.getElementById("flash-progress-fill");
   if (fpl && fpf) { fpl.textContent = `${flashIndex + 1} / ${flashDeck.length}`; fpf.style.width = `${((flashIndex + 1) / flashDeck.length) * 100}%`; }
   const meaningFirst = flashFrontModeSel.value === "meaning";
@@ -3775,6 +3843,7 @@ flashKnowBtn.addEventListener("click", () => {
   if (flashDeck.length === 0) return;
   const word = flashDeck[flashIndex].word;
   progress.flashKnown[word] = true;
+  flashSession.known.add(word); flashSession.still.delete(word);
   recordResult(word, true, "flash");
   pulseScoreTag(flashKnowBtn, "flash-know-bounce");
   nextFlashcard();
@@ -3785,6 +3854,7 @@ flashDontKnowBtn.addEventListener("click", () => {
   if (flashDeck.length === 0) return;
   const word = flashDeck[flashIndex].word;
   delete progress.flashKnown[word];
+  flashSession.known.delete(word); flashSession.still.set(word, flashDeck[flashIndex]);
   recordResult(word, false, "flash");
   nextFlashcard();
   koalaReact("dunno", "fkDunno");
@@ -8446,7 +8516,7 @@ setupMobileGameImmersive("view-quiz", quizStartScreen, quizResultEl);
 // Spelling: live while neither the start screen nor the report is showing.
 setupMobileGameImmersive("view-spelling", spellingStartScreen, spellingReport);
 // Flashcards: live from "Start Flashcards" until "End".
-setupMobileGameImmersive("view-flashcards", flashStartScreen, null);
+setupMobileGameImmersive("view-flashcards", flashStartScreen, flashReport);
 // On a phone the keyboard shrinks the panel; keep the answer box in view.
 spellingInput.addEventListener("focus", () => {
   if (!document.body.classList.contains("game-immersive-open")) return;
