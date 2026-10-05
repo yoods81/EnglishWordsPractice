@@ -304,6 +304,10 @@ const TRANSLATIONS = {
     qzModeNoteTime: (c, ty) => `${c} seconds a question (${ty} when typing). If time runs out, it counts as a miss.`,
     quizStartBtn: "▶ Start Quiz",
     flashStartBtn: "▶ Start Flashcards",
+    flashStartTitle: "🎴 Flashcards",
+    fsStep1: "Look",
+    fsStep2: "Flip",
+    fsStep3: "Know it?",
     ttsHelpMsg: "🔇 Can't hear the word? On your phone, search Settings for “text-to-speech” and set the preferred engine to “Speech Services by Google”. Then close and reopen your browser. Also check the volume and that silent mode is off.",
     ttsHelpMsgIos: "🔇 Can't hear the word? Turn silent mode off (the switch on the side), turn the volume up, then try again.",
     ttsHelpOk: "Got it",
@@ -908,6 +912,10 @@ const TRANSLATIONS = {
     qzModeNoteTime: (c, ty) => `문제당 ${c}초 (쓰기는 ${ty}초). 시간이 지나면 오답으로 처리돼요.`,
     quizStartBtn: "▶ 퀴즈 시작",
     flashStartBtn: "▶ 플래시카드 시작",
+    flashStartTitle: "🎴 플래시카드",
+    fsStep1: "보기",
+    fsStep2: "뒤집기",
+    fsStep3: "알아요?",
     ttsHelpMsg: "🔇 단어 소리가 안 나나요? 폰 설정에서 “텍스트 음성 변환”(TTS)을 검색해 기본 엔진을 “Google 음성 서비스”로 바꾼 뒤, 브라우저를 완전히 껐다가 다시 열어 주세요. 볼륨과 무음 모드도 확인해 주세요.",
     ttsHelpMsgIos: "🔇 단어 소리가 안 나나요? 무음 모드(옆면 스위치)를 끄고 볼륨을 올린 뒤 다시 시도해 주세요.",
     ttsHelpOk: "확인",
@@ -3787,6 +3795,17 @@ function syncFlashCategorySeg() {
 flashCategorySel.addEventListener("change", syncFlashCategorySeg);
 syncFlashCategorySeg();
 flashFrontModeSel.addEventListener("change", renderFlashcard);
+// The collapsed "⚙️" row always shows the current choices, e.g. "📚 Vocabulary · 📝 Word · 🎲 Level words".
+const flashSettingsBody = document.getElementById("flash-settings-body");
+function updateFlashSettingsNow() {
+  const now = document.getElementById("flash-settings-now");
+  if (!flashSettingsBody || !now) return;
+  now.textContent = Array.from(flashSettingsBody.querySelectorAll(".qz-seg-btn.on")).map((b) => b.textContent.replace(/^[^\p{L}\p{N}]+/u, "").trim()).join(" · ");
+}
+if (flashSettingsBody) {
+  new MutationObserver(updateFlashSettingsNow).observe(flashSettingsBody, { subtree: true, childList: true, attributes: true, attributeFilter: ["class"] });
+  updateFlashSettingsNow();
+}
 document.querySelectorAll("#flash-front-seg [data-front]").forEach((btn) => {
   btn.addEventListener("click", () => {
     flashFrontModeSel.value = btn.dataset.front;
