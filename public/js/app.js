@@ -423,7 +423,12 @@ const TRANSLATIONS = {
     spellingWrongPrompt: "Please enter the correct spelling to go to the next word",
     spellingEmpty: (lvl) => `No ${lvl} spelling words yet. Add some in "Add Word"!`,
     spellingFinishBtn: "🚩 Quit",
-    spellingReportTitle: "📋 Spelling Report",
+    spellingReportTitle: "⭐ Spelling Report",
+    spReportNone: "No questions answered yet. Ready to try? 🐨",
+    spReportSome: (n) => `Just ${n} word${n === 1 ? "" : "s"} to review — you can do it! 💪`,
+    spReportLevel: "📚 Change level",
+    spReportGame: "⌨️ Try the Typing Game",
+    spReportPct: (p) => `🎯 ${p}% correct`,
     spellingReportEmpty: "No mistakes today — great job! 🎉",
     spellingReportRestart: "Practice Again",
     spellingTodayScore: (c, t) => `Today's score: ${c} / ${t}`,
@@ -1020,7 +1025,12 @@ const TRANSLATIONS = {
     spellingWrongPrompt: "정확한 철자를 입력해야 다음 단어로 넘어갈 수 있어요.",
     spellingEmpty: (lvl) => `${lvl} 레벨에는 아직 스펠링 연습 단어가 없어요. "단어 추가"에서 추가해보세요!`,
     spellingFinishBtn: "🚩 나가기",
-    spellingReportTitle: "📋 스펠링 리포트",
+    spellingReportTitle: "⭐ 스펠링 리포트",
+    spReportNone: "아직 푼 문제가 없어요. 한번 해볼까요? 🐨",
+    spReportSome: (n) => `${n}개만 다시 보면 돼요 — 할 수 있어요! 💪`,
+    spReportLevel: "📚 레벨 바꾸기",
+    spReportGame: "⌨️ 타이핑 게임 해보기",
+    spReportPct: (p) => `🎯 정답률 ${p}%`,
     spellingReportEmpty: "오늘은 틀린 단어가 없어요 — 정말 잘했어요! 🎉",
     spellingReportRestart: "다시 연습하기",
     spellingTodayScore: (c, t) => `오늘의 점수: ${c} / ${t}`,
@@ -5043,6 +5053,9 @@ const spellingFinishBtn = document.getElementById("spelling-finish-btn");
 const spellingReport = document.getElementById("spelling-report");
 const spellingReportList = document.getElementById("spelling-report-list");
 const spellingReportEmpty = document.getElementById("spelling-report-empty");
+const spellingReportMsg = document.getElementById("spelling-report-msg");
+const spellingReportPct = document.getElementById("spelling-report-pct");
+const spellingReportKoala = document.getElementById("spelling-report-koala");
 const spellingReportScoreEl = document.getElementById("spelling-report-score");
 const spellingReportRestartBtn = document.getElementById("spelling-report-restart");
 
@@ -5744,7 +5757,14 @@ function renderSpellingReport() {
 
   const words = Array.from(spellingSessionWrongWords.values());
   spellingReportList.innerHTML = "";
-  spellingReportEmpty.hidden = words.length > 0;
+  const tot = spellingScore.total;
+  const state = tot === 0 ? "none" : words.length ? "some" : "perfect";
+  spellingReport.dataset.state = state;
+  spellingReportMsg.textContent = state === "none" ? t("spReportNone") : state === "some" ? t("spReportSome", words.length) : t("spellingReportEmpty");
+  spellingReportPct.textContent = tot ? t("spReportPct", Math.round((spellingScore.correct / tot) * 100)) : "";
+  spellingReportPct.hidden = !tot;
+  if (!spellingReportKoala.firstChild) spellingReportKoala.innerHTML = SPELL_KOALA_SVG;
+  spellingReportKoala.classList.toggle("sp-cheer", state === "perfect");
 
   words.forEach((w) => {
     const row = document.createElement("div");
@@ -5778,6 +5798,8 @@ function renderSpellingReport() {
 }
 
 spellingFinishBtn.addEventListener("click", renderSpellingReport);
+document.getElementById("spelling-report-level")?.addEventListener("click", () => document.getElementById("level-badge")?.click());
+document.getElementById("spelling-report-game")?.addEventListener("click", () => goToTab("typegame"));
 
 spellingReportRestartBtn.addEventListener("click", () => {
   buildSpellingDeck();

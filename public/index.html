@@ -809,26 +809,33 @@ to Flip!</span></div>
           </div>
           </div>
         </div>
-        <div id="spelling-report" hidden>
-          <h3 data-i18n="spellingReportTitle">📋 Spelling Report</h3>
-          <div class="wordlist-grid" id="spelling-report-list"></div>
-          <div class="celebration-card" id="spelling-report-empty" hidden>
-            <span class="celebration-card-icon" aria-hidden="true">🦉</span>
-            <p class="celebration-card-text" data-i18n="spellingReportEmpty">No mistakes today — great job!</p>
+        <div id="spelling-report" class="sp-report" hidden>
+          <div class="sp-report-card">
+            <h3 data-i18n="spellingReportTitle">⭐ Spelling Report</h3>
+            <div class="sp-report-hero" id="spelling-report-empty">
+              <div class="sp-live-scene sp-report-koala" id="spelling-report-koala" aria-hidden="true"></div>
+              <p class="sp-report-msg" id="spelling-report-msg"></p>
+            </div>
+            <div class="sp-report-stats">
+              <span class="score-tag" id="spelling-report-score">Today's score: 0 / 0</span>
+              <span class="score-tag sp-report-pct" id="spelling-report-pct"></span>
+            </div>
+            <div class="wordlist-grid" id="spelling-report-list"></div>
+            <div class="flash-controls">
+              <button class="pill accent new-quiz-btn sp-report-restart" id="spelling-report-restart">
+                <span class="new-quiz-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 12a8 8 0 0 1 13.66-5.66M20 12a8 8 0 0 1-13.66 5.66" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                    <path d="M17 3v4.5h-4.5M7 21v-4.5h4.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span data-i18n="spellingReportRestart">Practice Again</span>
+              </button>
+            </div>
           </div>
-          <div class="quiz-footer">
-            <span class="score-tag" id="spelling-report-score">Today's score: 0 / 0</span>
-          </div>
-          <div class="flash-controls">
-            <button class="pill accent new-quiz-btn" id="spelling-report-restart">
-              <span class="new-quiz-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4 12a8 8 0 0 1 13.66-5.66M20 12a8 8 0 0 1-13.66 5.66" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
-                  <path d="M17 3v4.5h-4.5M7 21v-4.5h4.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              <span data-i18n="spellingReportRestart">Practice Again</span>
-            </button>
+          <div class="sp-report-next">
+            <button type="button" class="pill neutral small" id="spelling-report-level" data-i18n="spReportLevel">📚 Change level</button>
+            <button type="button" class="pill neutral small" id="spelling-report-game" data-i18n="spReportGame">⌨️ Try the Typing Game</button>
           </div>
         </div>
       </div>

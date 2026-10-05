@@ -9145,3 +9145,29 @@ html body .sp-start-row .qz-dd { flex: 1.3 1 0; }
 html body .sp-start-row .qz-dd-btn { padding: 4px 22px 4px 8px; }
 html body .sp-step { font-size: 0.8rem; padding: 6px 2px; gap: 1px; }
 html body .sp-step b { font-size: 1.2rem; }
+
+/* ===== Spelling report — one card, koala hero, next steps ===== */
+html body #spelling-report.sp-report { display: flex; flex-direction: column; gap: 12px; padding: 4px 0 8px; }
+html body #spelling-report.sp-report[hidden] { display: none !important; }
+.sp-report-card { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 14px 14px 16px; border-radius: 22px; background: rgba(255, 255, 255, 0.82); border: 2px solid #b8e3d6; box-shadow: 0 6px 16px rgba(14, 120, 95, 0.12); }
+.sp-report-card h3 { margin: 0; font-size: 1.25rem; color: var(--accent-dark); }
+.sp-report-hero { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; }
+html body .sp-report-koala { position: relative; width: 120px; height: 122px; margin: 0; overflow: visible; }
+html body .sp-report-koala .sk-svg { width: 120px; height: auto; display: block; }
+.sp-report-msg { margin: 0; text-align: center; font-family: var(--font-heading); font-weight: 800; font-size: 1.05rem; color: var(--accent-dark); }
+.sp-report-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.sp-report-stats .score-tag[hidden] { display: none; }
+.sp-report-card .wordlist-grid { width: 100%; }
+.sp-report-card .wordlist-grid:empty { display: none; }
+html body .sp-report-card .flash-controls { width: 100%; justify-content: center; margin: 2px 0 0; }
+html body #spelling-report-restart { min-height: 50px; padding: 0 28px; font-size: 1.1rem; font-weight: 800; color: #5a3000 !important; border: 0 !important; background: linear-gradient(180deg, #ffe066, #ffab1a) !important; box-shadow: 0 4px 0 #c27400, 0 6px 12px rgba(194, 116, 0, 0.3) !important; }
+html body #spelling-report-restart:active { transform: translateY(3px); box-shadow: 0 1px 0 #c27400 !important; }
+.sp-report-next { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+html body #view-spelling .card.scene-card { --tg-orb-x: 94%; --tg-orb-y: 2%; }
+html body #view-spelling .card.scene-card .tg-sky-cloud-2, html body #view-spelling .card.scene-card .tg-sky-cloud-3 { display: none; }
+html body .sp-report-pct::before { content: none; display: none; }
+html body .sp-report-stats { flex-wrap: nowrap; }
+html body .sp-report-stats .score-tag { font-size: 0.85rem; padding: 5px 10px; white-space: nowrap; }
+html body .sp-report-koala, html body .sp-report-koala .sk-svg { width: 100px; }
+html body .sp-report-koala { height: 104px; }
+html body .sp-report-next { margin-top: 4px; }
