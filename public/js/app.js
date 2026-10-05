@@ -69,7 +69,7 @@ const TRANSLATIONS = {
     navWordlist: "📖 Word List",
     navAddword: "➕ Add Word",
     navStats: "📊 My Progress",
-    navKoala: "🐨 My Koala",
+    navKoala: "My Koala",
     navKoalaShort: "My Koala",
     landingDescKoala: "Your badges, streak and Koala",
     koalaSub: "Everything you earn while you learn lives here.",
@@ -693,7 +693,7 @@ const TRANSLATIONS = {
     navWordlist: "📖 단어장",
     navAddword: "➕ 단어 추가",
     navStats: "📊 내 진행상황",
-    navKoala: "🐨 나의 코알라",
+    navKoala: "나의 코알라",
     navKoalaShort: "나의 코알라",
     landingDescKoala: "나의 배지, 연속 학습, 코알라",
     koalaSub: "공부하면서 얻은 모든 것이 여기에 모여요.",
@@ -4755,7 +4755,7 @@ function showQuizResult() {
 
   quizResultEl.innerHTML = `
     <div class="qz-result-card">
-      <div class="qz-result-koala is-${sum.mood}" aria-hidden="true">🐨</div>
+      <div class="qz-result-koala is-${sum.mood}" aria-hidden="true"><span class="kface" aria-hidden="true"></span></div>
       <div class="qz-stars" role="img" aria-label="${sum.stars} / 3">${stars}</div>
       <div class="qz-result-score">${quizScore} / ${total}</div>
       <p class="qz-result-mood">${escapeHtml(praiseText)}</p>
@@ -11438,7 +11438,7 @@ function renderRewardPanels() {
 }
 
 function premiumLockHtml() {
-  return `<div class="rw-lock"><div class="rw-lock-icon">🔒🐨</div>
+  return `<div class="rw-lock"><div class="rw-lock-icon">🔒<span class="kface" aria-hidden="true"></span></div>
     <div class="rw-lock-title">${t("premiumGateTitle")}</div>
     <p>${rwL("Koala badges and the Wrong-answer notebook are for Premium members.", "코알라 배지와 오답 노트는 프리미엄 회원 전용이에요.")}</p>
     <button type="button" class="pill accent small" data-rw-upgrade>${rwL("Sign up / Upgrade", "가입 / 업그레이드")}</button></div>`;
@@ -11449,7 +11449,7 @@ document.addEventListener("click", (e) => {
 
 // Signed-out visitors can look at the badges but can't collect them.
 function badgeSignupLockHtml() {
-  return `<div class="rw-lock"><div class="rw-lock-icon">🔒🐨</div>
+  return `<div class="rw-lock"><div class="rw-lock-icon">🔒<span class="kface" aria-hidden="true"></span></div>
     <div class="rw-lock-title">${rwL("Sign in to collect koala badges", "로그인하고 코알라 배지를 모아요")}</div>
     <p>${rwL("Create a free account to earn badges as you learn.", "무료 계정을 만들면 공부하면서 배지를 모을 수 있어요.")}</p>
     <button type="button" class="pill accent small" data-rw-signup>${rwL("Sign up / Log in", "가입 / 로그인")}</button></div>`;
@@ -11468,7 +11468,7 @@ function badgeGridHtml() {
     ["math", rwL("🧮 Times Table", "🧮 구구단")],
     ["english", rwL("📖 English", "📖 영어")],
     ["habit", rwL("🔥 Habits", "🔥 학습 습관")],
-    ["koala", rwL("🐨 My Koala", "🐨 나의 코알라")],
+    ["koala", rwL('<span class="kface" aria-hidden="true"></span> My Koala', '<span class="kface" aria-hidden="true"></span> 나의 코알라')],
   ];
   let html = signedIn ? "" : badgeSignupLockHtml();
   html += `<p class="badge-summary">${rwL(`Collected ${got} of ${cat.length} koala badges`, `코알라 배지 ${cat.length}개 중 ${got}개 모았어요`)}</p>`;
@@ -11480,7 +11480,7 @@ function badgeGridHtml() {
       if (on) {
         // Earned: full colour + a soft glow / shine (staggered so they don't all pulse together).
         html += `<div class="badge-card earned" style="--badge-delay:${(i % 5) * 0.45}s" title="${escapeHtml(b.desc)}">
-          <div class="badge-medal-wrap"><div class="badge-medal"><span class="badge-koala">${b.emoji}</span></div><span class="badge-sticker" aria-hidden="true">🐨</span></div>
+          <div class="badge-medal-wrap"><div class="badge-medal"><span class="badge-koala">${b.emoji}</span></div><span class="badge-sticker" aria-hidden="true"><span class="kface" aria-hidden="true"></span></span></div>
           <div class="badge-name">${escapeHtml(b.name)}</div>
           <div class="badge-desc">${escapeHtml(b.desc)}</div></div>`;
       } else {
@@ -12105,7 +12105,7 @@ function renderKoala() {
   if (!box) return;
 
   if (!canUseAccountFeatures()) {
-    box.innerHTML = `<div class="rw-lock"><div class="rw-lock-icon">🐨🔒</div>
+    box.innerHTML = `<div class="rw-lock"><div class="rw-lock-icon"><span class="kface" aria-hidden="true"></span>🔒</div>
       <div class="rw-lock-title">${rwL("Sign in to meet your Koala", "로그인하고 나의 코알라를 만나요")}</div>
       <p>${rwL("Your Koala keeps your level, streak and badges as you learn. Create a free account to get started.", "나의 코알라가 레벨, 연속 학습, 배지를 모아 줘요. 무료 계정을 만들어 시작해요.")}</p>
       <button type="button" class="pill accent small" data-rw-signup>${rwL("Sign up / Log in", "가입 / 로그인")}</button></div>`;
@@ -12155,7 +12155,7 @@ function renderKoala() {
     </div>`;
 
   const tabDefs = [
-    ["character", rwL("🐨 Character", "🐨 캐릭터")],
+    ["character", rwL('<span class="kface" aria-hidden="true"></span> Character', '<span class="kface" aria-hidden="true"></span> 캐릭터')],
     ["room", rwL("🏠 Room", "🏠 방")],
     ["coins", rwL(COIN_SVG + " Coins", COIN_SVG + " 코인")],
     ["badges", rwL("🏆 Badges", "🏆 배지")],
@@ -12280,7 +12280,7 @@ function openKoalaZoom(view) {
   el.className = "koala-zoom-overlay";
   const viewBtn = (id, label) => `<button type="button" class="koala-cat${view === id ? " on" : ""}" data-koala-zoom-view="${id}" aria-pressed="${view === id}">${label}</button>`;
   el.innerHTML = `<div class="koala-zoom-card" role="dialog" aria-modal="true" aria-label="${rwL("Big preview", "크게 보기")}">
-    <div class="koala-zoom-head"><div class="koala-zoom-views">${viewBtn("koala", rwL("🐨 Koala", "🐨 코알라"))}${viewBtn("room", rwL("🏠 Whole room", "🏠 방 전체"))}</div>
+    <div class="koala-zoom-head"><div class="koala-zoom-views">${viewBtn("koala", rwL('<span class="kface" aria-hidden="true"></span> Koala', '<span class="kface" aria-hidden="true"></span> 코알라'))}${viewBtn("room", rwL("🏠 Whole room", "🏠 방 전체"))}</div>
       <button type="button" class="koala-zoom-close" data-koala-zoom-close>${rwL("✕ Close", "✕ 닫기")}</button></div>
     <div class="koala-zoom-stage">${koalaZoomScene(view)}</div>
     ${tryIt ? `<div class="koala-zoom-caption">${rwL(`👀 Trying on: ${escapeHtml(koalaItemName(tryIt))}`, `👀 입어 보는 중: ${escapeHtml(koalaItemName(tryIt))}`)}</div>` : ""}</div>`;
@@ -12595,7 +12595,7 @@ function renderWrongPanel() {
   }
   const all = wrongEntries();
   if (!all.length) {
-    el.innerHTML = `<div class="wrong-empty"><div class="wrong-empty-koala">🐨✨</div><p>${rwL(
+    el.innerHTML = `<div class="wrong-empty"><div class="wrong-empty-koala"><span class="kface" aria-hidden="true"></span>✨</div><p>${rwL(
       "No mistakes to review. Great job!", "복습할 오답이 없어요. 잘했어요!")}</p></div>`;
     return;
   }
@@ -12609,7 +12609,7 @@ function renderWrongPanel() {
     <button type="button" class="wrong-subtab${wrongSubTab === "math" ? " on" : ""}" role="tab" aria-selected="${wrongSubTab === "math"}" data-wrong-tab="math">🧮 ${rwL("Math", "수학")}<span class="wrong-subtab-count">${mathItems.length}</span></button>
   </div>`;
   if (!items.length) {
-    el.innerHTML = `${subTabs}<div class="wrong-empty"><div class="wrong-empty-koala">🐨✨</div><p>${wrongSubTab === "math"
+    el.innerHTML = `${subTabs}<div class="wrong-empty"><div class="wrong-empty-koala"><span class="kface" aria-hidden="true"></span>✨</div><p>${wrongSubTab === "math"
       ? rwL("No maths mistakes to review. Great job!", "복습할 수학 오답이 없어요. 잘했어요!")
       : rwL("No English mistakes to review. Great job!", "복습할 영어 오답이 없어요. 잘했어요!")}</p></div>`;
     return;
@@ -12621,7 +12621,7 @@ function renderWrongPanel() {
   let html = `${subTabs}<p class="wrong-hint">${wrongSubTab === "math"
     ? rwL("Get a fact right in a review and it graduates from this notebook.", "복습에서 맞히면 오답 노트에서 바로 졸업해요.")
     : rwL("Get a word right in a review and it graduates from this notebook.", "복습에서 맞히면 오답 노트에서 바로 졸업해요.")}</p>
-    <div class="wrong-actions"><button type="button" class="pill accent small" id="wrong-review-btn">🐨 ${rwL("Start review", "복습 시작")}</button>${studyBtn}</div>
+    <div class="wrong-actions"><button type="button" class="pill accent small" id="wrong-review-btn"><span class="kface" aria-hidden="true"></span> ${rwL("Start review", "복습 시작")}</button>${studyBtn}</div>
     <ul class="wrong-list">`;
   items.forEach((it) => {
     const isMath = /^\d+x\d+$/.test(it.key);
@@ -13345,7 +13345,7 @@ function reviewShow() {
 function reviewLearn(item, info) {
   const body = document.getElementById("review-body");
   body.innerHTML = `<div class="review-step">${rwL("Step 1 · Learn it", "1단계 · 익히기")}</div>
-    <div class="review-koala" aria-hidden="true">🐨</div>
+    <div class="review-koala" aria-hidden="true"><span class="kface" aria-hidden="true"></span></div>
     <div class="review-word">${escapeHtml(info.word)}</div>
     <button type="button" class="review-hear" id="review-hear">🔊 ${rwL("Hear it", "들어보기")}</button>
     ${info.definition ? `<div class="review-card-meaning"><div class="review-card-label">💡 ${rwL("Meaning", "뜻")}</div><div class="review-card-text-big">${escapeHtml(info.definition)}</div></div>` : ""}
@@ -13501,7 +13501,7 @@ function reviewSummary() {
   document.getElementById("review-count").textContent = "";
   const waiting = reviewWaitingCount(s.kind);
   const left = reviewDueList(s.kind).length;
-  document.getElementById("review-body").innerHTML = `<div class="review-done-koala">🐨🍃</div>
+  document.getElementById("review-body").innerHTML = `<div class="review-done-koala"><span class="kface" aria-hidden="true"></span>🍃</div>
     <h3 class="review-done-title">${rwL("Review complete!", "복습 완료!")}</h3>
     <p class="review-def">${rwL(`${s.right} correct`, `${s.right}개 맞혔어요`)}${s.graduated ? ` · ${rwL(`${s.graduated} graduated 🎓`, `${s.graduated}개 졸업 🎓`)}` : ""}</p>
     ${waiting ? `<p class="review-ex">${rwL(`${waiting} word${waiting === 1 ? "" : "s"} will be retested tomorrow.`, `내일 다시 확인할 단어 ${waiting}개`)}</p>` : ""}
