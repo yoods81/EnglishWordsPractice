@@ -9397,3 +9397,13 @@ html body #my-deck-card #my-deck-bulk-save-btn { width: 100%; min-height: 50px; 
 html body #my-deck-card #my-deck-bulk-status:empty, html body #my-deck-card #my-deck-search-status:empty { display: none; }
 html body #my-deck-card #my-deck-search-input { width: 100%; box-sizing: border-box; min-height: 50px; font-size: 1.05rem; }
 html body #my-deck-card #my-deck-search-results { margin-top: 2px; }
+
+/* ---- Flashcards practice — bigger, calmer reading + tappable buttons ---- */
+html body #flash-practice .flash-progress { position: relative; z-index: 6; }
+html body #flash-practice .flashcard { min-height: 250px; }
+html body #flash-practice .flashcard-front .word { font-size: clamp(2.2rem, 11vw, 3rem); }
+html body #flash-practice .flashcard-back { padding: 18px 20px; text-align: center; }
+html body #flash-practice .flashcard-back .definition { font-size: 1.35rem; font-weight: 800; line-height: 1.4; margin-bottom: 14px; color: var(--text, #26302d); }
+html body #flash-practice .flashcard-back .example { font-size: 1.05rem; line-height: 1.55; font-style: normal; color: #4f5f5a; padding-top: 12px; border-top: 2px dashed #cfe9df; }
+html body #flash-practice .flash-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 360px; margin-left: auto; margin-right: auto; }
+html body #flash-practice .flash-controls .pill { width: 100%; min-height: 54px; font-size: 1.1rem; margin: 0; }

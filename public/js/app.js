@@ -121,6 +121,7 @@ const TRANSLATIONS = {
     spProgressLabel: (i, n) => `Word ${i} of ${n}`,
     fkIdle: "Tap the card\nto Flip!",
     fkFlip: "Ta-da! ✨",
+    fkIdleBack: "Did you know it?",
     fkNext: "Next word! 🍃",
     fkPrev: "Let's look again 👀",
     fkKnow: "Great job! 🌟",
@@ -735,6 +736,7 @@ const TRANSLATIONS = {
     spProgressLabel: (i, n) => `${n}단어 중 ${i}번째`,
     fkIdle: "카드를 눌러 뒤집어요!",
     fkFlip: "짜잔! ✨",
+    fkIdleBack: "알고 있었나요?",
     fkNext: "다음 단어! 🍃",
     fkPrev: "다시 볼까요? 👀",
     fkKnow: "잘했어요! 🌟",
@@ -3588,6 +3590,7 @@ if (typeof ResizeObserver !== "undefined") {
 
 function renderFlashcard() {
   flashcardEl.classList.remove("flipped");
+  { const bt = document.querySelector("#flash-bubble .bubble-text"); if (bt) bt.textContent = t("fkIdle"); }
   if (flashDeck.length === 0) {
     flashcardEl.classList.remove("front-meaning");
     flashWordEl.textContent = usingMyDeck() ? t("myDeckEmptyCard") : t("flashEmptyWord");
@@ -3684,7 +3687,7 @@ function slideFlashStage(dir) {
 }
 function flipFlashcard() {
   flashcardEl.classList.toggle("flipped");
-  koalaReact("flip", "fkFlip");
+  koalaReact("flip", "fkFlip", flashScene, flashBubble, flashcardEl.classList.contains("flipped") ? "fkIdleBack" : "fkIdle");
 }
 
 flashcardEl.addEventListener("click", (e) => {
