@@ -9296,3 +9296,21 @@ html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before {
 
 /* Flashcards start: tidier settings row */
 html body #flash-start-screen .fs-settings-sum { min-height: 40px; background: rgba(255, 255, 255, 0.28); }
+
+/* ===== Flashcards start — airy layout + drawn card icon ===== */
+.fs-title { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.fs-title-ico { display: inline-flex; filter: drop-shadow(0 2px 0 rgba(8, 90, 72, 0.45)); }
+html body #flash-start-screen .qz-start-card { gap: 20px; padding: 22px 18px 24px; }
+html body #flash-start-screen .qz-start-card > h3 { margin: 0 0 2px; }
+html body #flash-start-screen .fs-settings-sum { min-height: 46px; }
+html body #flash-start-screen .fs-settings-body { gap: 18px; padding-top: 16px; }
+html body #flash-start-screen .fs-settings-body .qz-pick { gap: 12px; }
+html body #flash-start-screen .fs-settings-body .qz-seg { gap: 10px; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn { min-height: 42px; font-size: 0.85rem; }
+html body #flash-start-screen .fs-panel { margin: 2px auto; }
+html body #flash-start-screen .fs-steps { margin: 4px 0 2px; gap: 8px; }
+html body #flash-start-screen .sp-start-card button.sp-start-btn.pill.accent { margin-top: 6px; min-height: 52px; }
+html body #flash-start-screen .fs-settings-body .qz-pick { flex-direction: column; align-items: stretch; gap: 8px; }
+html body #flash-start-screen .fs-settings-body .qz-pick-title { flex: 0 0 auto; text-align: left; font-size: 0.85rem; padding-left: 4px; }
+html body #flash-start-screen .fs-settings-body .qz-seg { width: 100%; gap: 8px; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn { min-height: 40px; padding: 4px 10px; font-size: 0.82rem; }
