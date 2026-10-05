@@ -9241,3 +9241,9 @@ html body .sp-report-next #spelling-report-game { background: linear-gradient(18
 html body #spelling-report.sr-big #spelling-report-level { background: linear-gradient(180deg, #36c1a2, #139279); border: 0; box-shadow: 0 3px 0 #0d6f5b; color: #fff; }
 html body .sp-report-next .pill:active { transform: translateY(2px); box-shadow: none; }
 html body .sp-report-next { margin-top: 8px; }
+
+/* Spelling report: secondary buttons stay inside the card padding, with room at the bottom */
+html body .sp-report-card { padding: 12px 14px 18px; box-sizing: border-box; }
+html body .sp-report-next { box-sizing: border-box; width: 100%; padding: 0 2px; margin-top: 10px; gap: 10px; flex-wrap: nowrap; }
+html body .sp-report-next .pill { min-width: 0; padding-left: 8px; padding-right: 8px; font-size: 0.85rem; }
+html body .sp-report-next .pill { overflow: hidden; text-overflow: ellipsis; }
