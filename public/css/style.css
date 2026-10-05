@@ -9193,3 +9193,19 @@ html body #spelling-report.sr-big #spelling-report-level { background: var(--acc
 @media (prefers-reduced-motion: reduce) { .sr-fl, .sp-report-star, html body #spelling-report[data-state="perfect"] .sp-report-koala .sk-svg { animation: none !important; } }
 html body .sr-fl { left: calc(18% + var(--i) * 13%); top: 85%; }
 @keyframes sr-fl { 0% { opacity: 0; transform: translate(-50%, 0) scale(0.5); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -70px) scale(1.1) rotate(25deg); } }
+
+/* ===== Wrong-answer rule: big, bold, gently blinking so kids actually read it ===== */
+html body #spelling-practice .spelling-wrong-word { font-size: 1.6rem; font-weight: 800; letter-spacing: 0.04em; }
+html body #spelling-practice .spelling-wrong-prompt {
+  margin: 6px 0 4px; padding: 10px 14px; border-radius: 16px; text-align: center;
+  font-family: var(--font-heading); font-weight: 800; font-size: 1.12rem; line-height: 1.35; color: #b3261e;
+  background: #fff1ef; border: 2px solid #f19a93; box-shadow: 0 3px 0 #f4b9b3;
+  animation: sp-rule-blink 0.9s ease-in-out 4;
+}
+html body #spelling-practice .spelling-wrong-prompt::before { content: "👆 "; }
+@keyframes sp-rule-blink {
+  0%, 100% { background: #fff1ef; border-color: #f19a93; transform: scale(1); }
+  50% { background: #ffd9d4; border-color: #e5483d; transform: scale(1.03); }
+}
+html body #spelling-practice .spelling-meaning-line { font-size: 1.02rem; }
+@media (prefers-reduced-motion: reduce) { html body #spelling-practice .spelling-wrong-prompt { animation: none; } }
