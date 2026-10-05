@@ -9440,3 +9440,9 @@ html body #flash-practice #flash-prev:disabled { opacity: 0; pointer-events: non
 html body #flash-practice .flashcard-face { padding-left: 48px; padding-right: 48px; box-sizing: border-box; }
 html body #flash-practice .flashcard-row:has(.flashcard.flipped) #flash-next { animation: qz-next-pulse 1.2s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { html body #flash-practice .flashcard-row:has(.flashcard.flipped) #flash-next { animation: none; } }
+
+/* Edge arrows sit exactly inside the card's 3px rim (no gap at the bottom), and the card never slides. */
+html body #flash-practice #flash-prev, html body #flash-practice #flash-next { top: 3px; bottom: 3px; }
+html body #flash-practice #flash-prev { left: 3px; border-radius: 21px 0 0 21px; }
+html body #flash-practice #flash-next { right: 3px; border-radius: 0 21px 21px 0; }
+html body #flash-practice #flashcard-stage.slide-next, html body #flash-practice #flashcard-stage.slide-prev { animation: none; }

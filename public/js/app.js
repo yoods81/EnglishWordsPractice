@@ -3683,6 +3683,7 @@ function koalaReact(kind, msgKey, scene = flashScene, bubble = flashBubble, idle
   }, kind === "sad" ? 2800 : 1700);
 }
 function slideFlashStage(dir) {
+  return; // no card slide motion — the edge arrows just swap the card
   flashStageEl.classList.remove("slide-next", "slide-prev");
   void flashStageEl.offsetWidth;
   flashStageEl.classList.add(dir === "prev" ? "slide-prev" : "slide-next");
