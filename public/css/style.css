@@ -9314,3 +9314,37 @@ html body #flash-start-screen .fs-settings-body .qz-pick { flex-direction: colum
 html body #flash-start-screen .fs-settings-body .qz-pick-title { flex: 0 0 auto; text-align: left; font-size: 0.85rem; padding-left: 4px; }
 html body #flash-start-screen .fs-settings-body .qz-seg { width: 100%; gap: 8px; }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn { min-height: 40px; padding: 4px 10px; font-size: 0.82rem; }
+
+/* drawn flashcard icon used in nav / tiles / missions */
+.fl-ico { display: inline-flex; align-items: center; margin-right: 0.3em; }
+.fl-svg { width: 1.15em; height: 1em; display: inline-block; vertical-align: -0.12em; }
+.landing-tile-icon .fl-svg { width: 1.3em; height: 1.1em; }
+.landing-tile-title { display: inline-flex; align-items: center; }
+.mission-emoji .fl-svg, .koala-earn-emoji .fl-svg { width: 1.1em; }
+.fs-count { margin: 0; text-align: center; }
+.fs-count[hidden] { display: none; }
+
+/* ===== Flashcards practice: progress, calmer rhythm ===== */
+.flash-progress { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 6px 0 14px; }
+.flash-progress-label { padding: 4px 16px; border-radius: 999px; background: rgba(255, 255, 255, 0.85); border: 2px solid #b8e3d6; color: var(--accent-dark); font-family: var(--font-heading); font-weight: 800; font-size: 0.95rem; }
+.flash-progress-label:empty { display: none; }
+.flash-progress-bar { width: min(100%, 260px); height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.7); overflow: hidden; box-shadow: inset 0 0 0 1px #cfe9df; }
+.flash-progress-bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #36c1a2, #02c39a); transition: width 0.3s ease; }
+html body #flash-practice .flash-controls { margin-top: 18px; gap: 12px; }
+html body #flash-practice .flash-end-row { display: flex; justify-content: center; margin-top: 22px; }
+/* start screens: scenery card fills the viewport so no big empty block below */
+@media (max-width: 700px) {
+  html body #view-flashcards .card.scene-card:has(#flash-start-screen:not([hidden])),
+  html body #view-spelling .card.scene-card:has(#spelling-start-screen:not([hidden])) { min-height: max(440px, calc(100svh - 360px)); display: flex; flex-direction: column; justify-content: center; }
+}
+html body #view-flashcards .card.scene-card { --tg-orb-x: 90%; --tg-orb-y: 3%; }
+html body #view-flashcards .card.scene-card .tg-sky-cloud-2, html body #view-flashcards .card.scene-card .tg-sky-cloud-3 { display: none; }
+
+/* progress sits clear of the koala's speech bubble */
+.flash-progress { margin-bottom: 44px; }
+/* Quiz start: same calm frame and rhythm as Spelling / Flashcards */
+html body #view-quiz .card.scene-card { border: 0; box-shadow: none; }
+html body #quiz-start-screen .sp-start-floaters { display: none; }
+html body #quiz-start-screen .qz-start-card { gap: 16px; padding: 20px 16px 22px; }
+html body #quiz-start-screen .qz-start-card .qz-pick { gap: 10px; }
+html body #quiz-start-screen .qz-start-card > h3 { margin-bottom: 4px; }

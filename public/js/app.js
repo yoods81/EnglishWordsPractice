@@ -61,7 +61,7 @@ const TRANSLATIONS = {
     levelBadgePrefix: "Level",
     levelOverlayTitle: "📚 Choose your level",
     levelOverlayDesc: "Pick the level you want to practise. You can change this anytime.",
-    navFlashcards: "🗂️ Flashcards",
+    navFlashcards: "Flashcards",
     navQuiz: "💡 Quiz",
     navSpelling: "✏️ Spelling",
     navTypeGame: "⌨️ Typing Game",
@@ -82,7 +82,7 @@ const TRANSLATIONS = {
     // navFlashcards above since those carry the nav's own emoji/short-form.
     quizSectionTitle: "💡 Quiz",
     spellingSectionTitle: "✏️ Spelling",
-    flashcardsSectionTitle: "🗂️ Flashcards",
+    flashcardsSectionTitle: "Flashcards",
     // The persistent nav row groups Quiz/Spelling/Flashcards under one
     // "Study" trigger, and Times Table/Typing Game under one "Game" trigger
     // (each opens a small dropdown on hover/tap) — see .tab-group in
@@ -305,6 +305,9 @@ const TRANSLATIONS = {
     quizStartBtn: "▶ Start Quiz",
     flashStartBtn: "▶ Start Flashcards",
     flashStartTitle: "Flashcards",
+    fsDemo1: "a sleepy",
+    fsDemo2: "gum-tree animal",
+    fsCount: (n) => `${n} cards ready`,
     fsStep1: "Look",
     fsStep2: "Flip",
     fsStep3: "Know it?",
@@ -682,7 +685,7 @@ const TRANSLATIONS = {
     levelBadgePrefix: "레벨",
     levelOverlayTitle: "📚 레벨을 선택하세요",
     levelOverlayDesc: "학습할 레벨을 선택하세요. 언제든지 바꿀 수 있어요.",
-    navFlashcards: "🗂️ 플래시카드",
+    navFlashcards: "플래시카드",
     navQuiz: "💡 퀴즈",
     navSpelling: "✏️ 스펠링",
     navTypeGame: "⌨️ 타이핑 게임",
@@ -700,7 +703,7 @@ const TRANSLATIONS = {
     landingDescAdmin: "코드, 사용자, 코알라 코인 관리",
     quizSectionTitle: "💡 퀴즈",
     spellingSectionTitle: "✏️ 스펠링",
-    flashcardsSectionTitle: "🗂️ 플래시카드",
+    flashcardsSectionTitle: "플래시카드",
     navStudy: "📚 학습",
     navGame: "👾 게임",
     navQuizShort: "퀴즈",
@@ -913,6 +916,9 @@ const TRANSLATIONS = {
     quizStartBtn: "▶ 퀴즈 시작",
     flashStartBtn: "▶ 플래시카드 시작",
     flashStartTitle: "플래시카드",
+    fsDemo1: "나무에서 사는",
+    fsDemo2: "졸린 동물",
+    fsCount: (n) => `카드 ${n}장 준비됐어요`,
     fsStep1: "보기",
     fsStep2: "뒤집기",
     fsStep3: "알아요?",
@@ -2222,6 +2228,7 @@ function applyStaticTranslations() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     el.textContent = t(el.dataset.i18n);
   });
+  if (typeof updateFlashCount === "function" && typeof flashDeck !== "undefined") updateFlashCount();
   document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
     el.placeholder = t(el.dataset.i18nPlaceholder);
   });
@@ -3537,7 +3544,12 @@ function buildFlashDeck() {
   myDeckCard.hidden = !flashUseMine;
   syncFlashSourceSwitches();
   if (flashUseMine) renderMyDeck();
+  updateFlashCount();
   renderFlashcard();
+}
+function updateFlashCount() {
+  const el = document.getElementById("flash-count");
+  if (el) { el.textContent = flashDeck.length ? t("fsCount", flashDeck.length) : ""; el.hidden = !flashDeck.length; }
 }
 
 // Keeps the word on one line and never overlapping the speaker button. It
@@ -3581,10 +3593,14 @@ function renderFlashcard() {
     flashWordEl.textContent = usingMyDeck() ? t("myDeckEmptyCard") : t("flashEmptyWord");
     flashDefEl.textContent = usingMyDeck() ? t("myDeckEmptyHint") : t("flashEmptyDef", levelLabel(currentLevel));
     flashExampleEl.textContent = "";
+    const fpl0 = document.getElementById("flash-progress-label");
+    if (fpl0) fpl0.textContent = "";
     fitFlashWord();
     return;
   }
   const item = flashDeck[flashIndex];
+  const fpl = document.getElementById("flash-progress-label"), fpf = document.getElementById("flash-progress-fill");
+  if (fpl && fpf) { fpl.textContent = `${flashIndex + 1} / ${flashDeck.length}`; fpf.style.width = `${((flashIndex + 1) / flashDeck.length) * 100}%`; }
   const meaningFirst = flashFrontModeSel.value === "meaning";
   flashcardEl.classList.toggle("front-meaning", meaningFirst);
   // The front/back DOM slots (and their speak-on-tap handlers) always read
@@ -11554,6 +11570,7 @@ window.addEventListener("resize", hideBadgeTip);
 // a later phase — nothing is stubbed in the UI for it.
 // The coin is drawn, not an emoji: the coin emoji glyph is missing from many
 // Windows and older Android fonts and shows up as an empty box. Sizes with the text.
+const FLASH_ICON_SVG = '<svg class="fl-svg" viewBox="0 0 44 36" width="1.15em" height="1em" fill="none" aria-hidden="true" focusable="false"><rect x="4" y="9" width="26" height="20" rx="5" fill="#d9f3ea" stroke="#0b6b57" stroke-width="2.5" transform="rotate(-9 17 19)"/><rect x="12" y="5" width="27" height="21" rx="5" fill="#fff" stroke="#0b6b57" stroke-width="2.5"/><path d="M19 15.5h13M19 20h8" stroke="#02c39a" stroke-width="2.6" stroke-linecap="round"/><path d="M33 29c3-1 5-4 4.5-7.5" stroke="#f5a623" stroke-width="2.8" stroke-linecap="round"/></svg>';
 const COIN_SVG = '<svg class="koala-coin" viewBox="0 0 24 24" width="1.1em" height="1.1em" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10.5" fill="#f6c343" stroke="#c98a12" stroke-width="1.5"/><circle cx="12" cy="12" r="7" fill="none" stroke="#e0a21a" stroke-width="1.2"/><path d="M12 7.2v9.6M9.3 9.6c0-1.2 1.2-1.9 2.7-1.9s2.7.7 2.7 1.9c0 2.7-5.4 1.5-5.4 4.2 0 1.2 1.2 2 2.7 2s2.7-.8 2.7-2" fill="none" stroke="#a86f0c" stroke-width="1.3" stroke-linecap="round"/></svg>';
 
 const KOALA_REASON_LABELS = () => ({
@@ -11983,7 +12000,7 @@ function koalaNextRewardHtml(kind) {
 const KOALA_EARN = [
   { mode: "quiz", why: "quiz", view: "quiz", emoji: "💡" },
   { mode: "spelling", why: "spelling", view: "spelling", emoji: "✏️" },
-  { mode: "flash", why: "flashcards", view: "flashcards", emoji: "🗂️" },
+  { mode: "flash", why: "flashcards", view: "flashcards", emoji: FLASH_ICON_SVG },
   { mode: "tt", why: "timesTable", view: "timestable", emoji: "🧮" },
   { mode: "typing", why: "typing", view: "typegame", emoji: "⌨️" },
 ];
@@ -12600,7 +12617,7 @@ function renderWrongPanel() {
   const modeName = { quiz: rwL("Quiz", "퀴즈"), spelling: rwL("Spelling", "스펠링"), typing: rwL("Typing", "타이핑"), tt: rwL("Times Table", "구구단"), flash: rwL("Flashcards", "플래시카드") };
   const studyBtn = wrongSubTab === "math"
     ? ""
-    : ` <button type="button" class="pill small" id="wrong-study-btn">🗂️ ${rwL("Study these words", "오답 단어 공부하기")}</button>`;
+    : ` <button type="button" class="pill small" id="wrong-study-btn">${FLASH_ICON_SVG} ${rwL("Study these words", "오답 단어 공부하기")}</button>`;
   let html = `${subTabs}<p class="wrong-hint">${wrongSubTab === "math"
     ? rwL("Get a fact right in a review and it graduates from this notebook.", "복습에서 맞히면 오답 노트에서 바로 졸업해요.")
     : rwL("Get a word right in a review and it graduates from this notebook.", "복습에서 맞히면 오답 노트에서 바로 졸업해요.")}</p>
@@ -13120,7 +13137,7 @@ function missionTasks() {
   const day = Math.floor(Date.now() / 86400000);
   const third = day % 2 ? { id: "quiz", mode: "quiz", view: "quiz", key: "missionQuiz", emoji: "💡" } : { id: "tt", mode: "tt", view: "timestable", key: "missionTT", emoji: "🧮" };
   return [
-    { id: "flash", mode: "flash", view: "flashcards", key: "missionFlash", emoji: "🗂️" },
+    { id: "flash", mode: "flash", view: "flashcards", key: "missionFlash", emoji: FLASH_ICON_SVG },
     { id: "spelling", mode: "spelling", view: "spelling", key: "missionSpelling", emoji: "✏️" },
     third,
   ].map((x) => ({ ...x, done: Math.min(n(x.mode), missionGoal()), goal: missionGoal() }));
