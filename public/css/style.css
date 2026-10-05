@@ -9417,3 +9417,26 @@ html body #flash-practice .flashcard-back .definition { margin-bottom: 0; }
 html body #flash-practice .flash-back-row:first-child { margin-bottom: 14px; }
 html body #flash-practice .flash-controls { max-width: 320px; }
 html body #flash-practice .flash-controls .pill { min-height: 46px; font-size: 1rem; }
+
+/* ---- Flashcards: Quiz-style edge arrows (translucent mint strips on the card's left/right edge) ---- */
+html body #flash-practice .flashcard-row { position: relative; display: block; max-width: 360px; margin: 0 auto; }
+html body #flash-practice #flashcard-stage { max-width: none; width: 100%; }
+html body #flash-practice #flash-prev, html body #flash-practice #flash-next {
+  position: absolute; top: 0; bottom: 6px; z-index: 5; width: 40px; height: auto; margin: 0; padding: 0;
+  border: 0; border-radius: 0; box-shadow: none; transform: none;
+  background: rgba(2, 195, 154, 0.38); color: #fff;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s ease, opacity 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+html body #flash-practice #flash-prev { left: 0; border-radius: 24px 0 0 24px; }
+html body #flash-practice #flash-next { right: 0; border-radius: 0 24px 24px 0; }
+html body #flash-practice #flash-prev svg, html body #flash-practice #flash-next svg { width: 28px; height: 28px; transform: none; stroke-width: 2.8; }
+html body #flash-practice #flash-prev:hover, html body #flash-practice #flash-next:hover,
+html body #flash-practice #flash-prev:focus-visible, html body #flash-practice #flash-next:focus-visible { background: rgba(2, 195, 154, 0.55); transform: none; box-shadow: none; outline: none; }
+html body #flash-practice #flash-prev:active, html body #flash-practice #flash-next:active { background: rgba(2, 195, 154, 0.7); transform: none; }
+html body #flash-practice #flash-prev:disabled { opacity: 0; pointer-events: none; }
+html body #flash-practice .flashcard-face { padding-left: 48px; padding-right: 48px; box-sizing: border-box; }
+html body #flash-practice .flashcard-row:has(.flashcard.flipped) #flash-next { animation: qz-next-pulse 1.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { html body #flash-practice .flashcard-row:has(.flashcard.flipped) #flash-next { animation: none; } }

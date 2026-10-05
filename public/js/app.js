@@ -3592,6 +3592,7 @@ function renderFlashcard() {
   flashcardEl.classList.remove("flipped");
   { const bt = document.querySelector("#flash-bubble .bubble-text"); if (bt) bt.textContent = t("fkIdle"); }
   if (flashDeck.length === 0) {
+    flashPrevBtn.disabled = true;
     flashcardEl.classList.remove("front-meaning");
     flashWordEl.textContent = usingMyDeck() ? t("myDeckEmptyCard") : t("flashEmptyWord");
     flashDefEl.textContent = usingMyDeck() ? t("myDeckEmptyHint") : t("flashEmptyDef", levelLabel(currentLevel));
@@ -3602,6 +3603,7 @@ function renderFlashcard() {
     return;
   }
   const item = flashDeck[flashIndex];
+  flashPrevBtn.disabled = flashIndex === 0;
   const fpl = document.getElementById("flash-progress-label"), fpf = document.getElementById("flash-progress-fill");
   if (fpl && fpf) { fpl.textContent = `${flashIndex + 1} / ${flashDeck.length}`; fpf.style.width = `${((flashIndex + 1) / flashDeck.length) * 100}%`; }
   const meaningFirst = flashFrontModeSel.value === "meaning";
