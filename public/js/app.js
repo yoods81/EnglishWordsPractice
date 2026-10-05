@@ -404,7 +404,8 @@ const TRANSLATIONS = {
     spellingPlaceholder: "Type what you hear",
     spLiveTapHear: "🔊 Tap my tummy to listen!",
     spKbToggleAria: "Use the phone keyboard",
-    spellingStartBtn: "▶ Start the first word",
+    spellingStartBtn: "▶ Start",
+    spellingContinueBtn: "▶ Keep going",
     spellingBackBtn: "🍃 Back",
     spellingNextBtn: "Next 🌿",
     spellingCheckBtn: "Check 🔍",
@@ -1000,7 +1001,8 @@ const TRANSLATIONS = {
     spellingPlaceholder: "들리는 대로 써요",
     spLiveTapHear: "🔊 배를 눌러 들어봐요!",
     spKbToggleAria: "휴대폰 키보드 쓰기",
-    spellingStartBtn: "▶ 첫 단어 시작하기",
+    spellingStartBtn: "▶ 시작하기",
+    spellingContinueBtn: "▶ 이어서 하기",
     spellingBackBtn: "🍃 이전",
     spellingNextBtn: "다음 🌿",
     spellingCheckBtn: "제출 🚀",
@@ -1713,7 +1715,7 @@ function clampGoalsForRole() {
 function updateSpellingStartChips() {
   const lv = document.getElementById("spelling-start-level");
   if (!lv) return;
-  lv.textContent = `📚 ${levelLabel(currentLevel)} ▾`;
+  lv.textContent = `📚 ${levelLabel(currentLevel)}`;
   lv.setAttribute("aria-label", rwL("Change level", "레벨 바꾸기"));
   // A little scoreboard so there is something to come back for: today's correct
   // spelling answers and the daily streak.
@@ -1722,7 +1724,9 @@ function updateSpellingStartChips() {
   const rec = (progress.daily && progress.daily[localDateKey(new Date())]) || {};
   const today = (rec.spelling && rec.spelling[0]) || 0;
   const streak = currentStreakStatus().count || 0;
-  stats.innerHTML = `<span>⭐ ${rwL("Today", "오늘")} ${today}</span><span>🔥 ${rwL(`${streak}-day streak`, `${streak}일 연속`)}</span>`;
+  const sb = document.getElementById("spelling-start-btn");
+  if (sb) sb.textContent = t(today > 0 ? "spellingContinueBtn" : "spellingStartBtn");
+  stats.innerHTML = `<span>⭐ ${rwL(`${today} correct today`, `오늘 ${today}개 정답`)}</span><span>🔥 ${rwL(`${streak}-day streak`, `${streak}일 연속`)}</span>`;
 }
 document.getElementById("spelling-start-level")?.addEventListener("click", () => document.getElementById("level-badge")?.click());
 

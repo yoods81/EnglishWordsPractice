@@ -9108,3 +9108,40 @@ html body #spelling-practice .sp-leaf.eaten.miss svg { filter: hue-rotate(-120de
 html body #spelling-practice .sp-leaf.eaten.miss::after { content: "•"; }
 html body #spelling-practice .sp-leaf:not(.eaten):not(.cur) svg { filter: grayscale(0.7) opacity(0.55); }
 html body #spelling-practice .sp-footer .sfx-toggle, html body #spelling-practice .sp-footer .sp-finish-btn { height: 34px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding-top: 0; padding-bottom: 0; }
+
+/* ===== Spelling start screen — design pass 2 ===== */
+/* single frame: the outer scenery card has no extra outline/shadow */
+html body #view-spelling .card.scene-card { border: 0; box-shadow: none; }
+/* chip + dropdown read as one matched pair */
+html body .sp-start-row .sp-level-chip, html body .sp-start-row .qz-dd-btn { min-height: 38px; height: 38px; box-sizing: border-box; font-size: 0.88rem; font-weight: 800; justify-content: center; text-align: center; }
+html body .sp-start-row .sp-level-chip { flex: 1 1 0; justify-content: center; padding: 0 26px 0 12px; position: relative; }
+html body .sp-start-row .sp-level-chip::after { content: ""; position: absolute; right: 11px; top: 50%; width: 6px; height: 6px; margin-top: -5px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); }
+html body .sp-start-row .qz-dd { flex: 1 1 0; }
+/* even rhythm inside the card */
+html body .sp-start-card { gap: 12px; }
+html body .sp-start-card .sp-start-row { margin-top: 10px; }
+/* readable steps + scoreboard pill */
+html body .sp-step { font-weight: 800; font-size: 0.9rem; color: #fff; text-shadow: 0 1px 2px rgba(5, 70, 56, 0.8); background: rgba(255, 255, 255, 0.24); }
+html body .sp-step-arrow { opacity: 1; text-shadow: 0 1px 2px rgba(5, 70, 56, 0.8); }
+html body .sp-start-stats { padding: 5px 14px; border-radius: 999px; background: rgba(255, 255, 255, 0.2); gap: 12px; font-size: 0.88rem; }
+/* calmer Start button */
+html body .sp-start-card button.sp-start-btn.pill.accent { min-height: 48px; font-size: 1.15rem; box-shadow: 0 4px 0 #c27400, 0 6px 12px rgba(194, 116, 0, 0.3) !important; }
+/* sun sits clear of the card corner */
+html body #view-spelling .card.scene-card { --tg-orb-x: 94%; --tg-orb-y: 2%; }
+/* a few balloons peek out at the corners on phones */
+@media (max-width: 520px) {
+  html body .sp-start-floaters { display: block; }
+  html body .sp-fl { width: 30px; height: 36px; font-size: 1rem; padding-bottom: 5px; }
+  html body .sp-fl:nth-child(1) { left: 2% !important; top: 2% !important; }
+  html body .sp-fl:nth-child(2) { left: 84% !important; top: 3% !important; }
+  html body .sp-fl:nth-child(4) { left: 3% !important; top: 90% !important; }
+  html body .sp-fl:nth-child(5) { left: 84% !important; top: 90% !important; }
+  html body .sp-fl:nth-child(3), html body .sp-fl:nth-child(6), html body .sp-fl-star { display: none; }
+}
+/* hint text sits right under the card */
+html body #view-spelling .sp-start ~ .hint, html body #view-spelling > .hint { margin-top: 8px; }
+html body .sp-start-row .sp-level-chip { flex: 1 1 0; padding: 0 22px 0 8px; }
+html body .sp-start-row .qz-dd { flex: 1.3 1 0; }
+html body .sp-start-row .qz-dd-btn { padding: 4px 22px 4px 8px; }
+html body .sp-step { font-size: 0.8rem; padding: 6px 2px; gap: 1px; }
+html body .sp-step b { font-size: 1.2rem; }
