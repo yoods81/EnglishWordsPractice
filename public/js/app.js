@@ -428,7 +428,11 @@ const TRANSLATIONS = {
     spReportSome: (n) => `Just ${n} word${n === 1 ? "" : "s"} to review — you can do it! 💪`,
     spReportLevel: "📚 Change level",
     spReportGame: "⌨️ Try the Typing Game",
-    spReportPct: (p) => `🎯 ${p}% correct`,
+    spReportPerfect: "Perfect! Every word right! 🎉",
+    spReportGoodStart: "Great start! Shall we do more? 🌟",
+    spReportScore: (c, n, p) => `${c} / ${n} · ${p}%`,
+    spReportStreak: (d) => `🔥 ${d}-day streak`,
+    spReportStars: (n) => `⭐ +${n}`,
     spellingReportEmpty: "No mistakes today — great job! 🎉",
     spellingReportRestart: "Practice Again",
     spellingTodayScore: (c, t) => `Today's score: ${c} / ${t}`,
@@ -1030,7 +1034,11 @@ const TRANSLATIONS = {
     spReportSome: (n) => `${n}개만 다시 보면 돼요 — 할 수 있어요! 💪`,
     spReportLevel: "📚 레벨 바꾸기",
     spReportGame: "⌨️ 타이핑 게임 해보기",
-    spReportPct: (p) => `🎯 정답률 ${p}%`,
+    spReportPerfect: "완벽해요! 전부 맞혔어요! 🎉",
+    spReportGoodStart: "좋은 시작이에요! 더 해볼까요? 🌟",
+    spReportScore: (c, n, p) => `${c} / ${n} · ${p}%`,
+    spReportStreak: (d) => `🔥 ${d}일 연속`,
+    spReportStars: (n) => `⭐ +${n}`,
     spellingReportEmpty: "오늘은 틀린 단어가 없어요 — 정말 잘했어요! 🎉",
     spellingReportRestart: "다시 연습하기",
     spellingTodayScore: (c, t) => `오늘의 점수: ${c} / ${t}`,
@@ -5760,9 +5768,17 @@ function renderSpellingReport() {
   const tot = spellingScore.total;
   const state = tot === 0 ? "none" : words.length ? "some" : "perfect";
   spellingReport.dataset.state = state;
-  spellingReportMsg.textContent = state === "none" ? t("spReportNone") : state === "some" ? t("spReportSome", words.length) : t("spellingReportEmpty");
-  spellingReportPct.textContent = tot ? t("spReportPct", Math.round((spellingScore.correct / tot) * 100)) : "";
-  spellingReportPct.hidden = !tot;
+  const big = tot >= 5;
+  spellingReportMsg.textContent = state === "none" ? t("spReportNone") : state === "some" ? t("spReportSome", words.length) : t(big ? "spReportPerfect" : "spReportGoodStart");
+  const pct = tot ? Math.round((spellingScore.correct / tot) * 100) : 0;
+  spellingReportPct.hidden = !(currentStreakStatus().count > 0);
+  spellingReportPct.textContent = t("spReportStreak", currentStreakStatus().count || 0);
+  const starEl = document.getElementById("spelling-report-star");
+  starEl.hidden = spellingScore.correct <= 0;
+  starEl.textContent = t("spReportStars", spellingScore.correct);
+  const flLayer = document.getElementById("spelling-report-fl");
+  flLayer.innerHTML = state === "perfect" ? ["⭐", "✨", "💚", "⭐", "✨", "💛"].map((c, i) => `<span class="sr-fl" style="--i:${i}">${c}</span>`).join("") : "";
+  spellingReport.classList.toggle("sr-big", state === "perfect" && big);
   if (!spellingReportKoala.firstChild) spellingReportKoala.innerHTML = SPELL_KOALA_SVG;
   spellingReportKoala.classList.toggle("sp-cheer", state === "perfect");
 
@@ -5794,7 +5810,7 @@ function renderSpellingReport() {
     spellingReportList.appendChild(row);
   });
 
-  spellingReportScoreEl.textContent = t("spellingTodayScore", spellingScore.correct, spellingScore.total);
+  spellingReportScoreEl.textContent = tot ? t("spReportScore", spellingScore.correct, tot, pct) : t("spellingTodayScore", 0, 0);
 }
 
 spellingFinishBtn.addEventListener("click", renderSpellingReport);
