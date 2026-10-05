@@ -106,7 +106,7 @@ const TRANSLATIONS = {
     spWhy1: "Words you can spell are words you read faster.",
     spWhy2: "Your writing looks clear and confident.",
     spWhy3: "Spelling is part of school tests like NAPLAN.",
-    spLiveIdle: "Can you\nspell it? ✏️",
+    spLiveIdle: "Can you spell it? ✏️",
     spLiveHear: "Listening 👂",
     spLiveOk: "Yum! 🍃",
     spLiveFull: "So full & happy! 🥰",
@@ -401,7 +401,9 @@ const TRANSLATIONS = {
     quizSynonymPrompt: (word) => `Which word means the same as "${word}"?`,
     quizHomophonePrompt: (word) => `What does "${word}" mean?`,
     spellingHearBtn: "🔊 Hear the word",
-    spellingPlaceholder: "Type what you hear...",
+    spellingPlaceholder: "Type what you hear",
+    spLiveTapHear: "🔊 Tap my tummy to listen!",
+    spKbToggleAria: "Use the phone keyboard",
     spellingStartBtn: "▶ Start the first word",
     spellingBackBtn: "🍃 Back",
     spellingNextBtn: "Next 🌿",
@@ -995,7 +997,9 @@ const TRANSLATIONS = {
     quizSynonymPrompt: (word) => `"${word}"와 뜻이 같은 단어는 무엇일까요?`,
     quizHomophonePrompt: (word) => `"${word}"의 뜻은 무엇일까요?`,
     spellingHearBtn: "🔊 단어 듣기",
-    spellingPlaceholder: "들리는 대로 입력하세요...",
+    spellingPlaceholder: "들리는 대로 써요",
+    spLiveTapHear: "🔊 배를 눌러 들어봐요!",
+    spKbToggleAria: "휴대폰 키보드 쓰기",
     spellingStartBtn: "▶ 첫 단어 시작하기",
     spellingBackBtn: "🍃 이전",
     spellingNextBtn: "다음 🌿",
@@ -3579,14 +3583,26 @@ function drawBubbleOutline(bubble) {
   if (!w || !h) return; // view hidden — the ResizeObserver redraws once it shows
   const f = (n) => Math.round(n * 10) / 10;
   const r = Math.max(10, Math.min(16, h * 0.32));
-  const tx = 20; // where the tail meets the bottom edge
-  const tip = 12; // how far the tail drops below the bubble
-  const d =
-    `M ${r} 0 H ${f(w - r)} A ${r} ${r} 0 0 1 ${w} ${r} V ${f(h - r)} A ${r} ${r} 0 0 1 ${f(w - r)} ${h} ` +
-    `H ${tx + r} L -2 ${h + tip} L 0 ${f(h - 9)} V ${r} A ${r} ${r} 0 0 1 ${r} 0 Z`;
-  svg.setAttribute("width", w);
-  svg.setAttribute("height", h);
-  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  let d, tip = 0, pad = 0;
+  if (bubble.dataset.tail === "left") {
+    // Tail sticks out of the left edge and ends exactly on the koala's mouth
+    // (58% across the koala wrap the bubble sits in).
+    const wrap = bubble.offsetParent;
+    const len = Math.max(14, wrap ? bubble.offsetLeft - wrap.offsetWidth * 0.58 + 3 : 24);
+    const cy = h / 2, hw = Math.min(6, (h - 2 * r) / 2 - 1);
+    pad = len;
+    d = `M ${r} 0 H ${f(w - r)} A ${r} ${r} 0 0 1 ${w} ${r} V ${f(h - r)} A ${r} ${r} 0 0 1 ${f(w - r)} ${h} ` +
+        `H ${r} A ${r} ${r} 0 0 1 0 ${f(h - r)} V ${f(cy + hw)} L ${f(-len)} ${f(cy)} L 0 ${f(cy - hw)} V ${r} A ${r} ${r} 0 0 1 ${r} 0 Z`;
+  } else {
+    const tx = 20; // where the tail meets the bottom edge
+    tip = 12; // how far the tail drops below the bubble
+    d = `M ${r} 0 H ${f(w - r)} A ${r} ${r} 0 0 1 ${w} ${r} V ${f(h - r)} A ${r} ${r} 0 0 1 ${f(w - r)} ${h} ` +
+        `H ${tx + r} L -2 ${h + tip} L 0 ${f(h - 9)} V ${r} A ${r} ${r} 0 0 1 ${r} 0 Z`;
+  }
+  svg.setAttribute("width", w + pad);
+  svg.setAttribute("height", h + tip);
+  svg.setAttribute("viewBox", `${-pad} 0 ${w + pad} ${h + tip}`);
+  svg.style.left = pad ? `${-pad}px` : "";
   svg.innerHTML =
     `<defs><linearGradient id="fk-stroke-${bubble.id}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="${h + tip}">` +
     `<stop class="bb-stop-top" offset="0"/><stop class="bb-stop-bottom" offset="1"/></linearGradient></defs>` +
@@ -5089,6 +5105,7 @@ const spellingBubble = document.getElementById("spelling-bubble");
 function drawSpellingBubble() { drawBubbleOutline(spellingBubble); }
 if (spellingBubble) {
   spellingBubble.classList.add("fk-bubble-skin");
+  spellingBubble.dataset.tail = "left";
   spellingBubble.insertAdjacentHTML("afterbegin", '<svg class="fk-bubble-bg" aria-hidden="true"></svg>');
   if (typeof ResizeObserver !== "undefined") new ResizeObserver(() => drawSpellingBubble()).observe(spellingBubble);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawSpellingBubble);
@@ -5138,8 +5155,12 @@ const SPELL_KOALA_SVG = `<svg class="sk-svg" viewBox="0 0 200 205" width="170" h
 // The koala lives inside .sp-koala-wrap so the belly 🔊 button and the speech
 // bubble move (and bounce) together with it.
 document.getElementById("spelling-koala-wrap").insertAdjacentHTML("afterbegin", SPELL_KOALA_SVG);
+// Until the child has tapped the tummy speaker themselves, the idle bubble tells
+// them to (the word may not have played at all on a phone that blocks audio).
+let spellingTappedSpeaker = false;
+const spellingIdleKey = () => (spellingTappedSpeaker ? "spLiveIdle" : "spLiveTapHear");
 function spellingReact(kind, msgKey) {
-  koalaReact(kind, msgKey, spellingScene, spellingBubble, "spLiveIdle");
+  koalaReact(kind, msgKey, spellingScene, spellingBubble, spellingIdleKey());
 }
 // Leaf branch: one leaf per word. Each correct answer, the koala eats a leaf
 // and its belly gets rounder; after the last leaf it is completely happy.
@@ -5360,7 +5381,12 @@ function loadSpellingWord(speakAloud = true) {
     spellingSpeakBtn.click();
   }
   renderSpellingLetterHints(spellingDeck[spellingIndex].word);
-  spellingInput.focus();
+  spellingSpeakBtn.classList.toggle("sp-belly-hint", !spellingTappedSpeaker);
+  if (!spellingTappedSpeaker) {
+    const bt = spellingBubble.querySelector(".bubble-text");
+    if (bt) bt.textContent = t("spLiveTapHear");
+  }
+  if (spellingKbOn) spellingInput.focus({ preventScroll: true });
 }
 
 // A scrambled tray of the current word's own letters, plus one or two decoy
@@ -5442,6 +5468,37 @@ function syncSpellingHintTiles(flash = true) {
   });
 }
 
+// ---- On-screen keyboard policy ----
+// The letter chips are the main way to answer. On touch screens the phone's own
+// keyboard would pop up on every word and cover Check / Score, so it stays shut
+// (inputmode="none") until the child taps the little ⌨️ button. Desktops keep
+// normal typing.
+const spellingKbToggle = document.getElementById("spelling-kb-toggle");
+const spellingCoarsePointer = typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
+let spellingKbOn = !spellingCoarsePointer;
+function applySpellingKbMode() {
+  spellingInput.setAttribute("inputmode", spellingKbOn ? "text" : "none");
+  if (spellingKbToggle) {
+    spellingKbToggle.setAttribute("aria-pressed", spellingKbOn ? "true" : "false");
+    spellingKbToggle.classList.toggle("is-on", spellingKbOn);
+  }
+}
+applySpellingKbMode();
+if (spellingKbToggle) {
+  spellingKbToggle.addEventListener("click", () => {
+    spellingKbOn = !spellingKbOn;
+    applySpellingKbMode();
+    if (spellingKbOn) {
+      spellingInput.blur();
+      spellingInput.focus();
+      // keep Check in view above the keyboard
+      setTimeout(() => spellingCheckBtn.scrollIntoView({ block: "nearest", behavior: "smooth" }), 350);
+    } else {
+      spellingInput.blur();
+    }
+  });
+}
+
 // ⌫ at the right end of the chip row: drops the last typed letter and keeps
 // the chips in sync (the input handler un-lights the matching chip).
 spellingBackspaceBtn.addEventListener("click", () => {
@@ -5455,7 +5512,11 @@ spellingBackspaceBtn.addEventListener("click", () => {
   spellingInput.focus();
 });
 
-spellingSpeakBtn.addEventListener("click", () => {
+spellingSpeakBtn.addEventListener("click", (e) => {
+  if (e.isTrusted) { // a real tap, not the automatic play at the start of a word
+    spellingTappedSpeaker = true;
+    spellingSpeakBtn.classList.remove("sp-belly-hint");
+  }
   // Pulse ring on every press (also fires for the automatic play at the
   // start of each word) — restart the animation if it is still running.
   spellingSpeakBtn.classList.remove("sp-pulse");
@@ -5519,9 +5580,9 @@ function spellingCheer() {
   if (busy) { spellingCheer._t = setTimeout(spellingCheer, 1800); return; }
   const word = spellingDeck[spellingIndex].word.toLowerCase();
   const v = spellingInput.value.trim().toLowerCase();
-  let key = "spLiveIdle";
+  let key = spellingIdleKey();
   if (v) {
-    if (v === word) key = "spLiveIdle";
+    if (v === word) key = spellingIdleKey();
     else if (word.startsWith(v) && v.length >= 3 && v.length >= word.length - 2) key = "spLiveAlmost";
     else key = "spLiveTyping";
   }

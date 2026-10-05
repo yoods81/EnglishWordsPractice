@@ -9020,3 +9020,43 @@ html body .sp-start-card .sp-why ul { text-align: left; margin-top: 6px; }
 @media (prefers-reduced-motion: reduce) { html body .sp-step { animation: none !important; opacity: 1; } }
 html body .sp-step { white-space: nowrap; }
 @media (max-width: 400px) { html body .sp-step { font-size: 0.8rem; gap: 3px; padding: 2px 0; } html body .sp-step b { font-size: 1.1rem; } }
+
+/* ===== Spelling practice — UX pass 2 ===== */
+/* (3) bubble: small, one line, beside the koala; its tail ends on the mouth */
+html body #spelling-practice .sp-speech.fk-bubble-skin { left: 88%; top: 58%; transform: translateY(-50%); padding: 6px 12px 7px; }
+html body #spelling-practice .sp-speech.fk-bubble-skin .bubble-text { white-space: nowrap; font-size: 0.88rem; }
+@media (max-width: 520px) { html body #spelling-practice .sp-speech.fk-bubble-skin .bubble-text { font-size: 0.8rem; } }
+
+/* (2) the tummy speaker calls for a tap until the child has pressed it once */
+html body #spelling-practice .sp-belly-btn.sp-belly-hint::after { animation: sp-belly-ring 1.3s ease-out infinite; }
+html body #spelling-practice .sp-belly-btn.sp-belly-hint .sp-belly-icon { animation: sp-belly-nudge 1.3s ease-in-out infinite; }
+@keyframes sp-belly-nudge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+@media (prefers-reduced-motion: reduce) { html body #spelling-practice .sp-belly-btn.sp-belly-hint::after, html body #spelling-practice .sp-belly-btn.sp-belly-hint .sp-belly-icon { animation: none !important; } }
+
+/* (4) soft white panel behind the answer field and chips so they never melt into the hills */
+html body #spelling-practice .sp-right { background: rgba(255, 255, 255, 0.62); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); border-radius: 22px; padding: 12px 10px 8px; box-shadow: 0 6px 18px rgba(14, 156, 125, 0.14); }
+
+/* (5) Back / Next: clearly visible, clearly pressable */
+html body #spelling-practice .sp-leaf-btn { background: #fff; border: 2px solid #02c39a; color: #00a878; box-shadow: 0 3px 0 rgba(14, 156, 125, 0.35); }
+html body #spelling-practice .sp-glass-svg { width: 22px; height: 22px; }
+html body #spelling-practice .sp-leaf-btn:disabled { opacity: 0.7; background: rgba(255, 255, 255, 0.8); border: 2px solid #b7ded5; color: #6fa99b; box-shadow: none; }
+html body #spelling-practice.is-correct #spelling-next:not(:disabled) { background: #00a878; border-color: #008a63; color: #fff; }
+
+/* (6) progress: roomier leaves, sun parked at the right edge instead of behind the pill */
+html body #spelling-practice .sp-branch { gap: 7px; }
+html body #spelling-practice .sp-leaf { max-width: 26px; }
+html body #spelling-practice .sp-leaf svg { max-width: 26px; }
+html body #view-spelling .card.scene-card { --tg-orb-x: 90%; --tg-orb-y: 3%; }
+
+/* (7) clean empty field: short placeholder, no caret floating mid-text */
+html body #spelling-practice #spelling-input:placeholder-shown { caret-color: transparent; }
+
+/* (1) ⌨️ switch for the phone keyboard — only on touch screens */
+.sp-kb-toggle { display: none; }
+@media (pointer: coarse) {
+  html body #spelling-practice .sp-kb-toggle { position: absolute; left: 7px; top: 7px; bottom: 7px; aspect-ratio: 1 / 1; z-index: 2; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 12px; background: transparent; color: #6fbfab; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  html body #spelling-practice .sp-kb-toggle svg { width: 70%; height: 70%; }
+  html body #spelling-practice .sp-kb-toggle.is-on { color: #fff; background: var(--accent-dark); }
+  html body #spelling-practice .sp-input-wrap #spelling-input { padding-left: 54px; }
+}
+html body #spelling-practice #spelling-input:not(:focus):not(.correct):not(.incorrect) { border-color: #b8e3d6; }
