@@ -8762,6 +8762,19 @@ function makeWordlistSpeakBtn(text, kind, label) {
   return btn;
 }
 
+// Flashcard back: the same round speaker buttons the Word List uses.
+[["flash-def-speak", () => flashDefEl.textContent], ["flash-ex-speak", () => (flashDeck[flashIndex] || {}).example]].forEach(([id, getText]) => {
+  const b = document.getElementById(id);
+  if (!b) return;
+  b.innerHTML = WL_SPEAKER_SVG;
+  b.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const txt = getText();
+    if (!flashDeck.length || !txt) return;
+    speak(txt, { onstart: () => b.classList.add("is-speaking"), onend: () => b.classList.remove("is-speaking") });
+  });
+});
+
 function makeWordlistTag(tone, text) {
   const tag = document.createElement("span");
   tag.className = `wl-tag wl-tag--${tone}`;

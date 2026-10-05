@@ -9407,3 +9407,13 @@ html body #flash-practice .flashcard-back .definition { font-size: 1.35rem; font
 html body #flash-practice .flashcard-back .example { font-size: 1.05rem; line-height: 1.55; font-style: normal; color: #4f5f5a; padding-top: 12px; border-top: 2px dashed #cfe9df; }
 html body #flash-practice .flash-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 360px; margin-left: auto; margin-right: auto; }
 html body #flash-practice .flash-controls .pill { width: 100%; min-height: 54px; font-size: 1.1rem; margin: 0; }
+
+/* ---- Flashcard back: Word List speaker buttons instead of the 🔊 emoji; slightly smaller answer buttons ---- */
+html body #flash-practice .flash-back-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
+html body #flash-practice .flash-back-row .speakable-line::after { content: none; }
+html body #flash-practice .flash-back-row--ex { padding-top: 12px; border-top: 2px dashed #cfe9df; }
+html body #flash-practice .flash-back-row--ex .example { border-top: 0; padding-top: 0; }
+html body #flash-practice .flashcard-back .definition { margin-bottom: 0; }
+html body #flash-practice .flash-back-row:first-child { margin-bottom: 14px; }
+html body #flash-practice .flash-controls { max-width: 320px; }
+html body #flash-practice .flash-controls .pill { min-height: 46px; font-size: 1rem; }
