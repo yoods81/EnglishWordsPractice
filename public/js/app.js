@@ -61,7 +61,7 @@ const TRANSLATIONS = {
     levelBadgePrefix: "Level",
     levelOverlayTitle: "📚 Choose your level",
     levelOverlayDesc: "Pick the level you want to practise. You can change this anytime.",
-    navFlashcards: "🃏 Flashcards",
+    navFlashcards: "🗂️ Flashcards",
     navQuiz: "💡 Quiz",
     navSpelling: "✏️ Spelling",
     navTypeGame: "⌨️ Typing Game",
@@ -82,7 +82,7 @@ const TRANSLATIONS = {
     // navFlashcards above since those carry the nav's own emoji/short-form.
     quizSectionTitle: "💡 Quiz",
     spellingSectionTitle: "✏️ Spelling",
-    flashcardsSectionTitle: "🃏 Flashcards",
+    flashcardsSectionTitle: "🗂️ Flashcards",
     // The persistent nav row groups Quiz/Spelling/Flashcards under one
     // "Study" trigger, and Times Table/Typing Game under one "Game" trigger
     // (each opens a small dropdown on hover/tap) — see .tab-group in
@@ -162,7 +162,7 @@ const TRANSLATIONS = {
     statsInsightsBullet3: "👨‍👩‍👧‍👦 Track multiple children in one account",
     adminCodesTitle: "🎁 Premium Signup Codes",
     adminCodesDesc: "Generate a one-time code and send it to someone so they can sign up as a premium account instead of general.",
-    adminCodesGenerateBtn: "🎲 Generate New Code",
+    adminCodesGenerateBtn: "🎟️ Generate New Code",
     adminCodesEmpty: "No codes generated yet.",
     adminCodesCount: (n) => `${n} code${n === 1 ? "" : "s"}`,
     adminCodeUsedBy: (username) => `🟣 Used: ${username}`,
@@ -294,7 +294,7 @@ const TRANSLATIONS = {
     optFillBlank: "Fill in the Blank",
     optListening: "Listen & Choose",
     optTyping: "Type the Word",
-    optMixed: "🎲 Mixed",
+    optMixed: "🔀 Mixed",
     qzStartTitle: "💡 Quiz",
     qzLevelTitle: "📚 Difficulty",
     qzModeTitle: "🎮 Mode",
@@ -304,7 +304,7 @@ const TRANSLATIONS = {
     qzModeNoteTime: (c, ty) => `${c} seconds a question (${ty} when typing). If time runs out, it counts as a miss.`,
     quizStartBtn: "▶ Start Quiz",
     flashStartBtn: "▶ Start Flashcards",
-    flashStartTitle: "🎴 Flashcards",
+    flashStartTitle: "🗂️ Flashcards",
     fsStep1: "Look",
     fsStep2: "Flip",
     fsStep3: "Know it?",
@@ -355,7 +355,7 @@ const TRANSLATIONS = {
     qzSeeResults: "See results 🏁",
     flashFrontModeLabel: "Flashcard front side",
     flashSourceLabel: "Flashcard source",
-    flashSourceAuto: "🎲 Level words",
+    flashSourceAuto: "🎯 Level words",
     flashSourceMine: "⭐ My cards",
     flashSourceTitle: "Cards from",
     flashFrontTitle: "Card front",
@@ -682,7 +682,7 @@ const TRANSLATIONS = {
     levelBadgePrefix: "레벨",
     levelOverlayTitle: "📚 레벨을 선택하세요",
     levelOverlayDesc: "학습할 레벨을 선택하세요. 언제든지 바꿀 수 있어요.",
-    navFlashcards: "🃏 플래시카드",
+    navFlashcards: "🗂️ 플래시카드",
     navQuiz: "💡 퀴즈",
     navSpelling: "✏️ 스펠링",
     navTypeGame: "⌨️ 타이핑 게임",
@@ -700,7 +700,7 @@ const TRANSLATIONS = {
     landingDescAdmin: "코드, 사용자, 코알라 코인 관리",
     quizSectionTitle: "💡 퀴즈",
     spellingSectionTitle: "✏️ 스펠링",
-    flashcardsSectionTitle: "🃏 플래시카드",
+    flashcardsSectionTitle: "🗂️ 플래시카드",
     navStudy: "📚 학습",
     navGame: "👾 게임",
     navQuizShort: "퀴즈",
@@ -770,7 +770,7 @@ const TRANSLATIONS = {
     statsInsightsBullet3: "👨‍👩‍👧‍👦 여러 자녀 계정 함께 관리",
     adminCodesTitle: "🎁 프리미엄 가입 코드",
     adminCodesDesc: "1회용 코드를 생성해서 전달하면, 받은 사람이 일반 대신 프리미엄 계정으로 가입할 수 있어요.",
-    adminCodesGenerateBtn: "🎲 새 코드 생성",
+    adminCodesGenerateBtn: "🎟️ 새 코드 생성",
     adminCodesEmpty: "아직 생성된 코드가 없어요.",
     adminCodesCount: (n) => `코드 ${n}개`,
     adminCodeUsedBy: (username) => `🟣 사용 완료 : ${username}`,
@@ -902,7 +902,7 @@ const TRANSLATIONS = {
     optFillBlank: "빈칸 채우기",
     optListening: "듣고 고르기",
     optTyping: "철자 쓰기",
-    optMixed: "🎲 섞어서",
+    optMixed: "🔀 섞어서",
     qzStartTitle: "💡 퀴즈",
     qzLevelTitle: "📚 난이도",
     qzModeTitle: "🎮 모드",
@@ -912,7 +912,7 @@ const TRANSLATIONS = {
     qzModeNoteTime: (c, ty) => `문제당 ${c}초 (쓰기는 ${ty}초). 시간이 지나면 오답으로 처리돼요.`,
     quizStartBtn: "▶ 퀴즈 시작",
     flashStartBtn: "▶ 플래시카드 시작",
-    flashStartTitle: "🎴 플래시카드",
+    flashStartTitle: "🗂️ 플래시카드",
     fsStep1: "보기",
     fsStep2: "뒤집기",
     fsStep3: "알아요?",
@@ -966,7 +966,7 @@ const TRANSLATIONS = {
     qzKoMeaningShow: "뜻 보기",
     flashFrontModeLabel: "플래시카드 앞면",
     flashSourceLabel: "플래시카드 출처",
-    flashSourceAuto: "🎲 레벨 단어",
+    flashSourceAuto: "🎯 레벨 단어",
     flashSourceMine: "⭐ 나만의 카드",
     flashSourceTitle: "카드 선택",
     flashFrontTitle: "카드 앞면",
@@ -3795,7 +3795,7 @@ function syncFlashCategorySeg() {
 flashCategorySel.addEventListener("change", syncFlashCategorySeg);
 syncFlashCategorySeg();
 flashFrontModeSel.addEventListener("change", renderFlashcard);
-// The collapsed "⚙️" row always shows the current choices, e.g. "📚 Vocabulary · 📝 Word · 🎲 Level words".
+// The collapsed "⚙️" row always shows the current choices, e.g. "📚 Vocabulary · 📝 Word · 🎯 Level words".
 const flashSettingsBody = document.getElementById("flash-settings-body");
 function updateFlashSettingsNow() {
   const now = document.getElementById("flash-settings-now");
@@ -11983,7 +11983,7 @@ function koalaNextRewardHtml(kind) {
 const KOALA_EARN = [
   { mode: "quiz", why: "quiz", view: "quiz", emoji: "💡" },
   { mode: "spelling", why: "spelling", view: "spelling", emoji: "✏️" },
-  { mode: "flash", why: "flashcards", view: "flashcards", emoji: "🃏" },
+  { mode: "flash", why: "flashcards", view: "flashcards", emoji: "🗂️" },
   { mode: "tt", why: "timesTable", view: "timestable", emoji: "🧮" },
   { mode: "typing", why: "typing", view: "typegame", emoji: "⌨️" },
 ];
@@ -12600,7 +12600,7 @@ function renderWrongPanel() {
   const modeName = { quiz: rwL("Quiz", "퀴즈"), spelling: rwL("Spelling", "스펠링"), typing: rwL("Typing", "타이핑"), tt: rwL("Times Table", "구구단"), flash: rwL("Flashcards", "플래시카드") };
   const studyBtn = wrongSubTab === "math"
     ? ""
-    : ` <button type="button" class="pill small" id="wrong-study-btn">🃏 ${rwL("Study these words", "오답 단어 공부하기")}</button>`;
+    : ` <button type="button" class="pill small" id="wrong-study-btn">🗂️ ${rwL("Study these words", "오답 단어 공부하기")}</button>`;
   let html = `${subTabs}<p class="wrong-hint">${wrongSubTab === "math"
     ? rwL("Get a fact right in a review and it graduates from this notebook.", "복습에서 맞히면 오답 노트에서 바로 졸업해요.")
     : rwL("Get a word right in a review and it graduates from this notebook.", "복습에서 맞히면 오답 노트에서 바로 졸업해요.")}</p>
@@ -13120,7 +13120,7 @@ function missionTasks() {
   const day = Math.floor(Date.now() / 86400000);
   const third = day % 2 ? { id: "quiz", mode: "quiz", view: "quiz", key: "missionQuiz", emoji: "💡" } : { id: "tt", mode: "tt", view: "timestable", key: "missionTT", emoji: "🧮" };
   return [
-    { id: "flash", mode: "flash", view: "flashcards", key: "missionFlash", emoji: "🃏" },
+    { id: "flash", mode: "flash", view: "flashcards", key: "missionFlash", emoji: "🗂️" },
     { id: "spelling", mode: "spelling", view: "spelling", key: "missionSpelling", emoji: "✏️" },
     third,
   ].map((x) => ({ ...x, done: Math.min(n(x.mode), missionGoal()), goal: missionGoal() }));

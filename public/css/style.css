@@ -9293,3 +9293,6 @@ html body #flash-start-screen .fs-settings-body .qz-seg { flex-wrap: wrap; }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn { flex: 1 1 auto; white-space: nowrap; }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { content: "✓ "; }
 .fs-settings-sum { font-size: 0.82rem; }
+
+/* Flashcards start: tidier settings row */
+html body #flash-start-screen .fs-settings-sum { min-height: 40px; background: rgba(255, 255, 255, 0.28); }
