@@ -8252,7 +8252,12 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
 /* Result screen — kept short enough to fit one mobile screen without
    scrolling: koala, stars, a big score, one praise line, then whatever
    optional bits actually apply (coin chip, gift button, collapsed missed
-   list), then a single primary action plus small text-link extras. */
+   list), then a single primary action plus small text-link extras.
+   The outer wrapper stretches with the viewport (capped, so it never grows
+   enough to force a scrollbar) and centers the card inside it, instead of
+   leaving the card pinned to the top with empty space below it. */
+#quiz-result.qz-result { display: flex; align-items: center; justify-content: center; min-height: min(52vh, 420px); }
+#quiz-result.qz-result[hidden] { display: none; }
 .qz-result-card { padding: 4px 2px 2px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .qz-result-koala { font-size: 3rem; line-height: 1; animation: qz-bounce 1.2s ease-in-out infinite; }
 .qz-result-koala.is-keep { animation-duration: 2.4s; }
@@ -8274,11 +8279,23 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
    competing with the primary CTA below. */
 .qz-reward-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .qz-gift-icon-btn {
-  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-  border: 1px solid #f0d28a; border-radius: 50%; background: #fff6d8; font-size: 1.05rem; cursor: pointer;
+  display: flex; align-items: center; gap: 5px; height: 32px; padding: 0 12px;
+  border: 1px solid #f0d28a; border-radius: 999px; background: #fff6d8; color: #8a5a00;
+  font-family: var(--font-heading); font-size: 1.05rem; cursor: pointer;
+  animation: qz-gift-wiggle 2.4s ease-in-out infinite;
 }
+.qz-gift-icon-label { font-size: 0.8rem; font-weight: 800; }
 .qz-gift-icon-btn:hover { background: #ffecb0; }
 .qz-gift-icon-btn:active { transform: translateY(1px); }
+@keyframes qz-gift-wiggle {
+  0%, 80%, 100% { transform: rotate(0deg); }
+  83% { transform: rotate(-8deg); }
+  86% { transform: rotate(7deg); }
+  89% { transform: rotate(-5deg); }
+  92% { transform: rotate(3deg); }
+  95% { transform: rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce) { .qz-gift-icon-btn { animation: none; } }
 /* Missed words as small tap-to-hear chips instead of a second, redundant
    "words to practise" list duplicating the retry button's own count. */
 .qz-missed-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: 100%; }
@@ -8288,7 +8305,9 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
 }
 .qz-missed-chip:hover { background: #f2fcf8; }
 .qz-missed-chip-more { color: var(--muted); cursor: default; background: transparent; }
-.qz-result-actions { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 4px; width: 100%; }
+/* Extra gap above "Change settings" (16px, not 6px) so a stray tap right
+   after the primary button can't land on it by accident. */
+.qz-result-actions { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 4px; width: 100%; }
 .qz-result-primary {
   width: 100%; max-width: 280px; min-height: 52px; padding: 10px 20px;
   border: 0; border-radius: 999px; font-family: var(--font-heading); font-weight: 800; font-size: 1.1rem;

@@ -347,6 +347,7 @@ const TRANSLATIONS = {
     qzAgainBtn: "▶ Play again",
     qzSettingsBtn: "⚙️ Change settings",
     qzGiftBtn: "🎁 Open gift",
+    qzGiftBtnLabel: "Open gift",
     qzSeeResults: "See results 🏁",
     flashFrontModeLabel: "Flashcard front side",
     flashSourceLabel: "Flashcard source",
@@ -937,6 +938,7 @@ const TRANSLATIONS = {
     qzAgainBtn: "▶ 다시 하기",
     qzSettingsBtn: "⚙️ 설정 바꾸기",
     qzGiftBtn: "🎁 선물 열기",
+    qzGiftBtnLabel: "선물 열기",
     qzSeeResults: "결과 보기 🏁",
     qzKoMeaningLabel: "🇰🇷 한국어 뜻",
     qzKoMeaningHide: "뜻 숨기기",
@@ -4636,11 +4638,13 @@ function showQuizResult() {
 
   // The gift button only shows up when there's something to open right now —
   // no progress bar or "coming soon" card sitting here the rest of the time.
-  // It's a small icon next to the coin chip, not a second big CTA competing
-  // with the primary button below.
+  // It's a small pill next to the coin chip, not a second big CTA competing
+  // with the primary button below — but it still carries a text label
+  // (icon alone read as "what is this?"), and nudges gently so it isn't
+  // missed in among the rest of the row.
   const nextReward = showCoins ? KoalaCore.nextReward(progress, Object.assign({ kind: "character" }, koalaOpts())) : null;
   const giftHtml = nextReward && nextReward.affordable
-    ? `<button type="button" class="qz-gift-icon-btn" data-qz-act="opengift" aria-label="${escapeHtml(t("qzGiftBtn"))}" title="${escapeHtml(t("qzGiftBtn"))}">🎁</button>`
+    ? `<button type="button" class="qz-gift-icon-btn" data-qz-act="opengift" aria-label="${escapeHtml(t("qzGiftBtn"))}" title="${escapeHtml(t("qzGiftBtn"))}"><span aria-hidden="true">🎁</span><span class="qz-gift-icon-label">${escapeHtml(t("qzGiftBtnLabel"))}</span></button>`
     : "";
   const rewardRowHtml = coinChipHtml || giftHtml ? `<div class="qz-reward-row">${coinChipHtml}${giftHtml}</div>` : "";
 

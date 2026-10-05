@@ -1056,6 +1056,7 @@ html[data-theme="dark"] .qz-coin-chip {
 html[data-theme="dark"] .qz-gift-icon-btn {
   border: 1px solid #6f613e !important;
   background: #2f2a1a !important;
+  color: #ffb324 !important;
 }
 html[data-theme="dark"] .qz-gift-icon-btn:hover {
   background: #413a24 !important;
