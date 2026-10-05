@@ -7819,7 +7819,10 @@ html #view-typegame p.hint.tg-hint {
   box-shadow: 0 3px 0 #bfe8d4, 0 7px 14px rgba(40, 140, 110, 0.12);
 }
 html #view-typegame p.hint.tg-hint::before {
-  content: "🐨";
+  content: "";
+  width: 1.9rem;
+  height: 1.9rem;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='12' cy='19' r='11' fill='%239aa5b1'/%3E%3Ccircle cx='12' cy='19' r='6' fill='%23f7b9c4'/%3E%3Ccircle cx='52' cy='19' r='11' fill='%239aa5b1'/%3E%3Ccircle cx='52' cy='19' r='6' fill='%23f7b9c4'/%3E%3Cellipse cx='32' cy='36' rx='24' ry='22' fill='%23b7c0ca'/%3E%3Cellipse cx='32' cy='44' rx='13' ry='10' fill='%23eef1f4'/%3E%3Cpath d='M18 31q4-5 8 0M38 31q4-5 8 0' stroke='%232b2f36' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='32' cy='38' rx='6.5' ry='4.8' fill='%232b2f36'/%3E%3Cellipse cx='30' cy='36.5' rx='1.8' ry='1' fill='%23fff' opacity='.6'/%3E%3Cpath d='M24 46q8 9 16 0' stroke='%232b2f36' stroke-width='2.6' fill='%23fff' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='15' cy='42' r='4' fill='%23ff9db0' opacity='.75'/%3E%3Ccircle cx='49' cy='42' r='4' fill='%23ff9db0' opacity='.75'/%3E%3C/svg%3E") center / contain no-repeat;
   position: absolute;
   left: 13px;
   top: 50%;
@@ -7877,7 +7880,10 @@ html #view-timestable p.tt-tip {
 html #view-timestable p.tt-tip > span { flex: 1 1 auto; min-width: 0; }
 html #view-timestable p.tt-tip .tt-help-btn { margin-left: auto; }
 html #view-timestable p.tt-tip::before {
-  content: "🐨";
+  content: "";
+  width: 1.9rem;
+  height: 1.9rem;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='12' cy='19' r='11' fill='%239aa5b1'/%3E%3Ccircle cx='12' cy='19' r='6' fill='%23f7b9c4'/%3E%3Ccircle cx='52' cy='19' r='11' fill='%239aa5b1'/%3E%3Ccircle cx='52' cy='19' r='6' fill='%23f7b9c4'/%3E%3Cellipse cx='32' cy='36' rx='24' ry='22' fill='%23b7c0ca'/%3E%3Cellipse cx='32' cy='44' rx='13' ry='10' fill='%23eef1f4'/%3E%3Cpath d='M18 31q4-5 8 0M38 31q4-5 8 0' stroke='%232b2f36' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='32' cy='38' rx='6.5' ry='4.8' fill='%232b2f36'/%3E%3Cellipse cx='30' cy='36.5' rx='1.8' ry='1' fill='%23fff' opacity='.6'/%3E%3Cpath d='M24 46q8 9 16 0' stroke='%232b2f36' stroke-width='2.6' fill='%23fff' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='15' cy='42' r='4' fill='%23ff9db0' opacity='.75'/%3E%3Ccircle cx='49' cy='42' r='4' fill='%23ff9db0' opacity='.75'/%3E%3C/svg%3E") center / contain no-repeat;
   position: absolute;
   left: 13px;
   top: 50%;
