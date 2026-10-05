@@ -9348,3 +9348,26 @@ html body #quiz-start-screen .sp-start-floaters { display: none; }
 html body #quiz-start-screen .qz-start-card { gap: 16px; padding: 20px 16px 22px; }
 html body #quiz-start-screen .qz-start-card .qz-pick { gap: 10px; }
 html body #quiz-start-screen .qz-start-card > h3 { margin-bottom: 4px; }
+
+/* ===== My flashcards — calm, roomy, no scary delete ===== */
+html body #my-deck-card { border: 0; box-shadow: 0 6px 16px rgba(14, 120, 95, 0.1); padding: 22px 18px 24px; }
+html body #my-deck-card .my-added-words-header { margin-bottom: 18px; align-items: center; }
+html body #my-deck-card .my-added-words-header h3 { margin: 0; font-size: 1.2rem; }
+/* "Clear all" is a small quiet text button at the top right, and only shows when there is something to clear */
+html body #my-deck-card .my-added-words-header-actions { display: flex; flex-basis: auto; margin: 0; }
+html body #my-deck-card #my-deck-clear-btn { width: auto; min-height: 0; padding: 4px 10px; font-size: 0.72rem; color: #8a7d7d; background: transparent; border: 1px solid #e3d3d3; box-shadow: none; }
+html body #my-deck-card #my-deck-clear-btn:disabled { display: none; }
+/* the three add modes: one equal-width segmented control */
+html body #my-deck-card .add-mode-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+html body #my-deck-card .add-mode-toggle button { width: 100%; min-width: 0; padding: 9px 4px; font-size: 0.78rem; white-space: nowrap; justify-content: center; }
+/* form rhythm */
+html body #my-deck-card #my-deck-form { display: flex; flex-direction: column; gap: 16px; }
+html body #my-deck-card #my-deck-form .form-row { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+html body #my-deck-card #my-deck-form label { font-weight: 700; font-size: 0.9rem; color: var(--accent-dark); }
+html body #my-deck-card #my-deck-form input { min-height: 46px; }
+html body #my-deck-card #my-deck-form .form-actions { margin-top: 4px; }
+html body #my-deck-card #my-deck-save-btn { width: 100%; min-height: 50px; font-size: 1.05rem; font-weight: 800; }
+/* friendly empty state */
+html body #my-deck-card #my-deck-empty:not([hidden]) { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 22px 0 4px; padding: 18px 16px; border-radius: 18px; background: #f1faf6; border: 2px dashed #b8e3d6; text-align: center; font-size: 0.92rem; line-height: 1.5; color: #4f7f70; word-break: keep-all; }
+html body #my-deck-card #my-deck-empty:not([hidden])::before { content: "🐨"; font-size: 2rem; line-height: 1; }
+html body #my-deck-card .wordlist-count:empty { display: none; }
