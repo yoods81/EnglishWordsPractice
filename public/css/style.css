@@ -4575,6 +4575,12 @@ button.speak-btn-hero.speak-btn-active::after { animation: speak-ring 1s ease-ou
 .quiz-speak-wrap[hidden] { display: none; }
 .speakable-line::after { font-size: 1em; opacity: 0.85; }
 #quiz-question.speakable-line::after { content: none; }
+/* Korean 어휘 prompt: tapping the Korean meaning text has nothing useful to
+   read aloud, so drop the "tap to hear" affordance (the actual no-op is
+   guarded in speakQuizQuestion() — this only keeps the cursor/underline
+   honest about it). */
+#quiz-question.qz-q-no-speak { cursor: default; }
+#quiz-question.qz-q-no-speak:hover { text-decoration: none; }
 
 /* ===== Step 1: times-table animated how-to ===== */
 .timestable-instructions { max-width: 320px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
@@ -8161,7 +8167,7 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
 #view-quiz #quiz-question.qz-q-hear { font-size: 1.6rem; opacity: 0.7; }
 
 /* Answer buttons: A-D badges (the keys A-D and 1-4 pick them too) */
-.qz-opt { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 12px; font-size: 1rem; font-weight: 600; }
+.qz-opt { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 12px; font-size: 1rem; font-weight: 600; width: 100%; }
 .qz-opt-key { flex: 0 0 auto; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--outline); border-radius: 50%; background: #e4f8ef; color: #0b6b57; font-family: var(--font-heading); font-weight: 800; font-size: 0.85rem; }
 .qz-opt-text { flex: 1 1 auto; min-width: 0; line-height: 1.25; overflow-wrap: anywhere; }
 @media (hover: hover) { .qz-opt:hover:not(:disabled) { background: #f2fcf8; transform: translateY(-1px); } }
@@ -8169,6 +8175,34 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
 .qz-opt.incorrect .qz-opt-key { background: var(--error); border-color: var(--error-dark); color: #fff; }
 .qz-opt:disabled:not(.qz-opt-out) { color: var(--text); }
 .qz-opt-out { opacity: 0.35; box-shadow: none; text-decoration: line-through; }
+
+/* A Korean 어휘 prompt hides the question's own speaker (see .qz-q-no-speak
+   below) and gives each English option its own instead — a sibling of the
+   answer button, not nested inside it, so a tap on the icon never also
+   counts as picking that answer. */
+.qz-opt-wrap { position: relative; }
+.qz-opt.qz-opt-has-speak .qz-opt-text { padding-right: 24px; }
+.qz-opt-speak {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: #e3f8f1;
+  color: #0b6b57;
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+.qz-opt-speak:hover { background: #cdeee1; }
+.qz-opt-speak:active { transform: translateY(1px); }
+.qz-opt-speak.speak-btn-active { background: var(--accent); color: #fff; }
 
 /* Typed answers */
 .qz-typing { display: flex; flex-direction: column; gap: 8px; margin: 0 0 10px; }

@@ -4174,6 +4174,7 @@ let quizActiveMs = 0;
 let quizCoinsBefore = 0;
 let quizDailyBefore = 0;
 let quizKoMeaningShown = loadQuizKoMeaning();
+let quizHideMainSpeak = false; // true when the current prompt is Korean text with nothing to read aloud
 
 function loadQuizMode() {
   try {
@@ -4310,6 +4311,11 @@ function startQuizRound(retryList) {
 /* ---------- One question ---------- */
 const quizInstrKey = (type) => "qzInstr" + type.charAt(0).toUpperCase() + type.slice(1);
 const quizCurrent = () => quizQuestions[quizIndex];
+// Each option is a ".qz-opt-wrap" (so its optional speaker button isn't
+// nested inside the answer <button> itself) — this unwraps back to the
+// option buttons themselves for the callers that scored/highlight/navigate
+// them before that wrapper existed.
+const quizOptionButtons = () => Array.from(quizOptionsEl.children, (w) => w.querySelector(".option-btn") || w);
 
 function renderQuizQuestion() {
   stopQuizTimer();
@@ -4333,11 +4339,21 @@ function renderQuizQuestion() {
   quizQuestionEl.classList.toggle("qz-q-word", !!q.promptIsWord);
   quizQuestionEl.classList.toggle("qz-q-hear", !!q.hearOnly);
 
+  // The 어휘 (meaning -> word) prompt is the Korean definition in the Korean
+  // UI — nothing in it is in English, so reading it aloud is just noise.
+  // Hide the question's own speaker there and let each English answer
+  // option speak for itself instead.
+  quizHideMainSpeak = currentLang === "ko" && q.type === "vocabulary" && q.kind === "choice";
+  quizSpeakWrap.hidden = quizHideMainSpeak;
+  quizQuestionEl.classList.toggle("qz-q-no-speak", quizHideMainSpeak);
+
   quizOptionsEl.innerHTML = "";
   quizOptionsEl.hidden = q.kind !== "choice";
   quizTypingBox.hidden = q.kind !== "typing";
   if (q.kind === "choice") {
     q.options.forEach((opt, i) => {
+      const wrap = document.createElement("div");
+      wrap.className = "qz-opt-wrap";
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "option-btn qz-opt";
@@ -4351,7 +4367,27 @@ function renderQuizQuestion() {
       text.textContent = opt;
       btn.append(key, text);
       btn.addEventListener("click", () => answerQuizChoice(i));
-      quizOptionsEl.appendChild(btn);
+      wrap.appendChild(btn);
+      // The question's own speaker is hidden for a Korean prompt (nothing in
+      // it to read aloud) — each English option gets its own instead, so a
+      // stray tap on it never counts as picking that answer.
+      if (quizHideMainSpeak) {
+        btn.classList.add("qz-opt-has-speak");
+        const speakBtn = document.createElement("button");
+        speakBtn.type = "button";
+        speakBtn.className = "qz-opt-speak";
+        speakBtn.textContent = "🔊";
+        speakBtn.setAttribute("aria-label", t("hearItLabel"));
+        speakBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          speak(opt, {
+            onstart: () => speakBtn.classList.add("speak-btn-active"),
+            onend: () => speakBtn.classList.remove("speak-btn-active"),
+          });
+        });
+        wrap.appendChild(speakBtn);
+      }
+      quizOptionsEl.appendChild(wrap);
     });
     // Arrow-key navigation always starts back on the first option for a fresh
     // question, so Enter alone (with no arrow press at all) still answers it.
@@ -4376,7 +4412,7 @@ function renderQuizQuestion() {
 
 function speakQuizQuestion() {
   const q = quizCurrent();
-  if (!q) return;
+  if (!q || quizHideMainSpeak) return;
   speak(q.speak, {
     onstart: () => quizSpeakBtn.classList.add("speak-btn-active"),
     onend: () => quizSpeakBtn.classList.remove("speak-btn-active"),
@@ -4448,7 +4484,7 @@ function finishQuizQuestion(outcome) {
 
   // Lock the answer area and show what the right answer was.
   if (q.kind === "choice") {
-    Array.from(quizOptionsEl.children).forEach((b, i) => {
+    quizOptionButtons().forEach((b, i) => {
       b.disabled = true;
       if (q.options[i] === q.answer) {
         b.classList.add("correct");
@@ -4532,8 +4568,9 @@ quizHint5050Btn.addEventListener("click", () => {
   if (!removals.length) return;
   quizLeaves--;
   quizHints.fifty = true;
+  const optBtns = quizOptionButtons();
   removals.forEach((i) => {
-    const b = quizOptionsEl.children[i];
+    const b = optBtns[i];
     if (!b) return;
     b.disabled = true;
     b.classList.add("qz-opt-out");
@@ -4668,7 +4705,7 @@ let quizFocusIndex = 0;
 let quizKeyboardNavUsed = false;
 
 function highlightQuizOption(index) {
-  Array.from(quizOptionsEl.children).forEach((b, i) => {
+  quizOptionButtons().forEach((b, i) => {
     b.classList.toggle("option-btn-kbd-focus", quizKeyboardNavUsed && i === index);
   });
 }
@@ -4705,7 +4742,7 @@ document.addEventListener("keydown", (e) => {
   }
   if (q.kind !== "choice") return;
 
-  const opts = Array.from(quizOptionsEl.children);
+  const opts = quizOptionButtons();
   if (!opts.length) return;
   const cols = quizOptionColumns();
   let handled = true;
