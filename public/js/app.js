@@ -5044,6 +5044,7 @@ const spellingReportRestartBtn = document.getElementById("spelling-report-restar
 
 let spellingDeck = [];
 let spellingIndex = 0;
+const spellingMissedIdx = new Set(); // word positions answered wrong at least once (leaf colour)
 let spellingScore = { correct: 0, total: 0 };
 let spellingTotalCountedWords = new Set(); // this round only — stops a retried word double-counting "total"
 let spellingWrongThisRound = new Set(); // this round only — word had >=1 wrong attempt, so it can't earn "correct" credit this round
@@ -5076,6 +5077,7 @@ function buildSpellingDeck({ resetScreen = true } = {}) {
   // whatever else already reads it (e.g. the mastery badge).
   spellingDeck = pickWordsForSession(pool, goals.spelling);
   spellingIndex = 0;
+  spellingMissedIdx.clear();
   spellingScore = { correct: 0, total: 0 };
   spellingCombo = 0;
   spellingTotalCountedWords = new Set();
@@ -5247,6 +5249,7 @@ function renderSpellingProgress(advanced = false) {
     const justDone = eaten && !l.classList.contains("eaten") && advanced && i === spellingLeafEaten;
     if (justDone) flyLeafToKoala(l);
     l.classList.toggle("eaten", eaten);
+    l.classList.toggle("miss", eaten && spellingMissedIdx.has(i));
     // The leaf for the word being spelled glows gently; when it is earned it
     // pops (bigger + sparkle) and settles into the "done" look.
     l.classList.toggle("cur", i === target && target < spellingLeafTotal);
@@ -5670,6 +5673,7 @@ function checkSpellingAnswer() {
     spellingInput.classList.remove("sp-shake");
     void spellingInput.offsetWidth;
     spellingInput.classList.add("sp-shake");
+    spellingMissedIdx.add(spellingIndex);
     spellingReact("sad", "spLiveSad");
     showSpellingWrongFeedback(current);
     spellingCurrentChecked = false;

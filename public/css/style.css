@@ -9083,3 +9083,28 @@ html body #spelling-practice.is-correct #spelling-next:not(:disabled)::after {
   content: attr(data-hint); position: absolute; top: calc(100% + 3px); left: 50%; transform: translateX(-50%);
   font-family: var(--font-heading); font-weight: 800; font-size: 0.78rem; line-height: 1; color: #008a63; white-space: nowrap; pointer-events: none;
 }
+
+/* ===== Spelling practice UX pass 4 ===== */
+/* 1. Belly speaker: solid emerald disc, no pale ring */
+html body #spelling-practice .sp-belly-btn { opacity: 1; filter: drop-shadow(0 2px 2px rgba(0, 70, 55, 0.35)); }
+html body #spelling-practice .sp-belly-btn .sp-belly-svg circle:first-child { stroke: #0a7f62; stroke-width: 2; }
+/* 2. Check: input-width, breathing room before the footer */
+html body #spelling-practice .sp-check-btn { width: min(100%, 220px); margin-left: auto; margin-right: auto; }
+html body #spelling-practice .sp-footer { margin-top: 14px; padding-top: 6px; gap: 10px; }
+/* 3. ⌫ simply follows the last letter chip (no isolated far-right cell) */
+html body #spelling-practice .sp-backspace-chip { grid-row: auto; grid-column: auto; }
+/* 4. Sound switch: neutral pill, clear gap to Finish */
+html body #spelling-practice .sp-footer .sfx-toggle.is-off { color: #5d6b67; background: #eef2f1; border-color: #c5d0cd; box-shadow: 0 2px 0 #c5d0cd; }
+html body #spelling-practice .sp-footer .sp-finish-btn { margin-left: 6px; }
+/* 7. Keyboard toggle: bigger, clearly a button */
+@media (pointer: coarse) {
+  html body #spelling-practice .sp-kb-toggle { left: 6px; top: 6px; bottom: 6px; border-radius: 12px; background: #e3f6ef; box-shadow: inset 0 0 0 2px #7fd1b9; color: var(--accent-dark); }
+  html body #spelling-practice .sp-kb-toggle svg { width: 78%; height: 78%; }
+}
+/* 8. Leaves: done = full green with a check, missed = orange, current = glow */
+html body #spelling-practice .sp-leaf.eaten { opacity: 1; filter: none; transform: rotate(var(--r, 0deg)) scale(0.95); position: relative; }
+html body #spelling-practice .sp-leaf.eaten::after { content: "✓"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -52%) rotate(calc(var(--r, 0deg) * -1)); font: 800 0.72rem/1 var(--font-heading); color: #fff; text-shadow: 0 1px 1px rgba(0, 80, 60, 0.6); pointer-events: none; }
+html body #spelling-practice .sp-leaf.eaten.miss svg { filter: hue-rotate(-120deg) saturate(1.5) brightness(1.08); }
+html body #spelling-practice .sp-leaf.eaten.miss::after { content: "•"; }
+html body #spelling-practice .sp-leaf:not(.eaten):not(.cur) svg { filter: grayscale(0.7) opacity(0.55); }
+html body #spelling-practice .sp-footer .sfx-toggle, html body #spelling-practice .sp-footer .sp-finish-btn { height: 34px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding-top: 0; padding-bottom: 0; }
