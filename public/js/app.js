@@ -272,6 +272,7 @@ const TRANSLATIONS = {
     gameOverKeepGoing: "Keep Going! 🔥",
     gameOverTryAgain: "Let's try again! 🌱",
     gameOverCleared: (n) => `✅ Solved: ${n}`,
+    gameOverNextStar: (n) => `Next star: ${n} more!`,
     gameOverStarsLabel: (n) => `${n} of 3 stars`,
     gameOverReview: "Review",
     gameOverReviewTitle: "Missed this round",
@@ -911,6 +912,7 @@ const TRANSLATIONS = {
     gameOverKeepGoing: "계속 도전! 🔥",
     gameOverTryAgain: "한 번 더 해볼까요? 🌱",
     gameOverCleared: (n) => `✅ 맞힌 개수: ${n}개`,
+    gameOverNextStar: (n) => `다음 별까지 ${n}개 더!`,
     gameOverStarsLabel: (n) => `별 3개 중 ${n}개`,
     gameOverReview: "오답 확인",
     gameOverReviewTitle: "이번에 틀린 문제",
@@ -6904,6 +6906,7 @@ function endTypeGame() {
     correct: typeGameWordsCleared,
     isNewBest,
     best: Math.max(prevBest, typeGameScore),
+    score: typeGameScore,
     reason: "lives",
     encourage: TYPEGAME_ENCOURAGE_MESSAGES,
     missed: [...typeGameMissed].map((word) => {
@@ -8029,6 +8032,7 @@ function endTimesTableRound(reason) {
     correct: timesTableCorrectCount,
     isNewBest,
     best: Math.max(prevBest, timesTableScore),
+    score: timesTableScore,
     reason,
     encourage: TIMESTABLE_ENCOURAGE_MESSAGES,
     missed: [...timesTableMissed].map((key) => {
@@ -8474,6 +8478,17 @@ function showGameOverScreen(prefix, opts) {
   }
   stat.textContent = t("gameOverCleared", opts.correct || 0);
   $("high-score").hidden = !opts.isNewBest && !(opts.best > 0);
+  $("final-score").hidden = !(opts.score > 0); // a 0 would just repeat the "Solved" line below
+  let goal = $("star-goal");
+  if (!goal) {
+    goal = document.createElement("p");
+    goal.id = `${prefix}-star-goal`;
+    goal.className = "tg-star-goal";
+    $("stars").insertAdjacentElement("afterend", goal);
+  }
+  const nextStep = GAMEOVER_STAR_STEPS[stars];
+  goal.hidden = nextStep == null;
+  if (nextStep != null) goal.textContent = t("gameOverNextStar", Math.max(1, nextStep - (opts.correct || 0)));
 
   // Stars light up one by one
   const starsEl = $("stars");
@@ -8481,7 +8496,6 @@ function showGameOverScreen(prefix, opts) {
   starsEl.classList.remove("tg-stars-go");
   starsEl.querySelectorAll(".tg-star").forEach((el, i) => {
     el.classList.toggle("on", i < stars);
-    el.dataset.goal = String(GAMEOVER_STAR_STEPS[i]); // small label under each star: how many it takes
     el.style.setProperty("--d", `${0.35 + i * 0.45}s`);
   });
   void starsEl.offsetWidth; // restart the animation

@@ -10102,3 +10102,44 @@ html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill { width: 4
   #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub,
   #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub { font-size: 0.86rem; padding: 6px 12px; margin: 4px 0 8px; }
 }
+
+/* ===== Game Over v3: softer unearned stars, "next star" hint, calmer bubble, no duplicate score ===== */
+/* Unearned stars: pale gold, clearly a star waiting to be filled (no number labels any more) */
+.tg-over-overlay .tg-star {
+  filter: saturate(0.5) brightness(1.18) opacity(0.62) drop-shadow(0 1px 0 #d9b44a);
+  margin-bottom: 0;
+}
+.tg-over-overlay .tg-star::after { content: none; }
+.tg-over-overlay .tg-stars-go .tg-star.on { filter: drop-shadow(0 0 8px #ffb300); }
+.tg-over-card .tg-star-goal { margin: 0; font-size: 0.82rem; font-weight: 800; color: #3f7d6b; }
+.tg-over-card .tg-star-goal[hidden], #typegame-final-score[hidden], #timestable-final-score[hidden] { display: none; }
+/* With no score line (0 points) the "Solved" line is the headline */
+#typegame-final-score[hidden] + .tg-over-stat, #timestable-final-score[hidden] + .tg-over-stat {
+  font-family: var(--font-heading);
+  font-size: clamp(1.2rem, 7.5cqh, 1.6rem);
+  color: #0f6b52;
+}
+
+/* Bubble: narrower and airier */
+#view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub,
+#view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub {
+  max-width: 236px;
+  padding: 10px 16px;
+  line-height: 1.45;
+  margin: 8px 0 14px;
+}
+@media (max-width: 480px) {
+  #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub,
+  #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub { padding: 8px 14px; margin: 6px 0 12px; font-size: 0.86rem; }
+}
+
+/* The HUD score repeats the result below it once the round is over */
+.card.tg-over .score-tag { opacity: 0.4; }
+
+@container (max-height: 340px) {
+  .tg-over-card .tg-star-goal { display: none; }
+}
+@media (max-width: 480px) {
+  #view-typegame .card.tg-over #typegame-stage,
+  #view-timestable .card.tg-over #timestable-stage { height: 470px; }
+}
