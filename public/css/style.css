@@ -9913,3 +9913,34 @@ html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill { width: 4
   #view-timestable .tg-hearts { gap: 1px; padding: 2px 6px; }
 }
 @media (max-width: 380px) { #view-timestable .tg-hearts .tg-heart { width: 15px; height: 15px; } }
+
+/* ---- Start screen fit fix: don't depend on viewport height. A phone page scrolls anyway
+   before the game starts, so give the start stage a fixed, comfortable height that always
+   holds the whole card (plus the room kept for the expand/sound buttons). ---- */
+.tg-start-overlay { scrollbar-width: none; }
+.tg-start-overlay::-webkit-scrollbar { display: none; }
+@media (max-width: 480px) {
+  #view-typegame .card:has(#typegame-start-overlay:not([hidden])) #typegame-stage { height: 420px; }
+  #view-typegame .typegame-overlay.tg-start-overlay { padding: 90px 12px 12px; }
+  #view-typegame .tg-start-card { width: min(100%, 280px); padding: 8px 14px 16px; gap: 6px; }
+  #view-typegame .tg-start-card .kb-strip .kb-scene { width: 64px; height: 63px; }
+  #view-typegame .tg-start-card .kb-strip .kb-scene .sk-svg { width: 64px; }
+  #view-typegame .typegame-overlay .tg-start-card p.tg-start-tip { display: block; }
+}
+
+/* ---- HUD row must always fit inside the card (no hearts poking out past the border) ---- */
+@media (max-width: 520px) {
+  #view-typegame .setting-row-nowrap, #view-timestable .setting-row-nowrap { gap: 4px; }
+  #view-typegame .tg-hearts .tg-heart, #view-timestable .tg-hearts .tg-heart { width: 16px; height: 16px; }
+  #view-typegame .setting-row-nowrap .score-tag, #view-timestable .setting-row-nowrap .score-tag { padding-inline: 8px; }
+}
+@media (max-width: 420px) {
+  #view-typegame .tg-hearts .tg-heart, #view-timestable .tg-hearts .tg-heart { width: 15px; height: 15px; }
+  #view-typegame .tg-hearts, #view-timestable .tg-hearts { padding: 2px 5px; }
+  #view-typegame .setting-row-nowrap .score-tag, #view-timestable .setting-row-nowrap .score-tag { padding-inline: 6px; gap: 2px; }
+}
+@media (max-width: 360px) {
+  .game-speed-control::before { display: none; }
+  #view-typegame .tg-hearts .tg-heart, #view-timestable .tg-hearts .tg-heart { width: 13px; height: 13px; }
+  #view-typegame .setting-row-nowrap .stage-tag, #view-timestable .setting-row-nowrap .stage-tag { font-size: 0.68rem; }
+}
