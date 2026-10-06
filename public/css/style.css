@@ -10071,17 +10071,7 @@ html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill { width: 4
 /* Koala: bigger, and a "you can do it" cheer when the round was short */
 .tg-over-overlay .tg-over-card { --k: clamp(54px, 24cqh, 104px); }
 .tg-koala { position: relative; }
-.tg-cheer {
-  position: absolute;
-  right: -6px;
-  top: 4px;
-  font-size: 1.4rem;
-  line-height: 1;
-  animation: tg-cheer-pop 1.6s ease-in-out infinite;
-  z-index: 2;
-}
-@keyframes tg-cheer-pop { 0%, 100% { transform: translateY(0) scale(1) rotate(-8deg); } 50% { transform: translateY(-5px) scale(1.15) rotate(8deg); } }
-@media (prefers-reduced-motion: reduce) { .tg-cheer { animation: none; } }
+
 
 /* HUD while the round is over: controls are inert, hearts clearly empty */
 .card.tg-over .game-speed-control { opacity: 0.4; pointer-events: none; }

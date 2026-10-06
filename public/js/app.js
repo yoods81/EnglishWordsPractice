@@ -8461,7 +8461,7 @@ function showGameOverScreen(prefix, opts) {
 
   // Koala (always the brand mascot; celebrates on a record or a good run)
   const koala = card.querySelector(".tg-over-koala");
-  koala.innerHTML = `<div class="kb-scene tg-koala${record ? " tg-koala-record fk-know" : stars >= 2 ? " tg-koala-good fk-know" : " tg-koala-try"}">${!record && stars < 2 ? '<span class="tg-cheer">💪</span>' : ""}${record ? '<span class="tg-trophy">🏆</span><span class="tg-kiss" style="--kd:0s;--kx:34px;--ky:-30px;--kr:14deg">💋</span><span class="tg-kiss" style="--kd:0.12s;--kx:46px;--ky:-8px;--kr:-10deg">❤️</span><span class="tg-kiss" style="--kd:0.24s;--kx:26px;--ky:-50px;--kr:22deg">💖</span>' : ""}${SPELL_KOALA_SVG}</div>`;
+  koala.innerHTML = `<div class="kb-scene tg-koala${record ? " tg-koala-record fk-know" : stars >= 2 ? " tg-koala-good fk-know" : " tg-koala-try"}">${record ? '<span class="tg-trophy">🏆</span><span class="tg-kiss" style="--kd:0s;--kx:34px;--ky:-30px;--kr:14deg">💋</span><span class="tg-kiss" style="--kd:0.12s;--kx:46px;--ky:-8px;--kr:-10deg">❤️</span><span class="tg-kiss" style="--kd:0.24s;--kx:26px;--ky:-50px;--kr:22deg">💖</span>' : ""}${SPELL_KOALA_SVG}</div>`;
 
   // How many were solved, and the best score only when there is one to show
   let stat = $("cleared-stat");
