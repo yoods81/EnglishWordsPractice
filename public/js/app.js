@@ -6660,6 +6660,13 @@ function buildTypeGameObject(word) {
   return el;
 }
 
+// Falling speed is in px/s, tuned on the ~320px-tall play area. On a phone with the keyboard up the area
+// can be much shorter, which would shorten the time to react too — so scale the speed down with it
+// (never up: taller areas keep their old, more generous timing).
+function gameHeightSpeedScale(stageHeight) {
+  return Math.max(0.6, Math.min(1, stageHeight / 320));
+}
+
 function typeGameLoop(ts) {
   if (!typeGameRunning) return;
   if (typeGameLastTs == null) typeGameLastTs = ts;
@@ -6669,7 +6676,7 @@ function typeGameLoop(ts) {
   const stageHeight = typeGameStage.clientHeight;
   for (let i = typeGameActive.length - 1; i >= 0; i--) {
     const w = typeGameActive[i];
-    w.top += typeGameEffectiveSpeed() * dt;
+    w.top += typeGameEffectiveSpeed() * gameHeightSpeedScale(stageHeight) * dt;
     w.el.style.top = `${w.top}px`;
     // Lost when the object's bottom edge reaches the floor (for the old 34px capsule this was the same spot as before).
     if (w.top > stageHeight - (w.h || 34) + 4) {
@@ -7830,7 +7837,7 @@ function timesTableLoop(ts) {
   const stageHeight = timesTableStage.clientHeight;
   for (let i = timesTableActive.length - 1; i >= 0; i--) {
     const w = timesTableActive[i];
-    w.top += timesTableEffectiveSpeed() * dt;
+    w.top += timesTableEffectiveSpeed() * gameHeightSpeedScale(stageHeight) * dt;
     w.el.style.top = `${w.top}px`;
     // Lost when the object's bottom edge reaches the floor (for the old 34px capsule this was the same spot as before).
     if (w.top > stageHeight - w.h + 4) {

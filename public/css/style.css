@@ -9996,3 +9996,17 @@ html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill { width: 4
   #view-timestable .tg-start-floaters .typegame-word:nth-child(1) { display: none; }
   #view-timestable .tg-start-floaters .typegame-word:nth-child(2) { left: 42% !important; top: 9% !important; }
 }
+
+/* ===== Phone play mode: give the play area every spare pixel while the keyboard is up ===== */
+@media (max-width: 700px) {
+  /* The tip bubble must not show while playing on a phone (its own rule used to beat the
+     generic ".game-immersive .hint { display: none }" and ate ~60px of the play area). */
+  html #view-typegame .card.game-immersive p.hint.tg-hint { display: none; }
+  .card.game-immersive { padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); gap: 4px; }
+  #view-typegame .card.game-immersive .typegame-input,
+  #view-timestable .card.game-immersive .typegame-input {
+    padding: 7px 14px;
+    border-width: 3px;
+    min-height: 0;
+  }
+}
