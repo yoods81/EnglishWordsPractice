@@ -9796,3 +9796,7 @@ html body #flash-practice .flash-end-row .flash-auto:not(.on) .flash-auto-pill {
 html body #flash-practice .flash-end-row #flash-end { text-decoration: none; background: #fff1ea; color: #c2410c; border: 2px solid #ffb48a; box-shadow: 0 3px 0 #ffb48a; border-radius: 999px; padding: 9px 20px; font-size: 1rem; font-weight: 800; }
 html body #flash-practice .flash-end-row #flash-end:active { transform: translateY(2px); box-shadow: 0 1px 0 #ffb48a; }
 html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill { width: 40px; height: 40px; }
+
+/* "Tap to flip" hint: bigger icon and text */
+.flash-flip-hint { font-size: 1.15rem; bottom: 18px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.flash-flip-hint .ff-ico { font-size: 1.8rem; line-height: 1; }
