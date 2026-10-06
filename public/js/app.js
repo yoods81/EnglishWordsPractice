@@ -305,6 +305,12 @@ const TRANSLATIONS = {
     qzModeNoteTime: (c, ty) => `${c} seconds a question (${ty} when typing). If time runs out, it counts as a miss.`,
     quizStartBtn: "▶ Start Quiz",
     flashStartBtn: "▶ Start Flashcards",
+    flashRoundTitle: "Cards per round",
+    flashRoundAll: "All",
+    flashAutoSpeak: "Read each word aloud",
+    flashBackShort: "Back",
+    flashNextShort: "Next",
+    flashEndBtn: "🏁 Finish",
     flashStartTitle: "Flashcards",
     fsDemo1: "a sleepy",
     fsDemo2: "gum-tree animal",
@@ -933,6 +939,12 @@ const TRANSLATIONS = {
     qzModeNoteTime: (c, ty) => `문제당 ${c}초 (쓰기는 ${ty}초). 시간이 지나면 오답으로 처리돼요.`,
     quizStartBtn: "▶ 퀴즈 시작",
     flashStartBtn: "▶ 플래시카드 시작",
+    flashRoundTitle: "한 번에 볼 카드 수",
+    flashRoundAll: "전체",
+    flashAutoSpeak: "단어 자동 읽기",
+    flashBackShort: "이전",
+    flashNextShort: "다음",
+    flashEndBtn: "🏁 결과 보기",
     flashStartTitle: "플래시카드",
     fsDemo1: "나무에서 사는",
     fsDemo2: "졸린 동물",
@@ -3478,12 +3490,21 @@ const flashReport = document.getElementById("flash-report");
 const flashSession = { seen: new Set(), known: new Set(), still: new Map() };
 function resetFlashSession() { flashSession.seen.clear(); flashSession.known.clear(); flashSession.still.clear(); }
 function showFlashStart() {
+  flashDeck = flashDeckFull.slice();
+  flashIndex = 0;
   flashReport.hidden = true;
   flashStartScreen.hidden = false;
   flashPractice.hidden = true;
 }
+// One round = a shuffled slice of the full deck (10 / 20 / 50 cards, or all).
+let flashDeckFull = [];
+let flashRoundSize = 20;
+let flashAutoSpeakOn = false;
 function startFlashPlay() {
   resetFlashSession();
+  flashDeck = shuffle(flashDeckFull.slice());
+  if (flashRoundSize > 0 && flashDeck.length > flashRoundSize) flashDeck = flashDeck.slice(0, flashRoundSize);
+  flashIndex = 0;
   flashReport.hidden = true;
   flashStartScreen.hidden = true;
   flashPractice.hidden = false;
@@ -3623,7 +3644,8 @@ function buildFlashDeck() {
     if (flashUseMine) addAll(myDeck.slice());
     if (flashUseLevel) addAll(getFlashItems(flashCategorySel.value, currentLevel));
   }
-  flashDeck = shuffle(items);
+  flashDeckFull = shuffle(items);
+  flashDeck = flashDeckFull.slice();
   flashIndex = 0;
   // The category only applies to the generated deck, and the deck editor
   // (with its list of your cards) shows whenever "My cards" is on.
@@ -3638,7 +3660,7 @@ function buildFlashDeck() {
 function updateFlashCount() {
   const el = document.getElementById("flash-count");
   const startBtn = document.getElementById("flash-start-btn");
-  const n = flashDeck.length;
+  const n = flashDeckFull.length;
   if (el) {
     // Say which level the cards come from ("Year 4 · 1009 cards ready"); with
     // nothing to study, explain why Start is off instead of hiding the line.
@@ -3691,6 +3713,16 @@ if (typeof ResizeObserver !== "undefined") {
   new ResizeObserver(() => fitFlashWord()).observe(flashcardEl);
 }
 
+function meaningFirstNow() { return flashFrontModeSel.value === "meaning"; }
+function updateFlashTally() {
+  const el = document.getElementById("flash-tally");
+  if (el) el.textContent = `✓ ${flashSession.known.size} · 😕 ${flashSession.still.size}`;
+}
+function setFlashAutoSpeak(on) {
+  flashAutoSpeakOn = !!on;
+  const b = document.getElementById("flash-autospeak");
+  if (b) { b.setAttribute("aria-pressed", on ? "true" : "false"); b.firstElementChild.textContent = on ? "🔊" : "🔇"; b.classList.toggle("on", !!on); }
+}
 function renderFlashcard() {
   flashcardEl.classList.remove("flipped");
   { const bt = document.querySelector("#flash-bubble .bubble-text"); if (bt) bt.textContent = t("fkIdle"); }
@@ -3708,8 +3740,11 @@ function renderFlashcard() {
   const item = flashDeck[flashIndex];
   flashPrevBtn.disabled = flashIndex === 0;
   flashSession.seen.add(item.word);
+  updateFlashTally();
+  { const fb = document.getElementById("flash-bubble"); if (fb) fb.classList.toggle("is-hushed", flashSession.seen.size > 3); }
   const fpl = document.getElementById("flash-progress-label"), fpf = document.getElementById("flash-progress-fill");
   if (fpl && fpf) { fpl.textContent = `${flashIndex + 1} / ${flashDeck.length}`; fpf.style.width = `${((flashIndex + 1) / flashDeck.length) * 100}%`; }
+  if (flashAutoSpeakOn && !meaningFirstNow() && !flashPractice.hidden) speak(item.word);
   const meaningFirst = flashFrontModeSel.value === "meaning";
   flashcardEl.classList.toggle("front-meaning", meaningFirst);
   // The front/back DOM slots (and their speak-on-tap handlers) always read
@@ -3778,11 +3813,13 @@ function koalaReact(kind, msgKey, scene = flashScene, bubble = flashBubble, idle
   scene.classList.remove(...FK_CLASSES);
   void scene.offsetWidth; // restart the animation
   scene.classList.add("fk-" + kind);
+  bubble.classList.add("reacting");
   const bubbleText = bubble.querySelector(".bubble-text") || bubble;
   bubbleText.textContent = t(msgKey);
   clearTimeout(scene._fkTimer);
   scene._fkTimer = setTimeout(() => {
     scene.classList.remove(...FK_CLASSES);
+    bubble.classList.remove("reacting");
     bubbleText.textContent = t(idleKey);
   }, kind === "sad" ? 2800 : 1700);
 }
@@ -3823,7 +3860,9 @@ flashExampleEl.addEventListener("click", (e) => {
 
 function nextFlashcard() {
   if (flashDeck.length === 0) return;
-  flashIndex = (flashIndex + 1) % flashDeck.length;
+  // Last card of the round: show the report instead of looping around.
+  if (flashIndex + 1 >= flashDeck.length) { renderFlashReport(); return; }
+  flashIndex = flashIndex + 1;
   renderFlashcard();
   slideFlashStage("next");
   koalaReact("next", "fkNext");
@@ -3882,6 +3921,7 @@ flashKnowBtn.addEventListener("click", () => {
   flashSession.known.add(word); flashSession.still.delete(word);
   recordResult(word, true, "flash");
   pulseScoreTag(flashKnowBtn, "flash-know-bounce");
+  updateFlashTally();
   nextFlashcard();
   koalaReact("know", "fkKnow");
 });
@@ -3892,6 +3932,7 @@ flashDontKnowBtn.addEventListener("click", () => {
   delete progress.flashKnown[word];
   flashSession.known.delete(word); flashSession.still.set(word, flashDeck[flashIndex]);
   recordResult(word, false, "flash");
+  updateFlashTally();
   nextFlashcard();
   koalaReact("dunno", "fkDunno");
 });
@@ -3971,10 +4012,20 @@ document.querySelectorAll("#flash-front-seg [data-front]").forEach((btn) => {
 // stored: My cards is paid, and the login state is not known yet at load.)
 const FLASH_PREFS_KEY = "ksm_flash_prefs_v1";
 function saveFlashPrefs() {
-  try { localStorage.setItem(FLASH_PREFS_KEY, JSON.stringify({ category: flashCategorySel.value, front: flashFrontModeSel.value })); } catch (e) { /* storage unavailable */ }
+  try { localStorage.setItem(FLASH_PREFS_KEY, JSON.stringify({ category: flashCategorySel.value, front: flashFrontModeSel.value, round: flashRoundSize, auto: flashAutoSpeakOn })); } catch (e) { /* storage unavailable */ }
 }
 flashCategorySel.addEventListener("change", saveFlashPrefs);
 flashFrontModeSel.addEventListener("change", saveFlashPrefs);
+function setFlashRound(n) {
+  flashRoundSize = n;
+  document.querySelectorAll("#flash-round-seg .qz-seg-btn").forEach((b) => {
+    const on = Number(b.dataset.round) === n;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-checked", on ? "true" : "false");
+  });
+}
+document.querySelectorAll("#flash-round-seg .qz-seg-btn").forEach((b) => b.addEventListener("click", () => { setFlashRound(Number(b.dataset.round)); saveFlashPrefs(); }));
+document.getElementById("flash-autospeak").addEventListener("click", () => { setFlashAutoSpeak(!flashAutoSpeakOn); saveFlashPrefs(); if (flashAutoSpeakOn && flashDeck[flashIndex] && !meaningFirstNow()) speak(flashDeck[flashIndex].word); });
 (function restoreFlashPrefs() {
   let prefs = null;
   try { prefs = JSON.parse(localStorage.getItem(FLASH_PREFS_KEY) || "null"); } catch (e) { /* ignore */ }
@@ -3984,6 +4035,8 @@ flashFrontModeSel.addEventListener("change", saveFlashPrefs);
     flashFrontModeSel.value = prefs.front;
     setFlashFrontSeg(prefs.front);
   }
+  if ([0, 10, 20, 50].includes(prefs.round)) setFlashRound(prefs.round);
+  setFlashAutoSpeak(!!prefs.auto);
   syncFlashCategorySeg();
   syncFlashPreviewFront();
 })();

@@ -403,6 +403,15 @@
             <button type="button" class="source-btn qz-seg-btn" id="flash-source-mine" aria-pressed="false" data-i18n="flashSourceMine">⭐ My cards</button>
           </div>
         </div>
+        <div class="qz-pick">
+          <div class="qz-pick-title" data-i18n="flashRoundTitle">Cards per round</div>
+          <div class="qz-seg" id="flash-round-seg" role="radiogroup" data-i18n-aria-label="flashRoundTitle" aria-label="Cards per round">
+            <button type="button" class="qz-seg-btn" data-round="10" role="radio" aria-checked="false">10</button>
+            <button type="button" class="qz-seg-btn on" data-round="20" role="radio" aria-checked="true">20</button>
+            <button type="button" class="qz-seg-btn" data-round="50" role="radio" aria-checked="false">50</button>
+            <button type="button" class="qz-seg-btn" data-round="0" role="radio" aria-checked="false" data-i18n="flashRoundAll">All</button>
+          </div>
+        </div>
         </div></details>
         <div class="sp-start-panel fs-panel"><svg class="sp-scene fs-scene" viewBox="0 0 300 150" role="img" aria-label="A koala holding up a flashcard that flips over to show the meaning">
           <rect x="0" y="0" width="300" height="150" rx="18" fill="#e4f7f0"/>
@@ -449,7 +458,7 @@
 
         <!-- Practice screen -->
         <div id="flash-practice" hidden>
-        <div class="flash-progress" id="flash-progress"><span class="flash-progress-label" id="flash-progress-label"></span><span class="flash-progress-bar" aria-hidden="true"><i id="flash-progress-fill"></i></span></div>
+        <div class="flash-progress" id="flash-progress"><div class="flash-progress-top"><span class="flash-tally" id="flash-tally" aria-live="polite"></span><span class="flash-progress-label" id="flash-progress-label"></span><button type="button" class="flash-auto" id="flash-autospeak" aria-pressed="false" data-i18n-aria-label="flashAutoSpeak" aria-label="Auto-speak"><span aria-hidden="true">🔇</span></button></div><span class="flash-progress-bar" aria-hidden="true"><i id="flash-progress-fill"></i></span></div>
         <div class="flash-scene" id="flash-scene" aria-hidden="true">
           <svg class="fk-svg" viewBox="0 0 200 100" width="170" height="85">
             <g class="fk-koala">
@@ -479,7 +488,7 @@ to Flip!</span></div>
           <button type="button" id="flash-prev" data-i18n-aria-label="backLabel" aria-label="Back">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M15 19l-7-7 7-7"/>
-            </svg>
+            </svg><span class="flash-edge-txt" data-i18n="flashBackShort">Back</span>
           </button>
           <div id="flashcard-stage">
             <div class="flashcard" id="flashcard">
@@ -500,7 +509,7 @@ to Flip!</span></div>
           <button type="button" id="flash-next" data-i18n-aria-label="nextLabel" aria-label="Next">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M9 5l7 7-7 7"/>
-            </svg>
+            </svg><span class="flash-edge-txt" data-i18n="flashNextShort">Next</span>
           </button>
         </div>
         <p class="hint" data-i18n="flashHint">Tap the card to flip it • Tap the meaning or example to hear it read aloud</p>
@@ -509,7 +518,7 @@ to Flip!</span></div>
           <button class="pill success" id="flash-know" data-i18n="flashKnowIt">😀 I know this!</button>
         </div>
         <div class="flash-end-row">
-          <button class="pill neutral small" id="flash-end" type="button" data-i18n="qzEndBtn">🏁 End</button>
+          <button class="pill neutral small" id="flash-end" type="button" data-i18n="flashEndBtn">🏁 Finish</button>
         </div>
         </div>
 

@@ -9703,3 +9703,27 @@ html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before {
 
 /* 10) Lock badge on "My cards" while it is not available to this account. */
 html body #flash-start-screen #flash-source-mine.is-locked::after { content: "🔒"; font-size: 0.85em; }
+
+/* ===== Flashcards practice: round size, counters, edge labels, reach, contrast ===== */
+/* The section title only belongs on the start screen; the cloud stays off the progress bar. */
+html body #view-flashcards .card:has(#flash-practice:not([hidden])) > .view-section-title,
+html body #view-flashcards .card:has(#flash-report:not([hidden])) > .view-section-title { display: none; }
+html body #view-flashcards .card.scene-card:has(#flash-practice:not([hidden])) .tg-sky-cloud-1 { display: none; }
+.flash-progress-top { display: flex; align-items: center; justify-content: center; gap: 8px; width: min(100%, 340px); }
+.flash-tally { flex: 1 1 0; text-align: right; font-family: var(--font-heading); font-weight: 800; font-size: 0.82rem; color: var(--accent-dark); white-space: nowrap; }
+.flash-tally:empty { visibility: hidden; }
+.flash-progress-top .flash-progress-label { flex: 0 0 auto; }
+.flash-auto { flex: 1 1 0; display: flex; justify-content: flex-start; background: none; border: 0; padding: 0; cursor: pointer; font-size: 1.1rem; line-height: 1; -webkit-tap-highlight-color: transparent; }
+.flash-auto span { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.85); border: 2px solid #b8e3d6; }
+.flash-auto.on span { background: #d9f3ea; border-color: #02c39a; }
+.fk-bubble.is-hushed:not(.reacting) { visibility: hidden; }
+/* Edge strips say what they do */
+html body #flash-practice #flash-prev, html body #flash-practice #flash-next { flex-direction: column; gap: 4px; background: rgba(2, 150, 118, 0.5); }
+html body #flash-practice .flash-edge-txt { font-size: 0.58rem; font-weight: 800; letter-spacing: .02em; line-height: 1; color: #fff; text-transform: uppercase; }
+html body #flash-practice .flashcard { min-height: clamp(270px, 40svh, 360px); }
+/* Rating buttons: darker fills so the white text passes contrast */
+#flash-dont-know.pill { background: #c2410c; border-color: #9a3412; --pill-shadow: #9a3412; color: #fff; }
+#flash-know.pill { background: #047857; border-color: #065f46; --pill-shadow: #065f46; color: #fff; }
+html body #flash-practice .flash-controls { max-width: 360px; margin-top: 22px; }
+html body #flash-practice .flash-controls .pill { min-height: 56px; font-size: 1.05rem; }
+html body #flash-practice .flash-end-row #flash-end { padding: 8px 16px; font-size: 0.85rem; }
