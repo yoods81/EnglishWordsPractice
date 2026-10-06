@@ -8028,7 +8028,7 @@ html[data-theme="ivory"] #view-timestable p.tt-tip {
 #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub:empty,
 #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub[hidden],
 #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub[hidden] { display: none; }
-@container (max-height: 380px) {
+@container (max-height: 300px) {
   #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub,
   #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub,
   #view-typegame .tg-over-card p.tg-over-sub,
@@ -10009,4 +10009,106 @@ html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill { width: 4
     border-width: 3px;
     min-height: 0;
   }
+}
+
+/* ===== Game Over v2 (Typing Game + Times Table) ===== */
+/* Mint backdrop that matches the game and the start screen (the SVG sky is mint too) */
+.typegame-overlay.tg-over-overlay { background: #d3f1e6; }
+
+/* Phones: a taller play area (like the start screen) and room for the expand/sound buttons */
+@media (max-width: 480px) {
+  #view-typegame .card.tg-over #typegame-stage,
+  #view-timestable .card.tg-over #timestable-stage { height: 440px; }
+  #view-typegame .typegame-overlay.tg-over-overlay,
+  #view-timestable .typegame-overlay.tg-over-overlay { padding: 56px 10px 10px; }
+}
+
+/* Main button: the same sunny yellow as "Start Game" */
+#view-typegame .tg-over-overlay .tg-over-card .tg-play-again,
+#view-timestable .tg-over-overlay .tg-over-card .tg-play-again {
+  color: #5a3000 !important;
+  background: linear-gradient(180deg, #ffe066, #ffab1a) !important;
+  border: 0 !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 0 #c27400, 0 7px 12px rgba(194, 116, 0, 0.3) !important;
+  padding: 8px 26px !important;
+}
+#view-typegame .tg-over-overlay .tg-over-card .tg-play-again .new-quiz-icon,
+#view-timestable .tg-over-overlay .tg-over-card .tg-play-again .new-quiz-icon { background: rgba(255, 255, 255, 0.45); color: #5a3000; }
+
+/* Score block: this round big, the rest small */
+#typegame-final-score, #timestable-final-score {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(1.25rem, 8cqh, 1.7rem) !important;
+  font-weight: 800;
+  color: #0f6b52 !important;
+  line-height: 1.1;
+}
+.tg-over-card .tg-over-stat { margin: 0; font-size: 0.95rem; font-weight: 800; color: #17463c; }
+#typegame-high-score, #timestable-high-score { margin: 0; font-size: 0.85rem; font-weight: 700; color: #4d8372 !important; }
+#typegame-high-score[hidden], #timestable-high-score[hidden] { display: none; }
+
+/* Stars: unearned ones are plainly visible grey, each with its goal underneath */
+.tg-over-overlay .tg-star {
+  position: relative;
+  filter: grayscale(1) brightness(0.82) opacity(0.85);
+  margin-bottom: 0.9rem;
+}
+.tg-over-overlay .tg-star::after {
+  content: attr(data-goal);
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  font: 800 0.7rem/1 var(--font-heading);
+  color: #3f7d6b;
+  filter: none;
+}
+.tg-over-overlay .tg-star.on::after { color: #b86e00; }
+.tg-over-overlay .tg-stars-go .tg-star.on { filter: drop-shadow(0 0 8px #ffb300); }
+
+/* Koala: bigger, and a "you can do it" cheer when the round was short */
+.tg-over-overlay .tg-over-card { --k: clamp(54px, 24cqh, 104px); }
+.tg-koala { position: relative; }
+.tg-cheer {
+  position: absolute;
+  right: -6px;
+  top: 4px;
+  font-size: 1.4rem;
+  line-height: 1;
+  animation: tg-cheer-pop 1.6s ease-in-out infinite;
+  z-index: 2;
+}
+@keyframes tg-cheer-pop { 0%, 100% { transform: translateY(0) scale(1) rotate(-8deg); } 50% { transform: translateY(-5px) scale(1.15) rotate(8deg); } }
+@media (prefers-reduced-motion: reduce) { .tg-cheer { animation: none; } }
+
+/* HUD while the round is over: controls are inert, hearts clearly empty */
+.card.tg-over .game-speed-control { opacity: 0.4; pointer-events: none; }
+.card.tg-over .stage-tag { opacity: 0.5; }
+.card.tg-over .tg-hearts { opacity: 1; filter: none; }
+.card.tg-over .tg-heart-empty .tg-heart-shape { stroke: #8a96b3; }
+
+@container (max-height: 360px) {
+  #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub,
+  #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub { display: none !important; }
+}
+
+/* Phones now have a tall enough play area for the encouragement bubble */
+@media (max-width: 480px) and (min-height: 521px) {
+  #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub,
+  #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub { display: block; }
+  #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub[hidden],
+  #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub[hidden],
+  #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub:empty,
+  #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub:empty { display: none; }
+}
+/* Short play areas (desktop): drop the "Solved" line so nothing needs a scrollbar */
+@container (max-height: 340px) {
+  .tg-over-card .tg-over-stat { display: none; }
+}
+@media (max-width: 480px) {
+  .tg-over-overlay .tg-over-card { --k: clamp(54px, 20cqh, 92px); }
+  #view-typegame .tg-over-overlay .tg-over-card p.tg-over-sub,
+  #view-timestable .tg-over-overlay .tg-over-card p.tg-over-sub { font-size: 0.86rem; padding: 6px 12px; margin: 4px 0 8px; }
 }

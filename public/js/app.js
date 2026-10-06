@@ -270,6 +270,8 @@ const TRANSLATIONS = {
     gameOverNewRecord: "🎉 NEW RECORD!",
     gameOverGood: "Good Job! 👏",
     gameOverKeepGoing: "Keep Going! 🔥",
+    gameOverTryAgain: "Let's try again! 🌱",
+    gameOverCleared: (n) => `✅ Solved: ${n}`,
     gameOverStarsLabel: (n) => `${n} of 3 stars`,
     gameOverReview: "Review",
     gameOverReviewTitle: "Missed this round",
@@ -907,6 +909,8 @@ const TRANSLATIONS = {
     gameOverNewRecord: "🎉 신기록 달성!",
     gameOverGood: "잘했어요! 👏",
     gameOverKeepGoing: "계속 도전! 🔥",
+    gameOverTryAgain: "한 번 더 해볼까요? 🌱",
+    gameOverCleared: (n) => `✅ 맞힌 개수: ${n}개`,
     gameOverStarsLabel: (n) => `별 3개 중 ${n}개`,
     gameOverReview: "오답 확인",
     gameOverReviewTitle: "이번에 틀린 문제",
@@ -6899,6 +6903,7 @@ function endTypeGame() {
   showGameOverScreen("typegame", {
     correct: typeGameWordsCleared,
     isNewBest,
+    best: Math.max(prevBest, typeGameScore),
     reason: "lives",
     encourage: TYPEGAME_ENCOURAGE_MESSAGES,
     missed: [...typeGameMissed].map((word) => {
@@ -8023,6 +8028,7 @@ function endTimesTableRound(reason) {
   showGameOverScreen("timestable", {
     correct: timesTableCorrectCount,
     isNewBest,
+    best: Math.max(prevBest, timesTableScore),
     reason,
     encourage: TIMESTABLE_ENCOURAGE_MESSAGES,
     missed: [...timesTableMissed].map((key) => {
@@ -8373,7 +8379,7 @@ function launchGameOverConfetti(host) {
 
 const GAMEOVER_SCENERY_SVG = `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
   <defs>
-    <linearGradient id="tgSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4fb8ee"/><stop offset="0.65" stop-color="#a8e3f7"/><stop offset="1" stop-color="#fff1c9"/></linearGradient>
+    <linearGradient id="tgSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe9db"/><stop offset="0.65" stop-color="#e3f5df"/><stop offset="1" stop-color="#fff4d6"/></linearGradient>
     <radialGradient id="tgSun"><stop offset="0" stop-color="#fff7c2"/><stop offset="0.45" stop-color="#ffe27a"/><stop offset="1" stop-color="#ffe27a" stop-opacity="0"/></radialGradient>
   </defs>
   <rect width="400" height="300" fill="url(#tgSky)"/>
@@ -8443,7 +8449,7 @@ function showGameOverScreen(prefix, opts) {
   }
 
   // Title + optional encouragement line
-  $("over-title").textContent = t(record ? "gameOverNewRecord" : stars >= 2 ? "gameOverGoodJob" : "gameOverKeepGoing");
+  $("over-title").textContent = t(record ? "gameOverNewRecord" : stars >= 2 ? "gameOverGoodJob" : stars === 1 ? "gameOverKeepGoing" : "gameOverTryAgain");
   const enc = $("encourage-msg");
   if (!record && opts.reason === "lives" && opts.encourage) {
     const list = opts.encourage[currentLang] || opts.encourage.en;
@@ -8455,7 +8461,19 @@ function showGameOverScreen(prefix, opts) {
 
   // Koala (always the brand mascot; celebrates on a record or a good run)
   const koala = card.querySelector(".tg-over-koala");
-  koala.innerHTML = `<div class="kb-scene tg-koala${record ? " tg-koala-record fk-know" : stars >= 2 ? " tg-koala-good fk-know" : ""}">${record ? '<span class="tg-trophy">🏆</span><span class="tg-kiss" style="--kd:0s;--kx:34px;--ky:-30px;--kr:14deg">💋</span><span class="tg-kiss" style="--kd:0.12s;--kx:46px;--ky:-8px;--kr:-10deg">❤️</span><span class="tg-kiss" style="--kd:0.24s;--kx:26px;--ky:-50px;--kr:22deg">💖</span>' : ""}${SPELL_KOALA_SVG}</div>`;
+  koala.innerHTML = `<div class="kb-scene tg-koala${record ? " tg-koala-record fk-know" : stars >= 2 ? " tg-koala-good fk-know" : " tg-koala-try"}">${!record && stars < 2 ? '<span class="tg-cheer">💪</span>' : ""}${record ? '<span class="tg-trophy">🏆</span><span class="tg-kiss" style="--kd:0s;--kx:34px;--ky:-30px;--kr:14deg">💋</span><span class="tg-kiss" style="--kd:0.12s;--kx:46px;--ky:-8px;--kr:-10deg">❤️</span><span class="tg-kiss" style="--kd:0.24s;--kx:26px;--ky:-50px;--kr:22deg">💖</span>' : ""}${SPELL_KOALA_SVG}</div>`;
+
+  // How many were solved, and the best score only when there is one to show
+  let stat = $("cleared-stat");
+  if (!stat) {
+    stat = document.createElement("p");
+    stat.id = `${prefix}-cleared-stat`;
+    stat.className = "tg-over-stat";
+    const hs = $("high-score");
+    hs.parentNode.insertBefore(stat, hs);
+  }
+  stat.textContent = t("gameOverCleared", opts.correct || 0);
+  $("high-score").hidden = !opts.isNewBest && !(opts.best > 0);
 
   // Stars light up one by one
   const starsEl = $("stars");
@@ -8463,6 +8481,7 @@ function showGameOverScreen(prefix, opts) {
   starsEl.classList.remove("tg-stars-go");
   starsEl.querySelectorAll(".tg-star").forEach((el, i) => {
     el.classList.toggle("on", i < stars);
+    el.dataset.goal = String(GAMEOVER_STAR_STEPS[i]); // small label under each star: how many it takes
     el.style.setProperty("--d", `${0.35 + i * 0.45}s`);
   });
   void starsEl.offsetWidth; // restart the animation
