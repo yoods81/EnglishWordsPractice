@@ -309,6 +309,8 @@ const TRANSLATIONS = {
     fsDemo1: "a sleepy",
     fsDemo2: "gum-tree animal",
     fsCount: (n) => `${n} cards ready`,
+    fsEmpty: "No cards yet. Pick words in the Word List and add them to your flashcards.",
+    flashSettingsLabel: "Settings",
     fsStep1: "Look",
     fsStep2: "Flip",
     fsStep3: "Know it?",
@@ -935,6 +937,8 @@ const TRANSLATIONS = {
     fsDemo1: "나무에서 사는",
     fsDemo2: "졸린 동물",
     fsCount: (n) => `카드 ${n}장 준비됐어요`,
+    fsEmpty: "아직 카드가 없어요. 단어장에서 단어를 골라 내 플래시카드에 추가해 보세요.",
+    flashSettingsLabel: "설정",
     fsStep1: "보기",
     fsStep2: "뒤집기",
     fsStep3: "알아요?",
@@ -3630,7 +3634,24 @@ function buildFlashDeck() {
 }
 function updateFlashCount() {
   const el = document.getElementById("flash-count");
-  if (el) { el.textContent = flashDeck.length ? t("fsCount", flashDeck.length) : ""; el.hidden = !flashDeck.length; }
+  const startBtn = document.getElementById("flash-start-btn");
+  const n = flashDeck.length;
+  if (el) {
+    // Say which level the cards come from ("Year 4 · 1009 cards ready"); with
+    // nothing to study, explain why Start is off instead of hiding the line.
+    const lvl = n && flashUseLevel && !flashWrongOverride ? levelLabel(currentLevel) : "";
+    el.textContent = n ? (lvl ? `${lvl} · ` : "") + t("fsCount", n) : t("fsEmpty");
+    el.classList.toggle("is-empty", n === 0);
+    el.hidden = false;
+  }
+  if (startBtn) startBtn.disabled = n === 0;
+  syncFlashPreviewFront();
+}
+// The demo card on the start screen shows what the chosen "Card front" looks
+// like: the word first (default) or the meaning first.
+function syncFlashPreviewFront() {
+  const scene = document.querySelector("#flash-start-screen .fs-scene");
+  if (scene) scene.dataset.front = flashFrontModeSel.value === "meaning" ? "meaning" : "word";
 }
 
 // Keeps the word on one line and never overlapping the speaker button. It
@@ -3888,7 +3909,15 @@ function syncFlashCategorySeg() {
     b.setAttribute("role", "radio");
     b.setAttribute("aria-checked", on ? "true" : "false");
     b.disabled = flashCategorySel.disabled;
-    b.textContent = (FLASH_CAT_ICONS[opt.value] || "") + " " + opt.textContent.trim();
+    // Icon and label are separate so phones can drop the icon (3 chips on one row).
+    const ico = document.createElement("span");
+    ico.className = "fs-seg-ico";
+    ico.setAttribute("aria-hidden", "true");
+    ico.textContent = FLASH_CAT_ICONS[opt.value] || "";
+    const txt = document.createElement("span");
+    txt.className = "fs-seg-txt";
+    txt.textContent = opt.textContent.trim();
+    b.append(ico, txt);
     b.addEventListener("click", () => {
       flashCategorySel.value = opt.value;
       flashCategorySel.dispatchEvent(new Event("change"));
@@ -3899,6 +3928,15 @@ function syncFlashCategorySeg() {
 flashCategorySel.addEventListener("change", syncFlashCategorySeg);
 syncFlashCategorySeg();
 flashFrontModeSel.addEventListener("change", renderFlashcard);
+flashFrontModeSel.addEventListener("change", syncFlashPreviewFront);
+// While the settings are open the demo card and "Look › Flip" steps step aside
+// (see .is-settings-open in style.css) so Start stays on screen.
+const flashSettingsDetails = document.getElementById("flash-settings");
+if (flashSettingsDetails) {
+  flashSettingsDetails.addEventListener("toggle", () => {
+    document.getElementById("flash-start-screen").classList.toggle("is-settings-open", flashSettingsDetails.open);
+  });
+}
 // The collapsed "⚙️" row always shows the current choices, e.g. "📚 Vocabulary · 📝 Word · 🎯 Level words".
 const flashSettingsBody = document.getElementById("flash-settings-body");
 function updateFlashSettingsNow() {

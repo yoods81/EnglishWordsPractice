@@ -9565,3 +9565,119 @@ html body #flash-report.sr-big #flash-report-level { background: linear-gradient
 html body .sp-report-next #flash-report-level, html body .sp-report-next #flash-report-game,
 html body #flash-report.sr-big #flash-report-level { background: #e3f6ef; color: var(--accent-dark); border: 2px solid #9fd8c6; box-shadow: 0 2px 0 #9fd8c6; text-shadow: none; }
 html body #flash-report.sr-big #flash-report-level { background: #c9efe2; border-color: #4cc3a3; box-shadow: 0 2px 0 #4cc3a3; }
+
+/* ==========================================================================
+   Flashcards start screen — clearer settings, chips and Start (scoped to
+   #flash-start-screen: the Spelling/Quiz start screens share these classes).
+   ========================================================================== */
+
+/* 1) Settings open: demo card shrinks and the Look/Flip/Know steps hide, so
+      Start stays above the bottom tab bar. */
+html body #flash-start-screen.is-settings-open .qz-start-card { gap: 12px; }
+html body #flash-start-screen.is-settings-open .fs-steps { display: none; }
+html body #flash-start-screen.is-settings-open .fs-panel { width: 150px; max-width: 150px; }
+html body #flash-start-screen.is-settings-open .fs-settings-body { gap: 12px; padding-top: 12px; }
+
+/* 2) Summary row reads as a settings button: darker fill for contrast, a
+      "Settings" label with the current choices on a second line. Open: just
+      the label (the chips below already show the choices). */
+html body #flash-start-screen .fs-settings-sum {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 0;
+  min-height: 56px;
+  padding: 8px 18px;
+  text-align: left;
+  background: rgba(3, 66, 52, 0.38);
+  border: 2px solid rgba(255, 255, 255, 0.75);
+}
+/* The gear is dropped: the SETTINGS label says it, and the room shows every choice. */
+html body #flash-start-screen .fs-settings-ico { display: none; }
+.fs-settings-label { grid-column: 1; grid-row: 1; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.85; }
+html body #flash-start-screen .fs-settings-now { grid-column: 1; grid-row: 2; font-size: 0.84rem; font-weight: 700; }
+html body #flash-start-screen .fs-settings-sum::after { grid-column: 2; grid-row: 1 / 3; width: 9px; height: 9px; border-width: 3px; margin: -3px 0 0; }
+html body #flash-start-screen .fs-settings[open] .fs-settings-sum::after { margin: 3px 0 0; }
+html body #flash-start-screen .fs-settings[open] .fs-settings-sum { min-height: 46px; padding-top: 6px; padding-bottom: 6px; }
+html body #flash-start-screen .fs-settings[open] .fs-settings-now { display: none; }
+html body #flash-start-screen .fs-settings[open] .fs-settings-label { grid-row: 1 / 3; font-size: 0.85rem; letter-spacing: 0; text-transform: none; opacity: 1; }
+
+/* 3) Unselected chips: darker fill + clear white outline. Selected stays white. */
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
+  background: rgba(3, 66, 52, 0.38) !important;
+  border: 2px solid rgba(255, 255, 255, 0.85) !important;
+  color: #fff !important;
+  text-shadow: none;
+}
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on):disabled { opacity: 0.6; }
+
+/* 4) Chip content: ✓ + icon + label with even spacing; Category = 3 on one row
+      (label only — the icon would not fit). */
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { content: "✓"; }
+html body #flash-start-screen #flash-category-seg { flex-wrap: nowrap; }
+html body #flash-start-screen #flash-category-seg .qz-seg-btn { padding: 4px 6px; font-size: 0.8rem; }
+html body #flash-start-screen #flash-category-seg .fs-seg-ico { display: none; }
+
+/* 5) Demo card follows "Card front": with Meaning, the meaning shows first and
+      the word on the back. */
+.fs-scene[data-front="meaning"] .fs-front { animation-name: fs-back; opacity: 0; }
+.fs-scene[data-front="meaning"] .fs-back { animation-name: fs-front; opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .fs-scene[data-front="meaning"] .fs-front { opacity: 0; }
+  .fs-scene[data-front="meaning"] .fs-back { opacity: 1; }
+}
+
+/* 6) Card count: readable pill; amber note (and Start off) when nothing to study. */
+html body #flash-start-screen .sp-start-stats.fs-count {
+  align-self: center;
+  max-width: 100%;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(3, 66, 52, 0.4);
+  font-size: 0.92rem;
+  text-align: center;
+  line-height: 1.35;
+}
+html body #flash-start-screen .sp-start-stats.fs-count.is-empty {
+  border-radius: 16px;
+  background: #fde68a;
+  color: #5a3000;
+  text-shadow: none;
+}
+html body #flash-start-screen #flash-start-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.35);
+  box-shadow: none !important;
+}
+
+/* 7) Look › Flip › Know it?: higher contrast. */
+html body #flash-start-screen .sp-step {
+  background: rgba(3, 66, 52, 0.3);
+  opacity: 1;
+}
+
+/* 8) Start never hides behind the bottom tab bar on short phones: it sticks
+      just above it while the settings are being changed. */
+html body #flash-start-screen .sp-start-card button.sp-start-btn.pill.accent {
+  position: sticky;
+  bottom: 12px;
+  z-index: 5;
+}
+@media (max-width: 480px) {
+  html body #flash-start-screen .sp-start-card button.sp-start-btn.pill.accent {
+    bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  }
+}
+/* "clip" keeps the rounded-corner clipping but, unlike "hidden", does not make
+   these boxes scroll containers — which is what lets Start stick (see 8 above). */
+html body #view-flashcards .card.scene-card,
+html body #flash-start-screen.spelling-stage-box { overflow: clip; }
