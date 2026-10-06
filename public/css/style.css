@@ -2165,7 +2165,10 @@ button.speak-btn-hero.speak-btn-active {
   .mode-tabs:not([hidden]) {
     display: flex;
     gap: 4px;
-    padding: 4px;
+    /* The selected tab's 2px bottom shadow sits inside the pill box's lower
+       padding, so the bottom padding is 2px larger to keep the visible gap
+       above and below the tabs equal. */
+    padding: 4px 4px 6px;
     margin: 8px 0 12px;
     background: var(--card-bg);
     border: 2px solid var(--outline);
