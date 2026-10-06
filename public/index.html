@@ -458,7 +458,7 @@
 
         <!-- Practice screen -->
         <div id="flash-practice" hidden>
-        <div class="flash-progress" id="flash-progress"><div class="flash-progress-top"><span class="flash-tally" id="flash-tally" aria-live="polite"></span><span class="flash-progress-label" id="flash-progress-label"></span><button type="button" class="flash-auto" id="flash-autospeak" aria-pressed="false" data-i18n-aria-label="flashAutoSpeak" aria-label="Read each word aloud"><span class="flash-auto-pill"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h4l5 4v-13l-5 4z" fill="currentColor"/><g class="fa-waves"><path d="M16.5 9a4 4 0 0 1 0 6"/><path d="M19 6.5a7.5 7.5 0 0 1 0 11"/></g></svg><span data-i18n="flashAutoShort">Auto</span></span></button></div><span class="flash-progress-bar" aria-hidden="true"><i id="flash-progress-fill"></i></span></div>
+        <div class="flash-progress" id="flash-progress"><div class="flash-progress-top"><span class="flash-progress-label" id="flash-progress-label"></span></div><span class="flash-progress-bar" aria-hidden="true"><i id="flash-progress-fill"></i></span></div>
         <div class="flash-scene" id="flash-scene" aria-hidden="true">
           <svg class="fk-svg" viewBox="0 0 200 100" width="170" height="85">
             <g class="fk-koala">
@@ -519,7 +519,9 @@ to Flip!</span></div>
           <button class="pill success" id="flash-know" data-i18n="flashKnowIt">😀 I know this!</button>
         </div>
         <div class="flash-end-row">
+          <button type="button" class="flash-auto" id="flash-autospeak" aria-pressed="false" data-i18n-aria-label="flashAutoSpeak" aria-label="Read each word aloud"><span class="flash-auto-pill"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h4l5 4v-13l-5 4z" fill="currentColor"/><g class="fa-waves"><path d="M16.5 9a4 4 0 0 1 0 6"/><path d="M19 6.5a7.5 7.5 0 0 1 0 11"/></g></svg><span data-i18n="flashAutoShort">Auto</span></span></button>
           <button class="pill neutral small" id="flash-end" type="button" data-i18n="flashEndBtn">🏁 Finish</button>
+          <span class="flash-tally" id="flash-tally" aria-live="polite"></span>
         </div>
         </div>
 
