@@ -499,8 +499,16 @@ nav.tabs button[data-view="admincodes"].active:active {
   box-shadow: none;
 }
 
-.bottom-tab-group {
-  position: relative;
+/* Phone-only segmented switcher for the modes inside Study (Quiz / Spelling /
+   Flashcards) and Game (Typing Game / Times Table). Hidden everywhere else:
+   on wider screens the top nav's dropdowns do this job. See syncModeTabs() in
+   app.js for when each bar is shown. */
+.mode-tabs {
+  display: none;
+}
+
+.mode-tabs[hidden] {
+  display: none !important;
 }
 
 .nav-badge {
@@ -2134,28 +2142,71 @@ button.speak-btn-hero.speak-btn-active {
     transition: color 0.15s ease, background 0.15s ease;
   }
 
-  /* The Study/Game trigger's wrapper is the actual flex child of .bottom-tabs
-     now (so it can also anchor the upward dropdown) — it takes over the
-     equal-width sizing .bottom-tab-btn normally gets directly, and its
-     trigger button fills the wrapper. */
-  .bottom-tabs .tab-group {
-    flex: 1 1 0;
-    min-width: 0;
-    display: flex;
-  }
-
-  .bottom-tabs .tab-group .tab-group-trigger {
-    flex: 1 1 auto;
-    width: 100%;
-  }
-
-  .tab-dropdown-up .tab-dropdown-item {
-    font-size: 0.68rem;
-  }
-
+  /* Every icon sits in the same fixed-height, centered box, so the label row
+     lines up across all six buttons — the My Koala face is an inline-block
+     drawing rather than a text glyph and used to push its label lower than
+     the emoji buttons' labels. */
   .bottom-tab-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.5rem;
     font-size: 1.25rem;
     line-height: 1;
+  }
+
+  .bottom-tab-icon .kface {
+    display: block;
+    vertical-align: baseline;
+  }
+
+  /* Segmented mode tabs under the page title (markup: .mode-tabs in
+     index.html). Same rounded-pill look as the rest of the app's buttons. */
+  .mode-tabs:not([hidden]) {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    margin: 8px 0 12px;
+    background: var(--card-bg);
+    border: 2px solid var(--outline);
+    border-radius: 999px;
+  }
+
+  .mode-tab {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: none;
+    background: none;
+    color: var(--text);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.78rem;
+    padding: 6px 4px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.08s ease;
+  }
+
+  .mode-tab > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mode-tab:active {
+    transform: translateY(1px);
+  }
+
+  .mode-tab.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 0 var(--accent-dark);
   }
 
   .bottom-tab-label {

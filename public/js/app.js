@@ -2620,6 +2620,92 @@ function refreshView(view) {
   if (view === "myaccount") renderMyAccount();
 }
 
+// Phone mode switching (see .mode-tabs and the bottom bar's Study / Game
+// buttons in index.html). The two groups here match the top nav's dropdown
+// groups; MODE_GROUPS order is also the default when nothing has been used
+// yet. The last mode used in each group is remembered so tapping "Study" or
+// "Game" in the bottom bar reopens it instead of asking again.
+const MODE_GROUPS = {
+  study: ["quiz", "spelling", "flashcards"],
+  game: ["typegame", "timestable"],
+};
+const LAST_MODE_KEY = "ksm_last_modes_v1";
+
+function modeGroupOf(view) {
+  return Object.keys(MODE_GROUPS).find((g) => MODE_GROUPS[g].includes(view)) || null;
+}
+
+function readLastModes() {
+  try {
+    const obj = JSON.parse(localStorage.getItem(LAST_MODE_KEY) || "{}");
+    return obj && typeof obj === "object" ? obj : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function lastModeFor(group) {
+  const saved = readLastModes()[group];
+  return MODE_GROUPS[group].includes(saved) ? saved : MODE_GROUPS[group][0];
+}
+
+function rememberMode(view) {
+  const group = modeGroupOf(view);
+  if (!group) return;
+  try {
+    const modes = readLastModes();
+    if (modes[group] === view) return;
+    modes[group] = view;
+    localStorage.setItem(LAST_MODE_KEY, JSON.stringify(modes));
+  } catch (e) {
+    /* private mode / storage full: the memory is a nicety, not required */
+  }
+}
+
+// Shows the segmented tab bar that matches the open view (none elsewhere),
+// marks the selected tab, and highlights the matching bottom-bar button.
+function syncModeTabs(view) {
+  const activeGroup = modeGroupOf(view);
+  document.querySelectorAll(".mode-tabs").forEach((bar) => {
+    bar.hidden = bar.dataset.group !== activeGroup;
+  });
+  document.querySelectorAll(".mode-tab").forEach((btn) => {
+    const on = btn.dataset.view === view;
+    btn.classList.toggle("active", on);
+    btn.setAttribute("aria-selected", on ? "true" : "false");
+  });
+  document.querySelectorAll(".bottom-tab-btn[data-group]").forEach((btn) => {
+    btn.classList.toggle("has-active", btn.dataset.group === activeGroup);
+  });
+}
+
+function currentViewName() {
+  const active = document.querySelector(".view.active");
+  return active ? active.id.replace(/^view-/, "") : null;
+}
+
+// Picking a different mode goes through goToTab(); tapping the one already
+// open does nothing, so it can't reset a round that's in progress.
+document.querySelectorAll(".mode-tab").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    if (btn.classList.contains("active")) return;
+    goToTab(btn.dataset.view);
+  });
+});
+
+// Bottom bar "Study" / "Game": open the last-used mode of that group. If one
+// of its modes is already open, just scroll back to the top.
+document.querySelectorAll(".bottom-tab-btn[data-group]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const group = btn.dataset.group;
+    if (MODE_GROUPS[group].includes(currentViewName())) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    goToTab(lastModeFor(group));
+  });
+});
+
 function goToTab(view) {
   const previousBtn = document.querySelector(".tab-btn.active");
   const previousView = previousBtn ? previousBtn.dataset.view : null;
@@ -2631,7 +2717,9 @@ function goToTab(view) {
 
   tabButtons.forEach((b) => b.classList.toggle("active", b.dataset.view === view));
   syncTabGroupActiveStates(view);
+  rememberMode(view);
   views.forEach((v) => v.classList.toggle("active", v.id === `view-${view}`));
+  syncModeTabs(view);
   // The persistent nav row (top nav.tabs / bottom .bottom-tabs) is only
   // useful once you're already inside a section — on the landing tile grid
   // itself it would just repeat every menu a second time. See the

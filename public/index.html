@@ -209,6 +209,22 @@
       </nav>
     </div>
 
+    <!-- Phone-only mode switchers (see .mode-tabs in style.css). On a phone the
+         bottom bar's "Study" / "Game" buttons go straight to the section you
+         used last, and these segmented tabs sit under the title so any sibling
+         mode is one tap away — replacing the old popup menus. One bar per
+         group; goToTab() in app.js shows whichever matches the open view and
+         hides both elsewhere (landing, Progress, My Koala, ...). -->
+    <div class="mode-tabs" id="mode-tabs-study" data-group="study" role="tablist" aria-label="Study modes" hidden>
+      <button type="button" class="mode-tab" role="tab" data-view="quiz" aria-selected="false"><span data-i18n="navQuiz">💡 Quiz</span></button>
+      <button type="button" class="mode-tab" role="tab" data-view="spelling" aria-selected="false"><span data-i18n="navSpelling">✏️ Spelling</span></button>
+      <button type="button" class="mode-tab" role="tab" data-view="flashcards" aria-selected="false"><span class="fl-ico"><svg class="fl-svg" viewBox="0 0 44 36" width="1.15em" height="1em" fill="none" aria-hidden="true" focusable="false"><rect x="4" y="9" width="26" height="20" rx="5" fill="#d9f3ea" stroke="#0b6b57" stroke-width="2.5" transform="rotate(-9 17 19)"/><rect x="12" y="5" width="27" height="21" rx="5" fill="#fff" stroke="#0b6b57" stroke-width="2.5"/><path d="M19 15.5h13M19 20h8" stroke="#02c39a" stroke-width="2.6" stroke-linecap="round"/><path d="M33 29c3-1 5-4 4.5-7.5" stroke="#f5a623" stroke-width="2.8" stroke-linecap="round"/></svg></span><span data-i18n="navFlashcards">Flashcards</span></button>
+    </div>
+    <div class="mode-tabs" id="mode-tabs-game" data-group="game" role="tablist" aria-label="Game modes" hidden>
+      <button type="button" class="mode-tab" role="tab" data-view="typegame" aria-selected="false"><span data-i18n="navTypeGame">⌨️ Typing Game</span></button>
+      <button type="button" class="mode-tab" role="tab" data-view="timestable" aria-selected="false"><span data-i18n="navTimesTable">🧮 Times Table</span></button>
+    </div>
+
     <!-- Landing / home screen: every menu as one tile grid, ordered by the
          importance the user asked for (top = most important). Tiles are
          plain .tab-btn elements with the same data-view attributes as the
@@ -1620,10 +1636,12 @@ to Flip!</span></div>
 
   <footer id="app-footer">Made for Australian primary students learning English vocabulary. 🇦🇺</footer>
 
-  <!-- Mobile-only bottom tab bar (see .bottom-tabs in style.css). Mirrors the
-       primary nav.tabs buttons one-for-one with the same data-view + tab-btn
-       class, so app.js's existing tabButtons/goToTab logic wires these up
-       automatically with no JS changes — the two rows just stay in sync.
+  <!-- Mobile-only bottom tab bar (see .bottom-tabs in style.css). Home, Progress,
+       My Koala and Add Word are plain data-view + tab-btn buttons that
+       app.js's tabButtons/goToTab logic wires up automatically. "Study" and
+       "Game" have no popup any more: each jumps to the mode you used last in
+       that group (see the data-group handlers in app.js), and the sibling
+       modes are switched with the .mode-tabs bar under the page title.
        "More" is gone now that every menu lives on the landing tile grid; its
        slot became a Home button back to that grid instead. -->
   <nav class="bottom-tabs" aria-label="Main navigation">
@@ -1631,27 +1649,14 @@ to Flip!</span></div>
       <span class="bottom-tab-icon" aria-hidden="true">🏠</span>
       <span class="bottom-tab-label" data-i18n="navHomeShort">Home</span>
     </button>
-    <div class="tab-group bottom-tab-group" data-group-views="quiz,spelling,flashcards" id="bottom-study-tab-group">
-      <button type="button" class="bottom-tab-btn tab-group-trigger" id="bottom-study-tab-btn" aria-haspopup="true" aria-expanded="false">
-        <span class="bottom-tab-icon" aria-hidden="true">📚</span>
-        <span class="bottom-tab-label" data-i18n="navStudyShort">Study</span>
-      </button>
-      <div class="tab-dropdown tab-dropdown-up">
-        <button data-view="quiz" class="tab-btn tab-dropdown-item"><span data-i18n="navQuiz">💡 Quiz</span></button>
-        <button data-view="spelling" class="tab-btn tab-dropdown-item"><span data-i18n="navSpelling">✏️ Spelling</span></button>
-        <button data-view="flashcards" class="tab-btn tab-dropdown-item"><span class="fl-ico"><svg class="fl-svg" viewBox="0 0 44 36" width="1.15em" height="1em" fill="none" aria-hidden="true" focusable="false"><rect x="4" y="9" width="26" height="20" rx="5" fill="#d9f3ea" stroke="#0b6b57" stroke-width="2.5" transform="rotate(-9 17 19)"/><rect x="12" y="5" width="27" height="21" rx="5" fill="#fff" stroke="#0b6b57" stroke-width="2.5"/><path d="M19 15.5h13M19 20h8" stroke="#02c39a" stroke-width="2.6" stroke-linecap="round"/><path d="M33 29c3-1 5-4 4.5-7.5" stroke="#f5a623" stroke-width="2.8" stroke-linecap="round"/></svg></span><span data-i18n="navFlashcards">Flashcards</span></button>
-      </div>
-    </div>
-    <div class="tab-group bottom-tab-group" data-group-views="timestable,typegame" id="bottom-game-tab-group">
-      <button type="button" class="bottom-tab-btn tab-group-trigger" id="bottom-game-tab-btn" aria-haspopup="true" aria-expanded="false">
-        <span class="bottom-tab-icon" aria-hidden="true">👾</span>
-        <span class="bottom-tab-label" data-i18n="navGameShort">Game</span>
-      </button>
-      <div class="tab-dropdown tab-dropdown-up">
-        <button data-view="timestable" class="tab-btn tab-dropdown-item"><span data-i18n="navTimesTable">🧮 Times Table</span></button>
-        <button data-view="typegame" class="tab-btn tab-dropdown-item"><span data-i18n="navTypeGame">⌨️ Typing Game</span></button>
-      </div>
-    </div>
+    <button type="button" class="bottom-tab-btn" id="bottom-study-tab-btn" data-group="study">
+      <span class="bottom-tab-icon" aria-hidden="true">📚</span>
+      <span class="bottom-tab-label" data-i18n="navStudyShort">Study</span>
+    </button>
+    <button type="button" class="bottom-tab-btn" id="bottom-game-tab-btn" data-group="game">
+      <span class="bottom-tab-icon" aria-hidden="true">👾</span>
+      <span class="bottom-tab-label" data-i18n="navGameShort">Game</span>
+    </button>
     <button data-view="stats" class="tab-btn bottom-tab-btn bottom-tab-btn-highlight">
       <span class="bottom-tab-icon" aria-hidden="true">📊</span>
       <span class="bottom-tab-label" data-i18n="navStatsShort">Progress</span>
