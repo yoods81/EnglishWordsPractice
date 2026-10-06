@@ -9575,7 +9575,11 @@ html body #flash-report.sr-big #flash-report-level { background: #c9efe2; border
       Start stays above the bottom tab bar. */
 html body #flash-start-screen.is-settings-open .qz-start-card { gap: 12px; }
 html body #flash-start-screen.is-settings-open .fs-steps { display: none; }
-html body #flash-start-screen.is-settings-open .fs-panel { width: 150px; max-width: 150px; }
+/* Slim demo strip (the shared 138px-tall scene made it a near-square with empty bands). */
+html body #flash-start-screen.is-settings-open .fs-panel { width: fit-content; max-width: 100%; align-self: center; }
+html body #flash-start-screen.is-settings-open .fs-panel .sp-scene { height: 78px; }
+/* The title adds nothing once the Study tab got us here: more room for the choices. */
+html body #flash-start-screen.is-settings-open .qz-start-card > h3 { display: none; }
 html body #flash-start-screen.is-settings-open .fs-settings-body { gap: 12px; padding-top: 12px; }
 
 /* 2) Summary row reads as a settings button: darker fill for contrast, a
@@ -9665,19 +9669,37 @@ html body #flash-start-screen .sp-step {
   opacity: 1;
 }
 
-/* 8) Start never hides behind the bottom tab bar on short phones: it sticks
-      just above it while the settings are being changed. */
-html body #flash-start-screen .sp-start-card button.sp-start-btn.pill.accent {
+/* 8) Start never hides behind the bottom tab bar on short phones: its bar sticks
+      just above it, with a soft dark fade so content passing underneath never
+      collides with the button. */
+html body #flash-start-screen .fs-start-bar {
   position: sticky;
-  bottom: 12px;
+  bottom: 0;
   z-index: 5;
+  margin: 0 -18px -12px;
+  padding: 26px 18px 12px;
+  /* A soft oval glow (fully transparent at its edges, so no hard rectangle shows). */
+  background: radial-gradient(closest-side at 50% 60%, rgba(3, 66, 52, 0.55), rgba(3, 66, 52, 0));
 }
 @media (max-width: 480px) {
-  html body #flash-start-screen .sp-start-card button.sp-start-btn.pill.accent {
-    bottom: calc(68px + env(safe-area-inset-bottom, 0px));
-  }
+  html body #flash-start-screen .fs-start-bar { bottom: calc(58px + env(safe-area-inset-bottom, 0px)); }
 }
+html body #flash-start-screen .fs-start-bar .sp-start-btn { width: 100%; }
 /* "clip" keeps the rounded-corner clipping but, unlike "hidden", does not make
    these boxes scroll containers — which is what lets Start stick (see 8 above). */
 html body #view-flashcards .card.scene-card,
 html body #flash-start-screen.spelling-stage-box { overflow: clip; }
+
+/* 9) Equal-width chips: choosing one no longer makes its neighbours shrink. */
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 4px 6px;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+html body #flash-start-screen #flash-category-seg .qz-seg-btn { padding: 4px 4px; font-size: 0.76rem; gap: 4px; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { font-size: 0.85em; }
+
+/* 10) Lock badge on "My cards" while it is not available to this account. */
+html body #flash-start-screen #flash-source-mine.is-locked::after { content: "🔒"; font-size: 0.85em; }

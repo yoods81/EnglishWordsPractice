@@ -3600,6 +3600,9 @@ function syncFlashSourceSwitches() {
     btn.classList.toggle("on", on);
     btn.setAttribute("aria-pressed", on ? "true" : "false");
   });
+  // "My cards" is a paid feature: show a lock up front instead of surprising
+  // free users with the upgrade prompt after they tap it.
+  flashSourceMineBtn.classList.toggle("is-locked", !canUsePaidFeatures());
 }
 
 function buildFlashDeck() {
@@ -3948,17 +3951,42 @@ if (flashSettingsBody) {
   new MutationObserver(updateFlashSettingsNow).observe(flashSettingsBody, { subtree: true, childList: true, attributes: true, attributeFilter: ["class"] });
   updateFlashSettingsNow();
 }
+function setFlashFrontSeg(mode) {
+  document.querySelectorAll("#flash-front-seg [data-front]").forEach((b) => {
+    const on = b.dataset.front === mode;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-checked", on ? "true" : "false");
+  });
+}
 document.querySelectorAll("#flash-front-seg [data-front]").forEach((btn) => {
   btn.addEventListener("click", () => {
     flashFrontModeSel.value = btn.dataset.front;
-    document.querySelectorAll("#flash-front-seg [data-front]").forEach((b) => {
-      const on = b === btn;
-      b.classList.toggle("on", on);
-      b.setAttribute("aria-checked", on ? "true" : "false");
-    });
+    setFlashFrontSeg(btn.dataset.front);
     flashFrontModeSel.dispatchEvent(new Event("change"));
   });
 });
+
+// Remember the last Category and Card front on this device, so kids who always
+// study meaning-first do not have to switch it every visit. ("Cards from" is not
+// stored: My cards is paid, and the login state is not known yet at load.)
+const FLASH_PREFS_KEY = "ksm_flash_prefs_v1";
+function saveFlashPrefs() {
+  try { localStorage.setItem(FLASH_PREFS_KEY, JSON.stringify({ category: flashCategorySel.value, front: flashFrontModeSel.value })); } catch (e) { /* storage unavailable */ }
+}
+flashCategorySel.addEventListener("change", saveFlashPrefs);
+flashFrontModeSel.addEventListener("change", saveFlashPrefs);
+(function restoreFlashPrefs() {
+  let prefs = null;
+  try { prefs = JSON.parse(localStorage.getItem(FLASH_PREFS_KEY) || "null"); } catch (e) { /* ignore */ }
+  if (!prefs) return;
+  if (Array.from(flashCategorySel.options).some((o) => o.value === prefs.category && !o.hidden)) flashCategorySel.value = prefs.category;
+  if (prefs.front === "word" || prefs.front === "meaning") {
+    flashFrontModeSel.value = prefs.front;
+    setFlashFrontSeg(prefs.front);
+  }
+  syncFlashCategorySeg();
+  syncFlashPreviewFront();
+})();
 flashSourceLevelBtn.addEventListener("click", () => {
   // Can't switch the last remaining source off.
   if (flashUseLevel && !flashUseMine) return;
