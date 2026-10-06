@@ -9800,3 +9800,116 @@ html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill { width: 4
 /* "Tap to flip" hint: bigger icon and text */
 .flash-flip-hint { font-size: 1.15rem; bottom: 18px; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .flash-flip-hint .ff-ico { font-size: 1.8rem; line-height: 1; }
+
+/* ===== Typing Game start screen v2: bright mint card, calmer layout, mobile-friendly ===== */
+/* No white wash over the scenery any more, and room at the top for the expand/sound buttons. */
+#view-typegame .typegame-overlay.tg-start-overlay {
+  background: none;
+  padding: 52px 14px 14px;
+}
+#view-typegame .tg-start-card {
+  width: min(100%, 300px);
+  padding: 14px 18px 18px;
+  gap: 8px;
+  background: linear-gradient(180deg, #f2fffa 0%, #d3f6e8 100%);
+  border: 3px solid #fff;
+  border-radius: 24px;
+  box-shadow: 0 8px 22px rgba(10, 60, 50, 0.3), inset 0 0 0 2px rgba(60, 190, 150, 0.25);
+}
+#view-typegame .typegame-overlay .tg-start-card h3 {
+  color: #0f6b52;
+  text-shadow: 0 2px 0 #fff, 0 3px 8px rgba(18, 184, 134, 0.25);
+}
+#view-typegame .tg-start-chip { border: 2px solid #8fe3c6; box-shadow: 0 2px 0 #bfeedd; }
+#view-typegame .typegame-overlay .tg-start-card p {
+  color: #17463c;
+  text-shadow: none;
+  font-size: 1rem;
+  line-height: 1.4;
+  padding: 0 4px;
+  margin-top: 4px;
+}
+#view-typegame .typegame-overlay .tg-start-card p.tg-start-tip {
+  margin-top: -2px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #3f7d6b;
+}
+#view-typegame .typegame-overlay .tg-start-card button.tg-start-btn.pill.accent {
+  width: auto;
+  min-width: 190px;
+  max-width: 240px;
+  min-height: 50px;
+  margin-top: 8px;
+  padding: 8px 28px;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 0 #c27400, 0 7px 12px rgba(194, 116, 0, 0.3) !important;
+}
+#view-typegame .tg-start-card .kb-strip .kb-cloud .bubble-text { font-size: 0.8rem; }
+
+/* The tip under the stage is only for while playing; the start card already explains it. */
+#view-typegame .card:has(#typegame-start-overlay:not([hidden])) .tg-hint { display: none; }
+/* Before the game starts the typing box looks (and is) switched off. */
+#view-typegame .typegame-input:disabled { opacity: 0.55; cursor: not-allowed; background: #eef3f1; }
+
+/* HUD readability */
+#view-typegame .setting-row-nowrap .stage-tag { color: #0f6b52; font-weight: 800; }
+.game-speed-control .goal-step-btn:disabled { opacity: 0.6; }
+
+@media (max-width: 480px) {
+  #view-typegame .typegame-overlay.tg-start-overlay { padding: 50px 12px 12px; }
+  #view-typegame .tg-start-card { width: min(100%, 280px); padding: 10px 14px 16px; gap: 6px; }
+  #view-typegame .tg-start-card .kb-strip .kb-cloud .bubble-text { font-size: 0.72rem; }
+  #view-typegame .typegame-overlay .tg-start-card h3 { font-size: 1.4rem; }
+  #view-typegame .typegame-overlay .tg-start-card p { font-size: 0.92rem; }
+  #view-typegame .typegame-overlay .tg-start-card button.tg-start-btn.pill.accent { min-height: 48px; font-size: 1.12rem; }
+  /* The speed number has no room for its "Game speed" label on a phone: show a bolt instead. */
+  .game-speed-control::before { content: "⚡"; font-size: 0.85rem; margin-right: 2px; }
+  /* Start screen: a taller play area (the live game already fills the screen). */
+  #view-typegame .card:has(#typegame-start-overlay:not([hidden])) #typegame-stage { height: clamp(300px, calc(100dvh - 470px), 440px); }
+  /* A slimmer app title on the game screens leaves more height for the game. */
+  body:has(#view-typegame.active) header h1 { font-size: clamp(1.3rem, 5.6vw, 1.7rem); }
+  body:has(#view-typegame.active) header h1 .brand-logo { width: 26px; height: 26px; }
+}
+#view-typegame .typegame-overlay.tg-start-overlay { padding-top: 12px; }
+#view-typegame .tg-start-card { padding: 8px 18px 16px; gap: 6px; }
+#view-typegame .tg-start-card .kb-strip .kb-scene { width: 78px; height: 76px; }
+#view-typegame .tg-start-card .kb-strip .kb-scene .sk-svg { width: 78px; }
+#view-typegame .typegame-overlay .tg-start-card h3 { font-size: 1.5rem; }
+#view-typegame .typegame-overlay .tg-start-card p { margin-top: 0; text-wrap: balance; }
+@media (max-width: 480px) {
+  #view-typegame .typegame-overlay.tg-start-overlay { padding: 50px 12px 12px; }
+  #view-typegame .tg-start-card .kb-strip .kb-scene { width: 64px; height: 63px; }
+  #view-typegame .tg-start-card .kb-strip .kb-scene .sk-svg { width: 64px; }
+  #view-typegame .typegame-overlay .tg-start-card p { font-size: 0.9rem; }
+  #view-typegame .tg-hearts .tg-heart { width: 17px; height: 17px; }
+  #view-typegame .tg-hearts { gap: 1px; padding: 2px 6px; }
+}
+@media (max-width: 480px) and (max-height: 700px) {
+  #view-typegame .typegame-overlay.tg-start-overlay { padding-top: 46px; }
+  #view-typegame .typegame-overlay .tg-start-card p.tg-start-tip { display: none; }
+}
+#view-typegame .typegame-overlay.tg-start-overlay { padding-top: 8px; padding-bottom: 8px; }
+@media (max-width: 480px) and (max-height: 700px) {
+  #view-typegame .typegame-overlay.tg-start-overlay { padding: 44px 12px 8px; }
+  #view-typegame .tg-start-card .kb-strip .kb-scene { width: 54px; height: 53px; }
+  #view-typegame .tg-start-card .kb-strip .kb-scene .sk-svg { width: 54px; }
+  #view-typegame .tg-start-card { gap: 4px; padding-bottom: 12px; }
+}
+@media (max-width: 480px) and (min-height: 701px) {
+  #view-typegame .typegame-overlay.tg-start-overlay { padding-top: 92px; }
+}
+@media (max-width: 380px) {
+  .game-speed-control::before { display: none; }
+  #view-typegame .tg-hearts .tg-heart { width: 15px; height: 15px; }
+  #view-typegame .setting-row-nowrap .score-tag { padding-inline: 8px; }
+}
+
+/* Times Table keeps its own start card; only the shared HUD pieces are matched. */
+#view-timestable .setting-row-nowrap .stage-tag { color: #0f6b52; font-weight: 800; }
+#view-timestable .typegame-input:disabled { opacity: 0.55; cursor: not-allowed; background: #eef3f1; }
+@media (max-width: 480px) {
+  #view-timestable .tg-hearts .tg-heart { width: 17px; height: 17px; }
+  #view-timestable .tg-hearts { gap: 1px; padding: 2px 6px; }
+}
+@media (max-width: 380px) { #view-timestable .tg-hearts .tg-heart { width: 15px; height: 15px; } }
