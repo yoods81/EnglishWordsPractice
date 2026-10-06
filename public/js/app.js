@@ -471,6 +471,11 @@ const TRANSLATIONS = {
     wordlistCount: (n) => `${n} word${n === 1 ? "" : "s"}`,
     customWordsCount: (n) => `Total ${n} word${n === 1 ? "" : "s"}`,
     wordlistSelectedChip: (n) => `${n} selected`,
+    wlFilterGroup: "Filter by mastery",
+    wlFilterAll: "All",
+    wlFilterReview: "Needs review",
+    wlFilterMastered: "Mastered",
+    wlFilterEmpty: "No words match this filter yet.",
     hearExampleLabel: "Hear the example sentence",
     masteryNew: "New",
     masteryPct: (pct) => `${pct}% mastered`,
@@ -1092,6 +1097,11 @@ const TRANSLATIONS = {
     wordlistCount: (n) => `단어 ${n}개`,
     customWordsCount: (n) => `총 ${n}개 단어`,
     wordlistSelectedChip: (n) => `${n}개 선택됨`,
+    wlFilterGroup: "숙달도로 걸러보기",
+    wlFilterAll: "전체",
+    wlFilterReview: "복습 필요",
+    wlFilterMastered: "숙달",
+    wlFilterEmpty: "조건에 맞는 단어가 아직 없어요.",
     hearExampleLabel: "예문 듣기",
     masteryNew: "신규",
     masteryPct: (pct) => `${pct}% 숙달`,
@@ -8733,6 +8743,13 @@ const wordlistCountEl = document.getElementById("wordlist-count");
 const wordlistAddDeckBtn = document.getElementById("wordlist-add-deck-btn");
 const wordlistSelectAllCheckbox = document.getElementById("wordlist-select-all-checkbox");
 const wordlistSelectedChip = document.getElementById("wordlist-selected-chip");
+const wordlistActionBar = document.getElementById("wordlist-action-bar");
+const wordlistActionText = document.getElementById("wordlist-action-text");
+const wordlistBarAddBtn = document.getElementById("wordlist-bar-add-btn");
+const wordlistFilterChips = document.getElementById("wordlist-filter-chips");
+// "all" | "review" (amber tag or marked wrong) | "mastered" (100%)
+let wordlistMasteryFilter = "all";
+let wordlistBarMsgTimer = 0;
 // Keyed by word, since the same word can be reached under several levels.
 const selectedWordlistWords = new Map();
 
@@ -8777,13 +8794,56 @@ function updateSelectAllCheckboxState(checkbox, grid) {
 // filter/search pass just to know the total again.
 let wordlistLastTotal = 0;
 
-// The line under the toolbar always shows the total; how many are ticked lives
-// in the chip beside "All" (hidden at zero) so it reads as live selection state.
+// The total sits on the select-all line; how many are ticked lives in the chip
+// beside it (hidden at zero) and, on phones, in the bottom action bar.
 function updateWordlistCountLabel() {
   wordlistCountEl.textContent = t("customWordsCount", wordlistLastTotal);
   const picked = selectedWordlistWords.size;
   wordlistSelectedChip.hidden = picked === 0;
   wordlistSelectedChip.textContent = picked > 0 ? t("wordlistSelectedChip", picked) : "";
+  updateWordlistActionBar();
+}
+
+// Bottom bar (phones only — CSS hides it elsewhere): visible while something is
+// ticked, then briefly shows the "added" result before disappearing.
+function updateWordlistActionBar() {
+  const picked = selectedWordlistWords.size;
+  if (picked > 0) {
+    clearTimeout(wordlistBarMsgTimer);
+    wordlistBarMsgTimer = 0;
+    wordlistActionBar.classList.remove("is-done");
+    wordlistBarAddBtn.hidden = false;
+    wordlistActionText.textContent = t("wordlistSelectedChip", picked);
+    wordlistActionBar.hidden = false;
+  } else if (!wordlistBarMsgTimer) {
+    wordlistActionBar.hidden = true;
+  }
+  // Sit directly above the fixed bottom tab bar, whatever its real height is.
+  const tabs = document.querySelector(".bottom-tabs");
+  const tabsH = tabs && getComputedStyle(tabs).display !== "none" ? tabs.offsetHeight : 0;
+  wordlistActionBar.style.bottom = `${tabsH}px`;
+  wordlistActionBar.closest(".view").classList.toggle("has-action-bar", !wordlistActionBar.hidden);
+}
+
+function showWordlistBarResult(msg) {
+  clearTimeout(wordlistBarMsgTimer);
+  wordlistActionBar.classList.add("is-done");
+  wordlistBarAddBtn.hidden = true;
+  wordlistActionText.textContent = msg;
+  wordlistActionBar.hidden = false;
+  wordlistBarMsgTimer = setTimeout(() => {
+    wordlistBarMsgTimer = 0;
+    wordlistActionBar.classList.remove("is-done");
+    updateWordlistActionBar();
+  }, 2600);
+}
+
+function syncWordlistFilterChips() {
+  wordlistFilterChips.querySelectorAll(".wl-chip").forEach((chip) => {
+    const on = chip.dataset.filter === wordlistMasteryFilter;
+    chip.classList.toggle("is-active", on);
+    chip.setAttribute("aria-pressed", on ? "true" : "false");
+  });
 }
 
 function updateWordlistSelectionButtons() {
@@ -8900,12 +8960,20 @@ function buildWordRow(w) {
   if (w.example) {
     const exRow = document.createElement("div");
     exRow.className = "wl-example";
+    // The last word and the speaker are wrapped together (no-break), so the
+    // speaker can never fall onto a line of its own, away from the sentence.
+    const sentence = w.example.trim();
+    const cut = sentence.lastIndexOf(" ") + 1;
     const exText = document.createElement("span");
     exText.className = "wl-example-text";
-    exText.textContent = w.example;
-    exText.title = w.example;
+    exText.textContent = sentence.slice(0, cut);
+    const exTail = document.createElement("span");
+    exTail.className = "wl-example-tail";
+    exTail.appendChild(document.createTextNode(sentence.slice(cut)));
+    exTail.appendChild(makeWordlistSpeakBtn(w.example, "example", t("hearExampleLabel")));
+    exRow.title = w.example;
     exRow.appendChild(exText);
-    exRow.appendChild(makeWordlistSpeakBtn(w.example, "example", t("hearExampleLabel")));
+    exRow.appendChild(exTail);
     left.appendChild(exRow);
   }
 
@@ -8917,9 +8985,11 @@ function buildWordRow(w) {
   // Set only on search hits from a level other than the one being browsed.
   if (w.level) tags.appendChild(makeWordlistTag("level", levelLabel(w.level)));
 
+  // Words not practised yet carry no tag: with ~1000 of them, "New" on every
+  // card was pure noise and made the real mastery tags harder to spot.
   const m = masteryLabel(w.word);
-  tags.appendChild(makeWordlistTag(m.tone, m.text));
-  row.appendChild(tags);
+  if (m.tone !== "new") tags.appendChild(makeWordlistTag(m.tone, m.text));
+  if (tags.childElementCount > 0) row.appendChild(tags);
 
   return row;
 }
@@ -8943,7 +9013,7 @@ function renderWordList() {
   const spanAllLevels = wordlistLevelSelect.value === "" || !!query;
   const levels = spanAllLevels ? currentSystem().levels.map((lv) => lv.id) : [wordlistLevelSelect.value];
 
-  const words = [];
+  let words = [];
   levels.forEach((level) => {
     getAllWordsForLevel(level).forEach((w) => {
       if (!w.word.toLowerCase().includes(query)) return;
@@ -8953,13 +9023,21 @@ function renderWordList() {
     });
   });
 
+  // Same buckets as the tag colours: review = amber/wrong, mastered = 100%.
+  if (wordlistMasteryFilter !== "all") {
+    words = words.filter((w) => {
+      const tone = masteryLabel(w.word).tone;
+      return wordlistMasteryFilter === "review" ? tone === "progress" || tone === "wrong" : tone === "done";
+    });
+  }
+
   wordlistLastTotal = words.length;
   updateWordlistCountLabel();
   wordlistAddDeckBtn.disabled = selectedWordlistWords.size === 0;
   if (words.length === 0) {
     const p = document.createElement("p");
     p.className = "muted";
-    p.textContent = t("wordlistEmpty");
+    p.textContent = t(wordlistMasteryFilter === "all" ? "wordlistEmpty" : "wlFilterEmpty");
     wordlistGrid.appendChild(p);
     updateSelectAllCheckboxState(wordlistSelectAllCheckbox, wordlistGrid);
     requestAnimationFrame(syncWordlistScrollbarGap);
@@ -8973,7 +9051,16 @@ function renderWordList() {
 wordlistSearch.addEventListener("input", renderWordList);
 wordlistLevelSelect.addEventListener("change", renderWordList);
 
-wordlistAddDeckBtn.addEventListener("click", () => {
+wordlistFilterChips.addEventListener("click", (e) => {
+  const chip = e.target.closest(".wl-chip");
+  if (!chip || chip.dataset.filter === wordlistMasteryFilter) return;
+  wordlistMasteryFilter = chip.dataset.filter;
+  syncWordlistFilterChips();
+  renderWordList();
+});
+
+// Shared by the toolbar button and the phone action bar.
+function addWordlistSelectionToDeck() {
   if (!canUsePaidFeatures()) {
     promptUpgradeForFeature();
     return;
@@ -8985,8 +9072,13 @@ wordlistAddDeckBtn.addEventListener("click", () => {
   renderWordList();
   buildFlashDeck();
   // After the re-render, so it isn't overwritten by the count.
-  wordlistCountEl.textContent = t("addedToMyDeck", added, picked.length);
-});
+  const msg = t("addedToMyDeck", added, picked.length);
+  wordlistCountEl.textContent = msg;
+  showWordlistBarResult(msg);
+}
+wordlistAddDeckBtn.addEventListener("click", addWordlistSelectionToDeck);
+wordlistBarAddBtn.addEventListener("click", addWordlistSelectionToDeck);
+window.addEventListener("resize", updateWordlistActionBar);
 
 wordlistSelectAllCheckbox.addEventListener("change", () => {
   if (wordlistSelectAllCheckbox.checked) {

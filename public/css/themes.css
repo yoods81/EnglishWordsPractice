@@ -2056,3 +2056,12 @@ html[data-theme="ivory"] .koala-wallet::after {
 html[data-theme="ivory"] .koala-wallet-stat {
   background: rgba(253,250,244,0.72) !important;
 }
+
+/* Word list: mastery filter chips + phone action bar */
+html[data-theme="dark"] .wl-chip { background: #161b27; color: #cbd5e1; border-color: #2a3550; }
+html[data-theme="dark"] .wl-chip.is-active { background: #0e9c7d; border-color: #0e9c7d; color: #fff; }
+html[data-theme="dark"] .wl-chip[data-filter="review"].is-active { background: #fbbf24; border-color: #f59e0b; color: #0f172a; }
+html[data-theme="dark"] .wl-action-bar { background: #131b19 !important; }
+html[data-theme="dark"] .wl-action-text { color: #6ee7b7 !important; }
+html[data-theme="ivory"] .wl-chip { background: #fdfaf4; }
+html[data-theme="ivory"] .wl-action-bar { background: #fdfaf4 !important; }

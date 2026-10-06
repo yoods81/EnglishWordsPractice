@@ -1221,18 +1221,31 @@ to Flip!</span></div>
           <input type="text" class="wordlist-search" id="wordlist-search" data-i18n-placeholder="wordlistSearchPlaceholder" placeholder="🔍 Search words..." />
           <select id="wordlist-level" class="wordlist-level-select"></select>
         </div>
-        <!-- Same column grid as the rows below (checkbox | text), so the "All"
-             checkbox sits exactly above the per-word checkboxes. -->
+        <!-- Mastery filter: All / Needs review (amber + wrong) / Mastered (100%). -->
+        <div class="wl-filter-chips" id="wordlist-filter-chips" role="group" data-i18n-aria-label="wlFilterGroup" aria-label="Filter by mastery">
+          <button type="button" class="wl-chip is-active" data-filter="all" aria-pressed="true" data-i18n="wlFilterAll">All</button>
+          <button type="button" class="wl-chip" data-filter="review" aria-pressed="false" data-i18n="wlFilterReview">Needs review</button>
+          <button type="button" class="wl-chip" data-filter="mastered" aria-pressed="false" data-i18n="wlFilterMastered">Mastered</button>
+        </div>
+        <!-- Same column grid as the rows below (checkbox | text), so the select-all
+             checkbox sits exactly above the per-word checkboxes. The total count
+             shares its line; the add button lives here on wider screens and in
+             the bottom action bar (below) on phones. -->
         <div class="wl-toolbar">
           <input type="checkbox" id="wordlist-select-all-checkbox" class="wl-check" />
           <div class="wl-toolbar-status">
-            <label for="wordlist-select-all-checkbox" data-i18n="allLabel">All</label>
+            <label for="wordlist-select-all-checkbox" data-i18n="selectAllLabel">Select All</label>
+            <span class="wl-count" id="wordlist-count"></span>
             <span class="wl-selected-chip" id="wordlist-selected-chip" role="status" aria-live="polite" hidden></span>
           </div>
           <button type="button" class="pill accent small" id="wordlist-add-deck-btn" data-i18n="addToMyDeckBtn" disabled>⭐ Add to my flashcards</button>
         </div>
-        <p class="muted wordlist-count" id="wordlist-count"></p>
         <div class="wordlist-grid" id="wordlist-grid"></div>
+      </div>
+      <!-- Phones: appears only while something is ticked, above the bottom tab bar. -->
+      <div class="wl-action-bar" id="wordlist-action-bar" hidden>
+        <span class="wl-action-text" id="wordlist-action-text" role="status" aria-live="polite"></span>
+        <button type="button" class="pill accent small" id="wordlist-bar-add-btn" data-i18n="addToMyDeckBtn">⭐ Add to my flashcards</button>
       </div>
     </section>
 
