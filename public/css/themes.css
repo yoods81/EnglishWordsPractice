@@ -2065,3 +2065,4 @@ html[data-theme="dark"] .wl-action-bar { background: #131b19 !important; }
 html[data-theme="dark"] .wl-action-text { color: #6ee7b7 !important; }
 html[data-theme="ivory"] .wl-chip { background: #fdfaf4; }
 html[data-theme="ivory"] .wl-action-bar { background: #fdfaf4 !important; }
+html[data-theme="dark"] .wl-chip[data-filter="wrong"].is-active { background: #e11d48; border-color: #e11d48; color: #fff; }

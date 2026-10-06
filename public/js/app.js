@@ -475,6 +475,7 @@ const TRANSLATIONS = {
     wlFilterAll: "All",
     wlFilterReview: "Needs review",
     wlFilterMastered: "Mastered",
+    wlFilterWrong: "Incorrect",
     wlFilterEmpty: "No words match this filter yet.",
     hearExampleLabel: "Hear the example sentence",
     masteryNew: "New",
@@ -1101,6 +1102,7 @@ const TRANSLATIONS = {
     wlFilterAll: "전체",
     wlFilterReview: "복습 필요",
     wlFilterMastered: "숙달",
+    wlFilterWrong: "틀린 문제",
     wlFilterEmpty: "조건에 맞는 단어가 아직 없어요.",
     hearExampleLabel: "예문 듣기",
     masteryNew: "신규",
@@ -9023,12 +9025,11 @@ function renderWordList() {
     });
   });
 
-  // Same buckets as the tag colours: review = amber/wrong, mastered = 100%.
+  // One chip per tag colour: review = amber (50% or below), mastered = 100%,
+  // wrong = the "Incorrect" tag (marked wrong in Spelling).
   if (wordlistMasteryFilter !== "all") {
-    words = words.filter((w) => {
-      const tone = masteryLabel(w.word).tone;
-      return wordlistMasteryFilter === "review" ? tone === "progress" || tone === "wrong" : tone === "done";
-    });
+    const toneFor = { review: "progress", mastered: "done", wrong: "wrong" }[wordlistMasteryFilter];
+    words = words.filter((w) => masteryLabel(w.word).tone === toneFor);
   }
 
   wordlistLastTotal = words.length;

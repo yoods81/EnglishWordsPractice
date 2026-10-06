@@ -8675,10 +8675,20 @@ html body .sp-start-row .qz-dd-btn[aria-expanded="true"]::after { margin-top: -2
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
+@media (max-width: 480px) {
+  /* Four chips must fit on one row at phone widths. */
+  .wl-filter-chips { gap: 6px; }
+  .wl-chip { padding: 0 10px; font-size: 0.78rem; }
+}
 .wl-chip:focus-visible { outline: 3px solid #fbbf24; outline-offset: 2px; }
 .wl-chip.is-active {
   background: var(--accent-dark);
   border-color: var(--accent-dark);
+  color: #fff;
+}
+.wl-chip[data-filter="wrong"].is-active {
+  background: #be123c;
+  border-color: #be123c;
   color: #fff;
 }
 .wl-chip[data-filter="review"].is-active {

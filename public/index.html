@@ -1221,11 +1221,12 @@ to Flip!</span></div>
           <input type="text" class="wordlist-search" id="wordlist-search" data-i18n-placeholder="wordlistSearchPlaceholder" placeholder="🔍 Search words..." />
           <select id="wordlist-level" class="wordlist-level-select"></select>
         </div>
-        <!-- Mastery filter: All / Needs review (amber + wrong) / Mastered (100%). -->
+        <!-- Mastery filter: All / Needs review (amber, 50% or below) / Mastered (100%) / Incorrect (marked wrong in Spelling). -->
         <div class="wl-filter-chips" id="wordlist-filter-chips" role="group" data-i18n-aria-label="wlFilterGroup" aria-label="Filter by mastery">
           <button type="button" class="wl-chip is-active" data-filter="all" aria-pressed="true" data-i18n="wlFilterAll">All</button>
           <button type="button" class="wl-chip" data-filter="review" aria-pressed="false" data-i18n="wlFilterReview">Needs review</button>
           <button type="button" class="wl-chip" data-filter="mastered" aria-pressed="false" data-i18n="wlFilterMastered">Mastered</button>
+          <button type="button" class="wl-chip" data-filter="wrong" aria-pressed="false" data-i18n="wlFilterWrong">Incorrect</button>
         </div>
         <!-- Same column grid as the rows below (checkbox | text), so the select-all
              checkbox sits exactly above the per-word checkboxes. The total count
