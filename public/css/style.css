@@ -9727,3 +9727,37 @@ html body #flash-practice .flashcard { min-height: clamp(270px, 40svh, 360px); }
 html body #flash-practice .flash-controls { max-width: 360px; margin-top: 22px; }
 html body #flash-practice .flash-controls .pill { min-height: 56px; font-size: 1.05rem; }
 html body #flash-practice .flash-end-row #flash-end { padding: 8px 16px; font-size: 0.85rem; }
+
+/* ===== Flashcards practice round 2: tidy header, symmetric card, thumb zone ===== */
+.fk-bubble.is-hushed { visibility: hidden !important; }
+.flash-progress.is-quiet, html body #flash-practice:has(.fk-bubble.is-hushed) .flash-progress { margin-bottom: 20px; }
+.flash-tally { display: flex; justify-content: flex-end; gap: 6px; }
+.flash-tally .t-know, .flash-tally .t-still { padding: 4px 10px; border-radius: 999px; font-size: 0.9rem; font-weight: 800; line-height: 1.1; color: #fff; }
+.flash-tally .t-know { background: #047857; }
+.flash-tally .t-still { background: #c2410c; }
+.flash-auto-pill { display: inline-flex; align-items: center; gap: 4px; width: auto; height: 36px; padding: 0 12px 0 9px; border-radius: 999px; background: rgba(255,255,255,.85); border: 2px solid #b8e3d6; color: #6b8179; font-size: 0.8rem; font-weight: 800; font-family: var(--font-heading); }
+.flash-auto .flash-auto-pill svg { flex: none; }
+.flash-auto:not(.on) .fa-waves { display: none; }
+.flash-auto.on .flash-auto-pill { background: #d9f3ea; border-color: #02c39a; color: #047857; }
+.flash-auto span.flash-auto-pill { width: auto; border-radius: 999px; }
+/* the Back strip stays as a faint placeholder on the first card so the card looks centred */
+html body #flash-practice #flash-prev:disabled { opacity: 0.22; pointer-events: none; }
+html body #flash-practice #flash-prev, html body #flash-practice #flash-next { width: 34px; background: rgba(2, 150, 118, 0.42); }
+html body #flash-practice .flashcard-face { padding-left: 40px; padding-right: 40px; }
+.flash-flip-hint { position: absolute; left: 0; right: 0; bottom: 16px; text-align: center; font-size: 0.85rem; font-weight: 800; color: #4f7f70; transition: opacity .3s; pointer-events: none; }
+.flash-flip-hint.is-dim { opacity: 0.35; }
+/* Phones: the answer buttons sit in the lower part of the screen, within thumb reach */
+@media (max-width: 700px) {
+  html body #view-flashcards .card.scene-card:has(#flash-practice:not([hidden])) { display: flex; flex-direction: column; }
+  html body #flash-practice:not([hidden]) { display: flex; flex-direction: column; flex: 1 1 auto; min-height: calc(100svh - 300px); }
+  html body #flash-practice .flash-controls { margin-top: auto; padding-top: 20px; width: 100%; }
+  html body #flash-practice .flash-end-row { margin-top: 14px; }
+}
+.flash-auto .flash-auto-pill > span { display: inline; width: auto; height: auto; border: 0; background: none; border-radius: 0; }
+.flash-auto.on .flash-auto-pill > span { background: none; border: 0; }
+.flash-auto .flash-auto-pill { flex: none; }
+@media (max-width: 700px) {
+  html body #flash-practice:not([hidden]) > * { flex: 0 0 auto; }
+  html body #flash-practice .flashcard-row { width: 100%; }
+  html body #flash-practice .flash-controls { margin-top: auto; }
+}

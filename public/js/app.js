@@ -311,6 +311,8 @@ const TRANSLATIONS = {
     flashBackShort: "Back",
     flashNextShort: "Next",
     flashEndBtn: "🏁 Finish",
+    flashAutoShort: "Auto",
+    flashTapFlip: "👆 Tap to flip",
     flashStartTitle: "Flashcards",
     fsDemo1: "a sleepy",
     fsDemo2: "gum-tree animal",
@@ -945,6 +947,8 @@ const TRANSLATIONS = {
     flashBackShort: "이전",
     flashNextShort: "다음",
     flashEndBtn: "🏁 결과 보기",
+    flashAutoShort: "자동",
+    flashTapFlip: "👆 눌러서 뒤집기",
     flashStartTitle: "플래시카드",
     fsDemo1: "나무에서 사는",
     fsDemo2: "졸린 동물",
@@ -3716,12 +3720,12 @@ if (typeof ResizeObserver !== "undefined") {
 function meaningFirstNow() { return flashFrontModeSel.value === "meaning"; }
 function updateFlashTally() {
   const el = document.getElementById("flash-tally");
-  if (el) el.textContent = `✓ ${flashSession.known.size} · 😕 ${flashSession.still.size}`;
+  if (el) el.innerHTML = `<span class="t-know" title="${t("flashKnowIt").replace(/"/g, "")}">✓ ${flashSession.known.size}</span><span class="t-still" title="${t("flashStillLearning").replace(/"/g, "")}">↻ ${flashSession.still.size}</span>`;
 }
 function setFlashAutoSpeak(on) {
   flashAutoSpeakOn = !!on;
   const b = document.getElementById("flash-autospeak");
-  if (b) { b.setAttribute("aria-pressed", on ? "true" : "false"); b.firstElementChild.textContent = on ? "🔊" : "🔇"; b.classList.toggle("on", !!on); }
+  if (b) { b.setAttribute("aria-pressed", on ? "true" : "false"); b.classList.toggle("on", !!on); }
 }
 function renderFlashcard() {
   flashcardEl.classList.remove("flipped");
@@ -3829,8 +3833,10 @@ function slideFlashStage(dir) {
   void flashStageEl.offsetWidth;
   flashStageEl.classList.add(dir === "prev" ? "slide-prev" : "slide-next");
 }
+let flashHasFlipped = false;
 function flipFlashcard() {
   flashcardEl.classList.toggle("flipped");
+  if (!flashHasFlipped) { flashHasFlipped = true; const h = document.getElementById("flash-flip-hint"); if (h) h.classList.add("is-dim"); }
   koalaReact("flip", "fkFlip", flashScene, flashBubble, flashcardEl.classList.contains("flipped") ? "fkIdleBack" : "fkIdle");
 }
 
