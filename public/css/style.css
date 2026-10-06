@@ -9784,3 +9784,9 @@ html body #flash-practice .flash-end-row #flash-end { justify-self: center; back
 }
 html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill { width: 40px; height: 40px; padding: 0; justify-content: center; }
 html body #flash-practice .flash-end-row { padding-bottom: 8px; }
+
+/* footer row: sits on its own soft bar so the hill/tree art never runs through it */
+html body #flash-practice .flash-end-row { background: rgba(255, 255, 255, 0.82); border: 2px solid #cfe9df; border-radius: 22px; padding: 6px 12px; margin-bottom: 10px; box-sizing: border-box; }
+html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill { width: 36px; height: 36px; background: #fff; }
+html body #flash-practice .flash-end-row .flash-auto:not(.on) .flash-auto-pill { color: #7d918a; }
+.flash-end-row .flash-tally { gap: 10px; }
