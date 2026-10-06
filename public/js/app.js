@@ -140,7 +140,7 @@ const TRANSLATIONS = {
     progressSub: "See how you're doing and what to practise next.",
     moreStats: "More stats",
     statsTabBadges: "🏅 Badges",
-    statsTabWrong: "📕 Wrong notes",
+    statsTabWrong: "📕 Mistakes",
     statsTabParent: "👪 Parent",
     navAddwordShort: "Add Word",
     navHomeShort: "Home",
@@ -161,6 +161,8 @@ const TRANSLATIONS = {
     statsInsightsBullet1: "📧 Weekly progress email reports",
     statsInsightsBullet2: "🎯 Category-by-category accuracy breakdown",
     statsInsightsBullet3: "👨‍👩‍👧‍👦 Track multiple children in one account",
+    statsInsightsSample: "Example weekly report",
+    statsInsightsCta: "See what Premium adds",
     adminCodesTitle: "🎁 Premium Signup Codes",
     adminCodesDesc: "Generate a one-time code and send it to someone so they can sign up as a premium account instead of general.",
     adminCodesGenerateBtn: "🎟️ Generate New Code",
@@ -801,6 +803,8 @@ const TRANSLATIONS = {
     statsInsightsBullet1: "📧 주간 학습 리포트 이메일",
     statsInsightsBullet2: "🎯 카테고리별 정확도 분석",
     statsInsightsBullet3: "👨‍👩‍👧‍👦 여러 자녀 계정 함께 관리",
+    statsInsightsSample: "주간 리포트 예시",
+    statsInsightsCta: "프리미엄 기능 살펴보기",
     adminCodesTitle: "🎁 프리미엄 가입 코드",
     adminCodesDesc: "1회용 코드를 생성해서 전달하면, 받은 사람이 일반 대신 프리미엄 계정으로 가입할 수 있어요.",
     adminCodesGenerateBtn: "🎟️ 새 코드 생성",
@@ -11730,14 +11734,36 @@ function ttMastered(n) {
 function modeCorrect(mode) {
   return (progress.modes[mode] && progress.modes[mode][0]) || 0;
 }
+// How many of a times table's facts have been cleared (for badge progress).
+function ttFactsDone(n) {
+  let c = 0;
+  for (let b = 1; b <= TIMESTABLE_MULTIPLIER_MAX; b++) {
+    if (progress.ttSolved[`${n}x${b}`] || progress.ttSolved[`${b}x${n}`]) c++;
+  }
+  return c;
+}
+function koalaItemsUnlocked() {
+  const k = KoalaCore.ensureKoala(progress);
+  return Object.keys(k.items.owned).filter((id) => { const it = KoalaCore.itemById(id); return it && !it.unlock.free; }).length;
+}
+function koalaRoomItems() {
+  const k = KoalaCore.ensureKoala(progress);
+  return KoalaCore.ROOM_SLOTS.filter((sl) => k.items.equipped[sl]).length;
+}
+// Each badge has its own icon (no repeated medals) so a child can tell them
+// apart at a glance. `prog` returns [have, goal] for the "next goal" bar on
+// My Progress; it never changes whether a badge is earned (`test` does).
+const TT_BADGE_ICONS = { 2: "2️⃣", 3: "3️⃣", 4: "4️⃣", 5: "5️⃣", 6: "6️⃣", 7: "7️⃣", 8: "8️⃣", 9: "9️⃣" };
 function buildBadgeCatalog() {
   const list = [];
+  const streakNow = () => (progress.streak && progress.streak.count) || 0;
   for (let n = TIMESTABLE_MIN_TABLE; n <= 9; n++) {
     list.push({
-      id: `tt${n}`, emoji: n <= 3 ? "🥉" : n <= 5 ? "🥈" : n <= 7 ? "🥇" : "🏅", group: "math",
+      id: `tt${n}`, emoji: TT_BADGE_ICONS[n] || "🧮", group: "math",
       name: rwL(`Table ${n} Master Koala`, `구구단 ${n}단 마스터 코알라`),
       desc: rwL(`Clear every ${n}× fact in Times Table`, `구구단 게임에서 ${n}단을 모두 맞혀요`),
       test: () => ttMastered(n),
+      prog: () => [ttFactsDone(n), TIMESTABLE_MULTIPLIER_MAX],
     });
   }
   list.push({
@@ -11745,52 +11771,53 @@ function buildBadgeCatalog() {
     name: rwL("Times Table Champion", "구구단 챔피언 코알라"),
     desc: rwL("Master every table from 2 to 9", "2단부터 9단까지 모두 마스터"),
     test: () => { for (let n = TIMESTABLE_MIN_TABLE; n <= 9; n++) if (!ttMastered(n)) return false; return true; },
+    prog: () => { let c = 0; for (let n = TIMESTABLE_MIN_TABLE; n <= 9; n++) if (ttMastered(n)) c++; return [c, 9 - TIMESTABLE_MIN_TABLE + 1]; },
   });
   list.push(
-    { id: "spell100", emoji: "🏅", group: "english", name: rwL("Spelling 100 Sticker", "스펠링 100점 스티커"),
+    { id: "spell100", emoji: "📝", group: "english", name: rwL("Spelling 100 Sticker", "스펠링 100점 스티커"),
       desc: rwL("Finish a spelling round (5+ words) with every word right first time", "스펠링 5단어 이상을 한 번에 모두 맞혀요"),
-      test: () => progress.counters.spellPerfect >= 1 },
+      test: () => progress.counters.spellPerfect >= 1, prog: () => [Math.min(progress.counters.spellPerfect || 0, 1), 1] },
     { id: "spell100x5", emoji: "💎", group: "english", name: rwL("Spelling Superstar", "스펠링 슈퍼스타"),
       desc: rwL("Get 5 perfect spelling rounds", "스펠링 100점을 5번 달성"),
-      test: () => progress.counters.spellPerfect >= 5 },
-    { id: "quiz100", emoji: "🎖️", group: "english", name: rwL("Quiz Perfect Sticker", "퀴즈 만점 스티커"),
+      test: () => progress.counters.spellPerfect >= 5, prog: () => [Math.min(progress.counters.spellPerfect || 0, 5), 5] },
+    { id: "quiz100", emoji: "💯", group: "english", name: rwL("Quiz Perfect Sticker", "퀴즈 만점 스티커"),
       desc: rwL("Finish a quiz (5+ questions) with no mistakes", "퀴즈(5문제 이상)를 모두 맞혀요"),
-      test: () => progress.counters.quizPerfect >= 1 },
-    { id: "type50", emoji: "🥈", group: "english", name: rwL("Speedy Typist Koala", "타이핑 코알라"),
+      test: () => progress.counters.quizPerfect >= 1, prog: () => [Math.min(progress.counters.quizPerfect || 0, 1), 1] },
+    { id: "type50", emoji: "⌨️", group: "english", name: rwL("Speedy Typist Koala", "타이핑 코알라"),
       desc: rwL("Type 50 words correctly in the Typing Game", "타이핑 게임에서 단어 50개 성공"),
-      test: () => modeCorrect("typing") >= 50 },
-    { id: "words50", emoji: "🥉", group: "english", name: rwL("Word Explorer", "단어 탐험가"),
+      test: () => modeCorrect("typing") >= 50, prog: () => [Math.min(modeCorrect("typing"), 50), 50] },
+    { id: "words50", emoji: "🧭", group: "english", name: rwL("Word Explorer", "단어 탐험가"),
       desc: rwL("Practise 50 different words", "서로 다른 단어 50개 연습"),
-      test: () => Object.keys(progress.wordStats).length >= 50 },
-    { id: "words200", emoji: "🥇", group: "english", name: rwL("Word Wizard", "단어 마법사"),
+      test: () => Object.keys(progress.wordStats).length >= 50, prog: () => [Math.min(Object.keys(progress.wordStats).length, 50), 50] },
+    { id: "words200", emoji: "🧙", group: "english", name: rwL("Word Wizard", "단어 마법사"),
       desc: rwL("Practise 200 different words", "서로 다른 단어 200개 연습"),
-      test: () => Object.keys(progress.wordStats).length >= 200 },
-    { id: "streak3", emoji: "🥉", group: "habit", name: rwL("3-Day Streak", "3일 연속 학습"),
-      desc: rwL("Practise 3 days in a row", "3일 연속 학습"), test: () => (progress.streak.count || 0) >= 3 },
-    { id: "streak7", emoji: "🥈", group: "habit", name: rwL("Week-long Koala", "일주일 연속 코알라"),
-      desc: rwL("Practise 7 days in a row", "7일 연속 학습"), test: () => (progress.streak.count || 0) >= 7 },
+      test: () => Object.keys(progress.wordStats).length >= 200, prog: () => [Math.min(Object.keys(progress.wordStats).length, 200), 200] },
+    { id: "streak3", emoji: "🔥", group: "habit", name: rwL("3-Day Streak", "3일 연속 학습"),
+      desc: rwL("Practise 3 days in a row", "3일 연속 학습"), test: () => streakNow() >= 3, prog: () => [Math.min(streakNow(), 3), 3] },
+    { id: "streak7", emoji: "🌈", group: "habit", name: rwL("Week-long Koala", "일주일 연속 코알라"),
+      desc: rwL("Practise 7 days in a row", "7일 연속 학습"), test: () => streakNow() >= 7, prog: () => [Math.min(streakNow(), 7), 7] },
     { id: "streak30", emoji: "🏆", group: "habit", name: rwL("Monthly Marathon", "한 달 연속 학습"),
-      desc: rwL("Practise 30 days in a row", "30일 연속 학습"), test: () => (progress.streak.count || 0) >= 30 },
-    { id: "streak14", emoji: "🥇", group: "habit", name: rwL("Fortnight Koala", "2주 연속 코알라"),
-      desc: rwL("Practise 14 days in a row", "14일 연속 학습"), test: () => (progress.streak.count || 0) >= 14 },
+      desc: rwL("Practise 30 days in a row", "30일 연속 학습"), test: () => streakNow() >= 30, prog: () => [Math.min(streakNow(), 30), 30] },
+    { id: "streak14", emoji: "⚡", group: "habit", name: rwL("Fortnight Koala", "2주 연속 코알라"),
+      desc: rwL("Practise 14 days in a row", "14일 연속 학습"), test: () => streakNow() >= 14, prog: () => [Math.min(streakNow(), 14), 14] },
     { id: "mission7", emoji: "🎯", group: "habit", name: rwL("Mission Master", "미션 마스터"),
-      desc: rwL("Complete Today's Mission 7 times", "오늘의 미션을 7번 완료"), test: () => (progress.counters.missions || 0) >= 7 },
+      desc: rwL("Complete Today's Mission 7 times", "오늘의 미션을 7번 완료"), test: () => (progress.counters.missions || 0) >= 7, prog: () => [Math.min(progress.counters.missions || 0, 7), 7] },
     { id: "coins500", emoji: "💰", group: "koala", name: rwL("Coin Collector", "코인 수집가"),
-      desc: rwL("Earn 500 Koala Coins in total", "코알라 코인을 모두 500개 모아요"), test: () => KoalaCore.ensureKoala(progress).earned >= 500 },
+      desc: rwL("Earn 500 Koala Coins in total", "코알라 코인을 모두 500개 모아요"), test: () => KoalaCore.ensureKoala(progress).earned >= 500, prog: () => [Math.min(KoalaCore.ensureKoala(progress).earned, 500), 500] },
     { id: "level5", emoji: "⭐", group: "koala", name: rwL("Level 5 Koala", "레벨 5 코알라"),
-      desc: rwL("Reach Koala Level 5", "코알라 레벨 5 달성"), test: () => KoalaCore.levelInfo(KoalaCore.ensureKoala(progress).earned).level >= 5 },
+      desc: rwL("Reach Koala Level 5", "코알라 레벨 5 달성"), test: () => KoalaCore.levelInfo(KoalaCore.ensureKoala(progress).earned).level >= 5, prog: () => [Math.min(KoalaCore.levelInfo(KoalaCore.ensureKoala(progress).earned).level, 5), 5] },
     { id: "items5", emoji: "🎩", group: "koala", name: rwL("Dress-up Fan", "패션 코알라"),
       desc: rwL("Unlock 5 items for your Koala or room", "코알라나 방 아이템 5개 해금"),
-      test: () => { const k = KoalaCore.ensureKoala(progress); return Object.keys(k.items.owned).filter((id) => { const it = KoalaCore.itemById(id); return it && !it.unlock.free; }).length >= 5; } },
+      test: () => koalaItemsUnlocked() >= 5, prog: () => [Math.min(koalaItemsUnlocked(), 5), 5] },
     { id: "roomDecor", emoji: "🏠", group: "koala", name: rwL("Room Designer", "방 꾸미기 달인"),
       desc: rwL("Put 5 items in your Study Room", "공부방에 아이템 5개를 놓아요"),
-      test: () => { const k = KoalaCore.ensureKoala(progress); return KoalaCore.ROOM_SLOTS.filter((sl) => k.items.equipped[sl]).length >= 5; } },
-    { id: "fix5", emoji: "🏅", group: "habit", paidOnly: true, name: rwL("Mistake Fixer", "오답 해결사"),
-      desc: rwL("Clear 5 words from your Wrong-answer notebook", "오답 노트에서 5개 졸업"),
-      test: () => progress.counters.wrongCleared >= 5 },
-    { id: "fix20", emoji: "💎", group: "habit", paidOnly: true, name: rwL("Mistake Master", "오답 마스터"),
-      desc: rwL("Clear 20 words from your Wrong-answer notebook", "오답 노트에서 20개 졸업"),
-      test: () => progress.counters.wrongCleared >= 20 }
+      test: () => koalaRoomItems() >= 5, prog: () => [Math.min(koalaRoomItems(), 5), 5] },
+    { id: "fix5", emoji: "🔧", group: "habit", paidOnly: true, name: rwL("Mistake Fixer", "오답 해결사"),
+      desc: rwL("Clear 5 words from your Mistakes list", "오답 노트에서 5개 졸업"),
+      test: () => progress.counters.wrongCleared >= 5, prog: () => [Math.min(progress.counters.wrongCleared || 0, 5), 5] },
+    { id: "fix20", emoji: "🏅", group: "habit", paidOnly: true, name: rwL("Mistake Master", "오답 마스터"),
+      desc: rwL("Clear 20 words from your Mistakes list", "오답 노트에서 20개 졸업"),
+      test: () => progress.counters.wrongCleared >= 20, prog: () => [Math.min(progress.counters.wrongCleared || 0, 20), 20] }
   );
   return list;
 }
@@ -11877,7 +11904,7 @@ function renderRewardPanels() {
 function premiumLockHtml() {
   return `<div class="rw-lock"><div class="rw-lock-icon">🔒<span class="kface" aria-hidden="true"></span></div>
     <div class="rw-lock-title">${t("premiumGateTitle")}</div>
-    <p>${rwL("Koala badges and the Wrong-answer notebook are for Premium members.", "코알라 배지와 오답 노트는 프리미엄 회원 전용이에요.")}</p>
+    <p>${rwL("Koala badges and the Mistakes list are for Premium members.", "코알라 배지와 오답 노트는 프리미엄 회원 전용이에요.")}</p>
     <button type="button" class="pill accent small" data-rw-upgrade>${rwL("Sign up / Upgrade", "가입 / 업그레이드")}</button></div>`;
 }
 document.addEventListener("click", (e) => {
@@ -13056,8 +13083,8 @@ function renderWrongPanel() {
     ? ""
     : ` <button type="button" class="pill small" id="wrong-study-btn">${FLASH_ICON_SVG} ${rwL("Study these words", "오답 단어 공부하기")}</button>`;
   let html = `${subTabs}<p class="wrong-hint">${wrongSubTab === "math"
-    ? rwL("Get a fact right in a review and it graduates from this notebook.", "복습에서 맞히면 오답 노트에서 바로 졸업해요.")
-    : rwL("Get a word right in a review and it graduates from this notebook.", "복습에서 맞히면 오답 노트에서 바로 졸업해요.")}</p>
+    ? rwL("Get a fact right in a review and it graduates from this list.", "복습에서 맞히면 오답 노트에서 바로 졸업해요.")
+    : rwL("Get a word right in a review and it graduates from this list.", "복습에서 맞히면 오답 노트에서 바로 졸업해요.")}</p>
     <div class="wrong-actions"><button type="button" class="pill accent small" id="wrong-review-btn"><span class="kface" aria-hidden="true"></span> ${rwL("Start review", "복습 시작")}</button>${studyBtn}</div>
     <ul class="wrong-list">`;
   items.forEach((it) => {
@@ -13129,12 +13156,13 @@ const REC_WEAK_PCT = 70;
 const REC_JUST_DONE_MS = 15 * 60 * 1000;
 
 const CAT_DEFS = [
-  { id: "vocab", modes: ["quiz", "flash"], view: "quiz", name: () => rwL("Vocabulary", "어휘"), icon: "📖", cta: () => rwL("Practise", "연습") },
+  // Names and icons match the Study / Game menu so a child sees the same word in both places.
+  { id: "vocab", modes: ["quiz", "flash"], view: "quiz", name: () => rwL("Quiz & Flashcards", "퀴즈·플래시카드"), icon: "💡", cta: () => rwL("Practise", "연습") },
   { id: "spelling", modes: ["spelling"], view: "spelling", name: () => rwL("Spelling", "스펠링"), icon: "✏️", cta: () => rwL("Practise", "연습") },
-  { id: "tt", modes: ["tt"], view: "timestable", name: () => rwL("Times Tables", "구구단"), icon: "🧮", cta: () => rwL("Practise", "연습") },
-  { id: "typing", modes: ["typing"], view: "typegame", name: () => rwL("Typing", "타이핑"), icon: "⌨️", cta: () => rwL("Play", "게임") },
+  { id: "tt", modes: ["tt"], view: "timestable", name: () => rwL("Times Table", "구구단"), icon: "🧮", cta: () => rwL("Practise", "연습") },
+  { id: "typing", modes: ["typing"], view: "typegame", name: () => rwL("Typing Game", "타이핑 게임"), icon: "⌨️", cta: () => rwL("Play", "게임") },
 ];
-const MODE_LABEL = () => ({ quiz: rwL("Quiz", "퀴즈"), flash: rwL("Flashcards", "플래시카드"), spelling: rwL("Spelling", "스펠링"), tt: rwL("Times Tables", "구구단"), typing: rwL("Typing", "타이핑") });
+const MODE_LABEL = () => ({ quiz: rwL("Quiz", "퀴즈"), flash: rwL("Flashcards", "플래시카드"), spelling: rwL("Spelling", "스펠링"), tt: rwL("Times Table", "구구단"), typing: rwL("Typing Game", "타이핑 게임") });
 
 function recLog() { ensureRewardData(); return progress.recent; }
 const recPct = (arr) => (arr.length ? Math.round((arr.filter((e) => e.ok).length / arr.length) * 100) : 0);
@@ -13145,15 +13173,37 @@ function catStats(def) {
   const n = last.length;
   const enough = n >= REC_MIN;
   const correct = last.filter((e) => e.ok).length;
-  let trend = null;
+  let trend = null, diff = 0;
   if (items.length >= 10) {
     const a = items.slice(-10), b = items.slice(-20, -10);
     if (b.length >= REC_MIN) {
-      const diff = recPct(a) - recPct(b);
+      diff = recPct(a) - recPct(b);
       trend = diff >= 10 ? "up" : diff <= -10 ? "down" : "flat";
     }
   }
-  return { def, n, enough, correct, misses: n - correct, pct: enough ? Math.round((correct / n) * 100) : null, trend, lastTs: items.length ? items[items.length - 1].t : 0 };
+  // A score from a single sitting can be a fluke (one rough Typing round
+  // reads 0%), so a category needs answers from at least two separate
+  // sittings (30+ minutes apart) before its accuracy is shown.
+  let sessions = 0, prevT = -Infinity;
+  items.forEach((e) => { if (e.t - prevT > 30 * 60 * 1000) sessions++; prevT = e.t; });
+  const shown = enough && sessions >= 2;
+  return { def, n, enough: shown, correct, misses: n - correct, pct: shown ? Math.round((correct / n) * 100) : null, trend: shown ? trend : null, diff, lastTs: items.length ? items[items.length - 1].t : 0 };
+}
+
+// Trend caption under a category's score: shows the size of the change and
+// never says "Steady" about a low score.
+function trendInfo(c) {
+  if (!c.trend) return null;
+  const amt = `${c.diff > 0 ? "+" : c.diff < 0 ? "−" : ""}${Math.abs(c.diff)}%`;
+  if (c.trend === "up") return { cls: "up", txt: rwL(`↑ ${amt} vs before`, `↑ 이전보다 ${amt}`) };
+  if (c.trend === "down") {
+    return c.pct >= 85
+      ? { cls: "flat", txt: rwL(`↓ ${amt}, still strong`, `↓ ${amt}, 그래도 잘하고 있어요`) }
+      : { cls: "down", txt: rwL(`↓ ${amt} vs before`, `↓ 이전보다 ${amt}`) };
+  }
+  if (c.pct >= 85) return { cls: "up", txt: rwL("★ Going strong", "★ 아주 잘하고 있어요") };
+  if (c.pct >= REC_WEAK_PCT) return { cls: "flat", txt: rwL("→ Steady", "→ 꾸준해요") };
+  return { cls: "down", txt: rwL("Needs some practice", "조금 더 연습해요") };
 }
 
 // Words that genuinely need attention, from the answer log, the spaced-
@@ -13217,7 +13267,7 @@ function getRecommendedNext() {
   if (review.length && !clearlyWeak) {
     const missed = review.filter((r) => r.status === "missed").length;
     const reason = missed
-      ? rwL(`You missed ${missed} ${s(missed, "word", "words")} recently.`, `최근에 틀린 단어가 ${missed}개 있어요.`)
+      ? rwL(`${missed} tricky ${s(missed, "word is", "words are")} waiting. Let's beat ${s(missed, "it", "them")}!`, `최근에 틀린 단어 ${missed}개가 기다리고 있어요. 같이 정복해요!`)
       : rwL(`${review.length} ${s(review.length, "word is", "words are")} ready for review.`, `복습할 단어가 ${review.length}개 있어요.`);
     return mk("review", rwL("Review tricky words", "어려운 단어 복습"), reason, rwL(`Review ${review.length} ${s(review.length, "word", "words")}`, `${review.length}개 복습`), "review");
   }
@@ -13226,7 +13276,14 @@ function getRecommendedNext() {
     if (!c.enough || c.pct >= REC_WEAK_PCT || id === justDone) continue;
     if (clearlyWeak && id !== clearlyWeak) continue;
     const nm = c.def.name();
-    return mk(id, rwL(`Practise ${nm.toLowerCase()}`, `${nm} 연습`), rwL(`You missed ${c.misses} of your last ${c.n} ${nm.toLowerCase()} questions. More practice may help.`, `최근 ${c.n}문제 중 ${c.misses}개를 틀렸어요. 조금 더 연습하면 도움이 돼요.`), rwL(`Practise ${nm}`, `${nm} 연습하기`), "view:" + c.def.view);
+    // Encouraging wording on purpose: this is read by children, so it never lists how many they got wrong.
+    const reasonEn = c.correct === 0
+      ? `${nm} needs some love. Warm up with a short round!`
+      : `You got ${c.correct} of your last ${c.n} right. A short round can boost it!`;
+    const reasonKo = c.correct === 0
+      ? `${nm}에 조금만 힘을 내 볼까요? 짧게 한 판만 해 봐요!`
+      : `최근 ${c.n}문제 중 ${c.correct}개를 맞혔어요. 짧게 한 판 하면 점수가 쑥 올라가요!`;
+    return mk(id, rwL(`Practise ${nm.toLowerCase()}`, `${nm} 연습`), rwL(reasonEn, reasonKo), rwL(`Practise ${nm}`, `${nm} 연습하기`), "view:" + c.def.view);
   }
   const m = missionTasks().find((x) => x.done < x.goal && !(justDone && CAT_DEFS.find((d) => d.id === justDone).modes.includes(x.mode)));
   if (m) {
@@ -13298,6 +13355,34 @@ function dayLabel(ts) {
 
 let dashActivityExpanded = false;
 
+// Weekly attendance strip: the last 7 days, ticked when anything was practised.
+function weekStripHtml() {
+  const lang = currentLang === "ko" ? "ko-KR" : "en-AU";
+  const todayKey = localDateKey(new Date());
+  const cells = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const rec = (progress.daily && progress.daily[localDateKey(d)]) || {};
+    const did = Object.keys(rec).some((m) => rec[m] && rec[m][1] > 0);
+    const isToday = localDateKey(d) === todayKey;
+    cells.push(`<li class="dash-day${did ? " done" : ""}${isToday ? " today" : ""}"><span class="dash-day-name">${d.toLocaleDateString(lang, { weekday: "narrow" })}</span><span class="dash-day-dot" aria-hidden="true">${did ? "✓" : ""}</span></li>`);
+  }
+  return `<ul class="dash-week" aria-label="${rwL("Last 7 days", "최근 7일")}">${cells.join("")}</ul>`;
+}
+
+// The unearned badge that is closest to being finished (for the "Next goal" bar).
+function nextBadgeGoal(cat, paid) {
+  let best = null;
+  cat.forEach((b) => {
+    if (progress.badges[b.id] || !b.prog || (b.paidOnly && !paid)) return;
+    const [have, goal] = b.prog();
+    if (!goal) return;
+    const ratio = have / goal;
+    if (!best || ratio > best.ratio) best = { b, have, goal, ratio };
+  });
+  return best;
+}
+
 function renderSkillsCard() {
   const box = document.getElementById("stats-skills");
   if (!box) return;
@@ -13306,60 +13391,104 @@ function renderSkillsCard() {
   const review = getWordsToReview();
   const sessions = getRecentSessions(dashActivityExpanded ? 10 : 3);
   const moreSessions = !dashActivityExpanded && getRecentSessions(10).length > 3;
+  const log = recLog();
+  const DAY = 86400000;
 
-  // Today's learning
-  const ctaLabel = !today.hasHistory ? rwL("Start Practice", "연습 시작") : today.justFinished ? rwL("Keep Learning", "계속 배우기") : rwL("Continue Learning", "이어서 배우기");
-  const todayBody = today.questions
-    ? `<div class="dash-nums"><div><b>${today.questions}</b><span>${rwL("Questions completed", "푼 문제")}</span></div><div><b>${today.words}</b><span>${rwL("Words practised", "연습한 단어")}</span></div><div><b>${today.pct}%</b><span>${rwL("Accuracy today", "오늘 정답률")}</span></div></div>`
-    : `<p class="dash-muted">${today.hasHistory ? rwL("Nothing practised yet today.", "오늘은 아직 연습하지 않았어요.") : rwL("Start practising to see your progress.", "연습을 시작하면 학습 현황이 보여요.")}</p>`;
-  const todayHtml = `<section class="dash-card dash-today" aria-labelledby="dash-h-today"><h3 class="dash-h" id="dash-h-today">${rwL("Today's learning", "오늘의 학습")}</h3>${todayBody}
-    <button type="button" class="pill small dash-btn" data-dash-act="${rec.type === "review" ? "view:" + missionTasks()[0].view : rec.action}">${ctaLabel}</button></section>`;
+  // Summary chips
+  const dRec = (progress.daily && progress.daily[localDateKey(new Date())]) || {};
+  const correctToday = Object.keys(dRec).reduce((s, m) => s + ((dRec[m] && dRec[m][0]) || 0), 0);
+  const weekWords = new Set(log.filter((e) => Date.now() - e.t <= 7 * DAY && !reviewIsMath(e.w)).map((e) => String(e.w).toLowerCase())).size;
+  const streakN = currentStreakStatus().count;
+  const summaryHtml = `<div class="dash-summary">
+    <div class="dash-sum"><span class="dash-sum-ico" aria-hidden="true">⭐</span><b>${correctToday}</b><span>${rwL("correct today", "오늘 맞힌 문제")}</span></div>
+    <div class="dash-sum"><span class="dash-sum-ico" aria-hidden="true">🔥</span><b>${streakN}</b><span>${rwL("day streak", "일 연속")}</span></div>
+    <div class="dash-sum"><span class="dash-sum-ico" aria-hidden="true">📚</span><b>${weekWords}</b><span>${rwL("words this week", "이번 주 단어")}</span></div></div>${weekStripHtml()}`;
 
-  // Recommended next (strongest card)
+  // One hero card: today's numbers + recommendation + a single button
+  const todayLine = today.questions
+    ? rwL(`Today: ${today.questions} questions · ${today.words} words · ${today.pct}% right`, `오늘: ${today.questions}문제 · ${today.words}단어 · 정답률 ${today.pct}%`)
+    : today.hasHistory ? rwL("Nothing practised yet today.", "오늘은 아직 연습하지 않았어요.") : rwL("Start practising to see your progress.", "연습을 시작하면 학습 현황이 보여요.");
   const recHtml = `<section class="dash-card dash-rec" aria-labelledby="dash-h-rec"><div class="dash-eyebrow">${rwL("Recommended next", "다음 추천")}</div>
     <h3 class="dash-title" id="dash-h-rec">${escapeHtml(rec.title)}</h3><p class="dash-reason">${escapeHtml(rec.reason)}</p>
-    <button type="button" class="pill dash-btn dash-rec-btn" data-dash-act="${rec.action}">${escapeHtml(rec.actionLabel)}</button></section>`;
+    <button type="button" class="pill dash-btn dash-rec-btn" data-dash-act="${rec.action}">${escapeHtml(rec.actionLabel)}</button>
+    <p class="dash-rec-today">${escapeHtml(todayLine)}</p></section>`;
 
-  // Words to review
-  const stLabel = { missed: rwL("Missed recently", "최근에 틀림"), due: rwL("Due for review", "복습할 때"), learning: rwL("Still learning", "배우는 중") };
+  // Words to review: each row says something specific about the word
+  const missCount = {};
+  log.forEach((e) => { if (!e.ok && Date.now() - e.t <= 7 * DAY) { const k = String(e.w).toLowerCase(); missCount[k] = (missCount[k] || 0) + 1; } });
+  const chipFor = (r) => {
+    if (r.status === "missed") {
+      const n = missCount[r.word.toLowerCase()] || 0;
+      return n > 1 ? rwL(`Missed ${n} times`, `${n}번 틀림`) : rwL("Missed once", "1번 틀림");
+    }
+    return r.status === "due" ? rwL("Due for review", "복습할 때") : rwL("Still learning", "배우는 중");
+  };
+  const reviewRow = (r) => {
+    const info = findWordInfo(r.word);
+    const def = info && info.definition ? `<span class="dash-word-def">${escapeHtml(info.definition)}</span>` : "";
+    return `<li><button type="button" class="dash-say" data-say="${escapeHtml(r.word)}" aria-label="${rwL("Hear", "듣기")} ${escapeHtml(r.word)}">🔊</button><span class="dash-word-main"><span class="pr-word">${escapeHtml(r.word)}</span>${def}</span><span class="dash-chip dash-${r.status}">${chipFor(r)}</span></li>`;
+  };
   const reviewHtml = review.length
     ? `<section class="dash-card dash-review" aria-labelledby="dash-h-review"><div class="dash-h-row"><h3 class="dash-h" id="dash-h-review">${rwL("Words to review", "복습할 단어")}</h3><span class="dash-count" aria-label="${review.length}">${review.length}</span></div>
-       <ul class="dash-words">${review.slice(0, 3).map((r) => `<li><button type="button" class="dash-say" data-say="${escapeHtml(r.word)}" aria-label="${rwL("Hear", "듣기")} ${escapeHtml(r.word)}">🔊</button><span class="pr-word">${escapeHtml(r.word)}</span><span class="dash-chip dash-${r.status}">${stLabel[r.status]}</span></li>`).join("")}</ul>
+       <p class="dash-muted dash-caption">${rwL("Words you missed lately or are due for a recap.", "최근에 틀렸거나 다시 볼 때가 된 단어예요.")}</p>
+       <ul class="dash-words">${review.slice(0, 3).map(reviewRow).join("")}</ul>
        <button type="button" class="pill accent small dash-btn" data-dash-act="review">${rwL("Review All", "모두 복습")}</button></section>`
     : `<section class="dash-card dash-review dash-caught-up" aria-labelledby="dash-h-review"><h3 class="dash-h" id="dash-h-review">${rwL("Words to review", "복습할 단어")}</h3>
        <p class="dash-good">🎉 ${rwL("You're all caught up!", "모두 끝냈어요!")}</p><p class="dash-muted">${rwL("No words need review right now.", "지금 복습할 단어가 없어요.")}</p>
        <button type="button" class="pill small dash-btn" data-dash-act="view:flashcards">${rwL("Learn New Words", "새 단어 배우기")}</button></section>`;
 
-  // Category progress (2x2 on wide screens)
-  const trendTxt = { up: rwL("↑ Improving", "↑ 좋아지고 있어요"), down: rwL("↓ More practice", "↓ 조금 더 연습해요"), flat: rwL("→ Steady", "→ 꾸준해요") };
-  const catCards = CAT_DEFS.map((d) => {
-    const c = catStats(d);
+  // Category cards (2x2): weakest one first with a "Focus today" tag
+  const cats = CAT_DEFS.map(catStats);
+  const weak = cats.filter((c) => c.enough && c.pct < REC_WEAK_PCT).sort((a, b) => a.pct - b.pct)[0];
+  const ordered = weak ? [weak, ...cats.filter((c) => c !== weak)] : cats;
+  const catCards = ordered.map((c) => {
+    const d = c.def, focus = c === weak;
+    const ti = trendInfo(c);
+    const tone = c.pct >= 85 ? "good" : c.pct >= REC_WEAK_PCT ? "ok" : "low";
     const body = c.enough
-      ? `<div class="dash-cat-pct">${c.pct}%</div><div class="dash-cat-sub">${rwL("Recent accuracy", "최근 정답률")}</div>${c.trend ? `<div class="dash-trend dash-trend-${c.trend}">${trendTxt[c.trend]}</div>` : ""}`
-      : `<div class="dash-cat-sub dash-cat-empty">${rwL("Not enough recent practice yet", "최근 연습이 아직 부족해요")}</div>`;
-    return `<div class="dash-cat"><div class="dash-cat-name"><span aria-hidden="true">${d.icon}</span> ${d.name()}</div>${body}
+      ? `<div class="dash-cat-pct">${c.pct}%</div><div class="dash-bar dash-bar-${tone}" role="presentation"><i style="width:${c.pct}%"></i></div>
+         <div class="dash-cat-sub">${rwL(`Last ${c.n} questions`, `최근 ${c.n}문제`)}</div>${ti ? `<div class="dash-trend dash-trend-${ti.cls}">${ti.txt}</div>` : ""}`
+      : `<div class="dash-cat-sub dash-cat-empty">${rwL("Practise a few more times to see your score", "조금 더 연습하면 점수가 보여요")}</div>`;
+    return `<div class="dash-cat${focus ? " dash-cat-focus" : ""}">${focus ? `<span class="dash-focus-tag">${rwL("Focus today", "오늘의 집중")}</span>` : ""}
+      <div class="dash-cat-name"><span aria-hidden="true">${d.icon}</span> ${d.name()}</div>${body}
       <button type="button" class="pill small dash-btn ${c.enough ? "" : "accent"}" data-dash-act="view:${d.view}">${c.enough ? d.cta() : rwL("Start Practising", "연습 시작")}</button></div>`;
   }).join("");
-  const catHtml = `<section class="dash-block" aria-labelledby="dash-h-cat"><h3 class="dash-h dash-h-plain" id="dash-h-cat">${rwL("Your progress", "나의 실력")}</h3><div class="dash-cat-grid">${catCards}</div></section>`;
+  const catHtml = `<section class="dash-block" aria-labelledby="dash-h-cat"><h3 class="dash-h" id="dash-h-cat">${rwL("Your progress", "나의 실력")}</h3><div class="dash-cat-grid">${catCards}</div></section>`;
 
-  // Recent activity (compact, secondary)
+  // Recent activity, grouped by day, with coloured score pills
+  let lastDay = "", actItems = "";
+  sessions.forEach((s) => {
+    const day = dayLabel(s.end);
+    if (day !== lastDay) { actItems += `<li class="dash-act-head">${day}</li>`; lastDay = day; }
+    const p = Math.round((s.c / s.n) * 100);
+    const tone = p >= 80 ? "good" : p >= 50 ? "ok" : "low";
+    const mark = tone === "good" ? "✓" : tone === "ok" ? "•" : "!";
+    actItems += `<li><span class="dash-act-name">${MODE_LABEL()[s.m] || s.m}</span><b class="dash-score dash-score-${tone}"><span aria-hidden="true">${mark}</span> ${s.c}/${s.n}</b></li>`;
+  });
   const actHtml = sessions.length
-    ? `<section class="dash-block dash-secondary" aria-labelledby="dash-h-act"><h3 class="dash-h dash-h-plain" id="dash-h-act">${rwL("Recent activity", "최근 활동")}</h3><ul class="dash-acts">${sessions.map((s) => `<li><span class="dash-act-day">${dayLabel(s.end)}</span><span class="dash-act-name">${MODE_LABEL()[s.m] || s.m}</span><b>${s.c}/${s.n}</b></li>`).join("")}</ul>
+    ? `<section class="dash-block dash-secondary" aria-labelledby="dash-h-act"><h3 class="dash-h" id="dash-h-act">${rwL("Recent activity", "최근 활동")}</h3><ul class="dash-acts">${actItems}</ul>
        ${moreSessions ? `<button type="button" class="dash-link" data-dash-more="1">${rwL("View more", "더 보기")}</button>` : ""}</section>`
     : "";
 
-  // Badges preview (full list stays in the Badges tab)
+  // Badges: latest three earned + the next goal
   const signedIn = canUseAccountFeatures();
+  const paid = canUsePaidFeatures();
   const cat = buildBadgeCatalog();
-  const earned = signedIn ? cat.filter((b) => progress.badges[b.id]) : [];
-  const shown = (earned.length ? earned : cat).slice(0, 6);
-  const badgeHtml = `<section class="dash-block" aria-labelledby="dash-h-badges"><div class="dash-h-row"><h3 class="dash-h dash-h-plain" id="dash-h-badges">${rwL("Your badges", "나의 배지")}</h3>
+  const earned = signedIn ? cat.filter((b) => progress.badges[b.id]).sort((a, b) => progress.badges[b.id] - progress.badges[a.id]) : [];
+  const shown = earned.length ? earned.slice(0, 3) : cat.filter((b) => !b.paidOnly || paid).slice(0, 3);
+  const goal = signedIn ? nextBadgeGoal(cat, paid) : null;
+  const goalHtml = goal
+    ? `<div class="dash-goal"><span class="dash-goal-ico" aria-hidden="true">${goal.b.emoji}</span><div class="dash-goal-main"><div class="dash-goal-top"><b>${rwL("Next goal", "다음 목표")}: ${escapeHtml(goal.b.name)}</b><span>${goal.have} / ${goal.goal}</span></div>
+       <div class="dash-bar dash-bar-ok" role="presentation"><i style="width:${Math.round(goal.ratio * 100)}%"></i></div><div class="dash-muted dash-goal-desc">${escapeHtml(goal.b.desc)}</div></div></div>`
+    : "";
+  const badgeHtml = `<section class="dash-block" aria-labelledby="dash-h-badges"><div class="dash-h-row"><h3 class="dash-h" id="dash-h-badges">${rwL("Your badges", "나의 배지")}</h3>
       <span class="dash-muted dash-inline">${rwL(`${earned.length} of ${cat.length}`, `${cat.length}개 중 ${earned.length}개`)}</span></div>
     <div class="dash-badges">${shown.map((b) => { const on = earned.includes(b); return `<div class="dash-badge ${on ? "on" : "off"}" title="${escapeHtml(b.desc)}"><span class="dash-badge-ico" aria-hidden="true">${b.emoji}</span><span class="dash-badge-name">${escapeHtml(b.name)}</span></div>`; }).join("")}</div>
-    <button type="button" class="pill small dash-btn" data-dash-tab="badges">${rwL("View all badges", "배지 모두 보기")}</button>
-    <button type="button" class="pill small dash-btn" data-dash-act="view:koala">${rwL("View My Koala →", "My Koala 보기 →")}</button></section>`;
+    ${goalHtml}
+    <div class="dash-links"><button type="button" class="dash-link" data-dash-tab="badges">${rwL("View all badges", "배지 모두 보기")}</button>
+    <button type="button" class="dash-link" data-dash-act="view:koala">${rwL("View My Koala", "My Koala 보기")}</button></div></section>`;
 
-  box.innerHTML = `<div class="dash-top">${todayHtml}${recHtml}</div>${reviewHtml}${catHtml}${actHtml}${badgeHtml}`;
+  box.innerHTML = `${summaryHtml}${recHtml}${reviewHtml}${catHtml}${actHtml}${badgeHtml}`;
 }
 document.addEventListener("click", (e) => {
   const act = e.target.closest("[data-dash-act]");

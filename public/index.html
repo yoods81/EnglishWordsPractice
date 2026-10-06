@@ -1485,7 +1485,7 @@ to Flip!</span></div>
         <div class="stats-tabs" role="tablist">
           <button type="button" class="stats-tab on" role="tab" aria-selected="true" data-stats-tab="overview"><span data-i18n="statsTabOverview">📊 Overview</span></button>
           <button type="button" class="stats-tab" role="tab" aria-selected="false" data-stats-tab="badges"><span data-i18n="statsTabBadges">🏅 Badges</span></button>
-          <button type="button" class="stats-tab" role="tab" aria-selected="false" data-stats-tab="wrong"><span data-i18n="statsTabWrong">📕 Wrong notes</span><span class="stats-tab-count"></span></button>
+          <button type="button" class="stats-tab" role="tab" aria-selected="false" data-stats-tab="wrong"><span data-i18n="statsTabWrong">📕 Mistakes</span><span class="stats-tab-count"></span></button>
           <button type="button" class="stats-tab" role="tab" aria-selected="false" data-stats-tab="parent"><span data-i18n="statsTabParent">👪 Parent</span></button>
         </div>
         <div id="stats-panel-overview">
@@ -1514,12 +1514,17 @@ to Flip!</span></div>
           <li data-i18n="statsInsightsBullet2">🎯 Category-by-category accuracy breakdown</li>
           <li data-i18n="statsInsightsBullet3">👨‍👩‍👧‍👦 Track multiple children in one account</li>
         </ul>
+        <div class="insights-sample" aria-hidden="true">
+          <div class="insights-sample-title" data-i18n="statsInsightsSample">Example weekly report</div>
+          <div class="insights-sample-bars"><i style="height:40%"></i><i style="height:65%"></i><i style="height:50%"></i><i style="height:80%"></i><i style="height:70%"></i><i style="height:92%"></i><i style="height:60%"></i></div>
+        </div>
         <div class="premium-gate-overlay" id="stats-premium-overlay" hidden>
           <div class="premium-gate-label">
             <div class="premium-gate-label-title" data-i18n="premiumGateTitle">🔒 Premium feature</div>
             <div class="premium-gate-label-desc" data-i18n="premiumGateDesc">
               You'll need to sign up and upgrade to premium to use this feature!
             </div>
+            <span class="premium-gate-cta" data-i18n="statsInsightsCta">See what Premium adds</span>
           </div>
         </div>
       </div>
