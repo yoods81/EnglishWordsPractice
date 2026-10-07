@@ -11240,3 +11240,88 @@ html body #view-stats > .card.scene-card > .tg-bg { height: 300px; }
   background: #fff; border: 1.5px solid var(--accent-dark);
 }
 html[data-theme="dark"] .stats-tab.is-locked::after { background: #172420; }
+
+/* ==========================================================================
+   My Progress — round 3: breathing room, unclipped badge focus ring, tiles
+   ========================================================================== */
+
+/* Tabs → content */
+#view-stats .stats-tabs { margin-bottom: 20px; gap: 8px; }
+
+/* ---- Badges tab: roomier lines, focus ring that is never clipped ---- */
+#stats-panel-badges .badge-summary { margin: 4px 0 10px; line-height: 1.3; }
+#stats-panel-badges .badge-meter { margin: 0 0 12px; height: 10px; }
+#stats-panel-badges .badge-hint { margin: 0 0 6px; line-height: 1.45; }
+#stats-panel-badges .badge-group-title { margin: 26px 0 14px; line-height: 1.3; }
+#stats-panel-badges .badge-grid { gap: 12px; }
+#stats-panel-badges .badge-card { padding: 12px 6px 14px; }
+#stats-panel-badges .badge-name { margin-bottom: 4px; }
+/* The ring used to sit 5px OUTSIDE the card, so the first/last column's ring
+   was cut off by the page edge. Draw it inside the card instead. */
+.badge-card.locked:focus-visible,
+.badge-card.locked.tip-open {
+  outline: none;
+  box-shadow: inset 0 0 0 3px var(--accent), 0 2px 0 var(--outline, #cfe7df);
+}
+
+/* ---- Overview: spacing between every block ---- */
+#stats-panel-overview .dash-block,
+#stats-panel-overview .dash-card { margin-top: 20px; }
+#stats-panel-overview .dash-summary + .dash-week { margin-top: 12px; }
+#stats-panel-overview .dash-h { margin-bottom: 12px; }
+#stats-panel-overview .dash-cat-grid { gap: 12px; }
+.dash-badges { gap: 10px; }
+.dash-badge { min-height: 0; padding: 12px 6px 12px; gap: 5px; }
+.dash-badge-ico { font-size: 1.9rem; line-height: 1; }
+.dash-badge-name { font-size: 0.78rem; font-weight: 700; line-height: 1.25; }
+.dash-badge-desc {
+  font-size: 0.7rem; line-height: 1.3; color: var(--dash-muted, var(--muted));
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.dash-goal { margin: 12px 0 14px; padding: 12px; }
+.dash-links { margin-top: 14px; gap: 12px; }
+html body #view-stats .more-stats { margin-top: 12px; }
+html body #view-stats .more-stats > summary::after { margin-left: 10px; }
+html body #view-stats .more-stats[open] > summary { margin-bottom: 18px; }
+
+/* More stats tiles: icon + big number + label (+ detail), filling their row */
+#stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 8px; }
+#stats-grid > .stat-box:last-child:nth-child(odd) { grid-column: 1 / -1; }
+#stats-grid .stat-box {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; min-height: 118px; padding: 14px 10px;
+}
+#stats-grid .stat-ico { font-size: 1.5rem; line-height: 1; margin-bottom: 4px; }
+#stats-grid .stat-box .num { font-size: 1.9rem; line-height: 1.1; }
+#stats-grid .stat-box .lbl { font-size: 0.85rem; line-height: 1.3; color: var(--dash-muted, var(--muted)); }
+#stats-grid .stat-box .sub { font-size: 0.74rem; line-height: 1.3; color: var(--dash-muted, var(--muted)); opacity: .85; }
+
+/* charts + activity rows */
+#stats-charts .chart-title, #stats-panel-parent .chart-title { margin: 28px 0 12px; line-height: 1.3; }
+#stats-charts .chart-title:first-child { margin-top: 24px; }
+#stats-charts .chart-legend { gap: 16px; margin: 0 0 10px; }
+#stats-charts .chart-empty { margin: 12px 0 20px; line-height: 1.5; }
+#stats-charts .hbar-row, #stats-panel-parent .hbar-row { margin: 0; padding: 9px 0; gap: 12px; }
+.reset-btn { margin-top: 26px; padding: 10px 20px; }
+#stats-panel-overview .more-stats { margin-bottom: 8px; }
+
+/* ---- Parent tab ---- */
+#stats-panel-parent .pr-head { margin: 0 0 14px; }
+.pr-tiles { gap: 12px; margin: 0 0 8px; }
+.pr-tile {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; min-height: 108px; padding: 14px 6px;
+}
+.pr-ico { font-size: 1.4rem; line-height: 1; margin-bottom: 4px; }
+.pr-num { font-size: 1.9rem; line-height: 1.1; }
+.pr-lbl { font-size: 0.8rem; line-height: 1.3; margin-top: 2px; }
+/* second row: two wider tiles, icon beside the number */
+.pr-tiles > .pr-tile:nth-child(n+4) { flex-direction: column; min-height: 100px; }
+#stats-panel-parent .pr-tricky, #stats-panel-parent .pr-tips { gap: 12px; }
+#stats-panel-parent .pr-tips li { padding: 12px 14px; line-height: 1.5; }
+#stats-panel-parent .chart-empty { margin: 4px 0 8px; line-height: 1.5; }
+.pr-actions { margin-top: 26px; gap: 12px; }
+.pr-note { margin: 18px 0 4px; line-height: 1.5; }
+
+/* dark */
+html[data-theme="dark"] .dash-badge-desc { color: #aab4dc; }

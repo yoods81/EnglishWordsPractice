@@ -14451,7 +14451,7 @@ function renderSkillsCard() {
     : "";
   const badgeHtml = `<section class="dash-block" aria-labelledby="dash-h-badges"><div class="dash-h-row"><h3 class="dash-h" id="dash-h-badges">${rwL("Your badges", "나의 배지")}</h3>
       <span class="dash-muted dash-inline">${rwL(`${earned.length} of ${cat.length}`, `${cat.length}개 중 ${earned.length}개`)}</span></div>
-    <div class="dash-badges">${shown.map((b) => { const on = earned.includes(b); return `<div class="dash-badge ${on ? "on" : "off"}" title="${escapeHtml(b.desc)}"><span class="dash-badge-ico" aria-hidden="true">${b.emoji}</span>${on ? "" : '<span class="dash-badge-lock" aria-hidden="true">🔒</span>'}<span class="dash-badge-name">${escapeHtml(b.name)}</span></div>`; }).join("")}</div>
+    <div class="dash-badges">${shown.map((b) => { const on = earned.includes(b); return `<div class="dash-badge ${on ? "on" : "off"}" title="${escapeHtml(b.desc)}"><span class="dash-badge-ico" aria-hidden="true">${b.emoji}</span>${on ? "" : '<span class="dash-badge-lock" aria-hidden="true">🔒</span>'}<span class="dash-badge-name">${escapeHtml(b.name)}</span><span class="dash-badge-desc">${escapeHtml(b.desc)}</span></div>`; }).join("")}</div>
     ${goalHtml}
     <div class="dash-links"><button type="button" class="dash-link" data-dash-tab="badges">${rwL("View all badges", "배지 모두 보기")}</button>
     <button type="button" class="dash-link" data-dash-act="view:koala">${rwL("View My Koala", "My Koala 보기")}</button></div></section>`;
@@ -14539,15 +14539,18 @@ function renderStats() {
     : 0;
 
   const stats = [
-    { num: wordsPracticed, lbl: t("statWordsPracticed") },
-    { num: flashKnownCount, lbl: t("statFlashKnown") },
-    { num: `${quizPct}%`, lbl: t("statQuizAccuracy", progress.quiz.correct, progress.quiz.total) },
-    { num: `${spellPct}%`, lbl: t("statSpellAccuracy", progress.spelling.correct, progress.spelling.total) },
-    { num: customWords.length, lbl: t("statWordsAdded") },
+    { ico: "📚", num: wordsPracticed, lbl: t("statWordsPracticed") },
+    { ico: "🃏", num: flashKnownCount, lbl: t("statFlashKnown") },
+    { ico: "💡", num: `${quizPct}%`, lbl: rwL("Quiz accuracy", "퀴즈 정답률"),
+      sub: progress.quiz.total ? rwL(`${progress.quiz.correct} of ${progress.quiz.total} right`, `${progress.quiz.total}문제 중 ${progress.quiz.correct}개 정답`) : rwL("No answers yet", "아직 푼 문제 없음") },
+    { ico: "✏️", num: `${spellPct}%`, lbl: rwL("Spelling accuracy", "스펠링 정답률"),
+      sub: progress.spelling.total ? rwL(`${progress.spelling.correct} of ${progress.spelling.total} right`, `${progress.spelling.total}문제 중 ${progress.spelling.correct}개 정답`) : rwL("No answers yet", "아직 푼 문제 없음") },
   ];
+  // Only accounts that can add words have a count of their own to show.
+  if (canUsePaidFeatures()) stats.push({ ico: "📝", num: customWords.length, lbl: t("statWordsAdded") });
 
   statsGrid.innerHTML = stats
-    .map((s) => `<div class="stat-box"><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div></div>`)
+    .map((s) => `<div class="stat-box"><span class="stat-ico" aria-hidden="true">${s.ico}</span><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div>${s.sub ? `<div class="sub">${s.sub}</div>` : ""}</div>`)
     .join("");
   renderRewardPanels();
 }
@@ -15151,7 +15154,7 @@ function renderParentPanel() {
   const deltaHtml = delta === null ? "" : `<span class="pr-delta ${delta >= 0 ? "up" : "down"}">${delta >= 0 ? "▲" : "▼"} ${Math.abs(delta)}%p</span>`;
   const streak = (progress.streak && progress.streak.count) || 0;
   const learned = Object.values(progress.srs || {}).filter((e) => e.box >= 3).length;
-  const mastered = `<div class="pr-tile"><div class="pr-num">${learned}</div><div class="pr-lbl">${rwL("words well known", "잘 아는 단어")}</div></div>`;
+  const mastered = `<div class="pr-tile"><span class="pr-ico" aria-hidden="true">🌟</span><div class="pr-num">${learned}</div><div class="pr-lbl">${rwL("words well known", "잘 아는 단어")}</div></div>`;
   let modes = "";
   PARENT_MODES.forEach(([m, name]) => {
     const [c, tot] = w.perMode[m];
@@ -15170,10 +15173,10 @@ function renderParentPanel() {
   const range = `${from.toLocaleDateString(loc, { day: "numeric", month: "short" })} – ${new Date().toLocaleDateString(loc, { day: "numeric", month: "short" })}`;
   el.innerHTML = `<div class="pr-head"><h4 class="chart-title">${rwL("Weekly report", "주간 리포트")}</h4><span class="pr-range">${range}</span></div>
     <div class="pr-tiles">
-      <div class="pr-tile"><div class="pr-num">${w.activeDays}<small>/7</small></div><div class="pr-lbl">${rwL("days practised", "학습한 날")}</div></div>
-      <div class="pr-tile"><div class="pr-num">${w.total}</div><div class="pr-lbl">${rwL("answers", "푼 문제")}</div></div>
-      <div class="pr-tile"><div class="pr-num">${w.total ? w.pct + "%" : "–"}${deltaHtml}</div><div class="pr-lbl">${rwL("accuracy", "정답률")}</div></div>
-      <div class="pr-tile"><div class="pr-num">${streak}</div><div class="pr-lbl">${rwL("day streak", "연속 학습")}</div></div>
+      <div class="pr-tile"><span class="pr-ico" aria-hidden="true">📅</span><div class="pr-num">${w.activeDays}<small>/7</small></div><div class="pr-lbl">${rwL("days practised", "학습한 날")}</div></div>
+      <div class="pr-tile"><span class="pr-ico" aria-hidden="true">✏️</span><div class="pr-num">${w.total}</div><div class="pr-lbl">${rwL("answers", "푼 문제")}</div></div>
+      <div class="pr-tile"><span class="pr-ico" aria-hidden="true">🎯</span><div class="pr-num">${w.total ? w.pct + "%" : "–"}${deltaHtml}</div><div class="pr-lbl">${rwL("accuracy", "정답률")}</div></div>
+      <div class="pr-tile"><span class="pr-ico" aria-hidden="true">🔥</span><div class="pr-num">${streak}</div><div class="pr-lbl">${rwL("day streak", "연속 학습")}</div></div>
       ${mastered}
     </div>
     <h4 class="chart-title">${rwL("This week by activity", "이번 주 활동별")}</h4>${modes}
