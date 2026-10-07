@@ -663,6 +663,35 @@ const TRANSLATIONS = {
     authSignupErrorUsername: "Username must be 3-20 characters: letters, numbers, underscore.",
     authSignupErrorPassword: "Password must be at least 8 characters.",
     authSignupErrorGeneric: "Sign up failed — please try again.",
+    authForgotLink: "Forgot your username or password?",
+    authModeRecover: "Find Username / Password",
+    recoverIntro: "Type the recovery code you saved when you signed up. It finds your username and lets you pick a new password.",
+    recoverCodeLabel: "Recovery code",
+    recoverFindIdBtn: "Find my username",
+    recoverFoundId: (name) => `Your username is: ${name}`,
+    recoverNewPasswordLabel: "New password (only to reset it)",
+    recoverNoCodeHint: "Don't have a code? Ask the site admin to reset your password.",
+    recoverBackBtn: "Back to Log In",
+    recoverResetBtn: "Reset password",
+    recoverErrorCode: "That recovery code isn't right. Check it and try again.",
+    recoverErrorCodeEmpty: "Please type your recovery code.",
+    recoverErrorPassword: "New password must be at least 8 characters.",
+    recoverErrorGeneric: "Something went wrong — please try again.",
+    recoverResetDone: "Your password was changed. Please log in with your new password.",
+    recoveryTitle: "🔑 Your recovery code",
+    recoveryTitleNew: "🔑 Your new recovery code",
+    recoveryDesc: "Write this code down or take a photo of it, and keep it safe. If you ever forget your username or password, this code gets you back in. It is only shown once.",
+    recoveryDescReset: "Your old code was used up, so here is a new one. Write it down or take a photo of it. It is only shown once.",
+    recoveryCopyBtn: "Copy",
+    recoveryCopied: "Copied!",
+    recoveryDoneBtn: "I saved it",
+    myAccountRecoveryTitle: "🔑 Recovery Code",
+    myAccountRecoveryDesc: "Your recovery code lets you find your username and reset your password if you forget them.",
+    myAccountRecoveryPasswordLabel: "Type your password to confirm",
+    myAccountRecoveryNone: "You don't have a recovery code yet. Make one now and keep it safe.",
+    myAccountRecoveryHas: (date) => `You have a recovery code (made ${date}). Making a new one replaces the old one.`,
+    myAccountRecoveryMakeBtn: "Make a recovery code",
+    myAccountRecoveryRemakeBtn: "Make a new recovery code",
     upgradeTitle: "⭐ Upgrade to Premium",
     upgradeDesc: "General accounts are capped at 100 questions per round. Enter a special code from the admin to unlock more questions and your own private word list.",
     upgradeSubmitBtn: "Upgrade",
@@ -1301,6 +1330,35 @@ const TRANSLATIONS = {
     authSignupErrorUsername: "아이디는 3~20자의 영문/숫자/밑줄(_)만 가능해요.",
     authSignupErrorPassword: "비밀번호는 8자 이상이어야 해요.",
     authSignupErrorGeneric: "회원가입에 실패했어요 — 다시 시도해주세요.",
+    authForgotLink: "아이디 또는 비밀번호를 잊으셨나요?",
+    authModeRecover: "아이디 / 비밀번호 찾기",
+    recoverIntro: "회원가입할 때 저장해 둔 복구 코드를 입력해 주세요. 아이디를 찾거나 새 비밀번호를 정할 수 있어요.",
+    recoverCodeLabel: "복구 코드",
+    recoverFindIdBtn: "아이디 찾기",
+    recoverFoundId: (name) => `내 아이디: ${name}`,
+    recoverNewPasswordLabel: "새 비밀번호 (재설정할 때만 입력)",
+    recoverNoCodeHint: "복구 코드가 없다면 사이트 관리자에게 비밀번호 초기화를 요청해 주세요.",
+    recoverBackBtn: "로그인으로 돌아가기",
+    recoverResetBtn: "비밀번호 재설정",
+    recoverErrorCode: "복구 코드가 올바르지 않아요. 다시 확인해 주세요.",
+    recoverErrorCodeEmpty: "복구 코드를 입력해 주세요.",
+    recoverErrorPassword: "새 비밀번호는 8자 이상이어야 해요.",
+    recoverErrorGeneric: "문제가 생겼어요 — 다시 시도해 주세요.",
+    recoverResetDone: "비밀번호가 변경됐어요. 새 비밀번호로 로그인해 주세요.",
+    recoveryTitle: "🔑 나의 복구 코드",
+    recoveryTitleNew: "🔑 새 복구 코드",
+    recoveryDesc: "이 코드를 종이에 적거나 사진으로 찍어서 잘 보관해 주세요. 아이디나 비밀번호를 잊어버렸을 때 이 코드로 다시 들어올 수 있어요. 지금 한 번만 보여줘요.",
+    recoveryDescReset: "쓰던 코드는 사용돼서, 새 코드를 만들었어요. 종이에 적거나 사진으로 찍어 두세요. 지금 한 번만 보여줘요.",
+    recoveryCopyBtn: "복사",
+    recoveryCopied: "복사됨!",
+    recoveryDoneBtn: "저장했어요",
+    myAccountRecoveryTitle: "🔑 복구 코드",
+    myAccountRecoveryDesc: "복구 코드가 있으면 아이디나 비밀번호를 잊어버려도 아이디를 찾고 비밀번호를 다시 정할 수 있어요.",
+    myAccountRecoveryPasswordLabel: "확인을 위해 비밀번호를 입력해 주세요",
+    myAccountRecoveryNone: "아직 복구 코드가 없어요. 지금 만들어서 잘 보관해 주세요.",
+    myAccountRecoveryHas: (date) => `복구 코드가 있어요 (${date}에 만듦). 새로 만들면 이전 코드는 사용할 수 없어요.`,
+    myAccountRecoveryMakeBtn: "복구 코드 만들기",
+    myAccountRecoveryRemakeBtn: "복구 코드 다시 만들기",
     upgradeTitle: "⭐ 프리미엄으로 업그레이드",
     upgradeDesc: "일반 계정은 한 라운드에 최대 100문제까지만 가능해요. admin에게 받은 특별 코드를 입력하면 더 많은 문제와 나만의 단어장을 사용할 수 있어요.",
     upgradeSubmitBtn: "업그레이드",
@@ -3093,6 +3151,15 @@ const loginPasswordInput = document.getElementById("login-password-input");
 const loginError = document.getElementById("login-error");
 const loginCancelBtn = document.getElementById("login-cancel-btn");
 const signupForm = document.getElementById("signup-form");
+const recoverForm = document.getElementById("recover-form");
+const recoverCodeInput = document.getElementById("recover-code-input");
+const recoverNewPasswordInput = document.getElementById("recover-new-password-input");
+const recoverFound = document.getElementById("recover-found");
+const recoverError = document.getElementById("recover-error");
+const recoverFindIdBtn = document.getElementById("recover-find-id-btn");
+const recoverSubmitBtn = document.getElementById("recover-submit-btn");
+const recoverBackBtn = document.getElementById("recover-back-btn");
+const loginForgotBtn = document.getElementById("login-forgot-btn");
 const signupUsernameInput = document.getElementById("signup-username-input");
 const signupPasswordInput = document.getElementById("signup-password-input");
 const signupCodeInput = document.getElementById("signup-code-input");
@@ -3142,16 +3209,20 @@ function updateAdminUI() {
 }
 
 function setAuthMode(mode) {
-  const login = mode !== "signup";
-  authTitle.textContent = t(login ? "authModeLogin" : "authModeSignup");
+  const recover = mode === "recover";
+  const login = mode !== "signup" && !recover;
+  authTitle.textContent = t(recover ? "authModeRecover" : login ? "authModeLogin" : "authModeSignup");
   loginForm.hidden = !login;
-  signupForm.hidden = login;
+  signupForm.hidden = mode !== "signup";
+  recoverForm.hidden = !recover;
   authModeLoginBtn.classList.toggle("primary", login);
   authModeLoginBtn.classList.toggle("neutral", !login);
-  authModeSignupBtn.classList.toggle("primary", !login);
-  authModeSignupBtn.classList.toggle("neutral", login);
+  authModeSignupBtn.classList.toggle("primary", mode === "signup");
+  authModeSignupBtn.classList.toggle("neutral", mode !== "signup");
   loginError.hidden = true;
   signupError.hidden = true;
+  recoverError.hidden = true;
+  recoverFound.hidden = true;
 }
 
 function openAuthOverlay(mode) {
@@ -3160,9 +3231,11 @@ function openAuthOverlay(mode) {
   signupUsernameInput.value = "";
   signupPasswordInput.value = "";
   signupCodeInput.value = "";
+  recoverCodeInput.value = "";
+  recoverNewPasswordInput.value = "";
   setAuthMode(mode);
   authOverlay.hidden = false;
-  (mode === "signup" ? signupUsernameInput : loginUsernameInput).focus();
+  (mode === "signup" ? signupUsernameInput : mode === "recover" ? recoverCodeInput : loginUsernameInput).focus();
 }
 
 function closeAuthOverlay() {
@@ -3361,6 +3434,7 @@ async function renderMyAccount() {
   myAccountStatusEl.innerHTML = tiles
     .map((s) => `<div class="stat-box"><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div></div>`)
     .join("");
+  refreshRecoveryCard(account);
 }
 
 myAccountPasswordForm.addEventListener("submit", async (e) => {
@@ -3456,7 +3530,7 @@ signupForm.addEventListener("submit", async (e) => {
   signupError.hidden = true;
 
   try {
-    const { user } = await api("/auth/signup", {
+    const { user, recoveryCode } = await api("/auth/signup", {
       method: "POST",
       body: JSON.stringify(specialCode ? { username, password, specialCode } : { username, password }),
     });
@@ -3465,11 +3539,168 @@ signupForm.addEventListener("submit", async (e) => {
     updateAdminUI();
     refreshSharedWords();
     koalaAfterLogin();
+    if (recoveryCode) showRecoveryCode(recoveryCode);
   } catch (err) {
     const code = err && err.data && err.data.error;
     signupError.textContent = t(SIGNUP_ERROR_KEYS[code] || "authSignupErrorGeneric");
     signupError.hidden = false;
   }
+});
+
+/* ---------- Forgot username / password (recovery code) ---------- */
+// There is no email on file, so each account holds one personal recovery code
+// (shown once at signup, or made later in My Account). The same code finds the
+// username and resets the password.
+const recoveryOverlay = document.getElementById("recovery-overlay");
+const recoveryTitleEl = document.getElementById("recovery-title");
+const recoveryDescEl = document.getElementById("recovery-desc");
+const recoveryCodeDisplay = document.getElementById("recovery-code-display");
+const recoveryCopyBtn = document.getElementById("recovery-copy-btn");
+const recoveryDoneBtn = document.getElementById("recovery-done-btn");
+
+function showRecoveryCode(code, opts) {
+  const afterReset = !!(opts && opts.afterReset);
+  recoveryTitleEl.textContent = t(afterReset ? "recoveryTitleNew" : "recoveryTitle");
+  recoveryDescEl.textContent = afterReset ? `${t("recoverResetDone")} ${t("recoveryDescReset")}` : t("recoveryDesc");
+  recoveryCodeDisplay.textContent = code;
+  recoveryCopyBtn.textContent = t("recoveryCopyBtn");
+  recoveryOverlay.hidden = false;
+  recoveryDoneBtn.focus();
+}
+
+recoveryCopyBtn.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(recoveryCodeDisplay.textContent);
+    recoveryCopyBtn.textContent = "✓ " + t("recoveryCopied");
+  } catch (e) {
+    // Clipboard blocked: select the code so it can be copied by hand.
+    const range = document.createRange();
+    range.selectNodeContents(recoveryCodeDisplay);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+});
+// Not dismissed by clicking the backdrop — the code is only shown once.
+recoveryDoneBtn.addEventListener("click", () => {
+  recoveryOverlay.hidden = true;
+  recoveryCodeDisplay.textContent = "";
+});
+
+loginForgotBtn.addEventListener("click", () => {
+  recoverCodeInput.value = "";
+  recoverNewPasswordInput.value = "";
+  setAuthMode("recover");
+  recoverCodeInput.focus();
+});
+recoverBackBtn.addEventListener("click", () => {
+  setAuthMode("login");
+  loginUsernameInput.focus();
+});
+
+recoverFindIdBtn.addEventListener("click", async () => {
+  recoverError.hidden = true;
+  recoverFound.hidden = true;
+  const code = recoverCodeInput.value.trim();
+  if (!code) {
+    recoverError.textContent = t("recoverErrorCodeEmpty");
+    recoverError.hidden = false;
+    return;
+  }
+  recoverFindIdBtn.disabled = true;
+  try {
+    const { username } = await api("/auth/recover", { method: "POST", body: JSON.stringify({ code }) });
+    recoverFound.textContent = t("recoverFoundId", username);
+    recoverFound.hidden = false;
+    loginUsernameInput.value = username;
+  } catch (err) {
+    const c = err && err.data && err.data.error;
+    recoverError.textContent = t(c === "invalid_code" ? "recoverErrorCode" : "recoverErrorGeneric");
+    recoverError.hidden = false;
+  }
+  recoverFindIdBtn.disabled = false;
+});
+
+recoverForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  recoverError.hidden = true;
+  const code = recoverCodeInput.value.trim();
+  const newPassword = recoverNewPasswordInput.value;
+  const fail = (key) => {
+    recoverError.textContent = t(key);
+    recoverError.hidden = false;
+  };
+  if (!code) return fail("recoverErrorCodeEmpty");
+  if (newPassword.length < 8) return fail("recoverErrorPassword");
+  recoverSubmitBtn.disabled = true;
+  try {
+    const { username, code: newCode } = await api("/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({ code, newPassword }),
+    });
+    recoverCodeInput.value = "";
+    recoverNewPasswordInput.value = "";
+    setAuthMode("login");
+    loginUsernameInput.value = username;
+    loginPasswordInput.value = "";
+    loginPasswordInput.focus();
+    if (newCode) showRecoveryCode(newCode, { afterReset: true });
+  } catch (err) {
+    const c = err && err.data && err.data.error;
+    fail(c === "invalid_code" ? "recoverErrorCode" : c === "invalid_password" ? "recoverErrorPassword" : "recoverErrorGeneric");
+  }
+  recoverSubmitBtn.disabled = false;
+});
+
+// My Account: make (or re-make) the signed-in account's recovery code.
+const myAccountRecoveryCard = document.getElementById("my-account-recovery-card");
+const myAccountRecoveryStatus = document.getElementById("my-account-recovery-status");
+const myAccountRecoveryForm = document.getElementById("my-account-recovery-form");
+const myAccountRecoveryPassword = document.getElementById("my-account-recovery-password");
+const myAccountRecoveryError = document.getElementById("my-account-recovery-error");
+const myAccountRecoveryBtn = document.getElementById("my-account-recovery-btn");
+
+async function refreshRecoveryCard(account) {
+  if (!myAccountRecoveryCard) return;
+  if (!account || account.role === "admin") {
+    myAccountRecoveryCard.hidden = true;
+    return;
+  }
+  myAccountRecoveryCard.hidden = false;
+  let has = false;
+  let createdAt = null;
+  try {
+    const r = await api("/auth/recovery-status");
+    has = !!r.hasCode;
+    createdAt = r.createdAt;
+  } catch (e) {
+    // Offline or not migrated yet: offer to make one anyway.
+  }
+  myAccountRecoveryStatus.textContent = has ? t("myAccountRecoveryHas", formatDate(createdAt)) : t("myAccountRecoveryNone");
+  myAccountRecoveryBtn.textContent = t(has ? "myAccountRecoveryRemakeBtn" : "myAccountRecoveryMakeBtn");
+}
+
+myAccountRecoveryForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  myAccountRecoveryError.hidden = true;
+  const password = myAccountRecoveryPassword.value;
+  if (!password) {
+    myAccountRecoveryError.textContent = t("myAccountRecoveryPasswordLabel");
+    myAccountRecoveryError.hidden = false;
+    return;
+  }
+  myAccountRecoveryBtn.disabled = true;
+  try {
+    const { code } = await api("/auth/recovery-code", { method: "POST", body: JSON.stringify({ password }) });
+    myAccountRecoveryForm.reset();
+    showRecoveryCode(code);
+    refreshRecoveryCard(currentUser);
+  } catch (err) {
+    const c = err && err.data && err.data.error;
+    myAccountRecoveryError.textContent = c === "wrong_current_password" ? t("myAccountWrongCurrentPassword") : t("authSignupErrorGeneric");
+    myAccountRecoveryError.hidden = false;
+  }
+  myAccountRecoveryBtn.disabled = false;
 });
 
 /* ---------- Upgrade to paid (an existing free account redeems a code, or requests one from admin) ---------- */

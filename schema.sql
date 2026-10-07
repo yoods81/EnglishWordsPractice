@@ -101,3 +101,11 @@ CREATE TABLE IF NOT EXISTS user_rewards (
   reward_json TEXT NOT NULL,
   updated_at INTEGER NOT NULL
 );
+
+-- Account recovery codes (see migrations/0008_recovery_codes.sql).
+CREATE TABLE IF NOT EXISTS recovery_codes (
+  user_id TEXT PRIMARY KEY,
+  code_hash TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_recovery_codes_hash ON recovery_codes (code_hash);

@@ -70,6 +70,8 @@ The Worker serves `public/` as static assets and handles `/api/*`. One-time setu
 4. **Deploy** with `npm run deploy`, or by pushing if the Worker is connected to this repo on GitHub.
 5. Sign in as admin and use **☁️ Upload** under "My added words" to move words already saved in that browser up to the server.
 
+**Account recovery (forgot username / password):** each account has one personal recovery code (shown once at signup, or made in My Account). It finds the username and resets the password — there is no email on file. On an already-deployed database, create its table once with `npm run db:migrate:recovery` (until then signup still works, just without a code).
+
 Check that `name` in `wrangler.jsonc` matches the existing Worker, otherwise step 4 creates a second Worker at a different URL.
 
 ## Project structure

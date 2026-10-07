@@ -110,3 +110,57 @@ test("account Koala data: any signed-in account can save and load its own, nobod
   const big = { koala: { x: "y".repeat(100001) } };
   assert.equal((await call(kid, "PUT", "/koala/data", { data: big })).status, 413);
 });
+
+test("recovery code: signup issues one, it finds the username and resets the password", async () => {
+  const signup = await call(null, "POST", "/auth/signup", { username: "newkid", password: "firstpass1" });
+  assert.equal(signup.status, 200);
+  const code = signup.data.recoveryCode;
+  assert.match(code, /^[A-Z2-9]{4}(-[A-Z2-9]{4}){3}$/);
+  // Only a hash is stored, never the code itself.
+  const stored = db.prepare("SELECT code_hash FROM recovery_codes WHERE user_id = ?").get(signup.data.user.id);
+  assert.ok(stored && stored.code_hash && !stored.code_hash.includes(code.replace(/-/g, "")));
+
+  // Forgot username: typing the code any way (lowercase, no dashes) works.
+  const found = await call(null, "POST", "/auth/recover", { code: code.toLowerCase().replace(/-/g, " ") });
+  assert.equal(found.status, 200);
+  assert.equal(found.data.username, "newkid");
+  assert.equal((await call(null, "POST", "/auth/recover", { code: "AAAA-BBBB-CCCC-DDDD" })).status, 400);
+  assert.equal((await call(null, "POST", "/auth/recover", {})).status, 400);
+
+  // Forgot password: bad code / short password rejected, good code resets and rotates the code.
+  assert.equal((await call(null, "POST", "/auth/reset-password", { code: "AAAA-BBBB-CCCC-DDDD", newPassword: "secondpass2" })).status, 400);
+  assert.equal((await call(null, "POST", "/auth/reset-password", { code, newPassword: "short" })).status, 400);
+  const reset = await call(null, "POST", "/auth/reset-password", { code, newPassword: "secondpass2" });
+  assert.equal(reset.status, 200);
+  assert.equal(reset.data.username, "newkid");
+  assert.notEqual(reset.data.code, code);
+
+  assert.equal((await call(null, "POST", "/auth/login", { username: "newkid", password: "firstpass1" })).status, 401);
+  assert.equal((await call(null, "POST", "/auth/login", { username: "newkid", password: "secondpass2" })).status, 200);
+  // The used code no longer works; the replacement does.
+  assert.equal((await call(null, "POST", "/auth/reset-password", { code, newPassword: "thirdpass33" })).status, 400);
+  assert.equal((await call(null, "POST", "/auth/recover", { code: reset.data.code })).status, 200);
+});
+
+test("recovery code: make a new one from My Account (password required), admins excluded", async () => {
+  const signup = await call(null, "POST", "/auth/signup", { username: "kidthree", password: "password33" });
+  const me = { id: signup.data.user.id, role: "free" };
+  const oldCode = signup.data.recoveryCode;
+
+  assert.equal((await call(null, "GET", "/auth/recovery-status")).status, 401);
+  assert.equal((await call(null, "POST", "/auth/recovery-code", { password: "password33" })).status, 401);
+  const status = await call(me, "GET", "/auth/recovery-status");
+  assert.equal(status.data.hasCode, true);
+  assert.equal(status.data.code, undefined);
+
+  assert.equal((await call(me, "POST", "/auth/recovery-code", { password: "wrongpass99" })).status, 400);
+  const made = await call(me, "POST", "/auth/recovery-code", { password: "password33" });
+  assert.equal(made.status, 200);
+  assert.notEqual(made.data.code, oldCode);
+  assert.equal((await call(null, "POST", "/auth/recover", { code: oldCode })).status, 400);
+  assert.equal((await call(null, "POST", "/auth/recover", { code: made.data.code })).data.username, "kidthree");
+
+  // Admin accounts never recover through a code, even if a row somehow exists.
+  assert.equal((await call(admin, "POST", "/auth/recovery-code", { password: "x" })).status, 400);
+  assert.equal((await call(admin, "GET", "/auth/recovery-status")).data.eligible, false);
+});
