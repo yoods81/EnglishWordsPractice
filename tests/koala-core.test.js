@@ -337,7 +337,9 @@ test("reward loop: rounds of correct answers pay coins once, capped per day", ()
   assert.equal(K.awardLearning(p, "quiz", 900, "2026-10-02").length, 0);
   assert.equal(p.koala.coins, 15);
   assert.equal(K.awardLearning(p, "quiz", 10, "2026-10-03").length, 1, "new day, new rounds");
-  assert.equal(K.awardLearning(p, "flash", 10, "d")[0].why, "flashcards");
+  assert.deepEqual(K.awardLearning(p, "flash", 14, "d"), [], "flashcards pay every 15 credited answers");
+  assert.equal(K.awardLearning(p, "flash", 15, "d")[0].why, "flashcards");
+  assert.equal(K.awardLearning(p, "flash", 900, "d").length, 1, "flashcards: only 2 rounds a day");
   assert.equal(K.awardLearning(p, "tt", 10, "d")[0].why, "timesTable");
   assert.deepEqual(K.awardLearning(p, "bogus", 99, "d"), []);
 });
