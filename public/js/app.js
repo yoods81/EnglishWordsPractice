@@ -12851,7 +12851,10 @@ function renderRewardPanels() {
   ensureRewardData();
   const wrongCount = canUsePaidFeatures() ? Object.keys(progress.wrong).length : 0;
   const wrongTab = document.querySelector('.stats-tab[data-stats-tab="wrong"]');
-  if (wrongTab) wrongTab.querySelector(".stats-tab-count").textContent = wrongCount ? String(wrongCount) : "";
+  if (wrongTab) {
+    wrongTab.querySelector(".stats-tab-count").textContent = wrongCount ? String(wrongCount) : "";
+    wrongTab.classList.toggle("is-locked", !canUsePaidFeatures());
+  }
   if (statsTab === "overview") renderStatsCharts();
   else if (statsTab === "badges") renderBadgePanel();
   else if (statsTab === "parent") renderParentPanel();
@@ -12860,8 +12863,8 @@ function renderRewardPanels() {
 
 function premiumLockHtml() {
   return `<div class="rw-lock"><div class="rw-lock-icon">🔒<span class="kface" aria-hidden="true"></span></div>
-    <div class="rw-lock-title">${t("premiumGateTitle")}</div>
-    <p>${rwL("Koala badges and the Mistakes list are for Premium members.", "코알라 배지와 오답 노트는 프리미엄 회원 전용이에요.")}</p>
+    <div class="rw-lock-title">${t("premiumGateTitle").replace(/^🔒\s*/, "")}</div>
+    <p>${rwL("The Mistakes list is for Premium members. It collects the words you missed so you can practise them again.", "오답 노트는 프리미엄 회원 전용이에요. 틀린 단어를 모아서 다시 연습할 수 있어요.")}</p>
     <button type="button" class="pill accent small" data-rw-upgrade>${rwL("Sign up / Upgrade", "가입 / 업그레이드")}</button></div>`;
 }
 document.addEventListener("click", (e) => {
@@ -12892,12 +12895,14 @@ function badgeGridHtml() {
     ["koala", rwL('<span class="kface" aria-hidden="true"></span> My Koala', '<span class="kface" aria-hidden="true"></span> 나의 코알라')],
   ];
   let html = signedIn ? "" : badgeSignupLockHtml();
-  html += `<p class="badge-summary">${rwL(`Collected ${got} of ${cat.length} koala badges`, `코알라 배지 ${cat.length}개 중 ${got}개 모았어요`)}</p>`;
+  html += `<p class="badge-summary">${rwL(`Collected ${got} of ${cat.length} koala badges`, `코알라 배지 ${cat.length}개 중 ${got}개 모았어요`)}</p>
+    <div class="badge-meter" role="presentation"><i style="width:${Math.round((got / Math.max(1, cat.length)) * 100)}%"></i></div>
+    ${got < cat.length ? `<p class="badge-hint">${rwL("Tap a locked badge to see how to earn it.", "잠긴 배지를 누르면 얻는 방법이 보여요.")}</p>` : ""}`;
   groups.forEach(([g, title]) => {
     html += `<h4 class="badge-group-title">${title}</h4><div class="badge-grid">`;
     cat.filter((b) => b.group === g).forEach((b, i) => {
       const on = signedIn && !!progress.badges[b.id];
-      const premiumNote = b.paidOnly && !paid ? `<div class="badge-desc badge-premium">${rwL("Premium", "프리미엄")}</div>` : "";
+      const premiumNote = b.paidOnly && !paid ? `<div class="badge-premium-chip">⭐ ${rwL("Premium", "프리미엄")}</div>` : "";
       if (on) {
         // Earned: full colour + a soft glow / shine (staggered so they don't all pulse together).
         html += `<div class="badge-card earned" style="--badge-delay:${(i % 5) * 0.45}s" title="${escapeHtml(b.desc)}">
@@ -14364,11 +14369,11 @@ function renderSkillsCard() {
   // One hero card: today's numbers + recommendation + a single button
   const todayLine = today.questions
     ? rwL(`Today: ${today.questions} questions · ${today.words} words · ${today.pct}% right`, `오늘: ${today.questions}문제 · ${today.words}단어 · 정답률 ${today.pct}%`)
-    : today.hasHistory ? rwL("Nothing practised yet today.", "오늘은 아직 연습하지 않았어요.") : rwL("Start practising to see your progress.", "연습을 시작하면 학습 현황이 보여요.");
+    : today.hasHistory ? rwL("Nothing practised yet today.", "오늘은 아직 연습하지 않았어요.") : "";
   const recHtml = `<section class="dash-card dash-rec" aria-labelledby="dash-h-rec"><div class="dash-eyebrow">${rwL("Recommended next", "다음 추천")}</div>
     <h3 class="dash-title" id="dash-h-rec">${escapeHtml(rec.title)}</h3><p class="dash-reason">${escapeHtml(rec.reason)}</p>
     <button type="button" class="pill dash-btn dash-rec-btn" data-dash-act="${rec.action}">${escapeHtml(rec.actionLabel)}</button>
-    <p class="dash-rec-today">${escapeHtml(todayLine)}</p></section>`;
+    ${todayLine ? `<p class="dash-rec-today">${escapeHtml(todayLine)}</p>` : ""}</section>`;
 
   // Words to review: each row says something specific about the word
   const missCount = {};
@@ -14391,7 +14396,9 @@ function renderSkillsCard() {
        <ul class="dash-words">${review.slice(0, 3).map(reviewRow).join("")}</ul>
        <button type="button" class="pill accent small dash-btn" data-dash-act="review">${rwL("Review All", "모두 복습")}</button></section>`
     : `<section class="dash-card dash-review dash-caught-up" aria-labelledby="dash-h-review"><h3 class="dash-h" id="dash-h-review">${rwL("Words to review", "복습할 단어")}</h3>
-       <p class="dash-good">🎉 ${rwL("You're all caught up!", "모두 끝냈어요!")}</p><p class="dash-muted">${rwL("No words need review right now.", "지금 복습할 단어가 없어요.")}</p>
+       ${log.length
+         ? `<p class="dash-good">🎉 ${rwL("You're all caught up!", "모두 끝냈어요!")}</p><p class="dash-muted">${rwL("No words need review right now.", "지금 복습할 단어가 없어요.")}</p>`
+         : `<p class="dash-muted">${rwL("Nothing to review yet. Words you miss will show up here so you can practise them again.", "아직 복습할 단어가 없어요. 틀린 단어가 여기에 모여서 다시 연습할 수 있어요.")}</p>`}
        <button type="button" class="pill small dash-btn" data-dash-act="view:flashcards">${rwL("Learn New Words", "새 단어 배우기")}</button></section>`;
 
   // Category cards (2x2): weakest one first with a "Focus today" tag
@@ -14405,10 +14412,14 @@ function renderSkillsCard() {
     const body = c.enough
       ? `<div class="dash-cat-pct">${c.pct}%</div><div class="dash-bar dash-bar-${tone}" role="presentation"><i style="width:${c.pct}%"></i></div>
          <div class="dash-cat-sub">${rwL(`Last ${c.n} questions`, `최근 ${c.n}문제`)}</div>${ti ? `<div class="dash-trend dash-trend-${ti.cls}">${ti.txt}</div>` : ""}`
-      : `<div class="dash-cat-sub dash-cat-empty">${rwL("Practise a few more times to see your score", "조금 더 연습하면 점수가 보여요")}</div>`;
+      : c.n >= REC_MIN
+        ? `<div class="dash-cat-sub dash-cat-empty">${rwL("Practise again on another day to see your score", "다른 날 한 번 더 연습하면 점수가 보여요")}</div>`
+        : c.n > 0
+          ? `<div class="dash-cat-sub dash-cat-empty">${rwL(`${c.n} of ${REC_MIN} questions answered`, `${REC_MIN}문제 중 ${c.n}문제 풀었어요`)}</div><div class="dash-bar dash-bar-ok" role="presentation"><i style="width:${Math.round((c.n / REC_MIN) * 100)}%"></i></div>`
+          : `<div class="dash-cat-sub dash-cat-empty">${rwL("Not started yet", "아직 시작 전이에요")}</div>`;
     return `<div class="dash-cat${focus ? " dash-cat-focus" : ""}">${focus ? `<span class="dash-focus-tag">${rwL("Focus today", "오늘의 집중")}</span>` : ""}
       <div class="dash-cat-name"><span aria-hidden="true">${d.icon}</span> ${d.name()}</div>${body}
-      <button type="button" class="pill small dash-btn ${c.enough ? "" : "accent"}" data-dash-act="view:${d.view}">${c.enough ? d.cta() : rwL("Start Practising", "연습 시작")}</button></div>`;
+      <button type="button" class="pill small dash-btn" data-dash-act="view:${d.view}">${c.enough ? d.cta() : rwL("Start Practising", "연습 시작")}</button></div>`;
   }).join("");
   const catHtml = `<section class="dash-block" aria-labelledby="dash-h-cat"><h3 class="dash-h" id="dash-h-cat">${rwL("Your progress", "나의 실력")}</h3><div class="dash-cat-grid">${catCards}</div></section>`;
 
@@ -14440,7 +14451,7 @@ function renderSkillsCard() {
     : "";
   const badgeHtml = `<section class="dash-block" aria-labelledby="dash-h-badges"><div class="dash-h-row"><h3 class="dash-h" id="dash-h-badges">${rwL("Your badges", "나의 배지")}</h3>
       <span class="dash-muted dash-inline">${rwL(`${earned.length} of ${cat.length}`, `${cat.length}개 중 ${earned.length}개`)}</span></div>
-    <div class="dash-badges">${shown.map((b) => { const on = earned.includes(b); return `<div class="dash-badge ${on ? "on" : "off"}" title="${escapeHtml(b.desc)}"><span class="dash-badge-ico" aria-hidden="true">${b.emoji}</span><span class="dash-badge-name">${escapeHtml(b.name)}</span></div>`; }).join("")}</div>
+    <div class="dash-badges">${shown.map((b) => { const on = earned.includes(b); return `<div class="dash-badge ${on ? "on" : "off"}" title="${escapeHtml(b.desc)}"><span class="dash-badge-ico" aria-hidden="true">${b.emoji}</span>${on ? "" : '<span class="dash-badge-lock" aria-hidden="true">🔒</span>'}<span class="dash-badge-name">${escapeHtml(b.name)}</span></div>`; }).join("")}</div>
     ${goalHtml}
     <div class="dash-links"><button type="button" class="dash-link" data-dash-tab="badges">${rwL("View all badges", "배지 모두 보기")}</button>
     <button type="button" class="dash-link" data-dash-act="view:koala">${rwL("View My Koala", "My Koala 보기")}</button></div></section>`;

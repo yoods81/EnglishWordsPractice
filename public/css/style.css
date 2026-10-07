@@ -11087,3 +11087,156 @@ body:has(.kid-modal-overlay:not([hidden])) .premium-lock-banner {
     padding-bottom: max(24px, calc(env(safe-area-inset-bottom) + 16px));
   }
 }
+
+/* ==========================================================================
+   My Progress — round 2 polish
+   ========================================================================== */
+
+/* Scenery: a card-sized landscape behind a long, content-heavy page left hills
+   and trees behind buttons and the footnote, and patchy gaps between cards.
+   Keep the sky + sun for the header area and fade it out under the tabs. */
+html body #view-stats > .card.scene-card > .tg-bg {
+  bottom: auto;
+  height: 340px;
+  -webkit-mask-image: linear-gradient(#000 55%, transparent 100%);
+  mask-image: linear-gradient(#000 55%, transparent 100%);
+}
+html body #view-stats > .card.scene-card > .tg-bg .tg-sky-cloud-1,
+html body #view-stats > .card.scene-card > .tg-bg .tg-sky-cloud-2,
+html body #view-stats > .card.scene-card > .tg-bg .tg-sky-cloud-3 {
+  display: none;   /* a cloud drifted across the subtitle text */
+}
+
+/* Locked tab hint */
+.stats-tab.is-locked::after {
+  content: "🔒";
+  margin-left: 4px;
+  font-size: 0.72em;
+  vertical-align: 0.05em;
+}
+
+/* Overview: category cards — quiet buttons, a little progress when started */
+.dash-cat .dash-bar { margin: 4px 0 2px; }
+.dash-cat .dash-cat-empty { min-height: 1.3em; }
+
+/* Overview: badge preview tiles are solid cards, locked ones carry a lock */
+.dash-badge { position: relative; background: #fff; }
+.dash-badge.off { opacity: 1; }
+.dash-badge.off .dash-badge-name { color: var(--dash-muted, var(--muted)); }
+.dash-badge-lock {
+  position: absolute; top: 4px; right: 4px;
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.62rem; line-height: 1;
+  background: #fff; border: 1px solid var(--outline);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
+}
+
+/* Overview: links become an even row of pills instead of loose text on the hills */
+.dash-links {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px;
+}
+html body #view-stats .dash-links .dash-link,
+html body #view-stats .more-stats > summary {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0 14px; margin: 0;
+  background: #fff; border: 1.5px solid var(--accent-dark); border-radius: 999px;
+  box-shadow: 0 2px 0 var(--accent-dark);
+  font-size: 0.9rem; text-decoration: none;
+}
+html body #view-stats .more-stats { margin-top: 8px; }
+html body #view-stats .more-stats > summary { width: 100%; box-sizing: border-box; }
+
+/* Premium Insights teaser: readable benefits, locked chart, one button.
+   (Previously a floating box covered half the card and clipped the list.) */
+#stats-insights-card.premium-gate > h3,
+#stats-insights-card.premium-gate > .premium-insights-list {
+  opacity: 1;
+}
+#stats-insights-card.premium-gate > h3::after {
+  content: "🔒 Premium";
+  margin-left: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #fff1d6; color: #8a5a00;
+  font-size: 0.7rem; font-weight: 800; vertical-align: 0.15em;
+}
+#stats-insights-card.premium-gate .insights-sample { opacity: 0.6; }
+#stats-insights-card .premium-gate-overlay {
+  align-items: flex-end;
+  padding: 0 14px 14px;
+  background: linear-gradient(to top, color-mix(in srgb, var(--card-bg, #fff) 88%, transparent) 0%, transparent 62%);
+}
+#view-stats #stats-insights-card .premium-gate-label {
+  background: none; border: 0; box-shadow: none; padding: 0; max-width: none; gap: 0;
+}
+#stats-insights-card .premium-gate-label-title,
+#stats-insights-card .premium-gate-label-desc {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+#stats-insights-card.premium-gate .premium-gate-cta {
+  padding: 11px 24px; min-height: 44px; box-sizing: border-box;
+  box-shadow: 0 2px 0 var(--accent-dark);
+}
+
+/* Badges tab: compact, with an overall meter */
+.badge-meter { height: 8px; border-radius: 999px; background: #e3efeb; overflow: hidden; margin: 0 0 6px; }
+.badge-meter > i { display: block; height: 100%; min-width: 4px; border-radius: 999px; background: var(--accent); }
+.badge-hint { margin: 0 0 4px; font-size: 0.82rem; color: var(--dash-muted, var(--muted)); }
+#stats-panel-badges .badge-grid { gap: 8px; }
+#stats-panel-badges .badge-card { padding: 8px 4px 10px; display: flex; flex-direction: column; align-items: center; }
+#stats-panel-badges .badge-medal-wrap { width: 54px; height: 54px; margin-bottom: 4px; }
+#stats-panel-badges .badge-medal { font-size: 1.7rem; }
+#stats-panel-badges .badge-name { font-size: 0.8rem; line-height: 1.2; }
+#stats-panel-badges .badge-desc {
+  font-size: 0.7rem; line-height: 1.25;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.badge-premium-chip {
+  margin-top: auto; padding: 1px 8px; border-radius: 999px;
+  background: #fff1d6; color: #8a5a00; font-size: 0.66rem; font-weight: 800;
+}
+#stats-panel-badges .badge-card .badge-name { margin-bottom: 2px; }
+
+/* Mistakes tab lock box: one lock, no dashed frame spilling onto the scenery */
+.rw-lock { background: #fff; border-style: solid; border-width: 1.5px; box-shadow: 0 2px 0 var(--accent-dark); }
+
+/* Parent tab: 3 + 2 tiles that fill their rows; footnote readable */
+.pr-tiles { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.pr-tiles > .pr-tile { grid-column: span 2; }
+.pr-tiles > .pr-tile:nth-child(n+4) { grid-column: span 3; }
+.pr-actions .pill { min-height: 44px; }
+.pr-note { color: var(--dash-muted, var(--muted)); }
+@media (min-width: 700px) {
+  .pr-tiles { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .pr-tiles > .pr-tile, .pr-tiles > .pr-tile:nth-child(n+4) { grid-column: span 1; }
+}
+
+/* Dark mode */
+html[data-theme="dark"] .dash-badge,
+html[data-theme="dark"] .rw-lock,
+html[data-theme="dark"] .dash-badge-lock { background: #172420; }
+html[data-theme="dark"] body #view-stats .dash-links .dash-link,
+html[data-theme="dark"] body #view-stats .more-stats > summary { background: #172420; color: #6ff0cf; }
+html[data-theme="dark"] .badge-meter { background: #26382f; }
+html[data-theme="dark"] #stats-insights-card.premium-gate > h3::after,
+html[data-theme="dark"] .badge-premium-chip { background: #4a3a14; color: #ffd98a; }
+
+/* My Progress: keep only the sky + sun behind the header; hills and trees
+   showed through under the tabs and the lock box. */
+html body #view-stats > .card.scene-card > .tg-bg .tg-hills,
+html body #view-stats > .card.scene-card > .tg-bg .tg-trees { display: none; }
+html body #view-stats > .card.scene-card > .tg-bg { height: 300px; }
+
+/* Lock marker on the Mistakes tab: a small badge on the corner (like the bottom
+   navigation's), not a glyph spilling out of the pill. */
+.stats-tab { position: relative; }
+.stats-tab.is-locked::after {
+  content: "🔒";
+  position: absolute; top: -9px; right: -5px; margin: 0;
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; line-height: 1; vertical-align: baseline;
+  background: #fff; border: 1.5px solid var(--accent-dark);
+}
+html[data-theme="dark"] .stats-tab.is-locked::after { background: #172420; }
