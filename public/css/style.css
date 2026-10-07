@@ -10923,10 +10923,10 @@ html[data-theme="dark"] body #custom-words-grid .wordlist-item .delete-btn {
 @media (max-width: 480px) {
   html body #view-addword #addword-extract-card.card.scene-card.is-collapsed,
   html body #view-addword #addword-manual-card.card.scene-card.is-collapsed {
-    background: #fff;
-    border: 2px solid var(--accent-dark);
+    background: #e4f5ec;
+    border: 1.5px solid var(--accent-dark);
     border-radius: 18px;
-    box-shadow: 0 3px 0 var(--accent-dark);
+    box-shadow: 0 2px 0 var(--accent-dark);
     padding: 10px 16px;
   }
   .card.is-collapsed > .tg-bg {
@@ -10945,7 +10945,7 @@ html[data-theme="dark"] body #custom-words-grid .wordlist-item .delete-btn {
   }
   html[data-theme="dark"] body #view-addword #addword-extract-card.card.scene-card.is-collapsed,
   html[data-theme="dark"] body #view-addword #addword-manual-card.card.scene-card.is-collapsed {
-    background: #101a17;
+    background: #16251f;
   }
 }
 
@@ -10973,7 +10973,7 @@ html body #my-added-words-card .my-added-words-header-actions > :is(.select-all-
   min-height: 44px;
   margin: 0;
   padding: 0 14px;
-  border: 2px solid var(--accent-dark);
+  border: 1.5px solid var(--accent-dark);
   border-radius: 999px;
   background-color: #fff;
   color: #0b6b57;
@@ -10984,7 +10984,7 @@ html body #my-added-words-card .my-added-words-header-actions > :is(.select-all-
   text-align: center;
   text-align-last: center;
   white-space: nowrap;
-  box-shadow: 0 3px 0 var(--accent-dark);
+  box-shadow: 0 2px 0 var(--accent-dark);
   transform: none;
 }
 html body #my-added-words-card .my-added-words-header-actions > #custom-word-mgmt-select {
@@ -11001,14 +11001,14 @@ html body #my-added-words-card .my-added-words-header-actions > .select-all-togg
 /* Nothing selected yet: same shape, just quieter. */
 html body #my-added-words-card .my-added-words-header-actions > #custom-delete-selected-btn:disabled {
   opacity: 0.5;
-  box-shadow: 0 3px 0 rgba(14, 156, 125, 0.5);
+  box-shadow: 0 2px 0 rgba(14, 156, 125, 0.5);
 }
 /* Words ticked: Delete is "armed" — red, but still the same size. */
 html body #my-added-words-card .my-added-words-header-actions > #custom-delete-selected-btn.error:not(:disabled) {
   background-color: #e25555;
   border-color: #b83a3a;
   color: #fff;
-  box-shadow: 0 3px 0 #b83a3a;
+  box-shadow: 0 2px 0 #b83a3a;
 }
 html body #my-added-words-card .my-added-words-header-actions > :is(#custom-export-btn, #custom-upload-btn, #custom-word-mgmt-select):active {
   transform: translateY(1px);
@@ -11021,11 +11021,11 @@ html[data-theme="dark"] body #my-added-words-card .my-added-words-header-actions
   background-color: #101a17;
   color: #e6eeea;
   border-color: var(--accent);
-  box-shadow: 0 3px 0 var(--accent-dark);
+  box-shadow: 0 2px 0 var(--accent-dark);
 }
 html[data-theme="dark"] body #my-added-words-card .my-added-words-header-actions > #custom-delete-selected-btn.error:not(:disabled) {
   background-color: #b83a3a;
   border-color: #ff8787;
   color: #fff;
-  box-shadow: 0 3px 0 #7d2424;
+  box-shadow: 0 2px 0 #7d2424;
 }
