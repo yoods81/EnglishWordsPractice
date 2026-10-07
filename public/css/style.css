@@ -11536,3 +11536,120 @@ button.stat-tap { width: 100%; }
 html[data-theme="dark"] .stat-sheet { background: #172420; }
 html[data-theme="dark"] .stat-sheet-close { background: #26382f; color: #e6f3ee; }
 html[data-theme="dark"] .hbar-track { background: #26382f; }
+
+/* ==========================================================================
+   PHONE ONLY (≤480px): more room, one box instead of two, flat borderless UI
+   ========================================================================== */
+@media (max-width: 480px) {
+  /* 1 — header (language / theme / login / title) only on Home */
+  body:not(.on-landing) > header { display: none; }
+  body:not(.on-landing) main { padding-top: max(12px, env(safe-area-inset-top)); }
+
+  /* 2 — Study start screens: the green card IS the card (no scenery box around it) */
+  html body #view-quiz > .card:has(#quiz-start-screen:not([hidden])),
+  html body #view-spelling > .card:has(#spelling-start-screen:not([hidden])),
+  html body #view-flashcards > .card:has(#flash-start-screen:not([hidden])) {
+    padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; overflow: visible !important;
+  }
+  html body #view-quiz > .card:has(#quiz-start-screen:not([hidden])) > .tg-bg,
+  html body #view-spelling > .card:has(#spelling-start-screen:not([hidden])) > .tg-bg,
+  html body #view-flashcards > .card:has(#flash-start-screen:not([hidden])) > .tg-bg { display: none !important; }
+  html body #quiz-start-screen:not([hidden]),
+  html body #spelling-start-screen:not([hidden]),
+  html body #flash-start-screen:not([hidden]) {
+    padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; overflow: visible !important; min-height: 0 !important;
+  }
+  html body #quiz-start-screen .sp-start-card,
+  html body #spelling-start-screen .sp-start-card,
+  html body #flash-start-screen .sp-start-card {
+    width: 100% !important; max-width: none !important; margin: 0 !important; box-sizing: border-box;
+  }
+  html body #quiz-start-screen .sp-start-floaters,
+  html body #spelling-start-screen .sp-start-floaters,
+  html body #flash-start-screen .sp-start-floaters { display: none; }
+
+  /* 3 — Game start screens: the start card covers the whole card (HUD, scenery, input) */
+  html body #view-typegame > .card:has(#typegame-start-overlay:not([hidden])),
+  html body #view-timestable > .card:has(#timestable-start-overlay:not([hidden])) {
+    padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; overflow: visible !important;
+  }
+  html body #view-typegame > .card:has(#typegame-start-overlay:not([hidden])) > *:not(.typegame-stage),
+  html body #view-timestable > .card:has(#timestable-start-overlay:not([hidden])) > *:not(.typegame-stage) { display: none !important; }
+  html body #view-typegame > .card:has(#typegame-start-overlay:not([hidden])) > .typegame-stage,
+  html body #view-timestable > .card:has(#timestable-start-overlay:not([hidden])) > .typegame-stage {
+    border: 0 !important; background: none !important; box-shadow: none !important; overflow: visible !important; height: auto !important; min-height: 0 !important; margin: 0 !important;
+  }
+  html body #view-typegame > .card:has(#typegame-start-overlay:not([hidden])) #typegame-stage > *:not(#typegame-start-overlay),
+  html body #view-timestable > .card:has(#timestable-start-overlay:not([hidden])) #timestable-stage > *:not(#timestable-start-overlay) { display: none !important; }
+  html body #typegame-start-overlay:not([hidden]),
+  html body #timestable-start-overlay:not([hidden]) {
+    position: static !important; inset: auto !important; padding: 0 !important; background: none !important; overflow: visible !important; display: flex;
+  }
+  html body #typegame-start-overlay .tg-start-floaters,
+  html body #timestable-start-overlay .tg-start-floaters { display: none; }
+  html body #typegame-start-overlay .tg-start-card,
+  html body #timestable-start-overlay .tg-start-card {
+    width: 100% !important; max-width: none !important; margin: 0 !important; box-sizing: border-box;
+    min-height: calc(100svh - 215px); justify-content: center; border-radius: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* 4 — My Progress / My Koala: flat tab rail instead of outlined pills */
+  html body #view-stats .stats-tabs,
+  html body #view-koala .stats-tabs {
+    display: flex; flex-wrap: nowrap; gap: 4px; padding: 4px; margin-bottom: 18px;
+    background: #e1f3ec; border-radius: 16px; overflow: visible;
+  }
+  html body #view-stats .stats-tab,
+  html body #view-koala .stats-tab {
+    flex: 1 1 auto; min-width: 0; border: 0 !important; box-shadow: none !important; background: transparent; color: var(--accent-dark);
+    border-radius: 12px; padding: 10px 6px; font-size: .82rem; font-weight: 800; text-align: center; justify-content: center;
+  }
+  html body #view-stats .stats-tab.on,
+  html body #view-koala .stats-tab.on { background: var(--accent); color: #fff; box-shadow: 0 2px 6px rgba(20, 160, 130, .35) !important; }
+  html body #view-stats .stats-tab:not(.on):active, html body #view-koala .stats-tab:not(.on):active { background: rgba(46, 204, 160, .25); }
+  html body #view-stats .stats-tab-count:not(:empty) { margin-left: 3px; padding: 0 5px; }
+  html[data-theme="dark"] body #view-stats .stats-tabs, html[data-theme="dark"] body #view-koala .stats-tabs { background: #1b2b25; }
+  html[data-theme="dark"] body #view-stats .stats-tab, html[data-theme="dark"] body #view-koala .stats-tab { color: #6ff0cf; }
+  html[data-theme="dark"] body #view-stats .stats-tab.on, html[data-theme="dark"] body #view-koala .stats-tab.on { color: #04281f; }
+
+  /* …and no needless outlines: cards stand out by fill + a soft shadow instead */
+  html body #view-stats > .card, html body #view-koala > .card { border: 0 !important; box-shadow: 0 2px 12px rgba(10, 60, 50, .08) !important; }
+  html body #view-stats .dash-sum, html body #view-stats .dash-cat, html body #view-stats .dash-badge-card,
+  html body #view-stats .stat-box, html body #view-stats .pr-tile, html body #view-stats .badge-card,
+  html body #view-stats .dash-rec, html body #view-stats .pr-range,
+  html body #view-koala .koala-studio-top, html body #view-koala .koala-item, html body #view-koala .koala-next,
+  html body #view-koala .koala-hero, html body #view-koala .koala-subbox, html body #view-koala .koala-trophy-wall,
+  html body #view-koala .koala-stage, html body #view-koala .koala-streak-chip, html body #view-koala .koala-studio-coins,
+  html body #view-koala .koala-next-pic, html body #view-koala .koala-hero-streak {
+    border: 0 !important; box-shadow: 0 1px 4px rgba(10, 60, 50, .10) !important;
+  }
+  html body #view-stats .dash-rec { box-shadow: 0 2px 8px rgba(190, 130, 20, .18) !important; }
+  html body #view-stats .dash-cat-focus { box-shadow: 0 1px 4px rgba(10, 60, 50, .10), inset 0 0 0 2px #f0b44c !important; }
+  /* flat pills in My Koala */
+  html body #view-koala .koala-cat, html body #view-koala .koala-back {
+    border: 0 !important; box-shadow: none !important; background: #e3f5ee; color: var(--accent-dark); font-weight: 800;
+  }
+  html body #view-koala .koala-cat.on { background: var(--accent); color: #fff; }
+  html body #view-stats .reset-btn { border: 0 !important; background: #fdecec; box-shadow: none !important; }
+  html body #view-stats .more-stats > summary { border: 0 !important; box-shadow: none !important; }
+  html[data-theme="dark"] body #view-koala .koala-cat, html[data-theme="dark"] body #view-koala .koala-back { background: #1e2f29; color: #6ff0cf; }
+  html[data-theme="dark"] body #view-koala .koala-cat.on { background: var(--accent); color: #04281f; }
+  html[data-theme="dark"] body #view-stats .reset-btn { background: #3a2222; }
+  html[data-theme="dark"] body #view-stats > .card, html[data-theme="dark"] body #view-koala > .card { box-shadow: none !important; }
+
+  /* 5 — Add Word: flat buttons (dropdowns keep their outline) */
+  html body #view-addword .card.scene-card.is-collapsed { border: 0 !important; box-shadow: 0 1px 6px rgba(10, 60, 50, .12) !important; }
+  html body #view-addword .pill, html body #view-addword .select-all-toggle {
+    border: 0 !important; box-shadow: none !important;
+  }
+  html body #view-addword .pill.neutral, html body #view-addword .select-all-toggle { background: #e1f3ec; color: var(--accent-dark); }
+  html body #view-addword .pill.accent, html body #view-addword .pill.primary, html body #view-addword .pill.success { background: var(--accent); color: #fff; }
+  html body #view-addword .pill.error { background: #fde4e4; color: #c0392b; }
+  html body #view-addword .pill:disabled { opacity: .5; }
+  html body #view-addword .pill:active { transform: scale(.97); }
+  html[data-theme="dark"] body #view-addword .pill.neutral, html[data-theme="dark"] body #view-addword .select-all-toggle { background: #1e2f29; color: #6ff0cf; }
+  html[data-theme="dark"] body #view-addword .pill.accent, html[data-theme="dark"] body #view-addword .pill.primary { color: #04281f; }
+  html[data-theme="dark"] body #view-addword .pill.error { background: #3a2222; color: #ff9a9a; }
+}
