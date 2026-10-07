@@ -11866,10 +11866,10 @@ function setAddwordCardOpen(card, open) {
       toggle();
     }
   });
-  setAddwordCardOpen(card, !addwordPhoneMq.matches);
+  setAddwordCardOpen(card, true);
 });
 addwordPhoneMq.addEventListener("change", () => {
-  [addwordExtractCard, addwordManualCard].forEach((card) => setAddwordCardOpen(card, !addwordPhoneMq.matches));
+  [addwordExtractCard, addwordManualCard].forEach((card) => setAddwordCardOpen(card, true));
 });
 
 const STOPWORDS = new Set(
@@ -13574,17 +13574,17 @@ function renderKoala() {
 
   const studio = koalaTab === "character" || koalaTab === "room";
   const heroAvatar = `<div class="koala-hero-avatar">${KoalaArt.avatar(k.items.equipped, { label: rwL("Your Koala", "나의 코알라") })}</div>`;
-  const hero = `<div class="koala-hero">${studio ? "" : heroAvatar}
+  const hero = `<div class="koala-hero"><div class="koala-hero-top">${studio ? "" : heroAvatar}
       <div class="koala-hero-main">
         <div class="koala-hero-level">${rwL(`Koala Lv. ${lv.level}`, `코알라 Lv. ${lv.level}`)}</div>
         <div class="koala-level-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${lv.span}" aria-valuenow="${lv.intoLevel}"
           aria-label="${rwL("Progress to next Koala level", "다음 코알라 레벨까지")}"><span style="width:${lv.pct}%"></span></div>
         <div class="koala-hero-next">${serverAdmin ? rwL("Admin: unlimited Coins ∞", "관리자: 코인 무제한 ∞") : rwL(`🎉 Just ${lv.toNext} more Coins to reach Lv. ${lv.level + 1}!`, `🎉 Lv. ${lv.level + 1}까지 코인 ${lv.toNext}개만 더!`)}</div>
-        <div class="koala-hero-streak">
-          <div class="koala-streak-row"><span class="koala-flame${st.countedToday ? " on" : ""}" aria-hidden="true">🔥</span>
-            <div class="koala-streak-text"><div class="koala-streak-title">${streakTitle}</div><div class="koala-streak-sub">${streakSub}</div></div></div>
-          ${streakGoal}<div class="koala-streak-chips">${streakChips}</div></div>
-      </div>
+      </div></div>
+      <div class="koala-hero-streak">
+        <div class="koala-streak-row"><span class="koala-flame${st.countedToday ? " on" : ""}" aria-hidden="true">🔥</span>
+          <div class="koala-streak-text"><div class="koala-streak-title">${streakTitle}</div><div class="koala-streak-sub">${streakSub}</div></div></div>
+        ${streakGoal}<div class="koala-streak-chips">${streakChips}</div></div>
     </div>`;
 
   const tabDefs = [

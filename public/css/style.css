@@ -11653,3 +11653,126 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
   html[data-theme="dark"] body #view-addword .pill.accent, html[data-theme="dark"] body #view-addword .pill.primary { color: #04281f; }
   html[data-theme="dark"] body #view-addword .pill.error { background: #3a2222; color: #ff9a9a; }
 }
+
+/* ==========================================================================
+   PHONE: one look for every start card (Quiz / Spelling / Flashcards / Typing /
+   Times Table): same size, mint fill, outline and the same yellow button
+   ========================================================================== */
+@media (max-width: 480px) {
+  html body #quiz-start-screen .sp-start-card,
+  html body #spelling-start-screen .sp-start-card,
+  html body #flash-start-screen .sp-start-card,
+  html body #typegame-start-overlay .tg-start-card,
+  html body #timestable-start-overlay .tg-start-card {
+    min-height: calc(100svh - 215px); box-sizing: border-box; justify-content: space-evenly; align-items: center;
+    padding: 28px 18px 30px !important; gap: 18px !important; border-radius: 24px;
+    background: linear-gradient(180deg, #f2fffa 0%, #d3f6e8 100%) !important;
+    border: 3px solid #fff !important;
+    box-shadow: 0 0 0 2px #2fc79c, 0 10px 22px rgba(10, 60, 50, .34), inset 0 0 0 2px rgba(60, 190, 150, .22) !important;
+  }
+  /* light card → dark-green text */
+  html body #quiz-start-screen .sp-start-card h3,
+  html body #spelling-start-screen .sp-start-card h3,
+  html body #flash-start-screen .sp-start-card h3 { color: #0f6b52; text-shadow: 0 2px 0 #fff, 0 3px 8px rgba(18, 184, 134, .25); margin: 0; }
+  html body .sp-start-card .qz-pick-title, html body .sp-start-card .qz-pick-note,
+  html body .sp-start-card .sp-why-title, html body .sp-start-card .sp-why li,
+  html body .sp-start-card .sp-why li span { color: #17463c; text-shadow: none; }
+  html body .sp-start-card .sp-why ul { background: none; }
+  html body .sp-start-card .qz-pick { gap: 12px; }
+  html body .sp-start-card .qz-pick-note { opacity: .85; }
+  html body #quiz-start-screen .qz-dd-btn, html body #spelling-start-screen .qz-dd-btn,
+  html body .sp-start-card .qz-seg-btn:not(.active):not(.on), html body #spelling-start-screen .sp-level-chip {
+    background: #fff; color: #0b6b57; border: 2px solid #8fe3c6; box-shadow: 0 2px 0 #bfeedd; text-shadow: none;
+  }
+  html body .sp-start-card .qz-seg-btn.active, html body .sp-start-card .qz-seg-btn.on { border: 0; }
+  html body .sp-start-card .sp-step { background: #fff; color: #17463c; text-shadow: none; border: 2px solid #8fe3c6; box-shadow: 0 2px 0 #bfeedd; }
+  html body .sp-start-card .sp-step-arrow { color: #2fc79c; text-shadow: none; }
+  html body .sp-start-card .sp-start-stats { background: #fff; color: #17463c; border: 2px solid #8fe3c6; }
+  html body .sp-start-card .sp-start-stats * { color: #17463c; text-shadow: none; }
+  html body #flash-start-screen .fs-settings { background: #fff; border: 2px solid #8fe3c6; box-shadow: 0 2px 0 #bfeedd; }
+  html body #flash-start-screen .fs-settings-sum, html body #flash-start-screen .fs-settings-label,
+  html body #flash-start-screen .fs-settings-now { color: #17463c; text-shadow: none; }
+  html body #flash-start-screen .fs-title { color: #0f6b52; }
+  html body #flash-start-screen .fs-start-bar { display: flex; justify-content: center; width: 100%; }
+
+  /* the one yellow button size (= Start Game) everywhere */
+  html body .sp-start-card button.sp-start-btn.pill.accent,
+  html body #flash-start-screen .sp-start-card button.sp-start-btn.pill.accent,
+  html body .typegame-overlay .tg-start-card button.tg-start-btn.pill.accent,
+  html body .qz-result-primary,
+  html body #spelling-report-restart, html body #flash-report-restart,
+  html body #view-typegame .tg-over-overlay .tg-over-card .tg-play-again,
+  html body #view-timestable .tg-over-overlay .tg-over-card .tg-play-again {
+    width: 200px !important; max-width: 100% !important; min-height: 48px !important; height: auto; margin: 4px auto 0 !important;
+    padding: 8px 16px !important; font-size: 1.12rem !important; font-weight: 800; white-space: nowrap;
+    display: flex; align-items: center; justify-content: center; gap: 6px; border: 0 !important; border-radius: 999px;
+    color: #5a3000 !important; background: linear-gradient(180deg, #ffe066, #ffab1a) !important;
+    box-shadow: 0 4px 0 #c27400, 0 7px 12px rgba(194, 116, 0, .3) !important; text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+  }
+
+  /* roomier lines inside the Typing Game / Times Table start card */
+  html body #typegame-start-overlay .tg-start-card, html body #timestable-start-overlay .tg-start-card { gap: 16px !important; }
+  html body #typegame-start-overlay .tg-start-card p, html body #timestable-start-overlay .tg-start-card p { margin: 0; line-height: 1.5; }
+  html body #typegame-start-overlay .tg-start-card h3, html body #timestable-start-overlay .tg-start-card h3 { margin: 0; }
+}
+@media (max-width: 480px) {
+  html body .sp-start-card .sp-step *, html body .sp-start-card .sp-step b, html body .sp-start-card .sp-step span { color: #17463c !important; text-shadow: none !important; }
+  html body .sp-start-card .sp-start-stats, html body .sp-start-card .sp-start-stats span { color: #17463c !important; text-shadow: none !important; }
+}
+@media (max-width: 480px) {
+  html body #flash-start-screen .fs-settings { border-radius: 18px; overflow: hidden; }
+  html body #flash-start-screen .fs-settings-sum { background: transparent !important; border: 0 !important; box-shadow: none !important; border-radius: 0; }
+  html body #flash-start-screen .fs-settings-sum::after, html body #flash-start-screen .fs-settings-sum * { color: #17463c !important; }
+  html body #flash-start-screen .fs-count, html body #flash-start-screen .sp-start-stats {
+    background: #fff !important; border: 2px solid #8fe3c6 !important; box-shadow: 0 2px 0 #bfeedd; color: #17463c !important; text-shadow: none !important; border-radius: 999px;
+  }
+  html body #flash-start-screen .fs-steps .sp-step { background: #fff !important; }
+  html body #flash-start-screen .fs-start-bar { background: none !important; box-shadow: none !important; filter: none !important; }
+  html body #flash-start-screen .fs-start-bar::before, html body #flash-start-screen .fs-start-bar::after { display: none !important; }
+  html body #flash-start-screen .fs-settings-body { background: transparent; }
+}
+@media (max-width: 480px) {
+  html body #flash-start-screen .fs-settings-body .qz-seg-btn,
+  html body #flash-start-screen.is-settings-open .qz-seg-btn {
+    background: #fff !important; color: #0b6b57 !important; border: 2px solid #8fe3c6 !important; box-shadow: 0 2px 0 #bfeedd !important; text-shadow: none !important;
+  }
+  html body #flash-start-screen .fs-settings-body .qz-seg-btn.on,
+  html body #flash-start-screen .fs-settings-body .qz-seg-btn[aria-checked="true"],
+  html body #flash-start-screen.is-settings-open .qz-seg-btn.on {
+    background: linear-gradient(180deg, #ffe066, #ffab1a) !important; color: #5a3000 !important; border: 0 !important; box-shadow: 0 3px 0 #c27400 !important;
+  }
+  html body #flash-start-screen .fs-settings-body .qz-pick-title { color: #17463c !important; }
+  html body #flash-start-screen .fs-settings[open] .fs-settings-sum { min-height: 0; }
+}
+@media (max-width: 480px) {
+  html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
+    background: #fff !important; color: #0b6b57 !important; border: 2px solid #8fe3c6 !important; box-shadow: 0 2px 0 #bfeedd !important;
+  }
+  html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
+    background: linear-gradient(180deg, #ffe066, #ffab1a) !important; color: #5a3000 !important; border: 0 !important; box-shadow: 0 3px 0 #c27400 !important;
+  }
+}
+
+/* ---- My Koala / Progress headings, hero card, Add Word cards (phone) ---- */
+@media (max-width: 480px) {
+  html body #view-koala .progress-title, html body #view-stats .progress-title { font-size: 2.05rem; line-height: 1.15; }
+  html body #view-koala .progress-sub, html body #view-stats .progress-sub { margin-top: 8px; font-size: .95rem; }
+  html body #view-koala .progress-head, html body #view-stats .progress-head { margin-bottom: 26px; }
+
+  .koala-hero { display: block !important; padding: 16px; }
+  .koala-hero-top { display: flex; align-items: center; gap: 16px; }
+  .koala-hero-top .koala-hero-avatar { width: 92px; height: 94px; border: 0 !important; box-shadow: 0 1px 4px rgba(10, 60, 50, .12); }
+  .koala-hero-top .koala-hero-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+  .koala-hero-level { font-size: 1.4rem; }
+  .koala-hero-next { line-height: 1.4; }
+  html body #view-koala .koala-hero-streak { margin-top: 16px; padding: 14px; background: #fff; border-radius: 16px; border-top: 0; }
+  .koala-hero-streak .koala-streak-goal { margin-top: 14px; }
+  .koala-hero-streak .koala-streak-chips { margin-top: 14px; gap: 8px; }
+  .koala-hero-streak .koala-streak-title { font-size: 1.05rem; line-height: 1.3; }
+  html[data-theme="dark"] body #view-koala .koala-hero-streak { background: #1e2f29; }
+
+  /* collapsed Add Word headers: solid white so they don't melt into the page */
+  html body #view-addword .card.scene-card.is-collapsed { background: #fff !important; box-shadow: 0 2px 8px rgba(10, 60, 50, .16) !important; }
+  html[data-theme="dark"] body #view-addword .card.scene-card.is-collapsed { background: #172420 !important; }
+}
+@media (max-width: 480px) { html body #view-addword .tg-bg .tg-orb { display: none; } }
