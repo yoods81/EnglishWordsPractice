@@ -136,42 +136,6 @@ function genSpecialCode() {
   return `${group()}-${group()}-${group()}-${group()}`;
 }
 
-// Account recovery. There is no email on file, so every account can hold one
-// personal recovery code (same readable XXXX-XXXX-XXXX-XXXX shape, 80 bits).
-// Only an HMAC of the code is stored, so a database leak can't be turned back
-// into working codes, yet the code can still be looked up directly — which is
-// what lets a single code answer both "what's my username?" and "reset my
-// password". Admin accounts are excluded: they recover through the Worker
-// secret / another admin, never through a code.
-function normalizeRecoveryCode(raw) {
-  return typeof raw === "string" ? raw.toUpperCase().replace(/[^A-Z0-9]/g, "") : "";
-}
-
-async function issueRecoveryCode(env, userId) {
-  const code = genSpecialCode();
-  const codeHash = await hmac(normalizeRecoveryCode(code), env.SESSION_SECRET);
-  await env.DB.prepare(
-    "INSERT INTO recovery_codes (user_id, code_hash, created_at) VALUES (?, ?, ?) " +
-      "ON CONFLICT(user_id) DO UPDATE SET code_hash = excluded.code_hash, created_at = excluded.created_at"
-  )
-    .bind(userId, codeHash, Date.now())
-    .run();
-  return code;
-}
-
-async function findUserByRecoveryCode(env, raw) {
-  const normalized = normalizeRecoveryCode(raw);
-  if (normalized.length !== 16) return null;
-  const codeHash = await hmac(normalized, env.SESSION_SECRET);
-  const user = await env.DB.prepare(
-    "SELECT u.* FROM recovery_codes r JOIN users u ON u.id = r.user_id WHERE r.code_hash = ?"
-  )
-    .bind(codeHash)
-    .first();
-  if (!user || user.role === "admin") return null;
-  return user;
-}
-
 /* ---------- word shape ---------- */
 
 function rowToWord(row) {
@@ -320,18 +284,9 @@ async function handleApi(request, env, url) {
         .run();
     }
 
-    // Hand the new account its recovery code right away. If the recovery
-    // table hasn't been migrated yet, signup must still work — just without one.
-    let recoveryCode = null;
-    try {
-      recoveryCode = await issueRecoveryCode(env, id);
-    } catch (e) {
-      recoveryCode = null;
-    }
-
     const token = await makeSessionToken(env, id, role);
     return json(
-      { user: { id, username, role }, recoveryCode },
+      { user: { id, username, role } },
       200,
       { "set-cookie": sessionCookie(token, SESSION_TTL_MS / 1000) }
     );
@@ -413,83 +368,6 @@ async function handleApi(request, env, url) {
       .bind(hash, salt, session.id)
       .run();
     return json({ ok: true });
-  }
-
-  // Does the signed-in account have a recovery code yet? (Never returns the code.)
-  if (route === "/auth/recovery-status" && request.method === "GET") {
-    const session = await getSessionUser(request, env);
-    if (!session) return json({ error: "unauthorized" }, 401);
-    if (session.role === "admin") return json({ eligible: false, hasCode: false, createdAt: null });
-    let row = null;
-    try {
-      row = await env.DB.prepare("SELECT created_at FROM recovery_codes WHERE user_id = ?").bind(session.id).first();
-    } catch (e) {
-      row = null;
-    }
-    return json({ eligible: true, hasCode: !!row, createdAt: row ? row.created_at : null });
-  }
-
-  // Create (or replace) the signed-in account's recovery code. The password
-  // is asked again so a borrowed, still-signed-in device can't mint one. The
-  // code is returned exactly once — only its hash is kept.
-  if (route === "/auth/recovery-code" && request.method === "POST") {
-    if (!env.SESSION_SECRET) return json({ error: "server_not_configured" }, 500);
-    const session = await getSessionUser(request, env);
-    if (!session) return json({ error: "unauthorized" }, 401);
-    if (session.role === "admin") return json({ error: "not_eligible" }, 400);
-    let body;
-    try {
-      body = await request.json();
-    } catch (e) {
-      return json({ error: "bad_request" }, 400);
-    }
-    const password = typeof body?.password === "string" ? body.password : "";
-    if (!password) return json({ error: "bad_request" }, 400);
-    const user = await env.DB.prepare("SELECT * FROM users WHERE id = ?").bind(session.id).first();
-    if (!user) return json({ error: "unauthorized" }, 401);
-    if (!(await verifyPassword(password, user.password_salt, user.password_hash))) {
-      return json({ error: "wrong_current_password" }, 400);
-    }
-    const code = await issueRecoveryCode(env, user.id);
-    return json({ code });
-  }
-
-  // "I forgot my username": a valid recovery code reveals the account it belongs to.
-  if (route === "/auth/recover" && request.method === "POST") {
-    if (!env.SESSION_SECRET) return json({ error: "server_not_configured" }, 500);
-    let body;
-    try {
-      body = await request.json();
-    } catch (e) {
-      return json({ error: "bad_request" }, 400);
-    }
-    const user = await findUserByRecoveryCode(env, body?.code);
-    if (!user) return json({ error: "invalid_code" }, 400);
-    return json({ username: user.username });
-  }
-
-  // "I forgot my password": a valid recovery code sets a new one. The code is
-  // single-use for this purpose — a fresh one is issued and returned so the
-  // account is never left without a way back in.
-  if (route === "/auth/reset-password" && request.method === "POST") {
-    if (!env.SESSION_SECRET) return json({ error: "server_not_configured" }, 500);
-    let body;
-    try {
-      body = await request.json();
-    } catch (e) {
-      return json({ error: "bad_request" }, 400);
-    }
-    const newPassword = typeof body?.newPassword === "string" ? body.newPassword : "";
-    if (!validPassword(newPassword)) return json({ error: "invalid_password" }, 400);
-    const user = await findUserByRecoveryCode(env, body?.code);
-    if (!user) return json({ error: "invalid_code" }, 400);
-
-    const { hash, salt } = await hashPassword(newPassword);
-    await env.DB.prepare("UPDATE users SET password_hash = ?, password_salt = ? WHERE id = ?")
-      .bind(hash, salt, user.id)
-      .run();
-    const code = await issueRecoveryCode(env, user.id);
-    return json({ username: user.username, code });
   }
 
   // Redeems a special code against an already-existing free account, moving

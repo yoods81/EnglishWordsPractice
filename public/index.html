@@ -63,29 +63,9 @@
         <label id="login-password-label" for="login-password-input" data-i18n="authPasswordLabel">Password</label>
         <input id="login-password-input" type="password" autocomplete="current-password" />
         <p id="login-error" class="auth-error" hidden></p>
-        <button type="button" id="login-forgot-btn" class="auth-link" data-i18n="authForgotLink">Forgot your username or password?</button>
         <div class="auth-actions">
           <button type="button" id="login-cancel-btn" class="pill neutral" data-i18n="authCancelBtn">Cancel</button>
           <button type="submit" id="login-submit-btn" class="pill accent" data-i18n="authLoginBtn">Login</button>
-        </div>
-      </form>
-
-      <form id="recover-form" class="auth-form" hidden>
-        <p class="auth-hint" data-i18n="recoverIntro">Type the recovery code you saved when you signed up. It finds your username and lets you pick a new password.</p>
-        <label for="recover-code-input" data-i18n="recoverCodeLabel">Recovery code</label>
-        <input id="recover-code-input" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX" />
-        <p id="recover-found" class="auth-success" hidden></p>
-        <div class="auth-actions auth-actions-start">
-          <button type="button" id="recover-find-id-btn" class="pill neutral" data-i18n="recoverFindIdBtn">Find my username</button>
-        </div>
-        <label for="recover-new-password-input" data-i18n="recoverNewPasswordLabel">New password</label>
-        <input id="recover-new-password-input" type="password" autocomplete="new-password" />
-        <p class="auth-hint" data-i18n="authPasswordHint">At least 8 characters.</p>
-        <p id="recover-error" class="auth-error" hidden></p>
-        <p class="auth-hint" data-i18n="recoverNoCodeHint">Don't have a code? Ask the site admin to reset it for you.</p>
-        <div class="auth-actions">
-          <button type="button" id="recover-back-btn" class="pill neutral" data-i18n="recoverBackBtn">Back</button>
-          <button type="submit" id="recover-submit-btn" class="pill accent" data-i18n="recoverResetBtn">Reset password</button>
         </div>
       </form>
 
@@ -104,19 +84,6 @@
           <button type="submit" id="signup-submit-btn" class="pill primary" data-i18n="authSignupBtn">Sign Up</button>
         </div>
       </form>
-    </div>
-  </div>
-
-  <!-- Recovery code overlay: shows a freshly made code once -->
-  <div id="recovery-overlay" class="auth-overlay" hidden>
-    <div class="auth-card">
-      <h2 id="recovery-title" data-i18n="recoveryTitle">🔑 Your recovery code</h2>
-      <p id="recovery-desc" class="auth-hint" data-i18n="recoveryDesc">Write this code down or take a photo of it, and keep it safe. If you ever forget your username or password, this code gets you back in. It is only shown once.</p>
-      <div id="recovery-code-display" class="recovery-code" aria-live="polite"></div>
-      <div class="auth-actions">
-        <button type="button" id="recovery-copy-btn" class="pill neutral" data-i18n="recoveryCopyBtn">Copy</button>
-        <button type="button" id="recovery-done-btn" class="pill accent" data-i18n="recoveryDoneBtn">I saved it</button>
-      </div>
     </div>
   </div>
 
@@ -1664,19 +1631,6 @@ to Flip!</span></div>
           <p id="my-account-password-success" class="auth-hint" hidden data-i18n="myAccountPasswordChanged">Password updated.</p>
           <div class="auth-actions">
             <button type="submit" class="pill accent" id="my-account-password-submit-btn" data-i18n="myAccountChangePasswordBtn">Update password</button>
-          </div>
-        </form>
-      </div>
-      <div class="card" id="my-account-recovery-card">
-        <h3 data-i18n="myAccountRecoveryTitle">🔑 Recovery Code</h3>
-        <p class="auth-hint" data-i18n="myAccountRecoveryDesc">Your recovery code lets you find your username and reset your password if you forget them.</p>
-        <p id="my-account-recovery-status" class="auth-hint"></p>
-        <form id="my-account-recovery-form" class="auth-form">
-          <label for="my-account-recovery-password" data-i18n="myAccountRecoveryPasswordLabel">Type your password to confirm</label>
-          <input id="my-account-recovery-password" class="auth-form-input-narrow" type="password" autocomplete="current-password" />
-          <p id="my-account-recovery-error" class="auth-error" hidden></p>
-          <div class="auth-actions">
-            <button type="submit" class="pill accent" id="my-account-recovery-btn">Make a recovery code</button>
           </div>
         </form>
       </div>

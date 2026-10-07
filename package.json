@@ -14,8 +14,6 @@
     "db:migrate:koala:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0006_koala_coins.sql",
     "db:migrate:koala-sync": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0007_koala_account_sync.sql",
     "db:migrate:koala-sync:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0007_koala_account_sync.sql",
-    "db:migrate:recovery": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0008_recovery_codes.sql",
-    "db:migrate:recovery:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0008_recovery_codes.sql",
     "db:migrate:users:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0001_users_and_word_ownership.sql"
   },
   "devDependencies": {
