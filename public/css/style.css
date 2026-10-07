@@ -10744,3 +10744,121 @@ html[data-theme="dark"] body #my-added-words-card.scene-card {
 html[data-theme="dark"] #addword-extract-card .ocr-dropzone {
   background: rgba(20, 28, 70, 0.6);
 }
+
+/* ==========================================================================
+   Add Word page — phone round 2: collapsible cards, compact rows, action bar
+   ========================================================================== */
+
+/* --- Extract / Add-manually: tap-to-open headers on phones ----------------- */
+@media (max-width: 480px) {
+  .aw-collapse-head {
+    display: flex;
+    align-items: center;
+    min-height: 32px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .aw-collapse-head::after {
+    content: "";
+    flex: 0 0 auto;
+    width: 9px;
+    height: 9px;
+    margin: -4px 4px 0 auto;
+    border-right: 3px solid var(--accent-dark);
+    border-bottom: 3px solid var(--accent-dark);
+    border-radius: 1px;
+    transform: rotate(225deg);          /* open: points up */
+    transition: transform 0.15s ease;
+  }
+  .card.is-collapsed > .aw-collapse-head::after {
+    transform: rotate(45deg);           /* collapsed: points down */
+    margin-top: -6px;
+  }
+  .aw-collapse-head:focus-visible {
+    outline: 3px solid #fbbf24;
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+  .card.is-collapsed > .aw-collapse-head {
+    margin-bottom: 0;
+  }
+  #addword-extract-card.is-collapsed > :not(h3):not(.tg-bg):not(.premium-gate-overlay),
+  #addword-manual-card.is-collapsed > :not(h3):not(.tg-bg):not(.premium-gate-overlay) {
+    display: none !important;
+  }
+  /* Tighten the gap between the stacked header cards. */
+  .addword-top-row {
+    gap: 10px;
+  }
+
+  /* "Save word" used to sit directly on the hills and trees. Give the form its
+     own soft panel and leave scenery visible below it. */
+  #addword-manual-card:not(.is-collapsed) #manual-add-form,
+  #addword-manual-card:not(.is-collapsed) #bulk-add-form:not([hidden]) {
+    background: rgba(255, 255, 255, 0.66);
+    border-radius: 14px;
+    padding: 12px 12px 8px;
+    margin-top: 12px;
+  }
+  #addword-manual-card:not(.is-collapsed) {
+    padding-bottom: 36px;
+  }
+  html[data-theme="dark"] #addword-manual-card:not(.is-collapsed) #manual-add-form,
+  html[data-theme="dark"] #addword-manual-card:not(.is-collapsed) #bulk-add-form:not([hidden]) {
+    background: rgba(20, 28, 70, 0.55);
+  }
+
+  /* --- My added words: shorter rows ---------------------------------------- */
+  #custom-words-grid {
+    gap: 10px;
+  }
+  #custom-words-grid .wordlist-item {
+    padding: 10px 12px;
+    gap: 6px 8px;
+  }
+  #custom-words-grid .wordlist-item .d {
+    margin-top: 3px;
+  }
+  #custom-words-grid .wl-example {
+    margin-top: 5px;
+  }
+  #custom-words-grid .cw-actions {
+    margin-top: 0;
+    padding-top: 6px;
+    border-top: 1px dashed #d6ebe0;
+  }
+  #custom-words-grid .cw-actions-btns > button {
+    min-height: 30px;
+    padding: 3px 14px;
+    font-size: 0.75rem;
+  }
+
+  /* --- Floating bulk-action bar (phones) ------------------------------------ */
+  .cw-action-bar .level-bulk-select {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 38%;
+    min-height: 40px;
+    font-size: 0.8rem;
+  }
+  #view-addword.has-action-bar {
+    padding-bottom: 80px;
+  }
+}
+
+/* Delete is the dangerous one: outlined instead of a loud solid red slab
+   (the confirm dialog still guards the actual delete). */
+#custom-words-grid .wordlist-item .delete-btn {
+  background: #fff;
+  color: #d64545;
+  border-color: #f0a5a3;
+  box-shadow: 0 2px 0 #f0a5a3;
+}
+
+/* "Or drag a file here" means nothing on a touch screen. */
+@media (hover: none) and (pointer: coarse) {
+  .ocr-dropzone-caption-main {
+    display: none;
+  }
+}

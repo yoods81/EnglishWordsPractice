@@ -487,6 +487,9 @@ const TRANSLATIONS = {
         : `Added ${added} of ${picked} — the rest were already in your flashcards.`,
     wordlistCount: (n) => `${n} word${n === 1 ? "" : "s"}`,
     customWordsCount: (n) => `Total ${n} word${n === 1 ? "" : "s"}`,
+    customWordsShowing: (shown, n) => `Showing ${shown} of ${n} words`,
+    selectedCountText: (n) => `${n} selected`,
+    changeLevelBarLabel: "📚 Level",
     wordlistSelectedChip: (n) => `${n} selected`,
     wlFilterGroup: "Filter by mastery",
     wlFilterAll: "All",
@@ -580,7 +583,7 @@ const TRANSLATIONS = {
     selectIncompleteNoneFound: "Every word here already has a meaning and an example.",
     selectIncompleteDone: (n) => `Selected ${n} word${n === 1 ? "" : "s"} missing a meaning or example.`,
     wordManagementLabel: "🛠️ Word Management",
-    adminModeBadge: "🔑 ADMIN MODE",
+    adminModeBadge: "🔑 ADMIN",
     sortFilterLabel: "Sort & Filter",
     mergeDuplicatesBtn: "🧹 Merge Duplicates",
     noDuplicatesFound: "No duplicate words found — your list is clean!",
@@ -1237,6 +1240,9 @@ const TRANSLATIONS = {
         : `${picked}개 중 ${added}개를 추가했어요 — 나머지는 이미 들어있어요.`,
     wordlistCount: (n) => `단어 ${n}개`,
     customWordsCount: (n) => `총 ${n}개 단어`,
+    customWordsShowing: (shown, n) => `총 ${n}개 중 ${shown}개 표시`,
+    selectedCountText: (n) => `${n}개 선택됨`,
+    changeLevelBarLabel: "📚 레벨",
     wordlistSelectedChip: (n) => `${n}개 선택됨`,
     wlFilterGroup: "숙달도로 걸러보기",
     wlFilterAll: "전체",
@@ -1329,7 +1335,7 @@ const TRANSLATIONS = {
     selectIncompleteNoneFound: "모든 단어에 뜻과 예문이 있어요.",
     selectIncompleteDone: (n) => `뜻이나 예문이 빠진 단어 ${n}개를 선택했어요.`,
     wordManagementLabel: "🛠️ 단어 관리",
-    adminModeBadge: "🔑 관리자 모드",
+    adminModeBadge: "🔑 관리자",
     sortFilterLabel: "정렬 및 필터",
     mergeDuplicatesBtn: "🧹 중복 단어 정리",
     noDuplicatesFound: "중복된 단어가 없어요 — 목록이 깨끗해요!",
@@ -10244,7 +10250,7 @@ let selectedCustomWordIds = new Set();
 // How many of the current (filtered/sorted) list's rows renderCustomWords()
 // actually puts in the DOM — Load More just raises this and re-renders,
 // instead of the whole list sitting in one tall, separately-scrolling box.
-const CUSTOM_WORDS_PAGE_SIZE = 30;
+const CUSTOM_WORDS_PAGE_SIZE = 100;
 let customWordsVisibleCount = CUSTOM_WORDS_PAGE_SIZE;
 // Empty set means no level filter (show every level) — "All levels" is
 // represented implicitly rather than as a sentinel member of the set.
@@ -10646,7 +10652,14 @@ function startEditCustomWord(id) {
   manualCancelBtn.style.display = "inline-block";
   manualSaveBtn.textContent = t("updateWordBtn");
   manualAddStatus.textContent = "";
+  // On phones the manual-add card starts collapsed — open it so the edit form is visible.
+  setAddwordCardOpen(addwordManualCard, true);
+  manualAddCardScrollIntoView();
   manualWordInput.focus();
+}
+
+function manualAddCardScrollIntoView() {
+  try { addwordManualCard.scrollIntoView({ block: "start", behavior: "smooth" }); } catch (e) { /* older browsers */ }
 }
 
 function deleteCustomWord(id) {
@@ -10744,7 +10757,42 @@ function updateDeleteSelectedBtn() {
   customDeleteSelectedBtn.classList.toggle("error", hasSelection);
   customDeleteSelectedBtn.classList.toggle("neutral", !hasSelection);
   customLevelSelect.disabled = !hasSelection;
+  syncCustomActionBar();
 }
+
+// Phones: while words are ticked, the same floating bar the Word List uses
+// (count + level + delete) rides above the bottom tab bar, so a bulk action
+// never needs a scroll back up to the toolbar of a 4000-word list.
+function syncCustomActionBar() {
+  // Looked up here (not as top-level consts) so this is safe to call from
+  // updateDeleteSelectedBtn() whenever it first runs during start-up.
+  const bar = document.getElementById("custom-action-bar");
+  if (!bar) return;
+  const n = selectedCustomWordIds.size;
+  bar.hidden = n === 0;
+  bar.closest(".view").classList.toggle("has-action-bar", n > 0);
+  if (n === 0) return;
+  document.getElementById("custom-action-text").textContent = t("selectedCountText", n);
+  // Mirror the toolbar's level choices (they depend on the current language track).
+  const barLevel = document.getElementById("custom-bar-level");
+  if (barLevel.dataset.src !== customLevelSelect.innerHTML) {
+    barLevel.innerHTML = customLevelSelect.innerHTML;
+    barLevel.dataset.src = customLevelSelect.innerHTML;
+    if (barLevel.options[0]) barLevel.options[0].textContent = t("changeLevelBarLabel");
+  }
+  barLevel.value = "";
+  const tabs = document.querySelector(".bottom-tabs");
+  bar.style.bottom = `${tabs ? tabs.offsetHeight : 0}px`;
+}
+window.addEventListener("resize", syncCustomActionBar);
+document.getElementById("custom-bar-level").addEventListener("change", (e) => {
+  const barLevel = e.target;
+  if (!barLevel.value) return;
+  customLevelSelect.value = barLevel.value;
+  customLevelSelect.dispatchEvent(new Event("change"));
+  barLevel.value = "";
+});
+document.getElementById("custom-bar-delete-btn").addEventListener("click", () => customDeleteSelectedBtn.click());
 
 // The words this section manages — an admin's own shared additions, a paid
 // account's own private words, or anything not yet synced/volatile — never
@@ -10853,9 +10901,10 @@ function renderCustomWords({ resetPaging = true } = {}) {
     return b.createdAt - a.createdAt;
   });
 
-  customWordsCountEl.textContent = t("customWordsCount", shown.length);
   const pageItems = shown.slice(0, customWordsVisibleCount);
   const remaining = shown.length - pageItems.length;
+  // Once Load More is in play, say how far along the list is instead of just the total.
+  customWordsCountEl.textContent = remaining > 0 ? t("customWordsShowing", pageItems.length, shown.length) : t("customWordsCount", shown.length);
   customWordsLoadMoreBtn.hidden = remaining <= 0;
   if (remaining > 0) customWordsLoadMoreLabel.textContent = t("loadMoreWords", Math.min(CUSTOM_WORDS_PAGE_SIZE, remaining));
   pageItems.forEach((w) => {
@@ -11788,6 +11837,40 @@ function updatePaidFeatureGates() {
 
 refreshPaidFeatureGates = updatePaidFeatureGates;
 updatePaidFeatureGates();
+
+/* ---------- Phones: Extract / Add-manually start collapsed ----------
+   Both are only used while adding words, but stacked above "My added words"
+   they pushed the list almost two screens down. At phone width their title
+   becomes a tap-to-open header; wider screens keep them open side by side. */
+const addwordPhoneMq = window.matchMedia("(max-width: 480px)");
+function setAddwordCardOpen(card, open) {
+  card.classList.toggle("is-collapsed", !open);
+  const head = card.querySelector(":scope > .aw-collapse-head");
+  if (head) head.setAttribute("aria-expanded", String(open));
+}
+[addwordExtractCard, addwordManualCard].forEach((card) => {
+  const head = card.querySelector(":scope > h3");
+  if (!head) return;
+  head.classList.add("aw-collapse-head");
+  head.setAttribute("role", "button");
+  head.tabIndex = 0;
+  const toggle = () => setAddwordCardOpen(card, card.classList.contains("is-collapsed"));
+  head.addEventListener("click", (e) => {
+    if (!addwordPhoneMq.matches || e.target.closest(".info-icon")) return;
+    toggle();
+  });
+  head.addEventListener("keydown", (e) => {
+    if (!addwordPhoneMq.matches || e.target.closest(".info-icon")) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggle();
+    }
+  });
+  setAddwordCardOpen(card, !addwordPhoneMq.matches);
+});
+addwordPhoneMq.addEventListener("change", () => {
+  [addwordExtractCard, addwordManualCard].forEach((card) => setAddwordCardOpen(card, !addwordPhoneMq.matches));
+});
 
 const STOPWORDS = new Set(
   ("the and for that with have this from they were been their said each which she does how out many then them these" +

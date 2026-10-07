@@ -1600,6 +1600,12 @@ to Flip!</span></div>
         <!-- No label here either — see the extract-words card's overlay comment. -->
         <div class="premium-gate-overlay" id="custom-premium-overlay" hidden></div>
       </div>
+      <!-- Phones: appears only while words are ticked, above the bottom tab bar. -->
+      <div class="wl-action-bar cw-action-bar" id="custom-action-bar" hidden>
+        <span class="wl-action-text" id="custom-action-text" role="status" aria-live="polite"></span>
+        <select class="level-bulk-select" id="custom-bar-level" aria-label="Change level"></select>
+        <button type="button" class="pill error small" id="custom-bar-delete-btn" data-i18n="deleteSelectedBtn">🗑️ Delete</button>
+      </div>
     </section>
 
     <!-- Stats -->
