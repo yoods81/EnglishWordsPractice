@@ -11848,3 +11848,4 @@ html body #flash-report[data-check="1"] .sp-report-card > :not(h3):not(.flash-ch
 .fc-opt.fc-wrong{background:#ffe0dc !important;border-color:#e0574a !important;color:#8a1f15 !important}
 .flash-info-btn{margin-left:0;flex:0 0 34px;min-width:34px}
 .flash-info-note{position:fixed;left:16px;right:16px;bottom:210px;z-index:60;box-shadow:0 6px 18px rgba(0,0,0,.18);margin:0;cursor:pointer}
+.flash-controls .pill.is-wait{opacity:.55;filter:saturate(.6)}

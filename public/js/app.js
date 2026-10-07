@@ -4488,10 +4488,10 @@ function startFlashPlay() {
 const FLASH_CHECK_MAX = 10;
 let flashCheck = null; // { qs, i, passed }
 function finishFlashRound() {
-  const known = Array.from(flashSession.known).map((w) => flashDeckFull.find((c) => c.word === w) || flashDeck.find((c) => c.word === w)).filter((c) => c && c.definition);
-  if (!known.length) { renderFlashReport(); return; }
+  const need = Array.from(flashSession.still.values()).filter((c) => c && c.definition && !flashCounted(c.word));
+  if (!need.length) { renderFlashReport(); return; }
   const pool = flashDeckFull.length > 4 ? flashDeckFull : flashDeck;
-  const qs = shuffle(known.slice()).slice(0, FLASH_CHECK_MAX).map((c) => {
+  const qs = shuffle(need.slice()).slice(0, FLASH_CHECK_MAX).map((c) => {
     const others = shuffle(pool.filter((x) => x.word !== c.word && x.word)).slice(0, 3).map((x) => x.word);
     return { card: c, opts: shuffle([c.word, ...others]) };
   });
@@ -4505,7 +4505,7 @@ function renderFlashCheck() {
   const c = flashCheck;
   if (!box || !c) return;
   const q = c.qs[c.i];
-  box.innerHTML = `<p class="fc-note">${rwL("Show what you know — a right answer earns the Coins!", "아는지 확인해요 — 맞히면 코인이 쌓여요!")}</p>
+  box.innerHTML = `<p class="fc-note">${rwL("Quick quiz on your Still learning words — right answers earn Coins!", "Still learning 단어 퀴즈 — 맞히면 코인이 쌓여요!")}</p>
     <div class="fc-prog">${c.i + 1} / ${c.qs.length}</div>
     <div class="fc-q">${escapeHtml(q.card.definition)}</div>
     <div class="fc-opts">${q.opts.map((o) => `<button type="button" class="pill neutral fc-opt" data-fc="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>`;
@@ -4518,10 +4518,8 @@ document.getElementById("flash-check")?.addEventListener("click", (e) => {
   const box = document.getElementById("flash-check");
   box.querySelectorAll(".fc-opt").forEach((x) => { x.disabled = true; if (x.dataset.fc === word) x.classList.add("fc-right"); });
   if (!ok) b.classList.add("fc-wrong");
-  if (ok) { c.passed++; progress.flashKnown[word] = true; }
-  else { delete progress.flashKnown[word]; flashSession.known.delete(word); flashSession.still.set(word, q.card); }
-  recordResult(word, ok, "flash");
-  updateFlashTally();
+  if (ok) { c.passed++; if (!flashCounted(word)) { flashMarkCounted(word); recordResult(word, true, "flash"); } }
+  else { const ws = progress.wordStats[word] || { correct: 0, incorrect: 0 }; ws.incorrect++; progress.wordStats[word] = ws; saveProgress(); }
   setTimeout(() => {
     c.i++;
     if (c.i >= c.qs.length) { flashCheck = null; delete flashReport.dataset.check; renderFlashReport(); } else renderFlashCheck();
@@ -4569,12 +4567,7 @@ function renderFlashReport() {
   });
 }
 document.getElementById("flash-start-btn").addEventListener("click", startFlashPlay);
-document.getElementById("flash-info-btn")?.addEventListener("click", () => {
-  const n = document.getElementById("flash-info-note"), b = document.getElementById("flash-info-btn");
-  n.textContent = rwL("💡 Cards you mark \"I know this\" get a quick quiz at the end. Answer right to earn Coins!", "💡 \"I know this\"로 고른 카드는 마지막에 짧은 퀴즈를 풀어요. 맞히면 코인이 쌓여요!");
-  n.onclick = () => { n.hidden = true; b.setAttribute("aria-expanded", "false"); };
-  n.hidden = !n.hidden; b.setAttribute("aria-expanded", String(!n.hidden));
-});
+document.getElementById("flash-info-btn")?.addEventListener("click", () => showFlashInfo());
 document.getElementById("flash-end").addEventListener("click", finishFlashRound);
 document.getElementById("flash-report-restart").addEventListener("click", showFlashStart);
 document.getElementById("flash-report-level")?.addEventListener("click", () => document.getElementById("level-badge")?.click());
@@ -4746,8 +4739,30 @@ function setFlashAutoSpeak(on) {
   const b = document.getElementById("flash-autospeak");
   if (b) { b.setAttribute("aria-pressed", on ? "true" : "false"); b.classList.toggle("on", !!on); }
 }
+// A flashcard answer only counts for Coins / missions when the card was flipped, looked at for FLASH_MIN_MS,
+// and the word has not already earned credit today.
+const FLASH_MIN_MS = 5000;
+let flashShownAt = 0, flashCardFlipped = false;
+function flashCounted(word) { const c = progress.flashCounted; return !!(c && c.d === localDateKey(new Date()) && c.w[word]); }
+function flashMarkCounted(word) {
+  const d = localDateKey(new Date());
+  if (!progress.flashCounted || progress.flashCounted.d !== d) progress.flashCounted = { d, w: {} };
+  progress.flashCounted.w[word] = 1;
+}
+function flashSyncAnswerBtns() {
+  [flashKnowBtn, flashDontKnowBtn].forEach((b) => { b.classList.toggle("is-wait", !flashCardFlipped); b.setAttribute("aria-disabled", String(!flashCardFlipped)); });
+}
+function showFlashInfo(open) {
+  const n = document.getElementById("flash-info-note"), b = document.getElementById("flash-info-btn");
+  if (!n) return;
+  n.textContent = rwL("💡 Flip the card and read it for 5 seconds first. Words you mark \"Still learning\" get a quick quiz at the end — answer right to earn Coins!", "💡 카드를 뒤집어 5초 이상 읽어 보세요. \"Still learning\" 단어는 마지막에 짧은 퀴즈를 풀어요 — 맞히면 코인이 쌓여요!");
+  n.hidden = open === undefined ? !n.hidden : !open;
+  n.onclick = () => { n.hidden = true; b.setAttribute("aria-expanded", "false"); };
+  b.setAttribute("aria-expanded", String(!n.hidden));
+}
 function renderFlashcard() {
   flashcardEl.classList.remove("flipped");
+  flashShownAt = Date.now(); flashCardFlipped = false; flashSyncAnswerBtns();
   { const bt = document.querySelector("#flash-bubble .bubble-text"); if (bt) bt.textContent = t("fkIdle"); }
   if (flashDeck.length === 0) {
     flashPrevBtn.disabled = true;
@@ -4855,6 +4870,7 @@ function slideFlashStage(dir) {
 let flashHasFlipped = false;
 function flipFlashcard() {
   flashcardEl.classList.toggle("flipped");
+  if (flashcardEl.classList.contains("flipped")) { flashCardFlipped = true; flashSyncAnswerBtns(); }
   if (!flashHasFlipped) { flashHasFlipped = true; const h = document.getElementById("flash-flip-hint"); if (h) h.classList.add("is-dim"); }
   koalaReact("flip", "fkFlip", flashScene, flashBubble, flashcardEl.classList.contains("flipped") ? "fkIdleBack" : "fkIdle");
 }
@@ -4941,9 +4957,14 @@ document.addEventListener("keydown", (e) => {
 
 flashKnowBtn.addEventListener("click", () => {
   if (flashDeck.length === 0) return;
+  if (!flashCardFlipped) { showFlashInfo(true); return; }
   const word = flashDeck[flashIndex].word;
-  // "I know this" is a self-report: it only earns Coins / mission credit once the end-of-round check is passed.
   flashSession.known.add(word); flashSession.still.delete(word);
+  const slow = Date.now() - flashShownAt >= FLASH_MIN_MS;
+  if (!slow) showFlashInfo(true);
+  // Credit only for a card that was really looked at, and once per word per day.
+  if (slow && !flashCounted(word)) { progress.flashKnown[word] = true; flashMarkCounted(word); recordResult(word, true, "flash"); }
+  else if (slow) progress.flashKnown[word] = true;
   pulseScoreTag(flashKnowBtn, "flash-know-bounce");
   updateFlashTally();
   nextFlashcard();
@@ -4952,6 +4973,7 @@ flashKnowBtn.addEventListener("click", () => {
 
 flashDontKnowBtn.addEventListener("click", () => {
   if (flashDeck.length === 0) return;
+  if (!flashCardFlipped) { showFlashInfo(true); return; }
   const word = flashDeck[flashIndex].word;
   delete progress.flashKnown[word];
   flashSession.known.delete(word); flashSession.still.set(word, flashDeck[flashIndex]);
@@ -13568,8 +13590,8 @@ function koalaEarnHtml() {
   const missionDone = progress.missionDone === day;
   return `<div class="koala-earn"><div class="koala-earn-title">${COIN_SVG} ${rwL("Earn more Coins", "코인 더 모으기")}</div>
     <p class="koala-note">${rwL(
-      `Every ${cfg.learning.correctPerReward} correct answers earn Coins (up to ${cfg.learning.dailyRewardsPerMode} times per activity each day). Wrong answers never cost Coins.`,
-      `정답 ${cfg.learning.correctPerReward}개마다 코인을 받아요 (활동마다 하루 ${cfg.learning.dailyRewardsPerMode}번까지). 틀려도 코인은 줄지 않아요.`)}</p>
+      `Every ${cfg.learning.correctPerReward} correct answers earn Coins (up to ${cfg.learning.dailyRewardsPerMode} times per activity each day; Flashcards: every ${cfg.learningByMode.flash.correctPerReward}, up to ${cfg.learningByMode.flash.dailyRewardsPerMode} times). Wrong answers never cost Coins.`,
+      `정답 ${cfg.learning.correctPerReward}개마다 코인을 받아요 (활동마다 하루 ${cfg.learning.dailyRewardsPerMode}번까지, 플래시카드는 ${cfg.learningByMode.flash.correctPerReward}개마다 하루 ${cfg.learningByMode.flash.dailyRewardsPerMode}번). 틀려도 코인은 줄지 않아요.`)}</p>
     <ul class="koala-earn-list">${rows}
       <li class="koala-earn-row${missionDone ? " koala-earn-row--done" : ""}"><span class="koala-earn-emoji" aria-hidden="true">🎯</span><span class="koala-earn-main"><span class="koala-earn-name">${labels.dailyMission} <b>+${cfg.coins.dailyMission}</b> ${COIN_SVG}</span>
         <small>${missionDone ? rwL("✓ Done today", "✓ 오늘 완료") : rwL("Finish all 3 mission tasks", "미션 3개를 모두 끝내요")}</small></span>

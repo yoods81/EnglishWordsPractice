@@ -30,6 +30,8 @@
     // mode earn that mode's coins, up to `dailyRewardsPerMode` rounds per mode
     // per day (so the day's total is bounded and wrong answers never cost coins).
     learning: { correctPerReward: 10, dailyRewardsPerMode: 3 },
+    // Flashcards are self-rated, so they pay out more slowly (15 credited answers, 2 rounds a day).
+    learningByMode: { flash: { correctPerReward: 15, dailyRewardsPerMode: 2 } },
     coins: {
       quiz: 5,
       spelling: 5,
@@ -801,7 +803,7 @@
   // Returns [{why, n}] for the rounds paid just now.
   function awardLearning(progress, mode, correctToday, day, opts) {
     const why = MODE_COINS[mode];
-    const cfg = REWARD_CONFIG.learning;
+    const cfg = Object.assign({}, REWARD_CONFIG.learning, (REWARD_CONFIG.learningByMode || {})[mode]);
     if (!why) return [];
     const rounds = Math.min(Math.floor((correctToday || 0) / cfg.correctPerReward), cfg.dailyRewardsPerMode);
     const paid = [];
@@ -814,7 +816,7 @@
 
   // Where the child stands towards the next round in a mode (for "Earn more Coins").
   function learningProgress(mode, correctToday) {
-    const cfg = REWARD_CONFIG.learning;
+    const cfg = Object.assign({}, REWARD_CONFIG.learning, (REWARD_CONFIG.learningByMode || {})[mode]);
     const done = Math.floor((correctToday || 0) / cfg.correctPerReward);
     const capped = done >= cfg.dailyRewardsPerMode;
     return {
