@@ -10913,3 +10913,119 @@ html[data-theme="dark"] body #custom-words-grid .wordlist-item .delete-btn {
     border-top-color: rgba(255, 255, 255, 0.16);
   }
 }
+
+/* ==========================================================================
+   Add Word page — round 4: collapsed headers as buttons, uniform toolbar
+   ========================================================================== */
+
+/* --- Collapsed Extract / Add-manually: a regular mint-bordered dropdown button
+       with its own background instead of the scenery showing through. ------- */
+@media (max-width: 480px) {
+  html body #view-addword #addword-extract-card.card.scene-card.is-collapsed,
+  html body #view-addword #addword-manual-card.card.scene-card.is-collapsed {
+    background: #fff;
+    border: 2px solid var(--accent-dark);
+    border-radius: 18px;
+    box-shadow: 0 3px 0 var(--accent-dark);
+    padding: 10px 16px;
+  }
+  .card.is-collapsed > .tg-bg {
+    display: none;
+  }
+  .card.is-collapsed > .aw-collapse-head {
+    min-height: 34px;
+    font-size: 0.98rem;
+    color: var(--text);
+  }
+  .card.is-collapsed > .aw-collapse-head::after {
+    margin-right: 2px;
+  }
+  .card.is-collapsed > .aw-collapse-head:active {
+    transform: translateY(1px);
+  }
+  html[data-theme="dark"] body #view-addword #addword-extract-card.card.scene-card.is-collapsed,
+  html[data-theme="dark"] body #view-addword #addword-manual-card.card.scene-card.is-collapsed {
+    background: #101a17;
+  }
+}
+
+/* --- My added words toolbar: Select All / Delete / Word Management / Export
+       share one size, shape and look. 2x2 on phones, one row on wider screens. */
+#my-added-words-card .my-added-words-header-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+@media (min-width: 700px) {
+  #my-added-words-card .my-added-words-header-actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+html body #my-added-words-card .my-added-words-header-actions > :is(.select-all-toggle, #custom-delete-selected-btn, #custom-word-mgmt-select, #custom-export-btn, #custom-upload-btn) {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 14px;
+  border: 2px solid var(--accent-dark);
+  border-radius: 999px;
+  background-color: #fff;
+  color: #0b6b57;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  text-align-last: center;
+  white-space: nowrap;
+  box-shadow: 0 3px 0 var(--accent-dark);
+  transform: none;
+}
+html body #my-added-words-card .my-added-words-header-actions > #custom-word-mgmt-select {
+  padding: 0 22px 0 8px;    /* clears the dropdown arrow */
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+}
+html body #my-added-words-card .my-added-words-header-actions > .select-all-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex: 0 0 auto;
+}
+/* Nothing selected yet: same shape, just quieter. */
+html body #my-added-words-card .my-added-words-header-actions > #custom-delete-selected-btn:disabled {
+  opacity: 0.5;
+  box-shadow: 0 3px 0 rgba(14, 156, 125, 0.5);
+}
+/* Words ticked: Delete is "armed" — red, but still the same size. */
+html body #my-added-words-card .my-added-words-header-actions > #custom-delete-selected-btn.error:not(:disabled) {
+  background-color: #e25555;
+  border-color: #b83a3a;
+  color: #fff;
+  box-shadow: 0 3px 0 #b83a3a;
+}
+html body #my-added-words-card .my-added-words-header-actions > :is(#custom-export-btn, #custom-upload-btn, #custom-word-mgmt-select):active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 var(--accent-dark);
+}
+html body #my-added-words-card .my-added-words-header-actions > #custom-upload-btn[hidden] {
+  display: none;
+}
+html[data-theme="dark"] body #my-added-words-card .my-added-words-header-actions > :is(.select-all-toggle, #custom-delete-selected-btn, #custom-word-mgmt-select, #custom-export-btn, #custom-upload-btn) {
+  background-color: #101a17;
+  color: #e6eeea;
+  border-color: var(--accent);
+  box-shadow: 0 3px 0 var(--accent-dark);
+}
+html[data-theme="dark"] body #my-added-words-card .my-added-words-header-actions > #custom-delete-selected-btn.error:not(:disabled) {
+  background-color: #b83a3a;
+  border-color: #ff8787;
+  color: #fff;
+  box-shadow: 0 3px 0 #7d2424;
+}
