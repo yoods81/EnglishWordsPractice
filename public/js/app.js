@@ -2607,7 +2607,7 @@ function refreshCurrentView() {
 
 // Wide screens with the top nav row (tablet / laptop / Surface): scroll the page
 // so the nav buttons sit at the very top of the browser window. That leaves the
-// whole rest of the screen for the Quiz instead of the title area above it.
+// whole rest of the screen for the open section (Quiz, Spelling, ...) instead of the title area above it.
 function scrollNavBarToTop() {
   const bar = document.querySelector(".tabs-bar");
   const nav = bar && bar.querySelector("nav.tabs");
@@ -2742,7 +2742,7 @@ function goToTab(view) {
   document.body.classList.toggle("on-landing", view === "landing");
   if (view === "flashcards" && previousView !== "flashcards") showFlashStart();
   refreshView(view);
-  if (view === "quiz") {
+  if (view !== "landing") {
     // Layout has settled after the view switch: align, then once more after fonts/images shift it.
     requestAnimationFrame(scrollNavBarToTop);
     setTimeout(scrollNavBarToTop, 250);
