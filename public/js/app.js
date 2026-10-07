@@ -10902,21 +10902,29 @@ function renderCustomWords({ resetPaging = true } = {}) {
       if (w.example) {
         const exRow = document.createElement("div");
         exRow.className = "wl-example";
+        // Same trick as Word List's cards: the last word and the speaker are
+        // glued together (no-break) so the speaker never drops onto a line
+        // of its own below the sentence.
+        const sentence = w.example.trim();
+        const cut = sentence.lastIndexOf(" ") + 1;
         const exText = document.createElement("span");
         exText.className = "wl-example-text";
-        exText.textContent = w.example;
-        exText.title = w.example;
+        exText.textContent = sentence.slice(0, cut);
+        const exTail = document.createElement("span");
+        exTail.className = "wl-example-tail";
+        exTail.appendChild(document.createTextNode(sentence.slice(cut)));
+        exTail.appendChild(makeWordlistSpeakBtn(w.example, "example", t("hearExampleLabel")));
+        exRow.title = w.example;
         exRow.appendChild(exText);
-        exRow.appendChild(makeWordlistSpeakBtn(w.example, "example", t("hearExampleLabel")));
+        exRow.appendChild(exTail);
         left.appendChild(exRow);
       }
       row.appendChild(left);
 
+      // Layout (side column on wide screens, a full-width bottom bar on
+      // phones) lives in CSS — .cw-actions / .cw-actions-btns.
       const right = document.createElement("div");
-      right.style.display = "flex";
-      right.style.flexDirection = "column";
-      right.style.gap = "10px";
-      right.style.alignItems = "flex-end";
+      right.className = "cw-actions";
 
       const badge = document.createElement("span");
       badge.className = "mastery cw-level-badge";
@@ -10924,8 +10932,7 @@ function renderCustomWords({ resetPaging = true } = {}) {
       right.appendChild(badge);
 
       const btnRow = document.createElement("div");
-      btnRow.style.display = "flex";
-      btnRow.style.gap = "10px";
+      btnRow.className = "cw-actions-btns";
 
       if (cwNoDefinition(w)) {
         const retryBtn = document.createElement("button");

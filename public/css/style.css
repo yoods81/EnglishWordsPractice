@@ -10612,3 +10612,135 @@ html body #view-addword .card.scene-card { border: 0; box-shadow: none; --tg-orb
 .spelling-correct-line::before { display: inline-block; }
 /* Admin coin rows must never be squeezed by the scrolling list (that made Give/Take spill over the row's bottom border) */
 .admin-koala-table-row { flex: 0 0 auto; height: auto; }
+
+/* ==========================================================================
+   Add Word page — mobile layout repairs
+   ========================================================================== */
+
+/* Below 480px the two top cards stack in a column, but they kept the
+   side-by-side `flex: 1 1 0` (zero flex-basis). Once the sky/hills scenery
+   made each one `overflow: hidden`, their min-height:auto no longer protected
+   them and both collapsed to a ~32px strip showing only the title. In a
+   column they must size to their own content. */
+@media (max-width: 480px) {
+  html body .addword-top-row > .card {
+    flex: 0 0 auto;
+    min-height: min-content;
+  }
+}
+
+/* A card that holds a 4000px list can't carry a card-sized landscape: the
+   hills and trees were stretched down the whole list (and out behind Load
+   More). Keep a calm flat mint instead. */
+html body #my-added-words-card.scene-card {
+  background: #e4f5ec;
+}
+html body #my-added-words-card > .tg-bg {
+  display: none;
+}
+html[data-theme="dark"] body #my-added-words-card.scene-card {
+  background: #1f2a55;
+}
+
+/* --- My added words rows: same roomy, aligned cards as the Word List ------ */
+/* An implicit `auto` grid column grows to its widest row's min-content, which
+   pushed the rows past the card edge (right borders got clipped). */
+#custom-words-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+#custom-words-grid .wordlist-item {
+  padding: 12px 14px;
+  gap: 10px;
+}
+#custom-words-grid .wordlist-item .cw-select {
+  width: 22px;
+  height: 22px;
+  margin: 5px 0 0;
+  accent-color: var(--accent-dark);
+}
+#custom-words-grid .wordlist-item .w {
+  min-width: 0;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+/* Breathing room under the big speaker button so its shadow no longer sits
+   on top of the meaning. */
+#custom-words-grid .wordlist-item .d {
+  margin-top: 6px;
+}
+#custom-words-grid .wl-example {
+  margin-top: 8px;
+}
+
+/* Level tag + Edit/Delete. Side column on wide screens, as before. */
+.cw-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.cw-actions-btns {
+  display: flex;
+  gap: 10px;
+}
+
+/* On phones the side column ate ~45% of the row and squeezed the word, meaning
+   and example into a narrow strip. Drop it onto its own line under the text:
+   level tag on the left, buttons on the right. */
+@media (max-width: 480px) {
+  #custom-words-grid .wordlist-item {
+    flex-wrap: wrap;
+  }
+  #custom-words-grid .cw-actions {
+    flex: 1 1 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 2px;
+    padding-top: 10px;
+    border-top: 1px dashed #cfe6da;
+  }
+  #custom-words-grid .cw-actions-btns {
+    gap: 8px;
+    margin-left: auto;
+  }
+  #custom-words-grid .cw-actions-btns > button {
+    min-height: 36px;
+    padding: 6px 18px;
+  }
+}
+
+/* Empty status line above the list reserved a blank band (min-height + gaps)
+   between "Total N words" and the Sort & Filter row. */
+#custom-words-status:empty,
+#custom-words-storage-note[hidden] {
+  display: none;
+}
+#my-added-words-card .wordlist-count {
+  margin-bottom: 10px;
+}
+/* Select All sat in the old periwinkle (#e6e9f4) — the only blue-ish control
+   on a mint page. Match the rest of the toolbar. */
+#my-added-words-card .select-all-toggle {
+  background: #d3efe2;
+  border: 1px solid #a8ddc9;
+  color: var(--accent-dark);
+}
+#my-added-words-card .select-all-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-dark);
+}
+
+/* The dropzone's hint text ("Photos, TXT, PDF…") ran straight over the
+   scenery's hills and trees and was hard to read. A soft white wash keeps the
+   dashed box legible while the scenery still shows around it. */
+#addword-extract-card .ocr-dropzone {
+  background: rgba(255, 255, 255, 0.72);
+}
+html[data-theme="dark"] #addword-extract-card .ocr-dropzone {
+  background: rgba(20, 28, 70, 0.6);
+}
