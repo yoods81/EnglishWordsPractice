@@ -11029,3 +11029,61 @@ html[data-theme="dark"] body #my-added-words-card .my-added-words-header-actions
   color: #fff;
   box-shadow: 0 2px 0 #7d2424;
 }
+
+/* ==========================================================================
+   Upgrade-to-Premium sheet polish
+   ========================================================================== */
+/* The "Premium feature" lock banner is fixed to the viewport centre; behind a
+   modal it showed through the dim backdrop as a second, overlapping popup. */
+body:has(.auth-overlay:not([hidden])) .premium-lock-banner,
+body:has(.kid-modal-overlay:not([hidden])) .premium-lock-banner {
+  display: none;
+}
+
+#upgrade-overlay .auth-card > .auth-hint:first-of-type {
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--text);
+  opacity: 0.82;
+  margin: 0 0 6px;
+  text-align: center;
+}
+#upgrade-overlay #upgrade-pay-btn {
+  margin: 12px 0 4px;
+  min-height: 46px;
+}
+#upgrade-overlay .auth-form label {
+  display: block;
+  margin-top: 10px;
+  font-weight: 700;
+}
+#upgrade-overlay .auth-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+#upgrade-overlay .auth-actions .pill {
+  width: 100%;
+  min-height: 44px;
+  justify-content: center;
+}
+#upgrade-overlay #upgrade-no-code-hint {
+  margin: 18px 0 8px;
+  padding-top: 14px;
+  border-top: 1.5px dashed rgba(14, 156, 125, 0.35);
+  text-align: center;
+  font-size: 0.82rem;
+}
+#upgrade-overlay #upgrade-request-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+}
+@media (max-width: 480px) {
+  #upgrade-overlay .auth-card {
+    padding-bottom: max(24px, calc(env(safe-area-inset-bottom) + 16px));
+  }
+}
