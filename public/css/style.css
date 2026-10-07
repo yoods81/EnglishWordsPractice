@@ -8444,40 +8444,39 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
   cursor: pointer;
 }
 
-/* ---- Phone quiz: "Next" is a translucent mint arrow on the right edge of the
-   question box (streaming-app style), and the footer mute button is gone. ---- */
+/* ---- Quiz: "Next" is a translucent mint arrow on the right edge of the
+   question box (streaming-app style) on phone, tablet and desktop. The footer mute button is
+   hidden on phones only. ---- */
 @media (max-width: 700px) {
   #quiz-practice .quiz-footer .sfx-toggle { display: none; }
-
-  #view-quiz .qz-qcard { position: relative; }
-
-  #quiz-qcard > #quiz-next {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 40px;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    border-radius: 0 18px 18px 0;
-    background-color: rgba(2, 195, 154, 0.38);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 4.5l7.5 7.5L9 19.5'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 30px 30px;
-    box-shadow: none;
-    color: transparent;
-    font-size: 0;
-    line-height: 0;
-    animation: qz-next-in 0.25s ease-out, qz-next-pulse 1.2s ease-in-out 0.25s infinite;
-    -webkit-tap-highlight-color: transparent;
-  }
-  #quiz-qcard > #quiz-next:active { background-color: rgba(2, 195, 154, 0.6); transform: none; }
-  #quiz-qcard > #quiz-next:focus-visible { outline: 2px solid #0e9c7d; outline-offset: -2px; }
-  /* Keep long questions from running underneath the arrow. */
-  #view-quiz .qz-qcard:has(> #quiz-next:not([style*="none"])) { padding-right: 46px; }
 }
+#view-quiz .qz-qcard { position: relative; padding-left: 46px; padding-right: 46px; }
+#quiz-qcard > #quiz-next {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0 18px 18px 0;
+  background-color: rgba(2, 195, 154, 0.38);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 4.5l7.5 7.5L9 19.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 30px 30px;
+  box-shadow: none;
+  color: transparent;
+  font-size: 0;
+  line-height: 0;
+  animation: qz-next-in 0.25s ease-out, qz-next-pulse 1.2s ease-in-out 0.25s infinite;
+  -webkit-tap-highlight-color: transparent;
+}
+#quiz-qcard > #quiz-next:hover { background-color: rgba(2, 195, 154, 0.55); transform: none; box-shadow: none; }
+#quiz-qcard > #quiz-next:active { background-color: rgba(2, 195, 154, 0.6); transform: none; }
+#quiz-qcard > #quiz-next:focus-visible { outline: 2px solid #0e9c7d; outline-offset: -2px; }
+@media (min-width: 701px) { #quiz-qcard > #quiz-next { width: 46px; background-size: 34px 34px; } #view-quiz .qz-qcard { padding-left: 54px; padding-right: 54px; } }
 @keyframes qz-next-in { from { opacity: 0; } to { opacity: 1; } }
 /* A gentle, ongoing blink once the arrow has faded in — the one-shot fade-in
    alone was too easy to miss next to a bold feedback card. */
@@ -10282,4 +10281,66 @@ html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill { width: 4
 /* phone: drop the outer frame so cards aren't boxed twice */
 @media (max-width: 480px) {
   #view-stats > .card:not(#stats-insights-card) { background: none; border: 0; box-shadow: none; padding-left: 0; padding-right: 0; }
+}
+
+
+/* =====================================================================
+   Spelling: Back / Next are translucent mint strips INSIDE the answer field,
+   one on each side (Netflix style, same look as the Flashcards edge strips).
+   Phone, tablet and desktop.
+   ===================================================================== */
+html body #spelling-practice .sp-input-row { display: block; margin: 0; gap: 0; }
+html body #spelling-practice .sp-input-wrap { position: relative; }
+html body #spelling-practice .sp-input-wrap #spelling-input { box-sizing: border-box; width: 100%; padding-left: 54px; padding-right: 54px; }
+html body #spelling-practice .sp-input-wrap #spelling-back.sp-leaf-btn,
+html body #spelling-practice .sp-input-wrap #spelling-next.sp-leaf-btn {
+  position: absolute; top: 4px; bottom: 4px; z-index: 3;
+  width: 42px; height: auto; margin: 0; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: 0; box-shadow: none; transform: none; opacity: 1; animation: none;
+  background: rgba(2, 195, 154, 0.38); color: #fff;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  transition: background 0.2s ease, opacity 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+html body #spelling-practice .sp-input-wrap #spelling-back.sp-leaf-btn { left: 4px; border-radius: 14px 0 0 14px; }
+html body #spelling-practice .sp-input-wrap #spelling-next.sp-leaf-btn { right: 4px; border-radius: 0 14px 14px 0; }
+html body #spelling-practice .sp-input-wrap .sp-leaf-btn .sp-glass-svg { width: 28px; height: 28px; transform: none; stroke-width: 2.8; }
+html body #spelling-practice .sp-input-wrap #spelling-back.sp-leaf-btn:not(:disabled):hover,
+html body #spelling-practice .sp-input-wrap #spelling-next.sp-leaf-btn:not(:disabled):hover,
+html body #spelling-practice .sp-input-wrap #spelling-back.sp-leaf-btn:not(:disabled):focus-visible,
+html body #spelling-practice .sp-input-wrap #spelling-next.sp-leaf-btn:not(:disabled):focus-visible { background: rgba(2, 195, 154, 0.55); transform: none; box-shadow: none; outline: none; }
+html body #spelling-practice .sp-input-wrap #spelling-back.sp-leaf-btn:not(:disabled):active,
+html body #spelling-practice .sp-input-wrap #spelling-next.sp-leaf-btn:not(:disabled):active { background: rgba(2, 195, 154, 0.7); transform: none; }
+/* Back on the first word and Next before the answer is checked: faint placeholders so the field stays symmetric */
+html body #spelling-practice .sp-input-wrap #spelling-back.sp-leaf-btn:disabled,
+html body #spelling-practice .sp-input-wrap #spelling-next.sp-leaf-btn:disabled { opacity: 0.22; background: rgba(2, 195, 154, 0.38); border: 0; box-shadow: none; color: #fff; pointer-events: none; }
+/* Right answer: Next gets stronger and gently blinks */
+html body #spelling-practice.is-correct .sp-input-wrap #spelling-next.sp-leaf-btn:not(:disabled) { background: rgba(2, 195, 154, 0.62); border: 0; color: #fff; box-shadow: none; animation: qz-next-pulse 1.2s ease-in-out infinite; }
+html body #spelling-practice.is-correct .sp-input-wrap #spelling-next.sp-leaf-btn:not(:disabled):active { background: rgba(2, 195, 154, 0.8); animation: none; transform: none; }
+html body #spelling-practice.is-correct .sp-input-wrap #spelling-next.sp-leaf-btn:not(:disabled)::after { content: none; display: none; }
+@media (prefers-reduced-motion: reduce) { html body #spelling-practice.is-correct .sp-input-wrap #spelling-next.sp-leaf-btn:not(:disabled) { animation: none; } }
+@media (max-width: 520px) {
+  html body #spelling-practice .sp-input-wrap #spelling-back.sp-leaf-btn,
+  html body #spelling-practice .sp-input-wrap #spelling-next.sp-leaf-btn { width: 38px; }
+  html body #spelling-practice .sp-input-wrap #spelling-input { padding-left: 48px; padding-right: 48px; }
+  html body #spelling-practice .sp-input-wrap .sp-leaf-btn .sp-glass-svg { width: 26px; height: 26px; }
+}
+@media (min-width: 700px) {
+  html body #spelling-practice .sp-input-wrap #spelling-back.sp-leaf-btn,
+  html body #spelling-practice .sp-input-wrap #spelling-next.sp-leaf-btn { width: 46px; }
+  html body #spelling-practice .sp-input-wrap #spelling-input { padding-left: 60px; padding-right: 60px; }
+}
+/* Touch screens: the keyboard switch sits right next to the Back strip */
+@media (pointer: coarse) {
+  html body #spelling-practice .sp-input-wrap .sp-kb-toggle { left: 50px; top: 50%; bottom: auto; width: 34px; height: 34px; aspect-ratio: auto; transform: translateY(-50%); border-radius: 10px; }
+  html body #spelling-practice .sp-input-wrap #spelling-input { padding-left: 90px; padding-right: 52px; }
+}
+@media (pointer: coarse) and (max-width: 520px) {
+  html body #spelling-practice .sp-input-wrap .sp-kb-toggle { left: 46px; }
+  html body #spelling-practice .sp-input-wrap #spelling-input { padding-left: 86px; padding-right: 48px; }
+}
+@media (pointer: coarse) and (min-width: 700px) {
+  html body #spelling-practice .sp-input-wrap .sp-kb-toggle { left: 54px; }
+  html body #spelling-practice .sp-input-wrap #spelling-input { padding-left: 98px; padding-right: 60px; }
 }

@@ -4884,7 +4884,7 @@ function finishQuizQuestion(outcome) {
 
   renderQuizFeedback(q, outcome, correct);
   quizNextBtn.textContent = quizIndex + 1 >= quizQuestions.length ? t("qzSeeResults") : t("nextQuestionBtn");
-  // On a phone the button is just an arrow (see "#quiz-qcard > #quiz-next" in
+  // The button is just an arrow (see "#quiz-qcard > #quiz-next" in
   // style.css), so keep its meaning available to screen readers.
   quizNextBtn.setAttribute("aria-label", quizNextBtn.textContent);
   quizNextBtn.style.display = "inline-block";
@@ -5300,17 +5300,10 @@ quizNextBtn.addEventListener("click", () => {
   renderQuizQuestion();
 });
 
-// Phone layout: "Next" is a translucent arrow on the right edge of the
-// question box instead of a button in the footer. It lives in the footer on
-// wider screens, so move it between the two as the screen size changes.
+// "Next" is a translucent mint strip on the right edge of the question box
+// (streaming-app style) on every screen size: phone, tablet and desktop.
 const quizQcardEl = document.getElementById("quiz-qcard");
-const quizPhoneMQ = window.matchMedia("(max-width: 700px)");
-function placeQuizNextBtn() {
-  if (quizPhoneMQ.matches) quizQcardEl.appendChild(quizNextBtn);
-  else if (quizNextBtn.parentNode !== quizEndBtn.parentNode) quizEndBtn.before(quizNextBtn);
-}
-quizPhoneMQ.addEventListener("change", placeQuizNextBtn);
-placeQuizNextBtn();
+quizQcardEl.appendChild(quizNextBtn);
 
 quizQuestionEl.addEventListener("click", speakQuizQuestion);
 quizSpeakBtn.addEventListener("click", speakQuizQuestion);
