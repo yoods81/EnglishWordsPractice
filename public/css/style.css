@@ -10522,8 +10522,9 @@ html body #spelling-practice .sp-leaf-btn .flash-edge-txt { font-size: 0.58rem; 
 .upgrade-card .auth-hint { margin-top:8px; }
 
 /* ---- Quiz "Next" strip: identical geometry to the Spelling Next strip (inset 4px, 14px inner corners, no edge line) ---- */
+html body #view-quiz .qz-qcard { border: 4px solid #b8e3d6; border-radius: 18px; box-shadow: none; background: #fff; }
 #quiz-qcard > #quiz-next {
-  top: 4px; bottom: 4px; right: 4px; width: 42px;
+  top: 0; bottom: 0; right: 0; width: 42px;
   border: 0; border-radius: 0 14px 14px 0;
   background-color: rgba(2, 195, 154, 0.62); box-shadow: none;
 }
@@ -10605,3 +10606,9 @@ html body #view-addword .card.scene-card { border: 0; box-shadow: none; --tg-orb
   .admin-koala-cell-adjust { grid-area: adjust; }
   .admin-koala-cell-actions { grid-area: actions; justify-content: flex-start; }
 }
+
+/* Spelling "correct" line: short, centred, two lines */
+.spelling-correct-line { white-space: pre-line; text-align: center; line-height: 1.4; }
+.spelling-correct-line::before { display: inline-block; }
+/* Admin coin rows must never be squeezed by the scrolling list (that made Give/Take spill over the row's bottom border) */
+.admin-koala-table-row { flex: 0 0 auto; height: auto; }
