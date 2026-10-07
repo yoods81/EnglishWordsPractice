@@ -10384,3 +10384,39 @@ html body #spelling-practice .sp-leaf-btn .flash-edge-txt { font-size: 0.58rem; 
   html body #spelling-practice .sp-input-wrap .sp-kb-toggle { left: 66px; }
   html body #spelling-practice .sp-input-wrap #spelling-input { padding-left: 110px; padding-right: 72px; }
 }
+
+/* ===== Desktop: taller Typing Game play area (same as Times Table) + roomier start card ===== */
+@media (min-width: 700px) {
+  #typegame-stage:not(.typegame-stage-expanded) { height: 400px; }
+  #timestable-stage:not(.typegame-stage-expanded) { min-height: 400px; }
+}
+@media (min-width: 481px) {
+  #view-typegame .typegame-overlay.tg-start-overlay,
+  #view-timestable .typegame-overlay.tg-start-overlay { padding: 14px; }
+  #view-typegame .tg-start-card,
+  #view-timestable .tg-start-card { width: min(100%, 360px); padding: 14px 28px 24px; gap: 12px; }
+  #view-typegame .tg-start-card .kb-strip .kb-scene,
+  #view-timestable .tg-start-card .kb-strip .kb-scene { width: 88px; height: 86px; }
+  #view-typegame .tg-start-card .kb-strip .kb-scene .sk-svg,
+  #view-timestable .tg-start-card .kb-strip .kb-scene .sk-svg { width: 88px; }
+  #view-typegame .typegame-overlay .tg-start-card h3 { font-size: 1.65rem; margin-top: 2px; }
+  #view-typegame .typegame-overlay .tg-start-card p { font-size: 1.05rem; line-height: 1.5; margin: 0; padding: 0 6px; }
+  #view-typegame .typegame-overlay .tg-start-card p.tg-start-tip { font-size: 0.9rem; margin-top: -4px; }
+  #view-typegame .tg-start-chips, #view-timestable .tg-start-chips { margin: 2px 0 4px; }
+  #view-typegame .typegame-overlay .tg-start-card button.tg-start-btn.pill.accent,
+  #view-timestable .typegame-overlay .tg-start-card button.tg-start-btn.pill.accent { margin-top: 10px; min-height: 54px; font-size: 1.25rem; }
+}
+@media (min-width: 700px) {
+  #typegame-stage:not(.typegame-stage-expanded) { height: 420px; }
+  #timestable-stage:not(.typegame-stage-expanded) { min-height: 420px; }
+}
+@media (min-width: 481px) {
+  #view-typegame .tg-start-card,
+  #view-timestable .tg-start-card { padding: 12px 28px 22px; gap: 10px; }
+  #view-typegame .tg-start-card .kb-strip .kb-scene,
+  #view-timestable .tg-start-card .kb-strip .kb-scene { width: 80px; height: 78px; }
+  #view-typegame .tg-start-card .kb-strip .kb-scene .sk-svg,
+  #view-timestable .tg-start-card .kb-strip .kb-scene .sk-svg { width: 80px; }
+  #view-typegame .typegame-overlay .tg-start-card button.tg-start-btn.pill.accent,
+  #view-timestable .typegame-overlay .tg-start-card button.tg-start-btn.pill.accent { margin-top: 8px; }
+}
