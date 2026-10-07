@@ -10344,3 +10344,43 @@ html body #spelling-practice.is-correct .sp-input-wrap #spelling-next.sp-leaf-bt
   html body #spelling-practice .sp-input-wrap .sp-kb-toggle { left: 54px; }
   html body #spelling-practice .sp-input-wrap #spelling-input { padding-left: 98px; padding-right: 60px; }
 }
+
+
+/* =====================================================================
+   Edge-strip labels (Back / Next, or 이전 / 다음) on Spelling and Quiz,
+   and wider, easier-to-read strips on tablet / desktop (Flashcards too).
+   ===================================================================== */
+/* Spelling: arrow with a small label under it */
+html body #spelling-practice .sp-input-wrap #spelling-back.sp-leaf-btn,
+html body #spelling-practice .sp-input-wrap #spelling-next.sp-leaf-btn { flex-direction: column; gap: 2px; }
+html body #spelling-practice .sp-input-wrap .sp-leaf-btn .sp-glass-svg { width: 22px; height: 22px; }
+html body #spelling-practice .sp-leaf-btn .flash-edge-txt { font-size: 0.58rem; font-weight: 800; letter-spacing: .02em; line-height: 1; color: #fff; text-transform: uppercase; white-space: nowrap; }
+/* Quiz: label painted under the arrow */
+#quiz-qcard > #quiz-next { background-position: center calc(50% - 8px); }
+#quiz-qcard > #quiz-next::after {
+  content: attr(data-label); position: absolute; left: 0; right: 0; top: calc(50% + 10px);
+  text-align: center; font-family: inherit; font-size: 0.58rem; font-weight: 800; letter-spacing: .02em; line-height: 1; color: #fff; text-transform: uppercase; white-space: nowrap;
+}
+@media (min-width: 700px) {
+  /* Spelling strips: wider, bigger label */
+  html body #spelling-practice .sp-input-wrap #spelling-back.sp-leaf-btn,
+  html body #spelling-practice .sp-input-wrap #spelling-next.sp-leaf-btn { width: 58px; gap: 3px; }
+  html body #spelling-practice .sp-input-wrap .sp-leaf-btn .sp-glass-svg { width: 26px; height: 26px; }
+  html body #spelling-practice .sp-leaf-btn .flash-edge-txt { font-size: 0.74rem; }
+  html body #spelling-practice .sp-input-wrap #spelling-input { padding-left: 72px; padding-right: 72px; }
+  /* Quiz strip */
+  #quiz-qcard > #quiz-next { width: 58px; background-position: center calc(50% - 10px); }
+  #quiz-qcard > #quiz-next::after { top: calc(50% + 12px); font-size: 0.74rem; }
+  #view-quiz .qz-qcard { padding-left: 68px; padding-right: 68px; }
+  /* Flashcards: card stretched sideways, strips wider with readable labels */
+  html body #flash-practice .flashcard-row { max-width: 480px; }
+  html body #flash-practice .flash-controls, html body #flash-practice .flash-end-row { max-width: 480px; }
+  html body #flash-practice #flash-prev, html body #flash-practice #flash-next { width: 62px; gap: 6px; }
+  html body #flash-practice #flash-prev svg, html body #flash-practice #flash-next svg { width: 32px; height: 32px; }
+  html body #flash-practice .flash-edge-txt { font-size: 0.8rem; }
+  html body #flash-practice .flashcard-face { padding-left: 72px; padding-right: 72px; }
+}
+@media (pointer: coarse) and (min-width: 700px) {
+  html body #spelling-practice .sp-input-wrap .sp-kb-toggle { left: 66px; }
+  html body #spelling-practice .sp-input-wrap #spelling-input { padding-left: 110px; padding-right: 72px; }
+}

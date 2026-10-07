@@ -4887,6 +4887,7 @@ function finishQuizQuestion(outcome) {
   // The button is just an arrow (see "#quiz-qcard > #quiz-next" in
   // style.css), so keep its meaning available to screen readers.
   quizNextBtn.setAttribute("aria-label", quizNextBtn.textContent);
+  quizNextBtn.dataset.label = t("flashNextShort");
   quizNextBtn.style.display = "inline-block";
   quizNextBtn.focus({ preventScroll: true });
   // On a phone the feedback and "Next" can sit below the fold: bring them into view (no scroll if already visible).
