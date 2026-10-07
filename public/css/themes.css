@@ -1021,7 +1021,7 @@ html[data-theme="dark"] .qz-hint-btn {
   color: #d1d5db !important;
 }
 html[data-theme="dark"] .qz-hint-note {
-  color: #daad53 !important;
+  color: #e2a331 !important;
 }
 html[data-theme="dark"] .qz-hint-text {
   color: #26e9c0 !important;
@@ -1126,6 +1126,20 @@ html[data-theme="dark"] body #view-flashcards #flash-start-screen .flash-start-s
 html[data-theme="dark"] .wl-selected-chip {
   background: #1d3429 !important;
   color: #0fefb0 !important;
+}
+html[data-theme="dark"] .wl-chip {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .wl-chip[data-filter="review"].is-active {
+  color: #d7dae0 !important;
+}
+@media (max-width: 480px) {
+html[data-theme="dark"] .wl-action-bar:not([hidden]) {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .wl-action-text {
+  color: #0fefb0 !important;
+}
 }
 html[data-theme="dark"] .wl-speak--example {
   border: 1px solid #3e6f59 !important;
@@ -1266,6 +1280,336 @@ html[data-theme="dark"] .koala-wallet-stat b {
 }
 html[data-theme="dark"] .koala-wallet-note {
   color: #d2cec5 !important;
+}
+html[data-theme="dark"] body .sp-start-row .sp-level-chip {
+  color: #26e9c0 !important;
+  background: #131b19 !important;
+}
+html[data-theme="dark"] body #spelling-practice .sp-right {
+  background: rgba(19,27,25,0.62) !important;
+}
+html[data-theme="dark"] body #spelling-practice .sp-leaf-btn {
+  background: #131b19 !important;
+  color: #42ffc9 !important;
+}
+html[data-theme="dark"] body #spelling-practice .sp-leaf-btn:disabled {
+  background: rgba(19,27,25,0.8) !important;
+  border: 2px solid #3e6f64 !important;
+}
+html[data-theme="dark"] body #spelling-practice #spelling-input:not(:focus):not(.correct):not(.incorrect) {
+  border-color: #3e6f60 !important;
+}
+@media (pointer: coarse) {
+html[data-theme="dark"] body #spelling-practice .sp-kb-toggle {
+  background: #162821 !important;
+}
+}
+html[data-theme="dark"] body #spelling-practice.is-correct #spelling-next:not(:disabled)::after {
+  color: #24ffc1 !important;
+}
+html[data-theme="dark"] body #spelling-practice .sp-footer .sfx-toggle.is-off {
+  color: #bec7c4 !important;
+  background: #1e2523 !important;
+  border-color: #4f5e5a !important;
+}
+@media (pointer: coarse) {
+html[data-theme="dark"] body #spelling-practice .sp-kb-toggle {
+  background: #1a2e27 !important;
+}
+}
+html[data-theme="dark"] body .sp-step {
+  background: rgba(19,27,25,0.24) !important;
+}
+html[data-theme="dark"] body .sp-start-stats {
+  background: rgba(19,27,25,0.2) !important;
+}
+html[data-theme="dark"] .sp-report-card {
+  background: rgba(19,27,25,0.82) !important;
+  border: 2px solid #3e6f60 !important;
+}
+html[data-theme="dark"] body #spelling-report-restart {
+  color: #f38200 !important;
+}
+html[data-theme="dark"] .sp-report-star {
+  color: #ffb952 !important;
+  background: #38331f !important;
+}
+html[data-theme="dark"] body .sp-report-next .pill {
+  background: #131b19 !important;
+  border: 2px solid #3e6f60 !important;
+}
+html[data-theme="dark"] body #spelling-practice .spelling-wrong-prompt {
+  color: #e6716a !important;
+  background: #251715 !important;
+  border: 2px solid #6f423e !important;
+}
+html[data-theme="dark"] body .sp-report-card .wordlist-item.sp-report-row:active {
+  background: #182b24 !important;
+}
+html[data-theme="dark"] body .sp-report-card {
+  background: rgba(19,27,25,0.5) !important;
+}
+html[data-theme="dark"] body .sp-report-stats .score-tag {
+  border: 1px solid #3b6857 !important;
+  background: rgba(19,27,25,0.8) !important;
+}
+html[data-theme="dark"] body .sp-report-review {
+  color: #bac9c4 !important;
+}
+html[data-theme="dark"] body .sp-report-card .wordlist-item.sp-report-row {
+  border: 1px solid #3b6857 !important;
+  background: rgba(19,27,25,0.92) !important;
+}
+html[data-theme="dark"] body .sp-report-next #spelling-report-game {
+  background: linear-gradient(180deg, #373258, #6a52e0) !important;
+}
+html[data-theme="dark"] body .sp-report-next .pill {
+  background: #1a2e27 !important;
+}
+html[data-theme="dark"] body .sp-report-next #spelling-report-level,
+html[data-theme="dark"] body .sp-report-next #spelling-report-game,
+html[data-theme="dark"] body #spelling-report.sr-big #spelling-report-level {
+  background: #1a2e27 !important;
+}
+html[data-theme="dark"] body #spelling-report.sr-big #spelling-report-level {
+  background: #223d34 !important;
+}
+html[data-theme="dark"] .fs-settings-sum {
+  background: rgba(19,27,25,0.2) !important;
+  border: 2px solid rgba(21,30,28,0.55) !important;
+}
+html[data-theme="dark"] .fs-settings-sum::after {
+  border-right: 2px solid #151e1c !important;
+  border-bottom: 2px solid #151e1c !important;
+}
+html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
+  border: 2px solid rgba(21,30,28,0.7) !important;
+  background: rgba(19,27,25,0.14) !important;
+}
+html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
+  background: #131b19 !important;
+  color: #26e9c0 !important;
+  border-color: #151e1c !important;
+}
+html[data-theme="dark"] body #flash-start-screen .fs-settings-sum {
+  background: rgba(19,27,25,0.28) !important;
+}
+html[data-theme="dark"] .flash-progress-label {
+  background: rgba(19,27,25,0.85) !important;
+  border: 2px solid #3e6f60 !important;
+}
+html[data-theme="dark"] .flash-progress-bar {
+  background: rgba(19,27,25,0.7) !important;
+}
+html[data-theme="dark"] body #my-deck-card #my-deck-clear-btn {
+  border: 1px solid #624444 !important;
+}
+html[data-theme="dark"] body #my-deck-card #my-deck-empty:not([hidden]) {
+  background: #15261f !important;
+  border: 2px dashed #3e6f60 !important;
+  color: #bac9c4 !important;
+}
+html[data-theme="dark"] body #flash-practice .flashcard-back .example {
+  color: #c2ccc9 !important;
+  border-top: 2px dashed #3b6857 !important;
+}
+html[data-theme="dark"] body #flash-practice .flash-back-row--ex {
+  border-top: 2px dashed #3b6857 !important;
+}
+html[data-theme="dark"] body #flash-report-restart {
+  color: #f38200 !important;
+}
+html[data-theme="dark"] body .sp-report-next #flash-report-game {
+  background: linear-gradient(180deg, #373258, #6a52e0) !important;
+}
+html[data-theme="dark"] body .sp-report-next #flash-report-level,
+html[data-theme="dark"] body .sp-report-next #flash-report-game,
+html[data-theme="dark"] body #flash-report.sr-big #flash-report-level {
+  background: #1a2e27 !important;
+}
+html[data-theme="dark"] body #flash-report.sr-big #flash-report-level {
+  background: #223d34 !important;
+}
+html[data-theme="dark"] body #flash-start-screen .fs-settings-sum {
+  border: 2px solid rgba(21,30,28,0.75) !important;
+}
+html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
+  border: 2px solid rgba(21,30,28,0.85) !important;
+}
+html[data-theme="dark"] body #flash-start-screen .sp-start-stats.fs-count.is-empty {
+  background: #534b2f !important;
+  color: #f38200 !important;
+}
+html[data-theme="dark"] .flash-auto span {
+  background: rgba(19,27,25,0.85) !important;
+  border: 2px solid #3e6f60 !important;
+}
+html[data-theme="dark"] .flash-auto.on span {
+  background: #1d342c !important;
+}
+html[data-theme="dark"] .flash-auto-pill {
+  background: rgba(19,27,25,0.85) !important;
+  border: 2px solid #3e6f60 !important;
+  color: #b6c2be !important;
+}
+html[data-theme="dark"] .flash-auto.on .flash-auto-pill {
+  background: #1d342c !important;
+  color: #1ef7b9 !important;
+}
+html[data-theme="dark"] .flash-flip-hint {
+  color: #bac9c4 !important;
+}
+html[data-theme="dark"] .flash-tally .t-know {
+  color: #1ef7b9 !important;
+}
+html[data-theme="dark"] .flash-tally .t-still {
+  color: #f5885c !important;
+}
+html[data-theme="dark"] body #flash-practice .flash-end-row #flash-end {
+  color: #c9bfba !important;
+}
+html[data-theme="dark"] body #flash-practice .flash-end-row {
+  background: rgba(19,27,25,0.82) !important;
+  border: 2px solid #3b6857 !important;
+}
+html[data-theme="dark"] body #flash-practice .flash-end-row .flash-auto .flash-auto-pill {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] body #flash-practice .flash-end-row #flash-end {
+  background: #271b16 !important;
+  color: #f5885c !important;
+  border: 2px solid #6f503e !important;
+}
+html[data-theme="dark"] #view-typegame .tg-start-card {
+  background: linear-gradient(180deg, #14231d 0%, #1e352c 100%) !important;
+  border: 3px solid #151e1c !important;
+}
+html[data-theme="dark"] #view-typegame .typegame-overlay .tg-start-card h3 {
+  color: #31e2b2 !important;
+}
+html[data-theme="dark"] #view-typegame .typegame-overlay .tg-start-card p {
+  color: #3db99f !important;
+}
+html[data-theme="dark"] #view-typegame .typegame-overlay .tg-start-card p.tg-start-tip {
+  color: #beccc8 !important;
+}
+html[data-theme="dark"] #view-typegame .typegame-input:disabled {
+  background: #1d2622 !important;
+}
+html[data-theme="dark"] #view-typegame .setting-row-nowrap .stage-tag {
+  color: #31e2b2 !important;
+}
+html[data-theme="dark"] #view-timestable .setting-row-nowrap .stage-tag {
+  color: #31e2b2 !important;
+}
+html[data-theme="dark"] #view-timestable .typegame-input:disabled {
+  background: #1d2622 !important;
+}
+html[data-theme="dark"] #view-typegame .tg-start-card,
+html[data-theme="dark"] #view-timestable .tg-start-card {
+  background: linear-gradient(180deg, #14231d 0%, #1e352c 100%) !important;
+  border: 3px solid #151e1c !important;
+}
+html[data-theme="dark"] #view-timestable .typegame-overlay .tg-start-card h3 {
+  color: #31e2b2 !important;
+}
+html[data-theme="dark"] #view-timestable .tg-start-best,
+html[data-theme="dark"] #view-typegame .tg-start-best {
+  color: #ffa924 !important;
+  background: #453e27 !important;
+}
+html[data-theme="dark"] #view-timestable .tt-start-demo {
+  color: #3db99f !important;
+}
+html[data-theme="dark"] #view-timestable .tt-start-demo .ti-caption {
+  color: #3db99f !important;
+}
+html[data-theme="dark"] #view-timestable .tt-start-demo .tt-demo-problem {
+  color: #31e2b2 !important;
+  background: #131b19 !important;
+}
+html[data-theme="dark"] #view-timestable .tt-start-demo .tt-demo-input {
+  background: #131b19 !important;
+  color: #31e2b2 !important;
+}
+html[data-theme="dark"] .typegame-overlay.tg-over-overlay {
+  background: #1f372e !important;
+}
+html[data-theme="dark"] #view-typegame .tg-over-overlay .tg-over-card .tg-play-again,
+html[data-theme="dark"] #view-timestable .tg-over-overlay .tg-over-card .tg-play-again {
+  color: #f38200 !important;
+}
+html[data-theme="dark"] #view-typegame .tg-over-overlay .tg-over-card .tg-play-again .new-quiz-icon,
+html[data-theme="dark"] #view-timestable .tg-over-overlay .tg-over-card .tg-play-again .new-quiz-icon {
+  background: rgba(19,27,25,0.45) !important;
+  color: #f38200 !important;
+}
+html[data-theme="dark"] #typegame-final-score,
+html[data-theme="dark"] #timestable-final-score {
+  color: #31e2b2 !important;
+}
+html[data-theme="dark"] .tg-over-card .tg-over-stat {
+  color: #3db99f !important;
+}
+html[data-theme="dark"] #typegame-high-score,
+html[data-theme="dark"] #timestable-high-score {
+  color: #bac9c4 !important;
+}
+html[data-theme="dark"] .tg-over-overlay .tg-star::after {
+  color: #beccc8 !important;
+}
+html[data-theme="dark"] .tg-over-overlay .tg-star.on::after {
+  color: #ffb952 !important;
+}
+html[data-theme="dark"] .tg-over-card .tg-star-goal {
+  color: #beccc8 !important;
+}
+html[data-theme="dark"] #typegame-final-score[hidden] + .tg-over-stat,
+html[data-theme="dark"] #timestable-final-score[hidden] + .tg-over-stat {
+  color: #31e2b2 !important;
+}
+html[data-theme="dark"] .dash-sum {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .dash-rec {
+  background: linear-gradient(180deg, var(--accent-dark) 0%, #1f1f1f 160%) !important;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent-dark) 82%, #1f1f1f) 0%, color-mix(in srgb, var(--accent-dark) 62%, #1f1f1f) 100%) !important;
+}
+html[data-theme="dark"] .dash-count {
+  background: #30291b !important;
+  color: #ffb324 !important;
+}
+html[data-theme="dark"] .dash-cat-focus {
+  background: #241f14 !important;
+}
+html[data-theme="dark"] .dash-focus-tag {
+  background: #443a26 !important;
+  color: #ffa814 !important;
+}
+html[data-theme="dark"] .dash-bar {
+  background: #1e2f29 !important;
+}
+html[data-theme="dark"] .dash-trend-down {
+  color: #ffac34 !important;
+}
+html[data-theme="dark"] .dash-score-good {
+  background: #1b3021 !important;
+  color: #3cda83 !important;
+}
+html[data-theme="dark"] .dash-score-ok {
+  background: #30291b !important;
+  color: #ffb324 !important;
+}
+html[data-theme="dark"] .dash-score-low {
+  background: #32261c !important;
+  color: #f78a50 !important;
+}
+html[data-theme="dark"] .dash-goal {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .stats-tab-count:not(:empty) {
+  background: #443a26 !important;
+  color: #ffa814 !important;
 }
 html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; }
 html[data-theme="dark"] img, html[data-theme="dark"] video { filter: brightness(.92); }
@@ -2015,6 +2359,14 @@ html[data-theme="ivory"] body #view-flashcards #flash-start-screen .flash-start-
 html[data-theme="ivory"] body #view-flashcards #flash-start-screen .flash-start-selects select option {
   background-color: #fdfaf4 !important;
 }
+html[data-theme="ivory"] .wl-chip {
+  background: #fdfaf4 !important;
+}
+@media (max-width: 480px) {
+html[data-theme="ivory"] .wl-action-bar:not([hidden]) {
+  background: #fdfaf4 !important;
+}
+}
 html[data-theme="ivory"] .wl-speak--example {
   border: 1px solid #d5c9b1 !important;
 }
@@ -2056,16 +2408,175 @@ html[data-theme="ivory"] .koala-wallet::after {
 html[data-theme="ivory"] .koala-wallet-stat {
   background: rgba(253,250,244,0.72) !important;
 }
-
-/* Word list: mastery filter chips + phone action bar */
-html[data-theme="dark"] .wl-chip { background: #161b27; color: #cbd5e1; border-color: #2a3550; }
-html[data-theme="dark"] .wl-chip.is-active { background: #0e9c7d; border-color: #0e9c7d; color: #fff; }
-html[data-theme="dark"] .wl-chip[data-filter="review"].is-active { background: #fbbf24; border-color: #f59e0b; color: #0f172a; }
-html[data-theme="dark"] .wl-action-bar { background: #131b19 !important; }
-html[data-theme="dark"] .wl-action-text { color: #6ee7b7 !important; }
-html[data-theme="ivory"] .wl-chip { background: #fdfaf4; }
-html[data-theme="ivory"] .wl-action-bar { background: #fdfaf4 !important; }
-html[data-theme="dark"] .wl-chip[data-filter="wrong"].is-active { background: #e11d48; border-color: #e11d48; color: #fff; }
-
-/* Flashcards start: keep the darker chip/summary fills readable on dark/ivory */
-html[data-theme="dark"] body #flash-start-screen .sp-start-stats.fs-count.is-empty { background: #78350f; color: #fde68a; }
+html[data-theme="ivory"] body .sp-start-row .sp-level-chip {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] body #spelling-practice .sp-right {
+  background: rgba(253,250,244,0.62) !important;
+}
+html[data-theme="ivory"] body #spelling-practice .sp-leaf-btn {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] body #spelling-practice .sp-leaf-btn:disabled {
+  background: rgba(253,250,244,0.8) !important;
+}
+html[data-theme="ivory"] body #spelling-practice #spelling-input:not(:focus):not(.correct):not(.incorrect) {
+  border-color: #d5c9b1 !important;
+}
+@media (pointer: coarse) {
+html[data-theme="ivory"] body #spelling-practice .sp-kb-toggle {
+  background: #f5f1e7 !important;
+}
+}
+html[data-theme="ivory"] body #spelling-practice .sp-footer .sfx-toggle.is-off {
+  background: #f3eee2 !important;
+}
+@media (pointer: coarse) {
+html[data-theme="ivory"] body #spelling-practice .sp-kb-toggle {
+  background: #f1ebdd !important;
+}
+}
+html[data-theme="ivory"] body .sp-step {
+  background: rgba(253,250,244,0.24) !important;
+}
+html[data-theme="ivory"] body .sp-start-stats {
+  background: rgba(253,250,244,0.2) !important;
+}
+html[data-theme="ivory"] .sp-report-card {
+  background: rgba(253,250,244,0.82) !important;
+  border: 2px solid #d5c9b1 !important;
+}
+html[data-theme="ivory"] body .sp-report-next .pill {
+  background: #fdfaf4 !important;
+  border: 2px solid #d5c9b1 !important;
+}
+html[data-theme="ivory"] body .sp-report-card .wordlist-item.sp-report-row:active {
+  background: #f3eee2 !important;
+}
+html[data-theme="ivory"] body .sp-report-card {
+  background: rgba(253,250,244,0.5) !important;
+}
+html[data-theme="ivory"] body .sp-report-stats .score-tag {
+  border: 1px solid #dfd6c4 !important;
+  background: rgba(253,250,244,0.8) !important;
+}
+html[data-theme="ivory"] body .sp-report-card .wordlist-item.sp-report-row {
+  border: 1px solid #dfd6c4 !important;
+  background: rgba(253,250,244,0.92) !important;
+}
+html[data-theme="ivory"] body .sp-report-next .pill {
+  background: #f1ebdd !important;
+}
+html[data-theme="ivory"] body .sp-report-next #spelling-report-level,
+html[data-theme="ivory"] body .sp-report-next #spelling-report-game,
+html[data-theme="ivory"] body #spelling-report.sr-big #spelling-report-level {
+  background: #f1ebdd !important;
+}
+html[data-theme="ivory"] .fs-settings-sum {
+  background: rgba(253,250,244,0.2) !important;
+  border: 2px solid rgba(253,250,244,0.55) !important;
+}
+html[data-theme="ivory"] .fs-settings-sum::after {
+  border-right: 2px solid #fdfaf4 !important;
+  border-bottom: 2px solid #fdfaf4 !important;
+}
+html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
+  border: 2px solid rgba(253,250,244,0.7) !important;
+  background: rgba(253,250,244,0.14) !important;
+}
+html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
+  background: #fdfaf4 !important;
+  border-color: #fdfaf4 !important;
+}
+html[data-theme="ivory"] body #flash-start-screen .fs-settings-sum {
+  background: rgba(253,250,244,0.28) !important;
+}
+html[data-theme="ivory"] .flash-progress-label {
+  background: rgba(253,250,244,0.85) !important;
+  border: 2px solid #d5c9b1 !important;
+}
+html[data-theme="ivory"] .flash-progress-bar {
+  background: rgba(253,250,244,0.7) !important;
+}
+html[data-theme="ivory"] body #my-deck-card #my-deck-empty:not([hidden]) {
+  background: #f7f3ea !important;
+  border: 2px dashed #d5c9b1 !important;
+}
+html[data-theme="ivory"] body #flash-practice .flashcard-back .example {
+  border-top: 2px dashed #dfd6c4 !important;
+}
+html[data-theme="ivory"] body #flash-practice .flash-back-row--ex {
+  border-top: 2px dashed #dfd6c4 !important;
+}
+html[data-theme="ivory"] body .sp-report-next #flash-report-level,
+html[data-theme="ivory"] body .sp-report-next #flash-report-game,
+html[data-theme="ivory"] body #flash-report.sr-big #flash-report-level {
+  background: #f1ebdd !important;
+}
+html[data-theme="ivory"] body #flash-start-screen .fs-settings-sum {
+  border: 2px solid rgba(253,250,244,0.75) !important;
+}
+html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
+  border: 2px solid rgba(253,250,244,0.85) !important;
+}
+html[data-theme="ivory"] .flash-auto span {
+  background: rgba(253,250,244,0.85) !important;
+  border: 2px solid #d5c9b1 !important;
+}
+html[data-theme="ivory"] .flash-auto.on span {
+  background: #eee6d4 !important;
+}
+html[data-theme="ivory"] .flash-auto-pill {
+  background: rgba(253,250,244,0.85) !important;
+  border: 2px solid #d5c9b1 !important;
+}
+html[data-theme="ivory"] .flash-auto.on .flash-auto-pill {
+  background: #eee6d4 !important;
+}
+html[data-theme="ivory"] body #flash-practice .flash-end-row {
+  background: rgba(253,250,244,0.82) !important;
+  border: 2px solid #dfd6c4 !important;
+}
+html[data-theme="ivory"] body #flash-practice .flash-end-row .flash-auto .flash-auto-pill {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] #view-typegame .tg-start-card {
+  background: linear-gradient(180deg, #f2fffa 0%, #ede5d2 100%) !important;
+  border: 3px solid #fdfaf4 !important;
+}
+html[data-theme="ivory"] #view-typegame .typegame-input:disabled {
+  background: #f4efe3 !important;
+}
+html[data-theme="ivory"] #view-timestable .typegame-input:disabled {
+  background: #f4efe3 !important;
+}
+html[data-theme="ivory"] #view-typegame .tg-start-card,
+html[data-theme="ivory"] #view-timestable .tg-start-card {
+  background: linear-gradient(180deg, #f2fffa 0%, #ede5d2 100%) !important;
+  border: 3px solid #fdfaf4 !important;
+}
+html[data-theme="ivory"] #view-timestable .tt-start-demo .tt-demo-problem {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] #view-timestable .tt-start-demo .tt-demo-input {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .typegame-overlay.tg-over-overlay {
+  background: #ebe3cf !important;
+}
+html[data-theme="ivory"] #view-typegame .tg-over-overlay .tg-over-card .tg-play-again .new-quiz-icon,
+html[data-theme="ivory"] #view-timestable .tg-over-overlay .tg-over-card .tg-play-again .new-quiz-icon {
+  background: rgba(253,250,244,0.45) !important;
+}
+html[data-theme="ivory"] .dash-sum {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .dash-bar {
+  background: #efe8d9 !important;
+}
+html[data-theme="ivory"] .dash-score-good {
+  background: #f0eadb !important;
+}
+html[data-theme="ivory"] .dash-goal {
+  background: #fdfaf4 !important;
+}
