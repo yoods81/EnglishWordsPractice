@@ -2605,6 +2605,17 @@ function refreshCurrentView() {
   if (active) refreshView(active.dataset.view);
 }
 
+// Wide screens with the top nav row (tablet / laptop / Surface): scroll the page
+// so the nav buttons sit at the very top of the browser window. That leaves the
+// whole rest of the screen for the Quiz instead of the title area above it.
+function scrollNavBarToTop() {
+  const bar = document.querySelector(".tabs-bar");
+  const nav = bar && bar.querySelector("nav.tabs");
+  if (!bar || !nav || !nav.offsetParent) return; // phone: nav lives in the bottom bar
+  const top = Math.max(0, Math.round(bar.getBoundingClientRect().top + window.scrollY - 6));
+  window.scrollTo({ top, behavior: "auto" });
+}
+
 function refreshView(view) {
   if (view === "landing") renderHome();
   if (view === "flashcards") buildFlashDeck();
@@ -2731,6 +2742,11 @@ function goToTab(view) {
   document.body.classList.toggle("on-landing", view === "landing");
   if (view === "flashcards" && previousView !== "flashcards") showFlashStart();
   refreshView(view);
+  if (view === "quiz") {
+    // Layout has settled after the view switch: align, then once more after fonts/images shift it.
+    requestAnimationFrame(scrollNavBarToTop);
+    setTimeout(scrollNavBarToTop, 250);
+  }
 }
 
 const adminCodesTabButton = document.querySelector('.tab-btn[data-view="admincodes"]');
@@ -4691,6 +4707,7 @@ function startQuizRound(retryList) {
   quizResultEl.hidden = true;
   quizPractice.hidden = false;
   renderQuizQuestion();
+  requestAnimationFrame(scrollNavBarToTop);
 }
 
 /* ---------- One question ---------- */
