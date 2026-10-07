@@ -11438,3 +11438,101 @@ html[data-theme="dark"] .dash-medal-disc { background: #3a3017; border-color: #b
 html[data-theme="dark"] .dash-medal-disc.locked { background: #26382f; border-color: #3a4d44; }
 html[data-theme="dark"] .dash-lock { background: #172420; border-color: #3a4d44; }
 html[data-theme="dark"] .dash-badge-card .dash-goal { background: #1e2f29; }
+
+/* ==========================================================================
+   Medal badges, tappable stat cards + chart sheet, bigger "More stats"
+   ========================================================================== */
+.medal { --m1: #7fb2ff; --m2: #3b6fe0; --rib: #e0486b; position: relative; display: inline-block; width: 3.6em; height: 4.4em; font-size: 16px; vertical-align: top; }
+.medal-g-english { --m1: #ff9ec2; --m2: #e0488a; --rib: #3b6fe0; }
+.medal-g-habit { --m1: #ffbf6b; --m2: #ee6a14; --rib: #1fa88a; }
+.medal-g-koala { --m1: #7fe6c0; --m2: #17946f; --rib: #e0486b; }
+.medal-rib { position: absolute; bottom: 0; width: 1.15em; height: 1.9em; background: var(--rib); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%); box-shadow: inset 0 0 0 99em rgba(0,0,0,.05); }
+.medal-rib-l { left: .55em; transform: rotate(9deg); }
+.medal-rib-r { right: .55em; transform: rotate(-9deg); filter: brightness(.9); }
+.medal-ring {
+  position: absolute; z-index: 1; top: 0; left: 0; width: 3.6em; height: 3.6em; box-sizing: border-box; padding: .26em; border-radius: 50%;
+  background: linear-gradient(145deg, #fff0a8 0%, #f4b72c 48%, #ffd966 100%);
+  box-shadow: 0 .12em 0 #c9800f, 0 .3em .55em rgba(120, 70, 0, .28);
+}
+.medal-face {
+  position: relative; overflow: hidden; width: 100%; height: 100%; border-radius: 50%; display: grid; place-items: center;
+  background: radial-gradient(circle at 34% 26%, var(--m1), var(--m2) 78%);
+  box-shadow: inset 0 0 0 .08em rgba(255,255,255,.6), inset 0 -.28em .4em rgba(0,0,0,.16);
+}
+.medal-face::before { content: ""; position: absolute; top: .12em; left: .3em; width: 1.3em; height: .6em; border-radius: 50%; background: rgba(255,255,255,.4); transform: rotate(-24deg); }
+.medal-num { position: relative; font-family: var(--font-heading); font-size: 1.55em; line-height: 1; color: #fff; text-shadow: 0 .06em 0 rgba(0,0,0,.25); letter-spacing: -.02em; }
+.medal-num small { font-size: .5em; font-weight: 800; margin-right: .05em; vertical-align: .35em; opacity: .9; }
+.medal-emoji { position: relative; font-size: 1.6em; line-height: 1; filter: drop-shadow(0 .05em .05em rgba(0,0,0,.3)); }
+.medal.is-locked { filter: grayscale(1); opacity: .5; }
+.medal.is-locked .medal-ring { box-shadow: 0 .1em 0 #aaa; }
+
+/* badge tab */
+.badge-medal-wrap { width: 3.6em; height: 4.4em; font-size: 15px; margin-bottom: 8px; }
+#stats-panel-badges .badge-medal-wrap, .badge-medal-wrap { width: 3.6em; height: 4.4em; }
+.badge-medal-wrap .medal { font-size: inherit; }
+.badge-medal-wrap .badge-sticker { top: -6px; right: -14px; bottom: auto; }
+.badge-medal-wrap .badge-lock-patch { top: 1.8em; }
+.badge-card.earned .medal-ring { animation: badge-pop .6s ease-out, badge-glow 2.8s ease-in-out calc(.6s + var(--badge-delay, 0s)) infinite; }
+.badge-card.earned .medal-face::after {
+  content: ""; position: absolute; top: -20%; bottom: -20%; left: -60%; width: 40%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.7), transparent); transform: skewX(-20deg);
+  animation: badge-shine 3.6s ease-in-out calc(1s + var(--badge-delay, 0s)) infinite;
+}
+.badge-card.locked .medal { filter: grayscale(1); opacity: .5; }
+@media (prefers-reduced-motion: reduce) { .badge-card.earned .medal-ring, .badge-card.earned .medal-face::after { animation: none !important; } }
+
+/* overview badge card */
+.dash-badge-card .dash-medal .medal { font-size: 16px; }
+.dash-medal { gap: 8px; }
+.dash-goal-medal { position: relative; flex: none; display: block; }
+.dash-goal-medal .medal { font-size: 13px; }
+.dash-goal-medal .dash-lock { position: absolute; right: -4px; top: 2.3em; bottom: auto; }
+.dash-badge-card .dash-medals { margin-bottom: 18px; }
+
+/* More stats: a big translucent mint button */
+html body #view-stats .more-stats > summary {
+  width: 100%; box-sizing: border-box; min-height: 54px; margin: 6px 0 0; padding: 0 20px; gap: 6px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(46, 204, 160, .22); color: var(--accent-dark); border: 1.5px solid rgba(46, 204, 160, .55); border-radius: 14px;
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  box-shadow: 0 2px 10px rgba(46, 204, 160, .22);
+  font-family: var(--font-heading); font-weight: 800; font-size: 1.12rem; text-decoration: none; letter-spacing: .01em;
+  transition: background .15s, transform .12s;
+}
+html body #view-stats .more-stats > summary::before { content: "📊"; margin-right: 6px; }
+html body #view-stats .more-stats > summary:hover { background: rgba(46, 204, 160, .32); }
+html body #view-stats .more-stats > summary:active { transform: scale(.98); }
+html[data-theme="dark"] body #view-stats .more-stats > summary { background: rgba(46, 204, 160, .2); color: #6ff0cf; border-color: rgba(111, 240, 207, .45); box-shadow: none; }
+
+/* roomier header */
+#view-stats .progress-head { margin-bottom: 22px; }
+
+/* tappable stat cards */
+button.dash-sum, button.stat-tap { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .12s ease; }
+button.dash-sum { position: relative; }
+button.dash-sum::after { content: "📈"; position: absolute; top: 5px; right: 6px; font-size: .7rem; opacity: .55; }
+button.dash-sum:active, button.stat-tap:active { transform: scale(.96); }
+button.dash-sum:focus-visible, button.stat-tap:focus-visible { outline: none; box-shadow: inset 0 0 0 3px var(--accent); }
+button.stat-tap { width: 100%; }
+.stat-peek { display: block; margin-top: 6px; font-size: .74rem; font-weight: 800; color: var(--accent-dark); }
+
+/* chart sheet */
+.stat-sheet-backdrop { position: fixed; inset: 0; z-index: 2100; background: rgba(20, 40, 34, .55); display: flex; align-items: flex-end; justify-content: center; animation: fade-in .2s ease-out; }
+.stat-sheet { position: relative; width: 100%; max-width: 520px; max-height: 86vh; overflow-y: auto; background: #fff; border-radius: 24px 24px 0 0; padding: 20px 18px calc(24px + env(safe-area-inset-bottom)); box-shadow: 0 -6px 24px rgba(0,0,0,.2); }
+@media (min-width: 600px) { .stat-sheet-backdrop { align-items: center; } .stat-sheet { border-radius: 24px; } }
+.stat-sheet-close { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: #eef5f2; color: var(--text); font-size: 1.1rem; cursor: pointer; }
+.stat-sheet-head { display: flex; align-items: center; gap: 12px; padding-right: 44px; margin-bottom: 8px; }
+.stat-sheet-ico { font-size: 2.4rem; line-height: 1; }
+.stat-sheet-title { font-weight: 800; color: var(--muted); font-size: .9rem; }
+.stat-sheet-big b { font-family: var(--font-heading); font-size: 2.2rem; color: var(--accent-dark); line-height: 1.1; }
+.stat-sheet-big span { font-size: .9rem; color: var(--muted); }
+.stat-sheet-body .chart-title { margin: 16px 0 6px; font-size: 1rem; }
+.stat-sheet-body .chart-svg { width: 100%; height: auto; display: block; }
+.stat-sheet-body .chart-empty { text-align: center; color: var(--muted); padding: 18px 0; }
+.stat-sheet-body .hbar-row { margin: 0; padding: 8px 0; gap: 12px; }
+.stat-sheet-body .hbar-row.is-hl .hbar-name, .stat-sheet-body .hbar-row.is-hl .hbar-pct { font-weight: 800; color: var(--accent-dark); }
+.stat-sheet-body .stat-meter { margin: 6px 0 4px; }
+.stat-note { margin: 12px 0 0; text-align: center; color: var(--muted); font-size: .9rem; }
+html[data-theme="dark"] .stat-sheet { background: #172420; }
+html[data-theme="dark"] .stat-sheet-close { background: #26382f; color: #e6f3ee; }
+html[data-theme="dark"] .hbar-track { background: #26382f; }

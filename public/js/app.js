@@ -12716,7 +12716,7 @@ function buildBadgeCatalog() {
   const streakNow = () => (progress.streak && progress.streak.count) || 0;
   for (let n = TIMESTABLE_MIN_TABLE; n <= 9; n++) {
     list.push({
-      id: `tt${n}`, emoji: TT_BADGE_ICONS[n] || "🧮", group: "math",
+      id: `tt${n}`, num: n, emoji: TT_BADGE_ICONS[n] || "🧮", group: "math",
       name: rwL(`Table ${n} Master Koala`, `구구단 ${n}단 마스터 코알라`),
       desc: rwL(`Clear every ${n}× fact in Times Table`, `구구단 게임에서 ${n}단을 모두 맞혀요`),
       test: () => ttMastered(n),
@@ -12882,6 +12882,13 @@ document.addEventListener("click", (e) => {
   if (e.target.closest("[data-rw-signup]")) openAuthOverlay("signup");
 });
 
+// A proper medal: ribbon tails + a gold-rimmed rosette in the group colour.
+// Times-table badges show a bold "×N" instead of the grey keycap emoji.
+function medalHtml(b, locked) {
+  const glyph = b.num ? `<b class="medal-num"><small>×</small>${b.num}</b>` : `<span class="medal-emoji">${b.emoji}</span>`;
+  return `<span class="medal medal-g-${b.group}${locked ? " is-locked" : ""}" aria-hidden="true"><i class="medal-rib medal-rib-l"></i><i class="medal-rib medal-rib-r"></i><span class="medal-ring"><span class="medal-face">${glyph}</span></span></span>`;
+}
+
 // The badge collection, shared by My Progress → Badges and My Koala.
 function badgeGridHtml() {
   const signedIn = canUseAccountFeatures();
@@ -12906,14 +12913,14 @@ function badgeGridHtml() {
       if (on) {
         // Earned: full colour + a soft glow / shine (staggered so they don't all pulse together).
         html += `<div class="badge-card earned" style="--badge-delay:${(i % 5) * 0.45}s" title="${escapeHtml(b.desc)}">
-          <div class="badge-medal-wrap"><div class="badge-medal"><span class="badge-koala">${b.emoji}</span></div><span class="badge-sticker" aria-hidden="true"><span class="kface" aria-hidden="true"></span></span></div>
+          <div class="badge-medal-wrap">${medalHtml(b, false)}<span class="badge-sticker" aria-hidden="true"><span class="kface" aria-hidden="true"></span></span></div>
           <div class="badge-name">${escapeHtml(b.name)}</div>
           <div class="badge-desc">${escapeHtml(b.desc)}</div></div>`;
       } else {
         // Locked: the medal itself turns into a faded grey silhouette with a tiny
         // padlock patch on top; tapping the card opens the unlock-condition tooltip.
         html += `<div class="badge-card locked" role="button" tabindex="0" data-badge-id="${escapeHtml(b.id)}" aria-label="${escapeHtml(b.name)} — ${rwL("locked, tap to see how to unlock", "잠김, 눌러서 해금 조건 보기")}">
-          <div class="badge-medal-wrap"><div class="badge-medal"><span class="badge-koala">${b.emoji}</span></div><span class="badge-lock-patch" aria-hidden="true">🔒</span></div>
+          <div class="badge-medal-wrap">${medalHtml(b, true)}<span class="badge-lock-patch" aria-hidden="true">🔒</span></div>
           <div class="badge-name">${escapeHtml(b.name)}</div>
           <div class="badge-desc">${escapeHtml(b.desc)}</div>${premiumNote}</div>`;
       }
@@ -14360,9 +14367,9 @@ function renderSkillsCard() {
   const weekWords = new Set(log.filter((e) => Date.now() - e.t <= 7 * DAY && !reviewIsMath(e.w)).map((e) => String(e.w).toLowerCase())).size;
   const streakN = currentStreakStatus().count;
   const summaryHtml = `<div class="dash-summary">
-    <div class="dash-sum"><span class="dash-sum-ico" aria-hidden="true">⭐</span><b>${correctToday}</b><span>${rwL("correct today", "오늘 맞힌 문제")}</span></div>
-    <div class="dash-sum"><span class="dash-sum-ico" aria-hidden="true">🔥</span><b>${streakN}</b><span>${rwL("day streak", "일 연속")}</span></div>
-    <div class="dash-sum"><span class="dash-sum-ico" aria-hidden="true">📚</span><b>${weekWords}</b><span>${rwL("words this week", "이번 주 단어")}</span></div></div>${weekStripHtml()}`;
+    <button type="button" class="dash-sum" data-stat-detail="today"><span class="dash-sum-ico" aria-hidden="true">⭐</span><b>${correctToday}</b><span>${rwL("correct today", "오늘 맞힌 문제")}</span></button>
+    <button type="button" class="dash-sum" data-stat-detail="streak"><span class="dash-sum-ico" aria-hidden="true">🔥</span><b>${streakN}</b><span>${rwL("day streak", "일 연속")}</span></button>
+    <button type="button" class="dash-sum" data-stat-detail="words"><span class="dash-sum-ico" aria-hidden="true">📚</span><b>${weekWords}</b><span>${rwL("words this week", "이번 주 단어")}</span></button></div>${weekStripHtml()}`;
 
   // One hero card: what to do next (this now also carries the words to review,
   // so there is a single card and a single button instead of two).
@@ -14410,11 +14417,11 @@ function renderSkillsCard() {
   const pctDone = Math.round((earned.length / Math.max(1, cat.length)) * 100);
   const medals = earned.length
     ? `<div class="dash-sublabel">${rwL("Latest badges", "최근에 얻은 배지")}</div>
-       <div class="dash-medals">${earned.slice(0, 3).map((b) => `<div class="dash-medal"><span class="dash-medal-disc" aria-hidden="true">${b.emoji}</span><span class="dash-medal-name">${escapeHtml(b.name)}</span></div>`).join("")}</div>`
+       <div class="dash-medals">${earned.slice(0, 3).map((b) => `<div class="dash-medal">${medalHtml(b, false)}<span class="dash-medal-name">${escapeHtml(b.name)}</span></div>`).join("")}</div>`
     : "";
   const goalHtml = goal
     ? `<div class="dash-sublabel">${rwL("Next goal", "다음 목표")}</div>
-       <div class="dash-goal"><span class="dash-medal-disc locked" aria-hidden="true">${goal.b.emoji}<i class="dash-lock">🔒</i></span><div class="dash-goal-main"><div class="dash-goal-top"><b>${escapeHtml(goal.b.name)}</b><span>${goal.have} ${rwL("of", "/")} ${goal.goal}</span></div>
+       <div class="dash-goal"><span class="dash-goal-medal">${medalHtml(goal.b, true)}<i class="dash-lock">🔒</i></span><div class="dash-goal-main"><div class="dash-goal-top"><b>${escapeHtml(goal.b.name)}</b><span>${goal.have} ${rwL("of", "/")} ${goal.goal}</span></div>
        <div class="dash-bar dash-bar-ok" role="presentation"><i style="width:${Math.round(goal.ratio * 100)}%"></i></div><div class="dash-muted dash-goal-desc">${escapeHtml(goal.b.desc)}</div></div></div>`
     : `<p class="dash-muted dash-badge-empty">${signedIn ? rwL("Keep practising to collect koala badges!", "연습하면서 코알라 배지를 모아 봐요!") : rwL("Sign up to collect koala badges!", "가입하면 코알라 배지를 모을 수 있어요!")}</p>`;
   const badgeHtml = `<section class="dash-block dash-badge-card" role="button" tabindex="0" data-dash-tab="badges" aria-label="${rwL("Badges — see all", "배지 모두 보기")}">
@@ -14447,55 +14454,147 @@ document.getElementById("stats-panel-overview").addEventListener("click", (e) =>
 function renderStatsCharts() {
   ensureRewardData();
   renderSkillsCard();
-  const box = statsPanels.overview.querySelector("#stats-charts");
-  const days = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const rec = progress.daily[localDateKey(d)] || {};
-    let c = 0, tot = 0;
-    RW_MODES.forEach((m) => { if (rec[m]) { c += rec[m][0]; tot += rec[m][1]; } });
-    days.push({ label: d.toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { weekday: "short" }), c, w: tot - c, tot });
-  }
-  const maxTot = Math.max(5, ...days.map((d) => d.tot));
-  const W = 320, H = 150, top = 20, bottom = 24, bw = 28, gap = (W - 7 * bw) / 8;
-  const plotH = H - top - bottom;
-  let bars = "";
-  days.forEach((d, i) => {
-    const x = gap + i * (bw + gap);
-    const hc = (d.c / maxTot) * plotH, hw = (d.w / maxTot) * plotH;
-    const yBase = H - bottom;
-    const tip = `${d.label}: ${d.c}/${d.tot} ${rwL("correct", "정답")}`;
-    bars += `<g><title>${tip}</title>`;
-    if (d.c) bars += `<rect x="${x}" y="${yBase - hc}" width="${bw}" height="${hc}" rx="4" fill="var(--accent)"/>`;
-    if (d.w) bars += `<rect x="${x}" y="${yBase - hc - hw - (d.c ? 2 : 0)}" width="${bw}" height="${hw}" rx="4" fill="var(--chart-miss)"/>`;
-    if (d.tot) bars += `<text x="${x + bw / 2}" y="${yBase - hc - hw - (d.c && d.w ? 2 : 0) - 4}" text-anchor="middle" class="chart-val">${d.tot}</text>`;
-    bars += `<text x="${x + bw / 2}" y="${H - 8}" text-anchor="middle" class="chart-lbl">${d.label}</text></g>`;
-  });
-  const weekTot = days.reduce((s, d) => s + d.tot, 0);
-  const svgDays = `<svg viewBox="0 0 ${W} ${H}" class="chart-svg" role="img" aria-label="${rwL("Answers in the last 7 days", "최근 7일 학습량")}"><line x1="0" x2="${W}" y1="${H - bottom}" y2="${H - bottom}" class="chart-axis"/>${bars}</svg>`;
-
-  const modeRows = [
-    ["quiz", rwL("Quiz", "퀴즈"), [progress.quiz.correct, progress.quiz.total]],
-    ["spelling", rwL("Spelling", "스펠링"), [progress.spelling.correct, progress.spelling.total]],
-    ["typing", rwL("Typing Game", "타이핑 게임"), progress.modes.typing || [0, 0]],
-    ["tt", rwL("Times Table", "구구단"), progress.modes.tt || [0, 0]],
-    ["flash", rwL("Flashcards", "플래시카드"), progress.modes.flash || [0, 0]],
-  ];
-  let rows = "";
-  modeRows.forEach(([, name, [c, tot]]) => {
-    const pct = tot ? Math.round((c / tot) * 100) : 0;
-    rows += `<div class="hbar-row" title="${name}: ${c}/${tot}">
-      <span class="hbar-name">${name}</span>
-      <span class="hbar-track"><span class="hbar-fill" style="width:${pct}%"></span></span>
-      <span class="hbar-pct">${tot ? pct + "%" : "–"}</span></div>`;
-  });
-  box.innerHTML = `
-    <h4 class="chart-title">${rwL("Last 7 days", "최근 7일 학습량")}</h4>
-    <div class="chart-legend"><span><i class="lg lg-ok"></i>${rwL("Correct", "정답")}</span><span><i class="lg lg-miss"></i>${rwL("Missed", "오답")}</span></div>
-    ${weekTot ? svgDays : `<p class="chart-empty">${rwL("Practise today to see your chart!", "오늘 학습하면 차트가 채워져요!")}</p>`}
-    <h4 class="chart-title">${rwL("Accuracy by activity", "활동별 정답률")}</h4>${rows}`;
 }
+
+/* ---- Tap a stat card → a friendly chart sheet (replaces the old "Last 7 days"
+   and "Accuracy by activity" blocks that used to sit under the cards) ---- */
+const STAT_MODES = () => [
+  ["quiz", rwL("Quiz", "퀴즈")], ["spelling", rwL("Spelling", "스펠링")], ["typing", rwL("Typing Game", "타이핑 게임")],
+  ["tt", rwL("Times Table", "구구단")], ["flash", rwL("Flashcards", "플래시카드")],
+];
+function statDayRange(n) {
+  const out = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const rec = (progress.daily && progress.daily[localDateKey(d)]) || {};
+    out.push({ d, rec, label: d.toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { weekday: n > 7 ? "narrow" : "short" }) });
+  }
+  return out;
+}
+function statDayTotals(day, modes) {
+  let c = 0, tot = 0;
+  (modes || RW_MODES).forEach((m) => { if (day.rec[m]) { c += day.rec[m][0]; tot += day.rec[m][1]; } });
+  return { c, tot, w: tot - c };
+}
+// bars: [{label, a, b, text}] — a = main (green) value, b = stacked "missed" value.
+function statBarsSvg(bars, opts) {
+  opts = opts || {};
+  const W = 320, H = 160, top = 22, bottom = 24, n = bars.length;
+  const bw = Math.min(30, Math.floor((W - 16) / n) - 6), gap = (W - n * bw) / (n + 1);
+  const max = opts.max || Math.max(5, ...bars.map((x) => (x.a || 0) + (x.b || 0)));
+  const ph = H - top - bottom, yb = H - bottom;
+  let g = "";
+  bars.forEach((x, i) => {
+    const cx = gap + i * (bw + gap), ha = ((x.a || 0) / max) * ph, hb = ((x.b || 0) / max) * ph;
+    if (x.a) g += `<rect x="${cx}" y="${yb - ha}" width="${bw}" height="${ha}" rx="5" fill="${opts.color || "var(--accent)"}"/>`;
+    if (x.b) g += `<rect x="${cx}" y="${yb - ha - hb - (x.a ? 2 : 0)}" width="${bw}" height="${hb}" rx="5" fill="var(--chart-miss)"/>`;
+    else if (!x.a) g += `<rect x="${cx}" y="${yb - 3}" width="${bw}" height="3" rx="1.5" fill="var(--chart-miss)"/>`;
+    const lbl = x.text != null ? x.text : ((x.a || 0) + (x.b || 0) || "");
+    if (lbl !== "") g += `<text x="${cx + bw / 2}" y="${yb - ha - hb - (x.a && x.b ? 2 : 0) - 5}" text-anchor="middle" class="chart-val">${lbl}</text>`;
+    g += `<text x="${cx + bw / 2}" y="${H - 7}" text-anchor="middle" class="chart-lbl">${x.label}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" class="chart-svg" role="img" aria-label="${escapeHtml(opts.aria || "")}"><line x1="0" x2="${W}" y1="${yb}" y2="${yb}" class="chart-axis"/>${g}</svg>`;
+}
+function statModeRows(highlight) {
+  const modeData = { quiz: [progress.quiz.correct, progress.quiz.total], spelling: [progress.spelling.correct, progress.spelling.total] };
+  return STAT_MODES().map(([m, name]) => {
+    const [c, tot] = modeData[m] || progress.modes[m] || [0, 0];
+    const pct = tot ? Math.round((c / tot) * 100) : 0;
+    return `<div class="hbar-row${m === highlight ? " is-hl" : ""}"><span class="hbar-name">${name}</span><span class="hbar-track"><span class="hbar-fill" style="width:${pct}%"></span></span><span class="hbar-pct">${tot ? pct + "%" : "–"}</span></div>`;
+  }).join("");
+}
+const statLegend = () => `<div class="chart-legend"><span><i class="lg lg-ok"></i>${rwL("Correct", "정답")}</span><span><i class="lg lg-miss"></i>${rwL("Missed", "오답")}</span></div>`;
+const statEmpty = () => `<p class="chart-empty">${rwL("Practise today to see your chart!", "오늘 학습하면 차트가 채워져요!")}</p>`;
+
+function statDetailContent(kind) {
+  const DAY = 86400000;
+  const week = statDayRange(7);
+  const stackBars = (modes) => week.map((x) => { const t = statDayTotals(x, modes); return { label: x.label, a: t.c, b: t.w }; });
+  if (kind === "today") {
+    const today = week[6];
+    const rows = STAT_MODES().map(([m, name]) => { const r = today.rec[m] || [0, 0]; return { label: name, c: r[0], tot: r[1] }; }).filter((r) => r.tot);
+    const t = statDayTotals(today);
+    const byMode = rows.length
+      ? `<h4 class="chart-title">${rwL("Today by activity", "오늘 활동별")}</h4>${rows.map((r) => `<div class="hbar-row"><span class="hbar-name">${r.label}</span><span class="hbar-track"><span class="hbar-fill" style="width:${Math.round((r.c / r.tot) * 100)}%"></span></span><span class="hbar-pct">${r.c}/${r.tot}</span></div>`).join("")}` : "";
+    const bars = stackBars();
+    return { ico: "⭐", title: rwL("Correct today", "오늘 맞힌 문제"), big: t.c, bigSub: rwL(`of ${t.tot} questions`, `${t.tot}문제 중`),
+      html: `${byMode}<h4 class="chart-title">${rwL("Last 7 days", "최근 7일")}</h4>${statLegend()}${bars.some((b) => b.a || b.b) ? statBarsSvg(bars, { aria: rwL("Answers in the last 7 days", "최근 7일 학습량") }) : statEmpty()}` };
+  }
+  if (kind === "streak") {
+    const two = statDayRange(14);
+    const bars = two.map((x) => { const t = statDayTotals(x); return { label: x.label, a: t.tot, b: 0 }; });
+    const n = currentStreakStatus().count;
+    return { ico: "🔥", title: rwL("Day streak", "연속 학습"), big: n, bigSub: rwL(n === 1 ? "day in a row" : "days in a row", "일 연속"),
+      html: `<h4 class="chart-title">${rwL("Questions per day (last 14 days)", "하루 문제 수 (최근 14일)")}</h4>${bars.some((b) => b.a) ? statBarsSvg(bars, { color: "#f0a020", aria: rwL("Questions per day", "하루 문제 수") }) : statEmpty()}
+      <p class="stat-note">${rwL("Practise a little every day to keep the flame going!", "매일 조금씩 연습하면 불꽃이 계속 타올라요!")}</p>` };
+  }
+  if (kind === "words") {
+    const log = recLog().filter((e) => !reviewIsMath(e.w));
+    const bars = week.map((x) => {
+      const k = localDateKey(x.d);
+      const set = new Set(log.filter((e) => localDateKey(new Date(e.t)) === k).map((e) => String(e.w).toLowerCase()));
+      return { label: x.label, a: set.size, b: 0 };
+    });
+    const total = new Set(log.filter((e) => Date.now() - e.t <= 7 * DAY).map((e) => String(e.w).toLowerCase())).size;
+    return { ico: "📚", title: rwL("Words this week", "이번 주 단어"), big: total, bigSub: rwL("different words", "서로 다른 단어"),
+      html: `<h4 class="chart-title">${rwL("New words each day", "하루에 연습한 단어")}</h4>${bars.some((b) => b.a) ? statBarsSvg(bars, { color: "#3aa6c9", aria: rwL("Words per day", "하루 단어 수") }) : statEmpty()}` };
+  }
+  if (kind === "quiz" || kind === "spelling") {
+    const isQ = kind === "quiz";
+    const src = isQ ? progress.quiz : progress.spelling;
+    const pct = src.total ? Math.round((src.correct / src.total) * 100) : 0;
+    const bars = week.map((x) => { const r = x.rec[kind] || [0, 0]; return { label: x.label, a: r[1] ? Math.round((r[0] / r[1]) * 100) : 0, b: 0, text: r[1] ? r[0] / r[1] * 100 | 0 : "" }; });
+    return { ico: isQ ? "💡" : "✏️", title: isQ ? rwL("Quiz accuracy", "퀴즈 정답률") : rwL("Spelling accuracy", "스펠링 정답률"), big: `${pct}%`,
+      bigSub: src.total ? rwL(`${src.correct} of ${src.total} right`, `${src.total}문제 중 ${src.correct}개 정답`) : rwL("No answers yet", "아직 푼 문제 없음"),
+      html: `<h4 class="chart-title">${rwL("% right each day", "하루 정답률")}</h4>${bars.some((b) => b.a) ? statBarsSvg(bars, { max: 100, color: isQ ? "#f0a020" : "var(--accent)", aria: rwL("Accuracy per day", "하루 정답률") }) : statEmpty()}
+      <h4 class="chart-title">${rwL("Accuracy by activity", "활동별 정답률")}</h4>${statModeRows(kind)}` };
+  }
+  if (kind === "flash") {
+    const known = Object.keys(progress.flashKnown).length;
+    const total = (typeof flashDeckFull !== "undefined" && flashDeckFull && flashDeckFull.length) || 0;
+    const pct = total ? Math.min(100, Math.round((known / total) * 100)) : 0;
+    const bars = week.map((x) => { const r = x.rec.flash || [0, 0]; return { label: x.label, a: r[0], b: r[1] - r[0] }; });
+    return { ico: "🃏", title: rwL("Flashcards known", "아는 플래시카드"), big: known, bigSub: total ? rwL(`of ${total} cards in this level`, `이 레벨 ${total}장 중`) : "",
+      html: `${total ? `<div class="dash-bar dash-bar-ok stat-meter" role="presentation"><i style="width:${pct}%"></i></div>` : ""}<h4 class="chart-title">${rwL("Cards practised (last 7 days)", "최근 7일 카드 연습")}</h4>${statLegend()}${bars.some((b) => b.a || b.b) ? statBarsSvg(bars, { aria: rwL("Flashcards per day", "하루 카드 수") }) : statEmpty()}` };
+  }
+  return null;
+}
+
+let statSheetEl = null, statSheetOpener = null;
+function closeStatSheet() {
+  if (!statSheetEl) return;
+  statSheetEl.remove(); statSheetEl = null;
+  if (statSheetOpener && document.contains(statSheetOpener)) statSheetOpener.focus();
+  statSheetOpener = null;
+}
+function openStatSheet(kind, opener) {
+  closeStatSheet();
+  let d = null;
+  if (kind === "words" && opener && opener.closest("#stats-grid")) d = statDetailContent("words");
+  else d = statDetailContent(kind);
+  if (!d) return;
+  if (kind === "words" && opener && opener.closest("#stats-grid")) {
+    // "Words practised" (all time) — show the same last-7-days chart but headline the all-time count.
+    d.title = rwL("Words practised", "연습한 단어"); d.big = Object.keys(progress.wordStats).length; d.bigSub = rwL("different words so far", "지금까지 서로 다른 단어");
+  }
+  statSheetOpener = opener || null;
+  const el = document.createElement("div");
+  el.className = "stat-sheet-backdrop";
+  el.innerHTML = `<div class="stat-sheet" role="dialog" aria-modal="true" aria-labelledby="stat-sheet-title">
+    <button type="button" class="stat-sheet-close" aria-label="${rwL("Close", "닫기")}">✕</button>
+    <div class="stat-sheet-head"><span class="stat-sheet-ico" aria-hidden="true">${d.ico}</span><div><div class="stat-sheet-title" id="stat-sheet-title">${d.title}</div>
+      <div class="stat-sheet-big"><b>${d.big}</b> <span>${d.bigSub || ""}</span></div></div></div>
+    <div class="stat-sheet-body">${d.html}</div></div>`;
+  el.addEventListener("click", (e) => { if (e.target === el || e.target.closest(".stat-sheet-close")) closeStatSheet(); });
+  document.body.appendChild(el);
+  statSheetEl = el;
+  el.querySelector(".stat-sheet-close").focus();
+}
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && statSheetEl) closeStatSheet(); });
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-stat-detail]");
+  if (b) openStatSheet(b.dataset.statDetail, b);
+});
 
 /* ================= STATS ================= */
 const statsGrid = document.getElementById("stats-grid");
@@ -14512,18 +14611,20 @@ function renderStats() {
     : 0;
 
   const stats = [
-    { ico: "📚", num: wordsPracticed, lbl: t("statWordsPracticed") },
-    { ico: "🃏", num: flashKnownCount, lbl: t("statFlashKnown") },
-    { ico: "💡", num: `${quizPct}%`, lbl: rwL("Quiz accuracy", "퀴즈 정답률"),
+    { key: "words", ico: "📚", num: wordsPracticed, lbl: t("statWordsPracticed") },
+    { key: "flash", ico: "🃏", num: flashKnownCount, lbl: t("statFlashKnown") },
+    { key: "quiz", ico: "💡", num: `${quizPct}%`, lbl: rwL("Quiz accuracy", "퀴즈 정답률"),
       sub: progress.quiz.total ? rwL(`${progress.quiz.correct} of ${progress.quiz.total} right`, `${progress.quiz.total}문제 중 ${progress.quiz.correct}개 정답`) : rwL("No answers yet", "아직 푼 문제 없음") },
-    { ico: "✏️", num: `${spellPct}%`, lbl: rwL("Spelling accuracy", "스펠링 정답률"),
+    { key: "spelling", ico: "✏️", num: `${spellPct}%`, lbl: rwL("Spelling accuracy", "스펠링 정답률"),
       sub: progress.spelling.total ? rwL(`${progress.spelling.correct} of ${progress.spelling.total} right`, `${progress.spelling.total}문제 중 ${progress.spelling.correct}개 정답`) : rwL("No answers yet", "아직 푼 문제 없음") },
   ];
   // Only accounts that can add words have a count of their own to show.
   if (canUsePaidFeatures()) stats.push({ ico: "📝", num: customWords.length, lbl: t("statWordsAdded") });
 
   statsGrid.innerHTML = stats
-    .map((s) => `<div class="stat-box"><span class="stat-ico" aria-hidden="true">${s.ico}</span><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div>${s.sub ? `<div class="sub">${s.sub}</div>` : ""}</div>`)
+    .map((s) => s.key
+      ? `<button type="button" class="stat-box stat-tap" data-stat-detail="${s.key}"><span class="stat-ico" aria-hidden="true">${s.ico}</span><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div>${s.sub ? `<div class="sub">${s.sub}</div>` : ""}<span class="stat-peek" aria-hidden="true">📈 ${rwL("See chart", "그래프 보기")}</span></button>`
+      : `<div class="stat-box"><span class="stat-ico" aria-hidden="true">${s.ico}</span><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div>${s.sub ? `<div class="sub">${s.sub}</div>` : ""}</div>`)
     .join("");
   renderRewardPanels();
 }
