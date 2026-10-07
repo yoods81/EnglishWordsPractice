@@ -699,13 +699,24 @@ const TRANSLATIONS = {
     resetMismatch: "The two passwords don't match.",
     resetInvalidLink: "This reset link has expired or was already used. Please ask for a new one.",
     resetDoneTitle: "Password changed",
-    resetDone: "Your password was changed. Please log in with your new password.",
+    resetDone: "Log in with your new password.",
     noticeOkBtn: "OK",
-    noticeSignupTitle: "Welcome! 🎉",
-    noticeSignupSent: "Your account is ready.\n\nWe sent a confirmation email. Open the link in it to confirm your email — you need that to find your username or reset your password later.",
-    noticeSignupNotSent: "Your account is ready.\n\nWe couldn't send the confirmation email just now. You can send it again from My Account.",
-    noticeVerifiedTitle: "Email confirmed ✅",
-    noticeVerifiedText: "Thanks! Your email is confirmed.",
+    pwShow: "Show password",
+    pwHide: "Hide password",
+    upgCardTitle: "Upgrade to Premium",
+    upgCardLead: "Unlock the full Koala Study Mate.",
+    upgCardPayNote: "Online payment is coming soon. For now, tap \"I have a special code\".",
+    upgBenefit1: "More than 100 questions per round",
+    upgBenefit2: "Add your own words by photo or typing",
+    upgBenefit3: "Your own flashcard deck",
+    upgCodeBtn: "I have a special code",
+    upgPendingNote: "Your upgrade request is waiting for the admin.",
+    upgReadyNote: "The admin sent you a code. Tap the button below to use it.",
+    noticeSignupTitle: "Welcome, new friend!",
+    noticeSignupSent: "Your account is ready!\nCheck your inbox and tap the link to confirm your email. Then you can find your username or reset your password any time.",
+    noticeSignupNotSent: "Your account is ready!\nWe couldn't send the confirmation email just now. You can send it again from My Account.",
+    noticeVerifiedTitle: "Email confirmed!",
+    noticeVerifiedText: "Thanks! Now you can find your username or reset your password by email.",
     noticeVerifyFailedTitle: "Link problem",
     noticeVerifyFailedText: "This confirmation link has expired or was already used. You can send a new one from My Account.",
     noticeAddEmailTitle: "Add your email",
@@ -714,7 +725,7 @@ const TRANSLATIONS = {
     myAccountEmailDesc: "We use this address to help you find your username or reset your password.",
     myAccountEmailNone: "No email yet. Add one below.",
     myAccountEmailUnverified: (e) => `${e} — not confirmed yet. Open the link in the email we sent.`,
-    myAccountEmailVerified: (e) => `${e} — confirmed ✅`,
+    myAccountEmailVerified: (e) => `${e} — confirmed`,
     myAccountEmailNewLabel: "Email address",
     myAccountEmailSaveBtn: "Save email",
     myAccountEmailResendBtn: "Send the confirmation email again",
@@ -727,8 +738,8 @@ const TRANSLATIONS = {
     adminUserNoEmail: "no email",
     adminEmailTitle: "✉️ Email System",
     adminEmailDesc: "Outgoing mail (confirmation links, password resets, username reminders). Replies go to your admin mailbox.",
-    adminEmailOk: "✅ Email sending is set up",
-    adminEmailNotConfigured: "⚠️ Email sending isn't set up yet (the Cloudflare email binding is missing)",
+    adminEmailOk: "Email sending is set up",
+    adminEmailNotConfigured: "Email sending isn't set up yet (the Cloudflare email binding is missing)",
     adminEmailFrom: "Sends from",
     adminEmailReplyTo: "Replies go to",
     adminEmailWeekLabel: "Last 7 days",
@@ -1417,13 +1428,24 @@ const TRANSLATIONS = {
     resetMismatch: "두 비밀번호가 같지 않아요.",
     resetInvalidLink: "재설정 링크가 만료됐거나 이미 사용됐어요. 새 링크를 요청해 주세요.",
     resetDoneTitle: "비밀번호가 변경됐어요",
-    resetDone: "비밀번호가 변경됐어요. 새 비밀번호로 로그인해 주세요.",
+    resetDone: "새 비밀번호로 로그인해 주세요.",
     noticeOkBtn: "확인",
-    noticeSignupTitle: "환영해요! 🎉",
-    noticeSignupSent: "계정이 만들어졌어요.\n\n확인 메일을 보냈어요. 메일 속 링크를 눌러 이메일을 인증해 주세요. 인증해야 나중에 아이디 찾기와 비밀번호 재설정을 쓸 수 있어요.",
-    noticeSignupNotSent: "계정이 만들어졌어요.\n\n지금은 확인 메일을 보내지 못했어요. 내 계정에서 다시 보낼 수 있어요.",
-    noticeVerifiedTitle: "이메일 인증 완료 ✅",
-    noticeVerifiedText: "고마워요! 이메일이 인증됐어요.",
+    pwShow: "비밀번호 보기",
+    pwHide: "비밀번호 숨기기",
+    upgCardTitle: "프리미엄으로 업그레이드",
+    upgCardLead: "코알라 스터디 메이트를 마음껏 써 보세요.",
+    upgCardPayNote: "온라인 결제는 곧 열릴 예정이에요. 지금은 \"특별 코드가 있어요\"를 눌러 주세요.",
+    upgBenefit1: "한 라운드에 100문제 넘게 풀기",
+    upgBenefit2: "사진이나 직접 입력으로 단어 추가",
+    upgBenefit3: "나만의 플래시카드 덱",
+    upgCodeBtn: "특별 코드가 있어요",
+    upgPendingNote: "업그레이드 요청을 관리자가 확인하는 중이에요.",
+    upgReadyNote: "관리자가 코드를 보냈어요. 아래 버튼을 눌러 사용해 보세요.",
+    noticeSignupTitle: "환영해요, 새 친구!",
+    noticeSignupSent: "계정이 만들어졌어요!\n메일함에서 확인 링크를 눌러 이메일을 인증해 주세요. 그러면 아이디 찾기와 비밀번호 재설정을 쓸 수 있어요.",
+    noticeSignupNotSent: "계정이 만들어졌어요!\n지금은 확인 메일을 보내지 못했어요. 내 계정에서 다시 보낼 수 있어요.",
+    noticeVerifiedTitle: "이메일 인증 완료!",
+    noticeVerifiedText: "고마워요! 이제 이메일로 아이디 찾기와 비밀번호 재설정을 할 수 있어요.",
     noticeVerifyFailedTitle: "링크에 문제가 있어요",
     noticeVerifyFailedText: "인증 링크가 만료됐거나 이미 사용됐어요. 내 계정에서 새 확인 메일을 보낼 수 있어요.",
     noticeAddEmailTitle: "이메일을 등록해 주세요",
@@ -1432,7 +1454,7 @@ const TRANSLATIONS = {
     myAccountEmailDesc: "아이디를 찾거나 비밀번호를 다시 정할 때 이 주소를 사용해요.",
     myAccountEmailNone: "아직 이메일이 없어요. 아래에서 등록해 주세요.",
     myAccountEmailUnverified: (e) => `${e} — 아직 인증 전이에요. 보내드린 메일의 링크를 눌러 주세요.`,
-    myAccountEmailVerified: (e) => `${e} — 인증 완료 ✅`,
+    myAccountEmailVerified: (e) => `${e} — 인증 완료`,
     myAccountEmailNewLabel: "이메일 주소",
     myAccountEmailSaveBtn: "이메일 저장",
     myAccountEmailResendBtn: "확인 메일 다시 보내기",
@@ -1445,8 +1467,8 @@ const TRANSLATIONS = {
     adminUserNoEmail: "이메일 없음",
     adminEmailTitle: "✉️ 이메일 시스템",
     adminEmailDesc: "사이트에서 보내는 메일(인증 링크, 비밀번호 재설정, 아이디 안내)을 관리해요. 답장은 관리자 메일함으로 가요.",
-    adminEmailOk: "✅ 이메일 발송이 설정되어 있어요",
-    adminEmailNotConfigured: "⚠️ 이메일 발송이 아직 설정되지 않았어요 (Cloudflare 이메일 바인딩이 없어요)",
+    adminEmailOk: "이메일 발송이 설정되어 있어요",
+    adminEmailNotConfigured: "이메일 발송이 아직 설정되지 않았어요 (Cloudflare 이메일 바인딩이 없어요)",
     adminEmailFrom: "보내는 주소",
     adminEmailReplyTo: "답장 받는 주소",
     adminEmailWeekLabel: "최근 7일",
@@ -3333,21 +3355,102 @@ function bindPasswordRules(inputEl, listEl) {
   update();
   return update;
 }
+// Eye button on every password box: tap to show what you typed, tap again to hide.
+const EYE_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1.8 12S5.7 5.5 12 5.5 22.2 12 22.2 12 18.3 18.5 12 18.5 1.8 12 1.8 12z"/><circle cx="12" cy="12" r="3.2"/></svg>';
+const EYE_OFF_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1.8 12S5.7 5.5 12 5.5c1.7 0 3.2.5 4.5 1.2M22.2 12S18.3 18.5 12 18.5c-1.7 0-3.2-.5-4.5-1.2"/><path d="M9.9 9.9a3.2 3.2 0 0 0 4.2 4.2"/><path d="M3.5 3.5l17 17"/></svg>';
+function syncPasswordToggle(btn, input) {
+  const shown = input.type === "text";
+  btn.innerHTML = shown ? EYE_OFF_ICON : EYE_ICON;
+  btn.dataset.i18nAriaLabel = shown ? "pwHide" : "pwShow";
+  const label = t(btn.dataset.i18nAriaLabel);
+  btn.setAttribute("aria-label", label);
+  btn.setAttribute("title", label);
+  btn.setAttribute("aria-pressed", shown ? "true" : "false");
+}
+function hidePasswords(root) {
+  (root || document).querySelectorAll(".pw-field").forEach((field) => {
+    const input = field.querySelector("input");
+    const btn = field.querySelector(".pw-eye");
+    if (input && btn && input.type === "text") {
+      input.type = "password";
+      syncPasswordToggle(btn, input);
+    }
+  });
+}
+function addPasswordToggles() {
+  document.querySelectorAll('input[type="password"]').forEach((input) => {
+    if (input.closest(".pw-field")) return;
+    const field = document.createElement("div");
+    field.className = "pw-field";
+    // The narrow My Account boxes size themselves; move that onto the wrapper.
+    if (input.classList.contains("auth-form-input-narrow")) {
+      input.classList.remove("auth-form-input-narrow");
+      field.classList.add("auth-form-input-narrow");
+    }
+    input.parentNode.insertBefore(field, input);
+    field.appendChild(input);
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pw-eye";
+    btn.addEventListener("click", () => {
+      input.type = input.type === "password" ? "text" : "password";
+      syncPasswordToggle(btn, input);
+      input.focus();
+    });
+    field.appendChild(btn);
+    syncPasswordToggle(btn, input);
+  });
+}
+addPasswordToggles();
+// Go back to hidden whenever a form is sent, so a shown password never lingers.
+document.addEventListener("submit", (e) => hidePasswords(e.target), true);
+
 function validEmailClient(email) {
   return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
 
-// Small "message with an OK button" popup (email confirmed, mail sent, ...).
+// Small "message with an OK button" popup (welcome, email confirmed, ...).
+// kind picks the artwork: the koala logo with a hand-drawn badge in the site's
+// own colours (no emoji), plus a little confetti for the welcome one.
 const noticeOverlay = document.getElementById("notice-overlay");
-function showNotice(title, text) {
+const NOTICE_BADGES = {
+  star: '<svg viewBox="0 0 48 48"><path d="M24 4.5l5.6 11.6 12.7 1.7-9.3 8.8 2.4 12.6L24 33.1l-11.4 6.1 2.4-12.6-9.3-8.8 12.7-1.7z" fill="#ffc93c" stroke="#d99a00" stroke-width="3" stroke-linejoin="round"/></svg>',
+  check: '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#22c9a3" stroke="#0e9c7d" stroke-width="3"/><path d="M14 25.5l7 7 13.5-15.5" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  warn: '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#ffc93c" stroke="#d99a00" stroke-width="3"/><path d="M24 13.5v14" stroke="#6b4300" stroke-width="5.5" stroke-linecap="round"/><circle cx="24" cy="34.5" r="3.2" fill="#6b4300"/></svg>',
+  mail: '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#2d6cff" stroke="#1e4fcc" stroke-width="3"/><rect x="12.5" y="16" width="23" height="16" rx="3.5" fill="none" stroke="#fff" stroke-width="3.2" stroke-linejoin="round"/><path d="M14 18.5l10 7.5 10-7.5" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  lock: '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#22c9a3" stroke="#0e9c7d" stroke-width="3"/><path d="M17.5 22v-4a6.5 6.5 0 0 1 13 0v4" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/><rect x="14.5" y="21.5" width="19" height="14" rx="3.5" fill="#fff"/><circle cx="24" cy="28" r="2.4" fill="#0e9c7d"/><path d="M24 29v3" stroke="#0e9c7d" stroke-width="2.4" stroke-linecap="round"/></svg>',
+};
+const NOTICE_KINDS = { welcome: "star", success: "check", warn: "warn", mail: "mail", lock: "lock" };
+function showNotice(kind, title, text) {
+  if (!NOTICE_KINDS[kind]) kind = "success";
+  const art = document.getElementById("notice-art");
+  art.className = "notice-art notice-" + kind;
+  const confetti = kind === "welcome" || kind === "success"
+    ? Array.from({ length: kind === "welcome" ? 10 : 6 }, (_, i) => `<i class="notice-dot d${i + 1}"></i>`).join("")
+    : "";
+  art.innerHTML = `${confetti}<span class="notice-logo"><img src="favicon.svg?v=4" alt="" width="76" height="76"></span><span class="notice-badge">${NOTICE_BADGES[NOTICE_KINDS[kind]]}</span>`;
   document.getElementById("notice-title").textContent = title;
-  document.getElementById("notice-text").textContent = text;
+  // First line is the headline sentence; anything after it is quieter detail.
+  const [lead, ...rest] = String(text).split("\n").filter(Boolean);
+  const textEl = document.getElementById("notice-text");
+  textEl.textContent = "";
+  const leadEl = document.createElement("span");
+  leadEl.className = "notice-lead";
+  leadEl.textContent = lead || "";
+  textEl.appendChild(leadEl);
+  if (rest.length) {
+    const subEl = document.createElement("span");
+    subEl.className = "notice-sub";
+    subEl.textContent = rest.join(" ");
+    textEl.appendChild(subEl);
+  }
   noticeOverlay.hidden = false;
   document.getElementById("notice-ok-btn").focus();
 }
 document.getElementById("notice-ok-btn").addEventListener("click", () => { noticeOverlay.hidden = true; });
 
 function setAuthMode(mode) {
+  hidePasswords(document.getElementById("auth-overlay") || document);
   if (!["signup", "recover", "reset"].includes(mode)) mode = "login";
   const login = mode === "login";
   authTitle.textContent = t(
@@ -3579,7 +3682,24 @@ async function renderMyAccount() {
     .map((s) => `<div class="stat-box"><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div></div>`)
     .join("");
   refreshEmailCard(account);
+  refreshUpgradeCard(account);
 }
+
+// Upgrade card: only a free (signed-in) account sees it. Paying is the future
+// checkout hook; the special code still opens the same upgrade popup as before.
+const myAccountUpgradeCard = document.getElementById("my-account-upgrade-card");
+const myAccountUpgradeStatus = document.getElementById("my-account-upgrade-status");
+function refreshUpgradeCard(account) {
+  if (!myAccountUpgradeCard) return;
+  const show = !!account && account.role === "free";
+  myAccountUpgradeCard.hidden = !show;
+  if (!show) return;
+  const status = pendingUpgradeRequest && pendingUpgradeRequest.status;
+  myAccountUpgradeStatus.hidden = !(status === "pending" || status === "fulfilled");
+  myAccountUpgradeStatus.textContent = status === "fulfilled" ? t("upgReadyNote") : status === "pending" ? t("upgPendingNote") : "";
+}
+document.getElementById("my-account-upgrade-pay-btn").addEventListener("click", () => startPremiumCheckout(document.getElementById("my-account-upgrade-pay-note")));
+document.getElementById("my-account-upgrade-code-btn").addEventListener("click", () => openUpgradeOverlay());
 
 // Email card: shows the address and whether it's confirmed; lets the person add/change it.
 const myAccountEmailCard = document.getElementById("my-account-email-card");
@@ -3798,7 +3918,7 @@ signupForm.addEventListener("submit", async (e) => {
     updateAdminUI();
     refreshSharedWords();
     koalaAfterLogin();
-    showNotice(t("noticeSignupTitle"), t(verificationSent ? "noticeSignupSent" : "noticeSignupNotSent"));
+    showNotice("welcome", t("noticeSignupTitle"), t(verificationSent ? "noticeSignupSent" : "noticeSignupNotSent"));
   } catch (err) {
     const code = err && err.data && err.data.error;
     fail(SIGNUP_ERROR_KEYS[code] || "authSignupErrorGeneric");
@@ -3881,7 +4001,7 @@ resetForm.addEventListener("submit", async (e) => {
     openAuthOverlay("login");
     loginUsernameInput.value = username;
     loginPasswordInput.focus();
-    showNotice(t("resetDoneTitle"), t("resetDone"));
+    showNotice("lock", t("resetDoneTitle"), t("resetDone"));
   } catch (err) {
     const code = err && err.data && err.data.error;
     fail(code === "invalid_token" ? "resetInvalidLink" : code === "invalid_password" ? "authSignupErrorPassword" : "recoverErrorGeneric");
@@ -3898,8 +4018,8 @@ resetForm.addEventListener("submit", async (e) => {
   history.replaceState(null, "", location.pathname + location.hash);
   if (verifyToken) {
     api("/auth/verify-email", { method: "POST", body: JSON.stringify({ token: verifyToken }) })
-      .then(() => showNotice(t("noticeVerifiedTitle"), t("noticeVerifiedText")))
-      .catch(() => showNotice(t("noticeVerifyFailedTitle"), t("noticeVerifyFailedText")));
+      .then(() => showNotice("success", t("noticeVerifiedTitle"), t("noticeVerifiedText")))
+      .catch(() => showNotice("warn", t("noticeVerifyFailedTitle"), t("noticeVerifyFailedText")));
   }
   if (resetToken) {
     pendingResetToken = resetToken;
@@ -3914,7 +4034,7 @@ function maybeNudgeEmail() {
     if (sessionStorage.getItem("koala-email-nudged")) return;
     sessionStorage.setItem("koala-email-nudged", "1");
   } catch (e) { /* ignore */ }
-  showNotice(t("noticeAddEmailTitle"), t("noticeAddEmailText"));
+  showNotice("mail", t("noticeAddEmailTitle"), t("noticeAddEmailText"));
 }
 
 
@@ -4069,6 +4189,7 @@ async function redeemUpgradeCode(specialCode) {
   closeUpgradeOverlay();
   renderUpgradeReadyBanner();
   updateAdminUI();
+  if (document.getElementById("view-myaccount").classList.contains("active")) renderMyAccount();
   renderGoalStepper("quiz");
   renderGoalStepper("spelling");
   refreshSharedWords();

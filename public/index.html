@@ -163,10 +163,11 @@
 
   <!-- Simple message overlay (email confirmed, mail sent, ...) -->
   <div id="notice-overlay" class="auth-overlay" hidden>
-    <div class="auth-card">
+    <div class="auth-card notice-card" role="dialog" aria-modal="true" aria-labelledby="notice-title">
+      <div id="notice-art" class="notice-art" aria-hidden="true"></div>
       <h2 id="notice-title"></h2>
-      <p id="notice-text" class="auth-hint notice-text"></p>
-      <div class="auth-actions">
+      <p id="notice-text" class="notice-text"></p>
+      <div class="auth-actions notice-actions">
         <button type="button" id="notice-ok-btn" class="pill accent" data-i18n="noticeOkBtn">OK</button>
       </div>
     </div>
@@ -1726,6 +1727,26 @@ to Flip!</span></div>
       <div class="card">
         <h3 data-i18n="myAccountTitle">🧑 My Account</h3>
         <div id="my-account-status" class="stats-grid"></div>
+      </div>
+      <div class="card upgrade-card" id="my-account-upgrade-card" hidden>
+        <div class="upgrade-card-head">
+          <span class="upgrade-card-badge" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 4.5l5.6 11.6 12.7 1.7-9.3 8.8 2.4 12.6L24 33.1l-11.4 6.1 2.4-12.6-9.3-8.8 12.7-1.7z" fill="#ffc93c" stroke="#d99a00" stroke-width="3" stroke-linejoin="round"/><path d="M24 13.5l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#fff3b0"/></svg></span>
+          <div>
+            <h3 data-i18n="upgCardTitle">Upgrade to Premium</h3>
+            <p class="upgrade-card-lead" data-i18n="upgCardLead">Unlock the full Koala Study Mate.</p>
+          </div>
+        </div>
+        <ul class="upgrade-benefits">
+          <li data-i18n="upgBenefit1">More than 100 questions per round</li>
+          <li data-i18n="upgBenefit2">Add your own words by photo or typing</li>
+          <li data-i18n="upgBenefit3">Your own flashcard deck</li>
+        </ul>
+        <p id="my-account-upgrade-status" class="auth-success" hidden></p>
+        <div class="upgrade-card-actions">
+          <button type="button" id="my-account-upgrade-pay-btn" class="pill primary" data-i18n="payBtn">Pay and join Premium</button>
+          <button type="button" id="my-account-upgrade-code-btn" class="pill neutral" data-i18n="upgCodeBtn">I have a special code</button>
+        </div>
+        <p id="my-account-upgrade-pay-note" class="auth-hint" hidden data-i18n="upgCardPayNote">Online payment is coming soon. For now, tap "I have a special code".</p>
       </div>
       <div class="card" id="my-account-email-card">
         <h3 data-i18n="myAccountEmailTitle">✉️ Email</h3>
