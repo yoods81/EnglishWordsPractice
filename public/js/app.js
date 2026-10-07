@@ -4475,7 +4475,7 @@ let flashDeckFull = [];
 let flashRoundSize = 20;
 let flashAutoSpeakOn = false;
 function startFlashPlay() {
-  resetFlashSession();
+  resetFlashSession(); flashCheck = null; delete flashReport.dataset.check;
   flashDeck = shuffle(flashDeckFull.slice());
   if (flashRoundSize > 0 && flashDeck.length > flashRoundSize) flashDeck = flashDeck.slice(0, flashRoundSize);
   flashIndex = 0;
@@ -4484,6 +4484,49 @@ function startFlashPlay() {
   flashPractice.hidden = false;
   renderFlashcard();
 }
+// ---- "Know it? Prove it!" — cards marked "I know this" earn Coins only after a short quiz ----
+const FLASH_CHECK_MAX = 10;
+let flashCheck = null; // { qs, i, passed }
+function finishFlashRound() {
+  const known = Array.from(flashSession.known).map((w) => flashDeckFull.find((c) => c.word === w) || flashDeck.find((c) => c.word === w)).filter((c) => c && c.definition);
+  if (!known.length) { renderFlashReport(); return; }
+  const pool = flashDeckFull.length > 4 ? flashDeckFull : flashDeck;
+  const qs = shuffle(known.slice()).slice(0, FLASH_CHECK_MAX).map((c) => {
+    const others = shuffle(pool.filter((x) => x.word !== c.word && x.word)).slice(0, 3).map((x) => x.word);
+    return { card: c, opts: shuffle([c.word, ...others]) };
+  });
+  flashCheck = { qs, i: 0, passed: 0 };
+  flashPractice.hidden = true; flashStartScreen.hidden = true;
+  flashReport.dataset.check = "1"; flashReport.hidden = false;
+  renderFlashCheck();
+}
+function renderFlashCheck() {
+  const box = document.getElementById("flash-check");
+  const c = flashCheck;
+  if (!box || !c) return;
+  const q = c.qs[c.i];
+  box.innerHTML = `<p class="fc-note">${rwL("Show what you know — a right answer earns the Coins!", "아는지 확인해요 — 맞히면 코인이 쌓여요!")}</p>
+    <div class="fc-prog">${c.i + 1} / ${c.qs.length}</div>
+    <div class="fc-q">${escapeHtml(q.card.definition)}</div>
+    <div class="fc-opts">${q.opts.map((o) => `<button type="button" class="pill neutral fc-opt" data-fc="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>`;
+}
+document.getElementById("flash-check")?.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-fc]");
+  const c = flashCheck;
+  if (!b || !c || b.disabled) return;
+  const q = c.qs[c.i], word = q.card.word, ok = b.dataset.fc === word;
+  const box = document.getElementById("flash-check");
+  box.querySelectorAll(".fc-opt").forEach((x) => { x.disabled = true; if (x.dataset.fc === word) x.classList.add("fc-right"); });
+  if (!ok) b.classList.add("fc-wrong");
+  if (ok) { c.passed++; progress.flashKnown[word] = true; }
+  else { delete progress.flashKnown[word]; flashSession.known.delete(word); flashSession.still.set(word, q.card); }
+  recordResult(word, ok, "flash");
+  updateFlashTally();
+  setTimeout(() => {
+    c.i++;
+    if (c.i >= c.qs.length) { flashCheck = null; delete flashReport.dataset.check; renderFlashReport(); } else renderFlashCheck();
+  }, ok ? 650 : 1300);
+});
 function renderFlashReport() {
   flashPractice.hidden = true;
   flashStartScreen.hidden = true;
@@ -4526,7 +4569,13 @@ function renderFlashReport() {
   });
 }
 document.getElementById("flash-start-btn").addEventListener("click", startFlashPlay);
-document.getElementById("flash-end").addEventListener("click", renderFlashReport);
+document.getElementById("flash-info-btn")?.addEventListener("click", () => {
+  const n = document.getElementById("flash-info-note"), b = document.getElementById("flash-info-btn");
+  n.textContent = rwL("💡 Cards you mark \"I know this\" get a quick quiz at the end. Answer right to earn Coins!", "💡 \"I know this\"로 고른 카드는 마지막에 짧은 퀴즈를 풀어요. 맞히면 코인이 쌓여요!");
+  n.onclick = () => { n.hidden = true; b.setAttribute("aria-expanded", "false"); };
+  n.hidden = !n.hidden; b.setAttribute("aria-expanded", String(!n.hidden));
+});
+document.getElementById("flash-end").addEventListener("click", finishFlashRound);
 document.getElementById("flash-report-restart").addEventListener("click", showFlashStart);
 document.getElementById("flash-report-level")?.addEventListener("click", () => document.getElementById("level-badge")?.click());
 document.getElementById("flash-report-game")?.addEventListener("click", () => goToTab("typegame"));
@@ -4837,7 +4886,7 @@ flashExampleEl.addEventListener("click", (e) => {
 function nextFlashcard() {
   if (flashDeck.length === 0) return;
   // Last card of the round: show the report instead of looping around.
-  if (flashIndex + 1 >= flashDeck.length) { renderFlashReport(); return; }
+  if (flashIndex + 1 >= flashDeck.length) { finishFlashRound(); return; }
   flashIndex = flashIndex + 1;
   renderFlashcard();
   slideFlashStage("next");
@@ -4893,9 +4942,8 @@ document.addEventListener("keydown", (e) => {
 flashKnowBtn.addEventListener("click", () => {
   if (flashDeck.length === 0) return;
   const word = flashDeck[flashIndex].word;
-  progress.flashKnown[word] = true;
+  // "I know this" is a self-report: it only earns Coins / mission credit once the end-of-round check is passed.
   flashSession.known.add(word); flashSession.still.delete(word);
-  recordResult(word, true, "flash");
   pulseScoreTag(flashKnowBtn, "flash-know-bounce");
   updateFlashTally();
   nextFlashcard();
@@ -4907,7 +4955,8 @@ flashDontKnowBtn.addEventListener("click", () => {
   const word = flashDeck[flashIndex].word;
   delete progress.flashKnown[word];
   flashSession.known.delete(word); flashSession.still.set(word, flashDeck[flashIndex]);
-  recordResult(word, false, "flash");
+  const ws = progress.wordStats[word] || { correct: 0, incorrect: 0 };
+  ws.incorrect++; progress.wordStats[word] = ws; saveProgress();
   updateFlashTally();
   nextFlashcard();
   koalaReact("dunno", "fkDunno");
