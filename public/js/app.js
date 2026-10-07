@@ -14351,8 +14351,6 @@ function renderSkillsCard() {
   const rec = getRecommendedNext();
   const today = getTodayLearning();
   const review = getWordsToReview();
-  const sessions = getRecentSessions(dashActivityExpanded ? 10 : 3);
-  const moreSessions = !dashActivityExpanded && getRecentSessions(10).length > 3;
   const log = recLog();
   const DAY = 86400000;
 
@@ -14366,40 +14364,19 @@ function renderSkillsCard() {
     <div class="dash-sum"><span class="dash-sum-ico" aria-hidden="true">🔥</span><b>${streakN}</b><span>${rwL("day streak", "일 연속")}</span></div>
     <div class="dash-sum"><span class="dash-sum-ico" aria-hidden="true">📚</span><b>${weekWords}</b><span>${rwL("words this week", "이번 주 단어")}</span></div></div>${weekStripHtml()}`;
 
-  // One hero card: today's numbers + recommendation + a single button
+  // One hero card: what to do next (this now also carries the words to review,
+  // so there is a single card and a single button instead of two).
   const todayLine = today.questions
     ? rwL(`Today: ${today.questions} questions · ${today.words} words · ${today.pct}% right`, `오늘: ${today.questions}문제 · ${today.words}단어 · 정답률 ${today.pct}%`)
     : today.hasHistory ? rwL("Nothing practised yet today.", "오늘은 아직 연습하지 않았어요.") : "";
-  const recHtml = `<section class="dash-card dash-rec" aria-labelledby="dash-h-rec"><div class="dash-eyebrow">${rwL("Recommended next", "다음 추천")}</div>
-    <h3 class="dash-title" id="dash-h-rec">${escapeHtml(rec.title)}</h3><p class="dash-reason">${escapeHtml(rec.reason)}</p>
+  const wordChips = review.length
+    ? `<div class="dash-rec-words"><span class="dash-rec-words-label">${rwL("Words to review", "복습할 단어")} · ${review.length}</span>
+       <ul class="dash-rec-chips">${review.slice(0, 4).map((r) => `<li>${escapeHtml(r.word)}</li>`).join("")}${review.length > 4 ? `<li class="more">+${review.length - 4}</li>` : ""}</ul></div>`
+    : "";
+  const recHtml = `<section class="dash-card dash-rec" aria-labelledby="dash-h-rec"><div class="dash-eyebrow">${rwL("Next up", "다음에 할 일")}</div>
+    <h3 class="dash-title" id="dash-h-rec">${escapeHtml(rec.title)}</h3><p class="dash-reason">${escapeHtml(rec.reason)}</p>${wordChips}
     <button type="button" class="pill dash-btn dash-rec-btn" data-dash-act="${rec.action}">${escapeHtml(rec.actionLabel)}</button>
     ${todayLine ? `<p class="dash-rec-today">${escapeHtml(todayLine)}</p>` : ""}</section>`;
-
-  // Words to review: each row says something specific about the word
-  const missCount = {};
-  log.forEach((e) => { if (!e.ok && Date.now() - e.t <= 7 * DAY) { const k = String(e.w).toLowerCase(); missCount[k] = (missCount[k] || 0) + 1; } });
-  const chipFor = (r) => {
-    if (r.status === "missed") {
-      const n = missCount[r.word.toLowerCase()] || 0;
-      return n > 1 ? rwL(`Missed ${n} times`, `${n}번 틀림`) : rwL("Missed once", "1번 틀림");
-    }
-    return r.status === "due" ? rwL("Due for review", "복습할 때") : rwL("Still learning", "배우는 중");
-  };
-  const reviewRow = (r) => {
-    const info = findWordInfo(r.word);
-    const def = info && info.definition ? `<span class="dash-word-def">${escapeHtml(info.definition)}</span>` : "";
-    return `<li><button type="button" class="dash-say" data-say="${escapeHtml(r.word)}" aria-label="${rwL("Hear", "듣기")} ${escapeHtml(r.word)}">🔊</button><span class="dash-word-main"><span class="pr-word">${escapeHtml(r.word)}</span>${def}</span><span class="dash-chip dash-${r.status}">${chipFor(r)}</span></li>`;
-  };
-  const reviewHtml = review.length
-    ? `<section class="dash-card dash-review" aria-labelledby="dash-h-review"><div class="dash-h-row"><h3 class="dash-h" id="dash-h-review">${rwL("Words to review", "복습할 단어")}</h3><span class="dash-count" aria-label="${review.length}">${review.length}</span></div>
-       <p class="dash-muted dash-caption">${rwL("Words you missed lately or are due for a recap.", "최근에 틀렸거나 다시 볼 때가 된 단어예요.")}</p>
-       <ul class="dash-words">${review.slice(0, 3).map(reviewRow).join("")}</ul>
-       <button type="button" class="pill accent small dash-btn" data-dash-act="review">${rwL("Review All", "모두 복습")}</button></section>`
-    : `<section class="dash-card dash-review dash-caught-up" aria-labelledby="dash-h-review"><h3 class="dash-h" id="dash-h-review">${rwL("Words to review", "복습할 단어")}</h3>
-       ${log.length
-         ? `<p class="dash-good">🎉 ${rwL("You're all caught up!", "모두 끝냈어요!")}</p><p class="dash-muted">${rwL("No words need review right now.", "지금 복습할 단어가 없어요.")}</p>`
-         : `<p class="dash-muted">${rwL("Nothing to review yet. Words you miss will show up here so you can practise them again.", "아직 복습할 단어가 없어요. 틀린 단어가 여기에 모여서 다시 연습할 수 있어요.")}</p>`}
-       <button type="button" class="pill small dash-btn" data-dash-act="view:flashcards">${rwL("Learn New Words", "새 단어 배우기")}</button></section>`;
 
   // Category cards (2x2): weakest one first with a "Focus today" tag
   const cats = CAT_DEFS.map(catStats);
@@ -14417,47 +14394,37 @@ function renderSkillsCard() {
         : c.n > 0
           ? `<div class="dash-cat-sub dash-cat-empty">${rwL(`${c.n} of ${REC_MIN} questions answered`, `${REC_MIN}문제 중 ${c.n}문제 풀었어요`)}</div><div class="dash-bar dash-bar-ok" role="presentation"><i style="width:${Math.round((c.n / REC_MIN) * 100)}%"></i></div>`
           : `<div class="dash-cat-sub dash-cat-empty">${rwL("Not started yet", "아직 시작 전이에요")}</div>`;
-    return `<div class="dash-cat${focus ? " dash-cat-focus" : ""}">${focus ? `<span class="dash-focus-tag">${rwL("Focus today", "오늘의 집중")}</span>` : ""}
+    return `<div class="dash-cat${focus ? " dash-cat-focus" : ""}" role="button" tabindex="0" data-dash-act="view:${d.view}" aria-label="${escapeHtml(d.name())} — ${c.enough ? d.cta() : rwL("Start Practising", "연습 시작")}">${focus ? `<span class="dash-focus-tag">${rwL("Focus today", "오늘의 집중")}</span>` : ""}
       <div class="dash-cat-name"><span aria-hidden="true">${d.icon}</span> ${d.name()}</div>${body}
-      <button type="button" class="pill small dash-btn" data-dash-act="view:${d.view}">${c.enough ? d.cta() : rwL("Start Practising", "연습 시작")}</button></div>`;
+      <span class="dash-cat-go" aria-hidden="true">›</span></div>`;
   }).join("");
   const catHtml = `<section class="dash-block" aria-labelledby="dash-h-cat"><h3 class="dash-h" id="dash-h-cat">${rwL("Your progress", "나의 실력")}</h3><div class="dash-cat-grid">${catCards}</div></section>`;
 
-  // Recent activity, grouped by day, with coloured score pills
-  let lastDay = "", actItems = "";
-  sessions.forEach((s) => {
-    const day = dayLabel(s.end);
-    if (day !== lastDay) { actItems += `<li class="dash-act-head">${day}</li>`; lastDay = day; }
-    const p = Math.round((s.c / s.n) * 100);
-    const tone = p >= 80 ? "good" : p >= 50 ? "ok" : "low";
-    const mark = tone === "good" ? "✓" : tone === "ok" ? "•" : "!";
-    actItems += `<li><span class="dash-act-name">${MODE_LABEL()[s.m] || s.m}</span><b class="dash-score dash-score-${tone}"><span aria-hidden="true">${mark}</span> ${s.c}/${s.n}</b></li>`;
-  });
-  const actHtml = sessions.length
-    ? `<section class="dash-block dash-secondary" aria-labelledby="dash-h-act"><h3 class="dash-h" id="dash-h-act">${rwL("Recent activity", "최근 활동")}</h3><ul class="dash-acts">${actItems}</ul>
-       ${moreSessions ? `<button type="button" class="dash-link" data-dash-more="1">${rwL("View more", "더 보기")}</button>` : ""}</section>`
-    : "";
-
-  // Badges: latest three earned + the next goal
+  // Badges: one tappable card — a few earned medals (if any) and the next goal.
   const signedIn = canUseAccountFeatures();
   const paid = canUsePaidFeatures();
   const cat = buildBadgeCatalog();
   const earned = signedIn ? cat.filter((b) => progress.badges[b.id]).sort((a, b) => progress.badges[b.id] - progress.badges[a.id]) : [];
-  const shown = earned.length ? earned.slice(0, 3) : cat.filter((b) => !b.paidOnly || paid).slice(0, 3);
   const goal = signedIn ? nextBadgeGoal(cat, paid) : null;
-  const goalHtml = goal
-    ? `<div class="dash-goal"><span class="dash-goal-ico" aria-hidden="true">${goal.b.emoji}</span><div class="dash-goal-main"><div class="dash-goal-top"><b>${rwL("Next goal", "다음 목표")}: ${escapeHtml(goal.b.name)}</b><span>${goal.have} / ${goal.goal}</span></div>
-       <div class="dash-bar dash-bar-ok" role="presentation"><i style="width:${Math.round(goal.ratio * 100)}%"></i></div><div class="dash-muted dash-goal-desc">${escapeHtml(goal.b.desc)}</div></div></div>`
+  const medals = earned.length
+    ? `<div class="dash-medals" aria-hidden="true">${earned.slice(0, 5).map((b) => `<span class="dash-medal">${b.emoji}</span>`).join("")}</div>`
     : "";
-  const badgeHtml = `<section class="dash-block" aria-labelledby="dash-h-badges"><div class="dash-h-row"><h3 class="dash-h" id="dash-h-badges">${rwL("Your badges", "나의 배지")}</h3>
-      <span class="dash-muted dash-inline">${rwL(`${earned.length} of ${cat.length}`, `${cat.length}개 중 ${earned.length}개`)}</span></div>
-    <div class="dash-badges">${shown.map((b) => { const on = earned.includes(b); return `<div class="dash-badge ${on ? "on" : "off"}" title="${escapeHtml(b.desc)}"><span class="dash-badge-ico" aria-hidden="true">${b.emoji}</span>${on ? "" : '<span class="dash-badge-lock" aria-hidden="true">🔒</span>'}<span class="dash-badge-name">${escapeHtml(b.name)}</span><span class="dash-badge-desc">${escapeHtml(b.desc)}</span></div>`; }).join("")}</div>
-    ${goalHtml}
-    <div class="dash-links"><button type="button" class="dash-link" data-dash-tab="badges">${rwL("View all badges", "배지 모두 보기")}</button>
-    <button type="button" class="dash-link" data-dash-act="view:koala">${rwL("View My Koala", "My Koala 보기")}</button></div></section>`;
+  const goalHtml = goal
+    ? `<div class="dash-goal"><span class="dash-goal-ico" aria-hidden="true">${goal.b.emoji}</span><div class="dash-goal-main"><div class="dash-goal-top"><b>${escapeHtml(goal.b.name)}</b><span>${goal.have} / ${goal.goal}</span></div>
+       <div class="dash-bar dash-bar-ok" role="presentation"><i style="width:${Math.round(goal.ratio * 100)}%"></i></div><div class="dash-muted dash-goal-desc">${escapeHtml(goal.b.desc)}</div></div></div>`
+    : `<p class="dash-muted dash-badge-empty">${signedIn ? rwL("Keep practising to collect koala badges!", "연습하면서 코알라 배지를 모아 봐요!") : rwL("Sign up to collect koala badges!", "가입하면 코알라 배지를 모을 수 있어요!")}</p>`;
+  const badgeHtml = `<section class="dash-block dash-badge-card" role="button" tabindex="0" data-dash-tab="badges" aria-label="${rwL("Badges — see all", "배지 모두 보기")}">
+    <div class="dash-h-row"><h3 class="dash-h" id="dash-h-badges">${rwL("Badges", "배지")}</h3>
+      <span class="dash-badge-count">${earned.length} / ${cat.length} <span aria-hidden="true">›</span></span></div>
+    ${medals}${goalHtml}</section>`;
 
-  box.innerHTML = `${summaryHtml}${recHtml}${reviewHtml}${catHtml}${actHtml}${badgeHtml}`;
+  box.innerHTML = `${summaryHtml}${recHtml}${catHtml}${badgeHtml}`;
 }
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const el = e.target.closest && e.target.closest('.dash-cat[role="button"], .dash-badge-card[role="button"]');
+  if (el && e.target === el) { e.preventDefault(); el.click(); }
+});
 document.addEventListener("click", (e) => {
   const act = e.target.closest("[data-dash-act]");
   if (act) { runDashAction(act.dataset.dashAct); return; }

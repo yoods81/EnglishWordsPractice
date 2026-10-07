@@ -11325,3 +11325,53 @@ html body #view-stats .more-stats[open] > summary { margin-bottom: 18px; }
 
 /* dark */
 html[data-theme="dark"] .dash-badge-desc { color: #aab4dc; }
+
+/* ==========================================================================
+   My Progress — simple Overview: one "next up" card, 4 tappable cards,
+   one badge card, one quiet "More stats" link
+   ========================================================================== */
+/* review words live inside the hero card */
+.dash-rec-words { margin: 12px 0 2px; }
+.dash-rec-words-label { display: block; font-size: 0.76rem; font-weight: 800; letter-spacing: .02em; color: #fff; opacity: .9; margin-bottom: 8px; }
+.dash-rec-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.dash-rec-chips li {
+  background: rgba(255, 255, 255, .18); color: #fff; border: 1px solid rgba(255, 255, 255, .45);
+  border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: 0.9rem;
+}
+.dash-rec-chips li.more { background: transparent; border-style: dashed; }
+#stats-panel-overview .dash-rec .dash-rec-btn { margin-top: 14px; }
+
+/* the four category cards are the buttons — no button inside */
+.dash-cat[role="button"] { cursor: pointer; padding-right: 26px; transition: transform .12s ease; -webkit-tap-highlight-color: transparent; }
+.dash-cat[role="button"]:active { transform: scale(.97); }
+.dash-cat[role="button"]:focus-visible { outline: none; box-shadow: inset 0 0 0 3px var(--accent), 0 2px 0 var(--outline); }
+.dash-cat-go {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  font-size: 1.6rem; line-height: 1; font-weight: 800; color: var(--accent-dark);
+}
+#stats-panel-overview .dash-cat { min-height: 92px; justify-content: center; }
+#stats-panel-overview .dash-cat .dash-cat-empty { min-height: 0; margin: 4px 0 0; }
+
+/* one badge card */
+.dash-badge-card {
+  background: #fff; border: 1px solid var(--outline); border-radius: 18px; box-shadow: 0 2px 0 var(--outline);
+  padding: 14px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.dash-badge-card:active { transform: scale(.985); }
+.dash-badge-card:focus-visible { outline: none; box-shadow: inset 0 0 0 3px var(--accent), 0 2px 0 var(--outline); }
+.dash-badge-card .dash-h-row { margin-bottom: 10px; align-items: center; }
+.dash-badge-card .dash-h { margin: 0; }
+.dash-badge-count { font-family: var(--font-heading); font-weight: 700; color: var(--accent-dark); font-size: 1rem; }
+.dash-medals { display: flex; gap: 8px; margin-bottom: 12px; font-size: 1.9rem; line-height: 1; }
+.dash-badge-card .dash-goal { margin: 0; border: 0; padding: 0; background: none; }
+.dash-badge-card .dash-badge-empty { margin: 0; font-size: 0.9rem; }
+
+/* "More stats": a quiet text link, not another pill */
+html body #view-stats .more-stats > summary {
+  background: none; border: 0; box-shadow: none; min-height: 44px; width: auto;
+  display: flex; justify-content: center; margin: 4px auto 0;
+  font-size: 0.9rem; color: var(--dash-muted, var(--muted)); text-decoration: underline; text-underline-offset: 3px;
+}
+html body #view-stats .more-stats > summary::after { margin-left: 6px; }
+html[data-theme="dark"] body #view-stats .more-stats > summary { background: none; color: #aab4dc; }
+html[data-theme="dark"] .dash-badge-card { background: #172420; }
