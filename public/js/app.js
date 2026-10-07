@@ -188,7 +188,7 @@ const TRANSLATIONS = {
     adminStatUnusedCodes: "🎟️ Unused Codes",
     adminUsersTitle: "🧑‍🤝‍🧑 User Accounts",
     adminUsersDesc: "Search for an account, change its role or password, or approve a pending upgrade request — a user waiting on one is pinned to the top.",
-    adminUsersSearchPlaceholder: "Search by username",
+    adminUsersSearchPlaceholder: "Search by username or email",
     adminUsersSortLabel: "Sort by",
     adminUsersSortJoined: "Join date",
     adminUsersSortAz: "Username (A→Z)",
@@ -650,7 +650,7 @@ const TRANSLATIONS = {
     authUsernameLabel: "Username",
     authUsernameHint: "3-20 characters: letters, numbers, underscore.",
     authPasswordLabel: "Password",
-    authPasswordHint: "At least 8 characters.",
+    authPasswordHint: "At least 8 characters, with a capital letter, a number and a special character.",
     authCodeLabel: "Special code (optional, for a premium account)",
     authCodeLabelPlain: "Special code",
     authCancelBtn: "Cancel",
@@ -661,8 +661,88 @@ const TRANSLATIONS = {
     authSignupErrorTaken: "That username is already taken.",
     authSignupErrorCode: "That special code isn't valid, or has already been used.",
     authSignupErrorUsername: "Username must be 3-20 characters: letters, numbers, underscore.",
-    authSignupErrorPassword: "Password must be at least 8 characters.",
+    authSignupErrorPassword: "Password needs 8+ characters with a capital letter, a number and a special character.",
     authSignupErrorGeneric: "Sign up failed — please try again.",
+    authForgotLink: "Forgot your username or password?",
+    authModeRecover: "Find Username / Password",
+    authModeReset: "Choose a New Password",
+    authEmailLabel: "Email",
+    authEmailHint: "Used to find your username or reset your password. We'll send a confirmation link.",
+    authSignupErrorEmail: "Please enter a valid email address.",
+    authSignupErrorPremiumCode: "Premium needs a special code for now. Enter one, or choose the free account.",
+    signupPlanLabel: "Choose your plan",
+    signupPlanFree: "Free account",
+    signupPlanFreeDesc: "Start learning right away",
+    signupPlanPremium: "⭐ Premium",
+    signupPlanPremiumDesc: "More questions + your own word list",
+    pwRuleLen: "8+ characters",
+    pwRuleUpper: "1 uppercase letter",
+    pwRuleDigit: "1 number",
+    pwRuleSpecial: "1 special character (! @ # …)",
+    payBtn: "💳 Pay and join Premium",
+    payComingSoon: "Online payment is coming soon. For now, join Premium with a special code below.",
+    forgotPasswordTitle: "Forgot password",
+    forgotPasswordHint: "Type your username. We'll email a reset link to the address on your account.",
+    forgotPasswordBtn: "Send reset link",
+    forgotUsernameTitle: "Forgot username",
+    forgotUsernameHint: "Type the email you signed up with. We'll email you your username.",
+    forgotUsernameBtn: "Email my username",
+    recoverMessageSent: "If we found a confirmed account, we've sent an email. Please check your inbox (and spam folder).",
+    recoverNoEmailHint: "No email on your account, or it isn't confirmed yet? Ask the site admin to help.",
+    recoverBackBtn: "Back to Log In",
+    recoverErrorGeneric: "Something went wrong — please try again.",
+    recoverErrorUsername: "Please type your username.",
+    resetIntro: "Choose a new password for your account.",
+    recoverNewPasswordLabel: "New password",
+    resetConfirmLabel: "Type it again",
+    resetSubmitBtn: "Save new password",
+    resetMismatch: "The two passwords don't match.",
+    resetInvalidLink: "This reset link has expired or was already used. Please ask for a new one.",
+    resetDoneTitle: "Password changed",
+    resetDone: "Your password was changed. Please log in with your new password.",
+    noticeOkBtn: "OK",
+    noticeSignupTitle: "Welcome! 🎉",
+    noticeSignupSent: "Your account is ready.\n\nWe sent a confirmation email. Open the link in it to confirm your email — you need that to find your username or reset your password later.",
+    noticeSignupNotSent: "Your account is ready.\n\nWe couldn't send the confirmation email just now. You can send it again from My Account.",
+    noticeVerifiedTitle: "Email confirmed ✅",
+    noticeVerifiedText: "Thanks! Your email is confirmed.",
+    noticeVerifyFailedTitle: "Link problem",
+    noticeVerifyFailedText: "This confirmation link has expired or was already used. You can send a new one from My Account.",
+    noticeAddEmailTitle: "Add your email",
+    noticeAddEmailText: "Add an email in My Account so you can find your username or reset your password if you ever forget them.",
+    myAccountEmailTitle: "✉️ Email",
+    myAccountEmailDesc: "We use this address to help you find your username or reset your password.",
+    myAccountEmailNone: "No email yet. Add one below.",
+    myAccountEmailUnverified: (e) => `${e} — not confirmed yet. Open the link in the email we sent.`,
+    myAccountEmailVerified: (e) => `${e} — confirmed ✅`,
+    myAccountEmailNewLabel: "Email address",
+    myAccountEmailSaveBtn: "Save email",
+    myAccountEmailResendBtn: "Send the confirmation email again",
+    myAccountEmailSaved: "Saved! We sent a confirmation email — open the link in it.",
+    myAccountEmailSavedNoMail: "Saved, but we couldn't send the confirmation email just now. Try the resend button.",
+    myAccountEmailResent: "Sent! Please check your inbox (and spam folder).",
+    myAccountEmailWait: "Please wait a minute before asking again.",
+    myAccountRecoveryPasswordLabel: "Type your password to confirm",
+    adminUserEmailUnverified: "not confirmed",
+    adminUserNoEmail: "no email",
+    adminEmailTitle: "✉️ Email System",
+    adminEmailDesc: "Outgoing mail (confirmation links, password resets, username reminders). Replies go to your admin mailbox.",
+    adminEmailOk: "✅ Email sending is set up",
+    adminEmailNotConfigured: "⚠️ Email sending isn't set up yet (the Cloudflare email binding is missing)",
+    adminEmailFrom: "Sends from",
+    adminEmailReplyTo: "Replies go to",
+    adminEmailWeekLabel: "Last 7 days",
+    adminEmailWeek: (total, failed) => `${total} sent · ${failed} failed`,
+    adminEmailNoEmailLabel: "Accounts without email",
+    adminEmailUnverifiedLabel: "Accounts not confirmed",
+    adminEmailTestLabel: "Send a test email to",
+    adminEmailTestBtn: "Send test",
+    adminEmailRefreshBtn: "Refresh",
+    adminEmailTestOk: "Test email sent — check that inbox.",
+    adminEmailTestFail: (c) => `Couldn't send: ${c}`,
+    adminEmailLogTitle: "Recent emails",
+    adminEmailLogEmpty: "No emails sent yet.",
+    adminEmailKinds: { verify: "Confirmation", reset: "Password reset", forgot_username: "Username reminder", test: "Test" },
     upgradeTitle: "⭐ Upgrade to Premium",
     upgradeDesc: "General accounts are capped at 100 questions per round. Enter a special code from the admin to unlock more questions and your own private word list.",
     upgradeSubmitBtn: "Upgrade",
@@ -830,7 +910,7 @@ const TRANSLATIONS = {
     adminStatUnusedCodes: "🎟️ 미사용 코드",
     adminUsersTitle: "🧑‍🤝‍🧑 사용자 계정",
     adminUsersDesc: "계정을 검색하고 역할이나 비밀번호를 변경하거나, 업그레이드 요청을 승인할 수 있어요 — 요청 대기 중인 사용자는 맨 위에 고정돼요.",
-    adminUsersSearchPlaceholder: "사용자명으로 검색",
+    adminUsersSearchPlaceholder: "사용자명 또는 이메일로 검색",
     adminUsersSortLabel: "정렬",
     adminUsersSortJoined: "가입일",
     adminUsersSortAz: "사용자명 (A→Z)",
@@ -1288,7 +1368,7 @@ const TRANSLATIONS = {
     authUsernameLabel: "아이디",
     authUsernameHint: "3~20자: 영문, 숫자, 밑줄(_)만 가능해요.",
     authPasswordLabel: "비밀번호",
-    authPasswordHint: "8자 이상 입력해주세요.",
+    authPasswordHint: "8자 이상, 대문자·숫자·특수문자를 각각 1개 이상 넣어 주세요.",
     authCodeLabel: "특별 코드 (선택, 프리미엄 계정 가입 시 입력)",
     authCodeLabelPlain: "특별 코드",
     authCancelBtn: "취소",
@@ -1299,8 +1379,88 @@ const TRANSLATIONS = {
     authSignupErrorTaken: "이미 사용 중인 아이디예요.",
     authSignupErrorCode: "특별 코드가 올바르지 않거나 이미 사용됐어요.",
     authSignupErrorUsername: "아이디는 3~20자의 영문/숫자/밑줄(_)만 가능해요.",
-    authSignupErrorPassword: "비밀번호는 8자 이상이어야 해요.",
+    authSignupErrorPassword: "비밀번호는 8자 이상이며 대문자, 숫자, 특수문자를 각각 1개 이상 포함해야 해요.",
     authSignupErrorGeneric: "회원가입에 실패했어요 — 다시 시도해주세요.",
+    authForgotLink: "아이디 또는 비밀번호를 잊으셨나요?",
+    authModeRecover: "아이디 / 비밀번호 찾기",
+    authModeReset: "새 비밀번호 정하기",
+    authEmailLabel: "이메일",
+    authEmailHint: "아이디 찾기와 비밀번호 재설정에 쓰여요. 확인 메일을 보내드려요.",
+    authSignupErrorEmail: "올바른 이메일 주소를 입력해 주세요.",
+    authSignupErrorPremiumCode: "지금은 프리미엄 가입에 특별 코드가 필요해요. 코드를 입력하거나 일반 회원으로 가입해 주세요.",
+    signupPlanLabel: "가입 유형을 선택해 주세요",
+    signupPlanFree: "일반 회원",
+    signupPlanFreeDesc: "무료로 바로 시작해요",
+    signupPlanPremium: "⭐ 프리미엄 회원",
+    signupPlanPremiumDesc: "더 많은 문제 + 나만의 단어장",
+    pwRuleLen: "8자 이상",
+    pwRuleUpper: "대문자 1개 이상",
+    pwRuleDigit: "숫자 1개 이상",
+    pwRuleSpecial: "특수문자 1개 이상 (! @ # …)",
+    payBtn: "💳 결제하고 프리미엄 가입",
+    payComingSoon: "온라인 결제는 곧 열릴 예정이에요. 지금은 아래 특별 코드로 프리미엄에 가입할 수 있어요.",
+    forgotPasswordTitle: "비밀번호를 잊었어요",
+    forgotPasswordHint: "아이디를 입력하면 계정에 등록된 이메일로 재설정 링크를 보내드려요.",
+    forgotPasswordBtn: "재설정 링크 보내기",
+    forgotUsernameTitle: "아이디를 잊었어요",
+    forgotUsernameHint: "가입할 때 쓴 이메일을 입력하면 아이디를 메일로 보내드려요.",
+    forgotUsernameBtn: "아이디 메일로 받기",
+    recoverMessageSent: "확인된 계정을 찾았다면 메일을 보냈어요. 받은편지함(스팸함 포함)을 확인해 주세요.",
+    recoverNoEmailHint: "계정에 이메일이 없거나 아직 인증하지 않았다면 사이트 관리자에게 도움을 요청해 주세요.",
+    recoverBackBtn: "로그인으로 돌아가기",
+    recoverErrorGeneric: "문제가 생겼어요 — 다시 시도해 주세요.",
+    recoverErrorUsername: "아이디를 입력해 주세요.",
+    resetIntro: "계정의 새 비밀번호를 정해 주세요.",
+    recoverNewPasswordLabel: "새 비밀번호",
+    resetConfirmLabel: "한 번 더 입력",
+    resetSubmitBtn: "새 비밀번호 저장",
+    resetMismatch: "두 비밀번호가 같지 않아요.",
+    resetInvalidLink: "재설정 링크가 만료됐거나 이미 사용됐어요. 새 링크를 요청해 주세요.",
+    resetDoneTitle: "비밀번호가 변경됐어요",
+    resetDone: "비밀번호가 변경됐어요. 새 비밀번호로 로그인해 주세요.",
+    noticeOkBtn: "확인",
+    noticeSignupTitle: "환영해요! 🎉",
+    noticeSignupSent: "계정이 만들어졌어요.\n\n확인 메일을 보냈어요. 메일 속 링크를 눌러 이메일을 인증해 주세요. 인증해야 나중에 아이디 찾기와 비밀번호 재설정을 쓸 수 있어요.",
+    noticeSignupNotSent: "계정이 만들어졌어요.\n\n지금은 확인 메일을 보내지 못했어요. 내 계정에서 다시 보낼 수 있어요.",
+    noticeVerifiedTitle: "이메일 인증 완료 ✅",
+    noticeVerifiedText: "고마워요! 이메일이 인증됐어요.",
+    noticeVerifyFailedTitle: "링크에 문제가 있어요",
+    noticeVerifyFailedText: "인증 링크가 만료됐거나 이미 사용됐어요. 내 계정에서 새 확인 메일을 보낼 수 있어요.",
+    noticeAddEmailTitle: "이메일을 등록해 주세요",
+    noticeAddEmailText: "내 계정에서 이메일을 등록하면, 아이디나 비밀번호를 잊어버려도 찾을 수 있어요.",
+    myAccountEmailTitle: "✉️ 이메일",
+    myAccountEmailDesc: "아이디를 찾거나 비밀번호를 다시 정할 때 이 주소를 사용해요.",
+    myAccountEmailNone: "아직 이메일이 없어요. 아래에서 등록해 주세요.",
+    myAccountEmailUnverified: (e) => `${e} — 아직 인증 전이에요. 보내드린 메일의 링크를 눌러 주세요.`,
+    myAccountEmailVerified: (e) => `${e} — 인증 완료 ✅`,
+    myAccountEmailNewLabel: "이메일 주소",
+    myAccountEmailSaveBtn: "이메일 저장",
+    myAccountEmailResendBtn: "확인 메일 다시 보내기",
+    myAccountEmailSaved: "저장했어요! 확인 메일을 보냈으니 메일 속 링크를 눌러 주세요.",
+    myAccountEmailSavedNoMail: "저장했지만 지금은 확인 메일을 보내지 못했어요. 다시 보내기 버튼을 눌러 보세요.",
+    myAccountEmailResent: "보냈어요! 받은편지함(스팸함 포함)을 확인해 주세요.",
+    myAccountEmailWait: "1분 뒤에 다시 요청해 주세요.",
+    myAccountRecoveryPasswordLabel: "확인을 위해 비밀번호를 입력해 주세요",
+    adminUserEmailUnverified: "미인증",
+    adminUserNoEmail: "이메일 없음",
+    adminEmailTitle: "✉️ 이메일 시스템",
+    adminEmailDesc: "사이트에서 보내는 메일(인증 링크, 비밀번호 재설정, 아이디 안내)을 관리해요. 답장은 관리자 메일함으로 가요.",
+    adminEmailOk: "✅ 이메일 발송이 설정되어 있어요",
+    adminEmailNotConfigured: "⚠️ 이메일 발송이 아직 설정되지 않았어요 (Cloudflare 이메일 바인딩이 없어요)",
+    adminEmailFrom: "보내는 주소",
+    adminEmailReplyTo: "답장 받는 주소",
+    adminEmailWeekLabel: "최근 7일",
+    adminEmailWeek: (total, failed) => `발송 ${total}건 · 실패 ${failed}건`,
+    adminEmailNoEmailLabel: "이메일 없는 계정",
+    adminEmailUnverifiedLabel: "미인증 계정",
+    adminEmailTestLabel: "테스트 메일 받을 주소",
+    adminEmailTestBtn: "테스트 보내기",
+    adminEmailRefreshBtn: "새로고침",
+    adminEmailTestOk: "테스트 메일을 보냈어요 — 받은편지함을 확인해 보세요.",
+    adminEmailTestFail: (c) => `보내지 못했어요: ${c}`,
+    adminEmailLogTitle: "최근 발송 기록",
+    adminEmailLogEmpty: "아직 보낸 메일이 없어요.",
+    adminEmailKinds: { verify: "이메일 인증", reset: "비밀번호 재설정", forgot_username: "아이디 안내", test: "테스트" },
     upgradeTitle: "⭐ 프리미엄으로 업그레이드",
     upgradeDesc: "일반 계정은 한 라운드에 최대 100문제까지만 가능해요. admin에게 받은 특별 코드를 입력하면 더 많은 문제와 나만의 단어장을 사용할 수 있어요.",
     upgradeSubmitBtn: "업그레이드",
@@ -2644,6 +2804,7 @@ function refreshView(view) {
     loadAdminCodes();
     loadAdminUsers();
     loadAdminKoala();
+    loadAdminEmail();
   }
   if (view === "myaccount") renderMyAccount();
 }
@@ -3093,6 +3254,18 @@ const loginPasswordInput = document.getElementById("login-password-input");
 const loginError = document.getElementById("login-error");
 const loginCancelBtn = document.getElementById("login-cancel-btn");
 const signupForm = document.getElementById("signup-form");
+const authModeToggle = document.getElementById("auth-mode-toggle");
+const signupEmailInput = document.getElementById("signup-email-input");
+const signupPlanFreeBtn = document.getElementById("signup-plan-free-btn");
+const signupPlanPremiumBtn = document.getElementById("signup-plan-premium-btn");
+const signupPremiumPanel = document.getElementById("signup-premium-panel");
+const signupPayBtn = document.getElementById("signup-pay-btn");
+const signupPayNote = document.getElementById("signup-pay-note");
+const recoverPanel = document.getElementById("recover-panel");
+const recoverMessage = document.getElementById("recover-message");
+const recoverError = document.getElementById("recover-error");
+const resetForm = document.getElementById("reset-form");
+const resetError = document.getElementById("reset-error");
 const signupUsernameInput = document.getElementById("signup-username-input");
 const signupPasswordInput = document.getElementById("signup-password-input");
 const signupCodeInput = document.getElementById("signup-code-input");
@@ -3141,17 +3314,59 @@ function updateAdminUI() {
   if (refreshPaidFeatureGates) refreshPaidFeatureGates();
 }
 
+// Password policy (the server enforces the same rules): 8+ characters with at
+// least one uppercase letter, one number and one special character.
+function passwordRuleChecks(pw) {
+  return { len: pw.length >= 8, upper: /[A-Z]/.test(pw), digit: /[0-9]/.test(pw), special: /[^A-Za-z0-9]/.test(pw) };
+}
+function passwordMeetsPolicy(pw) {
+  return Object.values(passwordRuleChecks(pw)).every(Boolean);
+}
+// Ticks off the rule list under a password box as the person types.
+function bindPasswordRules(inputEl, listEl) {
+  if (!inputEl || !listEl) return () => {};
+  const update = () => {
+    const c = passwordRuleChecks(inputEl.value);
+    listEl.querySelectorAll("li").forEach((li) => li.classList.toggle("ok", !!c[li.dataset.rule]));
+  };
+  inputEl.addEventListener("input", update);
+  update();
+  return update;
+}
+function validEmailClient(email) {
+  return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
+// Small "message with an OK button" popup (email confirmed, mail sent, ...).
+const noticeOverlay = document.getElementById("notice-overlay");
+function showNotice(title, text) {
+  document.getElementById("notice-title").textContent = title;
+  document.getElementById("notice-text").textContent = text;
+  noticeOverlay.hidden = false;
+  document.getElementById("notice-ok-btn").focus();
+}
+document.getElementById("notice-ok-btn").addEventListener("click", () => { noticeOverlay.hidden = true; });
+
 function setAuthMode(mode) {
-  const login = mode !== "signup";
-  authTitle.textContent = t(login ? "authModeLogin" : "authModeSignup");
+  if (!["signup", "recover", "reset"].includes(mode)) mode = "login";
+  const login = mode === "login";
+  authTitle.textContent = t(
+    mode === "login" ? "authModeLogin" : mode === "signup" ? "authModeSignup" : mode === "recover" ? "authModeRecover" : "authModeReset"
+  );
   loginForm.hidden = !login;
-  signupForm.hidden = login;
+  signupForm.hidden = mode !== "signup";
+  recoverPanel.hidden = mode !== "recover";
+  resetForm.hidden = mode !== "reset";
+  authModeToggle.hidden = mode === "recover" || mode === "reset";
   authModeLoginBtn.classList.toggle("primary", login);
   authModeLoginBtn.classList.toggle("neutral", !login);
-  authModeSignupBtn.classList.toggle("primary", !login);
-  authModeSignupBtn.classList.toggle("neutral", login);
+  authModeSignupBtn.classList.toggle("primary", mode === "signup");
+  authModeSignupBtn.classList.toggle("neutral", mode !== "signup");
   loginError.hidden = true;
   signupError.hidden = true;
+  recoverError.hidden = true;
+  recoverMessage.hidden = true;
+  resetError.hidden = true;
 }
 
 function openAuthOverlay(mode) {
@@ -3160,9 +3375,11 @@ function openAuthOverlay(mode) {
   signupUsernameInput.value = "";
   signupPasswordInput.value = "";
   signupCodeInput.value = "";
+  signupEmailInput.value = "";
+  setSignupPlan("free");
   setAuthMode(mode);
   authOverlay.hidden = false;
-  (mode === "signup" ? signupUsernameInput : loginUsernameInput).focus();
+  ({ signup: signupUsernameInput, recover: document.getElementById("forgot-password-username"), reset: document.getElementById("reset-password-input") }[mode] || loginUsernameInput).focus();
 }
 
 function closeAuthOverlay() {
@@ -3361,7 +3578,82 @@ async function renderMyAccount() {
   myAccountStatusEl.innerHTML = tiles
     .map((s) => `<div class="stat-box"><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div></div>`)
     .join("");
+  refreshEmailCard(account);
 }
+
+// Email card: shows the address and whether it's confirmed; lets the person add/change it.
+const myAccountEmailCard = document.getElementById("my-account-email-card");
+const myAccountEmailStatus = document.getElementById("my-account-email-status");
+const myAccountEmailResendBtn = document.getElementById("my-account-email-resend-btn");
+const myAccountEmailForm = document.getElementById("my-account-email-form");
+const myAccountEmailInput = document.getElementById("my-account-email-input");
+const myAccountEmailPassword = document.getElementById("my-account-email-password");
+const myAccountEmailError = document.getElementById("my-account-email-error");
+const myAccountEmailSuccess = document.getElementById("my-account-email-success");
+
+function refreshEmailCard(account) {
+  if (!myAccountEmailCard) return;
+  if (!account || account.role === "admin") {
+    myAccountEmailCard.hidden = true;
+    return;
+  }
+  myAccountEmailCard.hidden = false;
+  if (currentUser && currentUser.id === account.id) {
+    currentUser.email = account.email || null;
+    currentUser.emailVerified = !!account.emailVerified;
+  }
+  myAccountEmailStatus.textContent = !account.email
+    ? t("myAccountEmailNone")
+    : account.emailVerified
+      ? t("myAccountEmailVerified", account.email)
+      : t("myAccountEmailUnverified", account.email);
+  myAccountEmailResendBtn.hidden = !account.email || !!account.emailVerified;
+  myAccountEmailInput.value = account.email || "";
+}
+
+myAccountEmailForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  myAccountEmailError.hidden = true;
+  myAccountEmailSuccess.hidden = true;
+  const email = myAccountEmailInput.value.trim();
+  const password = myAccountEmailPassword.value;
+  if (!validEmailClient(email)) {
+    myAccountEmailError.textContent = t("authSignupErrorEmail");
+    myAccountEmailError.hidden = false;
+    return;
+  }
+  const btn = document.getElementById("my-account-email-submit-btn");
+  btn.disabled = true;
+  try {
+    const res = await api("/auth/set-email", { method: "POST", body: JSON.stringify({ email, password }) });
+    myAccountEmailPassword.value = "";
+    refreshEmailCard({ ...currentUser, email: res.email, emailVerified: false });
+    myAccountEmailSuccess.textContent = t(res.verificationSent ? "myAccountEmailSaved" : "myAccountEmailSavedNoMail");
+    myAccountEmailSuccess.hidden = false;
+  } catch (err) {
+    const code = err && err.data && err.data.error;
+    myAccountEmailError.textContent = t(code === "wrong_current_password" ? "myAccountWrongCurrentPassword" : code === "invalid_email" ? "authSignupErrorEmail" : "authSignupErrorGeneric");
+    myAccountEmailError.hidden = false;
+  }
+  btn.disabled = false;
+});
+
+myAccountEmailResendBtn.addEventListener("click", async () => {
+  myAccountEmailError.hidden = true;
+  myAccountEmailSuccess.hidden = true;
+  myAccountEmailResendBtn.disabled = true;
+  try {
+    await api("/auth/resend-verification", { method: "POST" });
+    myAccountEmailSuccess.textContent = t("myAccountEmailResent");
+    myAccountEmailSuccess.hidden = false;
+  } catch (err) {
+    myAccountEmailError.textContent = t(err && err.status === 429 ? "myAccountEmailWait" : "recoverErrorGeneric");
+    myAccountEmailError.hidden = false;
+  }
+  myAccountEmailResendBtn.disabled = false;
+});
+
+bindPasswordRules(document.getElementById("my-account-new-password"), document.getElementById("my-account-password-rules"));
 
 myAccountPasswordForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -3369,7 +3661,7 @@ myAccountPasswordForm.addEventListener("submit", async (e) => {
   myAccountPasswordSuccess.hidden = true;
   const currentPassword = myAccountCurrentPasswordInput.value;
   const newPassword = myAccountNewPasswordInput.value;
-  if (!currentPassword || newPassword.length < 8) {
+  if (!currentPassword || !passwordMeetsPolicy(newPassword)) {
     myAccountPasswordError.textContent = t("authSignupErrorPassword");
     myAccountPasswordError.hidden = false;
     return;
@@ -3438,6 +3730,7 @@ loginForm.addEventListener("submit", async (e) => {
   renderUpgradeReadyBanner();
   if (currentUser) refreshSharedWords();
   koalaAfterLogin();
+  maybeNudgeEmail();
 });
 
 const SIGNUP_ERROR_KEYS = {
@@ -3445,31 +3738,266 @@ const SIGNUP_ERROR_KEYS = {
   invalid_code: "authSignupErrorCode",
   invalid_username: "authSignupErrorUsername",
   invalid_password: "authSignupErrorPassword",
+  invalid_email: "authSignupErrorEmail",
   reserved_username: "authSignupErrorUsername",
 };
+
+// ===== PAYMENT HOOK =====================================================
+// The "Pay and join Premium" buttons (signup + upgrade) call this. Online
+// payment isn't built yet, so for now it only explains that and points to
+// the special-code route, which still works exactly as before. When the
+// payment system exists: set PAYMENT_ENABLED = true and replace the marked
+// block with the redirect to the checkout page.
+const PAYMENT_ENABLED = false;
+function startPremiumCheckout(noteEl) {
+  if (!PAYMENT_ENABLED) {
+    noteEl.hidden = false;
+    return;
+  }
+  // Future: const { url } = await api("/billing/checkout", { method: "POST" }); location.href = url;
+}
+signupPayBtn.addEventListener("click", () => startPremiumCheckout(signupPayNote));
+
+let signupPlan = "free";
+function setSignupPlan(plan) {
+  signupPlan = plan === "premium" ? "premium" : "free";
+  const premium = signupPlan === "premium";
+  signupPlanFreeBtn.classList.toggle("is-active", !premium);
+  signupPlanPremiumBtn.classList.toggle("is-active", premium);
+  signupPlanFreeBtn.setAttribute("aria-pressed", String(!premium));
+  signupPlanPremiumBtn.setAttribute("aria-pressed", String(premium));
+  signupPremiumPanel.hidden = !premium;
+  signupPayNote.hidden = true;
+}
+signupPlanFreeBtn.addEventListener("click", () => setSignupPlan("free"));
+signupPlanPremiumBtn.addEventListener("click", () => setSignupPlan("premium"));
+bindPasswordRules(signupPasswordInput, document.getElementById("signup-password-rules"));
 
 signupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const username = signupUsernameInput.value.trim();
+  const email = signupEmailInput.value.trim();
   const password = signupPasswordInput.value;
-  const specialCode = signupCodeInput.value.trim();
+  const specialCode = signupPlan === "premium" ? signupCodeInput.value.trim() : "";
   signupError.hidden = true;
+  const fail = (key) => {
+    signupError.textContent = t(key);
+    signupError.hidden = false;
+  };
+  if (!validEmailClient(email)) return fail("authSignupErrorEmail");
+  if (!passwordMeetsPolicy(password)) return fail("authSignupErrorPassword");
+  if (signupPlan === "premium" && !specialCode) return fail("authSignupErrorPremiumCode");
 
   try {
-    const { user } = await api("/auth/signup", {
+    const { user, verificationSent } = await api("/auth/signup", {
       method: "POST",
-      body: JSON.stringify(specialCode ? { username, password, specialCode } : { username, password }),
+      body: JSON.stringify(specialCode ? { username, password, email, specialCode } : { username, password, email }),
     });
     currentUser = user;
     closeAuthOverlay();
     updateAdminUI();
     refreshSharedWords();
     koalaAfterLogin();
+    showNotice(t("noticeSignupTitle"), t(verificationSent ? "noticeSignupSent" : "noticeSignupNotSent"));
   } catch (err) {
     const code = err && err.data && err.data.error;
-    signupError.textContent = t(SIGNUP_ERROR_KEYS[code] || "authSignupErrorGeneric");
-    signupError.hidden = false;
+    fail(SIGNUP_ERROR_KEYS[code] || "authSignupErrorGeneric");
   }
+});
+
+/* ---------- Forgot username / password, and the links in our emails ---------- */
+document.getElementById("login-forgot-btn").addEventListener("click", () => openAuthOverlayMode("recover"));
+document.getElementById("recover-back-btn").addEventListener("click", () => openAuthOverlayMode("login"));
+function openAuthOverlayMode(mode) {
+  setAuthMode(mode);
+  const first = { recover: document.getElementById("forgot-password-username"), login: loginUsernameInput }[mode];
+  if (first) first.focus();
+}
+
+async function submitRecover(btn, path, body) {
+  recoverError.hidden = true;
+  recoverMessage.hidden = true;
+  btn.disabled = true;
+  try {
+    await api(path, { method: "POST", body: JSON.stringify(body) });
+    recoverMessage.textContent = t("recoverMessageSent");
+    recoverMessage.hidden = false;
+  } catch (err) {
+    const code = err && err.data && err.data.error;
+    recoverError.textContent = t(code === "invalid_email" ? "authSignupErrorEmail" : "recoverErrorGeneric");
+    recoverError.hidden = false;
+  }
+  btn.disabled = false;
+}
+document.getElementById("forgot-password-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const username = document.getElementById("forgot-password-username").value.trim();
+  if (!username) {
+    recoverError.textContent = t("recoverErrorUsername");
+    recoverError.hidden = false;
+    return;
+  }
+  submitRecover(document.getElementById("forgot-password-btn"), "/auth/forgot-password", { username });
+});
+document.getElementById("forgot-username-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const email = document.getElementById("forgot-username-email").value.trim();
+  if (!validEmailClient(email)) {
+    recoverError.textContent = t("authSignupErrorEmail");
+    recoverError.hidden = false;
+    return;
+  }
+  submitRecover(document.getElementById("forgot-username-btn"), "/auth/forgot-username", { email });
+});
+
+// The reset link in the email opens the site at /?reset=TOKEN.
+let pendingResetToken = null;
+const resetPasswordInput = document.getElementById("reset-password-input");
+const resetConfirmInput = document.getElementById("reset-password-confirm");
+bindPasswordRules(resetPasswordInput, document.getElementById("reset-password-rules"));
+document.getElementById("reset-cancel-btn").addEventListener("click", () => {
+  pendingResetToken = null;
+  closeAuthOverlay();
+});
+resetForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  resetError.hidden = true;
+  const fail = (key) => {
+    resetError.textContent = t(key);
+    resetError.hidden = false;
+  };
+  if (!passwordMeetsPolicy(resetPasswordInput.value)) return fail("authSignupErrorPassword");
+  if (resetPasswordInput.value !== resetConfirmInput.value) return fail("resetMismatch");
+  const submitBtn = document.getElementById("reset-submit-btn");
+  submitBtn.disabled = true;
+  try {
+    const { username } = await api("/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({ token: pendingResetToken, newPassword: resetPasswordInput.value }),
+    });
+    pendingResetToken = null;
+    resetPasswordInput.value = "";
+    resetConfirmInput.value = "";
+    openAuthOverlay("login");
+    loginUsernameInput.value = username;
+    loginPasswordInput.focus();
+    showNotice(t("resetDoneTitle"), t("resetDone"));
+  } catch (err) {
+    const code = err && err.data && err.data.error;
+    fail(code === "invalid_token" ? "resetInvalidLink" : code === "invalid_password" ? "authSignupErrorPassword" : "recoverErrorGeneric");
+  }
+  submitBtn.disabled = false;
+});
+
+// The confirmation link opens the site at /?verify=TOKEN.
+(function handleEmailLinks() {
+  const params = new URLSearchParams(location.search);
+  const verifyToken = params.get("verify");
+  const resetToken = params.get("reset");
+  if (!verifyToken && !resetToken) return;
+  history.replaceState(null, "", location.pathname + location.hash);
+  if (verifyToken) {
+    api("/auth/verify-email", { method: "POST", body: JSON.stringify({ token: verifyToken }) })
+      .then(() => showNotice(t("noticeVerifiedTitle"), t("noticeVerifiedText")))
+      .catch(() => showNotice(t("noticeVerifyFailedTitle"), t("noticeVerifyFailedText")));
+  }
+  if (resetToken) {
+    pendingResetToken = resetToken;
+    openAuthOverlay("reset");
+  }
+})();
+
+// Accounts made before email was required: a one-time nudge per visit.
+function maybeNudgeEmail() {
+  if (!currentUser || currentUser.role === "admin" || currentUser.email) return;
+  try {
+    if (sessionStorage.getItem("koala-email-nudged")) return;
+    sessionStorage.setItem("koala-email-nudged", "1");
+  } catch (e) { /* ignore */ }
+  showNotice(t("noticeAddEmailTitle"), t("noticeAddEmailText"));
+}
+
+
+/* ---------- Admin: email system panel ---------- */
+const adminEmailStatusEl = document.getElementById("admin-email-status");
+const adminEmailDetailsEl = document.getElementById("admin-email-details");
+const adminEmailLogEl = document.getElementById("admin-email-log");
+const adminEmailLogEmptyEl = document.getElementById("admin-email-log-empty");
+const adminEmailTestForm = document.getElementById("admin-email-test-form");
+const adminEmailTestTo = document.getElementById("admin-email-test-to");
+const adminEmailTestResult = document.getElementById("admin-email-test-result");
+
+async function loadAdminEmail() {
+  try {
+    const st = await api("/admin/email/status");
+    adminEmailStatusEl.textContent = t(st.configured ? "adminEmailOk" : "adminEmailNotConfigured");
+    adminEmailStatusEl.className = "admin-email-status " + (st.configured ? "ok" : "bad");
+    const cell = (label, value) => {
+      const d = document.createElement("div");
+      d.textContent = label;
+      const b = document.createElement("b");
+      b.textContent = value;
+      d.appendChild(b);
+      return d;
+    };
+    adminEmailDetailsEl.innerHTML = "";
+    adminEmailDetailsEl.append(
+      cell(t("adminEmailFrom"), st.from),
+      cell(t("adminEmailReplyTo"), st.replyTo),
+      cell(t("adminEmailWeekLabel"), t("adminEmailWeek", st.last7Days.total, st.last7Days.failed)),
+      cell(t("adminEmailNoEmailLabel"), String(st.usersWithoutEmail)),
+      cell(t("adminEmailUnverifiedLabel"), String(st.usersUnverified))
+    );
+    const { log } = await api("/admin/email/log");
+    adminEmailLogEl.innerHTML = "";
+    adminEmailLogEmptyEl.hidden = log.length > 0;
+    const kinds = t("adminEmailKinds");
+    log.forEach((r) => {
+      const row = document.createElement("div");
+      row.className = "admin-email-log-row";
+      const when = document.createElement("span");
+      when.textContent = new Date(r.createdAt).toLocaleString();
+      const to = document.createElement("span");
+      to.className = "to";
+      to.textContent = `${(kinds && kinds[r.kind]) || r.kind} → ${r.to}`;
+      const st2 = document.createElement("span");
+      st2.className = r.status === "sent" ? "st-sent" : "st-failed";
+      st2.textContent = r.status === "sent" ? "✓" : "✗";
+      row.append(when, to, st2);
+      if (r.error) {
+        const err = document.createElement("span");
+        err.className = "err";
+        err.textContent = r.error;
+        row.appendChild(err);
+      }
+      adminEmailLogEl.appendChild(row);
+    });
+  } catch (e) {
+    adminEmailStatusEl.textContent = t("recoverErrorGeneric");
+    adminEmailStatusEl.className = "admin-email-status bad";
+  }
+}
+document.getElementById("admin-email-refresh-btn").addEventListener("click", loadAdminEmail);
+adminEmailTestForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  adminEmailTestResult.hidden = true;
+  const to = adminEmailTestTo.value.trim();
+  if (!validEmailClient(to)) {
+    adminEmailTestResult.textContent = t("authSignupErrorEmail");
+    adminEmailTestResult.hidden = false;
+    return;
+  }
+  const btn = document.getElementById("admin-email-test-btn");
+  btn.disabled = true;
+  try {
+    await api("/admin/email/test", { method: "POST", body: JSON.stringify({ to }) });
+    adminEmailTestResult.textContent = t("adminEmailTestOk");
+  } catch (err) {
+    adminEmailTestResult.textContent = t("adminEmailTestFail", (err && err.data && err.data.error) || "error");
+  }
+  adminEmailTestResult.hidden = false;
+  btn.disabled = false;
+  loadAdminEmail();
 });
 
 /* ---------- Upgrade to paid (an existing free account redeems a code, or requests one from admin) ---------- */
@@ -3510,6 +4038,7 @@ function renderUpgradeOverlayState() {
 }
 
 function openUpgradeOverlay() {
+  document.getElementById("upgrade-pay-note").hidden = true;
   upgradeCodeInput.value = "";
   upgradeError.hidden = true;
   renderUpgradeOverlayState();
@@ -3564,6 +4093,7 @@ upgradeForm.addEventListener("submit", async (e) => {
   }
 });
 
+document.getElementById("upgrade-pay-btn").addEventListener("click", () => startPremiumCheckout(document.getElementById("upgrade-pay-note")));
 upgradeRequestBtn.addEventListener("click", async () => {
   upgradeRequestBtn.disabled = true;
   try {
@@ -10672,6 +11202,14 @@ function renderAdminUsers() {
       t("adminUserCreatedAt", formatDate(u.createdAt)) +
       (u.upgradedAt ? " · " + t("adminUserUpgradedAt", formatDate(u.upgradedAt)) : "");
     info.appendChild(whenEl);
+    if (u.role !== "admin") {
+      const emailEl = document.createElement("div");
+      emailEl.className = "d admin-user-email" + (u.email && !u.emailVerified ? " unverified" : "");
+      emailEl.textContent = u.email
+        ? u.email + (u.emailVerified ? " ✓" : " · " + t("adminUserEmailUnverified"))
+        : t("adminUserNoEmail");
+      info.appendChild(emailEl);
+    }
     if (u.pendingRequestId) {
       const pendingBadge = document.createElement("div");
       pendingBadge.className = "d admin-pending-badge";
@@ -10806,7 +11344,7 @@ function renderAdminUsers() {
       resetPasswordBtn.addEventListener("click", async () => {
         const newPassword = prompt(t("adminUserResetPasswordPrompt", u.username));
         if (!newPassword) return;
-        if (newPassword.length < 8) {
+        if (!passwordMeetsPolicy(newPassword)) {
           alert(t("authSignupErrorPassword"));
           return;
         }

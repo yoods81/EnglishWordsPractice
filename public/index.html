@@ -52,7 +52,7 @@
   <div id="auth-overlay" class="auth-overlay" hidden>
     <div class="auth-card">
       <h2 id="auth-title">🔑 Log In</h2>
-      <div class="add-mode-toggle">
+      <div class="add-mode-toggle" id="auth-mode-toggle">
         <button type="button" class="pill accent" id="auth-mode-login-btn" data-i18n="authModeLogin">Log In</button>
         <button type="button" class="pill neutral" id="auth-mode-signup-btn" data-i18n="authModeSignup">Sign Up</button>
       </div>
@@ -63,27 +63,112 @@
         <label id="login-password-label" for="login-password-input" data-i18n="authPasswordLabel">Password</label>
         <input id="login-password-input" type="password" autocomplete="current-password" />
         <p id="login-error" class="auth-error" hidden></p>
+        <button type="button" id="login-forgot-btn" class="auth-link" data-i18n="authForgotLink">Forgot your username or password?</button>
         <div class="auth-actions">
           <button type="button" id="login-cancel-btn" class="pill neutral" data-i18n="authCancelBtn">Cancel</button>
           <button type="submit" id="login-submit-btn" class="pill accent" data-i18n="authLoginBtn">Login</button>
         </div>
       </form>
 
-      <form id="signup-form" class="auth-form" hidden>
+      <form id="signup-form" class="auth-form" novalidate hidden>
+        <div class="plan-picker" role="group" aria-labelledby="signup-plan-label">
+          <span id="signup-plan-label" class="plan-picker-label" data-i18n="signupPlanLabel">Choose your plan</span>
+          <button type="button" class="plan-card is-active" id="signup-plan-free-btn" aria-pressed="true">
+            <strong data-i18n="signupPlanFree">Free account</strong>
+            <span data-i18n="signupPlanFreeDesc">Start learning right away</span>
+          </button>
+          <button type="button" class="plan-card" id="signup-plan-premium-btn" aria-pressed="false">
+            <strong data-i18n="signupPlanPremium">⭐ Premium</strong>
+            <span data-i18n="signupPlanPremiumDesc">More questions + your own word list</span>
+          </button>
+        </div>
+
         <label id="signup-username-label" for="signup-username-input" data-i18n="authUsernameLabel">Username</label>
         <input id="signup-username-input" type="text" autocomplete="username" />
         <p class="auth-hint" data-i18n="authUsernameHint">3-20 characters: letters, numbers, underscore.</p>
+
+        <label for="signup-email-input" data-i18n="authEmailLabel">Email</label>
+        <input id="signup-email-input" type="email" autocomplete="email" inputmode="email" />
+        <p class="auth-hint" data-i18n="authEmailHint">Used to find your username or reset your password. We'll send a confirmation link.</p>
+
         <label id="signup-password-label" for="signup-password-input" data-i18n="authPasswordLabel">Password</label>
         <input id="signup-password-input" type="password" autocomplete="new-password" />
-        <p class="auth-hint" data-i18n="authPasswordHint">At least 8 characters.</p>
-        <label id="signup-code-label" for="signup-code-input" data-i18n="authCodeLabel">Special code (optional, for a paid account)</label>
-        <input id="signup-code-input" type="text" autocomplete="off" />
+        <ul class="pw-rules" id="signup-password-rules" aria-live="polite">
+          <li data-rule="len" data-i18n="pwRuleLen">8+ characters</li>
+          <li data-rule="upper" data-i18n="pwRuleUpper">1 uppercase letter</li>
+          <li data-rule="digit" data-i18n="pwRuleDigit">1 number</li>
+          <li data-rule="special" data-i18n="pwRuleSpecial">1 special character (! @ # …)</li>
+        </ul>
+
+        <div id="signup-premium-panel" class="premium-panel" hidden>
+          <button type="button" id="signup-pay-btn" class="pill primary premium-pay-btn" data-i18n="payBtn">💳 Pay and join Premium</button>
+          <p id="signup-pay-note" class="auth-hint" hidden data-i18n="payComingSoon">Online payment is coming soon. For now, join Premium with a special code below.</p>
+          <label id="signup-code-label" for="signup-code-input" data-i18n="authCodeLabelPlain">Special code</label>
+          <input id="signup-code-input" type="text" autocomplete="off" />
+        </div>
         <p id="signup-error" class="auth-error" hidden></p>
         <div class="auth-actions">
           <button type="button" id="signup-cancel-btn" class="pill neutral" data-i18n="authCancelBtn">Cancel</button>
           <button type="submit" id="signup-submit-btn" class="pill primary" data-i18n="authSignupBtn">Sign Up</button>
         </div>
       </form>
+
+      <div id="recover-panel" hidden>
+        <form id="forgot-password-form" class="auth-form" novalidate>
+          <h3 class="auth-subtitle" data-i18n="forgotPasswordTitle">Forgot password</h3>
+          <p class="auth-hint" data-i18n="forgotPasswordHint">Type your username. We'll email a reset link to the address on your account.</p>
+          <label for="forgot-password-username" data-i18n="authUsernameLabel">Username</label>
+          <input id="forgot-password-username" type="text" autocomplete="username" />
+          <div class="auth-actions auth-actions-start">
+            <button type="submit" id="forgot-password-btn" class="pill accent" data-i18n="forgotPasswordBtn">Send reset link</button>
+          </div>
+        </form>
+        <form id="forgot-username-form" class="auth-form" novalidate>
+          <h3 class="auth-subtitle" data-i18n="forgotUsernameTitle">Forgot username</h3>
+          <p class="auth-hint" data-i18n="forgotUsernameHint">Type the email you signed up with. We'll email you your username.</p>
+          <label for="forgot-username-email" data-i18n="authEmailLabel">Email</label>
+          <input id="forgot-username-email" type="email" autocomplete="email" inputmode="email" />
+          <div class="auth-actions auth-actions-start">
+            <button type="submit" id="forgot-username-btn" class="pill accent" data-i18n="forgotUsernameBtn">Email my username</button>
+          </div>
+        </form>
+        <p id="recover-message" class="auth-success" hidden></p>
+        <p id="recover-error" class="auth-error" hidden></p>
+        <p class="auth-hint" data-i18n="recoverNoEmailHint">No email on your account, or it isn't confirmed yet? Ask the site admin to help.</p>
+        <div class="auth-actions">
+          <button type="button" id="recover-back-btn" class="pill neutral" data-i18n="recoverBackBtn">Back to Log In</button>
+        </div>
+      </div>
+
+      <form id="reset-form" class="auth-form" novalidate hidden>
+        <p class="auth-hint" data-i18n="resetIntro">Choose a new password for your account.</p>
+        <label for="reset-password-input" data-i18n="recoverNewPasswordLabel">New password</label>
+        <input id="reset-password-input" type="password" autocomplete="new-password" />
+        <ul class="pw-rules" id="reset-password-rules" aria-live="polite">
+          <li data-rule="len" data-i18n="pwRuleLen">8+ characters</li>
+          <li data-rule="upper" data-i18n="pwRuleUpper">1 uppercase letter</li>
+          <li data-rule="digit" data-i18n="pwRuleDigit">1 number</li>
+          <li data-rule="special" data-i18n="pwRuleSpecial">1 special character (! @ # …)</li>
+        </ul>
+        <label for="reset-password-confirm" data-i18n="resetConfirmLabel">Type it again</label>
+        <input id="reset-password-confirm" type="password" autocomplete="new-password" />
+        <p id="reset-error" class="auth-error" hidden></p>
+        <div class="auth-actions">
+          <button type="button" id="reset-cancel-btn" class="pill neutral" data-i18n="authCancelBtn">Cancel</button>
+          <button type="submit" id="reset-submit-btn" class="pill accent" data-i18n="resetSubmitBtn">Save new password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Simple message overlay (email confirmed, mail sent, ...) -->
+  <div id="notice-overlay" class="auth-overlay" hidden>
+    <div class="auth-card">
+      <h2 id="notice-title"></h2>
+      <p id="notice-text" class="auth-hint notice-text"></p>
+      <div class="auth-actions">
+        <button type="button" id="notice-ok-btn" class="pill accent" data-i18n="noticeOkBtn">OK</button>
+      </div>
     </div>
   </div>
 
@@ -102,6 +187,9 @@
         <p class="auth-hint" data-i18n="upgradeRequestFulfilledMsg">Admin sent you a code — enter it below to finish activating.</p>
         <p class="admin-code-text" id="upgrade-request-fulfilled-code"></p>
       </div>
+
+      <button type="button" id="upgrade-pay-btn" class="pill primary premium-pay-btn" data-i18n="payBtn">💳 Pay and join Premium</button>
+      <p id="upgrade-pay-note" class="auth-hint" hidden data-i18n="payComingSoon">Online payment is coming soon. For now, join Premium with a special code below.</p>
 
       <form id="upgrade-form" class="auth-form">
         <label for="upgrade-code-input" data-i18n="authCodeLabelPlain">Special code</label>
@@ -1612,6 +1700,25 @@ to Flip!</span></div>
         <div class="wordlist-grid" id="admin-codes-grid"></div>
         <p class="muted" id="admin-codes-empty" hidden data-i18n="adminCodesEmpty">No codes generated yet.</p>
       </div>
+
+      <div class="card" id="admin-email-card">
+        <h3 data-i18n="adminEmailTitle">✉️ Email System</h3>
+        <p class="muted" data-i18n="adminEmailDesc">Outgoing mail (confirmation links, password resets, username reminders). Replies go to your admin mailbox.</p>
+        <p id="admin-email-status" class="admin-email-status"></p>
+        <div id="admin-email-details" class="admin-email-details"></div>
+        <form id="admin-email-test-form" class="auth-form admin-email-test" novalidate>
+          <label for="admin-email-test-to" data-i18n="adminEmailTestLabel">Send a test email to</label>
+          <input id="admin-email-test-to" class="auth-form-input-narrow" type="email" inputmode="email" autocomplete="off" />
+          <div class="auth-actions auth-actions-start">
+            <button type="submit" class="pill accent" id="admin-email-test-btn" data-i18n="adminEmailTestBtn">Send test</button>
+            <button type="button" class="pill neutral" id="admin-email-refresh-btn" data-i18n="adminEmailRefreshBtn">Refresh</button>
+          </div>
+          <p id="admin-email-test-result" class="auth-hint" hidden></p>
+        </form>
+        <h4 class="admin-email-log-title" data-i18n="adminEmailLogTitle">Recent emails</h4>
+        <div id="admin-email-log" class="admin-email-log"></div>
+        <p class="muted" id="admin-email-log-empty" hidden data-i18n="adminEmailLogEmpty">No emails sent yet.</p>
+      </div>
     </section>
 
     <!-- My Account: a signed-in user's own status + password change -->
@@ -1620,6 +1727,25 @@ to Flip!</span></div>
         <h3 data-i18n="myAccountTitle">🧑 My Account</h3>
         <div id="my-account-status" class="stats-grid"></div>
       </div>
+      <div class="card" id="my-account-email-card">
+        <h3 data-i18n="myAccountEmailTitle">✉️ Email</h3>
+        <p class="auth-hint" data-i18n="myAccountEmailDesc">We use this address to help you find your username or reset your password.</p>
+        <p id="my-account-email-status" class="auth-hint"></p>
+        <div class="auth-actions auth-actions-start">
+          <button type="button" class="pill neutral" id="my-account-email-resend-btn" hidden data-i18n="myAccountEmailResendBtn">Send the confirmation email again</button>
+        </div>
+        <form id="my-account-email-form" class="auth-form" novalidate>
+          <label for="my-account-email-input" data-i18n="myAccountEmailNewLabel">Email address</label>
+          <input id="my-account-email-input" class="auth-form-input-narrow" type="email" autocomplete="email" inputmode="email" />
+          <label for="my-account-email-password" data-i18n="myAccountRecoveryPasswordLabel">Type your password to confirm</label>
+          <input id="my-account-email-password" class="auth-form-input-narrow" type="password" autocomplete="current-password" />
+          <p id="my-account-email-error" class="auth-error" hidden></p>
+          <p id="my-account-email-success" class="auth-success" hidden></p>
+          <div class="auth-actions">
+            <button type="submit" class="pill accent" id="my-account-email-submit-btn" data-i18n="myAccountEmailSaveBtn">Save email</button>
+          </div>
+        </form>
+      </div>
       <div class="card">
         <h3 data-i18n="myAccountChangePasswordTitle">🔒 Change Password</h3>
         <form id="my-account-password-form" class="auth-form">
@@ -1627,6 +1753,12 @@ to Flip!</span></div>
           <input id="my-account-current-password" class="auth-form-input-narrow" type="password" autocomplete="current-password" />
           <label for="my-account-new-password" data-i18n="myAccountNewPasswordLabel">New password</label>
           <input id="my-account-new-password" class="auth-form-input-narrow" type="password" autocomplete="new-password" />
+          <ul class="pw-rules" id="my-account-password-rules" aria-live="polite">
+            <li data-rule="len" data-i18n="pwRuleLen">8+ characters</li>
+            <li data-rule="upper" data-i18n="pwRuleUpper">1 uppercase letter</li>
+            <li data-rule="digit" data-i18n="pwRuleDigit">1 number</li>
+            <li data-rule="special" data-i18n="pwRuleSpecial">1 special character (! @ # …)</li>
+          </ul>
           <p id="my-account-password-error" class="auth-error" hidden></p>
           <p id="my-account-password-success" class="auth-hint" hidden data-i18n="myAccountPasswordChanged">Password updated.</p>
           <div class="auth-actions">

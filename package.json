@@ -14,6 +14,8 @@
     "db:migrate:koala:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0006_koala_coins.sql",
     "db:migrate:koala-sync": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0007_koala_account_sync.sql",
     "db:migrate:koala-sync:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0007_koala_account_sync.sql",
+    "db:migrate:email": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0008_email_system.sql",
+    "db:migrate:email:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0008_email_system.sql",
     "db:migrate:users:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0001_users_and_word_ownership.sql"
   },
   "devDependencies": {

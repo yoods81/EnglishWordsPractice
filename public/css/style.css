@@ -10421,3 +10421,46 @@ html body #spelling-practice .sp-leaf-btn .flash-edge-txt { font-size: 0.58rem; 
   #view-typegame .typegame-overlay .tg-start-card button.tg-start-btn.pill.accent,
   #view-timestable .typegame-overlay .tg-start-card button.tg-start-btn.pill.accent { margin-top: 8px; }
 }
+
+/* ---- Forgot username/password, plans, password rules, admin email ---- */
+.auth-link { display:block; margin:10px auto 0; padding:2px 4px; background:none; border:0; color:var(--accent-dark); font-size:.78rem; font-weight:600; text-decoration:underline; cursor:pointer; }
+.auth-success { margin:8px 0 0; padding:8px 10px; border-radius:10px; background:#e8f8f1; color:#146c43; font-size:.85rem; font-weight:600; }
+.auth-success[hidden] { display:none; }
+.auth-actions-start { justify-content:flex-start; margin-top:8px; }
+.auth-subtitle { margin:14px 0 2px; font-size:.95rem; }
+#recover-panel[hidden], #reset-form[hidden] { display:none; }
+.notice-text { white-space:pre-line; font-size:.88rem; margin-top:0; }
+
+.plan-picker { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px; }
+.plan-picker-label { grid-column:1/-1; font-size:.8rem; font-weight:600; }
+.plan-card { display:flex; flex-direction:column; gap:2px; padding:9px 10px; text-align:left; background:#fff; border:2px solid #e0e5f2; border-radius:12px; cursor:pointer; font:inherit; color:inherit; }
+.plan-card strong { font-size:.88rem; }
+.plan-card span { font-size:.7rem; color:var(--muted); line-height:1.3; }
+.plan-card.is-active { border-color:var(--accent-dark); background:#f0faf6; box-shadow:0 0 0 2px rgba(31,178,138,.18); }
+.premium-panel { margin-top:10px; padding:10px; border:2px dashed #e0c36a; border-radius:12px; background:#fffaf0; }
+.premium-panel[hidden] { display:none; }
+.premium-pay-btn { width:100%; margin-top:2px; }
+#upgrade-pay-btn { margin:8px 0 2px; }
+
+.pw-rules { list-style:none; margin:6px 0 0; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:2px 8px; font-size:.72rem; color:var(--muted); }
+.pw-rules li::before { content:"○ "; }
+.pw-rules li.ok { color:#146c43; font-weight:600; }
+.pw-rules li.ok::before { content:"✓ "; }
+
+.admin-email-status { font-weight:700; margin:8px 0; }
+.admin-email-status.ok { color:#146c43; }
+.admin-email-status.bad { color:var(--error); }
+.admin-email-details { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:8px; margin-bottom:10px; }
+.admin-email-details div { padding:8px 10px; border:2px solid #e0e5f2; border-radius:10px; font-size:.78rem; }
+.admin-email-details b { display:block; font-size:.95rem; overflow-wrap:anywhere; }
+.admin-email-log-title { margin:14px 0 6px; font-size:.9rem; }
+.admin-email-log { display:flex; flex-direction:column; gap:4px; max-height:320px; overflow:auto; }
+.admin-email-log-row { display:grid; grid-template-columns:auto 1fr auto; gap:8px; align-items:baseline; padding:6px 8px; border:1px solid #e0e5f2; border-radius:8px; font-size:.75rem; }
+.admin-email-log-row .st-sent { color:#146c43; font-weight:700; }
+.admin-email-log-row .st-failed { color:var(--error); font-weight:700; }
+.admin-email-log-row .to { word-break:break-all; }
+.admin-email-log-row .err { grid-column:1/-1; color:var(--error); }
+.admin-user-email { font-size:.72rem; color:var(--muted); word-break:break-all; }
+.admin-user-email.unverified { color:#a86f0c; }
+
+#auth-mode-toggle[hidden] { display:none; }

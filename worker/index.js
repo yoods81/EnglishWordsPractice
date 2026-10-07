@@ -4,6 +4,8 @@
 // legacy single ADMIN_PASSWORD Worker secret is used exactly once, to
 // bootstrap the first "admin" account into the users table.
 
+import { sendEmail, templates, emailSettings } from "./email.js";
+
 const SESSION_COOKIE = "ywp_session";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 const MAX_WORDS_PER_REQUEST = 200;
@@ -116,8 +118,85 @@ function validUsername(username) {
   return typeof username === "string" && /^[A-Za-z0-9_]{3,20}$/.test(username);
 }
 
+// Password policy: 8+ characters with at least one uppercase letter, one digit
+// and one special character. (The frontend shows the same rules; the server
+// is the real check.)
 function validPassword(password) {
-  return typeof password === "string" && password.length >= 8 && password.length <= 200;
+  return (
+    typeof password === "string" &&
+    password.length >= 8 &&
+    password.length <= 200 &&
+    /[A-Z]/.test(password) &&
+    /[0-9]/.test(password) &&
+    /[^A-Za-z0-9]/.test(password)
+  );
+}
+
+function normalizeEmail(email) {
+  return typeof email === "string" ? email.trim().toLowerCase() : "";
+}
+
+function validEmail(email) {
+  return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
+const VERIFY_TTL_MS = 24 * 60 * 60 * 1000;
+const RESET_TTL_MS = 30 * 60 * 1000;
+const EMAIL_COOLDOWN_MS = 60 * 1000;
+
+// One-time email tokens. The raw token only ever lives in the emailed link;
+// the database keeps an HMAC of it, so a leaked table can't be replayed.
+async function makeEmailToken(env, userId, kind, ttlMs) {
+  const raw = toHex(crypto.getRandomValues(new Uint8Array(32)));
+  const now = Date.now();
+  await env.DB.prepare("UPDATE email_tokens SET used_at = ? WHERE user_id = ? AND kind = ? AND used_at IS NULL")
+    .bind(now, userId, kind)
+    .run();
+  await env.DB.prepare(
+    "INSERT INTO email_tokens (token_hash, user_id, kind, created_at, expires_at) VALUES (?, ?, ?, ?, ?)"
+  )
+    .bind(await hmac(raw, env.SESSION_SECRET), userId, kind, now, now + ttlMs)
+    .run();
+  return raw;
+}
+
+// Looks up a still-valid, unused token and marks it used. Returns its row or null.
+async function consumeEmailToken(env, raw, kind) {
+  if (typeof raw !== "string" || !/^[0-9a-f]{64}$/.test(raw)) return null;
+  const tokenHash = await hmac(raw, env.SESSION_SECRET);
+  const now = Date.now();
+  const row = await env.DB.prepare(
+    "SELECT * FROM email_tokens WHERE token_hash = ? AND kind = ? AND used_at IS NULL AND expires_at > ?"
+  )
+    .bind(tokenHash, kind, now)
+    .first();
+  if (!row) return null;
+  await env.DB.prepare("UPDATE email_tokens SET used_at = ? WHERE token_hash = ?").bind(now, tokenHash).run();
+  return row;
+}
+
+// True if a token of this kind was made for this account in the last minute
+// (stops someone using the forms to flood an inbox).
+async function recentlyEmailed(env, userId, kind) {
+  const row = await env.DB.prepare("SELECT created_at FROM email_tokens WHERE user_id = ? AND kind = ? ORDER BY created_at DESC LIMIT 1")
+    .bind(userId, kind)
+    .first();
+  return !!row && Date.now() - row.created_at < EMAIL_COOLDOWN_MS;
+}
+
+async function sendVerificationEmail(env, user, email) {
+  const link = `${emailSettings(env).appUrl}/?verify=${await makeEmailToken(env, user.id, "verify", VERIFY_TTL_MS)}`;
+  return sendEmail(env, { to: email, kind: "verify", ...templates.verifyEmail(link, user.username) });
+}
+
+function publicUser(row) {
+  return {
+    id: row.id,
+    username: row.username,
+    role: row.role,
+    email: row.email || null,
+    emailVerified: !!row.email_verified_at,
+  };
 }
 
 function genId() {
@@ -218,15 +297,13 @@ async function handleApi(request, env, url) {
   if (route === "/auth/me" && request.method === "GET") {
     const session = await getSessionUser(request, env);
     if (!session) return json({ user: null });
-    const row = await env.DB.prepare("SELECT id, username, role, created_at, upgraded_at FROM users WHERE id = ?")
+    const row = await env.DB.prepare("SELECT id, username, role, created_at, upgraded_at, email, email_verified_at FROM users WHERE id = ?")
       .bind(session.id)
       .first();
     if (!row) return json({ user: null });
     const pendingUpgradeRequest = await fetchPendingUpgradeRequest(env, row.id, row.role);
     const user = {
-      id: row.id,
-      username: row.username,
-      role: row.role,
+      ...publicUser(row),
       createdAt: row.created_at,
       upgradedAt: row.upgraded_at || null,
     };
@@ -244,10 +321,12 @@ async function handleApi(request, env, url) {
     const username = typeof body?.username === "string" ? body.username.trim() : "";
     const password = typeof body?.password === "string" ? body.password : "";
     const specialCode = typeof body?.specialCode === "string" ? body.specialCode.trim() : "";
+    const email = normalizeEmail(body?.email);
 
     if (username.toLowerCase() === ADMIN_BOOTSTRAP_USERNAME) return json({ error: "reserved_username" }, 400);
     if (!validUsername(username)) return json({ error: "invalid_username" }, 400);
     if (!validPassword(password)) return json({ error: "invalid_password" }, 400);
+    if (!validEmail(email)) return json({ error: "invalid_email" }, 400);
 
     const existing = await env.DB.prepare("SELECT id FROM users WHERE username = ?").bind(username).first();
     if (existing) return json({ error: "username_taken" }, 409);
@@ -273,9 +352,9 @@ async function handleApi(request, env, url) {
     const now = Date.now();
     const upgradedAt = role === "paid" ? now : null;
     await env.DB.prepare(
-      "INSERT INTO users (id, username, password_hash, password_salt, role, created_at, upgraded_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+      "INSERT INTO users (id, username, password_hash, password_salt, role, created_at, upgraded_at, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     )
-      .bind(id, username, hash, salt, role, now, upgradedAt)
+      .bind(id, username, hash, salt, role, now, upgradedAt, email)
       .run();
 
     if (redeemedCode) {
@@ -284,9 +363,18 @@ async function handleApi(request, env, url) {
         .run();
     }
 
+    // Ask them to confirm the address. A failed send never blocks signup —
+    // they can resend it from My Account.
+    let verificationSent = false;
+    try {
+      verificationSent = (await sendVerificationEmail(env, { id, username }, email)).ok;
+    } catch (e) {
+      verificationSent = false;
+    }
+
     const token = await makeSessionToken(env, id, role);
     return json(
-      { user: { id, username, role } },
+      { user: { id, username, role, email, emailVerified: false }, verificationSent },
       200,
       { "set-cookie": sessionCookie(token, SESSION_TTL_MS / 1000) }
     );
@@ -334,7 +422,7 @@ async function handleApi(request, env, url) {
     const token = await makeSessionToken(env, user.id, user.role);
     const pendingUpgradeRequest = await fetchPendingUpgradeRequest(env, user.id, user.role);
     return json(
-      { user: { id: user.id, username: user.username, role: user.role }, pendingUpgradeRequest },
+      { user: publicUser(user), pendingUpgradeRequest },
       200,
       { "set-cookie": sessionCookie(token, SESSION_TTL_MS / 1000) }
     );
@@ -368,6 +456,132 @@ async function handleApi(request, env, url) {
       .bind(hash, salt, session.id)
       .run();
     return json({ ok: true });
+  }
+
+  // Add or change the account's email address (existing accounts that signed
+  // up before email was required use this too). Password re-entered to confirm.
+  if (route === "/auth/set-email" && request.method === "POST") {
+    if (!env.SESSION_SECRET) return json({ error: "server_not_configured" }, 500);
+    const session = await getSessionUser(request, env);
+    if (!session) return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const email = normalizeEmail(body?.email);
+    const password = typeof body?.password === "string" ? body.password : "";
+    if (!validEmail(email)) return json({ error: "invalid_email" }, 400);
+    const user = await env.DB.prepare("SELECT * FROM users WHERE id = ?").bind(session.id).first();
+    if (!user) return json({ error: "unauthorized" }, 401);
+    if (!password || !(await verifyPassword(password, user.password_salt, user.password_hash))) {
+      return json({ error: "wrong_current_password" }, 400);
+    }
+    await env.DB.prepare("UPDATE users SET email = ?, email_verified_at = NULL WHERE id = ?").bind(email, user.id).run();
+    const sent = await sendVerificationEmail(env, user, email);
+    return json({ ok: true, email, emailVerified: false, verificationSent: sent.ok });
+  }
+
+  if (route === "/auth/resend-verification" && request.method === "POST") {
+    if (!env.SESSION_SECRET) return json({ error: "server_not_configured" }, 500);
+    const session = await getSessionUser(request, env);
+    if (!session) return json({ error: "unauthorized" }, 401);
+    const user = await env.DB.prepare("SELECT * FROM users WHERE id = ?").bind(session.id).first();
+    if (!user || !user.email) return json({ error: "no_email" }, 400);
+    if (user.email_verified_at) return json({ ok: true, alreadyVerified: true });
+    if (await recentlyEmailed(env, user.id, "verify")) return json({ error: "too_soon" }, 429);
+    const sent = await sendVerificationEmail(env, user, user.email);
+    return json({ ok: sent.ok, verificationSent: sent.ok }, sent.ok ? 200 : 502);
+  }
+
+  // The link in the verification email lands on /?verify=TOKEN; the page posts it here.
+  if (route === "/auth/verify-email" && request.method === "POST") {
+    if (!env.SESSION_SECRET) return json({ error: "server_not_configured" }, 500);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const row = await consumeEmailToken(env, body?.token, "verify");
+    if (!row) return json({ error: "invalid_token" }, 400);
+    await env.DB.prepare("UPDATE users SET email_verified_at = ? WHERE id = ? AND email IS NOT NULL")
+      .bind(Date.now(), row.user_id)
+      .run();
+    return json({ ok: true });
+  }
+
+  // "I forgot my password": emails a one-time reset link to the address on
+  // file — but only if that address was verified. The answer is always the
+  // same, so the form can't be used to find out which usernames exist.
+  if (route === "/auth/forgot-password" && request.method === "POST") {
+    if (!env.SESSION_SECRET) return json({ error: "server_not_configured" }, 500);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const username = typeof body?.username === "string" ? body.username.trim() : "";
+    if (!username) return json({ error: "bad_request" }, 400);
+    const user = await env.DB.prepare("SELECT * FROM users WHERE username = ?").bind(username).first();
+    if (user && user.role !== "admin" && user.email && user.email_verified_at && !(await recentlyEmailed(env, user.id, "reset"))) {
+      const link = `${emailSettings(env).appUrl}/?reset=${await makeEmailToken(env, user.id, "reset", RESET_TTL_MS)}`;
+      await sendEmail(env, { to: user.email, kind: "reset", ...templates.resetPassword(link, user.username) });
+    }
+    return json({ ok: true });
+  }
+
+  // "I forgot my username": emails the usernames registered with a verified
+  // address. Same always-the-same answer as above.
+  if (route === "/auth/forgot-username" && request.method === "POST") {
+    if (!env.SESSION_SECRET) return json({ error: "server_not_configured" }, 500);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const email = normalizeEmail(body?.email);
+    if (!validEmail(email)) return json({ error: "invalid_email" }, 400);
+    const { results } = await env.DB.prepare(
+      "SELECT username FROM users WHERE email = ? AND email_verified_at IS NOT NULL AND role != 'admin' ORDER BY created_at"
+    )
+      .bind(email)
+      .all();
+    const names = (results || []).map((r) => r.username);
+    if (names.length) {
+      const recent = await env.DB.prepare(
+        "SELECT created_at FROM email_log WHERE to_addr = ? AND kind = 'forgot_username' ORDER BY created_at DESC LIMIT 1"
+      )
+        .bind(email)
+        .first();
+      if (!recent || Date.now() - recent.created_at >= EMAIL_COOLDOWN_MS) {
+        await sendEmail(env, { to: email, kind: "forgot_username", ...templates.usernames(names, emailSettings(env).appUrl) });
+      }
+    }
+    return json({ ok: true });
+  }
+
+  // The reset link lands on /?reset=TOKEN; the page posts the token and a new password here.
+  if (route === "/auth/reset-password" && request.method === "POST") {
+    if (!env.SESSION_SECRET) return json({ error: "server_not_configured" }, 500);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const newPassword = typeof body?.newPassword === "string" ? body.newPassword : "";
+    if (!validPassword(newPassword)) return json({ error: "invalid_password" }, 400);
+    const row = await consumeEmailToken(env, body?.token, "reset");
+    if (!row) return json({ error: "invalid_token" }, 400);
+    const user = await env.DB.prepare("SELECT username FROM users WHERE id = ?").bind(row.user_id).first();
+    if (!user) return json({ error: "invalid_token" }, 400);
+    const { hash, salt } = await hashPassword(newPassword);
+    await env.DB.prepare("UPDATE users SET password_hash = ?, password_salt = ? WHERE id = ?").bind(hash, salt, row.user_id).run();
+    return json({ ok: true, username: user.username });
   }
 
   // Redeems a special code against an already-existing free account, moving
@@ -483,6 +697,8 @@ async function handleApi(request, env, url) {
       createdAt: r.created_at,
       upgradedAt: r.upgraded_at || null,
       pendingRequestId: r.pending_request_id || null,
+      email: r.email || null,
+      emailVerified: !!r.email_verified_at,
     };
   }
 
@@ -492,15 +708,73 @@ async function handleApi(request, env, url) {
     const q = (url.searchParams.get("q") || "").trim();
     // A pending upgrade request (if any) rides along on the same row, so the
     // frontend can show one merged Users list instead of two separate ones.
-    const base = `SELECT u.id, u.username, u.role, u.created_at, u.upgraded_at,
+    const base = `SELECT u.id, u.username, u.role, u.created_at, u.upgraded_at, u.email, u.email_verified_at,
                     (SELECT ur.id FROM upgrade_requests ur WHERE ur.user_id = u.id AND ur.status = 'pending'
                      ORDER BY ur.requested_at DESC LIMIT 1) AS pending_request_id
                    FROM users u`;
     const query = q
-      ? env.DB.prepare(`${base} WHERE u.username LIKE ? ORDER BY u.created_at DESC`).bind(`%${q}%`)
+      ? env.DB.prepare(`${base} WHERE u.username LIKE ? OR u.email LIKE ? ORDER BY u.created_at DESC`).bind(`%${q}%`, `%${q}%`)
       : env.DB.prepare(`${base} ORDER BY u.created_at DESC`);
     const { results } = await query.all();
     return json({ users: (results || []).map(rowToAdminUser) });
+  }
+
+  // ---- Admin: email system status, test send, send log ----
+  if (route === "/admin/email/status" && request.method === "GET") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    const s = emailSettings(env);
+    const counts = await env.DB.prepare(
+      "SELECT COUNT(*) AS total, COALESCE(SUM(status = 'failed'), 0) AS failed FROM email_log WHERE created_at > ?"
+    )
+      .bind(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      .first()
+      .catch(() => null);
+    const noEmail = await env.DB.prepare("SELECT COUNT(*) AS n FROM users WHERE role != 'admin' AND (email IS NULL OR email = '')")
+      .first()
+      .catch(() => null);
+    const unverified = await env.DB.prepare(
+      "SELECT COUNT(*) AS n FROM users WHERE role != 'admin' AND email IS NOT NULL AND email != '' AND email_verified_at IS NULL"
+    )
+      .first()
+      .catch(() => null);
+    return json({
+      configured: s.configured,
+      from: s.from,
+      replyTo: s.replyTo,
+      appUrl: s.appUrl,
+      last7Days: { total: counts ? counts.total : 0, failed: counts ? counts.failed : 0 },
+      usersWithoutEmail: noEmail ? noEmail.n : 0,
+      usersUnverified: unverified ? unverified.n : 0,
+    });
+  }
+
+  if (route === "/admin/email/test" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const to = normalizeEmail(body?.to);
+    if (!validEmail(to)) return json({ error: "invalid_email" }, 400);
+    const result = await sendEmail(env, { to, kind: "test", ...templates.test() });
+    return json({ ok: result.ok, error: result.error }, result.ok ? 200 : 502);
+  }
+
+  if (route === "/admin/email/log" && request.method === "GET") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    const { results } = await env.DB.prepare(
+      "SELECT id, to_addr, kind, subject, status, error, created_at FROM email_log ORDER BY created_at DESC, id DESC LIMIT 50"
+    ).all();
+    return json({
+      log: (results || []).map((r) => ({
+        id: r.id, to: r.to_addr, kind: r.kind, subject: r.subject, status: r.status, error: r.error || null, createdAt: r.created_at,
+      })),
+    });
   }
 
   if (route === "/admin/users/set-role" && request.method === "POST") {
@@ -583,6 +857,7 @@ async function handleApi(request, env, url) {
       env.DB.prepare("DELETE FROM koala_grants WHERE user_id = ?").bind(userId),
       env.DB.prepare("DELETE FROM user_koala WHERE user_id = ?").bind(userId),
       env.DB.prepare("DELETE FROM user_rewards WHERE user_id = ?").bind(userId),
+      env.DB.prepare("DELETE FROM email_tokens WHERE user_id = ?").bind(userId),
       env.DB.prepare("DELETE FROM users WHERE id = ?").bind(userId),
     ]);
     return json({ ok: true });

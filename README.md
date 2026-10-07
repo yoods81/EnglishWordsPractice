@@ -70,6 +70,19 @@ The Worker serves `public/` as static assets and handles `/api/*`. One-time setu
 4. **Deploy** with `npm run deploy`, or by pushing if the Worker is connected to this repo on GitHub.
 5. Sign in as admin and use **☁️ Upload** under "My added words" to move words already saved in that browser up to the server.
 
+### Email setup (confirmation links, password reset, username reminders)
+
+The site sends mail from `noreply@koalastudymate.com` (replies go to `admin@koalastudymate.com`) through Cloudflare Email Service, and receives admin mail with Cloudflare Email Routing. One-time setup, in this order:
+
+1. **Workers Paid plan** (Email Sending is a beta feature that needs it).
+2. **Email Routing** (free) in the Cloudflare dashboard for `koalastudymate.com`: create the custom address `admin@koalastudymate.com` and forward it to your own inbox (you confirm that inbox once).
+3. **Email Sending** for the same domain: onboard the domain and add the DNS records the dashboard shows (SPF/DKIM — automatic when the DNS is on Cloudflare). Dashboard menu names may differ slightly; the docs are at <https://developers.cloudflare.com/email-routing/email-sending/>.
+4. **Database**: `npm run db:migrate:email` once (adds `users.email`, the token table and the send log) — run it *before* deploying this version.
+5. **Deploy** (`npm run deploy`). The `send_email` binding (`EMAIL`) and the `MAIL_FROM` / `MAIL_REPLY_TO` / `APP_URL` variables are already in `wrangler.jsonc`.
+6. Log in as admin → **Admin → Email System**: it shows whether sending is set up, sends a test email, and lists recent sends and failures.
+
+Accounts made before email was required have no address; they are nudged to add one in **My Account**, and the admin panel counts them. Only *confirmed* addresses can receive password-reset links / username reminders.
+
 Check that `name` in `wrangler.jsonc` matches the existing Worker, otherwise step 4 creates a second Worker at a different URL.
 
 ## Project structure

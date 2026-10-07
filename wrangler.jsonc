@@ -14,6 +14,17 @@
 		"directory": "./public",
 		"binding": "ASSETS"
 	},
+	// Outgoing email (verification, password reset, username reminders) goes
+	// through Cloudflare Email Service. Needs a Workers Paid plan and the
+	// koalastudymate.com domain onboarded for Email Sending — see README.
+	"send_email": [{ "name": "EMAIL" }],
+	// Addresses/URL used in outgoing mail. Incoming mail to admin@ is handled
+	// by Cloudflare Email Routing (forwarded to your own inbox), not the Worker.
+	"vars": {
+		"MAIL_FROM": "noreply@koalastudymate.com",
+		"MAIL_REPLY_TO": "admin@koalastudymate.com",
+		"APP_URL": "https://koalastudymate.com"
+	},
 	// The Worker reads this as env.DB.
 	"d1_databases": [
 		{
