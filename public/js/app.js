@@ -14619,7 +14619,7 @@ function renderStats() {
       sub: progress.spelling.total ? rwL(`${progress.spelling.correct} of ${progress.spelling.total} right`, `${progress.spelling.total}문제 중 ${progress.spelling.correct}개 정답`) : rwL("No answers yet", "아직 푼 문제 없음") },
   ];
   // Only accounts that can add words have a count of their own to show.
-  if (canUsePaidFeatures()) stats.push({ ico: "📝", num: customWords.length, lbl: t("statWordsAdded") });
+  if (canUsePaidFeatures()) stats.push({ ico: "📝", num: myCustomWords().length, lbl: t("statWordsAdded") });
 
   statsGrid.innerHTML = stats
     .map((s) => s.key
