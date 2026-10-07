@@ -161,7 +161,7 @@
           <button type="submit" id="reset-submit-btn" class="pill accent" data-i18n="resetSubmitBtn">Save new password</button>
         </div>
       </form>
-      <p class="auth-help"><button type="button" id="auth-contact-btn" class="auth-link"></button></p>
+      <p class="auth-help"><button type="button" id="auth-help-btn" class="auth-link"></button></p>
     </div>
   </div>
 
@@ -268,6 +268,15 @@
   <!-- Customers: "Contact us" form. Signed-in accounts are attached automatically;
        a signed-out visitor leaves an email address so we can answer. Wired up
        by public/js/support.js. -->
+  <div id="faq-overlay" class="kid-modal-overlay" hidden>
+    <div class="kid-modal-card faq-card" role="dialog" aria-modal="true" aria-labelledby="faq-title">
+      <h2 id="faq-title">Help</h2>
+      <p class="contact-lead" id="faq-lead"></p>
+      <div id="faq-body" class="faq-body"></div>
+      <div class="contact-actions"><button type="button" class="pill neutral" id="faq-close-btn">Close</button></div>
+    </div>
+  </div>
+
   <div id="contact-overlay" class="kid-modal-overlay" hidden>
     <form class="kid-modal-card contact-card" id="contact-form" novalidate>
       <div class="kid-modal-brand" id="contact-title">Contact us</div>
@@ -1921,16 +1930,23 @@ to Flip!</span></div>
         </form>
       </div>
       <div class="card" id="my-account-support-card">
-        <div id="my-account-support-list-view">
-          <h3 id="my-account-support-title">💬 My messages</h3>
-          <p class="auth-hint" id="my-account-support-desc"></p>
-          <div id="my-account-support-list" class="support-list"></div>
-          <p class="muted" id="my-account-support-empty" hidden></p>
-          <div class="auth-actions auth-actions-start">
-            <button type="button" class="pill accent small" id="my-account-support-new-btn"></button>
-          </div>
+        <h3 id="my-account-support-title">💬 Help &amp; messages</h3>
+        <div class="admin-chips acct-tabs" role="tablist">
+          <button type="button" class="admin-chip active" role="tab" data-acct-tab="messages" aria-selected="true">Messages</button>
+          <button type="button" class="admin-chip" role="tab" data-acct-tab="faq" aria-selected="false">FAQ</button>
         </div>
-        <div id="my-account-support-thread-view" hidden></div>
+        <div id="my-account-msg-pane">
+          <div id="my-account-support-list-view">
+            <p class="auth-hint" id="my-account-support-desc"></p>
+            <div id="my-account-support-list" class="support-list"></div>
+            <p class="muted" id="my-account-support-empty" hidden></p>
+            <div class="auth-actions auth-actions-start">
+              <button type="button" class="pill accent small" id="my-account-support-new-btn"></button>
+            </div>
+          </div>
+          <div id="my-account-support-thread-view" hidden></div>
+        </div>
+        <div id="my-account-faq-pane" hidden></div>
       </div>
       <div class="card">
         <h3 data-i18n="myAccountChangePasswordTitle">🔒 Change Password</h3>
@@ -1956,7 +1972,7 @@ to Flip!</span></div>
   </main>
 
   <footer id="app-footer"><span id="app-footer-text">Made for Australian primary students learning English vocabulary. 🇦🇺</span>
-    <button type="button" id="contact-open-btn" class="footer-link">💬 Contact us</button>
+    <button type="button" id="contact-open-btn" class="footer-link">Contact us</button>
   </footer>
 
   <!-- Mobile-only bottom tab bar (see .bottom-tabs in style.css). Home, Progress,
@@ -2017,6 +2033,7 @@ to Flip!</span></div>
   <script src="js/koala-art.js"></script>
   <script src="js/app.js"></script>
   <script src="js/support.js"></script>
+  <script src="js/faq.js"></script>
   <script src="js/admin-cs.js"></script>
 </body>
 </html>

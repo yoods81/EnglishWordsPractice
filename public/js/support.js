@@ -102,7 +102,7 @@
   }
 
   $("contact-open-btn").addEventListener("click", () => openContact());
-  $("auth-contact-btn").addEventListener("click", () => openContact());
+  $("auth-help-btn").addEventListener("click", () => window.koalaFAQ && koalaFAQ.open());
   $("contact-cancel-btn").addEventListener("click", closeContact);
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay) closeContact();
@@ -155,7 +155,7 @@
   let openTicketId = null;
 
   function localizeAccountCard() {
-    $("my-account-support-title").textContent = L("💬 My messages", "💬 내 메시지");
+    $("my-account-support-title").textContent = L("💬 Help & messages", "💬 도움말과 내 메시지");
     $("my-account-support-desc").textContent = L("Questions or problems? Write to us here and read our answers.", "궁금한 점이나 문제가 있으면 여기에 남겨 주세요. 답변도 여기서 볼 수 있어요.");
     $("my-account-support-new-btn").textContent = L("Write a message", "문의 남기기");
     emptyEl.textContent = L("No messages yet.", "아직 메시지가 없어요.");
@@ -311,11 +311,12 @@
   /* ---------- public hooks used by app.js ---------- */
 
   function localize() {
-    $("contact-open-btn").textContent = L("💬 Contact us", "💬 문의하기");
-    $("auth-contact-btn").textContent = L("Need help? 💬 Contact us", "도움이 필요하세요? 💬 문의하기");
+    $("contact-open-btn").textContent = L("Contact us", "문의하기");
+    $("auth-help-btn").textContent = L("Need help?", "도움이 필요하세요?");
     localizeContact();
     localizeAccountCard();
     if (currentUser && !openTicketId) renderAccountCard();
+    if (window.koalaFAQ) koalaFAQ.localize();
   }
 
   window.koalaSupportUI = { localize, onAuthChange, renderAccountCard, refreshUnread, openContact };

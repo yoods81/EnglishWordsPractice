@@ -101,3 +101,16 @@ body.has-support-unread #auth-toggle-btn::after, body.has-support-unread #contac
 .footer-link { border: 0; background: transparent; color: var(--accent-dark); font: inherit; font-weight: 700; cursor: pointer; padding: 6px 8px; text-decoration: underline; }
 .auth-help { margin: 10px 0 0; text-align: center; }
 .pw-rules li { white-space: nowrap; }
+
+/* ---------- FAQ / help ---------- */
+.faq-card { text-align: left; max-width: 480px; width: calc(100% - 32px); max-height: 86vh; display: flex; flex-direction: column; }
+.faq-body { overflow-y: auto; flex: 1; min-height: 0; }
+.faq-item { border-bottom: 1px solid rgba(0,0,0,.07); }
+.faq-item summary { cursor: pointer; padding: 12px 4px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; gap: 10px; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after { content: "+"; color: var(--accent-dark); font-weight: 800; }
+.faq-item[open] summary::after { content: "–"; }
+.faq-item p { margin: 0 4px 12px; color: var(--text); line-height: 1.5; }
+.faq-foot { margin: 14px 0 4px; text-align: center; font-size: .8rem; color: var(--muted); }
+.faq-contact-link { border: 0; background: transparent; padding: 0; font: inherit; font-size: .8rem; color: var(--accent-dark); text-decoration: underline; cursor: pointer; }
+.acct-tabs { margin: 4px 0 10px; }
