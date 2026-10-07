@@ -13421,20 +13421,33 @@ function koalaCatsHtml(mode) {
 function koalaOwnedListHtml(mode) {
   const k = KoalaCore.ensureKoala(progress);
   const slots = mode === "room" ? KoalaCore.ROOM_SLOTS : KoalaCore.ITEM_SLOTS;
-  const items = KoalaCore.ITEMS.filter((it) => slots.includes(it.slot) && k.items.owned[it.id]);
-  const subs = mode === "room" ? KoalaCore.SUB_ITEMS.filter((x) => KoalaCore.isSubOwned(progress, x.id)) : [];
-  const cards = items.map((it) => {
+  const titles = KOALA_SLOT_TITLES();
+  const itemCard = (it) => {
     const name = koalaItemName(it);
     const back = it.unlock.coins ? `💰 +${KoalaCore.sellValue(it.unlock.coins)}` : rwL("Can't sell", "못 팔아요");
     return `<button type="button" class="koala-item is-sell${it.unlock.coins ? "" : " is-dim"}" data-koala-own="${it.id}" aria-label="${escapeHtml(name)}" title="${escapeHtml(name)}">
       <span class="koala-item-pic" aria-hidden="true">${KoalaArt.itemIcon(it.id)}</span>
       <span class="koala-item-name">${escapeHtml(name)}</span><span class="koala-item-status sell">${back}</span></button>`;
+  };
+  let total = 0;
+  const section = (title, count, body) => `<div class="koala-own-group"><div class="koala-own-title">${title} <small>${count}</small></div>${body}</div>`;
+  const groups = slots.map((slot) => {
+    const list = KoalaCore.ITEMS.filter((it) => it.slot === slot && k.items.owned[it.id]);
+    if (!list.length) return "";
+    total += list.length;
+    return section(titles[slot], list.length, `<div class="koala-grid">${list.map(itemCard).join("")}</div>`);
   }).join("");
-  const subCards = subs.map((x) => koalaSubCardHtml(koalaSubParentFor(x.kind), x, false).replace(/<span class="koala-sub-st[^>]*>.*?<\/span>/, `<span class="koala-sub-st own">${rwL("Mine", "보유")}</span>`)).join("");
-  const empty = !cards && !subCards ? `<p class="koala-sell-hint">${rwL("You don't own anything yet — unlock something in the shop!", "아직 가진 아이템이 없어요. 상점에서 열어 보세요!")}</p>` : "";
-  return `<div class="koala-shelf-head"><span class="koala-shelf-title">🎒 ${rwL("My items", "내 아이템")} <small>${items.length + subs.length}</small></span></div>
-    <p class="koala-sell-hint">${rwL("Tap an item to see more — you can sell it back for 80% of its price.", "아이템을 누르면 되팔 수 있어요. 가격의 80%가 코인으로 돌아와요.")}</p>${empty}
-    ${cards ? `<div class="koala-grid">${cards}</div>` : ""}${subCards ? `<div class="koala-subgrid koala-subgrid-shop">${subCards}</div>` : ""}`;
+  const subGroups = mode === "room" ? KOALA_SUB_KINDS.map((kind) => {
+    const list = KoalaCore.SUB_ITEMS.filter((x) => x.kind === kind && KoalaCore.isSubOwned(progress, x.id));
+    if (!list.length) return "";
+    total += list.length;
+    const parent = koalaSubParentFor(kind);
+    const cards = list.map((x) => koalaSubCardHtml(parent, x, false).replace(/<span class="koala-sub-st[^>]*>.*?<\/span>/, `<span class="koala-sub-st own">${rwL("Mine", "보유")}</span>`)).join("");
+    return section(koalaSubKindTitle(kind), list.length, `<div class="koala-subgrid koala-subgrid-shop">${cards}</div>`);
+  }).join("") : "";
+  const empty = !total ? `<p class="koala-sell-hint">${rwL("You don't own anything yet — unlock something in the shop!", "아직 가진 아이템이 없어요. 상점에서 열어 보세요!")}</p>` : "";
+  return `<div class="koala-shelf-head"><span class="koala-shelf-title">🎒 ${rwL("My items", "내 아이템")} <small>${total}</small></span></div>
+    <p class="koala-sell-hint">${rwL("Tap an item to see more — you can sell it back for 80% of its price.", "아이템을 누르면 되팔 수 있어요. 가격의 80%가 코인으로 돌아와요.")}</p>${empty}${groups}${subGroups}`;
 }
 
 // Bottom half: the items of the chosen category as a grid.

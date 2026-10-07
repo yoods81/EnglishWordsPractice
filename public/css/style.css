@@ -11828,3 +11828,6 @@ html body #view-koala .koala-studio-top > .koala-cats{display:none}
 html body #view-koala .koala-subbox.is-in-preview{display:block}
 html body #view-koala .koala-studio-top:has(.koala-subbox),html body #view-koala .koala-studio-preview:has(.koala-subbox){position:static}
 html body #view-koala .koala-subbox.is-in-preview{max-height:none;overflow:visible}
+.koala-own-group{margin:10px 0 14px}
+.koala-own-title{font-weight:800;font-size:1rem;color:#17463c;margin:0 2px 6px;padding-bottom:4px;border-bottom:2px dashed rgba(23,70,60,.18)}
+.koala-own-title small{font-weight:700;opacity:.6}
