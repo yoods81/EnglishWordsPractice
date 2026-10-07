@@ -14373,9 +14373,10 @@ function renderSkillsCard() {
     ? `<div class="dash-rec-words"><span class="dash-rec-words-label">${rwL("Words to review", "복습할 단어")} · ${review.length}</span>
        <ul class="dash-rec-chips">${review.slice(0, 4).map((r) => `<li>${escapeHtml(r.word)}</li>`).join("")}${review.length > 4 ? `<li class="more">+${review.length - 4}</li>` : ""}</ul></div>`
     : "";
-  const recHtml = `<section class="dash-card dash-rec" aria-labelledby="dash-h-rec"><div class="dash-eyebrow">${rwL("Next up", "다음에 할 일")}</div>
-    <h3 class="dash-title" id="dash-h-rec">${escapeHtml(rec.title)}</h3><p class="dash-reason">${escapeHtml(rec.reason)}</p>${wordChips}
-    <button type="button" class="pill dash-btn dash-rec-btn" data-dash-act="${rec.action}">${escapeHtml(rec.actionLabel)}</button>
+  const recEmoji = { review: "🎯", new: "🚀", mission: "⭐", explore: "🧭" }[rec.type] || "💪";
+  const recHtml = `<section class="dash-card dash-rec" aria-labelledby="dash-h-rec"><span class="kface dash-rec-koala" aria-hidden="true"></span><div class="dash-eyebrow">${rwL("Next up", "다음에 할 일")}</div>
+    <h3 class="dash-title" id="dash-h-rec"><span aria-hidden="true">${recEmoji}</span> ${escapeHtml(rec.title)}</h3><p class="dash-reason">${escapeHtml(rec.reason)}</p>${wordChips}
+    <button type="button" class="pill dash-btn dash-rec-btn" data-dash-act="${rec.action}">▶ ${escapeHtml(rec.actionLabel)}</button>
     ${todayLine ? `<p class="dash-rec-today">${escapeHtml(todayLine)}</p>` : ""}</section>`;
 
   // Category cards (2x2): weakest one first with a "Focus today" tag
@@ -14400,22 +14401,27 @@ function renderSkillsCard() {
   }).join("");
   const catHtml = `<section class="dash-block" aria-labelledby="dash-h-cat"><h3 class="dash-h" id="dash-h-cat">${rwL("Your progress", "나의 실력")}</h3><div class="dash-cat-grid">${catCards}</div></section>`;
 
-  // Badges: one tappable card — a few earned medals (if any) and the next goal.
+  // Badges: one tappable card — how many, the latest few (with names), the next goal.
   const signedIn = canUseAccountFeatures();
   const paid = canUsePaidFeatures();
   const cat = buildBadgeCatalog();
   const earned = signedIn ? cat.filter((b) => progress.badges[b.id]).sort((a, b) => progress.badges[b.id] - progress.badges[a.id]) : [];
   const goal = signedIn ? nextBadgeGoal(cat, paid) : null;
+  const pctDone = Math.round((earned.length / Math.max(1, cat.length)) * 100);
   const medals = earned.length
-    ? `<div class="dash-medals" aria-hidden="true">${earned.slice(0, 5).map((b) => `<span class="dash-medal">${b.emoji}</span>`).join("")}</div>`
+    ? `<div class="dash-sublabel">${rwL("Latest badges", "최근에 얻은 배지")}</div>
+       <div class="dash-medals">${earned.slice(0, 3).map((b) => `<div class="dash-medal"><span class="dash-medal-disc" aria-hidden="true">${b.emoji}</span><span class="dash-medal-name">${escapeHtml(b.name)}</span></div>`).join("")}</div>`
     : "";
   const goalHtml = goal
-    ? `<div class="dash-goal"><span class="dash-goal-ico" aria-hidden="true">${goal.b.emoji}</span><div class="dash-goal-main"><div class="dash-goal-top"><b>${escapeHtml(goal.b.name)}</b><span>${goal.have} / ${goal.goal}</span></div>
+    ? `<div class="dash-sublabel">${rwL("Next goal", "다음 목표")}</div>
+       <div class="dash-goal"><span class="dash-medal-disc locked" aria-hidden="true">${goal.b.emoji}<i class="dash-lock">🔒</i></span><div class="dash-goal-main"><div class="dash-goal-top"><b>${escapeHtml(goal.b.name)}</b><span>${goal.have} ${rwL("of", "/")} ${goal.goal}</span></div>
        <div class="dash-bar dash-bar-ok" role="presentation"><i style="width:${Math.round(goal.ratio * 100)}%"></i></div><div class="dash-muted dash-goal-desc">${escapeHtml(goal.b.desc)}</div></div></div>`
     : `<p class="dash-muted dash-badge-empty">${signedIn ? rwL("Keep practising to collect koala badges!", "연습하면서 코알라 배지를 모아 봐요!") : rwL("Sign up to collect koala badges!", "가입하면 코알라 배지를 모을 수 있어요!")}</p>`;
   const badgeHtml = `<section class="dash-block dash-badge-card" role="button" tabindex="0" data-dash-tab="badges" aria-label="${rwL("Badges — see all", "배지 모두 보기")}">
-    <div class="dash-h-row"><h3 class="dash-h" id="dash-h-badges">${rwL("Badges", "배지")}</h3>
-      <span class="dash-badge-count">${earned.length} / ${cat.length} <span aria-hidden="true">›</span></span></div>
+    <div class="dash-h-row"><h3 class="dash-h" id="dash-h-badges"><span aria-hidden="true">🏅</span> ${rwL("Badges", "배지")}</h3>
+      <span class="dash-badge-count">${rwL("See all", "모두 보기")} <span aria-hidden="true">›</span></span></div>
+    <div class="dash-collected"><b>${earned.length}</b> ${rwL("of", "/")} ${cat.length} ${rwL("collected", "모았어요")}</div>
+    <div class="dash-meter" role="presentation"><i style="width:${pctDone}%"></i></div>
     ${medals}${goalHtml}</section>`;
 
   box.innerHTML = `${summaryHtml}${recHtml}${catHtml}${badgeHtml}`;

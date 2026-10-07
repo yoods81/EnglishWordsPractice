@@ -11375,3 +11375,66 @@ html body #view-stats .more-stats > summary {
 html body #view-stats .more-stats > summary::after { margin-left: 6px; }
 html[data-theme="dark"] body #view-stats .more-stats > summary { background: none; color: #aab4dc; }
 html[data-theme="dark"] .dash-badge-card { background: #172420; }
+
+/* ==========================================================================
+   Kid-friendly Overview: sunny "Next up" card + visual badge card
+   ========================================================================== */
+#stats-panel-overview .dash-rec {
+  position: relative; overflow: hidden; color: #4a3410;
+  background: linear-gradient(180deg, #fff6d6 0%, #ffe6a0 100%);
+  border: 2px solid #f0b44c; box-shadow: 0 3px 0 #f0b44c; border-radius: 22px; padding: 16px 16px 16px;
+}
+#stats-panel-overview .dash-rec .dash-rec-koala { position: absolute; top: 10px; right: 12px; font-size: 3rem; transform: rotate(8deg); }
+#stats-panel-overview .dash-rec .dash-eyebrow {
+  display: inline-block; background: #f0b44c; color: #fff; border-radius: 999px; padding: 3px 12px;
+  font-weight: 800; font-size: .78rem; margin-bottom: 8px; letter-spacing: .02em;
+}
+#stats-panel-overview .dash-rec .dash-title { color: #4a3410; font-size: 1.35rem; padding-right: 64px; }
+#stats-panel-overview .dash-rec .dash-reason { color: #6b5320; font-size: .98rem; }
+#stats-panel-overview .dash-rec .dash-rec-words-label { color: #6b5320; opacity: 1; }
+#stats-panel-overview .dash-rec .dash-rec-chips li {
+  background: #fff; color: #4a3410; border: 2px solid #ffd27a; box-shadow: 0 2px 0 #ffd27a;
+}
+#stats-panel-overview .dash-rec .dash-rec-chips li:nth-child(2) { border-color: #bfe7d8; box-shadow: 0 2px 0 #bfe7d8; }
+#stats-panel-overview .dash-rec .dash-rec-chips li:nth-child(3) { border-color: #f6c3d4; box-shadow: 0 2px 0 #f6c3d4; }
+#stats-panel-overview .dash-rec .dash-rec-chips li:nth-child(4) { border-color: #c9d6fb; box-shadow: 0 2px 0 #c9d6fb; }
+#stats-panel-overview .dash-rec .dash-rec-chips li.more { background: transparent; box-shadow: none; border-style: dashed; border-color: #d9a94a; }
+#stats-panel-overview .dash-rec .dash-rec-btn {
+  display: flex; width: 100%; justify-content: center; margin-top: 14px; min-height: 52px;
+  background: var(--accent); color: #fff; border: 0; border-radius: 16px; font-size: 1.15rem; font-weight: 800;
+  box-shadow: 0 4px 0 var(--accent-dark);
+}
+#stats-panel-overview .dash-rec .dash-rec-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--accent-dark); }
+#stats-panel-overview .dash-rec .dash-rec-today { color: #7a6126; text-align: center; margin: 10px 0 0; }
+html[data-theme="dark"] #stats-panel-overview .dash-rec {
+  background: linear-gradient(180deg, #3a3017 0%, #2e2612 100%); border-color: #b98a2e; box-shadow: 0 3px 0 #b98a2e; color: #fbeccb;
+}
+html[data-theme="dark"] #stats-panel-overview .dash-rec .dash-title { color: #fff1cf; }
+html[data-theme="dark"] #stats-panel-overview .dash-rec .dash-reason,
+html[data-theme="dark"] #stats-panel-overview .dash-rec .dash-rec-words-label,
+html[data-theme="dark"] #stats-panel-overview .dash-rec .dash-rec-today { color: #e9d7a8; }
+html[data-theme="dark"] #stats-panel-overview .dash-rec .dash-rec-chips li { background: #26382f; color: #fff1cf; }
+
+/* badge card */
+.dash-collected { font-size: 1rem; color: var(--muted); margin-bottom: 6px; }
+.dash-collected b { font-family: var(--font-heading); font-size: 1.9rem; color: var(--accent-dark); margin-right: 4px; }
+.dash-meter { height: 12px; border-radius: 999px; background: #e6efe9; overflow: hidden; margin-bottom: 14px; }
+.dash-meter i { display: block; height: 100%; min-width: 6px; border-radius: 999px; background: linear-gradient(90deg, #ffc94d, #f0a020); }
+.dash-sublabel { font-size: .78rem; font-weight: 800; color: var(--muted); letter-spacing: .02em; margin: 4px 0 8px; }
+.dash-badge-card .dash-medals { font-size: inherit; gap: 10px; margin-bottom: 14px; align-items: flex-start; }
+.dash-medal { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+.dash-medal-name { font-size: .78rem; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.dash-medal-disc {
+  position: relative; flex: none; width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 1.7rem; background: #fff3c4; border: 3px solid #f0b44c; box-shadow: 0 2px 0 #e0a030;
+}
+.dash-medal-disc.locked { background: #eceeed; border-color: #cfd5d2; box-shadow: none; filter: grayscale(1); opacity: .85; }
+.dash-lock { position: absolute; right: -6px; bottom: -6px; font-style: normal; font-size: .8rem; background: #fff; border-radius: 50%; width: 22px; height: 22px; display: grid; place-items: center; border: 1px solid #cfd5d2; filter: none; }
+.dash-badge-card .dash-goal { display: flex; align-items: center; gap: 12px; background: #f6f8f7; border-radius: 14px; padding: 10px; }
+.dash-goal-top b { font-size: .95rem; }
+.dash-goal-top span { font-weight: 800; color: var(--accent-dark); }
+html[data-theme="dark"] .dash-meter { background: #26382f; }
+html[data-theme="dark"] .dash-medal-disc { background: #3a3017; border-color: #b98a2e; box-shadow: none; }
+html[data-theme="dark"] .dash-medal-disc.locked { background: #26382f; border-color: #3a4d44; }
+html[data-theme="dark"] .dash-lock { background: #172420; border-color: #3a4d44; }
+html[data-theme="dark"] .dash-badge-card .dash-goal { background: #1e2f29; }
