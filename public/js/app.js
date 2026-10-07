@@ -13397,7 +13397,7 @@ function koalaStudioTopHtml(k, mode) {
   });
   return `<div class="koala-studio-top"><div class="koala-studio-preview">
     <div class="koala-studio-bar">
-      <button type="button" class="koala-back" data-koala-go="landing">${rwL("‹ Back", "‹ 돌아가기")}</button>
+      <button type="button" class="koala-back${koalaOwnedView ? " on" : ""}" data-koala-owned aria-pressed="${koalaOwnedView}">${koalaOwnedView ? rwL("✓ Back to shop", "✓ 상점으로") : rwL("🎒 My items", "🎒 내 아이템")}</button>
       <span class="koala-studio-lv">${rwL(`Lv. ${lv.level}`, `Lv. ${lv.level}`)}</span>
       <span class="koala-studio-coins" aria-label="${rwL("Koala Coins", "코알라 코인")}">${COIN_SVG} <b>${serverAdmin ? "∞" : k.coins.toLocaleString()}</b></span>
     </div>
@@ -13440,8 +13440,7 @@ function koalaOwnedListHtml(mode) {
 // Bottom half: the items of the chosen category as a grid.
 function koalaShopGridHtml(mode) {
   const slot = koalaSlotPick[mode];
-  const mineBtn = `<button type="button" class="pill small koala-sellmode${koalaOwnedView ? " on" : ""}" data-koala-owned aria-pressed="${koalaOwnedView}">${koalaOwnedView ? rwL("✓ Back to shop", "✓ 상점으로") : rwL("🎒 My items", "🎒 내 아이템")}</button>`;
-  const head = `<div class="koala-shop-bar">${koalaCatsHtml(mode)}${mineBtn}</div>`;
+  const head = `<div class="koala-shop-bar">${koalaCatsHtml(mode)}</div>`;
   if (koalaOwnedView) return head + koalaOwnedListHtml(mode);
   if (koalaIsSubCat(slot)) return head + koalaSubShopHtml(slot.slice(4));
   const items = KoalaCore.visibleItems(progress, slot, { showAll: serverAdmin });
