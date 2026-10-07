@@ -74,6 +74,33 @@ export const templates = {
       ),
     };
   },
+  // The admin's reply to a customer's inquiry. The reply itself is written in
+  // whatever language the admin chose, so it is quoted once, as-is, between a
+  // Korean and an English intro line.
+  supportReply({ subject, body, appUrl, hasAccount }) {
+    const s = escapeHtml(subject);
+    const quote = `<span style="display:block;white-space:pre-wrap;padding:12px 14px;background:#f1faf6;border-left:4px solid #1fb28a;border-radius:8px">${escapeHtml(body)}</span>`;
+    const tail = hasAccount ? "" : "\n\n이 메일에 바로 답장하셔도 돼요. / You can simply reply to this email.";
+    return {
+      subject: `[${BRAND}] 문의 답변 / Re: ${subject}`,
+      text: `"${subject}" 문의에 답변이 도착했어요.\n\n${body}\n\n---\nWe replied to your message "${subject}".${hasAccount ? `\nOpen the app to see it or answer: ${appUrl}` : ""}${tail}`,
+      html: layout(
+        [`<b>${s}</b> 문의에 답변이 도착했어요.`, quote, ...(hasAccount ? [] : ["이 메일에 바로 답장하셔도 돼요."])],
+        [`We replied to your message <b>${s}</b>.`, ...(hasAccount ? ["Open the app to see it or answer."] : ["You can simply reply to this email."])],
+        hasAccount ? { url: appUrl, label: "앱에서 보기 / Open the app" } : null
+      ),
+    };
+  },
+  // A heads-up to the admin mailbox that a customer wrote in.
+  supportAlert({ subject, from, body, appUrl }) {
+    const s = escapeHtml(subject);
+    const quote = `<span style="display:block;white-space:pre-wrap;padding:12px 14px;background:#f6f6fb;border-radius:8px">${escapeHtml(body.slice(0, 600))}</span>`;
+    return {
+      subject: `[${BRAND}] 새 문의 / New inquiry: ${subject}`,
+      text: `새 문의가 도착했어요 (${from}).\n"${subject}"\n\n${body.slice(0, 600)}\n\n관리자 > 문의함에서 답장하세요: ${appUrl}`,
+      html: layout([`새 문의가 도착했어요 (<b>${escapeHtml(from)}</b>): <b>${s}</b>`, quote], ["Reply from Admin → Inbox."], { url: appUrl, label: "문의함 열기 / Open the app" }),
+    };
+  },
   test() {
     return {
       subject: `[${BRAND}] 테스트 메일 / Test email`,

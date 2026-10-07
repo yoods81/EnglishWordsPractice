@@ -25,6 +25,8 @@ A browser app for practising English vocabulary and spelling, levelled for Austr
 - **My Progress** — overall stats (words practised, flashcards known, quiz/spelling accuracy, words you've added), saved locally in the browser (`localStorage`) so progress persists between visits. A "Reset all progress" button is available.
 - **Text-to-speech voice** — tuned to read as a natural, younger-sounding adult female voice: an Australian English voice on the English track, an American English voice on the Korean track. The Web Speech API doesn't let a website pick an exact age, so this is a best-effort voice selection (by name/language) plus a slightly brighter pitch — the actual voice depends on what your browser/OS provides.
 
+- **Customer care (Admin)** — the Admin screen is split into tabs: Overview ("needs your attention"), Customers (compact list; **Manage** opens a customer file with role, password, private note, messages), Inbox (tickets: needs reply / waiting / resolved, canned replies, private notes, optional email reply), Coins and System (announcement banner, codes, email). Customers reach support from the footer **Contact us** button (works signed out, even before email is confirmed) and read replies under **My Account → Messages**.
+
 ## Where words are stored
 
 Words the admin adds are saved **on the server** (a Cloudflare D1 database behind a Worker), so they show up on every device and for every visitor — including a fresh incognito window. Each learner's own progress (scores, flashcards known, wrong-word flags) stays in their own browser's `localStorage`, since that's personal to them.
@@ -67,6 +69,7 @@ The Worker serves `public/` as static assets and handles `/api/*`. One-time setu
    npx wrangler secret put ADMIN_PASSWORD     # the admin password
    npx wrangler secret put SESSION_SECRET     # any long random string
    ```
+   Existing database? Run the support migration once: `npm run db:migrate:support` (local: `npm run db:migrate:support:local`).
 4. **Deploy** with `npm run deploy`, or by pushing if the Worker is connected to this repo on GitHub.
 5. Sign in as admin and use **☁️ Upload** under "My added words" to move words already saved in that browser up to the server.
 

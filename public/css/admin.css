@@ -1,0 +1,97 @@
+/* Admin tabs, customer inbox, customer file sheet, contact form, site notice.
+   Flat mobile style: mint selected tab, minimal borders. */
+
+/* ---------- tab bar ---------- */
+.admin-tabs { display: flex; gap: 4px; margin: 0 0 14px; padding: 4px; background: var(--card-bg); border-radius: 14px; position: sticky; top: 0; z-index: 5; box-shadow: 0 1px 0 rgba(0,0,0,.06); }
+.admin-tab { flex: 1 1 0; min-width: 0; position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font: inherit; font-size: .75rem; font-weight: 700; cursor: pointer; }
+.admin-tab-ico { font-size: 1.15rem; line-height: 1; display: inline-flex; }
+.admin-tab-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.admin-tab.active { background: var(--accent); color: #fff; }
+.admin-tab-badge { position: absolute; top: 3px; right: 6px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #e5484d; color: #fff; font-size: .68rem; line-height: 18px; text-align: center; font-weight: 800; }
+.admin-tab-badge[hidden], .admin-pane[hidden] { display: none; }
+
+/* ---------- overview / attention ---------- */
+.admin-attention-list { display: flex; flex-direction: column; gap: 6px; }
+.admin-attention-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px; border: 0; border-radius: 12px; background: rgba(34,201,163,.1); color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.admin-attention-ico { font-size: 1.2rem; }
+.admin-attention-text { flex: 1; font-weight: 600; }
+.admin-attention-go { color: var(--muted); font-size: 1.3rem; }
+.admin-all-clear { margin: 0; padding: 10px 2px; color: var(--muted); font-weight: 600; }
+
+/* ---------- chips ---------- */
+.admin-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.admin-chip { padding: 6px 12px; border: 0; border-radius: 999px; background: rgba(0,0,0,.05); color: var(--text); font: inherit; font-size: .85rem; font-weight: 600; cursor: pointer; }
+.admin-chip small { opacity: .7; margin-left: 2px; }
+.admin-chip.active { background: var(--accent); color: #fff; }
+
+/* ---------- inputs ---------- */
+.admin-input, .admin-textarea, .admin-role-select-lg { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid rgba(0,0,0,.12); border-radius: 10px; background: var(--card-bg); color: var(--text); font: inherit; }
+.admin-textarea { min-height: 96px; resize: vertical; }
+
+/* ---------- compact customer row ---------- */
+.admin-user-row { align-items: center; gap: 10px; }
+.admin-user-row .admin-user-info { flex: 1; min-width: 0; }
+.admin-user-row .admin-user-info .w { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-user-row .admin-user-info .d { overflow: hidden; text-overflow: ellipsis; }
+.admin-user-email.unverified { color: #c97a00; }
+.admin-link-btn { border: 0; background: transparent; color: var(--accent-dark); font: inherit; font-weight: 700; cursor: pointer; padding: 6px 4px; }
+.admin-code-text { word-break: keep-all; overflow-wrap: normal; white-space: nowrap; }
+
+/* ---------- inbox ---------- */
+.admin-inbox-list { display: flex; flex-direction: column; }
+.admin-ticket-row { width: 100%; border: 0; border-bottom: 1px solid rgba(0,0,0,.06); background: transparent; color: var(--text); font: inherit; text-align: left; display: flex; gap: 10px; padding: 12px 4px; border-bottom: 1px solid rgba(0,0,0,.06); cursor: pointer; }
+.admin-ticket-row.is-unread .admin-ticket-main b { font-weight: 800; }
+.admin-ticket-row.is-unread::before { content: ""; width: 8px; height: 8px; margin-top: 7px; border-radius: 50%; background: #e5484d; flex: none; }
+.admin-ticket-main { flex: 1; min-width: 0; }
+.admin-ticket-meta { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: .78rem; }
+.admin-ticket-preview { color: var(--muted); font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-ticket-foot { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.admin-compose { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.admin-compose-modes { display: flex; gap: 6px; }
+.admin-canned { display: flex; flex-wrap: wrap; gap: 6px; }
+.support-badge, .email-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .72rem; font-weight: 700; background: rgba(0,0,0,.06); color: var(--text); }
+.support-badge.open { background: #fde7e7; color: #b42318; }
+.support-badge.pending { background: #fff1d6; color: #9a6200; }
+.support-badge.resolved { background: #dcf6ec; color: #0e7a5f; }
+
+/* ---------- thread (shared with My Account) ---------- */
+.support-list { display: flex; flex-direction: column; }
+.support-row { display: flex; align-items: center; gap: 8px; padding: 12px 4px; border-bottom: 1px solid rgba(0,0,0,.06); cursor: pointer; background: transparent; border-left: 0; border-right: 0; border-top: 0; width: 100%; text-align: left; font: inherit; color: var(--text); }
+.support-row.is-unread b { font-weight: 800; }
+.support-row-main { flex: 1; min-width: 0; }
+.support-back { border: 0; background: transparent; color: var(--accent-dark); font: inherit; font-weight: 700; cursor: pointer; padding: 4px 0; }
+.support-thread { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.support-thread-title { font-weight: 800; margin: 4px 0; }
+.support-msg { max-width: 88%; padding: 9px 12px; border-radius: 14px; background: rgba(0,0,0,.05); align-self: flex-start; }
+.support-msg.from-team { background: rgba(34,201,163,.15); align-self: flex-end; }
+.support-msg.is-note { background: #fff6cf; align-self: stretch; max-width: 100%; border: 1px dashed #d9b800; }
+.support-msg-who { font-size: .72rem; color: var(--muted); margin-bottom: 2px; font-weight: 700; }
+.support-msg-body { white-space: pre-wrap; overflow-wrap: anywhere; }
+body.has-support-unread #auth-toggle-btn::after, body.has-support-unread #contact-open-btn::after { content: ""; display: inline-block; width: 8px; height: 8px; margin-left: 5px; border-radius: 50%; background: #e5484d; vertical-align: middle; }
+
+/* ---------- customer file sheet ---------- */
+.admin-sheet-overlay { align-items: flex-end; }
+.admin-sheet { width: 100%; max-width: 520px; max-height: 88vh; overflow-y: auto; border-radius: 20px 20px 0 0; padding: 16px; box-sizing: border-box; position: relative; text-align: left; }
+.admin-sheet-close { position: absolute; top: 10px; right: 12px; border: 0; background: rgba(0,0,0,.06); width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; }
+.admin-sheet-name { font-size: 1.15rem; font-weight: 800; margin: 0 40px 8px 0; }
+.admin-sheet-h { margin: 16px 0 6px; font-size: .78rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.admin-sheet-facts { display: flex; flex-direction: column; gap: 4px; font-size: .88rem; }
+.admin-sheet-row { display: flex; justify-content: space-between; gap: 10px; }
+.admin-sheet-row .k { color: var(--muted); }
+.admin-sheet-tickets { display: flex; flex-direction: column; gap: 4px; }
+.admin-danger-h { color: #b42318; }
+.admin-danger-btn { color: #b42318; border-color: #f2b8b5; }
+.admin-warn { color: #9a6200; font-size: .85rem; }
+
+/* ---------- contact form + banner ---------- */
+.contact-card { text-align: left; max-width: 440px; width: calc(100% - 32px); }
+.contact-lead { margin: 0 0 10px; color: var(--muted); }
+.contact-card label { display: block; margin: 10px 0 4px; font-weight: 700; font-size: .85rem; }
+.contact-card input[type=email], .contact-card select, .contact-card textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid rgba(0,0,0,.12); border-radius: 10px; font: inherit; background: var(--card-bg); color: var(--text); }
+.contact-card textarea { min-height: 110px; resize: vertical; }
+.contact-trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
+.contact-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+.site-notice { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: #fff4cc; color: #5f4b00; font-size: .9rem; font-weight: 600; }
+.site-notice[hidden] { display: none; }
+.site-notice-text { flex: 1; }
+.site-notice-close { border: 0; background: transparent; font-size: 1.1rem; cursor: pointer; color: inherit; }

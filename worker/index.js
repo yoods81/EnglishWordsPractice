@@ -5,6 +5,7 @@
 // bootstrap the first "admin" account into the users table.
 
 import { sendEmail, templates, emailSettings } from "./email.js";
+import { handleSupport } from "./support.js";
 
 const SESSION_COOKIE = "ywp_session";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
@@ -283,12 +284,26 @@ async function handleApi(request, env, url) {
   // use the /auth/* routes (to confirm, resend, change email, or log out) —
   // nothing else on the site works until the link in the email is opened.
   // Admins and older accounts with no email on file are not affected.
-  if (!route.startsWith("/auth/")) {
+  // /support/* and /announcement stay open too: someone stuck on the
+  // confirmation step is exactly who needs to be able to write to us.
+  if (!route.startsWith("/auth/") && !route.startsWith("/support/") && route !== "/announcement") {
     const gateSession = await getSessionUser(request, env);
     if (gateSession && gateSession.role !== "admin") {
       const gateRow = await env.DB.prepare("SELECT email, email_verified_at FROM users WHERE id = ?").bind(gateSession.id).first();
       if (gateRow && gateRow.email && !gateRow.email_verified_at) return json({ error: "email_not_verified" }, 403);
     }
+  }
+
+  // Customer support: inquiries, admin inbox, customer notes, announcement.
+  if (route.startsWith("/support/") || route.startsWith("/admin/support/") || route.startsWith("/admin/customer") || route === "/admin/overview" || route === "/admin/announcement" || route === "/announcement") {
+    const res = await handleSupport({
+      route, request, env, url,
+      h: { json, getSessionUser, genId, normalizeEmail, validEmail, hmac, rowToAdminUser: (r) => ({
+        id: r.id, username: r.username, role: r.role, createdAt: r.created_at, upgradedAt: r.upgraded_at || null,
+        email: r.email || null, emailVerified: !!r.email_verified_at,
+      }) },
+    });
+    if (res) return res;
   }
 
   if (route === "/words" && request.method === "GET") {
@@ -870,6 +885,9 @@ async function handleApi(request, env, url) {
       env.DB.prepare("DELETE FROM user_koala WHERE user_id = ?").bind(userId),
       env.DB.prepare("DELETE FROM user_rewards WHERE user_id = ?").bind(userId),
       env.DB.prepare("DELETE FROM email_tokens WHERE user_id = ?").bind(userId),
+      env.DB.prepare("DELETE FROM support_messages WHERE ticket_id IN (SELECT id FROM support_tickets WHERE user_id = ?)").bind(userId),
+      env.DB.prepare("DELETE FROM support_tickets WHERE user_id = ?").bind(userId),
+      env.DB.prepare("DELETE FROM customer_notes WHERE user_id = ?").bind(userId),
       env.DB.prepare("DELETE FROM users WHERE id = ?").bind(userId),
     ]);
     return json({ ok: true });

@@ -20,6 +20,7 @@
   <script>try{var _t=localStorage.getItem("ywp_theme_v1");if(_t==="dark"||_t==="ivory")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/themes.css" />
+  <link rel="stylesheet" href="css/admin.css" />
 </head>
 <body class="on-landing">
   <!-- Shared gradients for the 3D heart icons in the HUD (see renderTypeGameHearts in app.js) -->
@@ -263,6 +264,34 @@
     </div>
   </div>
 
+  <!-- Customers: "Contact us" form. Signed-in accounts are attached automatically;
+       a signed-out visitor leaves an email address so we can answer. Wired up
+       by public/js/support.js. -->
+  <div id="contact-overlay" class="kid-modal-overlay" hidden>
+    <form class="kid-modal-card contact-card" id="contact-form" novalidate>
+      <div class="kid-modal-brand" id="contact-title">Contact us</div>
+      <p class="contact-lead" id="contact-lead"></p>
+      <label for="contact-category" id="contact-category-lbl"></label>
+      <select id="contact-category"></select>
+      <label for="contact-email" id="contact-email-lbl"></label>
+      <input id="contact-email" type="email" inputmode="email" autocomplete="email" />
+      <label for="contact-message" id="contact-message-lbl"></label>
+      <textarea id="contact-message" rows="5" maxlength="2000"></textarea>
+      <input id="contact-website" class="contact-trap" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <p id="contact-error" class="auth-error" hidden></p>
+      <p id="contact-success" class="auth-success" hidden></p>
+      <div class="contact-actions">
+        <button type="button" class="pill neutral" id="contact-cancel-btn"></button>
+        <button type="submit" class="pill accent" id="contact-send-btn"></button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Admin: customer file (account, notes, inquiries, risky actions). Filled in by admin-cs.js. -->
+  <div id="admin-sheet-overlay" class="kid-modal-overlay admin-sheet-overlay" hidden>
+    <div class="kid-modal-card admin-sheet" id="admin-sheet" role="dialog" aria-modal="true"></div>
+  </div>
+
   <header>
     <div class="auth-toggle-wrap">
       <button id="auth-toggle" class="auth-toggle" type="button">🔑 Log In</button>
@@ -286,6 +315,13 @@
   </header>
 
   <button type="button" id="upgrade-ready-banner" class="upgrade-ready-banner" hidden data-i18n="upgradeReadyBanner">⭐ Your upgrade code has arrived — tap to activate!</button>
+
+  <!-- Announcement from the admin (System tab). Dismissible per browser session. -->
+  <div id="site-notice" class="site-notice" role="status" hidden>
+    <span class="site-notice-ico" aria-hidden="true">📢</span>
+    <span id="site-notice-text"></span>
+    <button type="button" id="site-notice-close" class="site-notice-close" aria-label="Close">✕</button>
+  </div>
 
   <main>
     <!-- The landing tile grid (below) is now the "home" a first-time visitor
@@ -1677,34 +1713,76 @@ to Flip!</span></div>
       </div>
     </section>
 
-    <!-- Admin panel: user accounts (incl. upgrade requests), paid signup codes -->
+    <!-- Admin panel. One section per job instead of one long scroll:
+         Overview (numbers + what needs attention), Customers (accounts, notes),
+         Inbox (customer inquiries), Coins, System (announcement, codes, email).
+         Wired up by public/js/admin-cs.js; the account/coin/code/email lists
+         themselves are still rendered by app.js. -->
     <section id="view-admincodes" class="view">
-      <div class="stats-grid" id="admin-stats-grid">
-        <div class="stat-box"><div class="num" id="admin-stat-total-users">0</div><div class="lbl" data-i18n="adminStatTotalUsers">👥 Total Users</div></div>
-        <div class="stat-box"><div class="num" id="admin-stat-premium-users">0</div><div class="lbl" data-i18n="adminStatPremiumUsers">⭐ Premium</div></div>
-        <div class="stat-box"><div class="num" id="admin-stat-total-coins">0</div><div class="lbl"><svg class="koala-coin" viewBox="0 0 24 24" width="1.1em" height="1.1em" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10.5" fill="#f6c343" stroke="#c98a12" stroke-width="1.5"/><circle cx="12" cy="12" r="7" fill="none" stroke="#e0a21a" stroke-width="1.2"/><path d="M12 7.2v9.6M9.3 9.6c0-1.2 1.2-1.9 2.7-1.9s2.7.7 2.7 1.9c0 2.7-5.4 1.5-5.4 4.2 0 1.2 1.2 2 2.7 2s2.7-.8 2.7-2" fill="none" stroke="#a86f0c" stroke-width="1.3" stroke-linecap="round"/></svg> <span data-i18n="adminStatTotalCoins">Coins Issued</span></div></div>
-        <div class="stat-box"><div class="num" id="admin-stat-unused-codes">0</div><div class="lbl" data-i18n="adminStatUnusedCodes">🎟️ Unused Codes</div></div>
+      <div class="admin-tabs" id="admin-tabs" role="tablist">
+        <button type="button" class="admin-tab active" role="tab" data-admin-tab="overview"><span class="admin-tab-ico" aria-hidden="true">📊</span><span class="admin-tab-label" data-admin-label="overview">Overview</span></button>
+        <button type="button" class="admin-tab" role="tab" data-admin-tab="customers"><span class="admin-tab-ico" aria-hidden="true">👥</span><span class="admin-tab-label" data-admin-label="customers">Customers</span></button>
+        <button type="button" class="admin-tab" role="tab" data-admin-tab="inbox"><span class="admin-tab-ico" aria-hidden="true">💬</span><span class="admin-tab-label" data-admin-label="inbox">Inbox</span><span class="admin-tab-badge" id="admin-inbox-badge" hidden></span></button>
+        <button type="button" class="admin-tab" role="tab" data-admin-tab="coins"><span class="admin-tab-ico" aria-hidden="true"><svg class="koala-coin" viewBox="0 0 24 24" width="1.1em" height="1.1em" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10.5" fill="#f6c343" stroke="#c98a12" stroke-width="1.5"/><circle cx="12" cy="12" r="7" fill="none" stroke="#e0a21a" stroke-width="1.2"/><path d="M12 7.2v9.6M9.3 9.6c0-1.2 1.2-1.9 2.7-1.9s2.7.7 2.7 1.9c0 2.7-5.4 1.5-5.4 4.2 0 1.2 1.2 2 2.7 2s2.7-.8 2.7-2" fill="none" stroke="#a86f0c" stroke-width="1.3" stroke-linecap="round"/></svg></span><span class="admin-tab-label" data-admin-label="coins">Coins</span></button>
+        <button type="button" class="admin-tab" role="tab" data-admin-tab="system"><span class="admin-tab-ico" aria-hidden="true">⚙️</span><span class="admin-tab-label" data-admin-label="system">System</span></button>
       </div>
 
-      <div class="card">
-        <h3 data-i18n="adminUsersTitle">🧑‍🤝‍🧑 User Accounts</h3>
-        <p class="muted" data-i18n="adminUsersDesc">Search for an account, change its role or password, or approve a pending upgrade request — a user waiting on one is pinned to the top.</p>
-        <div class="admin-panel-toolbar">
-          <input type="text" id="admin-users-search" class="wordlist-search admin-panel-search-inline" data-i18n-placeholder="adminUsersSearchPlaceholder" placeholder="Search by username" />
-          <div class="admin-panel-sort-group">
-            <label for="admin-users-sort" data-i18n="adminUsersSortLabel">Sort by</label>
-            <select id="admin-users-sort">
-              <option value="joined" data-i18n="adminUsersSortJoined">Join date</option>
-              <option value="az" data-i18n="adminUsersSortAz">Username (A→Z)</option>
-              <option value="role" data-i18n="adminUsersSortRole">Role</option>
-            </select>
-          </div>
+      <!-- Overview -->
+      <div class="admin-pane" data-admin-pane="overview">
+        <div class="stats-grid" id="admin-stats-grid">
+          <div class="stat-box"><div class="num" id="admin-stat-total-users">0</div><div class="lbl" data-i18n="adminStatTotalUsers">👥 Total Users</div></div>
+          <div class="stat-box"><div class="num" id="admin-stat-premium-users">0</div><div class="lbl" data-i18n="adminStatPremiumUsers">⭐ Premium</div></div>
+          <div class="stat-box"><div class="num" id="admin-stat-new-users">0</div><div class="lbl" id="admin-stat-new-users-lbl">🆕 New (7 days)</div></div>
+          <div class="stat-box"><div class="num" id="admin-stat-open-tickets">0</div><div class="lbl" id="admin-stat-open-tickets-lbl">💬 Open inquiries</div></div>
+          <div class="stat-box"><div class="num" id="admin-stat-total-coins">0</div><div class="lbl"><svg class="koala-coin" viewBox="0 0 24 24" width="1.1em" height="1.1em" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10.5" fill="#f6c343" stroke="#c98a12" stroke-width="1.5"/><circle cx="12" cy="12" r="7" fill="none" stroke="#e0a21a" stroke-width="1.2"/><path d="M12 7.2v9.6M9.3 9.6c0-1.2 1.2-1.9 2.7-1.9s2.7.7 2.7 1.9c0 2.7-5.4 1.5-5.4 4.2 0 1.2 1.2 2 2.7 2s2.7-.8 2.7-2" fill="none" stroke="#a86f0c" stroke-width="1.3" stroke-linecap="round"/></svg> <span data-i18n="adminStatTotalCoins">Coins Issued</span></div></div>
+          <div class="stat-box"><div class="num" id="admin-stat-unused-codes">0</div><div class="lbl" data-i18n="adminStatUnusedCodes">🎟️ Unused Codes</div></div>
         </div>
-        <p class="muted wordlist-count" id="admin-users-count"></p>
-        <div class="wordlist-grid" id="admin-users-grid"></div>
-        <p class="muted" id="admin-users-empty" hidden data-i18n="adminUsersEmpty">No accounts found.</p>
+        <div class="card admin-attention-card">
+          <h3 id="admin-attention-title">Needs your attention</h3>
+          <div id="admin-attention-list" class="admin-attention-list"></div>
+        </div>
       </div>
 
+      <!-- Customers -->
+      <div class="admin-pane" data-admin-pane="customers" hidden>
+        <div class="card">
+          <h3 data-i18n="adminUsersTitle">🧑‍🤝‍🧑 User Accounts</h3>
+          <p class="muted" id="admin-users-desc">Search for an account, change its role or password, or approve a pending upgrade request — a user waiting on one is pinned to the top.</p>
+          <div class="admin-panel-toolbar">
+            <input type="text" id="admin-users-search" class="wordlist-search admin-panel-search-inline" data-i18n-placeholder="adminUsersSearchPlaceholder" placeholder="Search by username" />
+            <div class="admin-panel-sort-group">
+              <label for="admin-users-sort" data-i18n="adminUsersSortLabel">Sort by</label>
+              <select id="admin-users-sort">
+                <option value="joined" data-i18n="adminUsersSortJoined">Join date</option>
+                <option value="az" data-i18n="adminUsersSortAz">Username (A→Z)</option>
+                <option value="role" data-i18n="adminUsersSortRole">Role</option>
+              </select>
+            </div>
+          </div>
+          <div class="admin-chips" id="admin-users-filter" role="group"></div>
+          <p class="muted wordlist-count" id="admin-users-count"></p>
+          <div class="wordlist-grid" id="admin-users-grid"></div>
+          <p class="muted" id="admin-users-empty" hidden data-i18n="adminUsersEmpty">No accounts found.</p>
+        </div>
+      </div>
+
+      <!-- Inbox -->
+      <div class="admin-pane" data-admin-pane="inbox" hidden>
+        <div class="card" id="admin-inbox-card">
+          <div id="admin-inbox-list-view">
+            <h3 id="admin-inbox-title">💬 Customer inbox</h3>
+            <p class="muted" id="admin-inbox-desc"></p>
+            <div class="admin-chips" id="admin-inbox-filter" role="group"></div>
+            <input type="text" id="admin-inbox-search" class="wordlist-search admin-panel-search-inline" autocomplete="off" />
+            <div id="admin-inbox-list" class="admin-inbox-list"></div>
+            <p class="muted" id="admin-inbox-empty" hidden></p>
+          </div>
+          <div id="admin-ticket-view" hidden></div>
+        </div>
+      </div>
+
+      <!-- Coins -->
+      <div class="admin-pane" data-admin-pane="coins" hidden>
       <div class="card" id="admin-koala-card">
         <h3><svg class="koala-coin" viewBox="0 0 24 24" width="1.1em" height="1.1em" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10.5" fill="#f6c343" stroke="#c98a12" stroke-width="1.5"/><circle cx="12" cy="12" r="7" fill="none" stroke="#e0a21a" stroke-width="1.2"/><path d="M12 7.2v9.6M9.3 9.6c0-1.2 1.2-1.9 2.7-1.9s2.7.7 2.7 1.9c0 2.7-5.4 1.5-5.4 4.2 0 1.2 1.2 2 2.7 2s2.7-.8 2.7-2" fill="none" stroke="#a86f0c" stroke-width="1.3" stroke-linecap="round"/></svg> <span id="admin-koala-title-text">Koala Coins</span></h3>
         <p class="muted admin-koala-desc" id="admin-koala-desc-text">Your own coins are unlimited. Give coins to a student, or take some back. A student receives them the next time they open the app.</p>
@@ -1731,6 +1809,20 @@ to Flip!</span></div>
         <button type="button" class="pill neutral small admin-koala-recent-more" id="admin-koala-recent-more-btn" hidden></button>
       </div>
 
+      </div>
+
+      <!-- System -->
+      <div class="admin-pane" data-admin-pane="system" hidden>
+        <div class="card" id="admin-notice-card">
+          <h3 id="admin-notice-title">📢 Announcement banner</h3>
+          <p class="muted" id="admin-notice-desc"></p>
+          <textarea id="admin-notice-text" class="admin-textarea" rows="2" maxlength="200"></textarea>
+          <label class="admin-check"><input type="checkbox" id="admin-notice-active" /> <span id="admin-notice-active-lbl"></span></label>
+          <div class="auth-actions auth-actions-start">
+            <button type="button" class="pill accent" id="admin-notice-save-btn"></button>
+          </div>
+          <p id="admin-notice-result" class="auth-hint" hidden></p>
+        </div>
       <div class="card">
         <h3 data-i18n="adminCodesTitle">🎁 Premium Signup Codes</h3>
         <p class="muted" data-i18n="adminCodesDesc">Generate a one-time code and send it to someone so they can sign up as a paid account instead of free.</p>
@@ -1767,6 +1859,7 @@ to Flip!</span></div>
         <h4 class="admin-email-log-title" data-i18n="adminEmailLogTitle">Recent emails</h4>
         <div id="admin-email-log" class="admin-email-log"></div>
         <p class="muted" id="admin-email-log-empty" hidden data-i18n="adminEmailLogEmpty">No emails sent yet.</p>
+      </div>
       </div>
     </section>
 
@@ -1826,6 +1919,18 @@ to Flip!</span></div>
           </div>
         </form>
       </div>
+      <div class="card" id="my-account-support-card">
+        <div id="my-account-support-list-view">
+          <h3 id="my-account-support-title">💬 My messages</h3>
+          <p class="auth-hint" id="my-account-support-desc"></p>
+          <div id="my-account-support-list" class="support-list"></div>
+          <p class="muted" id="my-account-support-empty" hidden></p>
+          <div class="auth-actions auth-actions-start">
+            <button type="button" class="pill accent small" id="my-account-support-new-btn"></button>
+          </div>
+        </div>
+        <div id="my-account-support-thread-view" hidden></div>
+      </div>
       <div class="card">
         <h3 data-i18n="myAccountChangePasswordTitle">🔒 Change Password</h3>
         <form id="my-account-password-form" class="auth-form">
@@ -1849,7 +1954,9 @@ to Flip!</span></div>
     </section>
   </main>
 
-  <footer id="app-footer">Made for Australian primary students learning English vocabulary. 🇦🇺</footer>
+  <footer id="app-footer">Made for Australian primary students learning English vocabulary. 🇦🇺
+    <button type="button" id="contact-open-btn" class="footer-link">💬 Contact us</button>
+  </footer>
 
   <!-- Mobile-only bottom tab bar (see .bottom-tabs in style.css). Home, Progress,
        My Koala and Add Word are plain data-view + tab-btn buttons that
@@ -1908,5 +2015,7 @@ to Flip!</span></div>
   <script src="js/quiz-core.js"></script>
   <script src="js/koala-art.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/support.js"></script>
+  <script src="js/admin-cs.js"></script>
 </body>
 </html>

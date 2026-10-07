@@ -772,7 +772,7 @@ const TRANSLATIONS = {
     adminEmailTestFail: (c) => `Couldn't send: ${c}`,
     adminEmailLogTitle: "Recent emails",
     adminEmailLogEmpty: "No emails sent yet.",
-    adminEmailKinds: { verify: "Confirmation", reset: "Password reset", forgot_username: "Username reminder", test: "Test" },
+    adminEmailKinds: { verify: "Confirmation", reset: "Password reset", forgot_username: "Username reminder", test: "Test", support: "Support reply", support_admin: "Support alert" },
     upgradeTitle: "⭐ Upgrade to Premium",
     upgradeDesc: "Snap your child's homework and we turn the words into practice. Enter a special code from the admin to unlock premium: photo word extraction, your own private word list, and more than 100 questions per round.",
     upgradeSubmitBtn: "Upgrade",
@@ -1520,7 +1520,7 @@ const TRANSLATIONS = {
     adminEmailTestFail: (c) => `보내지 못했어요: ${c}`,
     adminEmailLogTitle: "최근 발송 기록",
     adminEmailLogEmpty: "아직 보낸 메일이 없어요.",
-    adminEmailKinds: { verify: "이메일 인증", reset: "비밀번호 재설정", forgot_username: "아이디 안내", test: "테스트" },
+    adminEmailKinds: { verify: "이메일 인증", reset: "비밀번호 재설정", forgot_username: "아이디 안내", test: "테스트", support: "문의 답변", support_admin: "문의 알림" },
     upgradeTitle: "⭐ 프리미엄으로 업그레이드",
     upgradeDesc: "숙제를 사진으로 찍으면 단어가 연습 문제로 바뀌어요. admin에게 받은 특별 코드를 입력하면 사진 단어 추출, 나만의 단어장, 한 라운드 100문제 이상을 모두 쓸 수 있어요.",
     upgradeSubmitBtn: "업그레이드",
@@ -2663,6 +2663,8 @@ document.getElementById("theme-toggle").addEventListener("click", () => {
 const langToggleBtn = document.getElementById("lang-toggle");
 
 function switchLanguage(lang) {
+  if (window.koalaSupportUI) setTimeout(() => koalaSupportUI.localize(), 0);
+  if (window.adminCS) setTimeout(() => adminCS.localize(), 0);
   currentLang = lang;
   saveLang(lang);
   currentLevel = savedLevels[lang] || currentSystem_levels_default();
@@ -2869,6 +2871,7 @@ function refreshView(view) {
     loadAdminUsers();
     loadAdminKoala();
     loadAdminEmail();
+    if (window.adminCS) adminCS.enter();
   }
   if (view === "myaccount") renderMyAccount();
 }
@@ -3338,6 +3341,7 @@ const signupError = document.getElementById("signup-error");
 const signupCancelBtn = document.getElementById("signup-cancel-btn");
 
 function updateAdminUI() {
+  if (window.koalaSupportUI) koalaSupportUI.onAuthChange();
   clampGoalsForRole();
   // Flashcards/Word List/Add Word/My Progress stay visible even signed out —
   // tapping one prompts to sign up instead of the tab just disappearing (see
@@ -3738,6 +3742,7 @@ async function renderMyAccount() {
     .join("");
   refreshEmailCard(account);
   refreshUpgradeCard(account);
+  if (window.koalaSupportUI) koalaSupportUI.renderAccountCard();
 }
 
 // Upgrade card: only a free (signed-in) account sees it. Paying is the future
@@ -11576,7 +11581,7 @@ async function loadAdminUsers(query) {
     // Only an unfiltered load reflects the true total — a search's result
     // count would otherwise make the dashboard tiles shrink to match it.
     if (!query) {
-      adminStats.totalUsers = users.length;
+      adminStats.totalUsers = users.filter((u) => u.role !== "admin").length;
       adminStats.premiumUsers = users.filter((u) => u.role === "paid").length;
       renderAdminStats();
     }
@@ -11605,30 +11610,31 @@ function sortedAdminUsers() {
 
 function renderAdminUsers() {
   adminUsersGrid.innerHTML = "";
-  if (adminUsers.length === 0) {
+  const filter = window.adminCS ? adminCS.usersFilter : "all";
+  const shown = adminUsers.filter((u) => !window.adminCS || adminCS.userMatchesFilter(u, filter));
+  if (window.adminCS) adminCS.renderUserChips();
+  if (shown.length === 0) {
     adminUsersEmpty.hidden = false;
     adminUsersCountEl.textContent = "";
     return;
   }
   adminUsersEmpty.hidden = true;
-  adminUsersCountEl.textContent = t("adminUsersCount", adminUsers.length);
+  adminUsersCountEl.textContent = t("adminUsersCount", shown.length);
 
-  sortedAdminUsers().forEach((u) => {
+  sortedAdminUsers().filter((u) => shown.includes(u)).forEach((u) => {
     const row = document.createElement("div");
     row.className = "wordlist-item admin-user-row";
 
-    // Left: who they are and when they joined.
     const info = document.createElement("div");
     info.className = "admin-user-info";
     const nameEl = document.createElement("div");
     nameEl.className = "w";
-    nameEl.textContent = u.username;
+    const isSelf = currentUser && u.id === currentUser.id;
+    nameEl.textContent = (u.role === "admin" ? "👑 " : u.role === "paid" ? "⭐ " : "") + u.username + (isSelf ? " " + t("adminUserYou") : "");
     info.appendChild(nameEl);
     const whenEl = document.createElement("div");
     whenEl.className = "d";
-    whenEl.textContent =
-      t("adminUserCreatedAt", formatDate(u.createdAt)) +
-      (u.upgradedAt ? " · " + t("adminUserUpgradedAt", formatDate(u.upgradedAt)) : "");
+    whenEl.textContent = roleLabel(u.role) + " · " + t("adminUserCreatedAt", formatDate(u.createdAt));
     info.appendChild(whenEl);
     if (u.role !== "admin") {
       const emailEl = document.createElement("div");
@@ -11646,85 +11652,10 @@ function renderAdminUsers() {
     }
     row.appendChild(info);
 
-    // Center: current role, as a colored badge — a live <select> rather
-    // than plain text, but styled and positioned as the status indicator
-    // the role actually is, separate from the reset/delete actions on the
-    // right.
-    const roleCol = document.createElement("div");
-    roleCol.className = "admin-user-role";
-
-    // admin's own account can't be re-roled or password-reset from here —
-    // no lockout risk, and password changes go through My Account instead.
-    const isSelf = currentUser && u.id === currentUser.id;
-    if (isSelf) {
-      const meLabel = document.createElement("span");
-      meLabel.className = "admin-role-select";
-      meLabel.dataset.role = u.role;
-      meLabel.textContent = roleLabel(u.role) + " · " + t("adminUserYou");
-      roleCol.appendChild(meLabel);
-    } else {
-      const roleSelect = document.createElement("select");
-      roleSelect.className = "admin-role-select";
-      roleSelect.dataset.role = u.role;
-      ADMIN_ROLE_OPTIONS.forEach((role) => {
-        const opt = document.createElement("option");
-        opt.value = role;
-        opt.textContent = roleLabel(role);
-        if (role === u.role) opt.selected = true;
-        roleSelect.appendChild(opt);
-      });
-      roleCol.appendChild(roleSelect);
-
-      // Muted and inert until the dropdown actually differs from the saved
-      // role, then lights up accent-green — the button itself shows there's
-      // a pending change to apply, instead of looking identically clickable
-      // whether anything changed or not.
-      const applyBtn = document.createElement("button");
-      applyBtn.className = "edit-btn admin-apply-btn";
-      applyBtn.textContent = t("adminUserApplyRoleBtn");
-      applyBtn.disabled = true;
-      roleSelect.addEventListener("change", () => {
-        const changed = roleSelect.value !== u.role;
-        roleSelect.dataset.role = roleSelect.value;
-        applyBtn.classList.toggle("is-dirty", changed);
-        applyBtn.disabled = !changed;
-      });
-      applyBtn.addEventListener("click", async () => {
-        const newRole = roleSelect.value;
-        if (newRole === u.role) return;
-        if (!confirm(t("adminUserConfirmRoleChange", u.username, roleLabel(newRole)))) return;
-        applyBtn.disabled = true;
-        try {
-          const { user } = await api("/admin/users/set-role", {
-            method: "POST",
-            body: JSON.stringify({ userId: u.id, role: newRole }),
-          });
-          const wasPaid = u.role === "paid";
-          u.role = user.role;
-          u.upgradedAt = user.upgradedAt;
-          // Nudge the dashboard's premium count rather than a full reload —
-          // only matters when the change crosses in or out of "paid".
-          if (wasPaid !== (u.role === "paid")) {
-            adminStats.premiumUsers += u.role === "paid" ? 1 : -1;
-            renderAdminStats();
-          }
-          renderAdminUsers();
-        } catch (e) {
-          alert(t("adminRequestActionFailed"));
-          applyBtn.disabled = false;
-        }
-      });
-      roleCol.appendChild(applyBtn);
-    }
-    row.appendChild(roleCol);
-
-    // Right: the actions themselves — upgrade-request approve/dismiss (when
-    // pending), then an outline password-reset button and a small,
-    // icon-only delete button kept visually apart from it so a reset-
-    // password tap can't land on delete by mistake.
+    // Routine actions only: approve/dismiss a pending upgrade, and "Manage"
+    // (role, password, notes, messages, delete live in the customer file).
     const actions = document.createElement("div");
     actions.className = "admin-user-actions";
-
     if (u.pendingRequestId) {
       const approveBtn = document.createElement("button");
       approveBtn.className = "edit-btn";
@@ -11738,25 +11669,23 @@ function renderAdminUsers() {
           });
           u.pendingRequestId = null;
           renderAdminUsers();
+          if (window.adminCS) adminCS.reload();
         } catch (e) {
           alert(t("adminRequestActionFailed"));
           approveBtn.disabled = false;
         }
       });
       actions.appendChild(approveBtn);
-
       const dismissBtn = document.createElement("button");
       dismissBtn.className = "delete-btn";
       dismissBtn.textContent = t("adminRequestDismissBtn");
       dismissBtn.addEventListener("click", async () => {
         dismissBtn.disabled = true;
         try {
-          await api("/admin/upgrade-requests/dismiss", {
-            method: "POST",
-            body: JSON.stringify({ requestId: u.pendingRequestId }),
-          });
+          await api("/admin/upgrade-requests/dismiss", { method: "POST", body: JSON.stringify({ requestId: u.pendingRequestId }) });
           u.pendingRequestId = null;
           renderAdminUsers();
+          if (window.adminCS) adminCS.reload();
         } catch (e) {
           alert(t("adminRequestActionFailed"));
           dismissBtn.disabled = false;
@@ -11764,54 +11693,11 @@ function renderAdminUsers() {
       });
       actions.appendChild(dismissBtn);
     }
-
-    if (!isSelf) {
-      const resetPasswordBtn = document.createElement("button");
-      resetPasswordBtn.className = "retry-btn";
-      resetPasswordBtn.textContent = t("adminUserResetPasswordBtn");
-      resetPasswordBtn.addEventListener("click", async () => {
-        const newPassword = prompt(t("adminUserResetPasswordPrompt", u.username));
-        if (!newPassword) return;
-        if (!passwordMeetsPolicy(newPassword)) {
-          alert(t("authSignupErrorPassword"));
-          return;
-        }
-        resetPasswordBtn.disabled = true;
-        try {
-          await api("/admin/users/set-password", {
-            method: "POST",
-            body: JSON.stringify({ userId: u.id, newPassword }),
-          });
-          alert(t("adminUserResetPasswordDone", u.username));
-        } catch (e) {
-          alert(t("adminRequestActionFailed"));
-        }
-        resetPasswordBtn.disabled = false;
-      });
-      actions.appendChild(resetPasswordBtn);
-
-      const deleteUserBtn = document.createElement("button");
-      deleteUserBtn.className = "delete-btn";
-      deleteUserBtn.textContent = t("adminUserDeleteBtn");
-      deleteUserBtn.addEventListener("click", async () => {
-        const ok = await kidConfirm(t("adminUserConfirmDelete", u.username), t("deleteConfirmYesBtn"), t("deleteConfirmNoBtn"), { danger: true });
-        if (!ok) return;
-        deleteUserBtn.disabled = true;
-        try {
-          await api("/admin/users/delete", { method: "POST", body: JSON.stringify({ userId: u.id }) });
-          adminUsers = adminUsers.filter((x) => x.id !== u.id);
-          adminStats.totalUsers = Math.max(0, adminStats.totalUsers - 1);
-          if (u.role === "paid") adminStats.premiumUsers = Math.max(0, adminStats.premiumUsers - 1);
-          renderAdminStats();
-          renderAdminUsers();
-        } catch (e) {
-          alert(t("adminRequestActionFailed"));
-          deleteUserBtn.disabled = false;
-        }
-      });
-      actions.appendChild(deleteUserBtn);
-    }
-
+    const manageBtn = document.createElement("button");
+    manageBtn.className = "retry-btn";
+    manageBtn.textContent = rwL("Manage", "관리");
+    manageBtn.addEventListener("click", () => window.adminCS && adminCS.openCustomer(u));
+    actions.appendChild(manageBtn);
     row.appendChild(actions);
     adminUsersGrid.appendChild(row);
   });
@@ -13923,7 +13809,7 @@ async function loadAdminKoala() {
     // pending sync (a student hasn't opened the app since the last grant)
     // — issued is issued, whether or not the recipient has seen it yet.
     if (!adminKoalaQuery) {
-      adminStats.totalCoins = (adminKoala.users || []).reduce((sum, u) => sum + (u.coins || 0) + (u.pending || 0), 0);
+      adminStats.totalCoins = (adminKoala.users || []).filter((u) => u.role !== "admin").reduce((sum, u) => sum + (u.coins || 0) + (u.pending || 0), 0);
       renderAdminStats();
     }
   } catch (e) {
@@ -13967,7 +13853,8 @@ function renderAdminKoala({ resetRecentPaging = true } = {}) {
   if (!grid) return;
   renderAdminKoalaTableHeaders();
   if (resetRecentPaging) adminKoalaRecentVisibleCount = ADMIN_KOALA_RECENT_PAGE_SIZE;
-  const users = adminKoala.users || [];
+  // The admin's own balance is unlimited — it isn't a customer's, so it's left out of the list.
+  const users = (adminKoala.users || []).filter((u) => u.role !== "admin");
   empty.hidden = users.length > 0;
   const chipsHtml = ADMIN_KOALA_QUICK_AMOUNTS.map((n) => `<button type="button" class="admin-koala-chip" data-set-amt="${n}">+${n}</button>`).join("");
   const giveLabel = rwL("+ Give", "+ 지급");

@@ -5,7 +5,7 @@
   "description": "Aussie English Word Practice — static app plus a small Cloudflare Worker API for the shared word list.",
   "scripts": {
     "dev": "wrangler dev",
-    "test": "node --test tests/koala-core.test.js tests/quiz-core.test.js && node --experimental-sqlite --test tests/worker-koala.test.mjs",
+    "test": "node --test tests/koala-core.test.js tests/quiz-core.test.js && node --experimental-sqlite --test tests/worker-koala.test.mjs tests/worker-support.test.mjs",
     "deploy": "wrangler deploy",
     "db:init": "wrangler d1 execute englishwordspractice --remote --file=./schema.sql",
     "db:init:local": "wrangler d1 execute englishwordspractice --local --file=./schema.sql",
@@ -16,6 +16,8 @@
     "db:migrate:koala-sync:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0007_koala_account_sync.sql",
     "db:migrate:email": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0008_email_system.sql",
     "db:migrate:email:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0008_email_system.sql",
+    "db:migrate:support": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0009_support.sql",
+    "db:migrate:support:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0009_support.sql",
     "db:migrate:users:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0001_users_and_word_ownership.sql"
   },
   "devDependencies": {
