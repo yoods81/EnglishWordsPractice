@@ -2611,9 +2611,22 @@ function refreshCurrentView() {
 function scrollNavBarToTop() {
   const bar = document.querySelector(".tabs-bar");
   const nav = bar && bar.querySelector("nav.tabs");
+  let spacer = document.getElementById("nav-scroll-spacer");
+  if (!spacer) {
+    spacer = document.createElement("div");
+    spacer.id = "nav-scroll-spacer";
+    spacer.setAttribute("aria-hidden", "true");
+    spacer.style.cssText = "height:0;pointer-events:none;";
+    document.body.appendChild(spacer);
+  }
+  spacer.style.height = "0px";
   if (!bar || !nav || !nav.offsetParent) return; // phone: nav lives in the bottom bar
   const top = Math.max(0, Math.round(bar.getBoundingClientRect().top + window.scrollY - 6));
-  window.scrollTo({ top, behavior: "auto" });
+  // A short page can't scroll far enough to lift the nav row to the top of the
+  // window, so pad the bottom just enough (invisible) to make that possible.
+  const room = document.documentElement.scrollHeight - window.innerHeight;
+  if (room < top) spacer.style.height = (top - room) + "px";
+  window.scrollTo(0, top);
 }
 
 function refreshView(view) {
@@ -2746,6 +2759,10 @@ function goToTab(view) {
     // Layout has settled after the view switch: align, then once more after fonts/images shift it.
     requestAnimationFrame(scrollNavBarToTop);
     setTimeout(scrollNavBarToTop, 250);
+    setTimeout(scrollNavBarToTop, 700);
+  } else {
+    const sp = document.getElementById("nav-scroll-spacer");
+    if (sp) sp.style.height = "0px";
   }
 }
 
