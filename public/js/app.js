@@ -13042,7 +13042,7 @@ let koalaTab = "character"; // "character" | "room" | "coins" | "badges"
 // The shop is a 2-split studio: the live preview stays on top, the item grid sits below.
 let koalaSlotPick = { character: "headwear", room: "wallpaper" }; // category chip per tab
 let koalaTry = null; // item id being tried on in the preview (not owned / not worn yet)
-let koalaSellMode = false; // shop cards turn into "sell back" buttons
+let koalaOwnedView = false; // the shop box lists only what you own ("My items"); tap one to sell it back
 let koalaPick = null; // room item (bookshelf, desk, frame, toy box…) whose sub-items are listed under the preview
 
 // The admin account has unlimited coins: nothing is ever short, nothing is spent.
@@ -13082,17 +13082,6 @@ function koalaItemCardHtml(it) {
   const name = koalaItemName(it);
   const plain = koalaItemStatusText(st).replace(/<[^>]*>/g, "");
   const trying = koalaTry === it.id;
-  if (koalaSellMode) {
-    const sellable = !!it.unlock.coins && (st.state === "owned" || st.state === "equipped");
-    if (sellable) {
-      return `<button type="button" class="koala-item is-sell" data-koala-sell="${it.id}" aria-label="${escapeHtml(name)} — ${escapeHtml(rwL("Sell back", "되팔기"))}" title="${escapeHtml(name)}">
-        <span class="koala-item-pic" aria-hidden="true">${KoalaArt.itemIcon(it.id)}</span>
-        <span class="koala-item-name">${escapeHtml(name)}</span><span class="koala-item-status sell">💰 +${KoalaCore.sellValue(it.unlock.coins)}</span></button>`;
-    }
-    return `<button type="button" class="koala-item is-dim" disabled aria-label="${escapeHtml(name)}">
-        <span class="koala-item-pic" aria-hidden="true">${KoalaArt.itemIcon(it.id)}</span>
-        <span class="koala-item-name">${escapeHtml(name)}</span><span class="koala-item-status">${st.state === "owned" || st.state === "equipped" ? rwL("Can't sell", "못 팔아요") : "—"}</span></button>`;
-  }
   const badge = st.state === "equipped" ? `<span class="koala-item-badge on" aria-hidden="true">✓</span>`
     : "";
   return `<button type="button" class="koala-item is-${st.state}${trying ? " is-trying" : ""}" data-koala-item="${it.id}"${st.state === "equipped" || trying ? ' aria-pressed="true"' : ""}
@@ -13186,7 +13175,8 @@ function koalaSubBoxHtml(k, cls) {
   const kind = koalaPick ? KoalaCore.subKind(koalaPick) : null;
   const label = `<div class="koala-subbox-label"><span aria-hidden="true">🧺</span> ${rwL("Inside your furniture", "가구 속 물건")}</div>`;
   const shopBtn = (kd) => `<button type="button" class="koala-subbox-shop" data-koala-cat="sub:${kd}">${rwL("🛒 Get more in the shop", "🛒 상점에서 더 사기")} ›</button>`;
-  if (!kind) {
+  if (!kind) return "";
+  if (false) {
     const have = eqIds.filter((id) => KoalaCore.subKind(id));
     const chips = have.map((id) => {
       const it = KoalaCore.itemById(id);
@@ -13405,10 +13395,6 @@ function koalaStudioTopHtml(k, mode) {
     sub: k.items.sub || {},
     pick: mode === "room" ? koalaPick : null,
   });
-  const slots = mode === "room" ? KoalaCore.ROOM_SLOTS.concat(KOALA_SUB_KINDS.map((x) => "sub:" + x)) : KoalaCore.ITEM_SLOTS;
-  const titles = KOALA_SLOT_TITLES();
-  const catTitle = (s) => (koalaIsSubCat(s) ? koalaSubKindTitle(s.slice(4)) : titles[s]);
-  const cats = slots.map((s) => `<button type="button" class="koala-cat${koalaIsSubCat(s) ? " koala-cat-sub" : ""}${koalaSlotPick[mode] === s ? " on" : ""}" role="tab" aria-selected="${koalaSlotPick[mode] === s}" data-koala-cat="${s}">${catTitle(s)}</button>`).join("");
   return `<div class="koala-studio-top"><div class="koala-studio-preview">
     <div class="koala-studio-bar">
       <button type="button" class="koala-back" data-koala-go="landing">${rwL("‹ Back", "‹ 돌아가기")}</button>
@@ -13419,28 +13405,55 @@ function koalaStudioTopHtml(k, mode) {
       ? `<div class="koala-stage is-room" id="koala-stage">${scene}<button type="button" class="koala-zoom-tag" data-koala-zoom="room" aria-label="${rwL("See the room bigger", "방 크게 보기")}">${rwL("🔍 Bigger", "🔍 크게 보기")}</button></div>`
       : `<div class="koala-stage is-${mode}" id="koala-stage" role="button" tabindex="0" data-koala-zoom="koala" aria-label="${rwL("Tap to see it bigger", "눌러서 크게 보기")}">${scene}<span class="koala-zoom-tag" aria-hidden="true">${rwL("🔍 Bigger", "🔍 크게 보기")}</span></div>`}
     ${koalaTryBarHtml()}${mode === "room" ? koalaSubBoxHtml(k, "is-in-preview") : ""}</div>
-    <div class="koala-cats" role="tablist" aria-label="${rwL("Item categories", "아이템 종류")}">${cats}</div>
   </div>`;
+}
+
+// The shop box: category strip + "My items" button, then the items of the chosen category.
+function koalaCatsHtml(mode) {
+  const slots = mode === "room" ? KoalaCore.ROOM_SLOTS.concat(KOALA_SUB_KINDS.map((x) => "sub:" + x)) : KoalaCore.ITEM_SLOTS;
+  const titles = KOALA_SLOT_TITLES();
+  const catTitle = (s) => (koalaIsSubCat(s) ? koalaSubKindTitle(s.slice(4)) : titles[s]);
+  const cats = slots.map((s) => `<button type="button" class="koala-cat${koalaIsSubCat(s) ? " koala-cat-sub" : ""}${koalaSlotPick[mode] === s ? " on" : ""}" role="tab" aria-selected="${koalaSlotPick[mode] === s}" data-koala-cat="${s}">${catTitle(s)}</button>`).join("");
+  return `<div class="koala-cats" role="tablist" aria-label="${rwL("Item categories", "아이템 종류")}">${cats}</div>`;
+}
+
+// "My items": everything you own that can be sold back (room / character items, plus the little things inside).
+function koalaOwnedListHtml(mode) {
+  const k = KoalaCore.ensureKoala(progress);
+  const slots = mode === "room" ? KoalaCore.ROOM_SLOTS : KoalaCore.ITEM_SLOTS;
+  const items = KoalaCore.ITEMS.filter((it) => slots.includes(it.slot) && k.items.owned[it.id]);
+  const subs = mode === "room" ? KoalaCore.SUB_ITEMS.filter((x) => KoalaCore.isSubOwned(progress, x.id)) : [];
+  const cards = items.map((it) => {
+    const name = koalaItemName(it);
+    const back = it.unlock.coins ? `💰 +${KoalaCore.sellValue(it.unlock.coins)}` : rwL("Can't sell", "못 팔아요");
+    return `<button type="button" class="koala-item is-sell${it.unlock.coins ? "" : " is-dim"}" data-koala-own="${it.id}" aria-label="${escapeHtml(name)}" title="${escapeHtml(name)}">
+      <span class="koala-item-pic" aria-hidden="true">${KoalaArt.itemIcon(it.id)}</span>
+      <span class="koala-item-name">${escapeHtml(name)}</span><span class="koala-item-status sell">${back}</span></button>`;
+  }).join("");
+  const subCards = subs.map((x) => koalaSubCardHtml(koalaSubParentFor(x.kind), x, false).replace(/<span class="koala-sub-st[^>]*>.*?<\/span>/, `<span class="koala-sub-st own">${rwL("Mine", "보유")}</span>`)).join("");
+  const empty = !cards && !subCards ? `<p class="koala-sell-hint">${rwL("You don't own anything yet — unlock something in the shop!", "아직 가진 아이템이 없어요. 상점에서 열어 보세요!")}</p>` : "";
+  return `<div class="koala-shelf-head"><span class="koala-shelf-title">🎒 ${rwL("My items", "내 아이템")} <small>${items.length + subs.length}</small></span></div>
+    <p class="koala-sell-hint">${rwL("Tap an item to see more — you can sell it back for 80% of its price.", "아이템을 누르면 되팔 수 있어요. 가격의 80%가 코인으로 돌아와요.")}</p>${empty}
+    ${cards ? `<div class="koala-grid">${cards}</div>` : ""}${subCards ? `<div class="koala-subgrid koala-subgrid-shop">${subCards}</div>` : ""}`;
 }
 
 // Bottom half: the items of the chosen category as a grid.
 function koalaShopGridHtml(mode) {
   const slot = koalaSlotPick[mode];
-  if (koalaIsSubCat(slot)) return koalaSubShopHtml(slot.slice(4));
+  const mineBtn = `<button type="button" class="pill small koala-sellmode${koalaOwnedView ? " on" : ""}" data-koala-owned aria-pressed="${koalaOwnedView}">${koalaOwnedView ? rwL("✓ Back to shop", "✓ 상점으로") : rwL("🎒 My items", "🎒 내 아이템")}</button>`;
+  const head = `<div class="koala-shop-bar">${koalaCatsHtml(mode)}${mineBtn}</div>`;
+  if (koalaOwnedView) return head + koalaOwnedListHtml(mode);
+  if (koalaIsSubCat(slot)) return head + koalaSubShopHtml(slot.slice(4));
   const items = KoalaCore.visibleItems(progress, slot, { showAll: serverAdmin });
   const have = items.filter((it) => { const s = KoalaCore.itemStatus(progress, it, koalaOpts()).state; return s === "equipped" || s === "owned"; }).length;
-  const sellable = KoalaCore.ITEMS.some((it) => it.unlock.coins && KoalaCore.ensureKoala(progress).items.owned[it.id]);
-  const sellBtn = sellable || koalaSellMode
-    ? `<button type="button" class="pill small koala-sellmode${koalaSellMode ? " on" : ""}" data-koala-sellmode aria-pressed="${koalaSellMode}">${koalaSellMode ? rwL("✓ Done", "✓ 끝내기") : rwL("💰 Sell back", "💰 되팔기")}</button>` : "";
-  return `<div class="koala-shelf-head"><span class="koala-shelf-title">${KOALA_SLOT_TITLES()[slot]} <small>${have}/${items.length}</small></span>${sellBtn}</div>
-    ${koalaSellMode ? `<p class="koala-sell-hint">${rwL("Tap an item you bought to sell it back. You get 80% of its price in your coin wallet.", "산 아이템을 누르면 되팔 수 있어요. 가격의 80%가 코인 지갑으로 돌아와요.")}</p>` : ""}
+  return `${head}<div class="koala-shelf-head"><span class="koala-shelf-title">${KOALA_SLOT_TITLES()[slot]} <small>${have}/${items.length}</small></span></div>
     <div class="koala-grid">${items.map(koalaItemCardHtml).join("")}</div>`;
 }
 
 // One shop panel for both tabs: Character (what the koala wears) and Room (what is in the room).
 function koalaStudioHtml(k, mode) {
-  return `<div class="koala-studio">${koalaStudioTopHtml(k, mode)}${mode === "room" ? koalaSubBoxHtml(k, "is-flow") : ""}<div class="koala-shelf">${koalaShopGridHtml(mode)}</div>
-    ${koalaNextRewardHtml(mode)}${mode === "room" ? koalaTrophyWallHtml() : ""}</div>`;
+  return `<div class="koala-studio">${koalaStudioTopHtml(k, mode)}<div class="koala-shelf">${koalaShopGridHtml(mode)}</div>
+    ${koalaNextRewardHtml(mode)}</div>`;
 }
 
 function koalaNextRewardHtml(kind) {
@@ -13636,8 +13649,8 @@ function renderKoala() {
   // Shop tabs (Character / Room): tabs, then the studio (live preview on top, items below), level + streak last.
   // Coins / Badges keep the plain page: level card, tabs, panel.
   const page = studio
-    ? `${tabs}${koalaStudioHtml(k, koalaTab)}${hero}`
-    : `${hero}${tabs}<div class="koala-panel">${koalaTab === "badges" ? badgesPanel : koalaCoinsHtml(k)}</div>`;
+    ? `${tabs}${koalaStudioHtml(k, koalaTab)}${koalaTab === "room" ? "" : hero}`
+    : `${tabs}${hero}<div class="koala-panel">${koalaTab === "badges" ? badgesPanel : koalaCoinsHtml(k)}</div>`;
 
   // Re-rendering must not make the page or the category strip jump.
   const prevCats = box.querySelector(".koala-cats");
@@ -13778,16 +13791,16 @@ function koalaTap(id) {
 
 document.addEventListener("click", (e) => {
   const tab = e.target.closest("[data-koala-tab]");
-  if (tab) { koalaTab = ["badges", "room", "coins"].includes(tab.dataset.koalaTab) ? tab.dataset.koalaTab : "character"; koalaTry = null; koalaPick = null; koalaSellMode = false; renderKoala(); return; }
+  if (tab) { koalaTab = ["badges", "room", "coins"].includes(tab.dataset.koalaTab) ? tab.dataset.koalaTab : "character"; koalaTry = null; koalaPick = null; koalaOwnedView = false; renderKoala(); return; }
   const cat = e.target.closest("[data-koala-cat]");
   if (cat) {
-    koalaSlotPick[koalaTab === "room" ? "room" : "character"] = cat.dataset.koalaCat; koalaTry = null; renderKoala();
+    koalaSlotPick[koalaTab === "room" ? "room" : "character"] = cat.dataset.koalaCat; koalaTry = null; koalaOwnedView = false; renderKoala();
     if (koalaIsSubCat(cat.dataset.koalaCat) && !cat.closest(".koala-cats")) requestAnimationFrame(() => { const sh = document.querySelector(".koala-shelf"); if (sh) sh.scrollIntoView({ block: "start", behavior: "smooth" }); });
     return;
   }
-  if (e.target.closest("[data-koala-sellmode]")) { koalaSellMode = !koalaSellMode; koalaTry = null; renderKoala(); return; }
-  const sellCard = e.target.closest("[data-koala-sell]");
-  if (sellCard) { openKoalaSellConfirm(sellCard.dataset.koalaSell); return; }
+  if (e.target.closest("[data-koala-owned]")) { koalaOwnedView = !koalaOwnedView; koalaTry = null; renderKoala(); return; }
+  const ownCard = e.target.closest("[data-koala-own]");
+  if (ownCard) { const oi = KoalaCore.itemById(ownCard.dataset.koalaOwn); if (oi && oi.unlock.coins) openKoalaSellConfirm(oi.id); return; }
   const pickBtn = e.target.closest("[data-koala-pick]");
   if (pickBtn) { koalaSetPick(pickBtn.dataset.koalaPick); return; }
   if (e.target.closest("[data-koala-pick-clear]")) { koalaPick = null; renderKoala(); return; }

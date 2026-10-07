@@ -11819,3 +11819,12 @@ html body #view-koala .koala-subbox-head { position: static; padding: 0; margin-
 .koala-cat-sub { position: relative; }
 html[data-theme="dark"] .koala-subbox-shop { background: #1e2f29; color: #6ff0cf; }
 html body #view-koala .koala-subbox.is-in-preview { max-height: 38vh; overflow-y: auto; }
+
+/* Koala: shop box = category strip + My items + grid */
+.koala-shop-bar{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.koala-shop-bar .koala-cats{padding:0}
+.koala-shop-bar .koala-sellmode{align-self:flex-start}
+html body #view-koala .koala-studio-top > .koala-cats{display:none}
+html body #view-koala .koala-subbox.is-in-preview{display:block}
+html body #view-koala .koala-studio-top:has(.koala-subbox),html body #view-koala .koala-studio-preview:has(.koala-subbox){position:static}
+html body #view-koala .koala-subbox.is-in-preview{max-height:none;overflow:visible}
