@@ -8244,8 +8244,9 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
 .qz-opt.qz-opt-has-speak .qz-opt-text { padding-right: 24px; }
 .qz-opt-speak {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 50%;
+  right: 8px;
+  margin-top: -13px;
   width: 26px;
   height: 26px;
   display: flex;
@@ -8318,12 +8319,12 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
    leaving the card pinned to the top with empty space below it. */
 #quiz-result.qz-result { display: flex; align-items: center; justify-content: center; min-height: min(52vh, 420px); }
 #quiz-result.qz-result[hidden] { display: none; }
-.qz-result-card { padding: 4px 2px 2px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.qz-result-card { padding: 8px 4px 6px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .qz-result-koala { font-size: 3rem; line-height: 1; animation: qz-bounce 1.2s ease-in-out infinite; }
 .qz-result-koala.is-keep { animation-duration: 2.4s; }
 @keyframes qz-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 /* Unfilled stars read as a soft gold outline (not-yet-earned), not flat gray. */
-.qz-stars { font-size: 1.8rem; letter-spacing: 4px; color: #f5d98a; }
+.qz-stars { font-size: 2rem; letter-spacing: 6px; color: #f5d98a; }
 .qz-star.on { display: inline-block; color: #ffb400; text-shadow: 0 2px 0 #c27400; animation: qz-pop 0.5s both; }
 .qz-star.on:nth-child(2) { animation-delay: 0.15s; }
 .qz-star.on:nth-child(3) { animation-delay: 0.3s; }
@@ -8333,7 +8334,7 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
    scene background behind the card, where --accent-dark reads too close
    in hue to blend in. */
 .qz-result-score { font-family: var(--font-heading); font-weight: 800; font-size: 3rem; line-height: 1; color: #0b6b57; }
-.qz-result-mood { margin: 0; font-size: 0.95rem; font-weight: 700; }
+.qz-result-mood { margin: 0; font-size: 1.05rem; font-weight: 700; }
 .qz-coin-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 12px; border-radius: 999px; background: #fff6d8; border: 1px solid #f0d28a; color: #8a5a00; font-family: var(--font-heading); font-weight: 800; font-size: 0.85rem; }
 /* The gift is a small icon next to the coin chip, not a second big button
    competing with the primary CTA below. */
@@ -8358,16 +8359,16 @@ html body #flash-start-screen.sp-start { position: relative; overflow: hidden; b
 @media (prefers-reduced-motion: reduce) { .qz-gift-icon-btn { animation: none; } }
 /* Missed words as small tap-to-hear chips instead of a second, redundant
    "words to practise" list duplicating the retry button's own count. */
-.qz-missed-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: 100%; }
+.qz-missed-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 2px 0; max-width: 100%; }
 .qz-missed-chip {
   border: 1px solid var(--outline); border-radius: 999px; background: #fff; color: var(--accent-dark);
-  padding: 4px 12px; font-family: var(--font-heading); font-weight: 700; font-size: 0.8rem; cursor: pointer;
+  padding: 6px 14px; font-family: var(--font-heading); font-weight: 700; font-size: 0.9rem; cursor: pointer;
 }
 .qz-missed-chip:hover { background: #f2fcf8; }
 .qz-missed-chip-more { color: var(--muted); cursor: default; background: transparent; }
 /* Extra gap above "Change settings" (16px, not 6px) so a stray tap right
    after the primary button can't land on it by accident. */
-.qz-result-actions { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 4px; width: 100%; }
+.qz-result-actions { display: flex; flex-direction: column; align-items: center; gap: 18px; margin-top: 10px; width: 100%; }
 .qz-result-primary {
   width: 100%; max-width: 280px; min-height: 52px; padding: 10px 20px;
   border: 0; border-radius: 999px; font-family: var(--font-heading); font-weight: 800; font-size: 1.1rem;
