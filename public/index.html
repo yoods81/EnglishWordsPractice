@@ -99,6 +99,8 @@
           <li data-rule="digit" data-i18n="pwRuleDigit">1 number</li>
           <li data-rule="special" data-i18n="pwRuleSpecial">1 special character (! @ # …)</li>
         </ul>
+        <label for="signup-password-confirm" data-i18n="resetConfirmLabel">Type it again</label>
+        <input id="signup-password-confirm" type="password" autocomplete="new-password" />
 
         <div id="signup-premium-panel" class="premium-panel" hidden>
           <button type="button" id="signup-pay-btn" class="pill primary premium-pay-btn" data-i18n="payBtn">💳 Pay and join Premium</button>
@@ -158,6 +160,35 @@
           <button type="submit" id="reset-submit-btn" class="pill accent" data-i18n="resetSubmitBtn">Save new password</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Shown to a signed-in account whose email isn't confirmed yet: nothing else works until it is -->
+  <div id="verify-gate" class="auth-overlay verify-gate" hidden>
+    <div class="auth-card notice-card" role="dialog" aria-modal="true" aria-labelledby="verify-gate-title">
+      <div class="notice-art notice-mail" aria-hidden="true">
+        <span class="notice-logo"><img src="favicon.svg?v=4" alt="" width="76" height="76"></span>
+        <span class="notice-badge"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#2d6cff" stroke="#1e4fcc" stroke-width="3"/><rect x="12.5" y="16" width="23" height="16" rx="3.5" fill="none" stroke="#fff" stroke-width="3.2" stroke-linejoin="round"/><path d="M14 18.5l10 7.5 10-7.5" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <h2 id="verify-gate-title" data-i18n="gateTitle">Confirm your email to start</h2>
+      <p class="notice-text"><span class="notice-lead" id="verify-gate-email"></span><span class="notice-sub" data-i18n="gateText">Open the link in the email we sent you. Everything unlocks as soon as you do.</span></p>
+      <p id="verify-gate-msg" class="auth-success" hidden></p>
+      <p id="verify-gate-error" class="auth-error" hidden></p>
+      <div class="verify-gate-actions">
+        <button type="button" id="verify-gate-check-btn" class="pill accent" data-i18n="gateCheckBtn">I confirmed it</button>
+        <button type="button" id="verify-gate-resend-btn" class="pill neutral" data-i18n="gateResendBtn">Send the email again</button>
+        <button type="button" id="verify-gate-change-btn" class="auth-link" data-i18n="gateChangeBtn">Wrong email? Change it</button>
+      </div>
+      <form id="verify-gate-change-form" class="auth-form" novalidate hidden>
+        <label for="verify-gate-new-email" data-i18n="myAccountEmailNewLabel">Email address</label>
+        <input id="verify-gate-new-email" type="email" autocomplete="off" inputmode="email" />
+        <label for="verify-gate-password" data-i18n="myAccountRecoveryPasswordLabel">Type your password to confirm</label>
+        <input id="verify-gate-password" type="password" autocomplete="new-password" data-no-autofill />
+        <div class="auth-actions">
+          <button type="submit" class="pill accent" data-i18n="myAccountEmailSaveBtn">Save email</button>
+        </div>
+      </form>
+      <button type="button" id="verify-gate-logout-btn" class="auth-link verify-gate-logout" data-i18n="authLogoutBtn">Log Out</button>
     </div>
   </div>
 
@@ -284,7 +315,7 @@
         </div>
         <div class="tab-group" data-group-views="timestable,typegame" id="game-tab-group">
           <button type="button" class="tab-group-trigger" id="game-tab-btn" aria-haspopup="true" aria-expanded="false">
-            <span data-i18n="navGame">👾 Game</span><span class="tab-caret" aria-hidden="true">▾</span>
+            <span data-i18n="navGame">Game</span><span class="tab-caret" aria-hidden="true">▾</span>
           </button>
           <div class="tab-dropdown">
             <button data-view="timestable" class="tab-btn tab-dropdown-item"><span data-i18n="navTimesTable">🧮 Times Table</span></button>
@@ -371,8 +402,10 @@
         </div>
         <button type="button" class="pill accent small" id="promo-btn" data-view-go="addword" data-i18n="promoBtn">Try it →</button>
       </div>
+      <div class="home-groups-row row-learn">
+        <div class="home-group">
       <h2 class="home-section-title" data-i18n="homeLearn">Learn</h2>
-      <div class="landing-tiles tiles-4">
+      <div class="landing-tiles tiles-3">
         <button data-view="quiz" class="tab-btn landing-tile">
           <span class="landing-tile-icon" aria-hidden="true">💡</span>
           <span class="landing-tile-body">
@@ -394,6 +427,11 @@
             <span class="landing-tile-desc" data-i18n="landingDescFlashcards">Flip through and review</span>
           </span>
         </button>
+      </div>
+        </div>
+        <div class="home-group">
+      <h2 class="home-section-title" data-i18n="homeWords">Words</h2>
+      <div class="landing-tiles">
         <button data-view="wordlist" class="tab-btn landing-tile">
           <span class="landing-tile-icon" aria-hidden="true">📖</span>
           <span class="landing-tile-body">
@@ -401,6 +439,16 @@
             <span class="landing-tile-desc" data-i18n="landingDescWordlist">Browse every word you have</span>
           </span>
         </button>
+        <button data-view="addword" class="tab-btn landing-tile landing-tile-highlight">
+          <span class="landing-tile-icon" aria-hidden="true">➕</span>
+          <span class="landing-tile-body">
+            <span class="landing-tile-title" data-i18n="navAddword">➕ Add Word</span>
+            <span class="landing-tile-desc" data-i18n="landingDescAddword">Build your own word list</span>
+          </span>
+          <span class="nav-badge landing-tile-badge" aria-hidden="true">🔒</span>
+        </button>
+      </div>
+        </div>
       </div>
       <div class="home-groups-row">
         <div class="home-group">
@@ -439,14 +487,6 @@
             <span class="landing-tile-title" data-i18n="navKoala">My Koala</span>
             <span class="landing-tile-desc" data-i18n="landingDescKoala">Your badges, streak and Koala</span>
           </span>
-        </button>
-        <button data-view="addword" class="tab-btn landing-tile landing-tile-highlight">
-          <span class="landing-tile-icon" aria-hidden="true">➕</span>
-          <span class="landing-tile-body">
-            <span class="landing-tile-title" data-i18n="navAddword">➕ Add Word</span>
-            <span class="landing-tile-desc" data-i18n="landingDescAddword">Build your own word list</span>
-          </span>
-          <span class="nav-badge landing-tile-badge" aria-hidden="true">🔒</span>
         </button>
       </div>
         </div>
@@ -1733,13 +1773,21 @@ to Flip!</span></div>
           <span class="upgrade-card-badge" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 4.5l5.6 11.6 12.7 1.7-9.3 8.8 2.4 12.6L24 33.1l-11.4 6.1 2.4-12.6-9.3-8.8 12.7-1.7z" fill="#ffc93c" stroke="#d99a00" stroke-width="3" stroke-linejoin="round"/><path d="M24 13.5l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#fff3b0"/></svg></span>
           <div>
             <h3 data-i18n="upgCardTitle">Upgrade to Premium</h3>
-            <p class="upgrade-card-lead" data-i18n="upgCardLead">Unlock the full Koala Study Mate.</p>
+            <p class="upgrade-card-lead" data-i18n="upgCardLead">Turn any homework into practice.</p>
+          </div>
+        </div>
+        <div class="upgrade-hero">
+          <span class="upgrade-hero-ico" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="6" y="18" width="52" height="38" rx="9" fill="#22c9a3" stroke="#0b6b57" stroke-width="4"/><path d="M22 18l4-8h12l4 8" fill="#22c9a3" stroke="#0b6b57" stroke-width="4" stroke-linejoin="round"/><circle cx="32" cy="36" r="12" fill="#fff" stroke="#0b6b57" stroke-width="4"/><circle cx="32" cy="36" r="5" fill="#2d6cff"/><circle cx="48" cy="26" r="2.6" fill="#ffd166"/></svg></span>
+          <div>
+            <strong data-i18n="upgHeroTitle">Snap the homework. We find the words.</strong>
+            <p data-i18n="upgHeroText">Take a photo of a school word sheet or a book page. We pick out the tricky words and turn them into flashcards, spelling and quizzes in seconds.</p>
           </div>
         </div>
         <ul class="upgrade-benefits">
-          <li data-i18n="upgBenefit1">More than 100 questions per round</li>
-          <li data-i18n="upgBenefit2">Add your own words by photo or typing</li>
-          <li data-i18n="upgBenefit3">Your own flashcard deck</li>
+          <li data-i18n="upgBenefit2">Photo, PDF, Word or Excel files all work</li>
+          <li data-i18n="upgBenefit3">Your own word list, matched to your child's school week</li>
+          <li data-i18n="upgBenefit1">Practise with more than 100 questions per round</li>
+          <li data-i18n="upgBenefit4">Your progress follows you to any device</li>
         </ul>
         <p id="my-account-upgrade-status" class="auth-success" hidden></p>
         <div class="upgrade-card-actions">
@@ -1757,9 +1805,9 @@ to Flip!</span></div>
         </div>
         <form id="my-account-email-form" class="auth-form" novalidate>
           <label for="my-account-email-input" data-i18n="myAccountEmailNewLabel">Email address</label>
-          <input id="my-account-email-input" class="auth-form-input-narrow" type="email" autocomplete="email" inputmode="email" />
+          <input id="my-account-email-input" class="auth-form-input-narrow" type="email" autocomplete="off" inputmode="email" />
           <label for="my-account-email-password" data-i18n="myAccountRecoveryPasswordLabel">Type your password to confirm</label>
-          <input id="my-account-email-password" class="auth-form-input-narrow" type="password" autocomplete="current-password" />
+          <input id="my-account-email-password" class="auth-form-input-narrow" type="password" autocomplete="new-password" data-no-autofill />
           <p id="my-account-email-error" class="auth-error" hidden></p>
           <p id="my-account-email-success" class="auth-success" hidden></p>
           <div class="auth-actions">
@@ -1771,7 +1819,7 @@ to Flip!</span></div>
         <h3 data-i18n="myAccountChangePasswordTitle">🔒 Change Password</h3>
         <form id="my-account-password-form" class="auth-form">
           <label for="my-account-current-password" data-i18n="myAccountCurrentPasswordLabel">Current password</label>
-          <input id="my-account-current-password" class="auth-form-input-narrow" type="password" autocomplete="current-password" />
+          <input id="my-account-current-password" class="auth-form-input-narrow" type="password" autocomplete="new-password" data-no-autofill />
           <label for="my-account-new-password" data-i18n="myAccountNewPasswordLabel">New password</label>
           <input id="my-account-new-password" class="auth-form-input-narrow" type="password" autocomplete="new-password" />
           <ul class="pw-rules" id="my-account-password-rules" aria-live="polite">
@@ -1810,7 +1858,7 @@ to Flip!</span></div>
       <span class="bottom-tab-label" data-i18n="navStudyShort">Study</span>
     </button>
     <button type="button" class="bottom-tab-btn" id="bottom-game-tab-btn" data-group="game">
-      <span class="bottom-tab-icon" aria-hidden="true">🎮</span>
+      <span class="bottom-tab-icon" aria-hidden="true"><span class="game-ico"></span></span>
       <span class="bottom-tab-label" data-i18n="navGameShort">Game</span>
     </button>
     <button data-view="stats" class="tab-btn bottom-tab-btn bottom-tab-btn-highlight">

@@ -246,3 +246,24 @@ test("admin email panel: status, test send, log; others are refused", async () =
   assert.equal(noMail.data.verificationSent, false);
   env.EMAIL = { send: async (m) => { sentMail.push(m); } };
 });
+
+test("an unconfirmed email blocks every non-auth route until the link is used; admins and no-email accounts are not blocked", async () => {
+  sentMail.length = 0;
+  const signup = await call(null, "POST", "/auth/signup", { username: "gatekid", password: "Good1pass!", email: "gate@example.com" });
+  const u = { id: signup.data.user.id, role: "free" };
+  // Blocked: ordinary routes
+  assert.equal((await call(u, "GET", "/words")).status, 403);
+  assert.equal((await call(u, "GET", "/words")).data.error, "email_not_verified");
+  assert.equal((await call(u, "GET", "/koala/me")).status, 403);
+  // Allowed: the /auth routes needed to get out of the gate
+  assert.equal((await call(u, "GET", "/auth/me")).status, 200);
+  db.prepare("UPDATE email_tokens SET created_at = created_at - 600000").run();
+  assert.equal((await call(u, "POST", "/auth/resend-verification")).status, 200);
+  // Confirm -> unblocked
+  const token = tokenFrom(sentMail.at(-1), "verify");
+  assert.equal((await call(null, "POST", "/auth/verify-email", { token })).status, 200);
+  assert.equal((await call(u, "GET", "/words")).status, 200);
+  // Not blocked: admin, and an old account that never had an email
+  assert.equal((await call(admin, "GET", "/words")).status, 200);
+  assert.equal((await call(kid, "GET", "/words")).status, 200);
+});

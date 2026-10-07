@@ -279,6 +279,18 @@ async function fetchPendingUpgradeRequest(env, userId, role) {
 async function handleApi(request, env, url) {
   const route = url.pathname.slice("/api".length);
 
+  // A signed-in account whose email is on file but not yet confirmed can only
+  // use the /auth/* routes (to confirm, resend, change email, or log out) —
+  // nothing else on the site works until the link in the email is opened.
+  // Admins and older accounts with no email on file are not affected.
+  if (!route.startsWith("/auth/")) {
+    const gateSession = await getSessionUser(request, env);
+    if (gateSession && gateSession.role !== "admin") {
+      const gateRow = await env.DB.prepare("SELECT email, email_verified_at FROM users WHERE id = ?").bind(gateSession.id).first();
+      if (gateRow && gateRow.email && !gateRow.email_verified_at) return json({ error: "email_not_verified" }, 403);
+    }
+  }
+
   if (route === "/words" && request.method === "GET") {
     // Admin-shared words (owner_id NULL) are visible to everyone, signed in
     // or not. A paid account additionally sees its own private words — no

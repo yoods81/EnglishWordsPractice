@@ -3553,9 +3553,9 @@ footer {
 .kid-modal-brand {
   font-family: "Fredoka", "Gaegu", "Segoe UI", sans-serif;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--accent-dark);
   font-size: 1rem;
-  margin: 8px 0 14px;
+  margin: 8px 0 12px;
 }
 
 .kid-modal-message {
@@ -3566,11 +3566,11 @@ footer {
      length. */
   font-family: "Fredoka", "Segoe UI", sans-serif;
   font-weight: 500;
-  font-size: 1.3rem;
+  font-size: 1.12rem;
   line-height: 1.5;
   letter-spacing: -0.02em;
   color: var(--text);
-  margin: 0 0 20px;
+  margin: 0 0 16px;
 }
 
 .kid-modal-actions {
@@ -3581,9 +3581,9 @@ footer {
 
 button.kid-modal-btn {
   font-family: "Fredoka", "Segoe UI", sans-serif;
-  font-size: 1.25rem;
+  font-size: 1rem;
   letter-spacing: -0.02em;
-  padding: 12px;
+  padding: 8px 14px;
   width: 100%;
 }
 
@@ -10520,3 +10520,48 @@ html body #spelling-practice .sp-leaf-btn .flash-edge-txt { font-size: 0.58rem; 
 .upgrade-benefits li::before { content:""; position:absolute; left:0; top:0; width:20px; height:20px; border-radius:50%; background:var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-6.5' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% no-repeat; border:2px solid var(--accent-dark); }
 .upgrade-card-actions { display:flex; flex-wrap:wrap; gap:8px; }
 .upgrade-card .auth-hint { margin-top:8px; }
+
+/* ---- Quiz "Next" strip: solid, deeper mint so young kids spot it at once ---- */
+#quiz-qcard > #quiz-next { background-color: #0e9c7d; box-shadow: inset 4px 0 0 rgba(0, 0, 0, 0.12); }
+#quiz-qcard > #quiz-next:hover { background-color: #0b856a; box-shadow: inset 4px 0 0 rgba(0, 0, 0, 0.12); }
+#quiz-qcard > #quiz-next:active { background-color: #087056; box-shadow: inset 4px 0 0 rgba(0, 0, 0, 0.12); }
+@keyframes qz-next-pulse {
+  0%, 100% { opacity: 1; filter: brightness(1); }
+  50% { opacity: 0.88; filter: brightness(1.25); }
+}
+
+/* ---- Email-confirmation gate ---- */
+.verify-gate { z-index:1090; background:rgba(20,28,55,.86); }
+body.email-gated { overflow:hidden; }
+.verify-gate-actions { display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:14px; }
+.verify-gate-actions .pill { min-width:180px; }
+.verify-gate .auth-form { text-align:left; }
+.verify-gate-logout { margin-top:12px; color:var(--muted); }
+
+/* ---- My Progress + Add Word: same pastel scenery as Quiz/Spelling/Flashcards ---- */
+html body #view-stats .card.scene-card,
+html body #view-addword .card.scene-card { border: 0; box-shadow: none; --tg-orb-x: 92%; --tg-orb-y: 2%; }
+#view-addword .card.scene-card .tg-sky-cloud-1 { opacity: .5; }
+#view-stats .card.scene-card .tg-sky-cloud-2, #view-stats .card.scene-card .tg-sky-cloud-3,
+#view-addword .card.scene-card .tg-sky-cloud-2, #view-addword .card.scene-card .tg-sky-cloud-3 { display: none; }
+
+/* ---- Game icon: a drawn mint game controller instead of an emoji ---- */
+[data-i18n="navGame"]::before { content: ""; display: inline-block; width: 1.3em; height: 1.3em; margin-right: 0.3em; vertical-align: -0.28em; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M17 20h30a11 11 0 0 1 10.8 9l3.4 16.5a7.5 7.5 0 0 1-12.6 6.8L42 44H22l-6.6 8.3a7.5 7.5 0 0 1-12.6-6.8L6.2 29A11 11 0 0 1 17 20z' fill='%2322c9a3' stroke='%230b6b57' stroke-width='4' stroke-linejoin='round'/%3E%3Cpath d='M14 25.5h36' stroke='%236ff0cf' stroke-width='3' stroke-linecap='round' opacity='.8'/%3E%3Cpath d='M20.5 29.5h5v4.5h4.5v5h-4.5v4.5h-5V38.5H16v-5h4.5z' fill='%23fff' stroke='%230b6b57' stroke-width='1.6' stroke-linejoin='round'/%3E%3Ccircle cx='43' cy='31.5' r='3.6' fill='%23ffd166' stroke='%230b6b57' stroke-width='1.6'/%3E%3Ccircle cx='50' cy='38' r='3.6' fill='%23ff7a8a' stroke='%230b6b57' stroke-width='1.6'/%3E%3C/svg%3E") center / contain no-repeat; }
+.bottom-tab-icon .game-ico { display: block; width: 1.6rem; height: 1.6rem; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M17 20h30a11 11 0 0 1 10.8 9l3.4 16.5a7.5 7.5 0 0 1-12.6 6.8L42 44H22l-6.6 8.3a7.5 7.5 0 0 1-12.6-6.8L6.2 29A11 11 0 0 1 17 20z' fill='%2322c9a3' stroke='%230b6b57' stroke-width='4' stroke-linejoin='round'/%3E%3Cpath d='M14 25.5h36' stroke='%236ff0cf' stroke-width='3' stroke-linecap='round' opacity='.8'/%3E%3Cpath d='M20.5 29.5h5v4.5h4.5v5h-4.5v4.5h-5V38.5H16v-5h4.5z' fill='%23fff' stroke='%230b6b57' stroke-width='1.6' stroke-linejoin='round'/%3E%3Ccircle cx='43' cy='31.5' r='3.6' fill='%23ffd166' stroke='%230b6b57' stroke-width='1.6'/%3E%3Ccircle cx='50' cy='38' r='3.6' fill='%23ff7a8a' stroke='%230b6b57' stroke-width='1.6'/%3E%3C/svg%3E") center / contain no-repeat; }
+.landing-tile-title[data-i18n="navKoala"]::before { display: none; }
+
+/* ---- Home: Learn (3) + Words (2) share a row ---- */
+.landing-tiles.tiles-3 { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 700px) {
+  .home-groups-row.row-learn { grid-template-columns: 3fr 2fr; }
+  .home-groups-row.row-learn .landing-tiles.tiles-3 { grid-template-columns: repeat(3, 1fr); }
+  .home-groups-row.row-learn .landing-tiles { grid-template-columns: repeat(2, 1fr); }
+  .home-groups-row.row-learn .landing-tiles.tiles-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ---- Upgrade card: photo-to-words hero ---- */
+.upgrade-hero { display:flex; gap:12px; align-items:center; margin:6px 0 4px; padding:12px; border-radius:14px; background:#fff; border:2px solid #f0d27a; box-shadow:0 2px 0 #f0d27a; }
+.upgrade-hero-ico { flex:0 0 auto; width:54px; height:54px; }
+.upgrade-hero-ico svg { width:100%; height:100%; display:block; }
+.upgrade-hero strong { display:block; font-family:var(--font-heading); font-size:1rem; color:var(--accent-dark); }
+.upgrade-hero p { margin:3px 0 0; font-size:.82rem; line-height:1.45; color:var(--text); }

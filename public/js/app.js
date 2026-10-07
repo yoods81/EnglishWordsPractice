@@ -56,6 +56,7 @@ const TRANSLATIONS = {
     promoPractise: "Practise",
     homeLearn: "Learn",
     homePlay: "Play",
+    homeWords: "Words",
     homeMine: "My learning",
     langToggle: "한국어",
     levelBadgePrefix: "Level",
@@ -88,7 +89,7 @@ const TRANSLATIONS = {
     // (each opens a small dropdown on hover/tap) — see .tab-group in
     // style.css and the tabGroups wiring in app.js.
     navStudy: "📚 Study",
-    navGame: "👾 Game",
+    navGame: "Game",
     // Short, icon-free labels for the mobile bottom tab bar, whose icon is
     // its own separate element (see .bottom-tab-icon) — these just need a
     // one-word caption underneath it.
@@ -701,14 +702,24 @@ const TRANSLATIONS = {
     resetDoneTitle: "Password changed",
     resetDone: "Log in with your new password.",
     noticeOkBtn: "OK",
+    gateTitle: "Confirm your email to start",
+    gateText: "Open the link in the email we sent you. Everything unlocks as soon as you do.",
+    gateSentTo: (e) => `We sent an email to ${e}`,
+    gateCheckBtn: "I confirmed it",
+    gateResendBtn: "Send the email again",
+    gateChangeBtn: "Wrong email? Change it",
+    gateNotYet: "Not confirmed yet. Please open the link in the email.",
     pwShow: "Show password",
     pwHide: "Hide password",
     upgCardTitle: "Upgrade to Premium",
-    upgCardLead: "Unlock the full Koala Study Mate.",
+    upgCardLead: "Turn any homework into practice.",
     upgCardPayNote: "Online payment is coming soon. For now, tap \"I have a special code\".",
-    upgBenefit1: "More than 100 questions per round",
-    upgBenefit2: "Add your own words by photo or typing",
-    upgBenefit3: "Your own flashcard deck",
+    upgBenefit1: "Practise with more than 100 questions per round",
+    upgBenefit2: "Photo, PDF, Word or Excel files all work",
+    upgBenefit3: "Your own word list, matched to your child's school week",
+    upgBenefit4: "Your progress follows you to any device",
+    upgHeroTitle: "Snap the homework. We find the words.",
+    upgHeroText: "Take a photo of a school word sheet or a book page. We pick out the tricky words and turn them into flashcards, spelling and quizzes in seconds.",
     upgCodeBtn: "I have a special code",
     upgPendingNote: "Your upgrade request is waiting for the admin.",
     upgReadyNote: "The admin sent you a code. Tap the button below to use it.",
@@ -755,7 +766,7 @@ const TRANSLATIONS = {
     adminEmailLogEmpty: "No emails sent yet.",
     adminEmailKinds: { verify: "Confirmation", reset: "Password reset", forgot_username: "Username reminder", test: "Test" },
     upgradeTitle: "⭐ Upgrade to Premium",
-    upgradeDesc: "General accounts are capped at 100 questions per round. Enter a special code from the admin to unlock more questions and your own private word list.",
+    upgradeDesc: "Snap your child's homework and we turn the words into practice. Enter a special code from the admin to unlock premium: photo word extraction, your own private word list, and more than 100 questions per round.",
     upgradeSubmitBtn: "Upgrade",
     upgradeErrorNotEligible: "This account can't be upgraded from here.",
     anonymousPremiumFeaturePrompt: "Sign up and upgrade to premium to unlock this feature!",
@@ -802,6 +813,7 @@ const TRANSLATIONS = {
     promoPractise: "연습",
     homeLearn: "배우기",
     homePlay: "게임",
+    homeWords: "단어",
     homeMine: "내 공부",
     langToggle: "English",
     levelBadgePrefix: "레벨",
@@ -827,7 +839,7 @@ const TRANSLATIONS = {
     spellingSectionTitle: "✏️ 스펠링",
     flashcardsSectionTitle: "플래시카드",
     navStudy: "📚 학습",
-    navGame: "👾 게임",
+    navGame: "게임",
     navQuizShort: "퀴즈",
     navTimesTableShort: "구구단",
     navStatsShort: "진행상황",
@@ -1430,14 +1442,24 @@ const TRANSLATIONS = {
     resetDoneTitle: "비밀번호가 변경됐어요",
     resetDone: "새 비밀번호로 로그인해 주세요.",
     noticeOkBtn: "확인",
+    gateTitle: "이메일 인증을 해 주세요",
+    gateText: "보낸 메일 속 링크를 누르면 바로 시작할 수 있어요.",
+    gateSentTo: (e) => `${e} 로 확인 메일을 보냈어요`,
+    gateCheckBtn: "인증했어요",
+    gateResendBtn: "메일 다시 보내기",
+    gateChangeBtn: "이메일이 잘못됐나요? 바꾸기",
+    gateNotYet: "아직 인증이 안 됐어요. 메일 속 링크를 눌러 주세요.",
     pwShow: "비밀번호 보기",
     pwHide: "비밀번호 숨기기",
     upgCardTitle: "프리미엄으로 업그레이드",
-    upgCardLead: "코알라 스터디 메이트를 마음껏 써 보세요.",
+    upgCardLead: "숙제가 곧 연습 문제가 돼요.",
     upgCardPayNote: "온라인 결제는 곧 열릴 예정이에요. 지금은 \"특별 코드가 있어요\"를 눌러 주세요.",
-    upgBenefit1: "한 라운드에 100문제 넘게 풀기",
-    upgBenefit2: "사진이나 직접 입력으로 단어 추가",
-    upgBenefit3: "나만의 플래시카드 덱",
+    upgBenefit1: "한 라운드에 100문제 넘게, 마음껏 연습",
+    upgBenefit2: "사진, PDF, 워드, 엑셀 파일 모두 OK",
+    upgBenefit3: "우리 아이 학교 진도에 딱 맞는 나만의 단어장",
+    upgBenefit4: "기기를 바꿔도 학습 기록이 그대로 이어져요",
+    upgHeroTitle: "숙제를 찰칵! 단어는 저절로",
+    upgHeroText: "학교 단어 숙제나 책 한 페이지를 사진으로 찍어 올리면, 어려운 단어만 쏙쏙 뽑아 플래시카드·스펠링·퀴즈로 바로 연습할 수 있어요.",
     upgCodeBtn: "특별 코드가 있어요",
     upgPendingNote: "업그레이드 요청을 관리자가 확인하는 중이에요.",
     upgReadyNote: "관리자가 코드를 보냈어요. 아래 버튼을 눌러 사용해 보세요.",
@@ -1484,7 +1506,7 @@ const TRANSLATIONS = {
     adminEmailLogEmpty: "아직 보낸 메일이 없어요.",
     adminEmailKinds: { verify: "이메일 인증", reset: "비밀번호 재설정", forgot_username: "아이디 안내", test: "테스트" },
     upgradeTitle: "⭐ 프리미엄으로 업그레이드",
-    upgradeDesc: "일반 계정은 한 라운드에 최대 100문제까지만 가능해요. admin에게 받은 특별 코드를 입력하면 더 많은 문제와 나만의 단어장을 사용할 수 있어요.",
+    upgradeDesc: "숙제를 사진으로 찍으면 단어가 연습 문제로 바뀌어요. admin에게 받은 특별 코드를 입력하면 사진 단어 추출, 나만의 단어장, 한 라운드 100문제 이상을 모두 쓸 수 있어요.",
     upgradeSubmitBtn: "업그레이드",
     upgradeErrorNotEligible: "이 계정은 여기서 업그레이드할 수 없어요.",
     anonymousPremiumFeaturePrompt: "이 기능을 사용하려면 가입 후 프리미엄으로 업그레이드해야 해요!",
@@ -2064,11 +2086,15 @@ let kidConfirmResolve = null;
 // Button labels default to the signup-nudge wording (this modal's original
 // use); pass okLabel/cancelLabel to fit a different prompt — "Sign me up!"
 // makes no sense on the level-up challenge, for instance.
-function kidConfirm(message, okLabel, cancelLabel) {
+function kidConfirm(message, okLabel, cancelLabel, opts) {
   return new Promise((resolve) => {
     kidConfirmMessage.textContent = message;
     kidConfirmOkBtn.textContent = okLabel || t("kidConfirmOkBtn");
     kidConfirmCancelBtn.textContent = cancelLabel || t("kidConfirmCancelBtn");
+    // opts.danger paints the OK button red (deleting something).
+    const danger = !!(opts && opts.danger);
+    kidConfirmOkBtn.classList.toggle("error", danger);
+    kidConfirmOkBtn.classList.toggle("primary", !danger);
     kidConfirmResolve = resolve;
     kidConfirmOverlay.hidden = false;
     // Restart the pop-in animation even if a previous prompt is still fading.
@@ -3290,6 +3316,7 @@ const resetForm = document.getElementById("reset-form");
 const resetError = document.getElementById("reset-error");
 const signupUsernameInput = document.getElementById("signup-username-input");
 const signupPasswordInput = document.getElementById("signup-password-input");
+const signupPasswordConfirm = document.getElementById("signup-password-confirm");
 const signupCodeInput = document.getElementById("signup-code-input");
 const signupError = document.getElementById("signup-error");
 const signupCancelBtn = document.getElementById("signup-cancel-btn");
@@ -3334,6 +3361,7 @@ function updateAdminUI() {
   if (activeOffLimitsTab || onMyAccountSignedOut) goToTab("landing");
 
   if (refreshPaidFeatureGates) refreshPaidFeatureGates();
+  refreshVerifyGate();
 }
 
 // Password policy (the server enforces the same rules): 8+ characters with at
@@ -3402,6 +3430,14 @@ function addPasswordToggles() {
   });
 }
 addPasswordToggles();
+// Chrome likes to fill saved passwords into these "type your password to confirm"
+// boxes by itself. Keep them read-only until the person actually clicks in.
+document.querySelectorAll("input[data-no-autofill]").forEach((input) => {
+  input.setAttribute("readonly", "");
+  const unlock = () => input.removeAttribute("readonly");
+  input.addEventListener("focus", unlock);
+  input.addEventListener("pointerdown", unlock);
+});
 // Go back to hidden whenever a form is sent, so a shown password never lingers.
 document.addEventListener("submit", (e) => hidePasswords(e.target), true);
 
@@ -3477,6 +3513,7 @@ function openAuthOverlay(mode) {
   loginPasswordInput.value = "";
   signupUsernameInput.value = "";
   signupPasswordInput.value = "";
+  signupPasswordConfirm.value = "";
   signupCodeInput.value = "";
   signupEmailInput.value = "";
   setSignupPlan("free");
@@ -3906,6 +3943,7 @@ signupForm.addEventListener("submit", async (e) => {
   };
   if (!validEmailClient(email)) return fail("authSignupErrorEmail");
   if (!passwordMeetsPolicy(password)) return fail("authSignupErrorPassword");
+  if (password !== signupPasswordConfirm.value) return fail("resetMismatch");
   if (signupPlan === "premium" && !specialCode) return fail("authSignupErrorPremiumCode");
 
   try {
@@ -4018,7 +4056,7 @@ resetForm.addEventListener("submit", async (e) => {
   history.replaceState(null, "", location.pathname + location.hash);
   if (verifyToken) {
     api("/auth/verify-email", { method: "POST", body: JSON.stringify({ token: verifyToken }) })
-      .then(() => showNotice("success", t("noticeVerifiedTitle"), t("noticeVerifiedText")))
+      .then(() => { showNotice("success", t("noticeVerifiedTitle"), t("noticeVerifiedText")); setTimeout(() => { if (currentUser) pullMe().catch(() => {}); }, 600); })
       .catch(() => showNotice("warn", t("noticeVerifyFailedTitle"), t("noticeVerifyFailedText")));
   }
   if (resetToken) {
@@ -4026,6 +4064,118 @@ resetForm.addEventListener("submit", async (e) => {
     openAuthOverlay("reset");
   }
 })();
+
+/* ---------- Email-confirmation gate ----------
+   A signed-in account with an unconfirmed email sees only this card until the
+   link in the email is opened (the server refuses everything else too). Older
+   accounts with no email on file are not gated; they just get the nudge below. */
+function needsEmailGate() {
+  return !!currentUser && currentUser.role !== "admin" && !!currentUser.email && !currentUser.emailVerified;
+}
+let verifyGateTimer = null;
+function refreshVerifyGate() {
+  const gate = document.getElementById("verify-gate");
+  if (!gate) return;
+  const need = needsEmailGate();
+  const wasHidden = gate.hidden;
+  gate.hidden = !need;
+  document.body.classList.toggle("email-gated", need);
+  if (need) {
+    document.getElementById("verify-gate-email").textContent = t("gateSentTo", currentUser.email);
+    // Opened the link in another tab or on the phone? Notice it here.
+    if (!verifyGateTimer) verifyGateTimer = setInterval(() => pullMe().catch(() => {}), 6000);
+    if (wasHidden) {
+      ["verify-gate-msg", "verify-gate-error", "verify-gate-change-form"].forEach((id) => { document.getElementById(id).hidden = true; });
+    }
+  } else if (verifyGateTimer) {
+    clearInterval(verifyGateTimer);
+    verifyGateTimer = null;
+  }
+}
+// Re-read the signed-in account from the server. Returns true if the account
+// has just become usable (email confirmed).
+async function pullMe() {
+  const wasGated = needsEmailGate();
+  const { user, pendingUpgradeRequest: pending } = await api("/auth/me");
+  if (!user) return false;
+  currentUser = user;
+  pendingUpgradeRequest = pending || null;
+  updateAdminUI();
+  if (wasGated && !needsEmailGate()) {
+    refreshSharedWords();
+    koalaAfterLogin();
+    renderUpgradeReadyBanner();
+    showNotice("success", t("noticeVerifiedTitle"), t("noticeVerifiedText"));
+    return true;
+  }
+  return false;
+}
+document.getElementById("verify-gate-check-btn").addEventListener("click", async () => {
+  const err = document.getElementById("verify-gate-error");
+  const msg = document.getElementById("verify-gate-msg");
+  err.hidden = true;
+  msg.hidden = true;
+  try {
+    if (!(await pullMe())) {
+      err.textContent = t("gateNotYet");
+      err.hidden = false;
+    }
+  } catch (e) {
+    err.textContent = t("recoverErrorGeneric");
+    err.hidden = false;
+  }
+});
+document.getElementById("verify-gate-resend-btn").addEventListener("click", async (e) => {
+  const err = document.getElementById("verify-gate-error");
+  const msg = document.getElementById("verify-gate-msg");
+  err.hidden = true;
+  msg.hidden = true;
+  e.currentTarget.disabled = true;
+  try {
+    await api("/auth/resend-verification", { method: "POST" });
+    msg.textContent = t("myAccountEmailResent");
+    msg.hidden = false;
+  } catch (e2) {
+    err.textContent = t(e2 && e2.status === 429 ? "myAccountEmailWait" : "recoverErrorGeneric");
+    err.hidden = false;
+  }
+  e.currentTarget.disabled = false;
+});
+document.getElementById("verify-gate-change-btn").addEventListener("click", () => {
+  const form = document.getElementById("verify-gate-change-form");
+  form.hidden = !form.hidden;
+  if (!form.hidden) document.getElementById("verify-gate-new-email").focus();
+});
+document.getElementById("verify-gate-change-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const err = document.getElementById("verify-gate-error");
+  const msg = document.getElementById("verify-gate-msg");
+  err.hidden = true;
+  msg.hidden = true;
+  const email = document.getElementById("verify-gate-new-email").value.trim();
+  const password = document.getElementById("verify-gate-password").value;
+  if (!validEmailClient(email)) {
+    err.textContent = t("authSignupErrorEmail");
+    err.hidden = false;
+    return;
+  }
+  try {
+    const res = await api("/auth/set-email", { method: "POST", body: JSON.stringify({ email, password }) });
+    currentUser = { ...currentUser, email: res.email, emailVerified: false };
+    document.getElementById("verify-gate-password").value = "";
+    document.getElementById("verify-gate-change-form").hidden = true;
+    refreshVerifyGate();
+    msg.textContent = t(res.verificationSent ? "myAccountEmailSaved" : "myAccountEmailSavedNoMail");
+    msg.hidden = false;
+  } catch (e2) {
+    const code = e2 && e2.data && e2.data.error;
+    err.textContent = t(code === "wrong_current_password" ? "myAccountWrongCurrentPassword" : code === "invalid_email" ? "authSignupErrorEmail" : "authSignupErrorGeneric");
+    err.hidden = false;
+  }
+});
+document.getElementById("verify-gate-logout-btn").addEventListener("click", () => {
+  document.getElementById("auth-menu-logout-btn").click();
+});
 
 // Accounts made before email was required: a one-time nudge per visit.
 function maybeNudgeEmail() {
@@ -10470,7 +10620,7 @@ function startEditCustomWord(id) {
 }
 
 function deleteCustomWord(id) {
-  kidConfirm(t("deleteConfirm"), t("deleteConfirmYesBtn"), t("deleteConfirmNoBtn")).then((ok) => {
+  kidConfirm(t("deleteConfirm"), t("deleteConfirmYesBtn"), t("deleteConfirmNoBtn"), { danger: true }).then((ok) => {
     if (!ok) return;
     const removed = customWords.find((w) => w.id === id);
     customWords = customWords.filter((w) => w.id !== id);
@@ -11487,7 +11637,7 @@ function renderAdminUsers() {
       deleteUserBtn.className = "delete-btn";
       deleteUserBtn.textContent = t("adminUserDeleteBtn");
       deleteUserBtn.addEventListener("click", async () => {
-        const ok = await kidConfirm(t("adminUserConfirmDelete", u.username), t("deleteConfirmYesBtn"), t("deleteConfirmNoBtn"));
+        const ok = await kidConfirm(t("adminUserConfirmDelete", u.username), t("deleteConfirmYesBtn"), t("deleteConfirmNoBtn"), { danger: true });
         if (!ok) return;
         deleteUserBtn.disabled = true;
         try {
@@ -14936,13 +15086,45 @@ document.addEventListener("click", (e) => {
 (function addSceneryToPracticeCards() {
   const src = document.querySelector("#typegame-stage .tg-sky");
   if (!src) return;
-  ["#view-quiz", "#view-spelling", "#view-flashcards"].forEach((sel) => {
-    const card = document.querySelector(sel + " > .card");
+  ["#view-quiz > .card", "#view-spelling > .card", "#view-flashcards > .card", "#view-stats > .card", "#addword-extract-card", "#addword-manual-card", "#my-added-words-card"].forEach((sel) => {
+    const card = document.querySelector(sel);
     if (!card || card.querySelector(":scope > .tg-bg")) return;
     const layer = src.cloneNode(true);
     layer.classList.add("tg-bg");
     layer.setAttribute("aria-hidden", "true");
     card.classList.add("scene-card");
     card.insertBefore(layer, card.firstChild);
+  });
+})();
+
+// ---- Game start screens: shrink the card to whatever room the stage has ----
+// The Typing Game and Times Table start cards have a fixed amount of content,
+// but the stage they sit on gets short when the browser window is narrow or
+// low. Instead of cutting the card off, zoom it down until it fits (never up).
+(function fitGameStartCards() {
+  const overlays = document.querySelectorAll(".tg-start-overlay");
+  overlays.forEach((overlay) => {
+    const card = overlay.querySelector(".tg-start-card");
+    if (!card) return;
+    let raf = 0;
+    const fit = () => {
+      raf = 0;
+      if (overlay.hidden || overlay.clientHeight === 0) return;
+      card.style.zoom = "1";
+      const cs = getComputedStyle(overlay);
+      const availH = overlay.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 4;
+      const availW = overlay.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 4;
+      const cardH = card.offsetHeight;
+      const cardW = card.offsetWidth;
+      if (!cardH || !cardW) return;
+      const scale = Math.max(0.4, Math.min(1, availH / cardH, availW / cardW));
+      card.style.zoom = scale < 1 ? String(Math.floor(scale * 100) / 100) : "";
+    };
+    const schedule = () => { if (!raf) raf = requestAnimationFrame(fit); };
+    if (typeof ResizeObserver === "function") new ResizeObserver(schedule).observe(overlay);
+    window.addEventListener("resize", schedule);
+    // Re-fit when the overlay is shown again or its text changes (language switch, level label).
+    new MutationObserver(schedule).observe(overlay, { attributes: true, attributeFilter: ["hidden"], childList: true, subtree: true, characterData: true });
+    schedule();
   });
 })();
