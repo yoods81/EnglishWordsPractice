@@ -11776,3 +11776,46 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
   html[data-theme="dark"] body #view-addword .card.scene-card.is-collapsed { background: #172420 !important; }
 }
 @media (max-width: 480px) { html body #view-addword .tg-bg .tg-orb { display: none; } }
+
+/* ==========================================================================
+   Quiz/Study start-card choosers as flat tab rails; My Koala room tidy-up
+   ========================================================================== */
+@media (max-width: 480px) {
+  html body .sp-start-card .qz-seg {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; padding: 4px; width: 100%; box-sizing: border-box;
+    background: #d4efe4; border-radius: 16px; border: 0; box-shadow: none;
+  }
+  html body .sp-start-card .qz-seg .qz-seg-btn,
+  html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
+    flex: 1 1 auto; min-width: 0; border: 0 !important; box-shadow: none !important; background: transparent !important; color: var(--accent-dark) !important;
+    border-radius: 12px; padding: 10px 8px; font-weight: 800; text-shadow: none !important; min-height: 40px;
+  }
+  html body .sp-start-card .qz-seg .qz-seg-btn.active,
+  html body .sp-start-card .qz-seg .qz-seg-btn.on,
+  html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
+    background: var(--accent) !important; color: #fff !important; border: 0 !important; box-shadow: 0 2px 6px rgba(20, 160, 130, .35) !important;
+  }
+  html body .sp-start-card .qz-seg .qz-seg-btn:not(.active):not(.on):active { background: rgba(46, 204, 160, .3) !important; }
+  html[data-theme="dark"] body .sp-start-card .qz-seg { background: #1b2b25; }
+  html[data-theme="dark"] body .sp-start-card .qz-seg .qz-seg-btn { color: #6ff0cf !important; }
+  html[data-theme="dark"] body .sp-start-card .qz-seg .qz-seg-btn.active, html[data-theme="dark"] body .sp-start-card .qz-seg .qz-seg-btn.on { color: #04281f !important; }
+}
+
+/* Trophy wall: same medals as the Badges tab, filling the whole shelf */
+.koala-trophy-wall { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 8px; justify-items: center; padding: 14px 10px 12px; }
+.koala-trophy-wall > .koala-note { grid-column: 1 / -1; margin: 0; text-align: center; }
+.koala-trophy { width: 100%; align-items: center; gap: 6px; }
+.koala-trophy .medal { font-size: 14px; }
+.koala-trophy-name { font-size: .74rem; font-weight: 700; }
+
+/* "Inside your furniture" box: a titled panel that grows with what is in it */
+html body #view-koala .koala-subbox { aspect-ratio: auto; width: 100%; max-width: none; height: auto; min-height: 0; overflow: visible; padding: 14px; margin: 12px 0; text-align: left; }
+html body #view-koala .koala-subbox.is-idle { align-items: stretch; text-align: center; gap: 10px; }
+.koala-subbox-label { font-family: var(--font-heading); font-weight: 800; font-size: 1.02rem; color: var(--text); text-align: left; margin-bottom: 4px; }
+html body #view-koala .koala-subbox-head { position: static; padding: 0; margin-bottom: 10px; }
+.koala-subbox-shop { display: block; width: 100%; margin-top: 12px; padding: 12px; border: 0; border-radius: 12px; background: #e1f3ec; color: var(--accent-dark); font: inherit; font-weight: 800; cursor: pointer; }
+.koala-subbox-shop:active { background: rgba(46, 204, 160, .3); }
+.koala-subgrid-shop { margin-top: 8px; }
+.koala-cat-sub { position: relative; }
+html[data-theme="dark"] .koala-subbox-shop { background: #1e2f29; color: #6ff0cf; }
+html body #view-koala .koala-subbox.is-in-preview { max-height: 38vh; overflow-y: auto; }
