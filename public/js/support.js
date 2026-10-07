@@ -102,6 +102,7 @@
   }
 
   $("contact-open-btn").addEventListener("click", () => openContact());
+  $("auth-contact-btn").addEventListener("click", () => openContact());
   $("contact-cancel-btn").addEventListener("click", closeContact);
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay) closeContact();
@@ -311,6 +312,7 @@
 
   function localize() {
     $("contact-open-btn").textContent = L("💬 Contact us", "💬 문의하기");
+    $("auth-contact-btn").textContent = L("Need help? 💬 Contact us", "도움이 필요하세요? 💬 문의하기");
     localizeContact();
     localizeAccountCard();
     if (currentUser && !openTicketId) renderAccountCard();

@@ -95,3 +95,9 @@ body.has-support-unread #auth-toggle-btn::after, body.has-support-unread #contac
 .site-notice[hidden] { display: none; }
 .site-notice-text { flex: 1; }
 .site-notice-close { border: 0; background: transparent; font-size: 1.1rem; cursor: pointer; color: inherit; }
+
+/* ---------- footer + auth help link ---------- */
+#app-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 12px; }
+.footer-link { border: 0; background: transparent; color: var(--accent-dark); font: inherit; font-weight: 700; cursor: pointer; padding: 6px 8px; text-decoration: underline; }
+.auth-help { margin: 10px 0 0; text-align: center; }
+.pw-rules li { white-space: nowrap; }

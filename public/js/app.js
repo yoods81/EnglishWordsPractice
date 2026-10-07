@@ -682,7 +682,7 @@ const TRANSLATIONS = {
     pwRuleLen: "8+ characters",
     pwRuleUpper: "1 uppercase letter",
     pwRuleDigit: "1 number",
-    pwRuleSpecial: "1 special character (! @ # …)",
+    pwRuleSpecial: "1 special character (!@#)",
     payBtn: "💳 Pay and join Premium",
     payComingSoon: "Online payment is coming soon. For now, join Premium with a special code below.",
     forgotPasswordTitle: "Forgot password",
@@ -1430,7 +1430,7 @@ const TRANSLATIONS = {
     pwRuleLen: "8자 이상",
     pwRuleUpper: "대문자 1개 이상",
     pwRuleDigit: "숫자 1개 이상",
-    pwRuleSpecial: "특수문자 1개 이상 (! @ # …)",
+    pwRuleSpecial: "특수문자 1개 (!@#)",
     payBtn: "💳 결제하고 프리미엄 가입",
     payComingSoon: "온라인 결제는 곧 열릴 예정이에요. 지금은 아래 특별 코드로 프리미엄에 가입할 수 있어요.",
     forgotPasswordTitle: "비밀번호를 잊었어요",
@@ -2528,7 +2528,7 @@ function applyStaticTranslations() {
   });
   document.getElementById("app-title").textContent = t("appTitle");
   document.getElementById("app-subtitle").textContent = t("appSubtitle");
-  document.getElementById("app-footer").textContent = t("footerText");
+  document.getElementById("app-footer-text").textContent = t("footerText");
   document.getElementById("lang-toggle").textContent = t("langToggle");
   document.getElementById("level-overlay-title").textContent = t("levelOverlayTitle");
   document.getElementById("level-overlay-desc").textContent = t("levelOverlayDesc");
