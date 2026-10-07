@@ -10862,3 +10862,54 @@ html[data-theme="dark"] #addword-extract-card .ocr-dropzone {
     display: none;
   }
 }
+
+/* ==========================================================================
+   Add Word page — round 3 (from the real phone screenshot)
+   ========================================================================== */
+
+/* The scenery's lone cloud floated in the middle of the collapsed headers like
+   a stray white pill. Collapsed headers keep sun + hills only. */
+.card.is-collapsed .tg-sky-cloud-1,
+.card.is-collapsed .tg-sky-cloud-2,
+.card.is-collapsed .tg-sky-cloud-3 {
+  display: none;
+}
+
+/* Pale mint text on pale mint chips was hard to read (Select All, level tag,
+   mint "Edit" with white text). Use the brand's dark green for text on light
+   surfaces and the deeper fill for the Edit button. */
+#my-added-words-card .select-all-toggle {
+  color: #0b6b57;
+  font-weight: 700;
+}
+#custom-words-grid .wordlist-item .mastery.cw-level-badge {
+  color: #0b6b57;
+  font-weight: 700;
+  background: #d9f2e8;
+}
+#custom-words-grid .wordlist-item .edit-btn {
+  background: #0e9c7d;
+  border-color: #0b6b57;
+  box-shadow: 0 2px 0 #0b6b57;
+}
+#custom-words-grid .wordlist-item .delete-btn {
+  color: #c43c3c;
+  font-weight: 700;
+}
+
+/* Dark mode: the dark-green text above is for light surfaces only. */
+html[data-theme="dark"] body #my-added-words-card .select-all-toggle {
+  color: #7ff0cf;
+}
+html[data-theme="dark"] body #custom-words-grid .wordlist-item .mastery.cw-level-badge {
+  color: #7ff0cf;
+  background: rgba(34, 201, 163, 0.16);
+}
+html[data-theme="dark"] body #custom-words-grid .wordlist-item .delete-btn {
+  color: #ffb4b4;
+}
+@media (max-width: 480px) {
+  html[data-theme="dark"] body #custom-words-grid .cw-actions {
+    border-top-color: rgba(255, 255, 255, 0.16);
+  }
+}
