@@ -1799,17 +1799,20 @@ to Flip!</span></div>
       <div class="card" id="my-account-email-card">
         <h3 data-i18n="myAccountEmailTitle">✉️ Email</h3>
         <p class="auth-hint" data-i18n="myAccountEmailDesc">We use this address to help you find your username or reset your password.</p>
-        <p id="my-account-email-status" class="auth-hint"></p>
+        <div id="my-account-email-status" class="email-status" aria-live="polite"></div>
+        <p id="my-account-email-hint" class="auth-hint" hidden></p>
         <div class="auth-actions auth-actions-start">
-          <button type="button" class="pill neutral" id="my-account-email-resend-btn" hidden data-i18n="myAccountEmailResendBtn">Send the confirmation email again</button>
+          <button type="button" class="pill neutral small" id="my-account-email-resend-btn" hidden data-i18n="myAccountEmailResendBtn">Send the confirmation email again</button>
+          <button type="button" class="pill neutral small" id="my-account-email-change-btn" hidden data-i18n="myAccountEmailChangeBtn">Change email</button>
         </div>
+        <p id="my-account-email-error" class="auth-error" hidden></p>
+        <p id="my-account-email-success" class="auth-success" hidden></p>
+
         <form id="my-account-email-form" class="auth-form" novalidate>
           <label for="my-account-email-input" data-i18n="myAccountEmailNewLabel">Email address</label>
           <input id="my-account-email-input" class="auth-form-input-narrow" type="email" autocomplete="off" inputmode="email" />
           <label for="my-account-email-password" data-i18n="myAccountRecoveryPasswordLabel">Type your password to confirm</label>
           <input id="my-account-email-password" class="auth-form-input-narrow" type="password" autocomplete="new-password" data-no-autofill />
-          <p id="my-account-email-error" class="auth-error" hidden></p>
-          <p id="my-account-email-success" class="auth-success" hidden></p>
           <div class="auth-actions">
             <button type="submit" class="pill accent" id="my-account-email-submit-btn" data-i18n="myAccountEmailSaveBtn">Save email</button>
           </div>

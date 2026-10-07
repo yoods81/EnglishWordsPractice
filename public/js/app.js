@@ -709,6 +709,11 @@ const TRANSLATIONS = {
     gateResendBtn: "Send the email again",
     gateChangeBtn: "Wrong email? Change it",
     gateNotYet: "Not confirmed yet. Please open the link in the email.",
+    myAccountEmailChangeBtn: "Change email",
+    myAccountEmailUnverifiedHint: "Open the link in the email we sent you to confirm it.",
+    emailBadgeOk: "Confirmed",
+    emailBadgeNo: "Not confirmed yet",
+    emailNoneYet: "No email yet",
     pwShow: "Show password",
     pwHide: "Hide password",
     upgCardTitle: "Upgrade to Premium",
@@ -1449,6 +1454,11 @@ const TRANSLATIONS = {
     gateResendBtn: "메일 다시 보내기",
     gateChangeBtn: "이메일이 잘못됐나요? 바꾸기",
     gateNotYet: "아직 인증이 안 됐어요. 메일 속 링크를 눌러 주세요.",
+    myAccountEmailChangeBtn: "이메일 바꾸기",
+    myAccountEmailUnverifiedHint: "보내드린 메일의 링크를 눌러 인증해 주세요.",
+    emailBadgeOk: "인증 완료",
+    emailBadgeNo: "인증 전",
+    emailNoneYet: "이메일 없음",
     pwShow: "비밀번호 보기",
     pwHide: "비밀번호 숨기기",
     upgCardTitle: "프리미엄으로 업그레이드",
@@ -3713,8 +3723,10 @@ async function renderMyAccount() {
     { num: account.username, lbl: t("myAccountUsername") },
     { num: roleLabel(account.role), lbl: t("myAccountRole") },
     { num: formatDate(account.createdAt), lbl: t("myAccountJoined") },
-    { num: formatDate(account.upgradedAt), lbl: t("myAccountUpgraded") },
+    // The premium-upgrade date only means something once an account has upgraded.
+    ...(account.upgradedAt ? [{ num: formatDate(account.upgradedAt), lbl: t("myAccountUpgraded") }] : []),
   ];
+  myAccountStatusEl.classList.toggle("stats-grid-3", tiles.length === 3);
   myAccountStatusEl.innerHTML = tiles
     .map((s) => `<div class="stat-box"><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div></div>`)
     .join("");
@@ -3759,12 +3771,24 @@ function refreshEmailCard(account) {
     currentUser.email = account.email || null;
     currentUser.emailVerified = !!account.emailVerified;
   }
-  myAccountEmailStatus.textContent = !account.email
-    ? t("myAccountEmailNone")
-    : account.emailVerified
-      ? t("myAccountEmailVerified", account.email)
-      : t("myAccountEmailUnverified", account.email);
+  // Address + a green "confirmed" or yellow "not confirmed yet" badge.
+  myAccountEmailStatus.textContent = "";
+  const addr = document.createElement("strong");
+  addr.className = "email-status-addr";
+  addr.textContent = account.email || "";
+  const badge = document.createElement("span");
+  badge.className = "email-badge " + (!account.email ? "none" : account.emailVerified ? "ok" : "wait");
+  badge.textContent = t(!account.email ? "emailNoneYet" : account.emailVerified ? "emailBadgeOk" : "emailBadgeNo");
+  if (account.email) myAccountEmailStatus.appendChild(addr);
+  myAccountEmailStatus.appendChild(badge);
+  const hint = document.getElementById("my-account-email-hint");
+  hint.textContent = !account.email ? t("myAccountEmailNone") : t("myAccountEmailUnverifiedHint");
+  hint.hidden = !!account.email && !!account.emailVerified;
   myAccountEmailResendBtn.hidden = !account.email || !!account.emailVerified;
+  // With an address on file the edit form stays tucked away behind a button.
+  const changeBtn = document.getElementById("my-account-email-change-btn");
+  changeBtn.hidden = !account.email;
+  myAccountEmailForm.hidden = !!account.email;
   myAccountEmailInput.value = account.email || "";
 }
 
@@ -3785,6 +3809,7 @@ myAccountEmailForm.addEventListener("submit", async (e) => {
     const res = await api("/auth/set-email", { method: "POST", body: JSON.stringify({ email, password }) });
     myAccountEmailPassword.value = "";
     refreshEmailCard({ ...currentUser, email: res.email, emailVerified: false });
+    refreshVerifyGate(); // a new address must be confirmed before the site works again
     myAccountEmailSuccess.textContent = t(res.verificationSent ? "myAccountEmailSaved" : "myAccountEmailSavedNoMail");
     myAccountEmailSuccess.hidden = false;
   } catch (err) {
@@ -3793,6 +3818,11 @@ myAccountEmailForm.addEventListener("submit", async (e) => {
     myAccountEmailError.hidden = false;
   }
   btn.disabled = false;
+});
+
+document.getElementById("my-account-email-change-btn").addEventListener("click", () => {
+  myAccountEmailForm.hidden = !myAccountEmailForm.hidden;
+  if (!myAccountEmailForm.hidden) myAccountEmailInput.focus();
 });
 
 myAccountEmailResendBtn.addEventListener("click", async () => {
