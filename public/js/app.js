@@ -314,6 +314,12 @@ const TRANSLATIONS = {
     flashStartBtn: "▶ Start Flashcards",
     flashRoundTitle: "Cards per round",
     flashRoundAll: "All",
+    setDifficultyTitle: "Difficulty",
+    setModeTitle: "Mode",
+    qzCountTitle: "Questions",
+    qzStep1: "Read",
+    qzStep2: "Pick",
+    qzStep3: "Score!",
     flashAutoSpeak: "Read each word aloud",
     flashBackShort: "Back",
     flashNextShort: "Next",
@@ -336,6 +342,7 @@ const TRANSLATIONS = {
     ttsHelpMsgIos: "🔇 Can't hear the word? Turn silent mode off (the switch on the side), turn the volume up, then try again.",
     ttsHelpOk: "Got it",
     qzChipQuestions: (n) => `🎯 ${n} questions`,
+    qzChipQuestionsAll: "All questions",
     qzGoalMore: "🔒 More questions…",
     qzChipTime: "⏱ Time Attack",
     qzDailyLine: (have, goal) => `🎯 Today: ${have} / ${goal} questions`,
@@ -1114,8 +1121,14 @@ const TRANSLATIONS = {
     qzModeNoteTime: (c, ty) => `문제당 ${c}초 (쓰기 ${ty}초)! 시계와 승부해요!`,
     quizStartBtn: "▶ 퀴즈 시작",
     flashStartBtn: "▶ 플래시카드 시작",
-    flashRoundTitle: "한 번에 볼 카드 수",
+    flashRoundTitle: "카드 수",
     flashRoundAll: "전체",
+    setDifficultyTitle: "난이도",
+    setModeTitle: "모드",
+    qzCountTitle: "문제 수",
+    qzStep1: "읽기",
+    qzStep2: "고르기",
+    qzStep3: "정답!",
     flashAutoSpeak: "단어 자동 읽기",
     flashBackShort: "이전",
     flashNextShort: "다음",
@@ -1138,6 +1151,7 @@ const TRANSLATIONS = {
     ttsHelpMsgIos: "🔇 단어 소리가 안 나나요? 무음 모드(옆면 스위치)를 끄고 볼륨을 올린 뒤 다시 시도해 주세요.",
     ttsHelpOk: "확인",
     qzChipQuestions: (n) => `🎯 ${n}문제`,
+    qzChipQuestionsAll: "전체 문제",
     qzGoalMore: "🔒 더 많은 문제…",
     qzChipTime: "⏱ 타임어택",
     qzDailyLine: (have, goal) => `🎯 오늘: ${have} / ${goal}문제`,
@@ -2208,10 +2222,7 @@ function clampGoalsForRole() {
 // than the number just flatly updating.
 
 function updateSpellingStartChips() {
-  const lv = document.getElementById("spelling-start-level");
-  if (!lv) return;
-  lv.textContent = `📚 ${levelLabel(currentLevel)}`;
-  lv.setAttribute("aria-label", rwL("Change level", "레벨 바꾸기"));
+  renderLevelSeg(document.getElementById("spelling-level-seg"));
   // A little scoreboard so there is something to come back for: today's correct
   // spelling answers and the daily streak.
   const stats = document.getElementById("spelling-start-stats");
@@ -2225,47 +2236,88 @@ function updateSpellingStartChips() {
     `<span class="sp-stat"><i aria-hidden="true">⭐</i><b>${today}</b><em>${rwL("correct today", "오늘 정답")}</em></span>` +
     `<span class="sp-stat"><i aria-hidden="true">🔥</i><b>${streak}</b><em>${rwL("day streak", "일 연속")}</em></span>`;
 }
-document.getElementById("spelling-start-level")?.addEventListener("click", () => document.getElementById("level-badge")?.click());
 
-// The quiz's "Number of Questions" is a dropdown inside the start card (the
-// spelling one is still a − / + stepper). It offers 5, 10, 15 ... up to what
-// this account's tier and the current category/level can actually supply.
-// Signed-out and free accounts also get a final "More questions…" entry when
-// the pool holds more than their ceiling; picking it opens the same
-// sign-up / upgrade nudge the old "+" button did.
-const QUIZ_GOAL_MAX = 100; // the dropdown never offers more than this
-function renderQuizGoalSelect(mode = "quiz") {
-  const sel = mode === "quiz" ? quizGoalSelect : spellingGoalSelect;
+// "Number of Questions" lives in each start screen's Settings dropdown as one row
+// of buttons (10 / 20 / 50 / 70 / 100 / All), the same as the flashcards' card count.
+// Signed-out and free accounts see the sizes above their ceiling (and "All" when the
+// pool is bigger than the ceiling) locked; tapping one opens the sign-up / upgrade nudge.
+// goals[mode] === 0 means "All": every question the pool holds, up to the account ceiling.
+function effectiveGoal(mode, poolSize) {
+  const g = goals[mode];
+  return g > 0 ? Math.min(g, poolSize) : Math.min(poolSize, goalMaxFor());
+}
+function poolSizeSafe(mode) {
+  try { return goalPoolSize(mode); } catch (e) { return Infinity; } // quiz pool is not ready during early init
+}
+function renderRoundSeg(mode) {
+  const seg = document.getElementById(mode + "-round-seg");
+  if (!seg) return;
   const roleMax = goalMaxFor();
-  // Only a signed-out visitor (ceiling below QUIZ_GOAL_MAX) has anything to
-  // unlock; everyone else already reaches the top of the list.
-  const hasUpsellAbove = (!currentUser || currentUser.role === "free") && roleMax < QUIZ_GOAL_MAX;
-  if (goals[mode] > QUIZ_GOAL_MAX) { goals[mode] = QUIZ_GOAL_MAX; saveGoals(); }
-  // Always a clean 5, 10, 15 ... ladder up to the account's ceiling (max 100);
-  // a round never runs longer than the pool, startQuizRound clamps it.
-  const limit = Math.min(roleMax, QUIZ_GOAL_MAX);
-  const values = new Set();
-  for (let n = GOAL_MIN; n <= limit; n += GOAL_STEP) values.add(n);
-  if (goals[mode] > 0 && goals[mode] % GOAL_STEP === 0 && goals[mode] <= limit) values.add(goals[mode]);
-  const sorted = [...values].sort((a, b) => a - b);
-  sel.innerHTML = "";
-  sorted.forEach((n) => {
-    const o = document.createElement("option");
-    o.value = String(n);
-    o.textContent = t("qzChipQuestions", n);
-    sel.appendChild(o);
+  const upsell = !currentUser || currentUser.role === "free";
+  const pool = poolSizeSafe(mode);
+  seg.querySelectorAll("[data-round]").forEach((b) => {
+    const n = Number(b.dataset.round);
+    const locked = upsell && (n === 0 ? pool > roleMax : n > roleMax);
+    const on = n === goals[mode];
+    b.classList.toggle("on", on);
+    b.classList.toggle("is-locked", locked);
+    b.setAttribute("aria-checked", on ? "true" : "false");
+    b.textContent = (n === 0 ? t("flashRoundAll") : String(n)) + (locked ? " 🔒" : "");
+    b.dataset.now = n === 0 ? t("qzChipQuestionsAll") : t("qzChipQuestions", n);
   });
-  if (hasUpsellAbove) {
-    const o = document.createElement("option");
-    o.value = "more";
-    o.textContent = t("qzGoalMore");
-    sel.appendChild(o);
-  }
-  sel.value = String(goals[mode]);
+}
+
+// Difficulty = the level (Year 4 ... / the Korean school grades), the same one the
+// header badge shows, so the two always agree.
+function renderLevelSeg(seg) {
+  if (!seg) return;
+  seg.innerHTML = "";
+  currentSystem().levels.forEach((lv) => {
+    const btn = document.createElement("button");
+    const on = lv.id === currentLevel;
+    btn.type = "button";
+    btn.className = "qz-seg-btn" + (on ? " on" : "");
+    btn.setAttribute("role", "radio");
+    btn.setAttribute("aria-checked", String(on));
+    btn.textContent = lv.label;
+    btn.addEventListener("click", () => { if (lv.id !== currentLevel) applyLevel(lv.id); });
+    seg.appendChild(btn);
+  });
+}
+
+// The closed Settings row always shows the current choices, e.g. "Vocabulary · Upper Primary · 10 questions".
+function bindSettingsNow(bodyId, nowId) {
+  const body = document.getElementById(bodyId);
+  const now = document.getElementById(nowId);
+  if (!body || !now) return;
+  const update = () => {
+    now.textContent = Array.from(body.querySelectorAll(".qz-seg-btn.on"))
+      .map((b) => (b.dataset.now || b.textContent).replace(/^[^\p{L}\p{N}]+/u, "").trim())
+      .join(" · ");
+  };
+  new MutationObserver(update).observe(body, { subtree: true, childList: true, attributes: true, attributeFilter: ["class", "data-now"] });
+  update();
+}
+// While the settings are open the demo scene shrinks (see .is-settings-open in style.css); a tap outside closes them.
+function wireSettingsDetails(detailsId, screenId) {
+  const d = document.getElementById(detailsId);
+  const scr = document.getElementById(screenId);
+  if (!d || !scr) return;
+  const closeOutside = (e) => {
+    if (!d.open) { document.removeEventListener("click", closeOutside); return; }
+    // composedPath is read at dispatch time, so a button that was rebuilt by this very tap still counts as inside.
+    if (d.contains(e.target) || e.composedPath().includes(d)) return;
+    d.open = false;
+    document.removeEventListener("click", closeOutside);
+  };
+  d.addEventListener("toggle", () => {
+    scr.classList.toggle("is-settings-open", d.open);
+    if (d.open) setTimeout(() => document.addEventListener("click", closeOutside), 0);
+  });
 }
 
 function renderGoalStepper(mode) {
-  renderQuizGoalSelect(mode);
+  renderRoundSeg(mode);
   if (mode === "spelling") updateSpellingStartChips();
 }
 
@@ -5502,109 +5554,7 @@ myDeckClearBtn.addEventListener("click", () => {
 /* ================= QUIZ ================= */
 const quizCategorySel = document.getElementById("quiz-category");
 const quizEndBtn = document.getElementById("quiz-end");
-const quizGoalSelect = document.getElementById("quiz-goal-select");
 
-// A styled stand-in for a <select>: a centred pill that opens a left-aligned
-// list showing `maxRows` rows and scrolling beyond that (a native popup can't
-// be sized or aligned from CSS). The real <select> stays in the DOM, hidden,
-// as the single source of truth: choosing an entry sets its value and fires
-// "change", and the pill's text follows whatever the <select> currently holds.
-let openDropdown = null;
-function enhanceSelect(sel, maxRows) {
-  const wrap = document.createElement("div");
-  wrap.className = "qz-dd";
-  wrap.style.setProperty("--rows", String(maxRows));
-  sel.before(wrap);
-  wrap.appendChild(sel);
-  sel.classList.add("qz-dd-native");
-  sel.tabIndex = -1;
-  sel.setAttribute("aria-hidden", "true");
-
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "qz-dd-btn";
-  btn.setAttribute("aria-haspopup", "listbox");
-  btn.setAttribute("aria-expanded", "false");
-  const list = document.createElement("div");
-  list.className = "qz-dd-list";
-  list.setAttribute("role", "listbox");
-  list.hidden = true;
-  wrap.append(btn, list);
-
-  let active = -1;
-  const opts = () => Array.from(sel.options);
-  const sync = () => {
-    const o = sel.selectedOptions[0];
-    btn.textContent = o ? o.textContent : "";
-    const label = sel.getAttribute("aria-label");
-    if (label) btn.setAttribute("aria-label", label);
-  };
-  const highlight = (i, noScroll) => {
-    const items = list.children;
-    if (!items.length) return;
-    active = Math.max(0, Math.min(items.length - 1, i));
-    Array.from(items).forEach((el, k) => el.classList.toggle("is-active", k === active));
-    if (!noScroll) items[active].scrollIntoView({ block: "nearest" });
-  };
-  const close = () => {
-    if (list.hidden) return;
-    list.hidden = true;
-    btn.setAttribute("aria-expanded", "false");
-    if (openDropdown === close) openDropdown = null;
-  };
-  const choose = (i) => {
-    const o = opts()[i];
-    close();
-    if (!o) return;
-    const changed = sel.value !== o.value;
-    sel.value = o.value;
-    sync();
-    if (changed || o.value === "more") sel.dispatchEvent(new Event("change", { bubbles: true }));
-    btn.focus({ preventScroll: true });
-  };
-  const open = () => {
-    if (!list.hidden) return;
-    if (openDropdown) openDropdown();
-    list.innerHTML = "";
-    opts().forEach((o, i) => {
-      const item = document.createElement("div");
-      item.className = "qz-dd-opt" + (o.selected ? " is-selected" : "");
-      item.setAttribute("role", "option");
-      item.setAttribute("aria-selected", o.selected ? "true" : "false");
-      item.textContent = o.textContent;
-      item.addEventListener("pointerdown", (e) => e.preventDefault()); // keep focus on the pill
-      item.addEventListener("click", () => choose(i));
-      list.appendChild(item);
-    });
-    list.hidden = false;
-    btn.setAttribute("aria-expanded", "true");
-    openDropdown = close;
-    list.scrollTop = 0; // always open showing the first rows
-    highlight(opts().findIndex((o) => o.selected), true);
-  };
-
-  btn.addEventListener("click", () => (list.hidden ? open() : close()));
-  btn.addEventListener("keydown", (e) => {
-    if (list.hidden) {
-      if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); open(); }
-      return;
-    }
-    if (e.key === "ArrowDown") { e.preventDefault(); highlight(active + 1); }
-    else if (e.key === "ArrowUp") { e.preventDefault(); highlight(active - 1); }
-    else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); choose(active); }
-    else if (e.key === "Escape" || e.key === "Tab") { if (e.key === "Escape") e.preventDefault(); close(); }
-  });
-  btn.addEventListener("blur", () => setTimeout(close, 120));
-  new MutationObserver(sync).observe(sel, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["aria-label"] });
-  sel.addEventListener("change", sync);
-  sync();
-  return sync;
-}
-document.addEventListener("pointerdown", (e) => {
-  if (openDropdown && !e.target.closest(".qz-dd")) openDropdown();
-});
-const syncQuizCategoryDd = enhanceSelect(quizCategorySel, 6);
-const syncQuizGoalDd = enhanceSelect(quizGoalSelect, 6); // 6 rows = 5 ... 30, then scroll
 const quizGoalBanner = document.getElementById("quiz-goal-banner");
 const quizGoalMessage = document.getElementById("quiz-goal-message");
 const quizGoalNextLevelBtn = document.getElementById("quiz-goal-next-level");
@@ -5758,24 +5708,34 @@ function showQuizStart() {
   renderQuizStart();
 }
 
-function renderQuizStart() {
-  // Difficulty = the level (Year 4 ... / the Korean school grades). It is the
-  // same level the header badge shows, so the two always agree.
-  quizLevelSeg.innerHTML = "";
-  currentSystem().levels.forEach((lv) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "qz-seg-btn" + (lv.id === currentLevel ? " active" : "");
-    btn.setAttribute("role", "radio");
-    btn.setAttribute("aria-checked", String(lv.id === currentLevel));
-    btn.textContent = lv.label;
-    btn.addEventListener("click", () => { if (lv.id !== currentLevel) applyLevel(lv.id); });
-    quizLevelSeg.appendChild(btn);
+function renderQuizCategorySeg() {
+  const seg = document.getElementById("quiz-category-seg");
+  if (!seg) return;
+  seg.textContent = "";
+  Array.from(quizCategorySel.options).forEach((opt) => {
+    if (opt.hidden) return;
+    const on = opt.value === quizCategorySel.value;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "qz-seg-btn" + (on ? " on" : "");
+    b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", on ? "true" : "false");
+    b.textContent = opt.textContent.trim();
+    b.addEventListener("click", () => {
+      if (quizCategorySel.value === opt.value) return;
+      quizCategorySel.value = opt.value;
+      quizCategorySel.dispatchEvent(new Event("change"));
+    });
+    seg.appendChild(b);
   });
+}
+
+function renderQuizStart() {
+  renderLevelSeg(quizLevelSeg);
 
   quizModeSeg.querySelectorAll(".qz-seg-btn").forEach((b) => {
     const on = b.dataset.mode === quizMode;
-    b.classList.toggle("active", on);
+    b.classList.toggle("on", on);
     b.setAttribute("aria-checked", String(on));
   });
   quizModeNote.dataset.mode = quizMode;
@@ -5783,9 +5743,8 @@ function renderQuizStart() {
     ? t("qzModeNoteTime", QuizCore.TIME_LIMITS_SEC.choice, QuizCore.TIME_LIMITS_SEC.typing)
     : t("qzModeNoteRelaxed");
 
-  renderQuizGoalSelect();
-  syncQuizCategoryDd();
-  syncQuizGoalDd();
+  renderQuizCategorySeg();
+  renderRoundSeg("quiz");
 
   const daily = QuizCore.dailyGoalState(answersToday());
   quizStartDaily.textContent = daily.done ? t("qzDailyDone") : t("qzDailyLine", daily.have, daily.goal);
@@ -5827,7 +5786,7 @@ function startQuizRound(retryList) {
     // "Number of Questions" and the question count never disagree.
     // The saved preference is kept as picked (5, 10 ... 100); only this round
     // is shortened to what the pool can supply.
-    list = pickWordsForSession(pool, Math.min(goals.quiz, pool.length), (q) => q.target);
+    list = pickWordsForSession(pool, effectiveGoal("quiz", pool.length), (q) => q.target);
     quizIsRetry = false;
   }
 
@@ -6054,7 +6013,7 @@ function finishQuizQuestion(outcome) {
   updateQuizHud();
   pulseScoreTag(quizScoreEl);
 
-  const goal = Math.min(goals.quiz, quizQuestions.length);
+  const goal = effectiveGoal("quiz", quizQuestions.length);
   if (!quizIsRetry && goal && !quizGoalCelebrated && quizScore >= goal) {
     quizGoalCelebrated = true;
     showGoalReached(quizGoalBanner, quizGoalMessage, quizGoalNextLevelBtn, quizScore);
@@ -6506,21 +6465,30 @@ quizEndBtn.addEventListener("click", () => {
 });
 quizCategorySel.addEventListener("change", buildQuizQuestions);
 
-quizGoalSelect.addEventListener("change", () => {
-  if (quizGoalSelect.value === "more") {
-    quizGoalSelect.value = String(goals.quiz); // nothing changes; just the nudge
-    syncQuizGoalDd();
-    if (!currentUser) promptSignupForMoreQuestions();
-    else if (currentUser.role === "free") openUpgradeOverlay();
-    return;
-  }
-  const n = parseInt(quizGoalSelect.value, 10);
-  if (!(n > 0)) return;
-  goals.quiz = n;
-  saveGoals();
-  renderGoalStepper("quiz");
-  buildQuizQuestions();
+// Question-count buttons (Quiz and Spelling share this): a locked size opens the sign-up / upgrade nudge.
+["quiz", "spelling"].forEach((mode) => {
+  const seg = document.getElementById(mode + "-round-seg");
+  if (!seg) return;
+  seg.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-round]");
+    if (!b) return;
+    if (b.classList.contains("is-locked")) {
+      if (!currentUser) promptSignupForMoreQuestions();
+      else if (currentUser.role === "free") openUpgradeOverlay();
+      return;
+    }
+    const n = Number(b.dataset.round);
+    if (goals[mode] === n) return;
+    goals[mode] = n;
+    saveGoals();
+    if (mode === "quiz") buildQuizQuestions();
+    else buildSpellingDeck({ resetScreen: false });
+  });
 });
+bindSettingsNow("quiz-settings-body", "quiz-settings-now");
+bindSettingsNow("spelling-settings-body", "spelling-settings-now");
+wireSettingsDetails("quiz-settings", "quiz-start-screen");
+wireSettingsDetails("spelling-settings", "spelling-start-screen");
 
 quizGoalDismissBtn.addEventListener("click", () => {
   quizGoalBanner.hidden = true;
@@ -6556,7 +6524,6 @@ spellingBackspaceBtn.className = "sp-backspace-chip";
 // standard keyboard backspace shape (pointed left end + ✕), sized by CSS.
 spellingBackspaceBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="M16.5 9.5l-5 5M11.5 9.5l5 5"/></svg>';
 const spellingScoreEl = document.getElementById("spelling-score");
-const spellingGoalSelect = document.getElementById("spelling-goal-select");
 const spellingGoalBanner = document.getElementById("spelling-goal-banner");
 const spellingGoalMessage = document.getElementById("spelling-goal-message");
 const spellingGoalNextLevelBtn = document.getElementById("spelling-goal-next-level");
@@ -6591,21 +6558,12 @@ function buildSpellingDeck({ resetScreen = true } = {}) {
   spellingGoalCelebrated = false;
   const pool = getSpellingPool(currentLevel);
 
-  // The stepper can't be dragged past what's actually available, but the
-  // pool itself can shrink out from under a stored preference (switching
-  // level, or words disappearing) — clamp down here too so "Number of
-  // Questions" and the Score denominator never disagree.
-  if (pool.length >= GOAL_MIN && goals.spelling > pool.length) {
-    goals.spelling = pool.length;
-    saveGoals();
-  }
-
   // Overdue-for-review words first (most overdue first), then never-seen
   // words, then words not due yet — see pickWordsForSession(). This
   // replaces the old wrong/untried/done split with a real spaced-repetition
   // schedule; progress.spellingStatus itself is untouched and keeps driving
   // whatever else already reads it (e.g. the mastery badge).
-  spellingDeck = pickWordsForSession(pool, goals.spelling);
+  spellingDeck = pickWordsForSession(pool, effectiveGoal("spelling", pool.length));
   spellingIndex = 0;
   spellingMissedIdx.clear();
   spellingScore = { correct: 0, total: 0 };
@@ -7187,7 +7145,7 @@ function checkSpellingAnswer() {
     syncSpellingState();
     spellingNextBtn.disabled = false;
 
-    const goal = goals.spelling;
+    const goal = effectiveGoal("spelling", spellingDeck.length);
     if (goal && !spellingGoalCelebrated && spellingScore.correct >= goal) {
       spellingGoalCelebrated = true;
       showGoalReached(spellingGoalBanner, spellingGoalMessage, spellingGoalNextLevelBtn, spellingScore.correct);
@@ -7324,22 +7282,6 @@ document.getElementById("spelling-report-game")?.addEventListener("click", () =>
 
 spellingReportRestartBtn.addEventListener("click", () => {
   buildSpellingDeck();
-});
-
-const syncSpellingGoalDd = enhanceSelect(spellingGoalSelect, 6);
-spellingGoalSelect.addEventListener("change", () => {
-  if (spellingGoalSelect.value === "more") {
-    spellingGoalSelect.value = String(goals.spelling); // nothing changes; just the nudge
-    syncSpellingGoalDd();
-    if (!currentUser) promptSignupForMoreQuestions();
-    else if (currentUser.role === "free") openUpgradeOverlay();
-    return;
-  }
-  const n = parseInt(spellingGoalSelect.value, 10);
-  if (!(n > 0)) return;
-  goals.spelling = n;
-  saveGoals();
-  buildSpellingDeck({ resetScreen: false });
 });
 
 spellingGoalDismissBtn.addEventListener("click", () => {

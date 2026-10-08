@@ -4380,7 +4380,9 @@ html[data-theme="dark"] .file-picker-name { color: var(--accent); }
 }
 
 /* ---- Flashcards start screen / practice wrapper ---- */
-#flash-start-screen[hidden], #flash-practice[hidden] { display: none !important; }
+#flash-start-screen[hidden], #flash-practice[hidden],
+#quiz-start-screen[hidden],
+#spelling-start-screen[hidden] { display: none !important; }
 .flash-start-settings {
   flex-wrap: wrap;
   justify-content: center;
@@ -8242,7 +8244,8 @@ html body #spelling-practice .sp-belly-btn::after { inset: -2px; }
 
 /* Start screen — same arcade card as Spelling, with a difficulty picker and a mode picker */
 html body #quiz-start-screen.sp-start,
-html body #flash-start-screen.sp-start { position: relative; overflow: hidden; border: 0 !important; background: transparent !important; box-shadow: none; padding: 10px 6px 14px; margin: 0; min-height: 0; display: flex; }
+html body #flash-start-screen.sp-start,
+html body #spelling-start-screen.sp-start { position: relative; overflow: hidden; border: 0 !important; background: transparent !important; box-shadow: none; padding: 10px 6px 14px; margin: 0; min-height: 0; display: flex; }
 .qz-start-card { width: min(100%, 420px); gap: 10px; }
 .qz-pick { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .qz-pick-title { font-family: var(--font-heading); font-weight: 800; font-size: 0.85rem; color: #fff; text-shadow: 0 1px 0 rgba(8, 90, 72, 0.5); }
@@ -8601,9 +8604,15 @@ html body #flash-practice .flash-end-row #flash-end:active { transform: translat
 }
 
 /* ---- Flashcards start screen: tidy picker + koala flipping a card ---- */
-html body #flash-start-screen .qz-seg-btn.on { background: linear-gradient(180deg, #ffe066, #ffab1a); color: #5a3000; box-shadow: 0 3px 0 #c27400; }
-#flash-start-screen .qz-seg .qz-seg-btn { flex: 1 1 0; min-width: 0; }
-#flash-start-screen .flash-start-selects select { flex: 1 1 0; }
+html body #flash-start-screen .qz-seg-btn.on,
+html body #quiz-start-screen .qz-seg-btn.on,
+html body #spelling-start-screen .qz-seg-btn.on { background: linear-gradient(180deg, #ffe066, #ffab1a); color: #5a3000; box-shadow: 0 3px 0 #c27400; }
+#flash-start-screen .qz-seg .qz-seg-btn,
+#quiz-start-screen .qz-seg .qz-seg-btn,
+#spelling-start-screen .qz-seg .qz-seg-btn { flex: 1 1 0; min-width: 0; }
+#flash-start-screen .flash-start-selects select,
+#quiz-start-screen .flash-start-selects select,
+#spelling-start-screen .flash-start-selects select { flex: 1 1 0; }
 .fs-scene .fs-card { transform-box: fill-box; transform-origin: center; animation: fs-flip 6s ease-in-out infinite; }
 .fs-scene .fs-front { animation: fs-front 6s infinite; }
 .fs-scene .fs-back { animation: fs-back 6s infinite; opacity: 0; }
@@ -8613,14 +8622,28 @@ html body #flash-start-screen .qz-seg-btn.on { background: linear-gradient(180de
 @keyframes fs-back { 0%, 42% { opacity: 0; } 43%, 92% { opacity: 1; } 93%, 100% { opacity: 0; } }
 @keyframes fs-pop { 0%, 54% { opacity: 0; transform: scale(0.2); } 62% { opacity: 1; transform: scale(1.5) rotate(12deg); } 68%, 86% { opacity: 1; transform: scale(1); } 92%, 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .fs-scene .fs-card, .fs-scene .fs-front, .fs-scene .fs-back, .fs-scene .fs-pop { animation: none !important; } .fs-scene .fs-back { opacity: 0; } }
-html body #view-flashcards #flash-start-screen .flash-start-selects select { flex: 1 1 0; width: auto; min-width: 0; padding: 6px 28px 6px 14px; text-align: center; text-align-last: center; }
-html body #flash-start-screen .qz-seg-btn { border: 0 !important; background: rgba(255, 255, 255, 0.22) !important; color: #fff !important; box-shadow: none !important; text-shadow: 0 1px 0 rgba(8, 90, 72, 0.45); }
-html body #flash-start-screen .qz-seg-btn.on { background: #fff !important; color: #0b6b57 !important; text-shadow: none; box-shadow: 0 3px 0 rgba(8, 90, 72, 0.45) !important; }
-html body #flash-start-screen .qz-seg-btn:disabled { opacity: 0.55; cursor: not-allowed; }
-#flash-start-screen .qz-seg .qz-seg-btn { flex: 1 1 0; min-width: 0; padding: 6px 8px; white-space: nowrap; }
-#flash-start-screen .qz-start-card { gap: 8px; }
+html body #view-flashcards #flash-start-screen .flash-start-selects select,
+html body #view-quiz #quiz-start-screen .flash-start-selects select,
+html body #view-spelling #spelling-start-screen .flash-start-selects select { flex: 1 1 0; width: auto; min-width: 0; padding: 6px 28px 6px 14px; text-align: center; text-align-last: center; }
+html body #flash-start-screen .qz-seg-btn,
+html body #quiz-start-screen .qz-seg-btn,
+html body #spelling-start-screen .qz-seg-btn { border: 0 !important; background: rgba(255, 255, 255, 0.22) !important; color: #fff !important; box-shadow: none !important; text-shadow: 0 1px 0 rgba(8, 90, 72, 0.45); }
+html body #flash-start-screen .qz-seg-btn.on,
+html body #quiz-start-screen .qz-seg-btn.on,
+html body #spelling-start-screen .qz-seg-btn.on { background: #fff !important; color: #0b6b57 !important; text-shadow: none; box-shadow: 0 3px 0 rgba(8, 90, 72, 0.45) !important; }
+html body #flash-start-screen .qz-seg-btn:disabled,
+html body #quiz-start-screen .qz-seg-btn:disabled,
+html body #spelling-start-screen .qz-seg-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+#flash-start-screen .qz-seg .qz-seg-btn,
+#quiz-start-screen .qz-seg .qz-seg-btn,
+#spelling-start-screen .qz-seg .qz-seg-btn { flex: 1 1 0; min-width: 0; padding: 6px 8px; white-space: nowrap; }
+#flash-start-screen .qz-start-card,
+#quiz-start-screen .qz-start-card,
+#spelling-start-screen .qz-start-card { gap: 8px; }
 /* explanation scene: small, fixed, centred so Start stays on screen */
-#flash-start-screen .fs-panel { max-width: 280px; margin: 0 auto; }
+#flash-start-screen .fs-panel,
+#quiz-start-screen .fs-panel,
+#spelling-start-screen .fs-panel { max-width: 280px; margin: 0 auto; }
 /* card flip: squeeze first, swap faces only while the card is edge-on */
 .fs-scene .fs-card { animation: fs-flip 6s ease-in-out infinite; }
 @keyframes fs-flip { 0%, 33% { transform: scaleX(1); } 40% { transform: scaleX(0); } 47%, 82% { transform: scaleX(1); } 89% { transform: scaleX(0); } 96%, 100% { transform: scaleX(1); } }
@@ -8629,15 +8652,35 @@ html body #flash-start-screen .qz-seg-btn:disabled { opacity: 0.55; cursor: not-
 @keyframes fs-pop { 0%, 52% { opacity: 0; transform: scale(0.2); } 60% { opacity: 1; transform: scale(1.5) rotate(12deg); } 66%, 80% { opacity: 1; transform: scale(1); } 86%, 100% { opacity: 0; } }
 
 /* Flashcards start: one row per picker — title on the left, compact buttons beside it */
-#flash-start-screen .qz-pick { flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; padding: 0 4px; }
-#flash-start-screen .qz-pick-title { flex: 0 0 74px; text-align: left; font-size: 0.85rem; }
-#flash-start-screen .qz-pick .qz-seg { flex: 1 1 auto; width: auto; justify-content: flex-start; flex-wrap: nowrap; gap: 6px; }
-#flash-start-screen .qz-seg .qz-seg-btn { flex: 0 0 auto; width: auto; min-height: 30px; padding: 4px 12px; font-size: 0.78rem; }
-@media (max-width: 480px) { #flash-start-screen .qz-pick-title { flex-basis: 62px; font-size: 0.78rem; } #flash-start-screen .qz-seg .qz-seg-btn { padding: 4px 8px; font-size: 0.72rem; } #flash-start-screen .qz-pick .qz-seg { gap: 4px; flex-wrap: wrap; } }
+#flash-start-screen .qz-pick,
+#quiz-start-screen .qz-pick,
+#spelling-start-screen .qz-pick { flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; padding: 0 4px; }
+#flash-start-screen .qz-pick-title,
+#quiz-start-screen .qz-pick-title,
+#spelling-start-screen .qz-pick-title { flex: 0 0 74px; text-align: left; font-size: 0.85rem; }
+#flash-start-screen .qz-pick .qz-seg,
+#quiz-start-screen .qz-pick .qz-seg,
+#spelling-start-screen .qz-pick .qz-seg { flex: 1 1 auto; width: auto; justify-content: flex-start; flex-wrap: nowrap; gap: 6px; }
+#flash-start-screen .qz-seg .qz-seg-btn,
+#quiz-start-screen .qz-seg .qz-seg-btn,
+#spelling-start-screen .qz-seg .qz-seg-btn { flex: 0 0 auto; width: auto; min-height: 30px; padding: 4px 12px; font-size: 0.78rem; }
+@media (max-width: 480px) { #flash-start-screen .qz-pick-title,
+#quiz-start-screen .qz-pick-title,
+#spelling-start-screen .qz-pick-title { flex-basis: 62px; font-size: 0.78rem; } #flash-start-screen .qz-seg .qz-seg-btn,
+#quiz-start-screen .qz-seg .qz-seg-btn,
+#spelling-start-screen .qz-seg .qz-seg-btn { padding: 4px 8px; font-size: 0.72rem; } #flash-start-screen .qz-pick .qz-seg,
+#quiz-start-screen .qz-pick .qz-seg,
+#spelling-start-screen .qz-pick .qz-seg { gap: 4px; flex-wrap: wrap; } }
 /* front-side picker is now two buttons; the select stays in the DOM as the single source of truth */
-#flash-start-screen .flash-front-hidden { display: none !important; }
-html body #view-flashcards #flash-start-screen .flash-start-selects select { background-color: #ffffff !important; flex: 1 1 100%; }
-html body #view-flashcards #flash-start-screen .flash-start-selects select option { background-color: #ffffff; color: #0b6b57; line-height: normal; padding: 6px 10px; }
+#flash-start-screen .flash-front-hidden,
+#quiz-start-screen .flash-front-hidden,
+#spelling-start-screen .flash-front-hidden { display: none !important; }
+html body #view-flashcards #flash-start-screen .flash-start-selects select,
+html body #view-quiz #quiz-start-screen .flash-start-selects select,
+html body #view-spelling #spelling-start-screen .flash-start-selects select { background-color: #ffffff !important; flex: 1 1 100%; }
+html body #view-flashcards #flash-start-screen .flash-start-selects select option,
+html body #view-quiz #quiz-start-screen .flash-start-selects select option,
+html body #view-spelling #spelling-start-screen .flash-start-selects select option { background-color: #ffffff; color: #0b6b57; line-height: normal; padding: 6px 10px; }
 
 
 /* Spelling start: level chip and question-count dropdown share one row */
@@ -8646,18 +8689,40 @@ html body #view-flashcards #flash-start-screen .flash-start-selects select optio
 .sp-start-row .qz-dd { flex: 1 1 0; }
 
 /* Flashcards start: no big-box title, narrower card (matches Spelling's start card), a line of space under the card title */
-#view-flashcards .card:has(#flash-start-screen:not([hidden])) > .view-section-title { display: none; }
-#flash-start-screen .qz-start-card { width: min(100%, 380px); }
-#flash-start-screen .qz-start-card > h3 { margin-bottom: 1.1em; }
-#flash-start-screen .qz-pick .qz-seg { flex-wrap: wrap; }
+#view-flashcards .card:has(#flash-start-screen:not([hidden])) > .view-section-title,
+#view-quiz .card:has(#quiz-start-screen:not([hidden])) > .view-section-title,
+#view-spelling .card:has(#spelling-start-screen:not([hidden])) > .view-section-title { display: none; }
+#flash-start-screen .qz-start-card,
+#quiz-start-screen .qz-start-card,
+#spelling-start-screen .qz-start-card { width: min(100%, 380px); }
+#flash-start-screen .qz-start-card > h3,
+#quiz-start-screen .qz-start-card > h3,
+#spelling-start-screen .qz-start-card > h3 { margin-bottom: 1.1em; }
+#flash-start-screen .qz-pick .qz-seg,
+#quiz-start-screen .qz-pick .qz-seg,
+#spelling-start-screen .qz-pick .qz-seg { flex-wrap: wrap; }
 
 /* Flashcards start: the three picker rows share the animation panel's width/left edge */
-#flash-start-screen .qz-pick { width: 280px; max-width: 100%; margin: 0 auto; padding: 0; box-sizing: border-box; }
-#flash-start-screen .fs-panel, #flash-start-screen .qz-pick { width: 300px; max-width: 100%; }
-#flash-start-screen .qz-pick { gap: 8px; }
-#flash-start-screen .qz-pick-title { flex-basis: 60px; font-size: 0.78rem; }
-#flash-start-screen .qz-pick .qz-seg { gap: 4px; }
-#flash-start-screen .qz-seg .qz-seg-btn { padding: 4px 8px; font-size: 0.72rem; }
+#flash-start-screen .qz-pick,
+#quiz-start-screen .qz-pick,
+#spelling-start-screen .qz-pick { width: 280px; max-width: 100%; margin: 0 auto; padding: 0; box-sizing: border-box; }
+#flash-start-screen .fs-panel, #flash-start-screen .qz-pick,
+#quiz-start-screen .fs-panel,
+#spelling-start-screen .fs-panel,
+#quiz-start-screen .qz-pick,
+#spelling-start-screen .qz-pick { width: 300px; max-width: 100%; }
+#flash-start-screen .qz-pick,
+#quiz-start-screen .qz-pick,
+#spelling-start-screen .qz-pick { gap: 8px; }
+#flash-start-screen .qz-pick-title,
+#quiz-start-screen .qz-pick-title,
+#spelling-start-screen .qz-pick-title { flex-basis: 60px; font-size: 0.78rem; }
+#flash-start-screen .qz-pick .qz-seg,
+#quiz-start-screen .qz-pick .qz-seg,
+#spelling-start-screen .qz-pick .qz-seg { gap: 4px; }
+#flash-start-screen .qz-seg .qz-seg-btn,
+#quiz-start-screen .qz-seg .qz-seg-btn,
+#spelling-start-screen .qz-seg .qz-seg-btn { padding: 4px 8px; font-size: 0.72rem; }
 
 /* Quiz start: one line of space under the title; dropdowns match the Difficulty / Mode buttons */
 .qz-start-card > h3 { margin-bottom: 1.1em; }
@@ -9484,9 +9549,15 @@ html body .sp-report-koala-wrap { margin-top: 12px; }
 
 /* ===== Flashcards start screen — calmer, same family as Spelling ===== */
 html body #view-flashcards .card.scene-card { border: 0; box-shadow: none; }
-html body #flash-start-screen .sp-start-floaters { display: none; }
-html body #flash-start-screen .qz-start-card { gap: 12px; }
-html body #flash-start-screen .qz-start-card > h3 { margin-bottom: 0; font-size: 1.7rem; }
+html body #flash-start-screen .sp-start-floaters,
+html body #quiz-start-screen .sp-start-floaters,
+html body #spelling-start-screen .sp-start-floaters { display: none; }
+html body #flash-start-screen .qz-start-card,
+html body #quiz-start-screen .qz-start-card,
+html body #spelling-start-screen .qz-start-card { gap: 12px; }
+html body #flash-start-screen .qz-start-card > h3,
+html body #quiz-start-screen .qz-start-card > h3,
+html body #spelling-start-screen .qz-start-card > h3 { margin-bottom: 0; font-size: 1.7rem; }
 /* settings tucked away; summary shows the current choices */
 .fs-settings { width: 100%; }
 .fs-settings-sum { display: flex; align-items: center; justify-content: center; gap: 8px; list-style: none; cursor: pointer; min-height: 42px; padding: 6px 14px; border-radius: 999px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.55); color: #fff; font-family: var(--font-heading); font-weight: 800; font-size: 0.85rem; text-shadow: 0 1px 2px rgba(5, 70, 56, 0.7); -webkit-tap-highlight-color: transparent; }
@@ -9496,41 +9567,93 @@ html body #flash-start-screen .qz-start-card > h3 { margin-bottom: 0; font-size:
 .fs-settings-now { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fs-settings-body { display: flex; flex-direction: column; gap: 12px; padding-top: 12px; }
 /* chips: aligned label column, clear on/off */
-html body #flash-start-screen .fs-settings-body .qz-pick { gap: 10px; }
-html body #flash-start-screen .fs-settings-body .qz-pick-title { flex: 0 0 76px; }
-html body #flash-start-screen .fs-settings-body .qz-seg { flex: 1 1 0; flex-wrap: nowrap; gap: 6px; }
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn { flex: 1 1 0; min-width: 0; min-height: 36px; font-size: 0.8rem; padding: 4px 6px; border: 2px solid rgba(255, 255, 255, 0.7) !important; background: rgba(255, 255, 255, 0.14) !important; color: #fff !important; }
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on { background: #fff !important; color: #0b6b57 !important; border-color: #fff !important; }
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { content: "✓ "; font-weight: 800; }
+html body #flash-start-screen .fs-settings-body .qz-pick,
+html body #quiz-start-screen .fs-settings-body .qz-pick,
+html body #spelling-start-screen .fs-settings-body .qz-pick { gap: 10px; }
+html body #flash-start-screen .fs-settings-body .qz-pick-title,
+html body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html body #spelling-start-screen .fs-settings-body .qz-pick-title { flex: 0 0 76px; }
+html body #flash-start-screen .fs-settings-body .qz-seg,
+html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #spelling-start-screen .fs-settings-body .qz-seg { flex: 1 1 0; flex-wrap: nowrap; gap: 6px; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn { flex: 1 1 0; min-width: 0; min-height: 36px; font-size: 0.8rem; padding: 4px 6px; border: 2px solid rgba(255, 255, 255, 0.7) !important; background: rgba(255, 255, 255, 0.14) !important; color: #fff !important; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on { background: #fff !important; color: #0b6b57 !important; border-color: #fff !important; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { content: "✓ "; font-weight: 800; }
 /* steps like Spelling's */
-html body #flash-start-screen .fs-steps { margin: 2px 0 0; }
+html body #flash-start-screen .fs-steps,
+html body #quiz-start-screen .fs-steps,
+html body #spelling-start-screen .fs-steps { margin: 2px 0 0; }
 /* a slimmer Start */
-html body #flash-start-screen .sp-start-card button.sp-start-btn.pill.accent { min-height: 48px; font-size: 1.15rem; box-shadow: 0 4px 0 #c27400, 0 6px 12px rgba(194, 116, 0, 0.3) !important; }
-html body #flash-start-screen .fs-settings-body .qz-seg { flex-wrap: wrap; }
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn { flex: 1 1 auto; white-space: nowrap; }
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { content: "✓ "; }
+html body #flash-start-screen .sp-start-card button.sp-start-btn.pill.accent,
+html body #quiz-start-screen .sp-start-card button.sp-start-btn.pill.accent,
+html body #spelling-start-screen .sp-start-card button.sp-start-btn.pill.accent { min-height: 48px; font-size: 1.15rem; box-shadow: 0 4px 0 #c27400, 0 6px 12px rgba(194, 116, 0, 0.3) !important; }
+html body #flash-start-screen .fs-settings-body .qz-seg,
+html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #spelling-start-screen .fs-settings-body .qz-seg { flex-wrap: wrap; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn { flex: 1 1 auto; white-space: nowrap; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { content: "✓ "; }
 .fs-settings-sum { font-size: 0.82rem; }
 
 /* Flashcards start: tidier settings row */
-html body #flash-start-screen .fs-settings-sum { min-height: 40px; background: rgba(255, 255, 255, 0.28); }
+html body #flash-start-screen .fs-settings-sum,
+html body #quiz-start-screen .fs-settings-sum,
+html body #spelling-start-screen .fs-settings-sum { min-height: 40px; background: rgba(255, 255, 255, 0.28); }
 
 /* ===== Flashcards start — airy layout + drawn card icon ===== */
 .fs-title { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .fs-title-ico { display: inline-flex; filter: drop-shadow(0 2px 0 rgba(8, 90, 72, 0.45)); }
-html body #flash-start-screen .qz-start-card { gap: 20px; padding: 22px 18px 24px; }
-html body #flash-start-screen .qz-start-card > h3 { margin: 0 0 2px; }
-html body #flash-start-screen .fs-settings-sum { min-height: 46px; }
-html body #flash-start-screen .fs-settings-body { gap: 18px; padding-top: 16px; }
-html body #flash-start-screen .fs-settings-body .qz-pick { gap: 12px; }
-html body #flash-start-screen .fs-settings-body .qz-seg { gap: 10px; }
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn { min-height: 42px; font-size: 0.85rem; }
-html body #flash-start-screen .fs-panel { margin: 2px auto; }
-html body #flash-start-screen .fs-steps { margin: 4px 0 2px; gap: 8px; }
-html body #flash-start-screen .sp-start-card button.sp-start-btn.pill.accent { margin-top: 6px; min-height: 52px; }
-html body #flash-start-screen .fs-settings-body .qz-pick { flex-direction: column; align-items: stretch; gap: 8px; }
-html body #flash-start-screen .fs-settings-body .qz-pick-title { flex: 0 0 auto; text-align: left; font-size: 0.85rem; padding-left: 4px; }
-html body #flash-start-screen .fs-settings-body .qz-seg { width: 100%; gap: 8px; }
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn { min-height: 40px; padding: 4px 10px; font-size: 0.82rem; }
+html body #flash-start-screen .qz-start-card,
+html body #quiz-start-screen .qz-start-card,
+html body #spelling-start-screen .qz-start-card { gap: 20px; padding: 22px 18px 24px; }
+html body #flash-start-screen .qz-start-card > h3,
+html body #quiz-start-screen .qz-start-card > h3,
+html body #spelling-start-screen .qz-start-card > h3 { margin: 0 0 2px; }
+html body #flash-start-screen .fs-settings-sum,
+html body #quiz-start-screen .fs-settings-sum,
+html body #spelling-start-screen .fs-settings-sum { min-height: 46px; }
+html body #flash-start-screen .fs-settings-body,
+html body #quiz-start-screen .fs-settings-body,
+html body #spelling-start-screen .fs-settings-body { gap: 18px; padding-top: 16px; }
+html body #flash-start-screen .fs-settings-body .qz-pick,
+html body #quiz-start-screen .fs-settings-body .qz-pick,
+html body #spelling-start-screen .fs-settings-body .qz-pick { gap: 12px; }
+html body #flash-start-screen .fs-settings-body .qz-seg,
+html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #spelling-start-screen .fs-settings-body .qz-seg { gap: 10px; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn { min-height: 42px; font-size: 0.85rem; }
+html body #flash-start-screen .fs-panel,
+html body #quiz-start-screen .fs-panel,
+html body #spelling-start-screen .fs-panel { margin: 2px auto; }
+html body #flash-start-screen .fs-steps,
+html body #quiz-start-screen .fs-steps,
+html body #spelling-start-screen .fs-steps { margin: 4px 0 2px; gap: 8px; }
+html body #flash-start-screen .sp-start-card button.sp-start-btn.pill.accent,
+html body #quiz-start-screen .sp-start-card button.sp-start-btn.pill.accent,
+html body #spelling-start-screen .sp-start-card button.sp-start-btn.pill.accent { margin-top: 6px; min-height: 52px; }
+html body #flash-start-screen .fs-settings-body .qz-pick,
+html body #quiz-start-screen .fs-settings-body .qz-pick,
+html body #spelling-start-screen .fs-settings-body .qz-pick { flex-direction: column; align-items: stretch; gap: 8px; }
+html body #flash-start-screen .fs-settings-body .qz-pick-title,
+html body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html body #spelling-start-screen .fs-settings-body .qz-pick-title { flex: 0 0 auto; text-align: left; font-size: 0.85rem; padding-left: 4px; }
+html body #flash-start-screen .fs-settings-body .qz-seg,
+html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #spelling-start-screen .fs-settings-body .qz-seg { width: 100%; gap: 8px; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn { min-height: 40px; padding: 4px 10px; font-size: 0.82rem; }
 
 /* drawn flashcard icon used in nav / tiles / missions */
 .fl-ico { display: inline-flex; align-items: center; margin-right: 0.3em; }
@@ -9552,7 +9675,8 @@ html body #flash-practice .flash-end-row { display: flex; justify-content: cente
 /* start screens: scenery card fills the viewport so no big empty block below */
 @media (max-width: 700px) {
   html body #view-flashcards .card.scene-card:has(#flash-start-screen:not([hidden])),
-  html body #view-spelling .card.scene-card:has(#spelling-start-screen:not([hidden])) { min-height: max(440px, calc(100svh - 360px)); display: flex; flex-direction: column; justify-content: center; }
+  html body #view-spelling .card.scene-card:has(#spelling-start-screen:not([hidden])),
+html body #view-quiz .card.scene-card:has(#quiz-start-screen:not([hidden])) { min-height: max(440px, calc(100svh - 360px)); display: flex; flex-direction: column; justify-content: center; }
 }
 html body #view-flashcards .card.scene-card { --tg-orb-x: 90%; --tg-orb-y: 3%; }
 html body #view-flashcards .card.scene-card .tg-sky-cloud-2, html body #view-flashcards .card.scene-card .tg-sky-cloud-3 { display: none; }
@@ -9682,19 +9806,33 @@ html body #flash-report.sr-big #flash-report-level { background: #c9efe2; border
 
 /* 1) Settings open: demo card shrinks and the Look/Flip/Know steps hide, so
       Start stays above the bottom tab bar. */
-html body #flash-start-screen.is-settings-open .qz-start-card { gap: 12px; }
-html body #flash-start-screen.is-settings-open .fs-steps { display: none; }
+html body #flash-start-screen.is-settings-open .qz-start-card,
+html body #quiz-start-screen.is-settings-open .qz-start-card,
+html body #spelling-start-screen.is-settings-open .qz-start-card { gap: 12px; }
+html body #flash-start-screen.is-settings-open .fs-steps,
+html body #quiz-start-screen.is-settings-open .fs-steps,
+html body #spelling-start-screen.is-settings-open .fs-steps { display: none; }
 /* Slim demo strip (the shared 138px-tall scene made it a near-square with empty bands). */
-html body #flash-start-screen.is-settings-open .fs-panel { width: fit-content; max-width: 100%; align-self: center; }
-html body #flash-start-screen.is-settings-open .fs-panel .sp-scene { height: 78px; }
+html body #flash-start-screen.is-settings-open .fs-panel,
+html body #quiz-start-screen.is-settings-open .fs-panel,
+html body #spelling-start-screen.is-settings-open .fs-panel { width: fit-content; max-width: 100%; align-self: center; }
+html body #flash-start-screen.is-settings-open .fs-panel .sp-scene,
+html body #quiz-start-screen.is-settings-open .fs-panel .sp-scene,
+html body #spelling-start-screen.is-settings-open .fs-panel .sp-scene { height: 78px; }
 /* The title adds nothing once the Study tab got us here: more room for the choices. */
-html body #flash-start-screen.is-settings-open .qz-start-card > h3 { display: none; }
-html body #flash-start-screen.is-settings-open .fs-settings-body { gap: 12px; padding-top: 12px; }
+html body #flash-start-screen.is-settings-open .qz-start-card > h3,
+html body #quiz-start-screen.is-settings-open .qz-start-card > h3,
+html body #spelling-start-screen.is-settings-open .qz-start-card > h3 { display: none; }
+html body #flash-start-screen.is-settings-open .fs-settings-body,
+html body #quiz-start-screen.is-settings-open .fs-settings-body,
+html body #spelling-start-screen.is-settings-open .fs-settings-body { gap: 12px; padding-top: 12px; }
 
 /* 2) Summary row reads as a settings button: darker fill for contrast, a
       "Settings" label with the current choices on a second line. Open: just
       the label (the chips below already show the choices). */
-html body #flash-start-screen .fs-settings-sum {
+html body #flash-start-screen .fs-settings-sum,
+html body #quiz-start-screen .fs-settings-sum,
+html body #spelling-start-screen .fs-settings-sum {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-rows: auto auto;
@@ -9708,36 +9846,61 @@ html body #flash-start-screen .fs-settings-sum {
   border: 2px solid rgba(255, 255, 255, 0.75);
 }
 /* The gear is dropped: the SETTINGS label says it, and the room shows every choice. */
-html body #flash-start-screen .fs-settings-ico { display: none; }
+html body #flash-start-screen .fs-settings-ico,
+html body #quiz-start-screen .fs-settings-ico,
+html body #spelling-start-screen .fs-settings-ico { display: none; }
 .fs-settings-label { grid-column: 1; grid-row: 1; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.85; }
-html body #flash-start-screen .fs-settings-now { grid-column: 1; grid-row: 2; font-size: 0.84rem; font-weight: 700; }
-html body #flash-start-screen .fs-settings-sum::after { grid-column: 2; grid-row: 1 / 3; width: 9px; height: 9px; border-width: 3px; margin: -3px 0 0; }
-html body #flash-start-screen .fs-settings[open] .fs-settings-sum::after { margin: 3px 0 0; }
-html body #flash-start-screen .fs-settings[open] .fs-settings-sum { min-height: 46px; padding-top: 6px; padding-bottom: 6px; }
-html body #flash-start-screen .fs-settings[open] .fs-settings-now { display: none; }
-html body #flash-start-screen .fs-settings[open] .fs-settings-label { grid-row: 1 / 3; font-size: 0.85rem; letter-spacing: 0; text-transform: none; opacity: 1; }
+html body #flash-start-screen .fs-settings-now,
+html body #quiz-start-screen .fs-settings-now,
+html body #spelling-start-screen .fs-settings-now { grid-column: 1; grid-row: 2; font-size: 0.84rem; font-weight: 700; }
+html body #flash-start-screen .fs-settings-sum::after,
+html body #quiz-start-screen .fs-settings-sum::after,
+html body #spelling-start-screen .fs-settings-sum::after { grid-column: 2; grid-row: 1 / 3; width: 9px; height: 9px; border-width: 3px; margin: -3px 0 0; }
+html body #flash-start-screen .fs-settings[open] .fs-settings-sum::after,
+html body #quiz-start-screen .fs-settings[open] .fs-settings-sum::after,
+html body #spelling-start-screen .fs-settings[open] .fs-settings-sum::after { margin: 3px 0 0; }
+html body #flash-start-screen .fs-settings[open] .fs-settings-sum,
+html body #quiz-start-screen .fs-settings[open] .fs-settings-sum,
+html body #spelling-start-screen .fs-settings[open] .fs-settings-sum { min-height: 46px; padding-top: 6px; padding-bottom: 6px; }
+html body #flash-start-screen .fs-settings[open] .fs-settings-now,
+html body #quiz-start-screen .fs-settings[open] .fs-settings-now,
+html body #spelling-start-screen .fs-settings[open] .fs-settings-now { display: none; }
+html body #flash-start-screen .fs-settings[open] .fs-settings-label,
+html body #quiz-start-screen .fs-settings[open] .fs-settings-label,
+html body #spelling-start-screen .fs-settings[open] .fs-settings-label { grid-row: 1 / 3; font-size: 0.85rem; letter-spacing: 0; text-transform: none; opacity: 1; }
 
 /* 3) Unselected chips: darker fill + clear white outline. Selected stays white. */
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
   background: rgba(3, 66, 52, 0.38) !important;
   border: 2px solid rgba(255, 255, 255, 0.85) !important;
   color: #fff !important;
   text-shadow: none;
 }
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on):disabled { opacity: 0.6; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on):disabled,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on):disabled,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on):disabled { opacity: 0.6; }
 
 /* 4) Chip content: ✓ + icon + label with even spacing; Category = 3 on one row
       (label only — the icon would not fit). */
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
 }
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { content: "✓"; }
-html body #flash-start-screen #flash-category-seg { flex-wrap: nowrap; }
-html body #flash-start-screen #flash-category-seg .qz-seg-btn { padding: 4px 6px; font-size: 0.8rem; }
-html body #flash-start-screen #flash-category-seg .fs-seg-ico { display: none; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { content: "✓"; }
+html body #flash-start-screen #flash-category-seg,
+html body #quiz-start-screen #quiz-category-seg { flex-wrap: nowrap; }
+html body #flash-start-screen #flash-category-seg .qz-seg-btn,
+html body #quiz-start-screen #quiz-category-seg .qz-seg-btn { padding: 4px 6px; font-size: 0.8rem; }
+html body #flash-start-screen #flash-category-seg .fs-seg-ico,
+html body #quiz-start-screen #quiz-category-seg .fs-seg-ico { display: none; }
 
 /* 5) Demo card follows "Card front": with Meaning, the meaning shows first and
       the word on the back. */
@@ -9749,7 +9912,9 @@ html body #flash-start-screen #flash-category-seg .fs-seg-ico { display: none; }
 }
 
 /* 6) Card count: readable pill; amber note (and Start off) when nothing to study. */
-html body #flash-start-screen .sp-start-stats.fs-count {
+html body #flash-start-screen .sp-start-stats.fs-count,
+html body #quiz-start-screen .sp-start-stats.fs-count,
+html body #spelling-start-screen .sp-start-stats.fs-count {
   align-self: center;
   max-width: 100%;
   padding: 6px 16px;
@@ -9759,13 +9924,17 @@ html body #flash-start-screen .sp-start-stats.fs-count {
   text-align: center;
   line-height: 1.35;
 }
-html body #flash-start-screen .sp-start-stats.fs-count.is-empty {
+html body #flash-start-screen .sp-start-stats.fs-count.is-empty,
+html body #quiz-start-screen .sp-start-stats.fs-count.is-empty,
+html body #spelling-start-screen .sp-start-stats.fs-count.is-empty {
   border-radius: 16px;
   background: #fde68a;
   color: #5a3000;
   text-shadow: none;
 }
-html body #flash-start-screen #flash-start-btn:disabled {
+html body #flash-start-screen #flash-start-btn:disabled,
+html body #quiz-start-screen #quiz-start-btn:disabled,
+html body #spelling-start-screen #spelling-start-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   filter: grayscale(0.35);
@@ -9773,7 +9942,9 @@ html body #flash-start-screen #flash-start-btn:disabled {
 }
 
 /* 7) Look › Flip › Know it?: higher contrast. */
-html body #flash-start-screen .sp-step {
+html body #flash-start-screen .sp-step,
+html body #quiz-start-screen .sp-step,
+html body #spelling-start-screen .sp-step {
   background: rgba(3, 66, 52, 0.3);
   opacity: 1;
 }
@@ -9781,7 +9952,9 @@ html body #flash-start-screen .sp-step {
 /* 8) Start never hides behind the bottom tab bar on short phones: its bar sticks
       just above it, with a soft dark fade so content passing underneath never
       collides with the button. */
-html body #flash-start-screen .fs-start-bar {
+html body #flash-start-screen .fs-start-bar,
+html body #quiz-start-screen .fs-start-bar,
+html body #spelling-start-screen .fs-start-bar {
   position: sticky;
   bottom: 0;
   z-index: 5;
@@ -9791,24 +9964,35 @@ html body #flash-start-screen .fs-start-bar {
   background: radial-gradient(closest-side at 50% 60%, rgba(3, 66, 52, 0.55), rgba(3, 66, 52, 0));
 }
 @media (max-width: 480px) {
-  html body #flash-start-screen .fs-start-bar { bottom: calc(58px + env(safe-area-inset-bottom, 0px)); }
+  html body #flash-start-screen .fs-start-bar,
+html body #quiz-start-screen .fs-start-bar,
+html body #spelling-start-screen .fs-start-bar { bottom: calc(58px + env(safe-area-inset-bottom, 0px)); }
 }
-html body #flash-start-screen .fs-start-bar .sp-start-btn { width: 100%; }
+html body #flash-start-screen .fs-start-bar .sp-start-btn,
+html body #quiz-start-screen .fs-start-bar .sp-start-btn,
+html body #spelling-start-screen .fs-start-bar .sp-start-btn { width: 100%; }
 /* "clip" keeps the rounded-corner clipping but, unlike "hidden", does not make
    these boxes scroll containers — which is what lets Start stick (see 8 above). */
 html body #view-flashcards .card.scene-card,
-html body #flash-start-screen.spelling-stage-box { overflow: clip; }
+html body #flash-start-screen.spelling-stage-box,
+html body #quiz-start-screen.spelling-stage-box,
+html body #spelling-start-screen.spelling-stage-box { overflow: clip; }
 
 /* 9) Equal-width chips: choosing one no longer makes its neighbours shrink. */
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
   flex: 1 1 0;
   min-width: 0;
   padding: 4px 6px;
   font-size: 0.78rem;
   white-space: nowrap;
 }
-html body #flash-start-screen #flash-category-seg .qz-seg-btn { padding: 4px 4px; font-size: 0.76rem; gap: 4px; }
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { font-size: 0.85em; }
+html body #flash-start-screen #flash-category-seg .qz-seg-btn,
+html body #quiz-start-screen #quiz-category-seg .qz-seg-btn { padding: 4px 4px; font-size: 0.76rem; gap: 4px; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { font-size: 0.85em; }
 
 /* 10) Lock badge on "My cards" while it is not available to this account. */
 html body #flash-start-screen #flash-source-mine.is-locked::after { content: "🔒"; font-size: 0.85em; }
@@ -11748,11 +11932,23 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
   html body .sp-start-card .sp-step-arrow { color: #2fc79c; text-shadow: none; }
   html body .sp-start-card .sp-start-stats { background: #fff; color: #17463c; border: 2px solid #8fe3c6; }
   html body .sp-start-card .sp-start-stats * { color: #17463c; text-shadow: none; }
-  html body #flash-start-screen .fs-settings { background: #fff; border: 2px solid #8fe3c6; box-shadow: 0 2px 0 #bfeedd; }
+  html body #flash-start-screen .fs-settings,
+html body #quiz-start-screen .fs-settings,
+html body #spelling-start-screen .fs-settings { background: #fff; border: 2px solid #8fe3c6; box-shadow: 0 2px 0 #bfeedd; }
   html body #flash-start-screen .fs-settings-sum, html body #flash-start-screen .fs-settings-label,
-  html body #flash-start-screen .fs-settings-now { color: #17463c; text-shadow: none; }
-  html body #flash-start-screen .fs-title { color: #0f6b52; }
-  html body #flash-start-screen .fs-start-bar { display: flex; justify-content: center; width: 100%; }
+  html body #flash-start-screen .fs-settings-now,
+html body #quiz-start-screen .fs-settings-sum,
+html body #spelling-start-screen .fs-settings-sum,
+html body #quiz-start-screen .fs-settings-label,
+html body #spelling-start-screen .fs-settings-label,
+html body #quiz-start-screen .fs-settings-now,
+html body #spelling-start-screen .fs-settings-now { color: #17463c; text-shadow: none; }
+  html body #flash-start-screen .fs-title,
+html body #quiz-start-screen .fs-title,
+html body #spelling-start-screen .fs-title { color: #0f6b52; }
+  html body #flash-start-screen .fs-start-bar,
+html body #quiz-start-screen .fs-start-bar,
+html body #spelling-start-screen .fs-start-bar { display: flex; justify-content: center; width: 100%; }
 
   /* the one yellow button size (= Start Game) everywhere */
   html body .sp-start-card button.sp-start-btn.pill.accent,
@@ -11761,7 +11957,9 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
   html body .qz-result-primary,
   html body #spelling-report-restart, html body #flash-report-restart,
   html body #view-typegame .tg-over-overlay .tg-over-card .tg-play-again,
-  html body #view-timestable .tg-over-overlay .tg-over-card .tg-play-again {
+  html body #view-timestable .tg-over-overlay .tg-over-card .tg-play-again,
+html body #quiz-start-screen .sp-start-card button.sp-start-btn.pill.accent,
+html body #spelling-start-screen .sp-start-card button.sp-start-btn.pill.accent {
     width: 200px !important; max-width: 100% !important; min-height: 48px !important; height: auto; margin: 4px auto 0 !important;
     padding: 8px 16px !important; font-size: 1.12rem !important; font-weight: 800; white-space: nowrap;
     display: flex; align-items: center; justify-content: center; gap: 6px; border: 0 !important; border-radius: 999px;
@@ -11779,35 +11977,73 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
   html body .sp-start-card .sp-start-stats, html body .sp-start-card .sp-start-stats span { color: #17463c !important; text-shadow: none !important; }
 }
 @media all {
-  html body #flash-start-screen .fs-settings { border-radius: 18px; overflow: hidden; }
-  html body #flash-start-screen .fs-settings-sum { background: transparent !important; border: 0 !important; box-shadow: none !important; border-radius: 0; }
-  html body #flash-start-screen .fs-settings-sum::after, html body #flash-start-screen .fs-settings-sum * { color: #17463c !important; }
-  html body #flash-start-screen .fs-count, html body #flash-start-screen .sp-start-stats {
+  html body #flash-start-screen .fs-settings,
+html body #quiz-start-screen .fs-settings,
+html body #spelling-start-screen .fs-settings { border-radius: 18px; overflow: hidden; }
+  html body #flash-start-screen .fs-settings-sum,
+html body #quiz-start-screen .fs-settings-sum,
+html body #spelling-start-screen .fs-settings-sum { background: transparent !important; border: 0 !important; box-shadow: none !important; border-radius: 0; }
+  html body #flash-start-screen .fs-settings-sum::after, html body #flash-start-screen .fs-settings-sum *,
+html body #quiz-start-screen .fs-settings-sum::after,
+html body #spelling-start-screen .fs-settings-sum::after,
+html body #quiz-start-screen .fs-settings-sum *,
+html body #spelling-start-screen .fs-settings-sum * { color: #17463c !important; }
+  html body #flash-start-screen .fs-count, html body #flash-start-screen .sp-start-stats,
+html body #quiz-start-screen .fs-count,
+html body #spelling-start-screen .fs-count {
     background: #fff !important; border: 2px solid #8fe3c6 !important; box-shadow: 0 2px 0 #bfeedd; color: #17463c !important; text-shadow: none !important; border-radius: 999px;
   }
-  html body #flash-start-screen .fs-steps .sp-step { background: #fff !important; }
-  html body #flash-start-screen .fs-start-bar { background: none !important; box-shadow: none !important; filter: none !important; }
-  html body #flash-start-screen .fs-start-bar::before, html body #flash-start-screen .fs-start-bar::after { display: none !important; }
-  html body #flash-start-screen .fs-settings-body { background: transparent; }
+  html body #flash-start-screen .fs-steps .sp-step,
+html body #quiz-start-screen .fs-steps .sp-step,
+html body #spelling-start-screen .fs-steps .sp-step { background: #fff !important; }
+  html body #flash-start-screen .fs-start-bar,
+html body #quiz-start-screen .fs-start-bar,
+html body #spelling-start-screen .fs-start-bar { background: none !important; box-shadow: none !important; filter: none !important; }
+  html body #flash-start-screen .fs-start-bar::before, html body #flash-start-screen .fs-start-bar::after,
+html body #quiz-start-screen .fs-start-bar::before,
+html body #spelling-start-screen .fs-start-bar::before,
+html body #quiz-start-screen .fs-start-bar::after,
+html body #spelling-start-screen .fs-start-bar::after { display: none !important; }
+  html body #flash-start-screen .fs-settings-body,
+html body #quiz-start-screen .fs-settings-body,
+html body #spelling-start-screen .fs-settings-body { background: transparent; }
 }
 @media all {
   html body #flash-start-screen .fs-settings-body .qz-seg-btn,
-  html body #flash-start-screen.is-settings-open .qz-seg-btn {
+  html body #flash-start-screen.is-settings-open .qz-seg-btn,
+html body #quiz-start-screen .fs-settings-body .qz-seg-btn,
+html body #spelling-start-screen .fs-settings-body .qz-seg-btn,
+html body #quiz-start-screen.is-settings-open .qz-seg-btn,
+html body #spelling-start-screen.is-settings-open .qz-seg-btn {
     background: #fff !important; color: #0b6b57 !important; border: 2px solid #8fe3c6 !important; box-shadow: 0 2px 0 #bfeedd !important; text-shadow: none !important;
   }
   html body #flash-start-screen .fs-settings-body .qz-seg-btn.on,
   html body #flash-start-screen .fs-settings-body .qz-seg-btn[aria-checked="true"],
-  html body #flash-start-screen.is-settings-open .qz-seg-btn.on {
+  html body #flash-start-screen.is-settings-open .qz-seg-btn.on,
+html body #quiz-start-screen .fs-settings-body .qz-seg-btn.on,
+html body #spelling-start-screen .fs-settings-body .qz-seg-btn.on,
+html body #quiz-start-screen .fs-settings-body .qz-seg-btn[aria-checked="true"],
+html body #spelling-start-screen .fs-settings-body .qz-seg-btn[aria-checked="true"],
+html body #quiz-start-screen.is-settings-open .qz-seg-btn.on,
+html body #spelling-start-screen.is-settings-open .qz-seg-btn.on {
     background: linear-gradient(180deg, #ffe066, #ffab1a) !important; color: #5a3000 !important; border: 0 !important; box-shadow: 0 3px 0 #c27400 !important;
   }
-  html body #flash-start-screen .fs-settings-body .qz-pick-title { color: #17463c !important; }
-  html body #flash-start-screen .fs-settings[open] .fs-settings-sum { min-height: 0; }
+  html body #flash-start-screen .fs-settings-body .qz-pick-title,
+html body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html body #spelling-start-screen .fs-settings-body .qz-pick-title { color: #17463c !important; }
+  html body #flash-start-screen .fs-settings[open] .fs-settings-sum,
+html body #quiz-start-screen .fs-settings[open] .fs-settings-sum,
+html body #spelling-start-screen .fs-settings[open] .fs-settings-sum { min-height: 0; }
 }
 @media all {
-  html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
+  html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
     background: #fff !important; color: #0b6b57 !important; border: 2px solid #8fe3c6 !important; box-shadow: 0 2px 0 #bfeedd !important;
   }
-  html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
+  html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
     background: linear-gradient(180deg, #ffe066, #ffab1a) !important; color: #5a3000 !important; border: 0 !important; box-shadow: 0 3px 0 #c27400 !important;
   }
 }
@@ -11845,13 +12081,17 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
     background: #d4efe4; border-radius: 16px; border: 0; box-shadow: none;
   }
   html body .sp-start-card .qz-seg .qz-seg-btn,
-  html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
+  html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
     flex: 1 1 auto; min-width: 0; border: 0 !important; box-shadow: none !important; background: transparent !important; color: var(--accent-dark) !important;
     border-radius: 12px; padding: 10px 8px; font-weight: 800; text-shadow: none !important; min-height: 40px;
   }
   html body .sp-start-card .qz-seg .qz-seg-btn.active,
   html body .sp-start-card .qz-seg .qz-seg-btn.on,
-  html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
+  html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
     background: var(--accent) !important; color: #fff !important; border: 0 !important; box-shadow: 0 2px 6px rgba(20, 160, 130, .35) !important;
   }
   html body .sp-start-card .qz-seg .qz-seg-btn:not(.active):not(.on):active { background: rgba(46, 204, 160, .3) !important; }
@@ -11966,15 +12206,21 @@ html body #quiz-start-screen .qz-pick-title { font-size: 1.15rem !important; fon
 html body #quiz-start-screen .qz-pick { gap: 0.55rem; }
 
 /* 3) Hero card: koala scene + steps share one tinted card (Spelling & Flashcards). */
-html body #spelling-start-screen .sp-start-panel, html body #flash-start-screen .fs-panel {
+html body #spelling-start-screen .sp-start-panel, html body #flash-start-screen .fs-panel,
+html body #quiz-start-screen .fs-panel,
+html body #spelling-start-screen .fs-panel {
   display: flex !important; flex-direction: column; align-items: stretch; justify-content: flex-start;
   width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 0 0.7rem;
   background: #e4f7f0; border: 3px solid #fff; box-shadow: 0 0 0 2px #8fe3c6; border-radius: 1.5rem; overflow: hidden;
 }
-html body #spelling-start-screen .sp-start-panel .sp-scene, html body #flash-start-screen .fs-panel .sp-scene {
+html body #spelling-start-screen .sp-start-panel .sp-scene, html body #flash-start-screen .fs-panel .sp-scene,
+html body #quiz-start-screen .fs-panel .sp-scene,
+html body #spelling-start-screen .fs-panel .sp-scene {
   width: auto !important; max-width: 100% !important; height: 11.5rem !important; margin: 0 auto; display: block; background: transparent;
 }
-html body #spelling-start-screen .sp-start-panel .sp-scene > rect:first-child, html body #flash-start-screen .fs-panel .sp-scene > rect:first-child { fill: transparent; }
+html body #spelling-start-screen .sp-start-panel .sp-scene > rect:first-child, html body #flash-start-screen .fs-panel .sp-scene > rect:first-child,
+html body #quiz-start-screen .fs-panel .sp-scene > rect:first-child,
+html body #spelling-start-screen .fs-panel .sp-scene > rect:first-child { fill: transparent; }
 html body .sp-start-panel .sp-steps { margin: 0.1rem 0 0; padding: 0 0.9rem; gap: 0.2rem; justify-content: center; }
 html body .sp-start-card .sp-start-panel .sp-step {
   background: none !important; border: 0 !important; box-shadow: none !important; padding: 0.15rem 0.5rem !important;
@@ -12003,58 +12249,116 @@ html body .sp-start-card .sp-start-stats .sp-stat em { font-style: normal; font-
 @media (prefers-reduced-motion: reduce) { html body .sp-start-card .sp-start-stats .sp-stat i { animation: none; } }
 
 /* Flashcards count line: "Year 5 · 1492 cards ready" */
-html body #flash-start-screen .sp-start-stats.fs-count {
+html body #flash-start-screen .sp-start-stats.fs-count,
+html body #quiz-start-screen .sp-start-stats.fs-count,
+html body #spelling-start-screen .sp-start-stats.fs-count {
   display: block !important; text-align: center; font-family: var(--font-heading); font-weight: 800; font-size: 1rem; line-height: 1.2;
   color: #17463c !important; padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important;
 }
-html body #flash-start-screen .fs-count .fs-count-lvl { color: #0b6b57; font-size: 1.15rem; margin-right: 0.25rem; }
-html body #flash-start-screen .fs-count .fs-count-lvl::after { content: " ·"; color: #2fc79c; }
-html body #flash-start-screen .fs-count .fs-count-n {
+html body #flash-start-screen .fs-count .fs-count-lvl,
+html body #quiz-start-screen .fs-count .fs-count-lvl,
+html body #spelling-start-screen .fs-count .fs-count-lvl { color: #0b6b57; font-size: 1.15rem; margin-right: 0.25rem; }
+html body #flash-start-screen .fs-count .fs-count-lvl::after,
+html body #quiz-start-screen .fs-count .fs-count-lvl::after,
+html body #spelling-start-screen .fs-count .fs-count-lvl::after { content: " ·"; color: #2fc79c; }
+html body #flash-start-screen .fs-count .fs-count-n,
+html body #quiz-start-screen .fs-count .fs-count-n,
+html body #spelling-start-screen .fs-count .fs-count-n {
   font-size: 2rem; margin: 0 0.15rem; vertical-align: -0.12em;
   background: linear-gradient(180deg, #ffb020, #ee5a24); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: #ee5a24;
 }
-html body #flash-start-screen .sp-start-stats.fs-count.is-empty { background: #fde68a !important; color: #5a3000 !important; padding: 0.5rem 1rem !important; border-radius: 1rem !important; }
+html body #flash-start-screen .sp-start-stats.fs-count.is-empty,
+html body #quiz-start-screen .sp-start-stats.fs-count.is-empty,
+html body #spelling-start-screen .sp-start-stats.fs-count.is-empty { background: #fde68a !important; color: #5a3000 !important; padding: 0.5rem 1rem !important; border-radius: 1rem !important; }
 
 /* 5) Flashcards settings: one-line button, dropdown overlays the card. */
-html body #flash-start-screen .fs-settings { position: relative; background: none !important; border: 0 !important; box-shadow: none !important; overflow: visible !important; border-radius: 0; }
-html body #flash-start-screen .fs-settings-sum {
+html body #flash-start-screen .fs-settings,
+html body #quiz-start-screen .fs-settings,
+html body #spelling-start-screen .fs-settings { position: relative; background: none !important; border: 0 !important; box-shadow: none !important; overflow: visible !important; border-radius: 0; }
+html body #flash-start-screen .fs-settings-sum,
+html body #quiz-start-screen .fs-settings-sum,
+html body #spelling-start-screen .fs-settings-sum {
   display: flex !important; flex-wrap: nowrap; align-items: center; gap: 0.5rem; min-height: 3rem !important; padding: 0.4rem 1rem !important;
   background: #fff !important; border: 2px solid #8fe3c6 !important; box-shadow: 0 2px 0 #bfeedd !important; border-radius: 999px !important; color: #17463c !important; text-shadow: none !important;
 }
-html body #flash-start-screen .fs-settings-ico { display: inline !important; font-size: 1.1rem; }
-html body #flash-start-screen .fs-settings-label { font-size: 0.95rem !important; font-weight: 800; letter-spacing: 0 !important; text-transform: none !important; opacity: 1 !important; color: #17463c !important; white-space: nowrap; }
-html body #flash-start-screen .fs-settings-now, html body #flash-start-screen .fs-settings[open] .fs-settings-now {
+html body #flash-start-screen .fs-settings-ico,
+html body #quiz-start-screen .fs-settings-ico,
+html body #spelling-start-screen .fs-settings-ico { display: inline !important; font-size: 1.1rem; }
+html body #flash-start-screen .fs-settings-label,
+html body #quiz-start-screen .fs-settings-label,
+html body #spelling-start-screen .fs-settings-label { font-size: 0.95rem !important; font-weight: 800; letter-spacing: 0 !important; text-transform: none !important; opacity: 1 !important; color: #17463c !important; white-space: nowrap; }
+html body #flash-start-screen .fs-settings-now, html body #flash-start-screen .fs-settings[open] .fs-settings-now,
+html body #quiz-start-screen .fs-settings-now,
+html body #spelling-start-screen .fs-settings-now,
+html body #quiz-start-screen .fs-settings[open] .fs-settings-now,
+html body #spelling-start-screen .fs-settings[open] .fs-settings-now {
   display: block !important; flex: 1 1 0; min-width: 0; text-align: right; font-size: 0.85rem !important; font-weight: 700; color: #0b8a6e !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-html body #flash-start-screen .fs-settings-sum::after { margin: -3px 0 0 0.2rem !important; width: 8px !important; height: 8px !important; border-color: #0b6b57 !important; flex: 0 0 auto; }
-html body #flash-start-screen .fs-settings[open] .fs-settings-sum::after { margin: 3px 0 0 0.2rem !important; }
-html body #flash-start-screen .fs-settings[open] .fs-settings-sum { min-height: 3rem !important; border-color: #2fc79c !important; }
-html body #flash-start-screen .fs-settings-body {
+html body #flash-start-screen .fs-settings-sum::after,
+html body #quiz-start-screen .fs-settings-sum::after,
+html body #spelling-start-screen .fs-settings-sum::after { margin: -3px 0 0 0.2rem !important; width: 8px !important; height: 8px !important; border-color: #0b6b57 !important; flex: 0 0 auto; }
+html body #flash-start-screen .fs-settings[open] .fs-settings-sum::after,
+html body #quiz-start-screen .fs-settings[open] .fs-settings-sum::after,
+html body #spelling-start-screen .fs-settings[open] .fs-settings-sum::after { margin: 3px 0 0 0.2rem !important; }
+html body #flash-start-screen .fs-settings[open] .fs-settings-sum,
+html body #quiz-start-screen .fs-settings[open] .fs-settings-sum,
+html body #spelling-start-screen .fs-settings[open] .fs-settings-sum { min-height: 3rem !important; border-color: #2fc79c !important; }
+html body #flash-start-screen .fs-settings-body,
+html body #quiz-start-screen .fs-settings-body,
+html body #spelling-start-screen .fs-settings-body {
   position: absolute !important; left: 0; right: 0; top: calc(100% + 0.5rem); z-index: 60;
   display: flex; flex-direction: column; gap: 0.9rem !important; padding: 1rem !important;
   background: #fff !important; border: 2px solid #8fe3c6; border-radius: 1.25rem; box-shadow: 0 16px 34px rgba(5, 70, 56, 0.28);
 }
-html body #flash-start-screen .fs-settings-body .qz-pick { display: flex; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important; width: 100% !important; max-width: none !important; }
-html body #flash-start-screen .fs-settings-body .qz-pick-title { flex: 0 0 6.2rem !important; text-align: left !important; font-size: 0.9rem !important; color: #17463c !important; padding: 0 !important; white-space: nowrap; }
-html body #flash-start-screen .fs-settings-body .qz-seg {
+html body #flash-start-screen .fs-settings-body .qz-pick,
+html body #quiz-start-screen .fs-settings-body .qz-pick,
+html body #spelling-start-screen .fs-settings-body .qz-pick { display: flex; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important; width: 100% !important; max-width: none !important; }
+html body #flash-start-screen .fs-settings-body .qz-pick-title,
+html body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html body #spelling-start-screen .fs-settings-body .qz-pick-title { flex: 0 0 6.2rem !important; text-align: left !important; font-size: 0.9rem !important; color: #17463c !important; padding: 0 !important; white-space: nowrap; }
+html body #flash-start-screen .fs-settings-body .qz-seg,
+html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #spelling-start-screen .fs-settings-body .qz-seg {
   flex: 1 1 0 !important; width: auto !important; min-width: 0; display: flex; flex-wrap: nowrap !important; gap: 0.25rem !important;
   padding: 0.25rem; background: #d4efe4 !important; border: 0 !important; border-radius: 999px !important;
 }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
   flex: 1 1 auto !important; min-width: 0; min-height: 2.4rem !important; padding: 0.2rem 0.5rem !important; white-space: nowrap; font-size: 0.82rem !important;
   background: transparent !important; border: 0 !important; box-shadow: none !important; color: #0b8a6e !important; border-radius: 999px !important; text-shadow: none !important;
 }
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on { background: var(--accent) !important; color: #fff !important; }
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { content: none !important; }
-html body #flash-start-screen.is-settings-open .qz-start-card > h3 { display: block !important; }
-html body #flash-start-screen.is-settings-open .fs-steps { display: flex !important; }
-html body #flash-start-screen.is-settings-open .fs-panel { width: 100% !important; }
-html body #flash-start-screen.is-settings-open .fs-panel .sp-scene { height: 11.5rem !important; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on { background: var(--accent) !important; color: #fff !important; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { content: none !important; }
+html body #flash-start-screen.is-settings-open .qz-start-card > h3,
+html body #quiz-start-screen.is-settings-open .qz-start-card > h3,
+html body #spelling-start-screen.is-settings-open .qz-start-card > h3 { display: block !important; }
+html body #flash-start-screen.is-settings-open .fs-steps,
+html body #quiz-start-screen.is-settings-open .fs-steps,
+html body #spelling-start-screen.is-settings-open .fs-steps { display: flex !important; }
+html body #flash-start-screen.is-settings-open .fs-panel,
+html body #quiz-start-screen.is-settings-open .fs-panel,
+html body #spelling-start-screen.is-settings-open .fs-panel { width: 100% !important; }
+html body #flash-start-screen.is-settings-open .fs-panel .sp-scene,
+html body #quiz-start-screen.is-settings-open .fs-panel .sp-scene,
+html body #spelling-start-screen.is-settings-open .fs-panel .sp-scene { height: 11.5rem !important; }
 @media (max-width: 480px) {
-  html body #flash-start-screen .fs-settings-body .qz-pick { flex-direction: column !important; align-items: stretch !important; gap: 0.35rem !important; }
-  html body #flash-start-screen .fs-settings-body .qz-pick-title { flex: 0 0 auto !important; }
-  html body #flash-start-screen .fs-settings-body .qz-seg { flex-wrap: wrap !important; border-radius: 1.2rem !important; }
+  html body #flash-start-screen .fs-settings-body .qz-pick,
+html body #quiz-start-screen .fs-settings-body .qz-pick,
+html body #spelling-start-screen .fs-settings-body .qz-pick { flex-direction: column !important; align-items: stretch !important; gap: 0.35rem !important; }
+  html body #flash-start-screen .fs-settings-body .qz-pick-title,
+html body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html body #spelling-start-screen .fs-settings-body .qz-pick-title { flex: 0 0 auto !important; }
+  html body #flash-start-screen .fs-settings-body .qz-seg,
+html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #spelling-start-screen .fs-settings-body .qz-seg { flex-wrap: wrap !important; border-radius: 1.2rem !important; }
 }
 
 /* 6) Typing Game & Times Table start cards: hero (koala + speech bubble + text on one tinted card) and mode rail. */
@@ -12095,11 +12399,25 @@ html body .tg-start-card .tt-start-panel .tt-range-quick button {
 html body .tg-start-card .tt-start-panel .tt-range-quick button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
 
 /* v2 touch-ups */
-html body #flash-start-screen.is-settings-open .qz-start-card > h3, html body #flash-start-screen .qz-start-card > h3.fs-title { display: flex !important; justify-content: center; align-items: center; }
-html body #flash-start-screen .fs-start-bar { display: flex; justify-content: center; width: 100%; padding: 0; margin: 0; }
-html body #flash-start-screen .fs-start-bar .sp-start-btn { margin: 0 auto; }
-html body #flash-start-screen .fs-settings-body { left: -3px; right: -3px; }
-html body #flash-start-screen .sp-start-card .sp-start-panel .sp-step, html body #flash-start-screen .fs-steps .sp-step { background: none !important; border: 0 !important; box-shadow: none !important; }
+html body #flash-start-screen.is-settings-open .qz-start-card > h3, html body #flash-start-screen .qz-start-card > h3.fs-title,
+html body #quiz-start-screen.is-settings-open .qz-start-card > h3,
+html body #spelling-start-screen.is-settings-open .qz-start-card > h3,
+html body #quiz-start-screen .qz-start-card > h3.fs-title,
+html body #spelling-start-screen .qz-start-card > h3.fs-title { display: flex !important; justify-content: center; align-items: center; }
+html body #flash-start-screen .fs-start-bar,
+html body #quiz-start-screen .fs-start-bar,
+html body #spelling-start-screen .fs-start-bar { display: flex; justify-content: center; width: 100%; padding: 0; margin: 0; }
+html body #flash-start-screen .fs-start-bar .sp-start-btn,
+html body #quiz-start-screen .fs-start-bar .sp-start-btn,
+html body #spelling-start-screen .fs-start-bar .sp-start-btn { margin: 0 auto; }
+html body #flash-start-screen .fs-settings-body,
+html body #quiz-start-screen .fs-settings-body,
+html body #spelling-start-screen .fs-settings-body { left: -3px; right: -3px; }
+html body #flash-start-screen .sp-start-card .sp-start-panel .sp-step, html body #flash-start-screen .fs-steps .sp-step,
+html body #quiz-start-screen .sp-start-card .sp-start-panel .sp-step,
+html body #spelling-start-screen .sp-start-card .sp-start-panel .sp-step,
+html body #quiz-start-screen .fs-steps .sp-step,
+html body #spelling-start-screen .fs-steps .sp-step { background: none !important; border: 0 !important; box-shadow: none !important; }
 html body .tg-start-card .tg-hero .kb-strip .kb-scene { width: 7.5rem; height: 7.3rem; }
 html body .tg-start-card .tg-hero .kb-strip .kb-scene .sk-svg { width: 7.5rem; }
 html body .tg-start-card .tg-hero .kb-strip .sp-cloud.kb-cloud { width: 9.5rem; height: 5.4rem; }
@@ -12112,7 +12430,9 @@ html body #typegame-start-overlay.tg-start-overlay, html body #timestable-start-
 }
 html body .tg-start-card .tg-start-chips { position: relative; width: 100%; }
 html body .tg-start-card .tt-start-panel { left: 0 !important; right: 0 !important; top: calc(100% + 0.5rem) !important; }
-html body #flash-start-screen .fs-settings-body .qz-seg { box-shadow: none !important; }
+html body #flash-start-screen .fs-settings-body .qz-seg,
+html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #spelling-start-screen .fs-settings-body .qz-seg { box-shadow: none !important; }
 
 /* ===== v2.1: quiz spacing/title, mode note, flash 6 round sizes, typing/times hero slides ===== */
 html body #quiz-start-screen .qz-start-card > h3 { text-align: center; align-self: center; width: 100%; margin: 0 0 0.6rem; transform: translateY(-0.6rem); }
@@ -12130,7 +12450,9 @@ html body #quiz-start-screen .qz-pick-note[data-mode="relaxed"]::before { conten
 html body #quiz-start-screen .qz-pick-note[data-mode="time"]::before { content: "⏱ "; }
 @keyframes qz-note-pop { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn { padding: 0.2rem 0.25rem !important; font-size: 0.8rem !important; }
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn { padding: 0.2rem 0.25rem !important; font-size: 0.8rem !important; }
 
 html body .tg-start-card .tg-slides { display: grid; width: 100%; }
 html body .tg-start-card .tg-slide { grid-area: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; transition: opacity 0.45s ease, transform 0.45s ease; }
@@ -12716,3 +13038,41 @@ html[data-theme="dark"] .ocr-file-chip { background: rgba(34, 201, 163, 0.22); }
 }
 /* One line whenever the card is wide enough; on very narrow phones the third dropdown drops to a second line rather than cutting its text */
 @media (min-width: 560px) { .pw-edit .pw-edit-row { flex-wrap: nowrap; } }
+
+/* ---- Quiz + Spelling start screens: same Settings dropdown as the flashcards ----
+   (the shared look comes from the #flash-start-screen rules above, which are repeated
+   for #quiz-start-screen and #spelling-start-screen) */
+html body #quiz-start-screen .qz-start-card,
+html body #spelling-start-screen .qz-start-card { gap: 18px; }
+html body #quiz-start-screen .qz-start-card > h3,
+html body #spelling-start-screen .qz-start-card > h3 { margin: 0 0 2px; }
+html body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html body #spelling-start-screen .fs-settings-body .qz-pick-title { margin: 0 !important; font-size: 0.9rem !important; font-weight: 800 !important; }
+html body #quiz-start-screen .fs-settings-body .qz-pick + .qz-pick,
+html body #spelling-start-screen .fs-settings-body .qz-pick + .qz-pick { margin-top: 0; }
+/* The closed Settings row lists every choice; let it wrap onto a second line instead of cutting it off. */
+html body #quiz-start-screen .fs-settings-now,
+html body #spelling-start-screen .fs-settings-now { white-space: normal !important; text-overflow: clip; line-height: 1.25; text-align: right; word-break: keep-all; font-size: 0.78rem !important; }
+/* The mode hint is plain text, not a pill (it is not a button). */
+html body #quiz-start-screen .fs-settings-body .qz-pick-note {
+  margin: 2px 4px 0; padding: 0; background: none !important; border: 0 !important; box-shadow: none !important;
+  border-radius: 0; text-align: left; font-size: 0.78rem; font-weight: 700; line-height: 1.35; color: #4f8274 !important;
+}
+/* Sizes the account cannot use yet look dimmed; tapping them opens the sign-up / upgrade nudge. */
+#quiz-round-seg .qz-seg-btn.is-locked,
+#spelling-round-seg .qz-seg-btn.is-locked { opacity: 0.6; }
+/* Quiz scene: a quiz card whose right answer lights up while the koala presents it. */
+.qz-scene .qzs-card { transform-box: fill-box; transform-origin: center; }
+.qz-scene .qzs-opt rect:first-child { fill: #fff; stroke: #cfeee4; stroke-width: 2; }
+.qz-scene .qzs-o1 rect:first-child { animation: qzs-think 6s ease-in-out infinite; }
+.qz-scene .qzs-o2 rect:first-child { animation: qzs-pick 6s ease-in-out infinite; }
+.qz-scene .qzs-check { stroke-dasharray: 30; stroke-dashoffset: 30; animation: qzs-check 6s ease-in-out infinite; }
+@keyframes qzs-think { 0%, 12% { fill: #fff; stroke: #cfeee4; } 20%, 34% { fill: #fff6d6; stroke: #f0b429; } 42%, 100% { fill: #fff; stroke: #cfeee4; } }
+@keyframes qzs-pick { 0%, 46% { fill: #fff; stroke: #cfeee4; } 54%, 84% { fill: #c6f3df; stroke: #02c39a; } 92%, 100% { fill: #fff; stroke: #cfeee4; } }
+@keyframes qzs-check { 0%, 50% { stroke-dashoffset: 30; opacity: 0; } 58% { opacity: 1; } 64%, 84% { stroke-dashoffset: 0; opacity: 1; } 92%, 100% { stroke-dashoffset: 30; opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .qz-scene .qzs-o1 rect:first-child, .qz-scene .qzs-o2 rect:first-child, .qz-scene .qzs-check { animation: none !important; }
+  .qz-scene .qzs-o2 rect:first-child { fill: #c6f3df; stroke: #02c39a; }
+  .qz-scene .qzs-check { stroke-dashoffset: 0; opacity: 1; }
+}
+html[data-theme] body #quiz-start-screen .fs-settings-body .qz-pick-note { background: none !important; box-shadow: none !important; }

@@ -840,7 +840,7 @@ to Flip!</span></div>
           <div class="sp-start-floaters" aria-hidden="true"><span class="sp-fl" style="left:8%;top:8%;--c1:#ff8da1;--c2:#e8476a;--fd:-0.4s">A</span><span class="sp-fl" style="left:86%;top:12%;--c1:#7fd9a8;--c2:#2e9a6b;--fd:-1.6s">B</span><span class="sp-fl" style="left:90%;top:62%;--c1:#9fd3ff;--c2:#5b9be0;--fd:-2.2s">C</span><span class="sp-fl" style="left:6%;top:60%;--c1:#ffd36e;--c2:#f0a21a;--fd:-1.1s">D</span><span class="sp-fl-star sp-fl-star1">⭐</span><span class="sp-fl-star sp-fl-star2">✨</span></div>
           <div class="sp-start-card qz-start-card">
             <h3 data-i18n="qzStartTitle">💡 Quiz</h3>
-            <div class="qz-selects">
+            <div class="flash-hidden-selects" hidden>
               <select id="quiz-category" data-i18n-aria-label="categoryLabel" aria-label="Category">
             <option value="vocabulary" data-i18n="optVocabulary">Vocabulary</option>
             <option value="meaning" data-i18n="optMeaning">Word → Meaning</option>
@@ -849,22 +849,73 @@ to Flip!</span></div>
             <option value="synonyms" data-i18n="optSynonyms">Synonyms &amp; Antonyms</option>
             <option value="homophones" data-i18n="optHomophones">Homophones</option>
               </select>
-              <select id="quiz-goal-select" data-i18n-aria-label="goalLabel" aria-label="Number of Questions"></select>
+            </div>
+            <details class="fs-settings" id="quiz-settings"><summary class="fs-settings-sum"><span class="fs-settings-ico" aria-hidden="true">⚙️</span><span class="fs-settings-label" data-i18n="flashSettingsLabel">Settings</span><span class="fs-settings-now" id="quiz-settings-now"></span></summary><div class="fs-settings-body" id="quiz-settings-body">
+            <div class="qz-pick">
+              <div class="qz-pick-title" data-i18n="categoryLabel">Category</div>
+              <div class="qz-seg" id="quiz-category-seg" role="radiogroup" data-i18n-aria-label="categoryLabel" aria-label="Category"></div>
             </div>
             <div class="qz-pick">
-              <div class="qz-pick-title" data-i18n="qzLevelTitle">📚 Difficulty</div>
-              <div class="qz-seg" id="quiz-level-seg" role="radiogroup" data-i18n-aria-label="qzLevelTitle" aria-label="Difficulty"></div>
+              <div class="qz-pick-title" data-i18n="setDifficultyTitle">Difficulty</div>
+              <div class="qz-seg" id="quiz-level-seg" role="radiogroup" data-i18n-aria-label="setDifficultyTitle" aria-label="Difficulty"></div>
             </div>
             <div class="qz-pick">
-              <div class="qz-pick-title" data-i18n="qzModeTitle">🎮 Mode</div>
-              <div class="qz-seg" id="quiz-mode-seg" role="radiogroup" data-i18n-aria-label="qzModeTitle" aria-label="Mode">
+              <div class="qz-pick-title" data-i18n="setModeTitle">Mode</div>
+              <div class="qz-seg" id="quiz-mode-seg" role="radiogroup" data-i18n-aria-label="setModeTitle" aria-label="Mode">
                 <button type="button" class="qz-seg-btn" role="radio" data-mode="relaxed" data-i18n="qzModeRelaxed">🌿 Relaxed</button>
                 <button type="button" class="qz-seg-btn" role="radio" data-mode="time" data-i18n="qzModeTime">⏱ Time Attack</button>
               </div>
               <p class="qz-pick-note" id="quiz-mode-note"></p>
             </div>
+            <div class="qz-pick">
+              <div class="qz-pick-title" data-i18n="qzCountTitle">Questions</div>
+              <div class="qz-seg" id="quiz-round-seg" role="radiogroup" data-i18n-aria-label="qzCountTitle" aria-label="Questions">
+            <button type="button" class="qz-seg-btn" data-round="10" role="radio" aria-checked="false">10</button>
+            <button type="button" class="qz-seg-btn" data-round="20" role="radio" aria-checked="false">20</button>
+            <button type="button" class="qz-seg-btn" data-round="50" role="radio" aria-checked="false">50</button>
+            <button type="button" class="qz-seg-btn" data-round="70" role="radio" aria-checked="false">70</button>
+            <button type="button" class="qz-seg-btn" data-round="100" role="radio" aria-checked="false">100</button>
+            <button type="button" class="qz-seg-btn" data-round="0" role="radio" aria-checked="false">All</button>
+              </div>
+            </div>
+            </div></details>
+            <div class="sp-start-panel fs-panel"><svg class="sp-scene fs-scene qz-scene" viewBox="0 0 300 150" role="img" aria-label="A koala holding up a quiz card while the right answer lights up">
+          <rect x="0" y="0" width="300" height="150" rx="18" fill="#e4f7f0"/>
+          <text x="262" y="22" font-size="15" class="sp-twinkle sp-tw1">✨</text>
+          <text x="22" y="24" font-size="12" class="sp-twinkle sp-tw2">⭐</text>
+          <g class="qzs-card">
+            <rect x="22" y="22" width="136" height="98" rx="14" fill="#fff" stroke="#02c39a" stroke-width="4"/>
+            <text x="44" y="53" font-family="Fredoka, 'Segoe UI', sans-serif" font-size="27" font-weight="700" fill="#00a878" text-anchor="middle">?</text>
+            <rect x="62" y="40" width="82" height="9" rx="4.5" fill="#cfeee4"/>
+            <g class="qzs-opt qzs-o1"><rect x="34" y="60" width="112" height="16" rx="8"/><circle cx="46" cy="68" r="5" fill="#bfe9db"/><rect x="58" y="65" width="52" height="6" rx="3" fill="#cfeee4"/></g>
+            <g class="qzs-opt qzs-o2"><rect x="34" y="80" width="112" height="16" rx="8"/><circle cx="46" cy="88" r="5" fill="#bfe9db"/><rect x="58" y="85" width="62" height="6" rx="3" fill="#cfeee4"/>
+              <path class="qzs-check" d="M124 88 l5 5 l10 -11" fill="none" stroke="#00a878" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+            <g class="qzs-opt qzs-o3"><rect x="34" y="100" width="112" height="16" rx="8"/><circle cx="46" cy="108" r="5" fill="#bfe9db"/><rect x="58" y="105" width="44" height="6" rx="3" fill="#cfeee4"/></g>
+          </g>
+          <text class="fs-pop" x="158" y="30" font-size="20" text-anchor="middle">😀</text>
+          <ellipse cx="225" cy="146" rx="46" ry="5" fill="#000" opacity="0.08"/>
+          <g class="sp-koala">
+                <ellipse cx="225" cy="124" rx="34" ry="27" fill="#a9b7b2"/>
+                <ellipse cx="225" cy="130" rx="20" ry="18" fill="#e3ebe8"/>
+                <g class="sp-arm-r" style="transform-origin:254px 108px"><line x1="254" y1="108" x2="274" y2="88" stroke="#a9b7b2" stroke-width="10" stroke-linecap="round"/><circle cx="274" cy="88" r="5.5" fill="#8d9c97"/></g>
+                <g class="sp-arm-l" style="transform-origin:198px 108px"><line x1="198" y1="108" x2="172" y2="84" stroke="#a9b7b2" stroke-width="10" stroke-linecap="round"/><circle cx="172" cy="84" r="5.5" fill="#8d9c97"/></g>
+                <g class="sp-head" style="transform-origin:225px 84px">
+                  <circle cx="194" cy="42" r="15" fill="#a9b7b2"/><circle cx="194" cy="42" r="8.5" fill="#ffb3c1"/>
+                  <circle cx="256" cy="42" r="15" fill="#a9b7b2"/><circle cx="256" cy="42" r="8.5" fill="#ffb3c1"/>
+                  <circle cx="225" cy="66" r="35" fill="#a9b7b2"/>
+                  <circle cx="203" cy="78" r="6" fill="#ff7a90" opacity="0.5"/><circle cx="247" cy="78" r="6" fill="#ff7a90" opacity="0.5"/>
+                  <g class="sp-eyes"><circle cx="211" cy="62" r="4.4" fill="#1f2a27"/><circle cx="239" cy="62" r="4.4" fill="#1f2a27"/><circle cx="212.6" cy="60.4" r="1.4" fill="#fff"/><circle cx="240.6" cy="60.4" r="1.4" fill="#fff"/></g>
+                  <ellipse cx="225" cy="75" rx="11" ry="14" fill="#1f2a27"/><ellipse cx="222" cy="70" rx="3.2" ry="2" fill="#fff" opacity="0.35"/>
+                  <path d="M215 90 Q225 98 235 90" stroke="#1f2a27" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+                  <polygon points="225,22 266,34 225,47 184,34" fill="#26332f"/>
+                  <rect x="207" y="42" width="36" height="9" rx="3" fill="#26332f"/>
+                  <line x1="262" y1="35" x2="262" y2="52" stroke="#ffd166" stroke-width="2.4"/><circle cx="262" cy="54" r="3" fill="#ffd166"/>
+                </g>
+              </g>
+        </svg>
+            <ol class="sp-steps fs-steps"><li class="sp-step sp-step1"><b aria-hidden="true">👀</b><span data-i18n="qzStep1">Read</span></li><li class="sp-step-arrow" aria-hidden="true">›</li><li class="sp-step sp-step2"><b aria-hidden="true">👆</b><span data-i18n="qzStep2">Pick</span></li><li class="sp-step-arrow" aria-hidden="true">›</li><li class="sp-step sp-step3"><b aria-hidden="true">🎉</b><span data-i18n="qzStep3">Score!</span></li></ol></div>
             <p class="qz-start-warn" id="quiz-start-warn" hidden></p>
-            <button class="pill accent sp-start-btn" id="quiz-start-btn" type="button" data-i18n="quizStartBtn">▶ Start Quiz</button>
+            <div class="fs-start-bar"><button class="pill accent sp-start-btn" id="quiz-start-btn" type="button" data-i18n="quizStartBtn">▶ Start Quiz</button></div>
           </div>
         </div>
 
@@ -964,15 +1015,28 @@ to Flip!</span></div>
             <button type="button" class="pill neutral" id="spelling-goal-dismiss" data-i18n="goalKeepGoingBtn">Keep going</button>
           </div>
         </div>
-        <div id="spelling-start-screen" class="spelling-stage-box sp-start">
+        <div id="spelling-start-screen" class="spelling-stage-box sp-start qz-start">
           <!-- Same arcade look as the Typing Game start card: floating letter balloons, chips, glowing Start button -->
           <div class="sp-start-floaters" aria-hidden="true"><span class="sp-fl" style="left:8%;top:10%;--c1:#ff8da1;--c2:#e8476a;--fd:-0.4s">K</span><span class="sp-fl" style="left:86%;top:14%;--c1:#7fd9a8;--c2:#2e9a6b;--fd:-1.6s">O</span><span class="sp-fl" style="left:90%;top:60%;--c1:#9fd3ff;--c2:#5b9be0;--fd:-2.2s">A</span><span class="sp-fl" style="left:6%;top:58%;--c1:#ffd36e;--c2:#f0a21a;--fd:-1.1s">L</span><span class="sp-fl" style="left:78%;top:86%;--c1:#ff8da1;--c2:#e8476a;--fd:-0.8s">A</span><span class="sp-fl" style="left:16%;top:86%;--c1:#9fd3ff;--c2:#5b9be0;--fd:-1.9s">K</span><span class="sp-fl-star sp-fl-star1">⭐</span><span class="sp-fl-star sp-fl-star2">✨</span></div>
-          <div class="sp-start-card">
+          <div class="sp-start-card qz-start-card">
             <h3 data-i18n="spStartTitle">✏️ Spelling</h3>
-            <div class="qz-selects sp-start-row">
-              <button type="button" class="tg-start-chip sp-level-chip" id="spelling-start-level" aria-label="Change level"></button>
-              <select id="spelling-goal-select" data-i18n-aria-label="goalLabel" aria-label="Number of Questions"></select>
-            </div>
+            <details class="fs-settings" id="spelling-settings"><summary class="fs-settings-sum"><span class="fs-settings-ico" aria-hidden="true">⚙️</span><span class="fs-settings-label" data-i18n="flashSettingsLabel">Settings</span><span class="fs-settings-now" id="spelling-settings-now"></span></summary><div class="fs-settings-body" id="spelling-settings-body">
+              <div class="qz-pick">
+                <div class="qz-pick-title" data-i18n="setDifficultyTitle">Difficulty</div>
+                <div class="qz-seg" id="spelling-level-seg" role="radiogroup" data-i18n-aria-label="setDifficultyTitle" aria-label="Difficulty"></div>
+              </div>
+              <div class="qz-pick">
+                <div class="qz-pick-title" data-i18n="qzCountTitle">Questions</div>
+                <div class="qz-seg" id="spelling-round-seg" role="radiogroup" data-i18n-aria-label="qzCountTitle" aria-label="Questions">
+              <button type="button" class="qz-seg-btn" data-round="10" role="radio" aria-checked="false">10</button>
+            <button type="button" class="qz-seg-btn" data-round="20" role="radio" aria-checked="false">20</button>
+            <button type="button" class="qz-seg-btn" data-round="50" role="radio" aria-checked="false">50</button>
+            <button type="button" class="qz-seg-btn" data-round="70" role="radio" aria-checked="false">70</button>
+            <button type="button" class="qz-seg-btn" data-round="100" role="radio" aria-checked="false">100</button>
+            <button type="button" class="qz-seg-btn" data-round="0" role="radio" aria-checked="false">All</button>
+                </div>
+              </div>
+            </div></details>
             <div class="sp-start-panel"><svg class="sp-scene" viewBox="0 0 300 160" role="img" aria-label="A koala teacher pointing at a chalkboard spelling KOALA">
               <rect x="0" y="0" width="300" height="160" rx="18" fill="#e4f7f0"/>
               <circle cx="40" cy="132" r="0" fill="none"/>
@@ -1018,7 +1082,7 @@ to Flip!</span></div>
               <li class="sp-step sp-step3"><b>⭐</b><span data-i18n="spStep3">Win a star</span></li>
             </ol></div>
             <div class="sp-start-stats" id="spelling-start-stats" aria-live="off"></div>
-            <button class="pill accent sp-start-btn" id="spelling-start-btn">▶ Start</button>
+            <div class="fs-start-bar"><button class="pill accent sp-start-btn" id="spelling-start-btn">▶ Start</button></div>
             <details class="sp-why">
               <summary class="sp-why-title" data-i18n="spWhyTitle">Why practise spelling?</summary>
               <ul>

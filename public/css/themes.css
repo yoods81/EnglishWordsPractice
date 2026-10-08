@@ -261,6 +261,12 @@ html[data-theme="dark"] .level-overlay-close {
 html[data-theme="dark"] .level-choice {
   background: #131b19 !important;
 }
+html[data-theme="dark"] .ocr-excel-mode {
+  background: rgba(19,27,25,0.85) !important;
+}
+html[data-theme="dark"] .ocr-excel-status.ocr-excel-status-done {
+  background: rgba(19,27,25,0.92) !important;
+}
 html[data-theme="dark"] .candidate-chip.selected {
   background: #161b27 !important;
 }
@@ -1102,20 +1108,30 @@ html[data-theme="dark"] .qz-dd-opt.is-active {
 html[data-theme="dark"] .qz-dd-opt.is-selected {
   background: #223c33 !important;
 }
-html[data-theme="dark"] body #flash-start-screen .qz-seg-btn.on {
+html[data-theme="dark"] body #flash-start-screen .qz-seg-btn.on,
+html[data-theme="dark"] body #quiz-start-screen .qz-seg-btn.on,
+html[data-theme="dark"] body #spelling-start-screen .qz-seg-btn.on {
   color: #f38200 !important;
 }
-html[data-theme="dark"] body #flash-start-screen .qz-seg-btn {
+html[data-theme="dark"] body #flash-start-screen .qz-seg-btn,
+html[data-theme="dark"] body #quiz-start-screen .qz-seg-btn,
+html[data-theme="dark"] body #spelling-start-screen .qz-seg-btn {
   background: rgba(19,27,25,0.22) !important;
 }
-html[data-theme="dark"] body #flash-start-screen .qz-seg-btn.on {
+html[data-theme="dark"] body #flash-start-screen .qz-seg-btn.on,
+html[data-theme="dark"] body #quiz-start-screen .qz-seg-btn.on,
+html[data-theme="dark"] body #spelling-start-screen .qz-seg-btn.on {
   background: #131b19 !important;
   color: #26e9c0 !important;
 }
-html[data-theme="dark"] body #view-flashcards #flash-start-screen .flash-start-selects select {
+html[data-theme="dark"] body #view-flashcards #flash-start-screen .flash-start-selects select,
+html[data-theme="dark"] body #view-quiz #quiz-start-screen .flash-start-selects select,
+html[data-theme="dark"] body #view-spelling #spelling-start-screen .flash-start-selects select {
   background-color: #131b19 !important;
 }
-html[data-theme="dark"] body #view-flashcards #flash-start-screen .flash-start-selects select option {
+html[data-theme="dark"] body #view-flashcards #flash-start-screen .flash-start-selects select option,
+html[data-theme="dark"] body #view-quiz #quiz-start-screen .flash-start-selects select option,
+html[data-theme="dark"] body #view-spelling #spelling-start-screen .flash-start-selects select option {
   background-color: #131b19 !important;
   color: #26e9c0 !important;
 }
@@ -1378,16 +1394,22 @@ html[data-theme="dark"] .fs-settings-sum::after {
   border-right: 2px solid #151e1c !important;
   border-bottom: 2px solid #151e1c !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
   border: 2px solid rgba(21,30,28,0.7) !important;
   background: rgba(19,27,25,0.14) !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
   background: #131b19 !important;
   color: #26e9c0 !important;
   border-color: #151e1c !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-settings-sum {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-sum,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-sum,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-sum {
   background: rgba(19,27,25,0.28) !important;
 }
 html[data-theme="dark"] .flash-progress-label {
@@ -1426,13 +1448,19 @@ html[data-theme="dark"] body #flash-report.sr-big #flash-report-level {
 html[data-theme="dark"] body #flash-report.sr-big #flash-report-level {
   background: #223d34 !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-settings-sum {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-sum,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-sum,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-sum {
   border: 2px solid rgba(21,30,28,0.75) !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
   border: 2px solid rgba(21,30,28,0.85) !important;
 }
-html[data-theme="dark"] body #flash-start-screen .sp-start-stats.fs-count.is-empty {
+html[data-theme="dark"] body #flash-start-screen .sp-start-stats.fs-count.is-empty,
+html[data-theme="dark"] body #quiz-start-screen .sp-start-stats.fs-count.is-empty,
+html[data-theme="dark"] body #spelling-start-screen .sp-start-stats.fs-count.is-empty {
   background: #534b2f !important;
   color: #f38200 !important;
 }
@@ -1956,15 +1984,25 @@ html[data-theme="dark"] body .sp-start-card .sp-start-stats {
 html[data-theme="dark"] body .sp-start-card .sp-start-stats * {
   color: #3db99f !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-settings {
+html[data-theme="dark"] body #flash-start-screen .fs-settings,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings {
   background: #131b19 !important;
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-sum,
 html[data-theme="dark"] body #flash-start-screen .fs-settings-label,
-html[data-theme="dark"] body #flash-start-screen .fs-settings-now {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-now,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-sum,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-sum,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-label,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-label,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-now,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-now {
   color: #3db99f !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-title {
+html[data-theme="dark"] body #flash-start-screen .fs-title,
+html[data-theme="dark"] body #quiz-start-screen .fs-title,
+html[data-theme="dark"] body #spelling-start-screen .fs-title {
   color: #31e2b2 !important;
 }
 html[data-theme="dark"] body .sp-start-card button.sp-start-btn.pill.accent,
@@ -1974,7 +2012,9 @@ html[data-theme="dark"] body .qz-result-primary,
 html[data-theme="dark"] body #spelling-report-restart,
 html[data-theme="dark"] body #flash-report-restart,
 html[data-theme="dark"] body #view-typegame .tg-over-overlay .tg-over-card .tg-play-again,
-html[data-theme="dark"] body #view-timestable .tg-over-overlay .tg-over-card .tg-play-again {
+html[data-theme="dark"] body #view-timestable .tg-over-overlay .tg-over-card .tg-play-again,
+html[data-theme="dark"] body #quiz-start-screen .sp-start-card button.sp-start-btn.pill.accent,
+html[data-theme="dark"] body #spelling-start-screen .sp-start-card button.sp-start-btn.pill.accent {
   color: #f38200 !important;
 }
 }
@@ -1991,39 +2031,63 @@ html[data-theme="dark"] body .sp-start-card .sp-start-stats span {
 }
 @media all {
 html[data-theme="dark"] body #flash-start-screen .fs-settings-sum::after,
-html[data-theme="dark"] body #flash-start-screen .fs-settings-sum * {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-sum *,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-sum::after,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-sum::after,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-sum *,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-sum * {
   color: #3db99f !important;
 }
 html[data-theme="dark"] body #flash-start-screen .fs-count,
-html[data-theme="dark"] body #flash-start-screen .sp-start-stats {
+html[data-theme="dark"] body #flash-start-screen .sp-start-stats,
+html[data-theme="dark"] body #quiz-start-screen .fs-count,
+html[data-theme="dark"] body #spelling-start-screen .fs-count {
   background: #131b19 !important;
   color: #3db99f !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-steps .sp-step {
+html[data-theme="dark"] body #flash-start-screen .fs-steps .sp-step,
+html[data-theme="dark"] body #quiz-start-screen .fs-steps .sp-step,
+html[data-theme="dark"] body #spelling-start-screen .fs-steps .sp-step {
   background: #131b19 !important;
 }
 }
 @media all {
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg-btn,
-html[data-theme="dark"] body #flash-start-screen.is-settings-open .qz-seg-btn {
+html[data-theme="dark"] body #flash-start-screen.is-settings-open .qz-seg-btn,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg-btn,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg-btn,
+html[data-theme="dark"] body #quiz-start-screen.is-settings-open .qz-seg-btn,
+html[data-theme="dark"] body #spelling-start-screen.is-settings-open .qz-seg-btn {
   background: #131b19 !important;
   color: #26e9c0 !important;
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg-btn.on,
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg-btn[aria-checked="true"],
-html[data-theme="dark"] body #flash-start-screen.is-settings-open .qz-seg-btn.on {
+html[data-theme="dark"] body #flash-start-screen.is-settings-open .qz-seg-btn.on,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg-btn.on,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg-btn.on,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg-btn[aria-checked="true"],
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg-btn[aria-checked="true"],
+html[data-theme="dark"] body #quiz-start-screen.is-settings-open .qz-seg-btn.on,
+html[data-theme="dark"] body #spelling-start-screen.is-settings-open .qz-seg-btn.on {
   color: #f38200 !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-pick-title {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-pick-title,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-pick-title {
   color: #3db99f !important;
 }
 }
 @media all {
-html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
   background: #131b19 !important;
   color: #26e9c0 !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
   color: #f38200 !important;
 }
 }
@@ -2086,7 +2150,9 @@ html[data-theme="dark"] .fc-opt.fc-wrong {
   color: #e56053 !important;
 }
 html[data-theme="dark"] body #spelling-start-screen .sp-start-panel,
-html[data-theme="dark"] body #flash-start-screen .fs-panel {
+html[data-theme="dark"] body #flash-start-screen .fs-panel,
+html[data-theme="dark"] body #quiz-start-screen .fs-panel,
+html[data-theme="dark"] body #spelling-start-screen .fs-panel {
   background: #192d26 !important;
   border: 3px solid #151e1c !important;
 }
@@ -2105,38 +2171,62 @@ html[data-theme="dark"] body .sp-start-card .sp-start-stats .sp-stat {
 html[data-theme="dark"] body .sp-start-card .sp-start-stats .sp-stat em {
   color: #26e9c0 !important;
 }
-html[data-theme="dark"] body #flash-start-screen .sp-start-stats.fs-count {
+html[data-theme="dark"] body #flash-start-screen .sp-start-stats.fs-count,
+html[data-theme="dark"] body #quiz-start-screen .sp-start-stats.fs-count,
+html[data-theme="dark"] body #spelling-start-screen .sp-start-stats.fs-count {
   color: #3db99f !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-count .fs-count-lvl {
+html[data-theme="dark"] body #flash-start-screen .fs-count .fs-count-lvl,
+html[data-theme="dark"] body #quiz-start-screen .fs-count .fs-count-lvl,
+html[data-theme="dark"] body #spelling-start-screen .fs-count .fs-count-lvl {
   color: #26e9c0 !important;
 }
-html[data-theme="dark"] body #flash-start-screen .sp-start-stats.fs-count.is-empty {
+html[data-theme="dark"] body #flash-start-screen .sp-start-stats.fs-count.is-empty,
+html[data-theme="dark"] body #quiz-start-screen .sp-start-stats.fs-count.is-empty,
+html[data-theme="dark"] body #spelling-start-screen .sp-start-stats.fs-count.is-empty {
   background: #534b2f !important;
   color: #f38200 !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-settings-sum {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-sum,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-sum,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-sum {
   background: #131b19 !important;
   color: #3db99f !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-settings-label {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-label,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-label,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-label {
   color: #3db99f !important;
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-now,
-html[data-theme="dark"] body #flash-start-screen .fs-settings[open] .fs-settings-now {
+html[data-theme="dark"] body #flash-start-screen .fs-settings[open] .fs-settings-now,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-now,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-now,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings[open] .fs-settings-now,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings[open] .fs-settings-now {
   color: #3ef0c9 !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-settings-body {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-body,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-body,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-body {
   background: #131b19 !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-pick-title {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-pick-title,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-pick-title {
   color: #3db99f !important;
 }
-html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg {
   background: #1f382e !important;
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
-html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
+html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
   color: #3ef0c9 !important;
 }
 html[data-theme="dark"] body .tg-start-card .tg-hero {
@@ -2424,6 +2514,43 @@ html[data-theme="dark"] .admin-sheet-danger {
   border-color: #653e39 !important;
   background: #211413 !important;
 }
+html[data-theme="dark"] .pw-row {
+  background: rgba(19,27,25,0.92) !important;
+}
+html[data-theme="dark"] .pw-edit input[type="text"] {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .pw-edit input[type="text"]:focus {
+  background: #131b19 !important;
+}
+html[data-theme="dark"][data-theme="dark"] .pw-edit input[type="text"] {
+  background: rgba(19,27,25,0.06) !important;
+}
+html[data-theme="dark"] .pw-edit select {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .pw-edit select {
+  background-color: #131b19 !important;
+}
+html[data-theme="dark"] .ocr-file-clear {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .ocr-file-clear:hover,
+html[data-theme="dark"] .ocr-file-clear:focus-visible {
+  background: #2a1818 !important;
+}
+html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-pick-note {
+  color: #b9c8c4 !important;
+}
+html[data-theme="dark"] .qz-scene .qzs-opt rect:first-child {
+  fill: #131b19 !important;
+  stroke: #386355 !important;
+}
+@media (prefers-reduced-motion: reduce) {
+html[data-theme="dark"] .qz-scene .qzs-o2 rect:first-child {
+  fill: #223c31 !important;
+}
+}
 html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; }
 html[data-theme="dark"] img, html[data-theme="dark"] video { filter: brightness(.92); }
 html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea { color-scheme: dark; }
@@ -2593,6 +2720,12 @@ html[data-theme="ivory"] .level-overlay-close {
 }
 html[data-theme="ivory"] .level-choice {
   background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .ocr-excel-mode {
+  background: rgba(253,250,244,0.85) !important;
+}
+html[data-theme="ivory"] .ocr-excel-status.ocr-excel-status-done {
+  background: rgba(253,250,244,0.92) !important;
 }
 html[data-theme="ivory"] .wordlist-item .edit-btn,
 html[data-theme="ivory"] .wordlist-item .delete-btn,
@@ -3157,16 +3290,24 @@ html[data-theme="ivory"] .qz-dd-opt:hover,
 html[data-theme="ivory"] .qz-dd-opt.is-active {
   background: #f2ecdf !important;
 }
-html[data-theme="ivory"] body #flash-start-screen .qz-seg-btn {
+html[data-theme="ivory"] body #flash-start-screen .qz-seg-btn,
+html[data-theme="ivory"] body #quiz-start-screen .qz-seg-btn,
+html[data-theme="ivory"] body #spelling-start-screen .qz-seg-btn {
   background: rgba(253,250,244,0.22) !important;
 }
-html[data-theme="ivory"] body #flash-start-screen .qz-seg-btn.on {
+html[data-theme="ivory"] body #flash-start-screen .qz-seg-btn.on,
+html[data-theme="ivory"] body #quiz-start-screen .qz-seg-btn.on,
+html[data-theme="ivory"] body #spelling-start-screen .qz-seg-btn.on {
   background: #fdfaf4 !important;
 }
-html[data-theme="ivory"] body #view-flashcards #flash-start-screen .flash-start-selects select {
+html[data-theme="ivory"] body #view-flashcards #flash-start-screen .flash-start-selects select,
+html[data-theme="ivory"] body #view-quiz #quiz-start-screen .flash-start-selects select,
+html[data-theme="ivory"] body #view-spelling #spelling-start-screen .flash-start-selects select {
   background-color: #fdfaf4 !important;
 }
-html[data-theme="ivory"] body #view-flashcards #flash-start-screen .flash-start-selects select option {
+html[data-theme="ivory"] body #view-flashcards #flash-start-screen .flash-start-selects select option,
+html[data-theme="ivory"] body #view-quiz #quiz-start-screen .flash-start-selects select option,
+html[data-theme="ivory"] body #view-spelling #spelling-start-screen .flash-start-selects select option {
   background-color: #fdfaf4 !important;
 }
 html[data-theme="ivory"] .wl-chip {
@@ -3290,15 +3431,21 @@ html[data-theme="ivory"] .fs-settings-sum::after {
   border-right: 2px solid #fdfaf4 !important;
   border-bottom: 2px solid #fdfaf4 !important;
 }
-html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
+html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html[data-theme="ivory"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
   border: 2px solid rgba(253,250,244,0.7) !important;
   background: rgba(253,250,244,0.14) !important;
 }
-html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
+html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html[data-theme="ivory"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
   background: #fdfaf4 !important;
   border-color: #fdfaf4 !important;
 }
-html[data-theme="ivory"] body #flash-start-screen .fs-settings-sum {
+html[data-theme="ivory"] body #flash-start-screen .fs-settings-sum,
+html[data-theme="ivory"] body #quiz-start-screen .fs-settings-sum,
+html[data-theme="ivory"] body #spelling-start-screen .fs-settings-sum {
   background: rgba(253,250,244,0.28) !important;
 }
 html[data-theme="ivory"] .flash-progress-label {
@@ -3323,10 +3470,14 @@ html[data-theme="ivory"] body .sp-report-next #flash-report-game,
 html[data-theme="ivory"] body #flash-report.sr-big #flash-report-level {
   background: #f1ebdd !important;
 }
-html[data-theme="ivory"] body #flash-start-screen .fs-settings-sum {
+html[data-theme="ivory"] body #flash-start-screen .fs-settings-sum,
+html[data-theme="ivory"] body #quiz-start-screen .fs-settings-sum,
+html[data-theme="ivory"] body #spelling-start-screen .fs-settings-sum {
   border: 2px solid rgba(253,250,244,0.75) !important;
 }
-html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
+html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html[data-theme="ivory"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
   border: 2px solid rgba(253,250,244,0.85) !important;
 }
 html[data-theme="ivory"] .flash-auto span {
@@ -3550,27 +3701,39 @@ html[data-theme="ivory"] body .sp-start-card .sp-step {
 html[data-theme="ivory"] body .sp-start-card .sp-start-stats {
   background: #fdfaf4 !important;
 }
-html[data-theme="ivory"] body #flash-start-screen .fs-settings {
+html[data-theme="ivory"] body #flash-start-screen .fs-settings,
+html[data-theme="ivory"] body #quiz-start-screen .fs-settings,
+html[data-theme="ivory"] body #spelling-start-screen .fs-settings {
   background: #fdfaf4 !important;
 }
 }
 @media all {
 html[data-theme="ivory"] body #flash-start-screen .fs-count,
-html[data-theme="ivory"] body #flash-start-screen .sp-start-stats {
+html[data-theme="ivory"] body #flash-start-screen .sp-start-stats,
+html[data-theme="ivory"] body #quiz-start-screen .fs-count,
+html[data-theme="ivory"] body #spelling-start-screen .fs-count {
   background: #fdfaf4 !important;
 }
-html[data-theme="ivory"] body #flash-start-screen .fs-steps .sp-step {
+html[data-theme="ivory"] body #flash-start-screen .fs-steps .sp-step,
+html[data-theme="ivory"] body #quiz-start-screen .fs-steps .sp-step,
+html[data-theme="ivory"] body #spelling-start-screen .fs-steps .sp-step {
   background: #fdfaf4 !important;
 }
 }
 @media all {
 html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg-btn,
-html[data-theme="ivory"] body #flash-start-screen.is-settings-open .qz-seg-btn {
+html[data-theme="ivory"] body #flash-start-screen.is-settings-open .qz-seg-btn,
+html[data-theme="ivory"] body #quiz-start-screen .fs-settings-body .qz-seg-btn,
+html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body .qz-seg-btn,
+html[data-theme="ivory"] body #quiz-start-screen.is-settings-open .qz-seg-btn,
+html[data-theme="ivory"] body #spelling-start-screen.is-settings-open .qz-seg-btn {
   background: #fdfaf4 !important;
 }
 }
 @media all {
-html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
+html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html[data-theme="ivory"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
   background: #fdfaf4 !important;
 }
 }
@@ -3597,17 +3760,25 @@ html[data-theme="ivory"] .fc-q {
   background: #f7f4ec !important;
 }
 html[data-theme="ivory"] body #spelling-start-screen .sp-start-panel,
-html[data-theme="ivory"] body #flash-start-screen .fs-panel {
+html[data-theme="ivory"] body #flash-start-screen .fs-panel,
+html[data-theme="ivory"] body #quiz-start-screen .fs-panel,
+html[data-theme="ivory"] body #spelling-start-screen .fs-panel {
   background: #f2ecdf !important;
   border: 3px solid #fdfaf4 !important;
 }
-html[data-theme="ivory"] body #flash-start-screen .fs-settings-sum {
+html[data-theme="ivory"] body #flash-start-screen .fs-settings-sum,
+html[data-theme="ivory"] body #quiz-start-screen .fs-settings-sum,
+html[data-theme="ivory"] body #spelling-start-screen .fs-settings-sum {
   background: #fdfaf4 !important;
 }
-html[data-theme="ivory"] body #flash-start-screen .fs-settings-body {
+html[data-theme="ivory"] body #flash-start-screen .fs-settings-body,
+html[data-theme="ivory"] body #quiz-start-screen .fs-settings-body,
+html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body {
   background: #fdfaf4 !important;
 }
-html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg {
+html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg,
+html[data-theme="ivory"] body #quiz-start-screen .fs-settings-body .qz-seg,
+html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body .qz-seg {
   background: #ebe2ce !important;
 }
 html[data-theme="ivory"] body .tg-start-card .tg-hero {
@@ -3758,4 +3929,29 @@ html[data-theme="ivory"] .admin-ver-badge.ok {
 }
 html[data-theme="ivory"] .admin-sheet-emailrow {
   background: #f8f5ed !important;
+}
+html[data-theme="ivory"] .pw-row {
+  background: rgba(253,250,244,0.92) !important;
+}
+html[data-theme="ivory"] .pw-edit input[type="text"] {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .pw-edit input[type="text"]:focus {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"][data-theme="dark"] .pw-edit input[type="text"] {
+  background: rgba(253,250,244,0.06) !important;
+}
+html[data-theme="ivory"] .pw-edit select {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .pw-edit select {
+  background-color: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .ocr-file-clear {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .qz-scene .qzs-opt rect:first-child {
+  fill: #fdfaf4 !important;
+  stroke: #e1d9c7 !important;
 }
