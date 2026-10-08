@@ -67,7 +67,7 @@
 .support-msg.is-note { background: #fff6cf; align-self: stretch; max-width: 100%; border: 1px dashed #d9b800; }
 .support-msg-who { font-size: .72rem; color: var(--muted); margin-bottom: 2px; font-weight: 700; }
 .support-msg-body { white-space: pre-wrap; overflow-wrap: anywhere; }
-body.has-support-unread #auth-toggle-btn::after, body.has-support-unread #contact-open-btn::after { content: ""; display: inline-block; width: 8px; height: 8px; margin-left: 5px; border-radius: 50%; background: #e5484d; vertical-align: middle; }
+body.has-support-unread #auth-toggle::after, body.has-support-unread #contact-open-btn::after { content: ""; display: inline-block; width: 8px; height: 8px; margin-left: 5px; border-radius: 50%; background: #e5484d; vertical-align: middle; }
 
 /* ---------- customer file sheet ---------- */
 .admin-sheet-overlay { align-items: flex-end; }
@@ -195,4 +195,37 @@ html[data-theme] body #view-koala > .card {
   border: 1px solid var(--outline) !important;
   border-radius: 20px !important;
   box-shadow: 0 3px 0 rgba(11, 107, 87, .12) !important;
+}
+
+/* =====================================================================
+   Flat controls: no "ledge" shadows on pill buttons; flag language button
+   ===================================================================== */
+
+/* Header: login, language, theme */
+html body :is(.auth-toggle, #auth-toggle, .lang-toggle, .theme-toggle) { box-shadow: none !important; }
+html body .lang-toggle { border: 0 !important; background: transparent !important; padding: 2px 4px; display: inline-flex; align-items: center; line-height: 0; }
+html body .lang-toggle .flag-svg { display: block; border-radius: 3px; box-shadow: 0 0 0 1px rgba(0, 0, 0, .12); }
+html body .lang-toggle:active { transform: translateY(1px); }
+
+/* Top navigation: Learn / Play pop-up menus — no frame, shadow or item borders */
+html body .tab-dropdown, html body .tab-dropdown * { border: 0 !important; box-shadow: none !important; }
+
+/* My Progress / My Koala tab pills */
+html body :is(#view-stats, #view-koala) .stats-tab, html body :is(#view-stats, #view-koala) .stats-tabs { border: 0 !important; box-shadow: none !important; }
+
+/* Add Word, My added words, Admin: every pill/button/dropdown flat */
+html body :is(#view-addword, #view-admincodes) :is(button, .pill, .edit-btn, .retry-btn, .delete-btn, select, .admin-chip, .admin-tab) { box-shadow: none !important; }
+
+/* Home cards + menu tiles + My Progress cards use the same card edge */
+html body :is(.review-card, .photo-promo, .landing-tile, .dash-cat, .dash-badge-card, .dash-rec),
+html body :is(#view-stats) :is(.dash-cat, .dash-badge-card, .dash-rec) {
+  border: 1px solid var(--outline) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 3px 0 rgba(11, 107, 87, .12) !important;
+}
+
+/* "Review N words" button on the recommendation card: small, centred, flat */
+html body #view-stats .dash-rec .dash-rec-btn {
+  display: block; width: auto; min-width: 0; min-height: 0; height: auto; margin: 12px auto 0; padding: 4px 14px;
+  font-size: .78rem; line-height: 1.4; border: 0 !important; box-shadow: none !important; transform: none;
 }

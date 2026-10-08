@@ -3,7 +3,7 @@
      shows up immediately; the cached copy is used only when offline.
    - /api/* is never cached (logins, shared words, sync always go to the server).
    - Google Fonts: stale-while-revalidate. Bump CACHE when the list changes. */
-const CACHE = "koala-study-v74";
+const CACHE = "koala-study-v75";
 const PRECACHE = [
   "/", "/index.html", "/css/style.css", "/css/themes.css", "/css/admin.css", "/js/app.js", "/js/support.js",
   "/js/faq.js", "/js/admin-cs.js", "/js/koala-core.js", "/js/quiz-core.js", "/js/koala-art.js", "/js/words.js", "/js/words_ko.js",

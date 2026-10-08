@@ -2743,6 +2743,45 @@ function findDuplicateCustomWordGroups() {
 }
 
 /* ================= TRANSLATION APPLICATION ================= */
+/* ---------- Language button flags (Australia / Korea) ---------- */
+const FLAG_SVG = (() => {
+  const star = (cx, cy, R, n) => {
+    const pts = [];
+    for (let i = 0; i < n * 2; i++) {
+      const r = i % 2 === 0 ? R : R * 0.42;
+      const a = (Math.PI * i) / n - Math.PI / 2;
+      pts.push((cx + r * Math.cos(a)).toFixed(2) + "," + (cy + r * Math.sin(a)).toFixed(2));
+    }
+    return `<polygon points="${pts.join(" ")}" fill="#fff"/>`;
+  };
+  const au =
+    `<svg class="flag-svg" viewBox="0 0 36 24" width="30" height="20" aria-hidden="true" focusable="false">` +
+    `<rect width="36" height="24" fill="#012169"/>` +
+    `<path d="M0 0L18 12M18 0L0 12" stroke="#fff" stroke-width="2.6"/><path d="M0 0L18 12M18 0L0 12" stroke="#c8102e" stroke-width="0.9"/>` +
+    `<path d="M9 0V12M0 6H18" stroke="#fff" stroke-width="4"/><path d="M9 0V12M0 6H18" stroke="#c8102e" stroke-width="2.2"/>` +
+    star(9, 18, 4, 7) + star(27, 4.2, 2.2, 7) + star(27, 20.2, 2.2, 7) + star(21, 12, 2.2, 7) + star(33, 9.5, 2.2, 7) + star(30.5, 15.5, 1.1, 5) +
+    `</svg>`;
+  // Taegeuk + four trigrams
+  const tri = (ang, pattern) => {
+    // pattern: 3 chars, "s" solid / "b" broken; bars run perpendicular to the centre→corner line
+    const bars = pattern.split("").map((c, i) => {
+      const x = 9.2 + i * 1.5;
+      return c === "s"
+        ? `<rect x="${x}" y="-2.6" width="0.95" height="5.2" fill="#000"/>`
+        : `<rect x="${x}" y="-2.6" width="0.95" height="2.2" fill="#000"/><rect x="${x}" y="0.4" width="0.95" height="2.2" fill="#000"/>`;
+    }).join("");
+    return `<g transform="rotate(${ang})">${bars}</g>`;
+  };
+  const kr =
+    `<svg class="flag-svg" viewBox="0 0 36 24" width="30" height="20" aria-hidden="true" focusable="false">` +
+    `<rect width="36" height="24" fill="#fff"/>` +
+    `<g transform="translate(18 12)">` +
+    `<circle r="5.2" fill="#0047a0"/><path d="M-5.2 0A5.2 5.2 0 0 1 5.2 0A2.6 2.6 0 0 1 0 0A2.6 2.6 0 0 0 -5.2 0Z" fill="#cd2e3a"/>` +
+    tri(213.7, "sss") + tri(-33.7, "bsb") + tri(146.3, "sbs") + tri(33.7, "bbb") +
+    `</g></svg>`;
+  return { au, kr };
+})();
+
 function applyStaticTranslations() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     el.textContent = t(el.dataset.i18n);
@@ -2762,7 +2801,14 @@ function applyStaticTranslations() {
   document.getElementById("app-title").textContent = t("appTitle");
   document.getElementById("app-subtitle").textContent = t("appSubtitle");
   document.getElementById("app-footer-text").textContent = t("footerText");
-  document.getElementById("lang-toggle").textContent = t("langToggle");
+  {
+    // Flag of the language the button switches TO (Windows has no flag emoji,
+    // so these are drawn as small SVGs).
+    const lt = document.getElementById("lang-toggle");
+    lt.innerHTML = FLAG_SVG[currentLang === "ko" ? "au" : "kr"];
+    lt.setAttribute("aria-label", t("langToggle"));
+    lt.title = t("langToggle");
+  }
   document.getElementById("level-overlay-title").textContent = t("levelOverlayTitle");
   document.getElementById("level-overlay-desc").textContent = t("levelOverlayDesc");
   updateAdminUI();
