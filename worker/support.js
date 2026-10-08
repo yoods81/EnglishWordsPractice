@@ -31,6 +31,58 @@ async function readJson(request) {
   }
 }
 
+/* Day-by-day counts (last year) and a few totals for the Overview charts.
+   Days are numbered in the admin's own time zone: tz = minutes the browser
+   is behind UTC (Date#getTimezoneOffset), so day 0 never splits a local day. */
+async function overviewTrends(env, now, tz) {
+  const off = -Math.max(-840, Math.min(840, Math.round(tz))) * 60000;
+  const since = now - 366 * DAY_MS;
+  const rows = async (sql, ...args) => {
+    const r = await env.DB.prepare(sql).bind(...args).all().catch(() => null);
+    return (r && r.results) || [];
+  };
+  const byDay = async (table, col, where, sum) => {
+    const out = {};
+    const list = await rows(
+      `SELECT CAST((${col} + ?) / 86400000 AS INTEGER) AS d, ${sum ? "SUM(" + sum + ")" : "COUNT(*)"} AS n
+         FROM ${table} WHERE ${col} > ? ${where ? "AND " + where : ""} GROUP BY d`,
+      off, since
+    );
+    list.forEach((r) => (out[r.d] = Number(r.n) || 0));
+    return out;
+  };
+  const one = async (sql) => {
+    const r = await env.DB.prepare(sql).first().catch(() => null);
+    return r ? Number(r.n) || 0 : 0;
+  };
+  const cats = {};
+  (await rows("SELECT category AS c, COUNT(*) AS n FROM support_tickets WHERE status != 'resolved' GROUP BY category")).forEach((r) => (cats[r.c] = Number(r.n) || 0));
+  return {
+    today: Math.floor((now + off) / DAY_MS),
+    totals: {
+      users: await one("SELECT COUNT(*) AS n FROM users WHERE role != 'admin'"),
+      premium: await one("SELECT COUNT(*) AS n FROM users WHERE role = 'paid'"),
+      coinsHeld: await one("SELECT COALESCE(SUM(coins), 0) AS n FROM user_koala"),
+      coinsEarned: await one("SELECT COALESCE(SUM(earned), 0) AS n FROM user_koala"),
+      coinsGranted: await one("SELECT COALESCE(SUM(amount), 0) AS n FROM koala_grants WHERE amount > 0"),
+      coinsTaken: await one("SELECT COALESCE(-SUM(amount), 0) AS n FROM koala_grants WHERE amount < 0"),
+      coinsPending: await one("SELECT COALESCE(SUM(amount), 0) AS n FROM koala_grants WHERE applied_at IS NULL"),
+      codes: await one("SELECT COUNT(*) AS n FROM special_codes"),
+      codesUnused: await one("SELECT COUNT(*) AS n FROM special_codes WHERE redeemed_by IS NULL"),
+      ticketsByCategory: cats,
+      ticketsResolved: await one("SELECT COUNT(*) AS n FROM support_tickets WHERE status = 'resolved'"),
+    },
+    series: {
+      users: await byDay("users", "created_at", "role != 'admin'"),
+      premium: await byDay("users", "upgraded_at", "role = 'paid'"),
+      tickets: await byDay("support_tickets", "created_at"),
+      coins: await byDay("koala_grants", "created_at", "amount > 0", "amount"),
+      codesMade: await byDay("special_codes", "created_at"),
+      codesUsed: await byDay("special_codes", "redeemed_at", "redeemed_by IS NOT NULL"),
+    },
+  };
+}
+
 export async function handleSupport({ route, request, env, url, h }) {
   const { json, getSessionUser, genId, normalizeEmail, validEmail, hmac, rowToAdminUser } = h;
   const method = request.method;
@@ -195,6 +247,7 @@ export async function handleSupport({ route, request, env, url, h }) {
       unverified: await one("SELECT COUNT(*) AS n FROM users WHERE role != 'admin' AND email IS NOT NULL AND email != '' AND email_verified_at IS NULL"),
       emailConfigured: emailSettings(env).configured,
       announcement: { text: ann.text, active: ann.active },
+      ...(await overviewTrends(env, now, Number(url && url.searchParams.get("tz")) || 0)),
     });
   }
 

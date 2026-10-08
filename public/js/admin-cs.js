@@ -56,8 +56,9 @@
   function localize() {
     const tabs = { overview: L("Overview", "개요"), customers: L("Customers", "고객"), inbox: L("Inbox", "문의함"), coins: L("Coins", "코인"), system: L("System", "설정") };
     document.querySelectorAll("[data-admin-label]").forEach((el) => (el.textContent = tabs[el.dataset.adminLabel] || ""));
-    $("admin-stat-new-users-lbl").textContent = L("🆕 New (7 days)", "🆕 신규 (7일)");
-    $("admin-stat-open-tickets-lbl").textContent = L("💬 Open inquiries", "💬 답변 대기 문의");
+    $("adm-range-days").textContent = L("30 days", "최근 30일");
+    $("adm-range-months").textContent = L("12 months", "최근 12개월");
+    renderOverviewCards();
     $("admin-attention-title").textContent = L("Needs your attention", "확인이 필요해요");
     $("admin-users-desc").textContent = L(
       "Find an account and tap Manage for its role, password, notes and messages. Upgrade requests are pinned to the top.",
@@ -86,19 +87,202 @@
 
   async function loadOverview() {
     try {
-      overview = await api("/admin/overview");
+      overview = await api("/admin/overview?tz=" + new Date().getTimezoneOffset());
     } catch (e) {
       overview = null;
       return;
     }
-    $("admin-stat-new-users").textContent = overview.newUsers7d;
-    $("admin-stat-open-tickets").textContent = overview.openTickets;
+    renderOverviewCards();
     const badge = $("admin-inbox-badge");
     badge.hidden = !overview.openTickets;
     badge.textContent = overview.openTickets > 99 ? "99+" : String(overview.openTickets);
     renderAttention();
     if (tab === "system") fillNoticeCard();
   }
+
+  /* ---------- overview cards with trend charts ---------- */
+
+  let ovRange = "days";
+  const fmt = (n) => Number(n || 0).toLocaleString();
+
+  // dayIndex (days since 1970, in the admin's own time zone) -> Date whose UTC fields read as local
+  const dayDate = (d) => new Date(d * 86400000);
+  const dayLabel = (d) => {
+    const x = dayDate(d);
+    return L(`${x.getUTCMonth() + 1}/${x.getUTCDate()}`, `${x.getUTCMonth() + 1}/${x.getUTCDate()}`);
+  };
+
+  // Turns {dayIndex: n} into 30 daily or 12 monthly points: [{label, add}], oldest first.
+  function buckets(map, today, range) {
+    const out = [];
+    if (range === "days") {
+      for (let d = today - 29; d <= today; d++) out.push({ label: dayLabel(d), add: map[d] || 0, from: d, to: d });
+      return out;
+    }
+    const t = dayDate(today);
+    for (let i = 11; i >= 0; i--) {
+      const y = t.getUTCFullYear(), m = t.getUTCMonth() - i;
+      const first = Math.floor(Date.UTC(y, m, 1) / 86400000);
+      const last = Math.floor(Date.UTC(y, m + 1, 1) / 86400000) - 1;
+      let add = 0;
+      for (let d = first; d <= Math.min(last, today); d++) add += map[d] || 0;
+      const mm = new Date(Date.UTC(y, m, 1)).getUTCMonth() + 1;
+      out.push({ label: L(`${mm}`, `${mm}월`), add, from: first, to: Math.min(last, today) });
+    }
+    return out;
+  }
+
+  // Running total at the end of each bucket, counted back from today's known total.
+  function runningTotals(pts, map, today, total) {
+    return pts.map((p) => {
+      let after = 0;
+      for (const k in map) if (Number(k) > p.to && Number(k) <= today) after += map[k];
+      return Math.max(0, total - after);
+    });
+  }
+
+  function svgLine(values, labels, color, extra) {
+    const W = 320, H = 110, padL = 4, padR = 4, padT = 10, padB = 4;
+    const all = extra ? values.concat(extra) : values;
+    const max = Math.max(1, ...all), min = Math.min(0, ...all);
+    const x = (i) => padL + (values.length < 2 ? (W - padL - padR) / 2 : (i * (W - padL - padR)) / (values.length - 1));
+    const y = (v) => padT + (H - padT - padB) * (1 - (v - min) / (max - min || 1));
+    const pts = values.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+    const area = `${x(0).toFixed(1)},${H - padB} ${pts} ${x(values.length - 1).toFixed(1)},${H - padB}`;
+    let second = "";
+    if (extra) second = `<polyline points="${extra.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ")}" fill="none" stroke="#f0a21a" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    const last = values.length - 1;
+    return `<svg class="adm-chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-hidden="true">
+      <line x1="0" y1="${H - padB}" x2="${W}" y2="${H - padB}" stroke="currentColor" stroke-opacity=".15"/>
+      <polygon points="${area}" fill="${color}" fill-opacity=".14"/>
+      <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+      ${second}
+      <circle cx="${x(last).toFixed(1)}" cy="${y(values[last]).toFixed(1)}" r="3.6" fill="${color}"/>
+    </svg>${axis(labels)}`;
+  }
+
+  function svgBars(values, labels, color, color2, values2) {
+    const W = 320, H = 110, padB = 4, padT = 8;
+    const n = values.length, gap = n > 14 ? 2 : 6, bw = (W - gap * (n - 1)) / n;
+    const max = Math.max(1, ...values, ...(values2 || []));
+    const bar = (v, i, c, w, off) => {
+      const h = v ? Math.max(3, ((H - padT - padB) * v) / max) : 0;
+      return h ? `<rect x="${(i * (bw + gap) + off).toFixed(1)}" y="${(H - padB - h).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${c}"/>` : "";
+    };
+    let g = "";
+    values.forEach((v, i) => {
+      if (values2) { g += bar(v, i, color, bw / 2, 0) + bar(values2[i], i, color2, bw / 2, bw / 2); }
+      else g += bar(v, i, color, bw, 0);
+    });
+    return `<svg class="adm-chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-hidden="true">
+      <line x1="0" y1="${H - padB}" x2="${W}" y2="${H - padB}" stroke="currentColor" stroke-opacity=".15"/>${g}</svg>${axis(labels)}`;
+  }
+
+  function axis(labels) {
+    const n = labels.length, pick = [0, Math.floor((n - 1) / 2), n - 1];
+    return `<div class="adm-axis">${pick.map((i) => `<span>${esc(labels[i])}</span>`).join("")}</div>`;
+  }
+
+  const CAT_NAMES = {
+    question: ["Question", "질문"], bug: ["Bug", "오류"], account: ["Account", "계정"], payment: ["Payment", "결제"], other: ["Other", "기타"],
+  };
+
+  function renderOverviewCards() {
+    const grid = $("adm-ov-grid");
+    if (!grid) return;
+    if (!overview || !overview.series) {
+      grid.innerHTML = `<p class="admin-all-clear">${esc(L("Loading…", "불러오는 중…"))}</p>`;
+      return;
+    }
+    const o = overview, T = o.totals, S = o.series, today = o.today;
+    document.querySelectorAll("#adm-ov-range .adm-seg-btn").forEach((b) => b.classList.toggle("active", b.dataset.range === ovRange));
+
+    const uPts = buckets(S.users, today, ovRange);
+    const uTotals = runningTotals(uPts, S.users, today, T.users);
+    const pPts = buckets(S.premium, today, ovRange);
+    const pTotals = runningTotals(pPts, S.premium, today, T.premium);
+    const labels = uPts.map((p) => p.label);
+    const newToday = S.users[today] || 0, newYest = S.users[today - 1] || 0;
+    const delta = (n) => (n > 0 ? `+${n}` : String(n));
+    const periodGain = uTotals[uTotals.length - 1] - uTotals[0];
+
+    const tkPts = buckets(S.tickets, today, ovRange);
+    const catRows = Object.keys(CAT_NAMES).map((k) => [k, (T.ticketsByCategory || {})[k] || 0]).filter((r) => r[1] > 0);
+    const catChips = catRows.length
+      ? catRows.map(([k, n]) => `<span class="adm-chip">${esc(L(CAT_NAMES[k][0], CAT_NAMES[k][1]))} <b>${n}</b></span>`).join("")
+      : `<span class="adm-muted">${esc(L("No open inquiries 🎉", "대기 중인 문의가 없어요 🎉"))}</span>`;
+
+    const cPts = buckets(S.coins, today, ovRange);
+    const cPeriod = cPts.reduce((a, p) => a + p.add, 0);
+
+    const mPts = buckets(S.codesMade, today, ovRange);
+    const uuPts = buckets(S.codesUsed, today, ovRange);
+    const codesUsed = Math.max(0, T.codes - T.codesUnused);
+    const rate = T.codes ? Math.round((codesUsed / T.codes) * 100) : 0;
+
+    const coin = '<svg class="koala-coin" viewBox="0 0 24 24" width="1.1em" height="1.1em" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10.5" fill="#f6c343" stroke="#c98a00" stroke-width="1.5"/><text x="12" y="16.5" text-anchor="middle" font-size="12" font-weight="800" fill="#8a5a00">$</text></svg>';
+
+    grid.innerHTML = `
+      <section class="adm-card adm-card-users">
+        <div class="adm-card-head"><h3>👥 ${esc(L("Members", "회원"))}</h3>
+          <span class="adm-delta">${esc(L(`Today ${delta(newToday)} · Yesterday ${delta(newYest)}`, `오늘 ${delta(newToday)} · 어제 ${delta(newYest)}`))}</span></div>
+        <div class="adm-big">${fmt(T.users)}<small>${esc(L("total", "명"))}</small></div>
+        <div class="adm-sub">
+          <span><i class="adm-dot" style="background:#f0a21a"></i>⭐ ${esc(L("Premium", "프리미엄"))} <b>${fmt(T.premium)}</b></span>
+          <span><i class="adm-dot" style="background:#3fb984"></i>🆕 ${esc(L("New (7 days)", "신규 (7일)"))} <b>${fmt(o.newUsers7d)}</b></span>
+          <span>${esc(L("Free", "일반"))} <b>${fmt(Math.max(0, T.users - T.premium))}</b></span>
+        </div>
+        ${svgLine(uTotals, labels, "#2fa77f", pTotals)}
+        <p class="adm-legend"><span><i class="adm-dot" style="background:#2fa77f"></i>${esc(L("All members", "전체 회원"))}</span><span><i class="adm-dot" style="background:#f0a21a"></i>${esc(L("Premium", "프리미엄"))}</span><span class="adm-muted">${esc(ovRange === "days" ? L(`${delta(periodGain)} in 30 days`, `30일간 ${delta(periodGain)}`) : L(`${delta(periodGain)} in 12 months`, `12개월간 ${delta(periodGain)}`))}</span></p>
+      </section>
+
+      <section class="adm-card adm-card-tickets">
+        <div class="adm-card-head"><h3>💬 ${esc(L("Inquiries", "문의"))}</h3>
+          <button type="button" class="adm-link" data-ov-go="inbox">${esc(L("Open inbox ›", "문의함 열기 ›"))}</button></div>
+        <div class="adm-big">${fmt(o.openTickets)}<small>${esc(L("awaiting reply", "답변 대기"))}</small></div>
+        <div class="adm-chips">${catChips}</div>
+        <div class="adm-sub"><span>${esc(L("Unread", "안 읽음"))} <b>${fmt(o.unreadTickets)}</b></span><span>${esc(L("Resolved", "해결됨"))} <b>${fmt(T.ticketsResolved)}</b></span></div>
+        ${svgBars(tkPts.map((p) => p.add), labels, "#5b9be0")}
+        <p class="adm-legend"><span class="adm-muted">${esc(L("New inquiries per " + (ovRange === "days" ? "day" : "month"), (ovRange === "days" ? "일별" : "월별") + " 신규 문의"))}</span></p>
+      </section>
+
+      <section class="adm-card adm-card-coins">
+        <div class="adm-card-head"><h3>${coin} ${esc(L("Koala Coins", "코알라 코인"))}</h3>
+          <button type="button" class="adm-link" data-ov-go="coins">${esc(L("Manage ›", "관리 ›"))}</button></div>
+        <div class="adm-big">${fmt(T.coinsEarned + T.coinsGranted - T.coinsTaken)}<small>${esc(L("issued", "발급"))}</small></div>
+        <div class="adm-sub">
+          <span>${esc(L("Earned by learning", "학습으로 획득"))} <b>${fmt(T.coinsEarned)}</b></span>
+          <span>${esc(L("Given by you", "관리자 지급"))} <b>${fmt(T.coinsGranted)}</b></span>
+          <span>${esc(L("Held now", "현재 보유"))} <b>${fmt(T.coinsHeld)}</b></span>
+          ${T.coinsPending ? `<span>${esc(L("Waiting to apply", "적용 대기"))} <b>${fmt(T.coinsPending)}</b></span>` : ""}
+        </div>
+        ${svgBars(cPts.map((p) => p.add), labels, "#f0a21a")}
+        <p class="adm-legend"><span class="adm-muted">${esc(L("Coins you gave", "관리자 지급 코인") + (ovRange === "days" ? " · " + L("per day", "일별") : " · " + L("per month", "월별")) + ` · ${fmt(cPeriod)}`)}</span></p>
+      </section>
+
+      <section class="adm-card adm-card-codes">
+        <div class="adm-card-head"><h3>🎟️ ${esc(L("Special codes", "특별 코드"))}</h3>
+          <button type="button" class="adm-link" data-ov-go="customers">${esc(L("Manage ›", "관리 ›"))}</button></div>
+        <div class="adm-big">${fmt(T.codesUnused)}<small>${esc(L("unused", "미사용"))}</small></div>
+        <div class="adm-sub">
+          <span>${esc(L("Created", "발급"))} <b>${fmt(T.codes)}</b></span>
+          <span>${esc(L("Redeemed", "사용됨"))} <b>${fmt(codesUsed)}</b></span>
+          <span>${esc(L("Use rate", "사용률"))} <b>${rate}%</b></span>
+        </div>
+        <div class="adm-meter" aria-hidden="true"><i style="width:${rate}%"></i></div>
+        ${svgBars(mPts.map((p) => p.add), labels, "#b8c4cf", "#3fb984", uuPts.map((p) => p.add))}
+        <p class="adm-legend"><span><i class="adm-dot" style="background:#b8c4cf"></i>${esc(L("Created", "발급"))}</span><span><i class="adm-dot" style="background:#3fb984"></i>${esc(L("Redeemed", "사용"))}</span></p>
+      </section>`;
+    grid.querySelectorAll("[data-ov-go]").forEach((b) => b.addEventListener("click", () => jump(b.dataset.ovGo)));
+  }
+
+  $("adm-ov-range").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-range]");
+    if (!b) return;
+    ovRange = b.dataset.range;
+    renderOverviewCards();
+  });
+  window.koalaRefreshOverview = () => { if (overview) loadOverview(); };
 
   function renderAttention() {
     const list = $("admin-attention-list");
@@ -137,7 +321,7 @@
     ["all", "All", "전체"],
     ["paid", "Premium", "프리미엄"],
     ["free", "Free", "일반"],
-    ["unconfirmed", "Email not confirmed", "이메일 미인증"],
+    ["unconfirmed", "Unverified", "미인증"],
   ];
 
   function userMatchesFilter(u, f) {
@@ -229,7 +413,7 @@
         const badge = $("admin-inbox-badge");
         badge.hidden = !inboxCounts.open;
         badge.textContent = String(inboxCounts.open);
-        $("admin-stat-open-tickets").textContent = inboxCounts.open;
+        renderOverviewCards();
         renderAttention();
       }
     } catch (e) {

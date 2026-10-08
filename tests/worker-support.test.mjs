@@ -200,6 +200,14 @@ test("overview counts what needs attention", async () => {
   assert.equal(o.emailConfigured, true);
   assert.equal(o.noEmail, 1);
   assert.equal(o.unverified, 1);
+  // trend data for the Overview charts
+  assert.equal(typeof o.today, "number");
+  assert.equal(typeof o.totals.users, "number");
+  assert.equal(typeof o.totals.codesUnused, "number");
+  assert.ok(o.totals.ticketsByCategory && typeof o.totals.ticketsByCategory === "object");
+  assert.ok(o.series.users && o.series.tickets && o.series.coins && o.series.codesMade);
+  const open = (await call(admin, "GET", "/admin/overview?tz=-480")).data;
+  assert.equal(open.today, Math.floor((Date.now() + 8 * 3600000) / 86400000));
 });
 
 test("writing in too often is rate limited", async () => {

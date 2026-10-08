@@ -706,7 +706,10 @@ to Flip!</span></div>
             </svg><span class="flash-edge-txt" data-i18n="flashNextShort">Next</span>
           </button>
         </div>
-        <p class="hint" data-i18n="flashHint">Tap the card to flip it • Tap the meaning or example to hear it read aloud</p>
+        <div class="flash-help">
+          <p class="hint" data-i18n="flashHint">Tap the card to flip it • Tap the meaning or example to hear it read aloud</p>
+          <p class="flash-info-note" id="flash-info-note" hidden></p>
+        </div>
         <div class="flash-controls">
           <button class="pill error" id="flash-dont-know" data-i18n="flashStillLearning">😕 Still learning</button>
           <button class="pill success" id="flash-know" data-i18n="flashKnowIt">😀 I know this!</button>
@@ -717,7 +720,6 @@ to Flip!</span></div>
           <span class="flash-tally" id="flash-tally" aria-live="polite"></span>
           <button type="button" class="flash-info-btn" id="flash-info-btn" aria-expanded="false" aria-label="Info">ⓘ</button>
         </div>
-        <p class="flash-info-note" id="flash-info-note" hidden></p>
         </div>
 
         <div id="flash-report" class="sp-report" hidden>
@@ -857,7 +859,11 @@ to Flip!</span></div>
         <!-- Practice screen -->
         <div id="quiz-practice" hidden>
           <div class="qz-header">
-            <span class="qz-count" id="quiz-count" aria-live="polite"></span>
+            <div class="qz-stats">
+              <span class="qz-count" id="quiz-count" aria-live="polite"></span>
+              <span class="qz-stat-dot" aria-hidden="true">·</span>
+              <span class="qz-score" id="quiz-score"></span>
+            </div>
             <span class="qz-chip qz-combo-chip" id="quiz-combo" hidden></span>
           </div>
           <div class="qz-timer" id="quiz-timer" hidden role="timer" aria-live="off">
@@ -926,7 +932,6 @@ to Flip!</span></div>
           </div>
           <div class="qz-feedback" id="quiz-feedback" hidden aria-live="polite"></div>
           <div class="quiz-footer">
-            <span class="score-tag" id="quiz-score"></span>
             <button class="pill accent" id="quiz-next" style="display:none;" data-i18n="nextQuestionBtn">Next Question ➡</button>
             <button class="pill neutral small qz-end-btn" id="quiz-end" type="button" data-i18n="qzEndBtn">🏁 End</button>
           </div>
@@ -1781,14 +1786,13 @@ to Flip!</span></div>
 
       <!-- Overview -->
       <div class="admin-pane" data-admin-pane="overview">
-        <div class="stats-grid" id="admin-stats-grid">
-          <div class="stat-box"><div class="num" id="admin-stat-total-users">0</div><div class="lbl" data-i18n="adminStatTotalUsers">👥 Total Users</div></div>
-          <div class="stat-box"><div class="num" id="admin-stat-premium-users">0</div><div class="lbl" data-i18n="adminStatPremiumUsers">⭐ Premium</div></div>
-          <div class="stat-box"><div class="num" id="admin-stat-new-users">0</div><div class="lbl" id="admin-stat-new-users-lbl">🆕 New (7 days)</div></div>
-          <div class="stat-box"><div class="num" id="admin-stat-open-tickets">0</div><div class="lbl" id="admin-stat-open-tickets-lbl">💬 Open inquiries</div></div>
-          <div class="stat-box"><div class="num" id="admin-stat-total-coins">0</div><div class="lbl"><svg class="koala-coin" viewBox="0 0 24 24" width="1.1em" height="1.1em" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10.5" fill="#f6c343" stroke="#c98a12" stroke-width="1.5"/><circle cx="12" cy="12" r="7" fill="none" stroke="#e0a21a" stroke-width="1.2"/><path d="M12 7.2v9.6M9.3 9.6c0-1.2 1.2-1.9 2.7-1.9s2.7.7 2.7 1.9c0 2.7-5.4 1.5-5.4 4.2 0 1.2 1.2 2 2.7 2s2.7-.8 2.7-2" fill="none" stroke="#a86f0c" stroke-width="1.3" stroke-linecap="round"/></svg> <span data-i18n="adminStatTotalCoins">Coins Issued</span></div></div>
-          <div class="stat-box"><div class="num" id="admin-stat-unused-codes">0</div><div class="lbl" data-i18n="adminStatUnusedCodes">🎟️ Unused Codes</div></div>
+        <div class="adm-ov-toolbar">
+          <div class="adm-seg" id="adm-ov-range" role="tablist" aria-label="Range">
+            <button type="button" class="adm-seg-btn active" data-range="days" id="adm-range-days">30 days</button>
+            <button type="button" class="adm-seg-btn" data-range="months" id="adm-range-months">12 months</button>
+          </div>
         </div>
+        <div class="adm-ov-grid" id="adm-ov-grid"></div>
         <div class="card admin-attention-card">
           <h3 id="admin-attention-title">Needs your attention</h3>
           <div id="admin-attention-list" class="admin-attention-list"></div>

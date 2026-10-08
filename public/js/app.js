@@ -338,7 +338,7 @@ const TRANSLATIONS = {
     qzDailyLine: (have, goal) => `🎯 Today: ${have} / ${goal} questions`,
     qzDailyDone: "🎉 Daily goal reached!",
     qzCount: (i, n) => `Question ${i} / ${n}`,
-    qzScoreTag: (n) => `Correct: ${n}`,
+    qzScoreTag: (n) => `✅ Correct ${n}`,
     qzComboChip: (n) => `🔥 ${n} in a row`,
     qzInstrVocabulary: "Which word matches this meaning?",
     qzInstrMeaning: "What does this word mean?",
@@ -1091,7 +1091,7 @@ const TRANSLATIONS = {
     qzDailyLine: (have, goal) => `🎯 오늘: ${have} / ${goal}문제`,
     qzDailyDone: "🎉 오늘의 목표 달성!",
     qzCount: (i, n) => `${i} / ${n}번 문제`,
-    qzScoreTag: (n) => `정답: ${n}개`,
+    qzScoreTag: (n) => `✅ 정답 ${n}개`,
     qzComboChip: (n) => `🔥 ${n}연속`,
     qzInstrVocabulary: "이 뜻에 맞는 단어는 무엇일까요?",
     qzInstrMeaning: "이 단어의 뜻은 무엇일까요?",
@@ -4853,8 +4853,20 @@ function showFlashInfo(open) {
   n.hidden = open === undefined ? !n.hidden : !open;
   n.onclick = () => { n.hidden = true; b.setAttribute("aria-expanded", "false"); };
   b.setAttribute("aria-expanded", String(!n.hidden));
+  clearTimeout(flashInfoTimer);
+  if (!n.hidden) { flashInfoKeep = true; flashInfoTimer = setTimeout(hideFlashInfo, 6000); }
+}
+let flashInfoKeep = false, flashInfoTimer = null;
+function hideFlashInfo() {
+  clearTimeout(flashInfoTimer);
+  const n = document.getElementById("flash-info-note"), b = document.getElementById("flash-info-btn");
+  if (n) n.hidden = true;
+  if (b) b.setAttribute("aria-expanded", "false");
 }
 function renderFlashcard() {
+  // The "read it for 5 seconds" tip shown by a too-quick answer survives the one
+  // card change it caused, then goes away on the next flip / card change.
+  if (flashInfoKeep) flashInfoKeep = false; else hideFlashInfo();
   flashcardEl.classList.remove("flipped");
   flashShownAt = Date.now(); flashCardFlipped = false; flashSyncAnswerBtns();
   { const bt = document.querySelector("#flash-bubble .bubble-text"); if (bt) bt.textContent = t("fkIdle"); }
@@ -4963,6 +4975,7 @@ function slideFlashStage(dir) {
 }
 let flashHasFlipped = false;
 function flipFlashcard() {
+  hideFlashInfo();
   flashcardEl.classList.toggle("flipped");
   if (flashcardEl.classList.contains("flipped")) { flashCardFlipped = true; flashSyncAnswerBtns(); }
   if (!flashHasFlipped) { flashHasFlipped = true; const h = document.getElementById("flash-flip-hint"); if (h) h.classList.add("is-dim"); }
@@ -6318,7 +6331,9 @@ function renderSfxToggles() {
 }
 function initSfxToggles() {
   [document.getElementById("quiz-score"), document.getElementById("spelling-score")].forEach((tag) => {
-    if (!tag || tag.parentNode.querySelector(".sfx-toggle")) return;
+    // The quiz's score now lives in the header; its mute toggle stays in the footer.
+    const quizFooter = tag && tag.id === "quiz-score" ? document.querySelector("#quiz-practice .quiz-footer") : null;
+    if (!tag || (quizFooter || tag.parentNode).querySelector(".sfx-toggle")) return;
     const b = document.createElement("button");
     b.type = "button";
     b.className = "sfx-toggle";
@@ -6328,7 +6343,7 @@ function initSfxToggles() {
       renderSfxToggles();
       if (!sfxMuted) playCorrectSfx(0);
     });
-    tag.after(b);
+    if (quizFooter) quizFooter.prepend(b); else tag.after(b);
   });
   renderSfxToggles();
 }
@@ -11758,11 +11773,15 @@ function renderAdminStats() {
   const premiumUsersEl = document.getElementById("admin-stat-premium-users");
   const totalCoinsEl = document.getElementById("admin-stat-total-coins");
   const unusedCodesEl = document.getElementById("admin-stat-unused-codes");
-  if (!totalUsersEl) return;
-  totalUsersEl.textContent = adminStats.totalUsers;
-  premiumUsersEl.textContent = adminStats.premiumUsers;
-  totalCoinsEl.textContent = adminStats.totalCoins.toLocaleString();
-  unusedCodesEl.textContent = adminStats.unusedCodes;
+  if (totalUsersEl) {
+    totalUsersEl.textContent = adminStats.totalUsers;
+    premiumUsersEl.textContent = adminStats.premiumUsers;
+    totalCoinsEl.textContent = adminStats.totalCoins.toLocaleString();
+    unusedCodesEl.textContent = adminStats.unusedCodes;
+  }
+  // The Overview cards read server totals; re-fetch (debounced) after any change here.
+  clearTimeout(renderAdminStats._t);
+  renderAdminStats._t = setTimeout(() => { if (window.koalaRefreshOverview) window.koalaRefreshOverview(); }, 800);
 }
 
 /* ---------- Admin: paid-signup special codes ---------- */
@@ -11950,30 +11969,62 @@ function renderAdminUsers() {
 
   sortedAdminUsers().filter((u) => shown.includes(u)).forEach((u) => {
     const row = document.createElement("div");
-    row.className = "wordlist-item admin-user-row";
+    row.className = "wordlist-item admin-user-row adm-user";
 
-    const info = document.createElement("div");
-    info.className = "admin-user-info";
-    const nameEl = document.createElement("div");
-    nameEl.className = "w";
     const isSelf = currentUser && u.id === currentUser.id;
-    nameEl.textContent = (u.role === "admin" ? "👑 " : u.role === "paid" ? "⭐ " : "") + u.username + (isSelf ? " " + t("adminUserYou") : "");
-    info.appendChild(nameEl);
-    const whenEl = document.createElement("div");
-    whenEl.className = "d";
-    whenEl.textContent = roleLabel(u.role) + " · " + t("adminUserCreatedAt", formatDate(u.createdAt));
-    info.appendChild(whenEl);
+    const info = document.createElement("div");
+    info.className = "admin-user-info adm-user-info";
+    // Header: initial avatar, name, and a role badge (+ "You")
+    const head = document.createElement("div");
+    head.className = "adm-user-head";
+    const avatar = document.createElement("span");
+    avatar.className = "adm-avatar";
+    avatar.dataset.role = u.role;
+    avatar.textContent = (u.username || "?").trim().charAt(0).toUpperCase();
+    avatar.setAttribute("aria-hidden", "true");
+    const nameWrap = document.createElement("div");
+    nameWrap.className = "adm-user-namewrap";
+    const nameEl = document.createElement("div");
+    nameEl.className = "w adm-user-name";
+    nameEl.textContent = u.username + (isSelf ? " " + t("adminUserYou") : "");
+    const roleBadge = document.createElement("span");
+    roleBadge.className = "admin-role-select adm-role-badge";
+    roleBadge.dataset.role = u.role;
+    roleBadge.textContent = (u.role === "admin" ? "👑 " : u.role === "paid" ? "⭐ " : "") + roleLabel(u.role);
+    nameWrap.append(nameEl, roleBadge);
+    head.append(avatar, nameWrap);
+    info.appendChild(head);
+    // Facts as label / value rows so every card lines up the same way
+    const facts = document.createElement("dl");
+    facts.className = "adm-user-facts";
+    const addFact = (label, valueNode) => {
+      const dt = document.createElement("dt"); dt.textContent = label;
+      const dd = document.createElement("dd");
+      if (typeof valueNode === "string") dd.textContent = valueNode; else dd.appendChild(valueNode);
+      facts.append(dt, dd);
+    };
     if (u.role !== "admin") {
-      const emailEl = document.createElement("div");
-      emailEl.className = "d admin-user-email" + (u.email && !u.emailVerified ? " unverified" : "");
-      emailEl.textContent = u.email
-        ? u.email + (u.emailVerified ? " ✓" : " · " + t("adminUserEmailUnverified"))
-        : t("adminUserNoEmail");
-      info.appendChild(emailEl);
+      const emailVal = document.createElement("span");
+      emailVal.className = "adm-email";
+      if (u.email) {
+        const addr = document.createElement("span");
+        addr.className = "adm-email-addr";
+        addr.textContent = u.email;
+        const badge = document.createElement("span");
+        badge.className = "email-badge " + (u.emailVerified ? "ok" : "wait");
+        badge.textContent = u.emailVerified ? rwL("Confirmed", "인증됨") : t("adminUserEmailUnverified");
+        emailVal.append(addr, badge);
+      } else {
+        emailVal.classList.add("adm-none");
+        emailVal.textContent = t("adminUserNoEmail");
+      }
+      addFact(rwL("Email", "이메일"), emailVal);
     }
+    addFact(rwL("Joined", "가입일"), formatDate(u.createdAt));
+    info.appendChild(facts);
     if (u.pendingRequestId) {
       const pendingBadge = document.createElement("div");
-      pendingBadge.className = "d admin-pending-badge";
+      pendingBadge.className = "admin-pending-badge adm-pending";
       pendingBadge.textContent = t("adminUserPendingRequest");
       info.appendChild(pendingBadge);
     }
