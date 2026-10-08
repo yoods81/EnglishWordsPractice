@@ -11544,7 +11544,11 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
   /* 1 — header (language / theme / login / title) only on Home */
   body:not(.on-landing) > header { display: none; }
   body:not(.on-landing) main { padding-top: max(12px, env(safe-area-inset-top)); }
+}
 
+/* Sections 2 + 3 below now apply on EVERY screen size (desktop = same start screens as phone);
+   the desktop sizing lives in the "DESKTOP START CARDS" block further down. */
+@media all {
   /* 2 — Study start screens: the green card IS the card (no scenery box around it) */
   html body #view-quiz > .card:has(#quiz-start-screen:not([hidden])),
   html body #view-spelling > .card:has(#spelling-start-screen:not([hidden])),
@@ -11658,7 +11662,7 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
    PHONE: one look for every start card (Quiz / Spelling / Flashcards / Typing /
    Times Table): same size, mint fill, outline and the same yellow button
    ========================================================================== */
-@media (max-width: 480px) {
+@media all {
   html body #quiz-start-screen .sp-start-card,
   html body #spelling-start-screen .sp-start-card,
   html body #flash-start-screen .sp-start-card,
@@ -11715,11 +11719,11 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
   html body #typegame-start-overlay .tg-start-card p, html body #timestable-start-overlay .tg-start-card p { margin: 0; line-height: 1.5; }
   html body #typegame-start-overlay .tg-start-card h3, html body #timestable-start-overlay .tg-start-card h3 { margin: 0; }
 }
-@media (max-width: 480px) {
+@media all {
   html body .sp-start-card .sp-step *, html body .sp-start-card .sp-step b, html body .sp-start-card .sp-step span { color: #17463c !important; text-shadow: none !important; }
   html body .sp-start-card .sp-start-stats, html body .sp-start-card .sp-start-stats span { color: #17463c !important; text-shadow: none !important; }
 }
-@media (max-width: 480px) {
+@media all {
   html body #flash-start-screen .fs-settings { border-radius: 18px; overflow: hidden; }
   html body #flash-start-screen .fs-settings-sum { background: transparent !important; border: 0 !important; box-shadow: none !important; border-radius: 0; }
   html body #flash-start-screen .fs-settings-sum::after, html body #flash-start-screen .fs-settings-sum * { color: #17463c !important; }
@@ -11731,7 +11735,7 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
   html body #flash-start-screen .fs-start-bar::before, html body #flash-start-screen .fs-start-bar::after { display: none !important; }
   html body #flash-start-screen .fs-settings-body { background: transparent; }
 }
-@media (max-width: 480px) {
+@media all {
   html body #flash-start-screen .fs-settings-body .qz-seg-btn,
   html body #flash-start-screen.is-settings-open .qz-seg-btn {
     background: #fff !important; color: #0b6b57 !important; border: 2px solid #8fe3c6 !important; box-shadow: 0 2px 0 #bfeedd !important; text-shadow: none !important;
@@ -11744,7 +11748,7 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
   html body #flash-start-screen .fs-settings-body .qz-pick-title { color: #17463c !important; }
   html body #flash-start-screen .fs-settings[open] .fs-settings-sum { min-height: 0; }
 }
-@media (max-width: 480px) {
+@media all {
   html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
     background: #fff !important; color: #0b6b57 !important; border: 2px solid #8fe3c6 !important; box-shadow: 0 2px 0 #bfeedd !important;
   }
@@ -11780,7 +11784,7 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
 /* ==========================================================================
    Quiz/Study start-card choosers as flat tab rails; My Koala room tidy-up
    ========================================================================== */
-@media (max-width: 480px) {
+@media all {
   html body .sp-start-card .qz-seg {
     display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; padding: 4px; width: 100%; box-sizing: border-box;
     background: #d4efe4; border-radius: 16px; border: 0; box-shadow: none;
@@ -11849,3 +11853,31 @@ html body #flash-report[data-check="1"] .sp-report-card > :not(h3):not(.flash-ch
 .flash-info-btn{margin-left:0;flex:0 0 34px;min-width:34px}
 .flash-info-note{position:fixed;left:16px;right:16px;bottom:210px;z-index:60;box-shadow:0 6px 18px rgba(0,0,0,.18);margin:0;cursor:pointer}
 .flash-controls .pill.is-wait{opacity:.55;filter:saturate(.6)}
+
+/* ==========================================================================
+   DESKTOP START CARDS (≥481px): the phone start screens (mint box, flat tab
+   rails, one yellow button) are now the look on every screen size. On wider
+   screens the card is centred and sized in rem, so it grows with the
+   fluid root font-size below.
+   ========================================================================== */
+@media (min-width: 481px) {
+  html body #quiz-start-screen .sp-start-card,
+  html body #spelling-start-screen .sp-start-card,
+  html body #flash-start-screen .sp-start-card,
+  html body #typegame-start-overlay .tg-start-card,
+  html body #timestable-start-overlay .tg-start-card {
+    width: min(100%, 38rem) !important; max-width: 100% !important; margin: 0 auto !important;
+    min-height: clamp(30rem, calc(100vh - 22rem), 36rem) !important;
+  }
+}
+
+/* ==========================================================================
+   FLUID DESKTOP SIZE (≥900px): the whole app scales with the browser window.
+   Text is in rem, so a fluid root size scales it; the content column is also
+   in rem so it widens in step (14px / 720px column at 900px wide, ~20px /
+   1030px at 1920px, capped at 24px / 1235px on very large monitors).
+   ========================================================================== */
+@media (min-width: 900px) {
+  html { font-size: clamp(14px, calc(14px + (100vw - 900px) * 0.0059), 24px); }
+  main { max-width: calc(720rem / 14); }
+}
