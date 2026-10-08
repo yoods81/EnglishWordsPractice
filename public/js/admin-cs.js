@@ -654,73 +654,68 @@
     const k = data.koala;
     const initial = esc((u.username || "?").trim().charAt(0).toUpperCase());
     const openCount = data.tickets.filter((x) => x.status !== "resolved" && x.status !== "closed").length;
+    const coinIco = typeof COIN_SVG !== "undefined" ? COIN_SVG : "";
     const tile = (ico, label, val, cls) => `<div class="admin-sheet-tile ${cls || ""}"><span class="ast-ico" aria-hidden="true">${ico}</span><b>${val}</b><small>${esc(label)}</small></div>`;
+    const verBadge = u.email ? `<span class="admin-role-select admin-ver-badge ${u.emailVerified ? "ok" : "wait"}">${esc(u.emailVerified ? L("Verified", "인증됨") : L("Unverified", "미인증"))}</span>` : "";
+    const sec = (id, title, right, body, cls) => `<details class="admin-sheet-sec ${cls || ""}" id="${id}"><summary><span class="ass-t">${title}</span><span class="ass-r">${right || ""}</span><span class="ass-chev" aria-hidden="true">▾</span></summary><div class="ass-body">${body}</div></details>`;
+    const noteText = (data.note || "").trim();
     sheet.innerHTML = `
       <button type="button" class="admin-sheet-close" id="admin-sheet-close" aria-label="${esc(L("Close", "닫기"))}">✕</button>
       <div class="admin-sheet-hero">
         <span class="adm-avatar admin-sheet-av" data-role="${esc(u.role)}" aria-hidden="true">${initial}</span>
-        <div class="admin-sheet-hero-txt">
-          <h3 class="admin-sheet-name">${esc(u.username)} <span class="admin-role-select" data-role="${esc(u.role)}">${esc(roleLabelSafe(u.role))}</span>${isSelf ? ` <span class="admin-sheet-you">${esc(L("You", "나"))}</span>` : ""}</h3>
-          <div class="admin-sheet-email">${emailLine}</div>
-        </div>
+        <h3 class="admin-sheet-name">${esc(u.username)} <span class="admin-role-select" data-role="${esc(u.role)}">${esc(roleLabelSafe(u.role))}</span>${verBadge}${isSelf ? ` <span class="admin-sheet-you">${esc(L("You", "나"))}</span>` : ""}</h3>
       </div>
       <div class="admin-sheet-tiles">
         ${tile("📅", L("Joined", "가입일"), esc(formatDate(u.createdAt)))}
-        ${tile("🪙", L("Coins", "코인"), k ? esc(k.coins) : "–")}
+        ${tile(coinIco, L("Coins", "코인"), k ? esc(k.coins) : "–")}
         ${tile("🔥", L("Streak", "연속"), k ? esc(k.streak) + esc(L("d", "일")) : "–")}
         ${tile("💬", L("Open inquiries", "진행 중 문의"), esc(openCount), openCount ? "is-hot" : "")}
       </div>
+      <div class="admin-sheet-emailrow"><span aria-hidden="true">✉️</span> ${u.email ? esc(u.email) : `<span class="muted">${esc(L("No email on file", "등록된 이메일 없음"))}</span>`}</div>
       ${u.upgradedAt ? `<p class="admin-sheet-note-line">⭐ ${esc(L("Premium since", "프리미엄 시작"))} ${esc(formatDate(u.upgradedAt))}</p>` : ""}
       ${data.failedEmails ? `<p class="admin-sheet-alert">⚠️ ${esc(L(`${data.failedEmails} email(s) to this address failed`, `이 주소로 보낸 메일 ${data.failedEmails}건 실패`))}</p>` : ""}
 
+      <div class="admin-sheet-list">
       ${isSelf ? "" : `
-      <section class="admin-sheet-sec">
-      <h4 class="admin-sheet-h">🏷️ ${esc(L("Role", "등급"))}</h4>
-      <div class="admin-sheet-row">
-        <select id="admin-sheet-role" class="admin-role-select" data-role="${esc(u.role)}">
-          ${["free", "paid", "admin"].map((r) => `<option value="${r}"${r === u.role ? " selected" : ""}>${esc(roleLabelSafe(r))}</option>`).join("")}
-        </select>
-        <button type="button" class="pill accent small" id="admin-sheet-role-apply" disabled>${esc(L("Apply", "적용"))}</button>
-      </div>
-      </section>`}
+      <div class="admin-sheet-sec admin-sheet-line">
+        <span class="ass-t">🏷️ ${esc(L("Role", "등급"))}</span>
+        <span class="ass-r">
+          <select id="admin-sheet-role" class="admin-role-select" data-role="${esc(u.role)}">
+            ${["free", "paid", "admin"].map((r) => `<option value="${r}"${r === u.role ? " selected" : ""}>${esc(roleLabelSafe(r))}</option>`).join("")}
+          </select>
+          <button type="button" class="pill accent small" id="admin-sheet-role-apply" disabled>${esc(L("Apply", "적용"))}</button>
+        </span>
+      </div>`}
 
-      <section class="admin-sheet-sec">
-      <h4 class="admin-sheet-h">✉️ ${esc(L("Message", "메시지"))}</h4>
-      <div id="admin-sheet-msg-closed"><button type="button" class="pill neutral small" id="admin-sheet-msg-open">${esc(L("Write to this customer", "이 고객에게 메시지 보내기"))}</button></div>
-      <div id="admin-sheet-msg-form" hidden>
+      ${sec("admin-sheet-msg", `✉️ ${esc(L("Message", "메시지"))}`, `<span class="ass-hint">${esc(L("Write to this customer", "고객에게 메시지 보내기"))}</span>`, `
         <input id="admin-sheet-msg-subject" class="admin-input" maxlength="100" placeholder="${esc(L("Subject", "제목"))}" />
         <textarea id="admin-sheet-msg-body" class="admin-textarea" rows="3" maxlength="2000" placeholder="${esc(L("Message", "내용"))}"></textarea>
         <label class="admin-check"><input type="checkbox" id="admin-sheet-msg-mail" ${u.email && u.emailVerified ? "checked" : "disabled"} /> <span>${esc(u.email && u.emailVerified ? L("Also send by email", "이메일로도 보내기") : L("No confirmed email — they will see it in My messages.", "인증된 이메일이 없어요 — 고객은 내 메시지에서 확인해요."))}</span></label>
-        <div class="auth-actions auth-actions-start"><button type="button" class="pill accent small" id="admin-sheet-msg-send">${esc(L("Send", "보내기"))}</button></div>
-      </div>
-      </section>
+        <div class="auth-actions auth-actions-start"><button type="button" class="pill accent small" id="admin-sheet-msg-send">${esc(L("Send", "보내기"))}</button></div>`)}
 
-      <section class="admin-sheet-sec">
-      <h4 class="admin-sheet-h">📝 ${esc(L("Private notes", "비공개 메모"))}</h4>
-      <textarea id="admin-sheet-note" class="admin-textarea" rows="3" maxlength="2000" placeholder="${esc(L("Only you can see this (e.g. “parent prefers email”).", "나만 볼 수 있어요 (예: “학부모님은 이메일 선호”)."))}">${esc(data.note)}</textarea>
-      <div class="auth-actions auth-actions-start">
-        <button type="button" class="pill neutral small" id="admin-sheet-note-save">${esc(L("Save note", "메모 저장"))}</button>
-        <span id="admin-sheet-note-result" class="auth-hint" hidden></span>
-      </div>
-      </section>
+      ${sec("admin-sheet-notebox", `📝 ${esc(L("Private note", "비공개 메모"))}`, `<span class="ass-hint" id="admin-sheet-note-preview">${noteText ? esc(noteText.replace(/\s+/g, " ")) : esc(L("Write a note", "메모 작성"))}</span>`, `
+        <textarea id="admin-sheet-note" class="admin-textarea" rows="3" maxlength="2000" placeholder="${esc(L("Only you can see this (e.g. “parent prefers email”).", "나만 볼 수 있어요 (예: “학부모님은 이메일 선호”)."))}">${esc(data.note)}</textarea>
+        <div class="auth-actions auth-actions-start">
+          <button type="button" class="pill accent small" id="admin-sheet-note-save">${esc(L("Save note", "메모 저장"))}</button>
+          <span id="admin-sheet-note-result" class="auth-hint" hidden></span>
+        </div>`)}
 
-      <section class="admin-sheet-sec">
-      <h4 class="admin-sheet-h">💬 ${esc(L("Inquiries", "문의 내역"))} <span class="admin-sheet-count">${data.tickets.length}</span></h4>
-      ${data.tickets.length
-        ? `<div class="admin-sheet-tickets">${data.tickets
-            .map((t) => `<button type="button" class="admin-ticket-row" data-sheet-ticket="${esc(t.id)}"><span class="admin-ticket-main"><b>${esc(t.subject)}</b><small>${esc(CS.ago(t.updatedAt))}</small></span><span class="support-badge ${esc(t.status)}">${esc(CS.adminStatus(t.status))}</span></button>`)
-            .join("")}</div>`
-        : `<p class="muted admin-sheet-empty">${esc(L("No inquiries yet.", "문의 내역이 없어요."))}</p>`}
-      </section>
+      ${sec("admin-sheet-inq", `💬 ${esc(L("Inquiries", "문의 내역"))}`, `<span class="admin-sheet-count">${data.tickets.length}</span>`,
+        data.tickets.length
+          ? `<div class="admin-sheet-tickets">${data.tickets
+              .map((t) => `<button type="button" class="admin-ticket-row" data-sheet-ticket="${esc(t.id)}"><span class="admin-ticket-main"><b>${esc(t.subject)}</b><small>${esc(CS.ago(t.updatedAt))}</small></span><span class="support-badge ${esc(t.status)}">${esc(CS.adminStatus(t.status))}</span></button>`)
+              .join("")}</div>`
+          : `<p class="muted admin-sheet-empty">${esc(L("No inquiries yet.", "문의 내역이 없어요."))}</p>`)}
 
       ${isSelf ? "" : `
-      <section class="admin-sheet-sec admin-sheet-danger">
-      <h4 class="admin-sheet-h admin-danger-h">⚠️ ${esc(L("Careful", "주의"))}</h4>
-      <div class="admin-sheet-row">
-        <button type="button" class="pill neutral small" id="admin-sheet-reset">${esc(L("Reset password", "비밀번호 재설정"))}</button>
-        <button type="button" class="pill neutral small admin-danger-btn" id="admin-sheet-delete">${esc(L("Delete account", "계정 삭제"))}</button>
-      </div>
-      </section>`}`;
+      <div class="admin-sheet-sec admin-sheet-line admin-sheet-danger">
+        <span class="ass-t">🔑 ${esc(L("Account", "계정 관리"))}</span>
+        <span class="ass-r">
+          <button type="button" class="pill neutral small" id="admin-sheet-reset">${esc(L("Reset password", "비밀번호 재설정"))}</button>
+          <button type="button" class="pill neutral small admin-danger-btn" id="admin-sheet-delete">${esc(L("Delete account", "계정 삭제"))}</button>
+        </span>
+      </div>`}
+      </div>`;
 
     $("admin-sheet-close").addEventListener("click", closeSheet);
 
@@ -756,11 +751,7 @@
       });
     }
 
-    $("admin-sheet-msg-open").addEventListener("click", () => {
-      $("admin-sheet-msg-closed").hidden = true;
-      $("admin-sheet-msg-form").hidden = false;
-      $("admin-sheet-msg-subject").focus();
-    });
+    $("admin-sheet-msg").addEventListener("toggle", () => { if ($("admin-sheet-msg").open) $("admin-sheet-msg-subject").focus(); });
     $("admin-sheet-msg-send").addEventListener("click", async () => {
       const subject = $("admin-sheet-msg-subject").value.trim();
       const message = $("admin-sheet-msg-body").value.trim();
@@ -783,6 +774,10 @@
       try {
         await api2("/admin/customer/note", { userId: u.id, note: $("admin-sheet-note").value });
         res.textContent = L("Saved ✓", "저장했어요 ✓");
+        const nv = $("admin-sheet-note").value.trim().replace(/\s+/g, " ");
+        $("admin-sheet-note-preview").textContent = nv || L("Write a note", "메모 작성");
+        data.note = nv;
+        if (nv) $("admin-sheet-notebox").open = false;
       } catch (e) {
         res.textContent = failMsg();
       }

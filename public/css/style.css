@@ -12351,3 +12351,44 @@ html body #flash-practice .flash-end-row #flash-end { padding: 0 20px; height: 4
 html body #flash-practice .flash-tally .t-know { background: #047857; color: #fff; }
 html body #flash-practice .flash-tally .t-still { background: #c2410c; color: #fff; }
 html body .card.game-immersive #flash-practice .flash-help .hint { display: block; font-size: .95rem; }
+
+/* ===== Round: de-pill non-buttons, simplify flashcards, one-line Manage rows ===== */
+/* Quiz header is plain text on the scene, not a button-looking pill */
+.qz-stats { background: none; border: 0; box-shadow: none; padding: 0; }
+.qz-count, .qz-score { color: #0b5f4c; text-shadow: 0 1px 0 rgba(255,255,255,.6); }
+.qz-stat-dot { background: rgba(11,95,76,.35); }
+
+/* Flashcards: one soft line under the card, counts live inside the two answer buttons */
+.flash-auto[hidden], .flash-tally[hidden] { display: none !important; }
+html body #flash-practice .flash-help { margin-top: 12px; }
+html body #flash-practice .flash-info-note { display: block; padding: 8px 14px; border-radius: 12px; border: 0; background: rgba(255,255,255,.55); color: #2f5f52; font-size: 1rem; font-weight: 700; text-align: center; max-width: 100%; }
+html body #flash-practice .flash-info-note.is-nudge { background: #fff0b8; color: #6b4600; border: 0; }
+html body #flash-practice .flash-controls .pill .fc-n { display: inline-block; min-width: 1.6em; margin-left: 6px; padding: 0 7px; border-radius: 8px; background: rgba(255,255,255,.28); font-size: 1em; }
+html body #flash-practice .flash-end-row { margin: 14px auto 6px; gap: 0; }
+html body #flash-practice .flash-end-actions { display: flex; justify-content: center; }
+html body #flash-practice .flash-end-row #flash-end { height: auto; padding: 8px 14px; background: none; border: 0; box-shadow: none; color: #8a4a22; font-size: .95rem; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Manage window */
+.admin-sheet-hero { gap: 12px; }
+.admin-sheet-hero .admin-sheet-name { margin: 0; flex: 1; min-width: 0; gap: 8px; }
+.admin-ver-badge.ok { color: #0e7a63; border-color: #7fd3bd; background: #e8f8f2; }
+.admin-ver-badge.wait { color: #8a5400; border-color: #f2c76b; background: #fff3d1; }
+.admin-sheet-tile .ast-ico svg { width: 1.2rem; height: 1.2rem; }
+.admin-sheet-emailrow { margin-top: 10px; padding: 9px 14px; border-radius: 14px; background: #f5faf8; font-weight: 700; font-size: .92rem; overflow-x: auto; white-space: nowrap; }
+.admin-sheet-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.admin-sheet .admin-sheet-list .admin-sheet-sec { margin: 0; padding: 0; border-radius: 16px; }
+.admin-sheet-sec > summary, .admin-sheet-line { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 14px; box-sizing: border-box; list-style: none; cursor: pointer; }
+.admin-sheet-sec > summary::-webkit-details-marker { display: none; }
+.admin-sheet-line { cursor: default; }
+.ass-t { font-weight: 800; font-size: .95rem; white-space: nowrap; }
+.ass-r { margin-left: auto; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.ass-hint { color: var(--muted); font-weight: 700; font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+.ass-chev { color: var(--muted); transition: transform .2s; flex: none; }
+details[open] > summary .ass-chev { transform: rotate(180deg); }
+.ass-body { padding: 0 14px 14px; }
+.admin-sheet-sec .admin-sheet-count { margin: 0; }
+.admin-sheet-line select.admin-role-select { width: 120px; padding: 6px 26px 6px 12px; }
+.admin-sheet-line .pill.small { padding: 7px 14px; }
+.admin-sheet-danger { border-color: #f5cbc6; background: #fff8f7; flex-wrap: wrap; }
+.admin-sheet-danger .admin-danger-btn { color: var(--error) !important; border-color: #e58b83 !important; --pill-shadow: #e58b83; box-shadow: 0 3px 0 #e58b83 !important; }
+@media (max-width: 480px) { .admin-sheet-line { flex-wrap: wrap; } .ass-hint { max-width: 120px; } }

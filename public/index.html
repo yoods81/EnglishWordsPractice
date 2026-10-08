@@ -707,17 +707,16 @@ to Flip!</span></div>
           </button>
         </div>
         <div class="flash-help">
-          <p class="hint" data-i18n="flashHint">Tap the card to flip it • Tap the meaning or example to hear it read aloud</p>
-          <p class="flash-info-note" id="flash-info-note" data-i18n="flashTip">💡 Flip the card and read it for 5 seconds to earn Coins!</p>
+          <p class="flash-info-note" id="flash-info-note" data-i18n="flashTip">Tap the card to flip it · Read it for 5 seconds to earn Coins</p>
         </div>
         <div class="flash-controls">
-          <button class="pill error" id="flash-dont-know" data-i18n="flashStillLearning">😕 Still learning</button>
-          <button class="pill success" id="flash-know" data-i18n="flashKnowIt">😀 I know this!</button>
+          <button class="pill error" id="flash-dont-know"><span data-i18n="flashStillLearning">😕 Still learning</span> <b class="fc-n" id="flash-still-n">0</b></button>
+          <button class="pill success" id="flash-know"><span data-i18n="flashKnowIt">😀 I know this!</span> <b class="fc-n" id="flash-know-n">0</b></button>
         </div>
         <div class="flash-end-row">
-          <span class="flash-tally" id="flash-tally" aria-live="polite"></span>
+          <span class="flash-tally" id="flash-tally" hidden></span>
           <div class="flash-end-actions">
-          <button type="button" class="flash-auto" id="flash-autospeak" aria-pressed="false" data-i18n-aria-label="flashAutoSpeak" aria-label="Read each word aloud"><span class="flash-auto-pill"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h4l5 4v-13l-5 4z" fill="currentColor"/><g class="fa-waves"><path d="M16.5 9a4 4 0 0 1 0 6"/><path d="M19 6.5a7.5 7.5 0 0 1 0 11"/></g></svg><span data-i18n="flashAutoShort">Auto</span></span></button>
+          <button type="button" class="flash-auto" id="flash-autospeak" hidden aria-pressed="false" data-i18n-aria-label="flashAutoSpeak" aria-label="Read each word aloud"><span class="flash-auto-pill"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h4l5 4v-13l-5 4z" fill="currentColor"/><g class="fa-waves"><path d="M16.5 9a4 4 0 0 1 0 6"/><path d="M19 6.5a7.5 7.5 0 0 1 0 11"/></g></svg><span data-i18n="flashAutoShort">Auto</span></span></button>
           <button class="pill neutral small" id="flash-end" type="button" data-i18n="flashEndBtn">🏁 Finish</button>
           </div>
         </div>

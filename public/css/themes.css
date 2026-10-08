@@ -2391,6 +2391,39 @@ html[data-theme="dark"] .admin-email-details {
 html[data-theme="dark"] .admin-email-details .aed-row {
   border-bottom: 1px solid #2e413a !important;
 }
+html[data-theme="dark"] .qz-count,
+html[data-theme="dark"] .qz-score {
+  color: #1ee5b8 !important;
+}
+html[data-theme="dark"] body #flash-practice .flash-info-note {
+  background: rgba(19,27,25,0.55) !important;
+  color: #c7d3cf !important;
+}
+html[data-theme="dark"] body #flash-practice .flash-info-note.is-nudge {
+  background: #3d3822 !important;
+  color: #ffa905 !important;
+}
+html[data-theme="dark"] body #flash-practice .flash-controls .pill .fc-n {
+  background: rgba(19,27,25,0.28) !important;
+}
+html[data-theme="dark"] body #flash-practice .flash-end-row #flash-end {
+  color: #da966b !important;
+}
+html[data-theme="dark"] .admin-ver-badge.ok {
+  color: #39e8c3 !important;
+  background: #182b24 !important;
+}
+html[data-theme="dark"] .admin-ver-badge.wait {
+  color: #ffa924 !important;
+  background: #322c1c !important;
+}
+html[data-theme="dark"] .admin-sheet-emailrow {
+  background: #15241e !important;
+}
+html[data-theme="dark"] .admin-sheet-danger {
+  border-color: #653e39 !important;
+  background: #211413 !important;
+}
 html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; }
 html[data-theme="dark"] img, html[data-theme="dark"] video { filter: brightness(.92); }
 html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea { color-scheme: dark; }
@@ -3713,4 +3746,16 @@ html[data-theme="ivory"] .admin-email-details {
 }
 html[data-theme="ivory"] .admin-email-details .aed-row {
   border-bottom: 1px solid #f1ebdd !important;
+}
+html[data-theme="ivory"] body #flash-practice .flash-info-note {
+  background: rgba(253,250,244,0.55) !important;
+}
+html[data-theme="ivory"] body #flash-practice .flash-controls .pill .fc-n {
+  background: rgba(253,250,244,0.28) !important;
+}
+html[data-theme="ivory"] .admin-ver-badge.ok {
+  background: #f3eee2 !important;
+}
+html[data-theme="ivory"] .admin-sheet-emailrow {
+  background: #f8f5ed !important;
 }

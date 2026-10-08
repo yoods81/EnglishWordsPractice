@@ -319,7 +319,7 @@ const TRANSLATIONS = {
     flashNextShort: "Next",
     flashEndBtn: "🏁 Finish",
     flashAutoShort: "Read aloud",
-    flashTip: "💡 Flip the card and read it for 5 seconds to earn Coins!",
+    flashTip: "Tap the card to flip it · Read it for 5 seconds to earn Coins",
     flashKnowTally: "I know",
     flashStillTally: "Still learning",
     flashTapFlip: "Tap to flip",
@@ -1075,7 +1075,7 @@ const TRANSLATIONS = {
     flashNextShort: "다음",
     flashEndBtn: "🏁 결과 보기",
     flashAutoShort: "자동 읽기",
-    flashTip: "💡 카드를 뒤집어서 5초 이상 읽어야 코인을 받아요!",
+    flashTip: "카드를 탭하면 뒤집혀요 · 5초 이상 읽어야 코인을 받아요",
     flashKnowTally: "알고 있어요",
     flashStillTally: "아직 어려워요",
     flashTapFlip: "눌러서 뒤집기",
@@ -4832,8 +4832,9 @@ if (typeof ResizeObserver !== "undefined") {
 
 function meaningFirstNow() { return flashFrontModeSel.value === "meaning"; }
 function updateFlashTally() {
-  const el = document.getElementById("flash-tally");
-  if (el) el.innerHTML = `<span class="t-know">😀 ${t("flashKnowTally")} <b>${flashSession.known.size}</b></span><span class="t-still">😕 ${t("flashStillTally")} <b>${flashSession.still.size}</b></span>`;
+  const k = document.getElementById("flash-know-n"), n = document.getElementById("flash-still-n");
+  if (k) k.textContent = flashSession.known.size;
+  if (n) n.textContent = flashSession.still.size;
 }
 function setFlashAutoSpeak(on) {
   flashAutoSpeakOn = !!on;
@@ -5195,7 +5196,7 @@ document.getElementById("flash-autospeak").addEventListener("click", () => { set
     setFlashFrontSeg(prefs.front);
   }
   if ([0, 10, 20, 50, 70, 100].includes(prefs.round)) setFlashRound(prefs.round);
-  setFlashAutoSpeak(!!prefs.auto);
+  setFlashAutoSpeak(false);
   syncFlashCategorySeg();
   syncFlashPreviewFront();
 })();
