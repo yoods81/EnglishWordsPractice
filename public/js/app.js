@@ -5107,7 +5107,7 @@ document.getElementById("flash-autospeak").addEventListener("click", () => { set
     flashFrontModeSel.value = prefs.front;
     setFlashFrontSeg(prefs.front);
   }
-  if ([0, 10, 20, 50].includes(prefs.round)) setFlashRound(prefs.round);
+  if ([0, 10, 20, 50, 70, 100].includes(prefs.round)) setFlashRound(prefs.round);
   setFlashAutoSpeak(!!prefs.auto);
   syncFlashCategorySeg();
   syncFlashPreviewFront();
@@ -5587,6 +5587,7 @@ function renderQuizStart() {
     b.classList.toggle("active", on);
     b.setAttribute("aria-checked", String(on));
   });
+  quizModeNote.dataset.mode = quizMode;
   quizModeNote.textContent = quizMode === "time"
     ? t("qzModeNoteTime", QuizCore.TIME_LIMITS_SEC.choice, QuizCore.TIME_LIMITS_SEC.typing)
     : t("qzModeNoteRelaxed");
@@ -7484,15 +7485,54 @@ function updateTypeGameStartChips() {
   bestEl.textContent = `🏆 ${currentLang === "ko" ? "최고 점수" : "Best"} ${best}`;
 }
 
+// Start card hero: slide 1 is the koala + how to play, slide 2 explains the chosen
+// mode; they swap by themselves every 2 seconds (and jump to slide 2 on a pick).
+const START_MODE_INFO = {
+  type: {
+    beginner: { ico: "🐣", en: ["Beginner", "Words drift down slowly, one at a time. Lots of time to find the keys — great for learning!"], ko: ["초급", "단어가 천천히, 하나씩 내려와요. 키를 찾을 시간이 충분해서 연습하기 좋아요!"] },
+    intermediate: { ico: "🏃", en: ["Intermediate", "Words fall faster and come more often. A good challenge once you know the keys."], ko: ["중급", "단어가 더 빨리, 더 자주 내려와요. 자판에 익숙해졌다면 도전해 보세요."] },
+    pro: { ico: "🏆", en: ["Pro", "Fast and busy! Words rush down with hardly a pause — only for speedy typists."], ko: ["고급", "아주 빠르고 정신없어요! 쉴 틈 없이 내려오는 단어, 빠른 타자 고수용이에요."] },
+  },
+  tt: {
+    slow: { ico: "🐢", en: ["Slow", "Maths facts fall slowly, so you have plenty of time to think. Great for new tables."], ko: ["느리게", "구구단 문제가 천천히 내려와서 생각할 시간이 충분해요. 새 단을 익힐 때 좋아요."] },
+    normal: { ico: "🚶", en: ["Normal", "A steady pace — a few facts on screen at once. Perfect for tables you know."], ko: ["보통", "적당한 속도로 문제가 몇 개씩 내려와요. 이미 아는 단 연습에 딱 좋아요."] },
+    fast: { ico: "🐇", en: ["Fast", "Facts zoom down quickly and keep coming. Show off how well you know your tables!"], ko: ["빠르게", "문제가 빠르게 계속 내려와요. 구구단 실력을 뽐내 보세요!"] },
+  },
+};
+function renderStartModeSlide(heroId, group, mode, speed, spawnMs) {
+  const hero = document.getElementById(heroId);
+  const info = START_MODE_INFO[group][mode];
+  if (!hero || !info) return;
+  const [name, desc] = currentLang === "ko" ? info.ko : info.en;
+  hero.querySelector(".tg-mode-title").textContent = `${info.ico} ${name}`;
+  hero.querySelector(".tg-mode-desc").textContent = desc;
+  hero.querySelector(".tg-mode-stats").textContent = currentLang === "ko"
+    ? `⚡ 시작 속도 ${speed} · ⏱ ${(spawnMs / 1000).toFixed(1)}초마다 새 문제`
+    : `⚡ Start speed ${speed} · ⏱ new one every ${(spawnMs / 1000).toFixed(1)}s`;
+}
+const startHeroTimers = {};
+function showStartHeroSlide(heroId, second) {
+  const hero = document.getElementById(heroId);
+  if (hero) hero.classList.toggle("show2", !!second);
+}
+function startHeroCarousel(heroId) {
+  clearInterval(startHeroTimers[heroId]);
+  startHeroTimers[heroId] = setInterval(() => {
+    const hero = document.getElementById(heroId);
+    if (!hero || !hero.offsetParent) return; // start screen not showing
+    hero.classList.toggle("show2");
+  }, 2000);
+}
 function startL(en, ko) { return currentLang === "ko" ? ko : en; }
 const TYPEGAME_MODE_LABELS = {
-  beginner: ["🌱", "Beginner", "초급"],
-  intermediate: ["🌿", "Intermediate", "중급"],
-  pro: ["🌳", "Pro", "고급"],
+  beginner: ["🐣", "Beginner", "초급"],
+  intermediate: ["🏃", "Intermediate", "중급"],
+  pro: ["🏆", "Pro", "고급"],
 };
 function renderTypeGameModes() {
   const seg = document.getElementById("typegame-mode-seg");
   if (!seg) return;
+  renderStartModeSlide("typegame-hero", "type", typeGameMode, TYPEGAME_MODES[typeGameMode].speed, TYPEGAME_MODES[typeGameMode].spawn);
   seg.querySelectorAll("[data-mode]").forEach((b) => {
     const m = b.dataset.mode;
     const lab = TYPEGAME_MODE_LABELS[m];
@@ -7505,13 +7545,41 @@ document.getElementById("typegame-mode-seg")?.addEventListener("click", (e) => {
   const b = e.target.closest("[data-mode]");
   if (!b || typeGameRunning || !TYPEGAME_MODES[b.dataset.mode]) return;
   typeGameMode = b.dataset.mode;
+  showStartHeroSlide("typegame-hero", true);
+  startHeroCarousel("typegame-hero");
   try { localStorage.setItem(TYPEGAME_MODE_KEY, typeGameMode); } catch (err) { /* ignore */ }
   typeGameSpeedLevel = TYPEGAME_MODES[typeGameMode].speed;
   typeGameSpawnInterval = TYPEGAME_MODES[typeGameMode].spawn;
   updateTypeGameSpeedUI();
   renderTypeGameModes();
 });
-document.getElementById("typegame-start-level")?.addEventListener("click", () => document.getElementById("level-badge")?.click());
+startHeroCarousel("typegame-hero");
+startHeroCarousel("timestable-hero");
+// Level pill: a dropdown right under the pill (no pop-up).
+function closeTypeGameLevelPanel() {
+  const panel = document.getElementById("typegame-level-panel");
+  if (panel) panel.hidden = true;
+  document.getElementById("typegame-start-level")?.setAttribute("aria-expanded", "false");
+}
+document.getElementById("typegame-start-level")?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const panel = document.getElementById("typegame-level-panel");
+  if (!panel) return;
+  if (!panel.hidden) { closeTypeGameLevelPanel(); return; }
+  panel.innerHTML = "";
+  currentSystem().levels.forEach((lv) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "tg-level-opt" + (lv.id === currentLevel ? " on" : "");
+    b.textContent = lv.label;
+    b.addEventListener("click", (ev) => { ev.stopPropagation(); closeTypeGameLevelPanel(); if (lv.id !== currentLevel) applyLevel(lv.id); });
+    panel.appendChild(b);
+  });
+  panel.hidden = false;
+  e.currentTarget.setAttribute("aria-expanded", "true");
+});
+document.getElementById("typegame-level-panel")?.addEventListener("click", (e) => e.stopPropagation());
+document.addEventListener("click", closeTypeGameLevelPanel);
 
 function resetTypeGame() {
   kb("type")?.reset();
@@ -8515,6 +8583,7 @@ const TIMESTABLE_SPEED_LABELS = { slow: ["🐢", "Slow", "느리게"], normal: [
 function renderTimesTableSpeedModes() {
   const seg = document.getElementById("timestable-mode-seg");
   if (!seg) return;
+  renderStartModeSlide("timestable-hero", "tt", timesTableSpeedMode, TIMESTABLE_SPEED_MODES[timesTableSpeedMode].speed, TIMESTABLE_SPEED_MODES[timesTableSpeedMode].spawn);
   seg.querySelectorAll("[data-mode]").forEach((b) => {
     const m = b.dataset.mode;
     const lab = TIMESTABLE_SPEED_LABELS[m];
@@ -8643,6 +8712,8 @@ document.getElementById("timestable-mode-seg")?.addEventListener("click", (e) =>
   const b = e.target.closest("[data-mode]");
   if (!b || timesTableRunning || !TIMESTABLE_SPEED_MODES[b.dataset.mode]) return;
   timesTableSpeedMode = b.dataset.mode;
+  showStartHeroSlide("timestable-hero", true);
+  startHeroCarousel("timestable-hero");
   try { localStorage.setItem(TIMESTABLE_SPEEDMODE_KEY, timesTableSpeedMode); } catch (err) { /* ignore */ }
   timesTableSpeedLevel = TIMESTABLE_SPEED_MODES[timesTableSpeedMode].speed;
   timesTableSpawnInterval = TIMESTABLE_SPEED_MODES[timesTableSpeedMode].spawn;

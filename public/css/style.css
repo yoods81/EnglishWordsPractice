@@ -12056,3 +12056,42 @@ html body #typegame-start-overlay.tg-start-overlay, html body #timestable-start-
 html body .tg-start-card .tg-start-chips { position: relative; width: 100%; }
 html body .tg-start-card .tt-start-panel { left: 0 !important; right: 0 !important; top: calc(100% + 0.5rem) !important; }
 html body #flash-start-screen .fs-settings-body .qz-seg { box-shadow: none !important; }
+
+/* ===== v2.1: quiz spacing/title, mode note, flash 6 round sizes, typing/times hero slides ===== */
+html body #quiz-start-screen .qz-start-card > h3 { text-align: center; align-self: center; width: 100%; margin: 0 0 0.6rem; transform: translateY(-0.6rem); }
+html body #quiz-start-screen .qz-start-card { gap: 0.8rem !important; }
+html body #quiz-start-screen .qz-pick-title { margin-bottom: 0.9rem !important; }
+html body #quiz-start-screen .qz-pick + .qz-pick { margin-top: 1.1rem; }
+html body #quiz-start-screen .qz-pick-note {
+  align-self: center; max-width: 100%; min-height: 0; margin: 0.9rem auto 0; padding: 0.55rem 1.1rem; border-radius: 1rem;
+  font-family: var(--font-heading); font-weight: 800; font-size: 1.15rem; line-height: 1.3; letter-spacing: 0.01em; text-align: center;
+  color: #0b6b57 !important; text-shadow: none !important; background: #fff7d6; opacity: 1 !important;
+  animation: qz-note-pop 0.35s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+html body #quiz-start-screen .qz-pick-note[data-mode="time"] { color: #c2410c !important; background: #ffe8d6; }
+html body #quiz-start-screen .qz-pick-note[data-mode="relaxed"]::before { content: "🌿 "; }
+html body #quiz-start-screen .qz-pick-note[data-mode="time"]::before { content: "⏱ "; }
+@keyframes qz-note-pop { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn { padding: 0.2rem 0.25rem !important; font-size: 0.8rem !important; }
+
+html body .tg-start-card .tg-slides { display: grid; width: 100%; }
+html body .tg-start-card .tg-slide { grid-area: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; transition: opacity 0.45s ease, transform 0.45s ease; }
+html body .tg-start-card .tg-slide2 { opacity: 0; transform: translateX(14px); pointer-events: none; text-align: center; padding: 0 0.4rem; }
+html body .tg-start-card .tg-hero.show2 .tg-slide1 { opacity: 0; transform: translateX(-14px); pointer-events: none; }
+html body .tg-start-card .tg-hero.show2 .tg-slide2 { opacity: 1; transform: none; }
+html body .tg-start-card .tg-mode-title { font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800; color: #0b6b57; }
+html body .tg-start-card .tg-mode-desc { margin: 0; font-size: 1rem; font-weight: 800; color: #17463c; line-height: 1.4; max-width: 28rem; }
+html body .tg-start-card .tg-mode-stats { margin-top: 0.3rem; font-family: var(--font-heading); font-weight: 800; font-size: 0.95rem; color: #c2410c; }
+html body .tg-start-card .tg-dots { display: flex; justify-content: center; gap: 0.4rem; margin-top: 0.2rem; }
+html body .tg-start-card .tg-dots i { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: #a8dccb; transition: background 0.3s, transform 0.3s; }
+html body .tg-start-card .tg-hero:not(.show2) .tg-dots i:first-child, html body .tg-start-card .tg-hero.show2 .tg-dots i:last-child { background: #22c9a3; transform: scale(1.25); }
+
+html body .tg-start-card .tg-level-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 0.5rem; }
+html body .tg-start-card .tg-level-panel[hidden] { display: none; }
+html body .tg-start-card .tg-level-opt {
+  min-height: 2.6rem; border-radius: 999px; border: 2px solid #8fe3c6; background: #fff; color: #0b6b57; font-family: var(--font-heading); font-weight: 800; cursor: pointer;
+}
+html body .tg-start-card .tg-level-opt.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+html body #quiz-start-screen .qz-selects + .qz-pick { margin-top: 1.4rem; }
+html body #quiz-start-screen .qz-pick-note { margin-bottom: 0.9rem; }

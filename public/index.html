@@ -600,6 +600,8 @@
             <button type="button" class="qz-seg-btn" data-round="10" role="radio" aria-checked="false">10</button>
             <button type="button" class="qz-seg-btn on" data-round="20" role="radio" aria-checked="true">20</button>
             <button type="button" class="qz-seg-btn" data-round="50" role="radio" aria-checked="false">50</button>
+            <button type="button" class="qz-seg-btn" data-round="70" role="radio" aria-checked="false">70</button>
+            <button type="button" class="qz-seg-btn" data-round="100" role="radio" aria-checked="false">100</button>
             <button type="button" class="qz-seg-btn" data-round="0" role="radio" aria-checked="false" data-i18n="flashRoundAll">All</button>
           </div>
         </div>
@@ -1176,13 +1178,20 @@ to Flip!</span></div>
             <div class="tg-start-card">
               <h3 data-i18n="typeGameTitle">⌨️ Typing Game</h3>
               <div class="tg-start-chips">
-                <button type="button" class="tg-start-chip sp-level-chip" id="typegame-start-level" aria-label="Change level"></button>
+                <button type="button" class="tg-start-chip sp-level-chip" id="typegame-start-level" aria-label="Change level" aria-haspopup="true" aria-expanded="false"></button>
                 <span class="tg-start-chip tg-start-best" id="typegame-start-best" hidden></span>
+                <div class="tt-start-panel tg-level-panel" id="typegame-level-panel" hidden></div>
               </div>
-              <div class="tg-hero">
-                <span class="tg-hero-slot" aria-hidden="true"></span>
-                <p id="typegame-start-message" data-i18n="typeGameDesc">Type each word before it reaches the bottom!</p>
-                <p class="tg-start-tip" data-i18n="typeGameStartTip">Just type the word, then press Enter ✨</p>
+              <div class="tg-hero" id="typegame-hero">
+                <div class="tg-slides">
+                  <div class="tg-slide tg-slide1">
+                    <span class="tg-hero-slot" aria-hidden="true"></span>
+                    <p id="typegame-start-message" data-i18n="typeGameDesc">Type each word before it reaches the bottom!</p>
+                    <p class="tg-start-tip" data-i18n="typeGameStartTip">Just type the word, then press Enter ✨</p>
+                  </div>
+                  <div class="tg-slide tg-slide2" aria-live="polite"><b class="tg-mode-title"></b><p class="tg-mode-desc"></p><span class="tg-mode-stats"></span></div>
+                </div>
+                <div class="tg-dots" aria-hidden="true"><i></i><i></i></div>
               </div>
               <div class="tg-modes qz-seg" id="typegame-mode-seg" role="radiogroup" aria-label="Difficulty">
                 <button type="button" class="qz-seg-btn" role="radio" data-mode="beginner"></button>
@@ -1355,9 +1364,15 @@ to Flip!</span></div>
                   </div>
                 </div>
               </div>
-              <div class="tg-hero">
-                <span class="tg-hero-slot" aria-hidden="true"></span>
-                <div id="timestable-start-demo" class="timestable-instructions tt-start-demo"></div>
+              <div class="tg-hero" id="timestable-hero">
+                <div class="tg-slides">
+                  <div class="tg-slide tg-slide1">
+                    <span class="tg-hero-slot" aria-hidden="true"></span>
+                    <div id="timestable-start-demo" class="timestable-instructions tt-start-demo"></div>
+                  </div>
+                  <div class="tg-slide tg-slide2" aria-live="polite"><b class="tg-mode-title"></b><p class="tg-mode-desc"></p><span class="tg-mode-stats"></span></div>
+                </div>
+                <div class="tg-dots" aria-hidden="true"><i></i><i></i></div>
               </div>
               <div class="tg-modes qz-seg" id="timestable-mode-seg" role="radiogroup" aria-label="Speed">
                 <button type="button" class="qz-seg-btn" role="radio" data-mode="slow"></button>
