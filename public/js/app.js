@@ -16,7 +16,7 @@ const GOAL_MAX_ANONYMOUS = 50;
 const GOAL_MAX_FREE = 100;
 const GOAL_MAX_PAID = 200;
 const GOAL_STEP = 5;
-const LEVELS_KEY = "ywp_levels_v1"; // { en: "year4", ko: "kr_elem6" }
+const LEVELS_KEY = "ywp_levels_v1"; // { en: "elem_high", ko: "elem_high" }
 const LANG_KEY = "ywp_lang_v1";
 const ADMIN_KEY = "ywp_admin_v1";
 let flashWrongOverride = null; // set by the Wrong-notes "Study these words" button
@@ -519,6 +519,7 @@ const TRANSLATIONS = {
     labelMeaning: "Meaning *",
     labelExample: "Example sentence",
     labelLevel: "Level",
+    labelPos: "Part of speech",
     phWord: "e.g. resilient",
     phMeaning: "e.g. able to recover quickly from difficulties",
     phExample: "e.g. The resilient plant grew back after the fire.",
@@ -1271,6 +1272,7 @@ const TRANSLATIONS = {
     labelMeaning: "뜻 *",
     labelExample: "예문",
     labelLevel: "레벨",
+    labelPos: "품사",
     phWord: "예: resilient",
     phMeaning: "예: 어려움에서 빨리 회복하는",
     phExample: "예: The resilient plant grew back after the fire.",
@@ -1553,6 +1555,11 @@ function t(key, ...args) {
 /* ================= LANGUAGE SYSTEMS ================= */
 const _KO_LEVELS = typeof KO_LEVELS !== "undefined" ? KO_LEVELS : [];
 const _WORD_BANK_KO = typeof WORD_BANK_KO !== "undefined" ? WORD_BANK_KO : { vocabulary: [] };
+// The built-in banks still carry the old per-year level ids; fold them into the four stages once.
+[WORD_BANK, _WORD_BANK_KO].forEach((bank) => {
+  if (!bank) return;
+  Object.values(bank).forEach((list) => Array.isArray(list) && list.forEach((e) => { if (e && e.level) e.level = normLevelId(e.level); }));
+});
 
 const SYSTEMS = {
   en: { levels: LEVELS, bank: WORD_BANK, hasSynonyms: true, hasHomophones: true, speechLang: "en-AU" },
@@ -1777,6 +1784,64 @@ function cwNoDefinition(w, lang) {
   return !!w[noDefKey(lang || currentLang)];
 }
 
+// ---- Part of speech (품사) ----
+// Stored on a word as one of these keys; shown as a small tag next to the word.
+const POS_LIST = [
+  { id: "noun", en: "noun", ko: "명사", abbr: "n.", aliases: ["n", "n.", "noun", "명사"] },
+  { id: "verb", en: "verb", ko: "동사", abbr: "v.", aliases: ["v", "v.", "verb", "동사"] },
+  { id: "adjective", en: "adjective", ko: "형용사", abbr: "adj.", aliases: ["adj", "adj.", "adjective", "형용사"] },
+  { id: "adverb", en: "adverb", ko: "부사", abbr: "adv.", aliases: ["adv", "adv.", "adverb", "부사"] },
+  { id: "pronoun", en: "pronoun", ko: "대명사", abbr: "pron.", aliases: ["pron", "pron.", "pronoun", "대명사"] },
+  { id: "preposition", en: "preposition", ko: "전치사", abbr: "prep.", aliases: ["prep", "prep.", "preposition", "전치사"] },
+  { id: "conjunction", en: "conjunction", ko: "접속사", abbr: "conj.", aliases: ["conj", "conj.", "conjunction", "접속사"] },
+  { id: "interjection", en: "interjection", ko: "감탄사", abbr: "interj.", aliases: ["interj", "interj.", "interjection", "exclamation", "감탄사"] },
+];
+function normPos(raw) {
+  const s = String(raw == null ? "" : raw).trim().toLowerCase();
+  if (!s) return null;
+  const hit = POS_LIST.find((p) => p.id === s || p.aliases.includes(s));
+  return hit ? hit.id : null;
+}
+function posLabel(id, lang) {
+  const p = POS_LIST.find((x) => x.id === id);
+  if (!p) return "";
+  return (lang || currentLang) === "ko" ? p.ko : p.en;
+}
+// Short text for the tag beside a word: "adj." in English, "형용사" in Korean.
+function posTagText(id) {
+  const p = POS_LIST.find((x) => x.id === id);
+  if (!p) return "";
+  return currentLang === "ko" ? p.ko : p.abbr;
+}
+function posForWord(word) {
+  const w = String(word || "").toLowerCase();
+  const hit = customWords.find((c) => c.pos && c.word.toLowerCase() === w);
+  return hit ? hit.pos : null;
+}
+function makePosTag(pos) {
+  if (!pos || !posTagText(pos)) return null;
+  const tag = document.createElement("span");
+  tag.className = "pos-tag";
+  tag.title = posLabel(pos);
+  tag.textContent = posTagText(pos);
+  return tag;
+}
+function fillPosSelect(sel, selected) {
+  if (!sel) return;
+  sel.innerHTML = "";
+  const none = document.createElement("option");
+  none.value = "";
+  none.textContent = currentLang === "ko" ? "자동 / 선택 안 함" : "Auto / not set";
+  sel.appendChild(none);
+  POS_LIST.forEach((p) => {
+    const o = document.createElement("option");
+    o.value = p.id;
+    o.textContent = `${posLabel(p.id)} (${p.abbr})`;
+    sel.appendChild(o);
+  });
+  sel.value = selected || "";
+}
+
 // A meaning that just echoes the word back ("describe" -> "describe") explains
 // nothing, and neither does a lone word where a definition belongs
 // ("position" -> "Occupation"). Both are what filling a missing English
@@ -1924,7 +1989,11 @@ function saveGoals() {
 function loadLevels() {
   try {
     const raw = localStorage.getItem(LEVELS_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      Object.keys(saved).forEach((k) => { saved[k] = normLevelId(saved[k]); });
+      return saved;
+    }
   } catch (e) {
     console.warn("Could not read saved levels", e);
   }
@@ -1959,9 +2028,17 @@ let progress = loadProgress();
 if (!progress.spellingStatus) progress.spellingStatus = {}; // back-compat for progress saved before this existed
 if (!progress.srs) progress.srs = {}; // back-compat for progress saved before the SRS schedule existed
 if (!progress.updatedAt) progress.updatedAt = 0;
-let customWords = migrateCustomWords(loadCustomWords()).concat(
+// Words saved before the four-stage levels carry the old ids; fold them in place.
+function normCustomWordLevels(list) {
+  list.forEach((w) => {
+    if (w.levelEn) w.levelEn = normLevelId(w.levelEn);
+    if (w.levelKo) w.levelKo = normLevelId(w.levelKo);
+  });
+  return list;
+}
+let customWords = normCustomWordLevels(migrateCustomWords(loadCustomWords()).concat(
   loadSharedWordsCache().map((w) => ({ ...w, remote: true }))
-);
+));
 let myDeck = loadMyDeck();
 let goals = loadGoals();
 let savedLevels = loadLevels();
@@ -1970,7 +2047,8 @@ let currentLevel = savedLevels[currentLang] || currentSystem_levels_default();
 
 function currentSystem_levels_default() {
   const lv = (SYSTEMS[currentLang] || SYSTEMS.en).levels;
-  return lv && lv[0] ? lv[0].id : "year4";
+  // Upper Primary: where most of this app's learners start.
+  return lv && lv[1] ? lv[1].id : lv && lv[0] ? lv[0].id : "elem_high";
 }
 
 function levelLabel(levelId) {
@@ -2569,17 +2647,16 @@ const streakCountEl = document.getElementById("streak-count");
 const levelChoicesEl = document.getElementById("level-choices");
 const LEVEL_DESCRIPTIONS = {
   en: {
-    year4: "Foundation vocabulary",
-    year5: "Intermediate vocabulary",
-    year6: "Advanced / GATE-style vocabulary",
-    year7: "Secondary school vocabulary",
+    elem_low: "Early primary vocabulary",
+    elem_high: "Upper primary vocabulary",
+    middle: "Middle school vocabulary",
+    high: "High school vocabulary",
   },
   ko: {
-    kr_elem6: "초등 기초 필수 어휘",
-    kr_mid1: "중1 필수 어휘",
-    kr_mid2: "중2 필수 어휘",
-    kr_mid3: "중3 필수 어휘 (심화)",
-    kr_high: "고등학교 필수 어휘",
+    elem_low: "초등 저학년 필수 어휘",
+    elem_high: "초등 고학년 필수 어휘",
+    middle: "중학교 필수 어휘",
+    high: "고등학교 필수 어휘",
   },
 };
 
@@ -3259,7 +3336,7 @@ async function refreshSharedWords() {
     const { words } = await api("/words");
     sharedWordsAvailable = true;
     const local = customWords.filter((w) => !w.remote);
-    customWords = local.concat(words.map((w) => ({ ...w, remote: true })));
+    customWords = normCustomWordLevels(local.concat(words.map((w) => ({ ...w, remote: true }))));
     saveCustomWords();
     renderCustomWords();
     renderWordList();
@@ -5150,6 +5227,8 @@ function renderMyDeck() {
       wordEl.title = "Tap to hear";
       wordEl.textContent = card.word;
       wordEl.addEventListener("click", () => speak(card.word));
+      const deckPos = makePosTag(posForWord(card.word));
+      if (deckPos) wordEl.appendChild(deckPos);
       left.appendChild(wordEl);
 
       const defEl = document.createElement("div");
@@ -10366,6 +10445,8 @@ function buildWordRow(w) {
   wordEl.className = "w";
   wordEl.textContent = w.word;
   wordRow.appendChild(wordEl);
+  const posTagEl = makePosTag(posForWord(w.word));
+  if (posTagEl) wordRow.appendChild(posTagEl);
   wordRow.appendChild(makeWordlistSpeakBtn(w.word, "word", `${t("hearItLabel")}: ${w.word}`));
   left.appendChild(wordRow);
 
@@ -10514,6 +10595,7 @@ const manualWordInput = document.getElementById("manual-word");
 const manualDefinitionInput = document.getElementById("manual-definition");
 const manualExampleInput = document.getElementById("manual-example");
 const manualLevelSelect = document.getElementById("manual-level");
+const manualPosSelect = document.getElementById("manual-pos");
 const manualSaveBtn = document.getElementById("manual-save-btn");
 const manualCancelBtn = document.getElementById("manual-cancel-btn");
 const manualAddStatus = document.getElementById("manual-add-status");
@@ -10760,6 +10842,7 @@ bulkAddSaveBtn.addEventListener("click", async () => {
 });
 
 function populateLevelSelects() {
+  fillPosSelect(manualPosSelect, manualPosSelect && manualPosSelect.value);
   [manualLevelSelect, ocrLevelSelectEl].forEach((sel) => {
     if (!sel) return;
     sel.innerHTML = "";
@@ -10865,6 +10948,7 @@ manualForm.addEventListener("submit", (e) => {
   const definition = manualDefinitionInput.value.trim();
   const example = manualExampleInput.value.trim();
   const level = manualLevelSelect.value;
+  const manualPos = manualPosSelect ? manualPosSelect.value || null : null;
   if (!word || !definition) return;
 
   const editId = manualEditId.value;
@@ -10885,6 +10969,7 @@ manualForm.addEventListener("submit", (e) => {
       existing[defKey(currentLang)] = definition;
       existing[levelKey(currentLang)] = level;
       existing[noDefKey(currentLang)] = false;
+      existing.pos = manualPos;
       editedWord = existing;
     }
   } else {
@@ -10893,6 +10978,7 @@ manualForm.addEventListener("submit", (e) => {
     newWord[defKey(currentLang)] = definition;
     newWord[levelKey(currentLang)] = level;
     newWord[noDefKey(currentLang)] = false;
+    newWord.pos = manualPos;
     // The other language's meaning isn't typed in by hand — leave it flagged
     // as not-yet-found and try to fill it in automatically in the background.
     newWord[defKey(other)] = null;
@@ -10915,8 +11001,10 @@ manualForm.addEventListener("submit", (e) => {
         newWord[defKey(other)] = val;
         newWord[noDefKey(other)] = false;
         if (!newWord.example && info.example) newWord.example = info.example;
+        if (!newWord.pos && info.pos) newWord.pos = info.pos;
         saveCustomWords();
         renderCustomWords();
+        renderWordList();
         pushSharedWords(newWord.remote ? [newWord] : []);
       }
     });
@@ -10928,6 +11016,7 @@ manualCancelBtn.addEventListener("click", resetManualForm);
 function resetManualForm() {
   manualForm.reset();
   manualEditId.value = "";
+  if (manualPosSelect) manualPosSelect.value = "";
   if (manualLevelSelect.options.length) manualLevelSelect.value = currentLevel;
   manualCancelBtn.style.display = "none";
   manualSaveBtn.textContent = t("saveWordBtn");
@@ -10942,6 +11031,7 @@ function startEditCustomWord(id) {
   manualDefinitionInput.value = cwNoDefinition(w) ? "" : cwDefinition(w);
   manualExampleInput.value = w.example || "";
   manualLevelSelect.value = cwLevel(w);
+  if (manualPosSelect) manualPosSelect.value = w.pos || "";
   manualCancelBtn.style.display = "inline-block";
   manualSaveBtn.textContent = t("updateWordBtn");
   manualAddStatus.textContent = "";
@@ -10980,6 +11070,7 @@ function applyFetchedInfo(w, info) {
     w.noDefinitionKo = false;
   }
   if (info.example && !w.example) w.example = info.example;
+  if (info.pos && !w.pos) w.pos = info.pos;
 }
 
 // Appends a plain-language note to a status message when the free
@@ -11231,6 +11322,8 @@ function renderCustomWords({ resetPaging = true } = {}) {
       wordEl.className = "w";
       wordEl.textContent = w.word;
       wordRow.appendChild(wordEl);
+      const posTagEl = makePosTag(w.pos);
+      if (posTagEl) wordRow.appendChild(posTagEl);
       wordRow.appendChild(makeWordlistSpeakBtn(w.word, "word", `${t("hearItLabel")}: ${w.word}`));
       left.appendChild(wordRow);
 
@@ -11482,6 +11575,7 @@ function mergeDuplicateCustomWords() {
       if (!keeper.example && dup.example) keeper.example = dup.example;
       if (!keeper.levelEn && dup.levelEn) keeper.levelEn = dup.levelEn;
       if (!keeper.levelKo && dup.levelKo) keeper.levelKo = dup.levelKo;
+      if (!keeper.pos && dup.pos) keeper.pos = dup.pos;
       removedIds.add(dup.id);
       if (dup.remote) removedRemoteIds.push(dup.id);
     });
@@ -11505,12 +11599,13 @@ function mergeDuplicateCustomWords() {
    language round-trips through import regardless of which language the
    session happens to be in at the time. */
 const EXCEL_COL_WORD = "Word";
+const EXCEL_COL_POS = "Part of speech";
 const EXCEL_COL_DEF_EN = "Definition (English)";
 const EXCEL_COL_DEF_KO = "Definition (Korean)";
 const EXCEL_COL_EXAMPLE = "Example";
 const EXCEL_COL_LEVEL_EN = "Level (English)";
 const EXCEL_COL_LEVEL_KO = "Level (Korean)";
-const EXCEL_COLUMNS = [EXCEL_COL_WORD, EXCEL_COL_DEF_EN, EXCEL_COL_DEF_KO, EXCEL_COL_EXAMPLE, EXCEL_COL_LEVEL_EN, EXCEL_COL_LEVEL_KO];
+const EXCEL_COLUMNS = [EXCEL_COL_WORD, EXCEL_COL_POS, EXCEL_COL_DEF_EN, EXCEL_COL_DEF_KO, EXCEL_COL_EXAMPLE, EXCEL_COL_LEVEL_EN, EXCEL_COL_LEVEL_KO];
 
 function levelLabelIn(levelId, levels) {
   const lv = levels.find((l) => l.id === levelId);
@@ -11520,12 +11615,26 @@ function levelLabelIn(levelId, levels) {
 // Matches a cell's text against a level system's ids or labels — accepts
 // either "year4" or "Year 4", case-insensitively — so a hand-edited sheet
 // doesn't have to use the exact internal id.
+const LEVEL_ALIASES = {
+  "초등 저학년": "elem_low", "저학년": "elem_low", "lower primary": "elem_low", "lower elementary": "elem_low",
+  "초등 고학년": "elem_high", "고학년": "elem_high", "upper primary": "elem_high", "upper elementary": "elem_high",
+  "중학교": "middle", "중등": "middle", "middle school": "middle", "junior high": "middle", "secondary": "middle",
+  "고등학교": "high", "고등": "high", "high school": "high", "senior high": "high",
+};
 function parseLevelValue(raw, levels) {
   const s = String(raw == null ? "" : raw).trim();
   if (!s) return null;
   const lower = s.toLowerCase();
+  const ids = levels.map((lv) => lv.id);
+  // Exact id or label, in either language's wording of the four stages.
   const match = levels.find((lv) => lv.id.toLowerCase() === lower || lv.label.toLowerCase() === lower);
-  return match ? match.id : null;
+  if (match) return match.id;
+  const other = [...LEVELS, ...KO_LEVELS].find((lv) => lv.label.toLowerCase() === lower);
+  if (other && ids.includes(other.id)) return other.id;
+  if (LEVEL_ALIASES[lower]) return LEVEL_ALIASES[lower];
+  // Sheets exported before the four-stage levels ("Year 5", "kr_mid1", ...).
+  const legacy = normLevelId(lower.replace(/^year\s*(\d)/, "year$1").replace(/\s*above$/, ""));
+  return ids.includes(legacy) ? legacy : null;
 }
 
 customExportBtn.addEventListener("click", () => {
@@ -11542,6 +11651,7 @@ customExportBtn.addEventListener("click", () => {
 
   const sheetRows = rows.map((w) => ({
     [EXCEL_COL_WORD]: w.word,
+    [EXCEL_COL_POS]: posLabel(w.pos, "en"),
     [EXCEL_COL_DEF_EN]: w.definitionEn || "",
     [EXCEL_COL_DEF_KO]: w.definitionKo || "",
     [EXCEL_COL_EXAMPLE]: w.example || "",
@@ -12137,6 +12247,7 @@ async function processExcelFile(file, overwrite) {
     ocrExcelStatus.textContent = t("excelNoWordColumn");
     return;
   }
+  const posKey = findKey(EXCEL_COL_POS) || firstRowKeys.find((k) => k.trim() === "품사");
   const defEnKey = findKey(EXCEL_COL_DEF_EN);
   const defKoKey = findKey(EXCEL_COL_DEF_KO);
   const exampleKey = findKey(EXCEL_COL_EXAMPLE);
@@ -12160,6 +12271,7 @@ async function processExcelFile(file, overwrite) {
     const definitionEn = defEnKey ? String(row[defEnKey] || "").trim() || null : null;
     const definitionKo = defKoKey ? String(row[defKoKey] || "").trim() || null : null;
     const example = exampleKey ? String(row[exampleKey] || "").trim() : "";
+    const posRaw = posKey ? normPos(row[posKey]) : null;
     const levelEnRaw = levelEnKey ? parseLevelValue(row[levelEnKey], LEVELS) : null;
     const levelKoRaw = levelKoKey ? parseLevelValue(row[levelKoKey], KO_LEVELS) : null;
 
@@ -12182,6 +12294,7 @@ async function processExcelFile(file, overwrite) {
       if (example) existing.example = example;
       if (levelEnRaw) existing.levelEn = levelEnRaw;
       if (levelKoRaw) existing.levelKo = levelKoRaw;
+      if (posRaw) existing.pos = posRaw;
       updated.push(existing);
       return;
     }
@@ -12194,6 +12307,7 @@ async function processExcelFile(file, overwrite) {
       example,
       definitionEn,
       definitionKo,
+      pos: posRaw,
       levelEn,
       levelKo,
       noDefinitionEn: !definitionEn,
@@ -12573,7 +12687,7 @@ async function fetchDefinition(word) {
     const meaning = entry && entry.meanings && entry.meanings[0];
     const def = meaning && meaning.definitions && meaning.definitions[0];
     if (!def) return null;
-    return { definition: def.definition, example: def.example || "" };
+    return { definition: def.definition, example: def.example || "", pos: normPos(meaning.partOfSpeech) };
   } catch (e) {
     return { error: "timeout" };
   }
@@ -12712,6 +12826,7 @@ async function fetchWordInfo(word) {
   // count as "found" here.
   let definitionKo = hasHangul(koMeaning) ? koMeaning : null;
   let example = (enEntry && enEntry.example) || "";
+  const pos = (enEntry && enEntry.pos) || null;
 
   if (!definitionEn) {
     const fromWiktionary = await fetchWiktionaryDefinition(word);
@@ -12729,7 +12844,7 @@ async function fetchWordInfo(word) {
   }
 
   if (!definitionEn && !definitionKo) return null;
-  return { definitionEn, definitionKo, example };
+  return { definitionEn, definitionKo, example, pos };
 }
 
 ocrAddBtn.addEventListener("click", async () => {
@@ -12759,6 +12874,7 @@ ocrAddBtn.addEventListener("click", async () => {
       example: (info && info.example) || "",
       definitionEn: (info && info.definitionEn) || null,
       definitionKo: (info && info.definitionKo) || null,
+      pos: (info && info.pos) || null,
       noDefinitionEn: !(info && info.definitionEn),
       noDefinitionKo: !(info && info.definitionKo),
       source: "ocr",

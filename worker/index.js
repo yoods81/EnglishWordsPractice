@@ -226,6 +226,7 @@ function rowToWord(row) {
     definitionKo: row.definition_ko,
     levelEn: row.level_en,
     levelKo: row.level_ko,
+    pos: row.pos || null,
     example: row.example || "",
     noDefinitionEn: !!row.no_definition_en,
     noDefinitionKo: !!row.no_definition_ko,
@@ -255,6 +256,7 @@ function cleanWord(raw) {
     definition_ko: text(raw.definitionKo),
     level_en: text(raw.levelEn),
     level_ko: text(raw.levelKo),
+    pos: text(raw.pos),
     example: text(raw.example) || "",
     no_definition_en: raw.noDefinitionEn ? 1 : 0,
     no_definition_ko: raw.noDefinitionKo ? 1 : 0,
@@ -1197,19 +1199,22 @@ async function handleApi(request, env, url) {
     if (words.length > MAX_WORDS_PER_REQUEST) return json({ error: "too_many" }, 413);
 
     const now = Date.now();
-    await env.DB.batch(
+    // withPos=false is the pre-migration shape (no pos column yet), used only if
+    // the live database hasn't had migrations/0010 applied when this is deployed.
+    const buildStatements = (withPos) =>
       words.map((w) =>
         env.DB.prepare(
           `INSERT INTO shared_words
-             (id, word, definition_en, definition_ko, level_en, level_ko, example,
+             (id, word, definition_en, definition_ko, level_en, level_ko, ${withPos ? "pos, " : ""}example,
               no_definition_en, no_definition_ko, source, owner_id, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           VALUES (${withPos ? "?, " : ""}?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT(id) DO UPDATE SET
              word = excluded.word,
              definition_en = excluded.definition_en,
              definition_ko = excluded.definition_ko,
              level_en = excluded.level_en,
              level_ko = excluded.level_ko,
+             ${withPos ? "pos = excluded.pos," : ""}
              example = excluded.example,
              no_definition_en = excluded.no_definition_en,
              no_definition_ko = excluded.no_definition_ko,
@@ -1217,22 +1222,17 @@ async function handleApi(request, env, url) {
              updated_at = excluded.updated_at
            WHERE shared_words.owner_id IS excluded.owner_id`
         ).bind(
-          w.id,
-          w.word,
-          w.definition_en,
-          w.definition_ko,
-          w.level_en,
-          w.level_ko,
-          w.example,
-          w.no_definition_en,
-          w.no_definition_ko,
-          w.source,
-          ownerId,
-          w.created_at,
-          now
+          ...[w.id, w.word, w.definition_en, w.definition_ko, w.level_en, w.level_ko],
+          ...(withPos ? [w.pos] : []),
+          ...[w.example, w.no_definition_en, w.no_definition_ko, w.source, ownerId, w.created_at, now]
         )
-      )
-    );
+      );
+    try {
+      await env.DB.batch(buildStatements(true));
+    } catch (e) {
+      if (!/\bpos\b/i.test(String(e && e.message))) throw e;
+      await env.DB.batch(buildStatements(false));
+    }
     return json({ saved: words.length });
   }
 

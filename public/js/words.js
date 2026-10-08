@@ -2,12 +2,24 @@
 // Definitions and examples are written at an age-appropriate reading level for each year.
 // Every entry carries a "level" field: "year4", "year5" or "year6".
 
+// Four school stages, shared by the English track (levelEn: words for native
+// English speakers) and the Korean track (levelKo: words for Korean students,
+// who sit a stage lower on the same scale — see KO_LEVELS in words_ko.js).
 const LEVELS = [
-  { id: "year4", label: "Year 4" },
-  { id: "year5", label: "Year 5" },
-  { id: "year6", label: "Year 6" },
-  { id: "year7", label: "Year 7 Above" },
+  { id: "elem_low", label: "Lower Primary" },
+  { id: "elem_high", label: "Upper Primary" },
+  { id: "middle", label: "Middle School" },
+  { id: "high", label: "High School" },
 ];
+// Level ids used before the four-stage scheme, and the stage each one became.
+// Applied to the built-in banks, saved levels and saved/shared words on load.
+const LEGACY_LEVEL_MAP = {
+  year4: "elem_low", year5: "elem_high", year6: "elem_high", year7: "middle",
+  kr_elem6: "elem_high", kr_mid1: "middle", kr_mid2: "middle", kr_mid3: "middle", kr_high: "high",
+};
+function normLevelId(id) {
+  return typeof id === "string" && LEGACY_LEVEL_MAP[id] ? LEGACY_LEVEL_MAP[id] : id;
+}
 
 const WORD_BANK = {
   vocabulary: [

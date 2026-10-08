@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS shared_words (
   definition_ko TEXT,
   level_en TEXT,
   level_ko TEXT,
+  pos TEXT,
   example TEXT NOT NULL DEFAULT '',
   no_definition_en INTEGER NOT NULL DEFAULT 0,
   no_definition_ko INTEGER NOT NULL DEFAULT 0,
