@@ -12015,77 +12015,56 @@ function renderAdminUsers() {
     const isSelf = currentUser && u.id === currentUser.id;
     const info = document.createElement("div");
     info.className = "admin-user-info adm-user-info";
-    // Header: initial avatar, name, and a role badge (+ "You")
+    // Line 1: name, role badge, email-status badge … Manage (far right)
     const head = document.createElement("div");
     head.className = "adm-user-head";
-    const avatar = document.createElement("span");
-    avatar.className = "adm-avatar";
-    avatar.dataset.role = u.role;
-    avatar.textContent = (u.username || "?").trim().charAt(0).toUpperCase();
-    avatar.setAttribute("aria-hidden", "true");
-    const nameWrap = document.createElement("div");
-    nameWrap.className = "adm-user-namewrap";
     const nameEl = document.createElement("div");
     nameEl.className = "w adm-user-name";
     nameEl.textContent = u.username + (isSelf ? " " + t("adminUserYou") : "");
     const roleBadge = document.createElement("span");
-    roleBadge.className = "admin-role-select adm-role-badge";
+    roleBadge.className = "adm-badge";
     roleBadge.dataset.role = u.role;
-    roleBadge.textContent = (u.role === "admin" ? "👑 " : u.role === "paid" ? "⭐ " : "") + roleLabel(u.role);
-    nameWrap.append(nameEl, roleBadge);
-    head.append(avatar, nameWrap);
-    info.appendChild(head);
-    // Facts as label / value rows so every card lines up the same way
-    const facts = document.createElement("dl");
-    facts.className = "adm-user-facts";
-    const addFact = (label, valueNode) => {
-      const dt = document.createElement("dt"); dt.textContent = label;
-      const dd = document.createElement("dd");
-      if (typeof valueNode === "string") dd.textContent = valueNode; else dd.appendChild(valueNode);
-      facts.append(dt, dd);
-    };
-    if (u.role !== "admin") {
-      const emailVal = document.createElement("span");
-      emailVal.className = "adm-email";
-      if (u.email) {
-        const addr = document.createElement("span");
-        addr.className = "adm-email-addr";
-        addr.textContent = u.email;
-        const badge = document.createElement("span");
-        badge.className = "email-badge " + (u.emailVerified ? "ok" : "wait");
-        badge.textContent = u.emailVerified ? rwL("Confirmed", "인증됨") : t("adminUserEmailUnverified");
-        emailVal.append(addr, badge);
-      } else {
-        emailVal.classList.add("adm-none");
-        emailVal.textContent = t("adminUserNoEmail");
-      }
-      addFact(rwL("Email", "이메일"), emailVal);
+    roleBadge.textContent = roleLabel(u.role);
+    head.append(nameEl, roleBadge);
+    if (u.role !== "admin" && u.email) {
+      const verBadge = document.createElement("span");
+      verBadge.className = "adm-badge adm-ver " + (u.emailVerified ? "ok" : "wait");
+      verBadge.textContent = u.emailVerified ? rwL("Verified", "인증됨") : rwL("Unverified", "미인증");
+      head.appendChild(verBadge);
     }
-    addFact(rwL("Joined", "가입일"), formatDate(u.createdAt));
-    info.appendChild(facts);
-    if (u.pendingRequestId) {
-      const pendingBadge = document.createElement("div");
-      pendingBadge.className = "admin-pending-badge adm-pending";
-      pendingBadge.textContent = t("adminUserPendingRequest");
-      info.appendChild(pendingBadge);
+    const manageBtn = document.createElement("button");
+    manageBtn.type = "button";
+    manageBtn.className = "adm-manage-btn";
+    manageBtn.textContent = rwL("Manage", "관리");
+    manageBtn.addEventListener("click", () => window.adminCS && adminCS.openCustomer(u));
+    head.appendChild(manageBtn);
+    info.appendChild(head);
+    // Line 2: the email address (admins have none to show)
+    if (u.role !== "admin") {
+      const emailEl = document.createElement("div");
+      emailEl.className = "adm-email-line" + (u.email ? "" : " adm-none");
+      emailEl.textContent = u.email || t("adminUserNoEmail");
+      info.appendChild(emailEl);
     }
     row.appendChild(info);
 
-    // Routine actions only: approve/dismiss a pending upgrade, and "Manage"
-    // (role, password, notes, messages, delete live in the customer file).
-    const actions = document.createElement("div");
-    actions.className = "admin-user-actions";
+    // Pending upgrade request: one extra line, only when there is one.
     if (u.pendingRequestId) {
+      const pending = document.createElement("div");
+      pending.className = "adm-pending";
+      const label = document.createElement("span");
+      label.className = "adm-pending-text";
+      label.textContent = t("adminUserPendingRequest");
+      const btns = document.createElement("span");
+      btns.className = "adm-pending-btns";
       const approveBtn = document.createElement("button");
-      approveBtn.className = "edit-btn";
+      approveBtn.type = "button";
+      approveBtn.className = "adm-sq-btn adm-sq-go";
       approveBtn.textContent = t("adminRequestApproveBtn");
       approveBtn.addEventListener("click", async () => {
         approveBtn.disabled = true;
         try {
-          await api("/admin/upgrade-requests/approve", {
-            method: "POST",
-            body: JSON.stringify({ requestId: u.pendingRequestId }),
-          });
+          await api("/admin/upgrade-requests/approve", { method: "POST", body: JSON.stringify({ requestId: u.pendingRequestId }) });
           u.pendingRequestId = null;
           renderAdminUsers();
           if (window.adminCS) adminCS.reload();
@@ -12094,9 +12073,9 @@ function renderAdminUsers() {
           approveBtn.disabled = false;
         }
       });
-      actions.appendChild(approveBtn);
       const dismissBtn = document.createElement("button");
-      dismissBtn.className = "delete-btn";
+      dismissBtn.type = "button";
+      dismissBtn.className = "adm-sq-btn adm-sq-no";
       dismissBtn.textContent = t("adminRequestDismissBtn");
       dismissBtn.addEventListener("click", async () => {
         dismissBtn.disabled = true;
@@ -12110,14 +12089,10 @@ function renderAdminUsers() {
           dismissBtn.disabled = false;
         }
       });
-      actions.appendChild(dismissBtn);
+      btns.append(approveBtn, dismissBtn);
+      pending.append(label, btns);
+      row.appendChild(pending);
     }
-    const manageBtn = document.createElement("button");
-    manageBtn.className = "retry-btn";
-    manageBtn.textContent = rwL("Manage", "관리");
-    manageBtn.addEventListener("click", () => window.adminCS && adminCS.openCustomer(u));
-    actions.appendChild(manageBtn);
-    row.appendChild(actions);
     adminUsersGrid.appendChild(row);
   });
 }

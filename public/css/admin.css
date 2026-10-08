@@ -114,3 +114,52 @@ body.has-support-unread #auth-toggle-btn::after, body.has-support-unread #contac
 .faq-foot { margin: 14px 0 4px; text-align: center; font-size: .8rem; color: var(--muted); }
 .faq-contact-link { border: 0; background: transparent; padding: 0; font: inherit; font-size: .8rem; color: var(--accent-dark); text-decoration: underline; cursor: pointer; }
 .acct-tabs { margin: 4px 0 10px; }
+
+/* =====================================================================
+   Customers tab: compact account cards + flat Manage window
+   (loaded after style.css, so these win on equal specificity)
+   ===================================================================== */
+
+/* The list is part of the page now — no inner scrollbox — so the search /
+   sort row above and the cards below share the same right edge. */
+#admin-users-grid { max-height: none; overflow: visible; padding-right: 0; gap: 10px; }
+
+/* Sort dropdown: rounded rectangle, not a pill, no shadow */
+#admin-users-sort { border-radius: 10px; box-shadow: none; }
+
+/* Card */
+#admin-users-grid .wordlist-item.admin-user-row.adm-user { padding: 10px 12px; gap: 8px; border-radius: 14px; box-shadow: none; }
+.adm-user-info { gap: 4px; }
+.adm-user-head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; min-width: 0; }
+.adm-user-name { font-size: 1rem; font-weight: 800; min-width: 0; overflow-wrap: anywhere; }
+
+/* Role / email-status badges: flat tinted labels (not pills) */
+.adm-badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: .72rem; font-weight: 800; line-height: 1.4; white-space: nowrap; background: #e7eeeb; color: #4b5f58; }
+.adm-badge[data-role="paid"] { background: #ffe9a8; color: #7a4a00; }
+.adm-badge[data-role="admin"] { background: #17463c; color: #7ff0cf; }
+.adm-badge.adm-ver.ok { background: #d6f5e8; color: #0b6b57; }
+.adm-badge.adm-ver.wait { background: #fde7c4; color: #8a4a00; }
+
+/* Manage: small rounded square, top-right of the card */
+.adm-manage-btn { margin-left: auto; flex: none; padding: 6px 12px; border: 1.5px solid var(--accent-dark); border-radius: 8px; background: #fff; color: var(--accent-dark); font: inherit; font-size: .82rem; font-weight: 800; box-shadow: none; cursor: pointer; }
+.adm-manage-btn:hover { background: #e9f8f3; }
+.adm-manage-btn:active { transform: translateY(1px); }
+
+.adm-email-line { font-size: .86rem; font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+.adm-email-line.adm-none { color: var(--muted); }
+
+.adm-pending { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 6px 8px; border-radius: 10px; background: #e8faf3; }
+.adm-pending-text { font-size: .82rem; font-weight: 800; color: #0a7d63; }
+.adm-pending-btns { display: flex; gap: 6px; }
+.adm-sq-btn { padding: 5px 10px; border: 0; border-radius: 8px; font: inherit; font-size: .8rem; font-weight: 800; box-shadow: none; cursor: pointer; }
+.adm-sq-go { background: var(--accent); color: #fff; }
+.adm-sq-no { background: #fde4e1; color: #b42318; }
+
+/* ---- Manage window: flat rounded-rectangle buttons, no shadows, room at the edges ---- */
+.admin-sheet .pill, .admin-sheet button.pill, .admin-sheet .pill.small { border-radius: 10px; box-shadow: none !important; --pill-shadow: transparent; }
+.admin-sheet .admin-sheet-danger .admin-danger-btn { box-shadow: none !important; }
+.admin-sheet select.admin-role-select, .admin-sheet .admin-sheet-line select { border-radius: 10px; box-shadow: none; }
+.admin-sheet .adm-badge { vertical-align: middle; }
+.admin-sheet .admin-sheet-list .admin-sheet-line { padding: 8px 16px; }
+.admin-sheet .admin-sheet-list .admin-sheet-sec > summary { padding: 8px 16px; }
+.admin-sheet .ass-body { padding: 0 16px 14px; }

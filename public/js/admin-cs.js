@@ -656,14 +656,14 @@
     const openCount = data.tickets.filter((x) => x.status !== "resolved" && x.status !== "closed").length;
     const coinIco = typeof COIN_SVG !== "undefined" ? COIN_SVG : "";
     const tile = (ico, label, val, cls) => `<div class="admin-sheet-tile ${cls || ""}"><span class="ast-ico" aria-hidden="true">${ico}</span><b>${val}</b><small>${esc(label)}</small></div>`;
-    const verBadge = u.email ? `<span class="admin-role-select admin-ver-badge ${u.emailVerified ? "ok" : "wait"}">${esc(u.emailVerified ? L("Verified", "인증됨") : L("Unverified", "미인증"))}</span>` : "";
+    const verBadge = u.email ? `<span class="adm-badge adm-ver ${u.emailVerified ? "ok" : "wait"}">${esc(u.emailVerified ? L("Verified", "인증됨") : L("Unverified", "미인증"))}</span>` : "";
     const sec = (id, title, right, body, cls) => `<details class="admin-sheet-sec ${cls || ""}" id="${id}"><summary><span class="ass-t">${title}</span><span class="ass-r">${right || ""}</span><span class="ass-chev" aria-hidden="true">▾</span></summary><div class="ass-body">${body}</div></details>`;
     const noteText = (data.note || "").trim();
     sheet.innerHTML = `
       <button type="button" class="admin-sheet-close" id="admin-sheet-close" aria-label="${esc(L("Close", "닫기"))}">✕</button>
       <div class="admin-sheet-hero">
         <span class="adm-avatar admin-sheet-av" data-role="${esc(u.role)}" aria-hidden="true">${initial}</span>
-        <h3 class="admin-sheet-name">${esc(u.username)} <span class="admin-role-select" data-role="${esc(u.role)}">${esc(roleLabelSafe(u.role))}</span>${verBadge}${isSelf ? ` <span class="admin-sheet-you">${esc(L("You", "나"))}</span>` : ""}</h3>
+        <h3 class="admin-sheet-name">${esc(u.username)} <span class="adm-badge" data-role="${esc(u.role)}">${esc(roleLabelSafe(u.role))}</span>${verBadge}${isSelf ? ` <span class="admin-sheet-you">${esc(L("You", "나"))}</span>` : ""}</h3>
       </div>
       <div class="admin-sheet-tiles">
         ${tile("📅", L("Joined", "가입일"), esc(formatDate(u.createdAt)))}
