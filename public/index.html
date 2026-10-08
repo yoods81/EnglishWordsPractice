@@ -253,6 +253,18 @@
     </div>
   </div>
 
+  <!-- Admin: details of one paid member's word (opened by tapping its card). -->
+  <div id="paid-word-detail-overlay" class="kid-modal-overlay" hidden>
+    <div class="kid-modal-card pw-detail-card" role="dialog" aria-modal="true" aria-labelledby="pw-detail-word">
+      <h3 class="pw-detail-word" id="pw-detail-word"></h3>
+      <div class="pw-detail-tags" id="pw-detail-tags"></div>
+      <dl class="pw-detail-list" id="pw-detail-list"></dl>
+      <div class="kid-modal-actions">
+        <button type="button" class="pill neutral kid-modal-btn" id="pw-detail-close-btn" data-i18n="paidWordsCloseBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Admin: Give/Take a reason, shown as a small popup instead of a plain
        confirm() so an admin can pick why they adjusted a student's coins. -->
   <div id="koala-reason-overlay" class="kid-modal-overlay" hidden>
@@ -1523,7 +1535,10 @@ to Flip!</span></div>
         <div class="ocr-dropzone" id="ocr-dropzone">
           <div class="file-picker-row">
             <button type="button" class="pill accent" id="ocr-choose-btn" data-i18n="ocrChooseBtn">📁 Choose Photo or File</button>
-            <span class="file-picker-name" id="ocr-file-name" data-i18n="ocrNoFileChosen">No file chosen</span>
+            <span class="ocr-file-chip" id="ocr-file-chip" hidden>
+              <span class="file-picker-name" id="ocr-file-name"></span>
+              <button type="button" class="ocr-file-clear" id="ocr-file-clear-btn" aria-label="Remove file" data-i18n-aria-label="ocrRemoveFile" title="Remove file">✕</button>
+            </span>
             <input
               type="file"
               id="ocr-file-input"

@@ -12496,3 +12496,57 @@ html[data-theme="dark"] .pw-row { background: rgba(20, 28, 70, 0.7); }
   background: #fff;
 }
 html[data-theme="dark"] .pw-edit input[type="text"] { background: rgba(20, 28, 70, 0.9); color: inherit; }
+
+/* Chosen file: name + red ✕ to forget it */
+.ocr-file-chip { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; }
+.ocr-file-chip[hidden] { display: none; }
+.ocr-file-clear {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #e03131;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+.ocr-file-clear:hover, .ocr-file-clear:focus-visible { background: rgba(224, 49, 49, 0.14); }
+
+/* Paid members' words: compact cards — word + tag on the left, buttons on the
+   far right of the same line, meaning under it. Details live in a popup. */
+.pw-row-compact { cursor: pointer; padding: 8px 12px; gap: 2px; }
+.pw-row-compact .pw-row-top { flex-wrap: nowrap; }
+.pw-row-compact .pw-word { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pw-row-compact .pw-actions { margin: 0 0 0 auto; flex-wrap: nowrap; flex: 0 0 auto; }
+.pw-row-compact .pw-meaning { color: var(--muted); }
+
+.pw-detail-card { text-align: left; max-width: 380px; max-height: 88vh; overflow-y: auto; }
+.pw-detail-word { margin: 0 0 8px; font-size: 1.5rem; font-weight: 800; text-align: center; }
+.pw-detail-list { margin: 0 0 14px; display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; }
+.pw-detail-list dt { font-size: 0.8rem; font-weight: 700; color: var(--accent-dark); }
+.pw-detail-list dd { margin: 0; font-size: 0.92rem; overflow-wrap: anywhere; }
+
+/* Editing a paid member's word: plain, softly shaded fields (no pill look);
+   only the part-of-speech / level dropdowns keep the pill style. */
+.pw-edit input[type="text"] {
+  padding: 8px 10px;
+  border: 1px solid rgba(14, 156, 125, 0.28);
+  border-radius: 8px;
+  background: rgba(14, 156, 125, 0.06);
+  font: inherit;
+}
+.pw-edit input[type="text"]:focus { outline: 2px solid rgba(34, 201, 163, 0.5); outline-offset: 0; background: #fff; }
+html[data-theme="dark"] .pw-edit input[type="text"] { background: rgba(255, 255, 255, 0.06); color: inherit; }
+.pw-edit select {
+  border: 2px solid var(--outline);
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: #fff;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+}

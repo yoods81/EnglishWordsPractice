@@ -562,6 +562,13 @@ const TRANSLATIONS = {
     excelNoRows: "That Excel file didn't have any words in it.",
     excelToolUnavailable: "The Excel tool couldn't load (check your internet connection) and can't be used right now.",
     excelModeTitle: "If a word is already in your list…",
+    ocrRemoveFile: "Remove file",
+    paidWordsCloseBtn: "Close",
+    paidWordsDetailMeaningKo: "Korean meaning",
+    paidWordsDetailMeaningEn: "English meaning",
+    paidWordsDetailExample: "Example",
+    paidWordsDetailPos: "Part of speech",
+    paidWordsDetailLevel: "Level",
     mwTabMine: "My words",
     mwTabPaid: "Paid members' words",
     paidWordsSearch: "🔍 Search word, meaning or member...",
@@ -570,7 +577,7 @@ const TRANSLATIONS = {
     paidWordsEmpty: "No paid member has added any words yet.",
     paidWordsLoadFail: "Couldn't load paid members' words.",
     paidWordsBy: "Added by",
-    paidWordsOn: "on",
+    paidWordsOn: "Added on",
     paidWordsSaved: "Saved.",
     paidWordsDeleted: "Deleted.",
     paidWordsSaveFail: "Couldn't save that change — please try again.",
@@ -1353,6 +1360,13 @@ const TRANSLATIONS = {
     excelNoRows: "그 엑셀 파일에 단어가 없어요.",
     excelToolUnavailable: "엑셀 처리 기능을 불러오지 못했어요 (인터넷 연결을 확인해주세요). 지금은 사용할 수 없어요.",
     excelModeTitle: "이미 있는 단어가 파일에 있다면?",
+    ocrRemoveFile: "파일 지우기",
+    paidWordsCloseBtn: "닫기",
+    paidWordsDetailMeaningKo: "한국어 뜻",
+    paidWordsDetailMeaningEn: "영어 뜻",
+    paidWordsDetailExample: "예문",
+    paidWordsDetailPos: "품사",
+    paidWordsDetailLevel: "레벨",
     mwTabMine: "내 단어",
     mwTabPaid: "유료사용자 단어",
     paidWordsSearch: "🔍 단어, 뜻, 회원 검색...",
@@ -12168,6 +12182,8 @@ adminUsersSort.addEventListener("change", renderAdminUsers);
 /* ---------- OCR: extract words from a photo ---------- */
 const ocrChooseBtn = document.getElementById("ocr-choose-btn");
 const ocrFileNameEl = document.getElementById("ocr-file-name");
+const ocrFileChip = document.getElementById("ocr-file-chip");
+const ocrFileClearBtn = document.getElementById("ocr-file-clear-btn");
 const ocrFileInput = document.getElementById("ocr-file-input");
 const ocrProgress = document.getElementById("ocr-progress");
 const ocrProgressFill = document.getElementById("ocr-progress-fill");
@@ -12608,7 +12624,9 @@ function renderPaidWords() {
 
 function buildPaidWordRow(w) {
   const row = document.createElement("div");
-  row.className = "pw-row";
+  row.className = "pw-row pw-row-compact";
+  row.tabIndex = 0;
+  row.setAttribute("role", "button");
   const top = document.createElement("div");
   top.className = "pw-row-top";
   const word = document.createElement("span");
@@ -12621,34 +12639,14 @@ function buildPaidWordRow(w) {
     tag.textContent = posTagText(w.pos);
     top.appendChild(tag);
   }
-  const lvl = document.createElement("span");
-  lvl.className = "pw-tag";
-  lvl.textContent = levelLabelIn(currentLang === "ko" ? w.levelKo : w.levelEn, (SYSTEMS[currentLang] || SYSTEMS.en).levels);
-  top.appendChild(lvl);
-  row.appendChild(top);
-  const meaning = document.createElement("div");
-  meaning.className = "pw-meaning";
-  meaning.textContent = paidWordMeaning(w);
-  row.appendChild(meaning);
-  if (w.example) {
-    const ex = document.createElement("div");
-    ex.className = "pw-example";
-    ex.textContent = w.example;
-    row.appendChild(ex);
-  }
-  const meta = document.createElement("div");
-  meta.className = "pw-meta";
-  const strong = document.createElement("strong");
-  strong.textContent = w.ownerUsername;
-  meta.append(`${t("paidWordsBy")}: `, strong, ` · ${t("paidWordsOn")}: ${formatPaidWordDate(w.createdAt)}`);
-  row.appendChild(meta);
   const actions = document.createElement("div");
   actions.className = "pw-actions";
   const edit = document.createElement("button");
   edit.type = "button";
   edit.className = "pill accent small";
   edit.textContent = t("paidWordsEditBtn");
-  edit.addEventListener("click", () => {
+  edit.addEventListener("click", (e) => {
+    e.stopPropagation();
     paidWordsEditingId = w.id;
     renderPaidWords();
   });
@@ -12656,11 +12654,67 @@ function buildPaidWordRow(w) {
   del.type = "button";
   del.className = "pill error small";
   del.textContent = t("paidWordsDeleteBtn");
-  del.addEventListener("click", () => deletePaidWord(w));
+  del.addEventListener("click", (e) => {
+    e.stopPropagation();
+    deletePaidWord(w);
+  });
   actions.append(edit, del);
-  row.appendChild(actions);
+  top.appendChild(actions);
+  row.appendChild(top);
+  const meaning = document.createElement("div");
+  meaning.className = "pw-meaning";
+  meaning.textContent = paidWordMeaning(w);
+  row.appendChild(meaning);
+  const open = () => openPaidWordDetail(w);
+  row.addEventListener("click", open);
+  row.addEventListener("keydown", (e) => {
+    if ((e.key === "Enter" || e.key === " ") && e.target === row) {
+      e.preventDefault();
+      open();
+    }
+  });
   return row;
 }
+
+// Everything about one word in a popup — meanings, example, who added it and
+// when. Read-only: editing/deleting stays on the card itself.
+const pwDetailOverlay = document.getElementById("paid-word-detail-overlay");
+function openPaidWordDetail(w) {
+  document.getElementById("pw-detail-word").textContent = w.word;
+  const tags = document.getElementById("pw-detail-tags");
+  tags.textContent = "";
+  const list = document.getElementById("pw-detail-list");
+  list.textContent = "";
+  const levels = (SYSTEMS[currentLang] || SYSTEMS.en).levels;
+  const rows = [
+    ["paidWordsDetailPos", w.pos ? posLabel(w.pos) : ""],
+    ["paidWordsDetailLevel", levelLabelIn(currentLang === "ko" ? w.levelKo : w.levelEn, levels)],
+    ["paidWordsDetailMeaningKo", w.definitionKo],
+    ["paidWordsDetailMeaningEn", w.definitionEn],
+    ["paidWordsDetailExample", w.example],
+    ["paidWordsBy", w.ownerUsername],
+    ["paidWordsOn", formatPaidWordDate(w.createdAt)],
+  ];
+  rows.forEach(([key, value]) => {
+    if (!value) return;
+    const dt = document.createElement("dt");
+    dt.textContent = t(key);
+    const dd = document.createElement("dd");
+    dd.textContent = value;
+    list.append(dt, dd);
+  });
+  pwDetailOverlay.hidden = false;
+}
+function closePaidWordDetail() {
+  pwDetailOverlay.hidden = true;
+}
+document.getElementById("pw-detail-close-btn").addEventListener("click", closePaidWordDetail);
+pwDetailOverlay.addEventListener("click", (e) => {
+  if (e.target === pwDetailOverlay) closePaidWordDetail();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !pwDetailOverlay.hidden) closePaidWordDetail();
+});
 
 function buildPaidWordEditor(w) {
   const row = document.createElement("div");
@@ -12828,7 +12882,8 @@ function handleOcrFileChosen(file) {
 
   if (!file) {
     ocrLastFileName = null;
-    ocrFileNameEl.textContent = t("ocrNoFileChosen");
+    ocrFileNameEl.textContent = "";
+    ocrFileChip.hidden = true;
     return;
   }
 
@@ -12841,6 +12896,7 @@ function handleOcrFileChosen(file) {
 
   ocrLastFileName = file.name;
   ocrFileNameEl.textContent = file.name;
+  ocrFileChip.hidden = false;
   ocrReview.hidden = true;
   ocrStatus.textContent = "";
   ocrExcelStatus.hidden = true;
@@ -12889,6 +12945,18 @@ function handleOcrFileChosen(file) {
   ocrPendingKind = kind;
   ocrExtractBtn.hidden = false;
 }
+
+// ✕ next to the file name: forget the chosen file and everything staged for it.
+ocrFileClearBtn.addEventListener("click", () => {
+  handleOcrFileChosen(null);
+  ocrFileInput.value = "";
+  ocrStatus.textContent = "";
+  ocrReview.hidden = true;
+  ocrProgress.hidden = true;
+  ocrExcelStatus.hidden = true;
+  ocrExcelStatus.textContent = "";
+  ocrExcelStatus.classList.remove("ocr-excel-status-done");
+});
 
 ocrFileInput.addEventListener("change", (e) => {
   handleOcrFileChosen(e.target.files && e.target.files[0]);
