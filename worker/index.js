@@ -731,6 +731,66 @@ async function handleApi(request, env, url) {
     };
   }
 
+  // ---- Admin: review / fix / remove the private words paid accounts added ----
+  // These live in shared_words with owner_id set. The normal /words routes
+  // deliberately never let an admin touch them; this is the one audited door.
+  if (route === "/admin/user-words" && request.method === "GET") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    const { results } = await env.DB.prepare(
+      `SELECT w.*, u.username AS owner_username
+       FROM shared_words w
+       JOIN users u ON u.id = w.owner_id
+       WHERE w.owner_id IS NOT NULL
+       ORDER BY w.created_at DESC`
+    ).all();
+    return json({
+      words: (results || []).map((r) => ({ ...rowToWord(r), ownerUsername: r.owner_username, updatedAt: r.updated_at || null })),
+    });
+  }
+
+  if (route === "/admin/user-words/update" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const w = cleanWord(body);
+    if (!w) return json({ error: "bad_request" }, 400);
+    const result = await env.DB.prepare(
+      `UPDATE shared_words SET word = ?, definition_en = ?, definition_ko = ?, level_en = ?, level_ko = ?, pos = ?,
+              example = ?, no_definition_en = ?, no_definition_ko = ?, updated_at = ?
+       WHERE id = ? AND owner_id IS NOT NULL`
+    )
+      .bind(
+        w.word, w.definition_en, w.definition_ko, w.level_en, w.level_ko, w.pos, w.example,
+        w.definition_en ? 0 : 1, w.definition_ko ? 0 : 1, Date.now(), w.id
+      )
+      .run();
+    const changes = result && result.meta ? result.meta.changes : 0;
+    if (!changes) return json({ error: "not_found" }, 404);
+    return json({ ok: true });
+  }
+
+  if (route === "/admin/user-words/delete" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const ids = Array.isArray(body && body.ids) ? body.ids.filter((id) => typeof id === "string") : [];
+    if (ids.length === 0) return json({ error: "bad_request" }, 400);
+    if (ids.length > MAX_WORDS_PER_REQUEST) return json({ error: "too_many" }, 413);
+    await env.DB.batch(ids.map((id) => env.DB.prepare("DELETE FROM shared_words WHERE id = ? AND owner_id IS NOT NULL").bind(id)));
+    return json({ deleted: ids.length });
+  }
+
   if (route === "/admin/users" && request.method === "GET") {
     const session = await getSessionUser(request, env);
     if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);

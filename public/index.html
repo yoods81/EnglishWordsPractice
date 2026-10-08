@@ -1668,6 +1668,21 @@ to Flip!</span></div>
             <button type="button" class="pill accent small" id="custom-upload-btn" hidden>☁️ Upload</button>
           </div>
         </div>
+        <!-- Admin only: switch between the shared pool and the private words paid
+             accounts added (who / when, with edit + delete). -->
+        <div class="mw-tabs" id="mw-tabs" role="tablist" hidden>
+          <button type="button" class="mw-tab active" id="mw-tab-mine" role="tab" aria-selected="true" data-i18n="mwTabMine">My words</button>
+          <button type="button" class="mw-tab" id="mw-tab-paid" role="tab" aria-selected="false" data-i18n="mwTabPaid">Paid members' words</button>
+        </div>
+        <div id="paid-words-panel" class="paid-words-panel" hidden>
+          <div class="custom-controls-row">
+            <select id="paid-words-user-select" class="level-bulk-select"></select>
+            <input type="text" class="wordlist-search custom-search-half" id="paid-words-search" data-i18n-placeholder="paidWordsSearch" placeholder="🔍 Search word, meaning or member..." />
+          </div>
+          <p class="muted wordlist-count" id="paid-words-count"></p>
+          <div id="paid-words-status" class="spelling-tip"></div>
+          <div class="wordlist-grid" id="paid-words-grid"></div>
+        </div>
         <p class="muted wordlist-count" id="custom-words-count"></p>
         <p class="muted" id="custom-words-storage-note" hidden></p>
         <div class="ocr-review-header failed-words-banner" id="custom-words-failed-banner" hidden>

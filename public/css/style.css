@@ -4142,11 +4142,15 @@ html[data-theme="dark"] .ocr-excel-status.ocr-excel-status-done { background: rg
   flex-wrap: wrap;
 }
 
+/* The chosen file's name used to be muted grey and easy to miss — it's the
+   confirmation that the right file was picked, so it gets the accent color. */
 .file-picker-name {
-  color: var(--muted);
-  font-size: 0.82rem;
+  color: var(--accent-dark);
+  font-size: 0.9rem;
+  font-weight: 700;
   overflow-wrap: anywhere;
 }
+html[data-theme="dark"] .file-picker-name { color: var(--accent); }
 
 
 .ocr-progress {
@@ -12441,3 +12445,54 @@ details[open] > summary .ass-chev { transform: rotate(180deg); }
 .admin-sheet-danger { border-color: #f5cbc6; background: #fff8f7; flex-wrap: wrap; }
 .admin-sheet-danger .admin-danger-btn { color: var(--error) !important; border-color: #e58b83 !important; --pill-shadow: #e58b83; box-shadow: 0 3px 0 #e58b83 !important; }
 @media (max-width: 480px) { .admin-sheet-line { flex-wrap: wrap; } .ass-hint { max-width: 120px; } }
+
+
+/* ---- Admin: "Paid members' words" tab inside My added words ---- */
+.mw-tabs { display: flex; gap: 8px; margin: 0 0 12px; }
+.mw-tabs[hidden] { display: none; }
+.mw-tab {
+  flex: 1 1 0;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(14, 156, 125, 0.12);
+  color: var(--accent-dark);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.mw-tab.active { background: var(--accent-dark); color: #fff; }
+.paid-words-panel[hidden] { display: none; }
+#my-added-words-card.paid-tab-active > :not(.my-added-words-header):not(.mw-tabs):not(#paid-words-panel):not(.premium-gate-overlay) { display: none !important; }
+#my-added-words-card.paid-tab-active .my-added-words-header-actions { display: none; }
+.pw-row {
+  border: 2px solid var(--outline);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.92);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+html[data-theme="dark"] .pw-row { background: rgba(20, 28, 70, 0.7); }
+.pw-row-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pw-word { font-weight: 800; font-size: 1.05rem; }
+.pw-tag { font-size: 0.72rem; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: rgba(34, 201, 163, 0.18); color: var(--accent-dark); }
+.pw-meaning { font-size: 0.9rem; }
+.pw-example { font-size: 0.8rem; color: var(--muted); font-style: italic; }
+.pw-meta { font-size: 0.78rem; color: var(--muted); }
+.pw-meta strong { color: var(--text); }
+.pw-actions { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+.pw-edit { display: grid; gap: 6px; }
+.pw-edit input, .pw-edit select { width: 100%; box-sizing: border-box; }
+.pw-edit-row { display: flex; gap: 6px; }
+.pw-edit-row > * { flex: 1 1 0; min-width: 0; }
+.pw-edit input[type="text"] {
+  padding: 8px 10px;
+  border: 2px solid var(--outline);
+  border-radius: 12px;
+  font: inherit;
+  background: #fff;
+}
+html[data-theme="dark"] .pw-edit input[type="text"] { background: rgba(20, 28, 70, 0.9); color: inherit; }

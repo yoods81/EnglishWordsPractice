@@ -81,3 +81,30 @@ test("a paid account can't overwrite or delete admin's or another paid account's
   await call(p1, "DELETE", "/words", { ids: ["m1"] });
   assert.equal(db.prepare("SELECT COUNT(*) c FROM shared_words WHERE id='m1'").get().c, 0);
 });
+
+test("admin can list, edit and delete paid members' words (with owner + date); nobody else can", async () => {
+  await call(p1, "PUT", "/words", { words: [w("m5", "evaporate"), w("m6", "erode")] });
+  await call(p2, "PUT", "/words", { words: [w("n1", "tide")] });
+  const list = await call(admin, "GET", "/admin/user-words");
+  assert.equal(list.status, 200);
+  const evap = list.data.words.find((x) => x.word === "evaporate");
+  assert.equal(evap.ownerUsername, "pay1");
+  assert.ok(evap.createdAt > 0);
+  assert.ok(!list.data.words.some((x) => x.word === "shared"), "admin's own shared words are not in this list");
+  for (const who of [p1, free, null]) assert.equal((await call(who, "GET", "/admin/user-words")).status, 401);
+
+  const upd = await call(admin, "POST", "/admin/user-words/update", w("m5", "evaporate", { definitionKo: "증발하다", example: "Water evaporates." }));
+  assert.equal(upd.status, 200);
+  const row = db.prepare("SELECT * FROM shared_words WHERE id='m5'").get();
+  assert.equal(row.definition_ko, "증발하다");
+  assert.equal(row.owner_id, "p1", "ownership is preserved");
+  // can't use the paid-word door to alter the admin's own shared pool
+  assert.equal((await call(admin, "POST", "/admin/user-words/update", w("s1", "x"))).status, 404);
+  assert.equal(db.prepare("SELECT word FROM shared_words WHERE id='s1'").get().word, "shared");
+  assert.equal((await call(p1, "POST", "/admin/user-words/update", w("m5", "hack"))).status, 401);
+
+  assert.equal((await call(p1, "POST", "/admin/user-words/delete", { ids: ["n1"] })).status, 401);
+  await call(admin, "POST", "/admin/user-words/delete", { ids: ["m6", "s1"] });
+  assert.equal(db.prepare("SELECT COUNT(*) c FROM shared_words WHERE id='m6'").get().c, 0);
+  assert.equal(db.prepare("SELECT COUNT(*) c FROM shared_words WHERE id='s1'").get().c, 1, "shared words are untouched");
+});

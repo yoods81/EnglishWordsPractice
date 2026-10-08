@@ -562,6 +562,27 @@ const TRANSLATIONS = {
     excelNoRows: "That Excel file didn't have any words in it.",
     excelToolUnavailable: "The Excel tool couldn't load (check your internet connection) and can't be used right now.",
     excelModeTitle: "If a word is already in your list…",
+    mwTabMine: "My words",
+    mwTabPaid: "Paid members' words",
+    paidWordsSearch: "🔍 Search word, meaning or member...",
+    paidWordsAllMembers: "All members",
+    paidWordsCount: (shown, total) => (shown === total ? `${total} word${total === 1 ? "" : "s"}` : `${shown} of ${total} words`),
+    paidWordsEmpty: "No paid member has added any words yet.",
+    paidWordsLoadFail: "Couldn't load paid members' words.",
+    paidWordsBy: "Added by",
+    paidWordsOn: "on",
+    paidWordsSaved: "Saved.",
+    paidWordsDeleted: "Deleted.",
+    paidWordsSaveFail: "Couldn't save that change — please try again.",
+    paidWordsDeleteConfirm: (w, who) => `Delete "${w}" from ${who}'s private list?`,
+    paidWordsEditBtn: "Edit",
+    paidWordsDeleteBtn: "Delete",
+    paidWordsSaveBtn: "Save",
+    paidWordsCancelBtn: "Cancel",
+    paidWordsFieldWord: "Word",
+    paidWordsFieldKo: "Korean meaning",
+    paidWordsFieldEn: "English meaning",
+    paidWordsFieldExample: "Example sentence",
     excelModeSkip: "Keep my existing words",
     excelModeSkipHint: "Only new words are added.",
     excelModeOverwrite: "Update with the file's data",
@@ -1332,6 +1353,27 @@ const TRANSLATIONS = {
     excelNoRows: "그 엑셀 파일에 단어가 없어요.",
     excelToolUnavailable: "엑셀 처리 기능을 불러오지 못했어요 (인터넷 연결을 확인해주세요). 지금은 사용할 수 없어요.",
     excelModeTitle: "이미 있는 단어가 파일에 있다면?",
+    mwTabMine: "내 단어",
+    mwTabPaid: "유료사용자 단어",
+    paidWordsSearch: "🔍 단어, 뜻, 회원 검색...",
+    paidWordsAllMembers: "전체 회원",
+    paidWordsCount: (shown, total) => (shown === total ? `${total.toLocaleString("ko")}개 단어` : `${total.toLocaleString("ko")}개 중 ${shown.toLocaleString("ko")}개`),
+    paidWordsEmpty: "아직 유료사용자가 추가한 단어가 없어요.",
+    paidWordsLoadFail: "유료사용자 단어를 불러오지 못했어요.",
+    paidWordsBy: "추가한 회원",
+    paidWordsOn: "추가한 날짜",
+    paidWordsSaved: "저장했어요.",
+    paidWordsDeleted: "삭제했어요.",
+    paidWordsSaveFail: "저장하지 못했어요. 다시 시도해 주세요.",
+    paidWordsDeleteConfirm: (w, who) => `${who} 님의 개인 단어장에서 "${w}"를 삭제할까요?`,
+    paidWordsEditBtn: "수정",
+    paidWordsDeleteBtn: "삭제",
+    paidWordsSaveBtn: "저장",
+    paidWordsCancelBtn: "취소",
+    paidWordsFieldWord: "단어",
+    paidWordsFieldKo: "한국어 뜻",
+    paidWordsFieldEn: "영어 뜻",
+    paidWordsFieldExample: "예문",
     excelModeSkip: "내 단어장은 그대로 두기",
     excelModeSkipHint: "새 단어만 추가해요.",
     excelModeOverwrite: "파일 내용으로 업데이트하기",
@@ -3468,6 +3510,7 @@ function updateAdminUI() {
   // the click handler above). admincodes is the one tab that's genuinely
   // hidden, since it's admin-only rather than sign-in-gated.
   if (adminCodesTabButton) adminCodesTabButton.hidden = !serverAdmin;
+  try { syncMyWordsTabs(); resetOcrCardForNewAccount(); } catch (e) { /* page still initialising */ }
   // The home-screen Admin card follows the same gate: only a server-confirmed
   // admin session ever sees it.
   const homeAdminGroup = document.getElementById("home-admin-group");
@@ -12465,6 +12508,291 @@ function showExcelResult() {
 function currentExcelMode() {
   const checked = document.querySelector('input[name="ocr-excel-mode"]:checked');
   return checked ? checked.value : "skip";
+}
+
+/* ---------- Admin: paid members' private words (tab in My added words) ----------
+   Read through /api/admin/user-words, which is the only door that lets an admin
+   see or change words owned by a paid account. */
+const mwTabs = document.getElementById("mw-tabs");
+const mwTabMine = document.getElementById("mw-tab-mine");
+const mwTabPaid = document.getElementById("mw-tab-paid");
+const paidWordsPanel = document.getElementById("paid-words-panel");
+const paidWordsGrid = document.getElementById("paid-words-grid");
+const paidWordsStatus = document.getElementById("paid-words-status");
+const paidWordsCount = document.getElementById("paid-words-count");
+const paidWordsSearch = document.getElementById("paid-words-search");
+const paidWordsUserSelect = document.getElementById("paid-words-user-select");
+let paidWords = [];
+let paidWordsEditingId = null;
+let paidWordsTabActive = false;
+
+function setMyWordsTab(which) {
+  paidWordsTabActive = which === "paid" && serverAdmin;
+  mwTabMine.classList.toggle("active", !paidWordsTabActive);
+  mwTabPaid.classList.toggle("active", paidWordsTabActive);
+  mwTabMine.setAttribute("aria-selected", String(!paidWordsTabActive));
+  mwTabPaid.setAttribute("aria-selected", String(paidWordsTabActive));
+  myAddedWordsCard.classList.toggle("paid-tab-active", paidWordsTabActive);
+  paidWordsPanel.hidden = !paidWordsTabActive;
+  if (paidWordsTabActive) loadPaidWords();
+}
+
+// Called from updateAdminUI: the tabs exist only for a server-confirmed admin.
+function syncMyWordsTabs() {
+  if (!mwTabs) return;
+  mwTabs.hidden = !serverAdmin;
+  if (!serverAdmin) {
+    paidWords = [];
+    paidWordsEditingId = null;
+    setMyWordsTab("mine");
+  }
+}
+
+async function loadPaidWords() {
+  paidWordsStatus.textContent = "";
+  try {
+    const { words } = await api("/admin/user-words");
+    paidWords = words || [];
+  } catch (e) {
+    console.warn("Could not load paid members' words", e);
+    paidWordsStatus.textContent = t("paidWordsLoadFail");
+    return;
+  }
+  const keep = paidWordsUserSelect.value;
+  const names = [...new Set(paidWords.map((w) => w.ownerUsername))].sort((a, b) => a.localeCompare(b));
+  paidWordsUserSelect.innerHTML = "";
+  const all = document.createElement("option");
+  all.value = "";
+  all.textContent = t("paidWordsAllMembers");
+  paidWordsUserSelect.appendChild(all);
+  names.forEach((n) => {
+    const o = document.createElement("option");
+    o.value = n;
+    o.textContent = n;
+    paidWordsUserSelect.appendChild(o);
+  });
+  paidWordsUserSelect.value = names.includes(keep) ? keep : "";
+  renderPaidWords();
+}
+
+function formatPaidWordDate(ms) {
+  if (!ms) return "";
+  try {
+    return new Date(ms).toLocaleString(currentLang === "ko" ? "ko-KR" : "en-AU", { dateStyle: "medium", timeStyle: "short" });
+  } catch (e) {
+    return new Date(ms).toISOString().slice(0, 16).replace("T", " ");
+  }
+}
+
+function paidWordMeaning(w) {
+  return (currentLang === "ko" ? w.definitionKo || w.definitionEn : w.definitionEn || w.definitionKo) || "";
+}
+
+function renderPaidWords() {
+  const q = paidWordsSearch.value.trim().toLowerCase();
+  const who = paidWordsUserSelect.value;
+  const shown = paidWords.filter((w) => {
+    if (who && w.ownerUsername !== who) return false;
+    if (!q) return true;
+    return [w.word, w.definitionKo, w.definitionEn, w.ownerUsername].some((v) => (v || "").toLowerCase().includes(q));
+  });
+  paidWordsCount.textContent = paidWords.length ? t("paidWordsCount", shown.length, paidWords.length) : "";
+  paidWordsGrid.innerHTML = "";
+  if (paidWords.length === 0) {
+    if (!paidWordsStatus.textContent) paidWordsStatus.textContent = t("paidWordsEmpty");
+    return;
+  }
+  paidWordsStatus.textContent = "";
+  shown.slice(0, 200).forEach((w) => paidWordsGrid.appendChild(w.id === paidWordsEditingId ? buildPaidWordEditor(w) : buildPaidWordRow(w)));
+}
+
+function buildPaidWordRow(w) {
+  const row = document.createElement("div");
+  row.className = "pw-row";
+  const top = document.createElement("div");
+  top.className = "pw-row-top";
+  const word = document.createElement("span");
+  word.className = "pw-word";
+  word.textContent = w.word;
+  top.appendChild(word);
+  if (w.pos) {
+    const tag = document.createElement("span");
+    tag.className = "pw-tag";
+    tag.textContent = posTagText(w.pos);
+    top.appendChild(tag);
+  }
+  const lvl = document.createElement("span");
+  lvl.className = "pw-tag";
+  lvl.textContent = levelLabelIn(currentLang === "ko" ? w.levelKo : w.levelEn, (SYSTEMS[currentLang] || SYSTEMS.en).levels);
+  top.appendChild(lvl);
+  row.appendChild(top);
+  const meaning = document.createElement("div");
+  meaning.className = "pw-meaning";
+  meaning.textContent = paidWordMeaning(w);
+  row.appendChild(meaning);
+  if (w.example) {
+    const ex = document.createElement("div");
+    ex.className = "pw-example";
+    ex.textContent = w.example;
+    row.appendChild(ex);
+  }
+  const meta = document.createElement("div");
+  meta.className = "pw-meta";
+  const strong = document.createElement("strong");
+  strong.textContent = w.ownerUsername;
+  meta.append(`${t("paidWordsBy")}: `, strong, ` · ${t("paidWordsOn")}: ${formatPaidWordDate(w.createdAt)}`);
+  row.appendChild(meta);
+  const actions = document.createElement("div");
+  actions.className = "pw-actions";
+  const edit = document.createElement("button");
+  edit.type = "button";
+  edit.className = "pill accent small";
+  edit.textContent = t("paidWordsEditBtn");
+  edit.addEventListener("click", () => {
+    paidWordsEditingId = w.id;
+    renderPaidWords();
+  });
+  const del = document.createElement("button");
+  del.type = "button";
+  del.className = "pill error small";
+  del.textContent = t("paidWordsDeleteBtn");
+  del.addEventListener("click", () => deletePaidWord(w));
+  actions.append(edit, del);
+  row.appendChild(actions);
+  return row;
+}
+
+function buildPaidWordEditor(w) {
+  const row = document.createElement("div");
+  row.className = "pw-row pw-edit";
+  const field = (labelKey, value) => {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = value || "";
+    input.placeholder = t(labelKey);
+    input.setAttribute("aria-label", t(labelKey));
+    return input;
+  };
+  const wordIn = field("paidWordsFieldWord", w.word);
+  const koIn = field("paidWordsFieldKo", w.definitionKo);
+  const enIn = field("paidWordsFieldEn", w.definitionEn);
+  const exIn = field("paidWordsFieldExample", w.example);
+  const posSel = document.createElement("select");
+  const none = document.createElement("option");
+  none.value = "";
+  none.textContent = "—";
+  posSel.appendChild(none);
+  POS_LIST.forEach((p) => {
+    const o = document.createElement("option");
+    o.value = p.id;
+    o.textContent = posLabel(p.id);
+    posSel.appendChild(o);
+  });
+  posSel.value = w.pos || "";
+  const levelSel = (cur, levels) => {
+    const sel = document.createElement("select");
+    levels.forEach((lv) => {
+      const o = document.createElement("option");
+      o.value = lv.id;
+      o.textContent = lv.label;
+      sel.appendChild(o);
+    });
+    if (cur) sel.value = cur;
+    return sel;
+  };
+  const lvEn = levelSel(w.levelEn, SYSTEMS.en.levels);
+  const lvKo = levelSel(w.levelKo, SYSTEMS.ko.levels);
+  const r1 = document.createElement("div");
+  r1.className = "pw-edit-row";
+  r1.append(posSel, lvEn, lvKo);
+  const actions = document.createElement("div");
+  actions.className = "pw-actions";
+  const save = document.createElement("button");
+  save.type = "button";
+  save.className = "pill accent small";
+  save.textContent = t("paidWordsSaveBtn");
+  save.addEventListener("click", async () => {
+    const word = wordIn.value.trim();
+    if (!word) return;
+    save.disabled = true;
+    const body = {
+      id: w.id,
+      word,
+      definitionKo: koIn.value.trim(),
+      definitionEn: enIn.value.trim(),
+      example: exIn.value.trim(),
+      pos: posSel.value,
+      levelEn: lvEn.value,
+      levelKo: lvKo.value,
+    };
+    try {
+      await api("/admin/user-words/update", { method: "POST", body: JSON.stringify(body) });
+      Object.assign(w, body, { definitionKo: body.definitionKo || null, definitionEn: body.definitionEn || null, pos: body.pos || null });
+      paidWordsEditingId = null;
+      renderPaidWords();
+      paidWordsStatus.textContent = t("paidWordsSaved");
+    } catch (e) {
+      console.warn("Could not save paid member's word", e);
+      save.disabled = false;
+      paidWordsStatus.textContent = t("paidWordsSaveFail");
+    }
+  });
+  const cancel = document.createElement("button");
+  cancel.type = "button";
+  cancel.className = "pill neutral small";
+  cancel.textContent = t("paidWordsCancelBtn");
+  cancel.addEventListener("click", () => {
+    paidWordsEditingId = null;
+    renderPaidWords();
+  });
+  actions.append(save, cancel);
+  row.append(wordIn, koIn, enIn, exIn, r1, actions);
+  return row;
+}
+
+async function deletePaidWord(w) {
+  // Styled in-app dialog (not the browser popup) — matches the rest of the app.
+  const ok = await kidConfirm(t("paidWordsDeleteConfirm", w.word, w.ownerUsername), t("paidWordsDeleteBtn"), t("paidWordsCancelBtn"), { danger: true });
+  if (!ok) return;
+  try {
+    await api("/admin/user-words/delete", { method: "POST", body: JSON.stringify({ ids: [w.id] }) });
+    paidWords = paidWords.filter((x) => x.id !== w.id);
+    renderPaidWords();
+    paidWordsStatus.textContent = t("paidWordsDeleted");
+  } catch (e) {
+    console.warn("Could not delete paid member's word", e);
+    paidWordsStatus.textContent = t("paidWordsSaveFail");
+  }
+}
+
+mwTabMine.addEventListener("click", () => setMyWordsTab("mine"));
+mwTabPaid.addEventListener("click", () => setMyWordsTab("paid"));
+paidWordsSearch.addEventListener("input", renderPaidWords);
+paidWordsUserSelect.addEventListener("change", renderPaidWords);
+
+// The Excel/photo card keeps its last result banner and chosen file until
+// the page reloads — signing out and straight back in as someone else left
+// the previous account's "Done! 10 added" message on screen. Wipe it whenever
+// the signed-in account changes.
+let ocrCardUserKey = null;
+function resetOcrCardForNewAccount() {
+  const key = currentUser ? currentUser.id : "";
+  if (ocrCardUserKey === key) return;
+  const first = ocrCardUserKey === null;
+  ocrCardUserKey = key;
+  if (first) return;
+  try {
+    handleOcrFileChosen(null);
+    ocrFileInput.value = "";
+    ocrExcelStatus.hidden = true;
+    ocrExcelStatus.textContent = "";
+    ocrExcelStatus.classList.remove("ocr-excel-status-done");
+    ocrStatus.textContent = "";
+    ocrReview.hidden = true;
+    ocrProgress.hidden = true;
+  } catch (e) {
+    /* card not ready yet */
+  }
 }
 
 ocrChooseBtn.addEventListener("click", () => {
