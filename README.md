@@ -93,8 +93,8 @@ Check that `name` in `wrangler.jsonc` matches the existing Worker, otherwise ste
 ```
 public/index.html   Page structure and all views (language toggle, level select, flashcards, quiz, spelling, word list, add word, stats)
 public/css/style.css  Styling
-public/js/words.js    English-track word data, grouped by category and level ("year4" / "year5" / "year6")
-public/js/words_ko.js Korean-track vocabulary data ("kr_elem6" / "kr_mid1" / "kr_mid2" / "kr_mid3"), Korean definitions + English examples
+public/js/words.js    English-track word data, grouped by category and level ("elem_low" / "elem_high" / "middle" / "high")
+public/js/words_ko.js Korean-track vocabulary data (same four level ids), Korean definitions + English examples
 public/js/app.js      App logic (i18n/translations, language + level switching, tabs, quiz/flashcard/spelling engines, manual add, OCR extraction, text-to-speech voice selection, progress storage, shared-word-list API client)
 worker/index.js     Cloudflare Worker: serves the app and the /api routes for the shared word list and admin sign-in
 schema.sql          D1 table definitions
@@ -105,8 +105,8 @@ Only `public/` is published — the Worker source, schema and README aren't part
 
 ## Customising the built-in word lists
 
-- English track: `js/words.js`, grouped by category (`vocabulary`, `spelling`, `synonyms`, `homophones`); each entry has a `level` field (`year4`, `year5`, `year6`).
-- Korean track: `js/words_ko.js`, a single `vocabulary` list; each entry has a `level` field (`kr_elem6`, `kr_mid1`, `kr_mid2`, `kr_mid3`), a Korean `definition`, and an English `example` sentence.
+- English track: `js/words.js`, grouped by category (`vocabulary`, `spelling`, `synonyms`, `homophones`); each entry has a `level` field (`elem_low`, `elem_high`, `middle`, `high`).
+- Korean track: `js/words_ko.js`, a single `vocabulary` list; each entry has a `level` field (`elem_low`, `elem_high`, `middle`, `high`), a Korean `definition`, and an English `example` sentence.
 - UI text for both languages lives in the `TRANSLATIONS` object near the top of `js/app.js`.
 
 Add, edit, or remove entries in these files to tailor the word lists. Words added by a user through the app (manually or from a photo) are stored separately in the browser's `localStorage` and are not written back to these files.
@@ -114,3 +114,10 @@ Add, edit, or remove entries in these files to tailor the word lists. Words adde
 ## Notes on the word lists
 
 The Year 5/Year 6 (English) and all four Korean-track word lists are general-purpose, curriculum-appropriate word sets written to reflect realistic difficulty progression — they are not sourced from any specific GATE/selective-school test paper or official Korean textbook list. Use the "Add Word" photo-extraction or manual-add features to build out a list that matches words from the actual practice materials you're using.
+
+
+## Levels and part of speech
+
+Both tracks use four stages: lower primary (`elem_low`, 초등 저학년), upper primary (`elem_high`, 초등 고학년), middle school (`middle`, 중학교) and high school (`high`, 고등학교). A word keeps two levels — `Level (English)` for the English track and `Level (Korean)` for the Korean track — because the Korean track is pitched a stage lower. Old ids (`year4`…`year7`, `kr_*`) are converted on load, and `migrations/0010_word_pos_and_levels.sql` converts the shared word table (`npm run db:migrate:pos`).
+
+Words also carry a part of speech (`pos`: noun, verb, adjective, adverb, pronoun, preposition, conjunction, interjection), exported as the `Part of speech` column right after `Word` and shown as a small tag in the word lists.
