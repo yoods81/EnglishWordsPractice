@@ -849,9 +849,62 @@
   function enter() {
     localize();
     renderUserChips();
+    if (window.__admSortSync) window.__admSortSync();
     loadOverview();
     setTab(tab);
   }
+
+  /* ---------- sort dropdown that opens inside the card ---------- */
+  // A native <select> pops its list out in the browser's own layer (it can
+  // spill past the card). This swaps in a small menu that stays inside the
+  // "User Accounts" box; the real <select> stays in the DOM as the value store.
+  (function enhanceSort() {
+    const sel = $("admin-users-sort");
+    if (!sel || sel.dataset.enhanced) return;
+    sel.dataset.enhanced = "1";
+    const wrap = document.createElement("div");
+    wrap.className = "adm-dd";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "adm-dd-btn";
+    btn.setAttribute("aria-haspopup", "listbox");
+    const menu = document.createElement("ul");
+    menu.className = "adm-dd-menu";
+    menu.setAttribute("role", "listbox");
+    menu.hidden = true;
+    sel.classList.add("adm-dd-native");
+    sel.parentNode.insertBefore(wrap, sel);
+    wrap.append(sel, btn, menu);
+    const label = () => (sel.options[sel.selectedIndex] || {}).textContent || "";
+    const sync = () => { btn.textContent = label(); };
+    const close = () => { menu.hidden = true; btn.setAttribute("aria-expanded", "false"); };
+    const open = () => {
+      menu.innerHTML = "";
+      Array.from(sel.options).forEach((o, i) => {
+        const li = document.createElement("li");
+        li.setAttribute("role", "option");
+        li.textContent = o.textContent;
+        if (i === sel.selectedIndex) li.className = "on";
+        li.addEventListener("click", () => {
+          sel.selectedIndex = i;
+          sel.dispatchEvent(new Event("change", { bubbles: true }));
+          sync();
+          close();
+        });
+        menu.appendChild(li);
+      });
+      menu.hidden = false;
+      btn.setAttribute("aria-expanded", "true");
+    };
+    btn.addEventListener("click", (e) => { e.stopPropagation(); menu.hidden ? open() : close(); });
+    document.addEventListener("click", (e) => { if (!wrap.contains(e.target)) close(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+    sel.addEventListener("change", sync);
+    // option text is re-translated by app.js on language switch
+    new MutationObserver(sync).observe(sel, { childList: true, subtree: true, characterData: true, attributes: true });
+    sync();
+    window.__admSortSync = sync;
+  })();
 
   window.adminCS = {
     enter,

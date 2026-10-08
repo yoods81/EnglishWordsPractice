@@ -163,3 +163,20 @@ body.has-support-unread #auth-toggle-btn::after, body.has-support-unread #contac
 .admin-sheet .admin-sheet-list .admin-sheet-line { padding: 8px 16px; }
 .admin-sheet .admin-sheet-list .admin-sheet-sec > summary { padding: 8px 16px; }
 .admin-sheet .ass-body { padding: 0 16px 14px; }
+
+/* ---- Sort dropdown that opens inside the User Accounts box ---- */
+[data-admin-pane="customers"] > .card { position: relative; min-height: 320px; }
+.adm-dd { position: relative; display: inline-block; }
+.adm-dd-native { position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px; }
+.adm-dd-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1.5px solid var(--accent-dark); border-radius: 10px; background: #fff; color: var(--accent-dark); font-family: var(--font-heading); font-size: .78rem; font-weight: 700; box-shadow: none; cursor: pointer; white-space: nowrap; }
+.adm-dd-btn::after { content: "▾"; font-size: .8em; }
+.adm-dd-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; margin: 0; padding: 4px; list-style: none; min-width: 100%; border: 1.5px solid var(--accent-dark); border-radius: 12px; background: #fff; box-shadow: 0 6px 18px rgba(11, 107, 87, .18); }
+.adm-dd-menu[hidden] { display: none; }
+.adm-dd-menu li { padding: 8px 12px; border-radius: 8px; font-size: .85rem; font-weight: 700; white-space: nowrap; cursor: pointer; color: var(--text); }
+.adm-dd-menu li:hover { background: #e9f8f3; }
+.adm-dd-menu li.on { background: var(--accent); color: #fff; }
+
+/* ---- Manage window: Role dropdown and Apply are the same height ---- */
+.admin-sheet #admin-sheet-role, .admin-sheet #admin-sheet-role-apply { height: 36px; box-sizing: border-box; margin: 0; }
+.admin-sheet #admin-sheet-role { padding-top: 0; padding-bottom: 0; line-height: 1; }
+.admin-sheet #admin-sheet-role-apply { padding-top: 0; padding-bottom: 0; display: inline-flex; align-items: center; }
