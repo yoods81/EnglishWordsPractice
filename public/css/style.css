@@ -4085,6 +4085,55 @@ html[lang="en"] button.kid-modal-btn {
   }
 }
 
+/* Excel import: inline "keep vs update existing words" choice (replaces a
+   browser confirm popup) and a clearly visible result banner. */
+.ocr-excel-mode {
+  margin: 12px 0 0;
+  padding: 8px 12px 10px;
+  border: 2px solid var(--outline);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.85);
+  text-align: left;
+}
+.ocr-excel-mode[hidden] { display: none; }
+.ocr-excel-mode legend {
+  padding: 0 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.ocr-excel-mode-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 4px;
+  cursor: pointer;
+}
+.ocr-excel-mode-opt input {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  accent-color: var(--accent-dark);
+}
+.ocr-excel-mode-opt span { display: flex; flex-direction: column; gap: 2px; }
+.ocr-excel-mode-opt strong { font-size: 0.9rem; color: var(--text); }
+.ocr-excel-mode-opt small { font-size: 0.78rem; color: var(--muted); line-height: 1.35; }
+html[data-theme="dark"] .ocr-excel-mode { background: rgba(20, 28, 70, 0.6); }
+
+.ocr-excel-status { margin-top: 10px; }
+.ocr-excel-status.ocr-excel-status-done {
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid var(--accent);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+html[data-theme="dark"] .ocr-excel-status.ocr-excel-status-done { background: rgba(20, 28, 70, 0.85); }
+
 .file-picker-row {
   display: flex;
   align-items: center;

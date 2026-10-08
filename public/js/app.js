@@ -561,13 +561,27 @@ const TRANSLATIONS = {
     excelNoWordColumn: "Couldn't find a \"Word\" column in that file — please check the column headers and try again.",
     excelNoRows: "That Excel file didn't have any words in it.",
     excelToolUnavailable: "The Excel tool couldn't load (check your internet connection) and can't be used right now.",
-    excelOverwriteConfirm: "If this Excel file includes words you already have, overwrite their existing data with what's in the file? (Choose Cancel to only add new words and leave existing ones untouched.)",
-    excelImportedStatus: (added, updated, skipped) => {
+    excelModeTitle: "If a word is already in your list…",
+    excelModeSkip: "Keep my existing words",
+    excelModeSkipHint: "Only new words are added.",
+    excelModeOverwrite: "Update with the file's data",
+    excelModeOverwriteHint: "Meanings, examples and levels are replaced by what's in the file (blank cells are left alone).",
+    excelImportedStatus: (added, updated, skipped, unchanged = 0) => {
+      const n = (x) => x.toLocaleString("en");
       const parts = [];
-      if (added > 0) parts.push(`added ${added} word${added === 1 ? "" : "s"}`);
-      if (updated > 0) parts.push(`updated ${updated} word${updated === 1 ? "" : "s"}`);
-      const summary = parts.length > 0 ? `Excel import: ${parts.join(", ")}.` : "Excel import: nothing new.";
-      return skipped > 0 ? `${summary} Skipped ${skipped} — already in your list or missing a word.` : summary;
+      if (added > 0) parts.push(`${n(added)} new word${added === 1 ? "" : "s"} added`);
+      if (updated > 0) parts.push(`${n(updated)} updated`);
+      if (parts.length === 0) {
+        return unchanged > 0
+          ? `Nothing to change — all ${n(unchanged)} word${unchanged === 1 ? "" : "s"} already match the file.`
+          : skipped > 0
+            ? `Nothing new to add — ${n(skipped)} word${skipped === 1 ? " is" : "s are"} already in your list.`
+            : "Nothing new in this file.";
+      }
+      let msg = `✅ Done! ${parts.join(" · ")}.`;
+      if (unchanged > 0) msg += ` ${n(unchanged)} already matched.`;
+      if (skipped > 0) msg += ` ${n(skipped)} skipped (already in your list or blank).`;
+      return msg;
     },
     excelLookingUpMissing: (n) => `Looking up ${n} missing meaning(s)...`,
     exportExcelBtn: "📥 Export",
@@ -1317,13 +1331,27 @@ const TRANSLATIONS = {
     excelNoWordColumn: "파일에서 \"Word\" 열을 찾을 수 없어요 — 열 제목을 확인하고 다시 시도해주세요.",
     excelNoRows: "그 엑셀 파일에 단어가 없어요.",
     excelToolUnavailable: "엑셀 처리 기능을 불러오지 못했어요 (인터넷 연결을 확인해주세요). 지금은 사용할 수 없어요.",
-    excelOverwriteConfirm: "이 엑셀 파일에 이미 있는 단어가 포함되어 있다면, 파일 내용으로 기존 정보를 덮어쓸까요? (취소를 누르면 새 단어만 추가되고 기존 단어는 그대로 유지돼요.)",
-    excelImportedStatus: (added, updated, skipped) => {
+    excelModeTitle: "이미 있는 단어가 파일에 있다면?",
+    excelModeSkip: "내 단어장은 그대로 두기",
+    excelModeSkipHint: "새 단어만 추가해요.",
+    excelModeOverwrite: "파일 내용으로 업데이트하기",
+    excelModeOverwriteHint: "뜻·예문·레벨을 파일에 적힌 내용으로 바꿔요 (빈 칸은 기존 내용을 그대로 둬요).",
+    excelImportedStatus: (added, updated, skipped, unchanged = 0) => {
+      const n = (x) => x.toLocaleString("ko");
       const parts = [];
-      if (added > 0) parts.push(`${added}개 추가`);
-      if (updated > 0) parts.push(`${updated}개 수정`);
-      const summary = parts.length > 0 ? `엑셀 가져오기: ${parts.join(", ")}.` : "엑셀 가져오기: 새로운 내용이 없어요.";
-      return skipped > 0 ? `${summary} ${skipped}개는 건너뛰었어요 — 이미 있거나 단어 칸이 비어 있어요.` : summary;
+      if (added > 0) parts.push(`새 단어 ${n(added)}개 추가`);
+      if (updated > 0) parts.push(`${n(updated)}개 업데이트`);
+      if (parts.length === 0) {
+        return unchanged > 0
+          ? `바꿀 내용이 없어요 — ${n(unchanged)}개 단어가 모두 파일과 같아요.`
+          : skipped > 0
+            ? `새로 추가할 단어가 없어요 — ${n(skipped)}개는 이미 단어장에 있어요.`
+            : "이 파일에는 새로운 내용이 없어요.";
+      }
+      let msg = `✅ 완료! ${parts.join(" · ")}`;
+      if (unchanged > 0) msg += ` · ${n(unchanged)}개는 이미 같은 내용`;
+      if (skipped > 0) msg += ` · ${n(skipped)}개는 건너뜀 (이미 있거나 빈 칸)`;
+      return msg;
     },
     excelLookingUpMissing: (n) => `${n}개의 빠진 의미를 찾는 중...`,
     exportExcelBtn: "📥 내보내기",
@@ -12101,13 +12129,13 @@ const ocrAddBtn = document.getElementById("ocr-add-btn");
 const ocrStatus = document.getElementById("ocr-status");
 const ocrReviewHintEl = document.getElementById("ocr-review-hint");
 const ocrExcelStatus = document.getElementById("ocr-excel-status");
+const ocrExcelModeEl = document.getElementById("ocr-excel-mode");
 const ocrExtractBtn = document.getElementById("ocr-extract-btn");
 // The file the user picked, held here between selection and the Extract
 // button click that actually processes it (see the ocrFileInput "change"
 // and ocrExtractBtn "click" handlers below).
 let ocrPendingFile = null;
 let ocrPendingKind = null;
-let ocrPendingOverwrite = false;
 
 /* ---------- Paid-feature gating: Extract words, Add manually, My added words ---------- */
 const addwordExtractCard = document.getElementById("addword-extract-card");
@@ -12306,6 +12334,7 @@ async function processExcelFile(file, overwrite) {
   const added = [];
   const updated = [];
   let skipped = 0;
+  let unchanged = 0;
   rows.forEach((row) => {
     const word = String(row[wordKey] || "").trim();
     if (!word) return;
@@ -12331,20 +12360,30 @@ async function processExcelFile(file, overwrite) {
         return;
       }
       // Only overwrite fields this row actually supplied — a blank cell
-      // never blanks out data the word already has.
+      // never blanks out data the word already has. A word whose fields
+      // already match the file is counted as "unchanged", not "updated", so
+      // re-importing your own export doesn't claim thousands of edits.
+      let changed = false;
+      const apply = (key, value) => {
+        if (value && existing[key] !== value) {
+          existing[key] = value;
+          changed = true;
+        }
+      };
       if (definitionEn) {
-        existing.definitionEn = definitionEn;
+        apply("definitionEn", definitionEn);
         existing.noDefinitionEn = false;
       }
       if (definitionKo) {
-        existing.definitionKo = definitionKo;
+        apply("definitionKo", definitionKo);
         existing.noDefinitionKo = false;
       }
-      if (example) existing.example = example;
-      if (levelEnRaw) existing.levelEn = levelEnRaw;
-      if (levelKoRaw) existing.levelKo = levelKoRaw;
-      if (posRaw) existing.pos = posRaw;
-      updated.push(existing);
+      apply("example", example);
+      apply("levelEn", levelEnRaw);
+      apply("levelKo", levelKoRaw);
+      apply("pos", posRaw);
+      if (changed) updated.push(existing);
+      else unchanged++;
       return;
     }
 
@@ -12372,28 +12411,44 @@ async function processExcelFile(file, overwrite) {
   ocrExcelStatus.hidden = false;
   const touched = added.concat(updated);
   if (touched.length === 0) {
-    ocrExcelStatus.textContent = t("excelImportedStatus", 0, 0, skipped);
+    ocrExcelStatus.textContent = t("excelImportedStatus", 0, 0, skipped, unchanged);
+    showExcelResult();
     return;
   }
 
   saveCustomWords();
   renderCustomWords();
   renderWordList();
-  ocrExcelStatus.textContent = t("excelImportedStatus", added.length, updated.length, skipped);
+  ocrExcelStatus.textContent = t("excelImportedStatus", added.length, updated.length, skipped, unchanged);
+  showExcelResult();
   await pushSharedWords(touched.filter((w) => w.remote));
 
   // Fill in whichever side (EN or KO) a row's spreadsheet data didn't
   // already supply — same background auto-fill manual/bulk add already do.
   const stillMissing = touched.filter((w) => w.noDefinitionEn || w.noDefinitionKo);
   if (stillMissing.length > 0) {
-    ocrExcelStatus.textContent = `${t("excelImportedStatus", added.length, updated.length, skipped)} ${t("excelLookingUpMissing", stillMissing.length)}`;
+    ocrExcelStatus.textContent = `${t("excelImportedStatus", added.length, updated.length, skipped, unchanged)} ${t("excelLookingUpMissing", stillMissing.length)}`;
     const infos = await mapWithConcurrency(stillMissing, 4, (w) => fetchWordInfo(w.word));
     stillMissing.forEach((w, i) => applyFetchedInfo(w, infos[i]));
     saveCustomWords();
     renderCustomWords();
     await pushSharedWords(stillMissing.filter((w) => w.remote));
-    ocrExcelStatus.textContent = withQuotaNote(t("excelImportedStatus", added.length, updated.length, skipped));
+    ocrExcelStatus.textContent = withQuotaNote(t("excelImportedStatus", added.length, updated.length, skipped, unchanged));
   }
+}
+
+// The result line used to sit in tiny muted text at the very bottom of the
+// card, easy to miss on a long import. Style it as a visible banner and
+// bring it into view.
+function showExcelResult() {
+  ocrExcelStatus.hidden = false;
+  ocrExcelStatus.classList.add("ocr-excel-status-done");
+  ocrExcelStatus.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
+function currentExcelMode() {
+  const checked = document.querySelector('input[name="ocr-excel-mode"]:checked');
+  return checked ? checked.value : "skip";
 }
 
 ocrChooseBtn.addEventListener("click", () => {
@@ -12415,16 +12470,17 @@ const OCR_MAX_FILE_BYTES = 10 * 1024 * 1024;
 // missing (CDN didn't load) or a fundamentally unsupported file type is
 // still reported immediately, since there's nothing Extract could do about
 // either. An Excel file's overwrite-or-skip choice is asked right here too,
-// before any of its rows have been read — see excelOverwriteConfirm's
-// wording, which doesn't presuppose the file actually contains a duplicate.
+// before any of its rows have been read — as an inline radio choice
+// (#ocr-excel-mode) rather than a browser popup.
 // Shared by both the file-input's change event and dropping a file onto
 // the dropzone — the two are just different ways of handing over the same
 // File object.
 function handleOcrFileChosen(file) {
   ocrExtractBtn.hidden = true;
+  ocrExcelModeEl.hidden = true;
+  ocrExcelStatus.classList.remove("ocr-excel-status-done");
   ocrPendingFile = null;
   ocrPendingKind = null;
-  ocrPendingOverwrite = false;
 
   if (!file) {
     ocrLastFileName = null;
@@ -12479,7 +12535,10 @@ function handleOcrFileChosen(file) {
   }
 
   if (kind === "xlsx") {
-    ocrPendingOverwrite = confirm(t("excelOverwriteConfirm"));
+    // Inline choice instead of a browser confirm() popup; defaults to the
+    // safe "keep existing words" option each time a file is picked.
+    document.querySelector('input[name="ocr-excel-mode"][value="skip"]').checked = true;
+    ocrExcelModeEl.hidden = false;
   }
 
   ocrPendingFile = file;
@@ -12522,7 +12581,7 @@ ocrDropzone.addEventListener("drop", (e) => {
 ocrExtractBtn.addEventListener("click", async () => {
   const file = ocrPendingFile;
   const kind = ocrPendingKind;
-  const overwrite = ocrPendingOverwrite;
+  const overwrite = kind === "xlsx" && currentExcelMode() === "overwrite";
   if (!file || !kind) return;
   // An Excel file's data goes straight into My Added Words with no separate
   // "Add selected words" step to gate afterward (unlike the photo/PDF/text
@@ -12533,8 +12592,11 @@ ocrExtractBtn.addEventListener("click", async () => {
     return;
   }
   ocrExtractBtn.hidden = true;
+  ocrExcelModeEl.hidden = true;
 
   if (kind === "xlsx") {
+    ocrExcelStatus.hidden = true;
+    ocrExcelStatus.classList.remove("ocr-excel-status-done");
     ocrProgress.hidden = false;
     ocrProgressFill.style.width = "50%";
     ocrProgressLabel.textContent = t("excelReadingStatus");

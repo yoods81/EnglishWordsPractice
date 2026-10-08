@@ -1550,6 +1550,26 @@ to Flip!</span></div>
             </p>
           </div>
         </div>
+        <!-- Excel only: replaces the old browser confirm() popup. Shown inline as
+             soon as an .xlsx is picked, defaults to the safe choice (keep
+             existing words), and is read when Extract is clicked. -->
+        <fieldset class="ocr-excel-mode" id="ocr-excel-mode" hidden>
+          <legend data-i18n="excelModeTitle">If a word is already in your list…</legend>
+          <label class="ocr-excel-mode-opt">
+            <input type="radio" name="ocr-excel-mode" value="skip" checked />
+            <span>
+              <strong data-i18n="excelModeSkip">Keep my existing words</strong>
+              <small data-i18n="excelModeSkipHint">Only new words are added.</small>
+            </span>
+          </label>
+          <label class="ocr-excel-mode-opt">
+            <input type="radio" name="ocr-excel-mode" value="overwrite" />
+            <span>
+              <strong data-i18n="excelModeOverwrite">Update with the file's data</strong>
+              <small data-i18n="excelModeOverwriteHint">Meanings, examples and levels are replaced by what's in the file (blank cells are left alone).</small>
+            </span>
+          </label>
+        </fieldset>
         <div id="ocr-progress" class="ocr-progress" hidden>
           <div class="progress-bar"><div class="progress-bar-fill" id="ocr-progress-fill"></div></div>
           <div id="ocr-progress-label" data-i18n="ocrProgressDefault">Reading image...</div>
@@ -1567,7 +1587,7 @@ to Flip!</span></div>
           </div>
           <div id="ocr-status" class="spelling-tip"></div>
         </div>
-        <div id="ocr-excel-status" class="spelling-tip" hidden></div>
+        <div id="ocr-excel-status" class="spelling-tip ocr-excel-status" role="status" aria-live="polite" hidden></div>
         <!-- Dimmed + click-to-prompt like the other two locked cards, but with no
              label of its own — one lock message (on the middle, manual-add card)
              is enough when all 3 cards lock together. -->
