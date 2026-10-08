@@ -1783,7 +1783,10 @@ function saveCustomWords() {
     // A free account's words are deliberately volatile — they must never
     // reach localStorage, so they vanish the moment the tab or site closes.
     localStorage.setItem(CUSTOM_WORDS_KEY, JSON.stringify(customWords.filter((w) => !w.remote && !w.volatile)));
-    localStorage.setItem(SHARED_WORDS_CACHE_KEY, JSON.stringify(customWords.filter((w) => w.remote)));
+    // Only the admin's shared pool is cached on this device — a paid
+    // account's private words stay on the server so they can't linger in
+    // localStorage for the next person using this browser.
+    localStorage.setItem(SHARED_WORDS_CACHE_KEY, JSON.stringify(customWords.filter((w) => w.remote && !w.ownerId)));
   } catch (e) {
     console.warn("Could not save custom words", e);
   }
@@ -2071,7 +2074,7 @@ function normCustomWordLevels(list) {
   return list;
 }
 let customWords = normCustomWordLevels(migrateCustomWords(loadCustomWords()).concat(
-  loadSharedWordsCache().map((w) => ({ ...w, remote: true }))
+  loadSharedWordsCache().filter((w) => !w.ownerId).map((w) => ({ ...w, remote: true }))
 ));
 let myDeck = loadMyDeck();
 let goals = loadGoals();
@@ -3724,7 +3727,8 @@ async function logOut() {
   sessionStorage.removeItem(ADMIN_KEY);
   // A free account's words only ever existed in memory for that session —
   // they don't carry over once you sign out.
-  customWords = customWords.filter((w) => !w.volatile);
+  customWords = customWords.filter((w) => !w.volatile && !(w.remote && w.ownerId));
+  saveCustomWords();
   updateAdminUI();
   renderUpgradeReadyBanner();
   try {
@@ -12359,6 +12363,14 @@ async function processExcelFile(file, overwrite) {
 
     const existing = findCustomWordByText(word);
     if (existing) {
+      // A word that lives in the admin's shared pool (or anyone else's) is
+      // never this account's to change — a paid account can't overwrite it
+      // (the server would ignore the write anyway, leaving only a misleading
+      // local edit). It also never gets a private duplicate. Skip it.
+      if (!isMyCustomWord(existing)) {
+        skipped++;
+        return;
+      }
       if (!overwrite) {
         skipped++;
         return;
