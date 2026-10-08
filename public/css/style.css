@@ -12550,3 +12550,38 @@ html[data-theme="dark"] .pw-edit input[type="text"] { background: rgba(255, 255,
   font-weight: 700;
   font-size: 0.85rem;
 }
+
+/* Edit form: every blank carries its own name; dropdowns get a visible arrow */
+.pw-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.pw-field-name { font-size: 0.78rem; font-weight: 700; color: var(--accent-dark); padding-left: 4px; }
+html[data-theme="dark"] .pw-field-name { color: var(--accent); }
+.pw-edit select {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  padding-right: 30px;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%230e9c7d' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px 14px;
+}
+html[data-theme="dark"] .pw-edit select { background-color: rgba(20, 28, 70, 0.9); color: inherit; }
+
+/* Chosen file: name + ✕ share one soft-mint pill so they read as a unit */
+.ocr-file-chip {
+  gap: 6px;
+  padding: 4px 6px 4px 12px;
+  border-radius: 999px;
+  background: rgba(34, 201, 163, 0.18);
+}
+html[data-theme="dark"] .ocr-file-chip { background: rgba(34, 201, 163, 0.22); }
+.ocr-file-clear {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e03131;
+  background: #fff;
+  font-size: 0.8rem;
+}
+.ocr-file-clear:hover, .ocr-file-clear:focus-visible { background: #ffe3e3; }
+.pw-edit .pw-edit-row select { font-size: 0.76rem; padding: 7px 24px 7px 10px; background-position: right 7px center; background-size: 12px 12px; text-overflow: ellipsis; }

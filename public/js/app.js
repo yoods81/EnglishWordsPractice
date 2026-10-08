@@ -564,6 +564,8 @@ const TRANSLATIONS = {
     excelModeTitle: "If a word is already in your list…",
     ocrRemoveFile: "Remove file",
     paidWordsCloseBtn: "Close",
+    paidWordsFieldLevelEn: "English level",
+    paidWordsFieldLevelKo: "Korean level",
     paidWordsDetailMeaningKo: "Korean meaning",
     paidWordsDetailMeaningEn: "English meaning",
     paidWordsDetailExample: "Example",
@@ -1362,6 +1364,8 @@ const TRANSLATIONS = {
     excelModeTitle: "이미 있는 단어가 파일에 있다면?",
     ocrRemoveFile: "파일 지우기",
     paidWordsCloseBtn: "닫기",
+    paidWordsFieldLevelEn: "영어 레벨",
+    paidWordsFieldLevelKo: "한국어 레벨",
     paidWordsDetailMeaningKo: "한국어 뜻",
     paidWordsDetailMeaningEn: "영어 뜻",
     paidWordsDetailExample: "예문",
@@ -12719,12 +12723,23 @@ document.addEventListener("keydown", (e) => {
 function buildPaidWordEditor(w) {
   const row = document.createElement("div");
   row.className = "pw-row pw-edit";
+  // Each blank sits under/after its own name so a Korean meaning can't be
+  // typed into the English-meaning box by mistake.
+  const labelled = (labelKey, control) => {
+    const wrap = document.createElement("label");
+    wrap.className = "pw-field";
+    const name = document.createElement("span");
+    name.className = "pw-field-name";
+    name.textContent = t(labelKey);
+    wrap.append(name, control);
+    return wrap;
+  };
   const field = (labelKey, value) => {
     const input = document.createElement("input");
     input.type = "text";
     input.value = value || "";
-    input.placeholder = t(labelKey);
     input.setAttribute("aria-label", t(labelKey));
+    input.dataset.labelKey = labelKey;
     return input;
   };
   const wordIn = field("paidWordsFieldWord", w.word);
@@ -12758,7 +12773,7 @@ function buildPaidWordEditor(w) {
   const lvKo = levelSel(w.levelKo, SYSTEMS.ko.levels);
   const r1 = document.createElement("div");
   r1.className = "pw-edit-row";
-  r1.append(posSel, lvEn, lvKo);
+  r1.append(labelled("paidWordsDetailPos", posSel), labelled("paidWordsFieldLevelEn", lvEn), labelled("paidWordsFieldLevelKo", lvKo));
   const actions = document.createElement("div");
   actions.className = "pw-actions";
   const save = document.createElement("button");
@@ -12800,7 +12815,7 @@ function buildPaidWordEditor(w) {
     renderPaidWords();
   });
   actions.append(save, cancel);
-  row.append(wordIn, koIn, enIn, exIn, r1, actions);
+  row.append(labelled("paidWordsFieldWord", wordIn), labelled("paidWordsFieldKo", koIn), labelled("paidWordsFieldEn", enIn), labelled("paidWordsFieldExample", exIn), r1, actions);
   return row;
 }
 
