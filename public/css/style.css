@@ -12685,3 +12685,34 @@ html[data-theme="dark"] .ocr-file-chip { background: rgba(34, 201, 163, 0.22); }
   border: 1px solid rgba(14, 156, 125, 0.4);
 }
 .pw-edit .pw-edit-row .pw-field select { width: 6em; }
+
+/* Extract: icon + its label bounce together (the label used to stay still) */
+.ocr-dropzone-anim-icon { animation: none !important; }
+.ocr-dz-iconwrap { animation: ocr-dropzone-icon-bounce 1.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .ocr-dz-iconwrap { animation: none; } }
+
+/* Paid-words edit form, round 4: roomier lines; dropdowns sized to their longest
+   option (nothing cut off), left-aligned, rounded-rectangle like the open list */
+.pw-edit { gap: 11px; }
+.pw-edit .pw-edit-row {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+.pw-edit .pw-edit-row > .pw-field { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; overflow: visible; }
+.pw-edit .pw-edit-row .pw-field-name { white-space: nowrap; }
+.pw-edit .pw-edit-row .pw-field select {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
+  border-radius: 10px;
+  padding: 6px 20px 6px 9px;
+  font-size: 0.74rem;
+  overflow: visible;
+  text-overflow: clip;
+  background-position: right 6px center;
+}
+/* One line whenever the card is wide enough; on very narrow phones the third dropdown drops to a second line rather than cutting its text */
+@media (min-width: 560px) { .pw-edit .pw-edit-row { flex-wrap: nowrap; } }
