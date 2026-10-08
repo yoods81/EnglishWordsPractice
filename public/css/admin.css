@@ -180,3 +180,19 @@ body.has-support-unread #auth-toggle-btn::after, body.has-support-unread #contac
 .admin-sheet #admin-sheet-role, .admin-sheet #admin-sheet-role-apply { height: 36px; box-sizing: border-box; margin: 0; }
 .admin-sheet #admin-sheet-role { padding-top: 0; padding-bottom: 0; line-height: 1; }
 .admin-sheet #admin-sheet-role-apply { padding-top: 0; padding-bottom: 0; display: inline-flex; align-items: center; }
+
+/* =====================================================================
+   One card style for the whole site — the look of the Overview cards:
+   thin accent border, 20px corners, soft flat "ledge" shadow.
+   (Loaded last; !important beats the older per-view card overrides.)
+   ===================================================================== */
+html body :is(.card, .adm-card, .auth-card, .notice-card, .upgrade-card, .dash-card, .mission-card, .qz-start-card, .sp-start-card, .tg-start-card, .tg-over-card, .qz-result-card, .sp-report-card),
+html body #view-stats > .card,
+html body #view-koala > .card,
+html body :is(#view-stats, #view-admincodes, #view-addword, #view-myaccount, #view-quiz, #view-spelling, #view-flashcards, #view-wordlist) .card,
+html[data-theme] body #view-stats > .card,
+html[data-theme] body #view-koala > .card {
+  border: 1px solid var(--outline) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 3px 0 rgba(11, 107, 87, .12) !important;
+}
