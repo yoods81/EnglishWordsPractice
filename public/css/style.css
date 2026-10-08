@@ -12556,8 +12556,9 @@ html[data-theme="dark"] .pw-edit input[type="text"] { background: rgba(255, 255,
 .pw-field-name { font-size: 0.78rem; font-weight: 700; color: var(--accent-dark); padding-left: 4px; }
 html[data-theme="dark"] .pw-field-name { color: var(--accent); }
 .pw-edit select {
-  -webkit-appearance: none;
-  appearance: none;
+  /* keep the app-wide base-select appearance so the open list uses the shared
+     popup styling (an appearance:none override here caused a wide white frame) */
+  appearance: base-select;
   width: 100%;
   padding-right: 30px;
   background-color: #fff;
@@ -12585,3 +12586,39 @@ html[data-theme="dark"] .ocr-file-chip { background: rgba(34, 201, 163, 0.22); }
 }
 .ocr-file-clear:hover, .ocr-file-clear:focus-visible { background: #ffe3e3; }
 .pw-edit .pw-edit-row select { font-size: 0.76rem; padding: 7px 24px 7px 10px; background-position: right 7px center; background-size: 12px 12px; text-overflow: ellipsis; }
+
+/* Edit form: name and blank on one line */
+.pw-edit .pw-field { flex-direction: row; align-items: center; gap: 8px; }
+.pw-edit .pw-field-name { flex: 0 0 5.4em; padding-left: 2px; white-space: nowrap; }
+.pw-edit .pw-field input { flex: 1 1 0; min-width: 0; }
+/* The three dropdowns share one line, each preceded by its name */
+.pw-edit .pw-edit-row { gap: 8px; flex-wrap: nowrap; align-items: center; }
+.pw-edit .pw-edit-row > .pw-field { flex: 1 1 0; min-width: 0; gap: 4px; }
+.pw-edit .pw-edit-row .pw-field-name { flex: 0 0 auto; padding-left: 0; font-size: 0.72rem; }
+.pw-edit .pw-edit-row .pw-field select { flex: 1 1 0; min-width: 0; width: auto; }
+
+/* Edit form, round 2: aligned label column, no overflow, compact one-line dropdowns */
+.pw-edit .pw-field { display: grid; grid-template-columns: 7.6em minmax(0, 1fr); }
+.pw-edit .pw-field-name { flex: none; }
+.pw-edit .pw-field input[type="text"] { width: 100%; box-sizing: border-box; min-width: 0; }
+.pw-edit .pw-edit-row { display: flex; }
+.pw-edit .pw-edit-row > .pw-field { display: flex; flex: 1 1 0; min-width: 0; gap: 4px; }
+.pw-edit .pw-edit-row .pw-field-name { font-size: 0.68rem; line-height: 1.15; white-space: normal; flex: 0 0 auto; max-width: 3.6em; }
+.pw-edit .pw-edit-row .pw-field select {
+  font-size: 0.7rem;
+  padding: 6px 16px 6px 8px;
+  background-position: right 5px center;
+  background-size: 10px 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pw-edit .pw-edit-row .pw-field-name { white-space: nowrap; max-width: none; font-size: 0.66rem; }
+.pw-edit .pw-edit-row { gap: 6px; }
+
+/* The paid-members list flows with the page (no inner scrollbar) and never
+   lets a wide child push the cards past the screen edge. */
+#paid-words-grid { grid-template-columns: minmax(0, 1fr); max-height: none; overflow: visible; padding-right: 0; }
+#paid-words-grid > .pw-row { min-width: 0; box-sizing: border-box; }
+.pw-edit .pw-edit-row .pw-field select { width: 0; flex: 1 1 0; min-width: 0; }
+.pw-edit .pw-edit-row > .pw-field { overflow: hidden; }
