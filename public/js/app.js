@@ -3397,7 +3397,11 @@ async function pushSharedWords(words) {
   for (let i = 0; i < words.length; i += WORDS_PER_REQUEST_CHUNK) {
     const chunk = words.slice(i, i + WORDS_PER_REQUEST_CHUNK);
     try {
-      await api("/words", { method: "PUT", body: JSON.stringify({ words: chunk }) });
+      const res = await api("/words", { method: "PUT", body: JSON.stringify({ words: chunk }) });
+      if (res && res.posSaved === false && !pushSharedWords.warnedPos) {
+        pushSharedWords.warnedPos = true;
+        console.warn("Server could not store part of speech — run `npm run db:migrate:pos`.");
+      }
     } catch (e) {
       console.warn("Could not save words to the server", e);
       failed.push(...chunk);

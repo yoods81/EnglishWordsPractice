@@ -1227,13 +1227,25 @@ async function handleApi(request, env, url) {
           ...[w.example, w.no_definition_en, w.no_definition_ko, w.source, ownerId, w.created_at, now]
         )
       );
+    let posSaved = true;
     try {
       await env.DB.batch(buildStatements(true));
     } catch (e) {
       if (!/\bpos\b/i.test(String(e && e.message))) throw e;
-      await env.DB.batch(buildStatements(false));
+      // The live table has no pos column yet (migration 0010 not applied).
+      // Previously this silently saved every word WITHOUT its part of speech,
+      // so it vanished on the next login. Add the column on the spot and
+      // retry; only if that is impossible fall back to the old shape — and
+      // then say so in the response instead of hiding it.
+      try {
+        await env.DB.prepare("ALTER TABLE shared_words ADD COLUMN pos TEXT").run();
+        await env.DB.batch(buildStatements(true));
+      } catch (e2) {
+        await env.DB.batch(buildStatements(false));
+        posSaved = false;
+      }
     }
-    return json({ saved: words.length });
+    return json({ saved: words.length, posSaved });
   }
 
   return json({ error: "not_found" }, 404);
