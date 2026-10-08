@@ -2042,7 +2042,9 @@ function updateSpellingStartChips() {
   const streak = currentStreakStatus().count || 0;
   const sb = document.getElementById("spelling-start-btn");
   if (sb) sb.textContent = t(today > 0 ? "spellingContinueBtn" : "spellingStartBtn");
-  stats.innerHTML = `<span>⭐ ${rwL(`${today} correct today`, `오늘 ${today}개 정답`)}</span><span>🔥 ${rwL(`${streak}-day streak`, `${streak}일 연속`)}</span>`;
+  stats.innerHTML =
+    `<span class="sp-stat"><i aria-hidden="true">⭐</i><b>${today}</b><em>${rwL("correct today", "오늘 정답")}</em></span>` +
+    `<span class="sp-stat"><i aria-hidden="true">🔥</i><b>${streak}</b><em>${rwL("day streak", "일 연속")}</em></span>`;
 }
 document.getElementById("spelling-start-level")?.addEventListener("click", () => document.getElementById("level-badge")?.click());
 
@@ -4686,7 +4688,17 @@ function updateFlashCount() {
     // Say which level the cards come from ("Year 4 · 1009 cards ready"); with
     // nothing to study, explain why Start is off instead of hiding the line.
     const lvl = n && flashUseLevel && !flashWrongOverride ? levelLabel(currentLevel) : "";
-    el.textContent = n ? (lvl ? `${lvl} · ` : "") + t("fsCount", n) : t("fsEmpty");
+    el.textContent = "";
+    if (n) {
+      if (lvl) { const a = document.createElement("span"); a.className = "fs-count-lvl"; a.textContent = lvl; el.append(a); }
+      const m = String(t("fsCount", n)).match(/^(.*?)(\d[\d,]*)(.*)$/);
+      if (m) {
+        const pre = document.createElement("span"); pre.textContent = m[1];
+        const num = document.createElement("b"); num.className = "fs-count-n"; num.textContent = m[2];
+        const post = document.createElement("span"); post.textContent = m[3];
+        el.append(pre, num, post);
+      } else el.append(String(t("fsCount", n)));
+    } else el.textContent = t("fsEmpty");
     el.classList.toggle("is-empty", n === 0);
     el.hidden = false;
   }
@@ -5028,9 +5040,17 @@ flashFrontModeSel.addEventListener("change", syncFlashPreviewFront);
 // While the settings are open the demo card and "Look › Flip" steps step aside
 // (see .is-settings-open in style.css) so Start stays on screen.
 const flashSettingsDetails = document.getElementById("flash-settings");
+function closeFlashSettingsOutside(e) {
+  if (!flashSettingsDetails.open) { document.removeEventListener("click", closeFlashSettingsOutside); return; }
+  if (flashSettingsDetails.contains(e.target)) return;
+  flashSettingsDetails.open = false;
+  document.removeEventListener("click", closeFlashSettingsOutside);
+}
 if (flashSettingsDetails) {
   flashSettingsDetails.addEventListener("toggle", () => {
+    // The settings drop down over the card (see START SCREENS v2 in style.css), so nothing below needs to move.
     document.getElementById("flash-start-screen").classList.toggle("is-settings-open", flashSettingsDetails.open);
+    if (flashSettingsDetails.open) setTimeout(() => document.addEventListener("click", closeFlashSettingsOutside), 0);
   });
 }
 // The collapsed "⚙️" row always shows the current choices, e.g. "📚 Vocabulary · 📝 Word · 🎯 Level words".
@@ -6599,8 +6619,8 @@ function koalaTalk(on, safetyMs = 4000) {
 const KB_GAME_FULL = 25; // cleared words/facts for a completely full belly
 const CLOUD_SVG = '<svg viewBox="0 0 120 68" class="sp-cloud-bg"><path d="M28 50 C12 50 6 36 16 28 C10 14 28 6 40 14 C46 2 70 2 78 14 C92 6 112 16 104 30 C116 38 108 52 92 50 C80 58 40 58 28 50 Z" fill="#fff" stroke="#0e9c7d" stroke-width="2.6" stroke-linejoin="round"/><circle cx="62" cy="60" r="3.6" fill="#fff" stroke="#0e9c7d" stroke-width="2"/></svg>';
 const KB_ANCHORS = {
-  type: () => document.querySelector("#typegame-start-overlay h3"),
-  tt: () => document.querySelector("#timestable-start-overlay h3"),
+  type: () => document.querySelector("#typegame-start-overlay .tg-hero-slot"),
+  tt: () => document.querySelector("#timestable-start-overlay .tg-hero-slot"),
   // The in-stage koala that stays visible while a Times Table round is running
   // (the "tt" strip above lives inside the start overlay, so it can't be seen mid-game).
   ttlive: () => document.getElementById("timestable-koala-anchor"),
@@ -7257,6 +7277,15 @@ let typeGameScore = 0;
 let typeGameWordsCleared = 0;
 let typeGameLives = TYPEGAME_LIVES;
 let typeGameSpawnInterval = TYPEGAME_SPAWN_START;
+// Start-screen difficulty: where the round's speed and spawn rate begin.
+const TYPEGAME_MODE_KEY = "ywp_typegame_mode_v1";
+const TYPEGAME_MODES = {
+  beginner: { speed: 1, spawn: 3600 },
+  intermediate: { speed: 5, spawn: 2800 },
+  pro: { speed: 10, spawn: 2100 },
+};
+let typeGameMode = "beginner";
+try { const m = localStorage.getItem(TYPEGAME_MODE_KEY); if (TYPEGAME_MODES[m]) typeGameMode = m; } catch (e) { /* default */ }
 let typeGameStageIndex = 0; // advances every TYPEGAME_WORDS_PER_SPEEDUP correct words
 let typeGameSpawnTimer = null;
 let typeGameRafId = null;
@@ -7447,11 +7476,42 @@ function updateTypeGameStartChips() {
   const levelEl = document.getElementById("typegame-start-level");
   const bestEl = document.getElementById("typegame-start-best");
   if (!levelEl || !bestEl) return;
-  levelEl.textContent = `📚 ${levelLabel(currentLevel)}`;
+  levelEl.textContent = `📚 ${levelLabel(currentLevel)} ▾`;
+  levelEl.setAttribute("aria-label", startL("Change level", "레벨 바꾸기"));
+  renderTypeGameModes();
   const best = typeGameHighScores[typeGameHighScoreKey()] || 0;
   bestEl.hidden = best <= 0;
   bestEl.textContent = `🏆 ${currentLang === "ko" ? "최고 점수" : "Best"} ${best}`;
 }
+
+function startL(en, ko) { return currentLang === "ko" ? ko : en; }
+const TYPEGAME_MODE_LABELS = {
+  beginner: ["🌱", "Beginner", "초급"],
+  intermediate: ["🌿", "Intermediate", "중급"],
+  pro: ["🌳", "Pro", "고급"],
+};
+function renderTypeGameModes() {
+  const seg = document.getElementById("typegame-mode-seg");
+  if (!seg) return;
+  seg.querySelectorAll("[data-mode]").forEach((b) => {
+    const m = b.dataset.mode;
+    const lab = TYPEGAME_MODE_LABELS[m];
+    b.textContent = `${lab[0]} ${startL(lab[1], lab[2])}`;
+    b.classList.toggle("on", m === typeGameMode);
+    b.setAttribute("aria-checked", m === typeGameMode ? "true" : "false");
+  });
+}
+document.getElementById("typegame-mode-seg")?.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-mode]");
+  if (!b || typeGameRunning || !TYPEGAME_MODES[b.dataset.mode]) return;
+  typeGameMode = b.dataset.mode;
+  try { localStorage.setItem(TYPEGAME_MODE_KEY, typeGameMode); } catch (err) { /* ignore */ }
+  typeGameSpeedLevel = TYPEGAME_MODES[typeGameMode].speed;
+  typeGameSpawnInterval = TYPEGAME_MODES[typeGameMode].spawn;
+  updateTypeGameSpeedUI();
+  renderTypeGameModes();
+});
+document.getElementById("typegame-start-level")?.addEventListener("click", () => document.getElementById("level-badge")?.click());
 
 function resetTypeGame() {
   kb("type")?.reset();
@@ -7462,9 +7522,9 @@ function resetTypeGame() {
   typeGameRoundSolved = new Set();
   typeGameMissed = new Set();
   typeGameLives = TYPEGAME_LIVES;
-  typeGameSpeedLevel = TYPEGAME_SPEED_LEVEL_MIN;
+  typeGameSpeedLevel = TYPEGAME_MODES[typeGameMode].speed;
   updateTypeGameSpeedUI();
-  typeGameSpawnInterval = TYPEGAME_SPAWN_START;
+  typeGameSpawnInterval = TYPEGAME_MODES[typeGameMode].spawn;
   typeGameStageIndex = 0;
   typeGameInput.value = "";
   typeGameInput.disabled = true;
@@ -7496,9 +7556,9 @@ function startTypeGame() {
   typeGameRoundSolved = new Set();
   typeGameMissed = new Set();
   typeGameLives = TYPEGAME_LIVES;
-  typeGameSpeedLevel = TYPEGAME_SPEED_LEVEL_MIN;
+  typeGameSpeedLevel = TYPEGAME_MODES[typeGameMode].speed;
   updateTypeGameSpeedUI();
-  typeGameSpawnInterval = TYPEGAME_SPAWN_START;
+  typeGameSpawnInterval = TYPEGAME_MODES[typeGameMode].spawn;
   typeGameStageIndex = 0;
   typeGameActive.forEach((w) => w.el.remove());
   typeGameActive = [];
@@ -7838,7 +7898,7 @@ function clearTypeGameWord(word) {
   // faster game — the pace only picks up once they've clearly got the hang
   // of it.
   const speedUps = Math.floor(typeGameWordsCleared / TYPEGAME_WORDS_PER_SPEEDUP);
-  typeGameSpawnInterval = Math.max(TYPEGAME_SPAWN_MIN, TYPEGAME_SPAWN_START - speedUps * TYPEGAME_SPAWN_STEP);
+  typeGameSpawnInterval = Math.max(TYPEGAME_SPAWN_MIN, TYPEGAME_MODES[typeGameMode].spawn - speedUps * TYPEGAME_SPAWN_STEP);
   if (speedUps !== typeGameStageIndex) {
     typeGameStageIndex = speedUps;
     // A relative +1 (not recomputed from the stage index) so a manual
@@ -8238,6 +8298,14 @@ const TIMESTABLE_SRS_QUEUE_SIZE = 30;
 const TIMESTABLE_HIGH_SCORE_KEY = "ywp_timestable_highscores_v1";
 const TIMESTABLE_MUTE_KEY = "ywp_timestable_muted_v1";
 const TIMESTABLE_MAXTABLE_KEY = "ywp_timestable_maxtable_v1";
+const TIMESTABLE_SPEEDMODE_KEY = "ywp_timestable_speedmode_v1";
+const TIMESTABLE_SPEED_MODES = {
+  slow: { speed: 1, spawn: 4200 },
+  normal: { speed: 4, spawn: 3400 },
+  fast: { speed: 8, spawn: 2600 },
+};
+let timesTableSpeedMode = "slow";
+try { const m = localStorage.getItem(TIMESTABLE_SPEEDMODE_KEY); if (TIMESTABLE_SPEED_MODES[m]) timesTableSpeedMode = m; } catch (e) { /* default */ }
 
 const timesTableScoreEl = document.getElementById("timestable-score");
 const timesTableLivesEl = document.getElementById("timestable-lives");
@@ -8443,12 +8511,50 @@ function applyTimesTableSelection() {
   updateTimesTableMaxTableUI();
 }
 
+const TIMESTABLE_SPEED_LABELS = { slow: ["🐢", "Slow", "느리게"], normal: ["🚶", "Normal", "보통"], fast: ["🐇", "Fast", "빠르게"] };
+function renderTimesTableSpeedModes() {
+  const seg = document.getElementById("timestable-mode-seg");
+  if (!seg) return;
+  seg.querySelectorAll("[data-mode]").forEach((b) => {
+    const m = b.dataset.mode;
+    const lab = TIMESTABLE_SPEED_LABELS[m];
+    b.textContent = `${lab[0]} ${startL(lab[1], lab[2])}`;
+    b.classList.toggle("on", m === timesTableSpeedMode);
+    b.setAttribute("aria-checked", m === timesTableSpeedMode ? "true" : "false");
+  });
+}
+// The tables picker on the start card (same selection as the in-game one).
+function renderTimesTableStartPicker() {
+  const grid = document.getElementById("timestable-start-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  for (let n = TIMESTABLE_MIN_TABLE; n <= TIMESTABLE_MAX_TABLE_CAP; n++) {
+    const c = document.createElement("button");
+    c.type = "button";
+    c.className = "tt-chip" + (timesTableSelected.has(n) ? " on" : "");
+    c.textContent = String(n);
+    c.setAttribute("aria-pressed", timesTableSelected.has(n) ? "true" : "false");
+    c.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (timesTableRunning) return;
+      if (timesTableSelected.has(n)) timesTableSelected.delete(n); else timesTableSelected.add(n);
+      applyTimesTableSelection();
+    });
+    grid.appendChild(c);
+  }
+  const d = document.getElementById("timestable-start-default");
+  const a = document.getElementById("timestable-start-all");
+  if (d) { d.textContent = t("timesTableLabelDefault"); d.classList.toggle("on", timesTableIsRange(TIMESTABLE_MIN_TABLE, TIMESTABLE_DEFAULT_MAX_TABLE)); }
+  if (a) { a.textContent = t("timesTableLabelAll"); a.classList.toggle("on", timesTableIsRange(TIMESTABLE_MIN_TABLE, TIMESTABLE_MAX_TABLE_CAP)); }
+}
 // Start screen chips (same idea as Typing Game): which tables are on, and the best score so far.
 function updateTimesTableStartChips() {
   const rangeEl = document.getElementById("timestable-start-range");
   const bestEl = document.getElementById("timestable-start-best");
   if (!rangeEl || !bestEl) return;
-  rangeEl.textContent = `📚 ${timesTableRangeLabel()}`;
+  rangeEl.textContent = `📚 ${timesTableRangeLabel()} ▾`;
+  renderTimesTableSpeedModes();
+  renderTimesTableStartPicker();
   let best = 0;
   try {
     best = timesTableHighScores[timesTableHighScoreKey()] || 0;
@@ -8512,6 +8618,36 @@ document.getElementById("timestable-range-all").addEventListener("click", () => 
   timesTableSelected = new Set();
   if (!wasAll) for (let n = TIMESTABLE_MIN_TABLE; n <= TIMESTABLE_MAX_TABLE_CAP; n++) timesTableSelected.add(n);
   applyTimesTableSelection();
+});
+
+// Start card: the tables pill opens a picker that drops down over the card, the
+// speed buttons set where the round begins.
+function closeTimesTableStartPanel() {
+  const panel = document.getElementById("timestable-start-panel");
+  const btn = document.getElementById("timestable-start-range");
+  if (panel) panel.hidden = true;
+  if (btn) btn.setAttribute("aria-expanded", "false");
+}
+document.getElementById("timestable-start-range")?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const panel = document.getElementById("timestable-start-panel");
+  if (!panel) return;
+  panel.hidden = !panel.hidden;
+  e.currentTarget.setAttribute("aria-expanded", panel.hidden ? "false" : "true");
+});
+document.getElementById("timestable-start-panel")?.addEventListener("click", (e) => e.stopPropagation());
+document.addEventListener("click", closeTimesTableStartPanel);
+document.getElementById("timestable-start-default")?.addEventListener("click", () => document.getElementById("timestable-range-default").click());
+document.getElementById("timestable-start-all")?.addEventListener("click", () => document.getElementById("timestable-range-all").click());
+document.getElementById("timestable-mode-seg")?.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-mode]");
+  if (!b || timesTableRunning || !TIMESTABLE_SPEED_MODES[b.dataset.mode]) return;
+  timesTableSpeedMode = b.dataset.mode;
+  try { localStorage.setItem(TIMESTABLE_SPEEDMODE_KEY, timesTableSpeedMode); } catch (err) { /* ignore */ }
+  timesTableSpeedLevel = TIMESTABLE_SPEED_MODES[timesTableSpeedMode].speed;
+  timesTableSpawnInterval = TIMESTABLE_SPEED_MODES[timesTableSpeedMode].spawn;
+  updateTimesTableSpeedUI();
+  renderTimesTableSpeedModes();
 });
 
 function changeTimesTableMaxTable() {
@@ -8666,9 +8802,9 @@ function resetTimesTable() {
   timesTableRoundSolved = new Set();
   timesTableMissed = new Set();
   timesTableLives = TIMESTABLE_LIVES;
-  timesTableSpeedLevel = TIMESTABLE_SPEED_LEVEL_MIN;
+  timesTableSpeedLevel = TIMESTABLE_SPEED_MODES[timesTableSpeedMode].speed;
   updateTimesTableSpeedUI();
-  timesTableSpawnInterval = TIMESTABLE_SPAWN_START;
+  timesTableSpawnInterval = TIMESTABLE_SPEED_MODES[timesTableSpeedMode].spawn;
   timesTableInput.value = "";
   timesTableInput.disabled = true;
   hideTimesTableTypo();
@@ -8694,6 +8830,9 @@ function startTimesTable() {
   if (timesTableProblemPool.length === 0) {
     // nothing selected: open the picker (after the click finishes bubbling)
     setTimeout(() => {
+      const sp = document.getElementById("timestable-start-panel");
+      const sb = document.getElementById("timestable-start-range");
+      if (sp) { sp.hidden = false; sb?.setAttribute("aria-expanded", "true"); return; }
       timesTableRangePanel.hidden = false;
       timesTableRangeBtn.setAttribute("aria-expanded", "true");
     }, 0);
@@ -8713,9 +8852,9 @@ function startTimesTable() {
   timesTableRoundSolved = new Set();
   timesTableMissed = new Set();
   timesTableLives = TIMESTABLE_LIVES;
-  timesTableSpeedLevel = TIMESTABLE_SPEED_LEVEL_MIN;
+  timesTableSpeedLevel = TIMESTABLE_SPEED_MODES[timesTableSpeedMode].speed;
   updateTimesTableSpeedUI();
-  timesTableSpawnInterval = TIMESTABLE_SPAWN_START;
+  timesTableSpawnInterval = TIMESTABLE_SPEED_MODES[timesTableSpeedMode].spawn;
   timesTableActive.forEach((w) => w.el.remove());
   timesTableActive = [];
   timesTableStartOverlay.hidden = true;
@@ -8949,7 +9088,7 @@ function clearTimesTableProblem(item) {
   playTimesTableCorrectSfx();
 
   const stage = Math.floor(timesTableCorrectCount / TIMESTABLE_PROBLEMS_PER_STAGE);
-  timesTableSpawnInterval = Math.max(TIMESTABLE_SPAWN_MIN, TIMESTABLE_SPAWN_START - stage * TIMESTABLE_SPAWN_STEP);
+  timesTableSpawnInterval = Math.max(TIMESTABLE_SPAWN_MIN, TIMESTABLE_SPEED_MODES[timesTableSpeedMode].spawn - stage * TIMESTABLE_SPAWN_STEP);
   if (stage !== timesTableStageIndex) {
     timesTableStageIndex = stage;
     // A relative +1 (not recomputed from the stage index) so a manual

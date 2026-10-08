@@ -640,9 +640,9 @@
                   <line x1="262" y1="35" x2="262" y2="52" stroke="#ffd166" stroke-width="2.4"/><circle cx="262" cy="54" r="3" fill="#ffd166"/>
                 </g>
               </g>
-            </svg></div>
+            </svg>
+        <ol class="sp-steps fs-steps"><li class="sp-step sp-step1"><b aria-hidden="true">👀</b><span data-i18n="fsStep1">Look</span></li><li class="sp-step-arrow" aria-hidden="true">›</li><li class="sp-step sp-step2"><b aria-hidden="true">👆</b><span data-i18n="fsStep2">Flip</span></li><li class="sp-step-arrow" aria-hidden="true">›</li><li class="sp-step sp-step3"><b aria-hidden="true">🙋</b><span data-i18n="fsStep3">I know it?</span></li></ol></div>
         <p class="sp-start-stats fs-count" id="flash-count"></p>
-        <ol class="sp-steps fs-steps"><li class="sp-step sp-step1"><b aria-hidden="true">👀</b><span data-i18n="fsStep1">Look</span></li><li class="sp-step-arrow" aria-hidden="true">›</li><li class="sp-step sp-step2"><b aria-hidden="true">👆</b><span data-i18n="fsStep2">Flip</span></li><li class="sp-step-arrow" aria-hidden="true">›</li><li class="sp-step sp-step3"><b aria-hidden="true">🙋</b><span data-i18n="fsStep3">I know it?</span></li></ol>
             <div class="fs-start-bar"><button class="pill accent sp-start-btn" id="flash-start-btn" type="button" data-i18n="flashStartBtn">▶ Start Flashcards</button></div>
           </div>
         </div>
@@ -990,14 +990,14 @@ to Flip!</span></div>
                   <line x1="262" y1="35" x2="262" y2="52" stroke="#ffd166" stroke-width="2.4"/><circle cx="262" cy="54" r="3" fill="#ffd166"/>
                 </g>
               </g>
-            </svg></div>
-            <ol class="sp-steps" aria-hidden="false">
+            </svg>
+            <ol class="sp-steps" >
               <li class="sp-step sp-step1"><b>👂</b><span data-i18n="spStep1">Listen</span></li>
               <li class="sp-step-arrow" aria-hidden="true">›</li>
               <li class="sp-step sp-step2"><b>⌨️</b><span data-i18n="spStep2">Type</span></li>
               <li class="sp-step-arrow" aria-hidden="true">›</li>
               <li class="sp-step sp-step3"><b>⭐</b><span data-i18n="spStep3">Win a star</span></li>
-            </ol>
+            </ol></div>
             <div class="sp-start-stats" id="spelling-start-stats" aria-live="off"></div>
             <button class="pill accent sp-start-btn" id="spelling-start-btn">▶ Start</button>
             <details class="sp-why">
@@ -1176,11 +1176,19 @@ to Flip!</span></div>
             <div class="tg-start-card">
               <h3 data-i18n="typeGameTitle">⌨️ Typing Game</h3>
               <div class="tg-start-chips">
-                <span class="tg-start-chip" id="typegame-start-level"></span>
+                <button type="button" class="tg-start-chip sp-level-chip" id="typegame-start-level" aria-label="Change level"></button>
                 <span class="tg-start-chip tg-start-best" id="typegame-start-best" hidden></span>
               </div>
-              <p id="typegame-start-message" data-i18n="typeGameDesc">Type each word before it reaches the bottom!</p>
-              <p class="tg-start-tip" data-i18n="typeGameStartTip">Just type the word, then press Enter ✨</p>
+              <div class="tg-hero">
+                <span class="tg-hero-slot" aria-hidden="true"></span>
+                <p id="typegame-start-message" data-i18n="typeGameDesc">Type each word before it reaches the bottom!</p>
+                <p class="tg-start-tip" data-i18n="typeGameStartTip">Just type the word, then press Enter ✨</p>
+              </div>
+              <div class="tg-modes qz-seg" id="typegame-mode-seg" role="radiogroup" aria-label="Difficulty">
+                <button type="button" class="qz-seg-btn" role="radio" data-mode="beginner"></button>
+                <button type="button" class="qz-seg-btn" role="radio" data-mode="intermediate"></button>
+                <button type="button" class="qz-seg-btn" role="radio" data-mode="pro"></button>
+              </div>
               <button class="pill accent tg-start-btn" id="typegame-start-btn" data-i18n="typeGameStartBtn">▶ Start Game</button>
             </div>
           </div>
@@ -1337,10 +1345,25 @@ to Flip!</span></div>
             <div class="tg-start-card">
               <h3 data-i18n="timesTableTitle">🧮 Times Table</h3>
               <div class="tg-start-chips">
-                <span class="tg-start-chip" id="timestable-start-range"></span>
+                <button type="button" class="tg-start-chip sp-level-chip" id="timestable-start-range" aria-haspopup="true" aria-expanded="false"></button>
                 <span class="tg-start-chip tg-start-best" id="timestable-start-best" hidden></span>
+              <div class="tt-start-panel" id="timestable-start-panel" hidden>
+                  <div class="tt-range-grid" id="timestable-start-grid"></div>
+                  <div class="tt-range-quick">
+                    <button type="button" id="timestable-start-default"></button>
+                    <button type="button" id="timestable-start-all"></button>
+                  </div>
+                </div>
               </div>
-              <div id="timestable-start-demo" class="timestable-instructions tt-start-demo"></div>
+              <div class="tg-hero">
+                <span class="tg-hero-slot" aria-hidden="true"></span>
+                <div id="timestable-start-demo" class="timestable-instructions tt-start-demo"></div>
+              </div>
+              <div class="tg-modes qz-seg" id="timestable-mode-seg" role="radiogroup" aria-label="Speed">
+                <button type="button" class="qz-seg-btn" role="radio" data-mode="slow"></button>
+                <button type="button" class="qz-seg-btn" role="radio" data-mode="normal"></button>
+                <button type="button" class="qz-seg-btn" role="radio" data-mode="fast"></button>
+              </div>
               <button class="pill accent tg-start-btn" id="timestable-start-btn" data-i18n="timesTableStartBtn">▶ Start Game</button>
             </div>
           </div>
@@ -1591,13 +1614,13 @@ to Flip!</span></div>
               <span data-i18n="selectAllLabel">Select All</span>
             </label>
             <button type="button" class="pill neutral small" id="custom-delete-selected-btn" data-i18n="deleteSelectedBtn" disabled>🗑️ Delete</button>
-            <select id="custom-word-mgmt-select" class="level-bulk-select">
+            <select id="custom-word-mgmt-select" class="level-bulk-select" hidden>
               <option value="" data-i18n="wordManagementLabel">🛠️ Word Management</option>
               <option value="merge" data-i18n="mergeDuplicatesBtn">🧹 Merge Duplicates</option>
               <option value="clean" data-i18n="cleanTextBtn">🧼 Clean Corrupted Text</option>
               <option value="checkKorean" data-i18n="checkKoreanBtn">🔎 Check Korean Meanings</option>
             </select>
-            <button type="button" class="pill neutral small" id="custom-export-btn" data-i18n="exportExcelBtn">📥 Export</button>
+            <button type="button" class="pill neutral small" id="custom-export-btn" data-i18n="exportExcelBtn" hidden>📥 Export</button>
             <button type="button" class="pill accent small" id="custom-upload-btn" hidden>☁️ Upload</button>
           </div>
         </div>
