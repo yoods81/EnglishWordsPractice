@@ -1545,9 +1545,10 @@ to Flip!</span></div>
               accept="image/*,.txt,text/plain,.pdf,application/pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               hidden
             />
-            <button type="button" class="pill accent" id="ocr-extract-btn" data-i18n="ocrExtractBtn" hidden>🔍 Extract</button>
+            <!-- Logic hook only (never shown): the dropzone's arrow icon below is the visible Extract button once a file is chosen. -->
+            <button type="button" class="ocr-extract-hidden" id="ocr-extract-btn" tabindex="-1" aria-hidden="true" hidden></button>
           </div>
-          <div class="ocr-dropzone-anim" aria-hidden="true">
+          <div class="ocr-dropzone-anim" id="ocr-dropzone-anim" aria-hidden="true">
             <svg class="ocr-dropzone-anim-icon" viewBox="0 0 64 64">
               <defs>
                 <linearGradient id="ocrDzIconGrad" x1="0" y1="0" x2="0" y2="1">
@@ -1559,6 +1560,7 @@ to Flip!</span></div>
               <path d="M36 6l14 14H42a6 6 0 01-6-6V6z" fill="#fff" opacity="0.3" />
               <path d="M32 22v22m0 0l-10-10m10 10l10-10" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
+            <span class="ocr-dropzone-extract-label" id="ocr-dropzone-extract-label" data-i18n="ocrExtractLabel" hidden>Extract</span>
             <p class="ocr-dropzone-caption">
               <span class="ocr-dropzone-caption-main" data-i18n="ocrDropzoneCaptionMain">Or drag a file here</span>
               <span class="ocr-dropzone-caption-sub" data-i18n="ocrDropzoneCaptionSub">Photos, TXT, PDF, Word, Excel supported · Max 10MB</span>

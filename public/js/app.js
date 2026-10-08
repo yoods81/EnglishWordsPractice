@@ -533,6 +533,7 @@ const TRANSLATIONS = {
     ocrDesc: "Take a photo of a book page, upload a screenshot, or upload a text, Word, PDF or Excel file. We'll read the text and pull out candidate words you can add to your word list — or, for an Excel file, add each row's word straight in with its meaning, example and level already filled in.",
     ocrChooseBtn: "📁 Choose Photo or File",
     ocrExtractBtn: "🔍 Extract",
+    ocrExtractLabel: "Extract",
     ocrNoFileChosen: "No file chosen",
     ocrDropzoneCaptionMain: "Or drag a file here",
     ocrDropzoneCaptionSub: "Photos, TXT, PDF, Word, Excel supported · Max 10MB",
@@ -570,6 +571,7 @@ const TRANSLATIONS = {
     paidWordsDetailMeaningEn: "English meaning",
     paidWordsDetailExample: "Example",
     paidWordsDetailPos: "Part of speech",
+    paidWordsFieldPos: "POS",
     paidWordsDetailLevel: "Level",
     mwTabMine: "My words",
     mwTabPaid: "Paid members' words",
@@ -1333,6 +1335,7 @@ const TRANSLATIONS = {
     ocrDesc: "책 페이지를 촬영하거나 온라인 지문을 캡처한 이미지, 또는 텍스트·Word·PDF·엑셀 파일을 올려보세요. 텍스트를 읽어서 단어장에 추가할 후보 단어를 찾아드려요 — 엑셀 파일의 경우, 각 행의 단어를 뜻·예문·레벨까지 그대로 채워서 바로 추가해드려요.",
     ocrChooseBtn: "📁 사진 또는 파일 선택하기",
     ocrExtractBtn: "🔍 추출하기",
+    ocrExtractLabel: "추출하기",
     ocrNoFileChosen: "선택된 파일 없음",
     ocrDropzoneCaptionMain: "또는 파일을 여기로 끌어다 놓으세요",
     ocrDropzoneCaptionSub: "사진, TXT, PDF, Word, Excel 지원 · 최대 10MB",
@@ -1370,6 +1373,7 @@ const TRANSLATIONS = {
     paidWordsDetailMeaningEn: "영어 뜻",
     paidWordsDetailExample: "예문",
     paidWordsDetailPos: "품사",
+    paidWordsFieldPos: "품사",
     paidWordsDetailLevel: "레벨",
     mwTabMine: "내 단어",
     mwTabPaid: "유료사용자 단어",
@@ -12202,6 +12206,36 @@ const ocrReviewHintEl = document.getElementById("ocr-review-hint");
 const ocrExcelStatus = document.getElementById("ocr-excel-status");
 const ocrExcelModeEl = document.getElementById("ocr-excel-mode");
 const ocrExtractBtn = document.getElementById("ocr-extract-btn");
+const ocrDropzoneAnim = document.getElementById("ocr-dropzone-anim");
+const ocrExtractLabel = document.getElementById("ocr-dropzone-extract-label");
+// Once a file is chosen, the dropzone's arrow icon (labelled "Extract") IS the
+// Extract button — there is no separate button any more. ocrExtractBtn stays as
+// a hidden logic hook so its click handler is the single place extraction starts.
+function setExtractReady(ready) {
+  ocrExtractBtn.hidden = !ready;
+  ocrDropzoneAnim.classList.toggle("ocr-ready", ready);
+  ocrExtractLabel.hidden = !ready;
+  if (ready) {
+    ocrDropzoneAnim.setAttribute("role", "button");
+    ocrDropzoneAnim.tabIndex = 0;
+    ocrDropzoneAnim.removeAttribute("aria-hidden");
+    ocrDropzoneAnim.setAttribute("aria-label", t("ocrExtractLabel"));
+  } else {
+    ocrDropzoneAnim.removeAttribute("role");
+    ocrDropzoneAnim.removeAttribute("tabindex");
+    ocrDropzoneAnim.removeAttribute("aria-label");
+    ocrDropzoneAnim.setAttribute("aria-hidden", "true");
+  }
+}
+ocrDropzoneAnim.addEventListener("click", () => {
+  if (!ocrExtractBtn.hidden) ocrExtractBtn.click();
+});
+ocrDropzoneAnim.addEventListener("keydown", (e) => {
+  if ((e.key === "Enter" || e.key === " ") && !ocrExtractBtn.hidden) {
+    e.preventDefault();
+    ocrExtractBtn.click();
+  }
+});
 // The file the user picked, held here between selection and the Extract
 // button click that actually processes it (see the ocrFileInput "change"
 // and ocrExtractBtn "click" handlers below).
@@ -12773,7 +12807,7 @@ function buildPaidWordEditor(w) {
   const lvKo = levelSel(w.levelKo, SYSTEMS.ko.levels);
   const r1 = document.createElement("div");
   r1.className = "pw-edit-row";
-  r1.append(labelled("paidWordsDetailPos", posSel), labelled("paidWordsFieldLevelEn", lvEn), labelled("paidWordsFieldLevelKo", lvKo));
+  r1.append(labelled("paidWordsFieldPos", posSel), labelled("paidWordsFieldLevelEn", lvEn), labelled("paidWordsFieldLevelKo", lvKo));
   const actions = document.createElement("div");
   actions.className = "pw-actions";
   const save = document.createElement("button");
@@ -12889,7 +12923,7 @@ const OCR_MAX_FILE_BYTES = 10 * 1024 * 1024;
 // the dropzone — the two are just different ways of handing over the same
 // File object.
 function handleOcrFileChosen(file) {
-  ocrExtractBtn.hidden = true;
+  setExtractReady(false);
   ocrExcelModeEl.hidden = true;
   ocrExcelStatus.classList.remove("ocr-excel-status-done");
   ocrPendingFile = null;
@@ -12958,7 +12992,7 @@ function handleOcrFileChosen(file) {
 
   ocrPendingFile = file;
   ocrPendingKind = kind;
-  ocrExtractBtn.hidden = false;
+  setExtractReady(true);
 }
 
 // ✕ next to the file name: forget the chosen file and everything staged for it.
@@ -13018,7 +13052,7 @@ ocrExtractBtn.addEventListener("click", async () => {
     promptUpgradeForFeature();
     return;
   }
-  ocrExtractBtn.hidden = true;
+  setExtractReady(false);
   ocrExcelModeEl.hidden = true;
 
   if (kind === "xlsx") {
