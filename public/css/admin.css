@@ -260,3 +260,14 @@ html body #view-koala .koala-item:not(.is-equipped):not(.is-trying) {
 
 /* Add Word: no outlines on any button (dashed drop zone is not a button) */
 html body #view-addword :is(button, .pill, .edit-btn, .retry-btn, .delete-btn) { border: 0 !important; }
+
+/* ===== Round 3: more borders/shadows removed ===== */
+html body .select-all-toggle,
+html body #custom-word-mgmt-select,
+html body .level-bulk-select,
+html body #view-addword .my-added-words-header-actions :is(button,select,label) { border: 0 !important; box-shadow: none !important; }
+html body :is(.wordlist-item, #wordlist-grid .wordlist-item, #view-flashcards .wordlist-item, #view-addword .wordlist-item):not(.admin-user-row) { border: 0 !important; box-shadow: none !important; }
+html body .wordlist-item .delete-btn { background: #ffb3b3 !important; color: #fff !important; border: 0 !important; box-shadow: none !important; }
+html body .wordlist-item :is(.edit-btn,.retry-btn) { border: 0 !important; box-shadow: none !important; }
+html body #view-stats :is(.dash-sum,.dash-cat,.dash-badge-card,.dash-card:not(.dash-rec)) { border: 0 !important; box-shadow: none !important; }
+html body #view-stats .dash-rec { border: 1px solid #e8bd4f !important; box-shadow: none !important; }
