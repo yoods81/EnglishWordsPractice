@@ -12095,3 +12095,15 @@ html body .tg-start-card .tg-level-opt {
 html body .tg-start-card .tg-level-opt.on { background: var(--accent); border-color: var(--accent); color: #fff; }
 html body #quiz-start-screen .qz-selects + .qz-pick { margin-top: 1.4rem; }
 html body #quiz-start-screen .qz-pick-note { margin-bottom: 0.9rem; }
+
+/* ===== v2.2: one-line quiz note, picture-style mode slide, balanced two-line text ===== */
+html body #quiz-start-screen .qz-pick-note[data-mode="time"] { color: #0b6b57 !important; background: #fff7d6; white-space: nowrap; }
+html body #quiz-start-screen .qz-pick-note { white-space: nowrap; font-size: 1.05rem; }
+html body .tg-start-card .tg-hero p { white-space: pre-line; text-wrap: balance; }
+html body .tg-start-card .tg-mode-desc { font-size: 1.1rem; max-width: none; margin-top: 0.2rem; }
+html body .tg-start-card .tg-mode-stats { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; margin: 0.3rem 0 0; color: inherit; }
+html body .tg-start-card .tg-meter { display: inline-flex; align-items: center; gap: 0.6rem; }
+html body .tg-start-card .tg-meter em { font-style: normal; min-width: 3.6rem; text-align: right; font-family: var(--font-heading); font-weight: 800; font-size: 0.95rem; color: #0b6b57; }
+html body .tg-start-card .tg-meter-ico { display: inline-flex; gap: 0.25rem; }
+html body .tg-start-card .tg-meter-ico i { font-style: normal; font-size: 1.5rem; line-height: 1; opacity: 0.2; filter: grayscale(1); transition: opacity 0.3s, filter 0.3s; }
+html body .tg-start-card .tg-meter-ico i.on { opacity: 1; filter: none; }

@@ -217,7 +217,7 @@ const TRANSLATIONS = {
     upgradeRequestFulfilledMsg: "Admin sent you a code — enter it below to finish activating.",
     upgradeReadyBanner: "⭐ Your upgrade code has arrived — tap to enter it!",
     typeGameTitle: "⌨️ Typing Game",
-    typeGameDesc: "Type each word before it reaches the bottom!",
+    typeGameDesc: "Type the falling words!\nBefore they reach the bottom!",
     typeGameStartBtn: "▶ Start Game",
     typeGameNotEnough: (lvl) => `${lvl} needs a few more words before you can play — add some in Add Word or Word List first!`,
     typeGameStartTip: "Just type the word, then press Enter ✨",
@@ -309,7 +309,7 @@ const TRANSLATIONS = {
     qzModeRelaxed: "🌿 Relaxed",
     qzModeTime: "⏱ Time Attack",
     qzModeNoteRelaxed: "Take your time. No clock!",
-    qzModeNoteTime: (c, ty) => `${c} seconds a question (${ty} when typing). If time runs out, it counts as a miss.`,
+    qzModeNoteTime: (c, ty) => `Beat the clock: ${c}s a question (${ty}s typing)!`,
     quizStartBtn: "▶ Start Quiz",
     flashStartBtn: "▶ Start Flashcards",
     flashRoundTitle: "Cards per round",
@@ -969,7 +969,7 @@ const TRANSLATIONS = {
     upgradeRequestFulfilledMsg: "관리자가 코드를 보냈어요 — 아래에 입력해서 활성화를 완료하세요.",
     upgradeReadyBanner: "⭐ 업그레이드 코드가 도착했어요 — 눌러서 입력하세요!",
     typeGameTitle: "⌨️ 타이핑 게임",
-    typeGameDesc: "단어가 바닥에 닿기 전에 타이핑하세요!",
+    typeGameDesc: "떨어지는 단어를 타이핑해요!\n바닥에 닿기 전에!",
     typeGameStartBtn: "▶ 게임 시작",
     typeGameNotEnough: (lvl) => `${lvl} 레벨에 단어가 조금 더 필요해요 — 단어 추가나 단어장에서 먼저 추가해주세요!`,
     typeGameStartTip: "단어를 입력하고 Enter를 눌러요 ✨",
@@ -1061,7 +1061,7 @@ const TRANSLATIONS = {
     qzModeRelaxed: "🌿 여유롭게",
     qzModeTime: "⏱ 타임어택",
     qzModeNoteRelaxed: "천천히 풀어요. 시간 제한이 없어요!",
-    qzModeNoteTime: (c, ty) => `문제당 ${c}초 (쓰기는 ${ty}초). 시간이 지나면 오답으로 처리돼요.`,
+    qzModeNoteTime: (c, ty) => `문제당 ${c}초 (쓰기 ${ty}초)! 시계와 승부해요!`,
     quizStartBtn: "▶ 퀴즈 시작",
     flashStartBtn: "▶ 플래시카드 시작",
     flashRoundTitle: "한 번에 볼 카드 수",
@@ -7489,26 +7489,33 @@ function updateTypeGameStartChips() {
 // mode; they swap by themselves every 2 seconds (and jump to slide 2 on a pick).
 const START_MODE_INFO = {
   type: {
-    beginner: { ico: "🐣", en: ["Beginner", "Words drift down slowly, one at a time. Lots of time to find the keys — great for learning!"], ko: ["초급", "단어가 천천히, 하나씩 내려와요. 키를 찾을 시간이 충분해서 연습하기 좋아요!"] },
-    intermediate: { ico: "🏃", en: ["Intermediate", "Words fall faster and come more often. A good challenge once you know the keys."], ko: ["중급", "단어가 더 빨리, 더 자주 내려와요. 자판에 익숙해졌다면 도전해 보세요."] },
-    pro: { ico: "🏆", en: ["Pro", "Fast and busy! Words rush down with hardly a pause — only for speedy typists."], ko: ["고급", "아주 빠르고 정신없어요! 쉴 틈 없이 내려오는 단어, 빠른 타자 고수용이에요."] },
+    beginner: { ico: "🐣", speed: 1, amount: 1, en: ["Beginner", "Slow and easy\nTime to think!"], ko: ["초급", "천천히 쉬워요\n생각할 시간이 있어요!"] },
+    intermediate: { ico: "🏃", speed: 2, amount: 2, en: ["Intermediate", "Faster words\nA little tricky!"], ko: ["중급", "더 빨라져요\n조금 어려워요!"] },
+    pro: { ico: "🏆", speed: 3, amount: 3, en: ["Pro", "Super fast!\nFor typing stars!"], ko: ["고급", "엄청 빨라요\n타자 고수용!"] },
   },
   tt: {
-    slow: { ico: "🐢", en: ["Slow", "Maths facts fall slowly, so you have plenty of time to think. Great for new tables."], ko: ["느리게", "구구단 문제가 천천히 내려와서 생각할 시간이 충분해요. 새 단을 익힐 때 좋아요."] },
-    normal: { ico: "🚶", en: ["Normal", "A steady pace — a few facts on screen at once. Perfect for tables you know."], ko: ["보통", "적당한 속도로 문제가 몇 개씩 내려와요. 이미 아는 단 연습에 딱 좋아요."] },
-    fast: { ico: "🐇", en: ["Fast", "Facts zoom down quickly and keep coming. Show off how well you know your tables!"], ko: ["빠르게", "문제가 빠르게 계속 내려와요. 구구단 실력을 뽐내 보세요!"] },
+    slow: { ico: "🐢", speed: 1, amount: 1, en: ["Slow", "Slow and easy\nTime to think!"], ko: ["느리게", "천천히 쉬워요\n생각할 시간이 있어요!"] },
+    normal: { ico: "🚶", speed: 2, amount: 2, en: ["Normal", "Steady pace\nJust right!"], ko: ["보통", "알맞은 속도\n딱 좋아요!"] },
+    fast: { ico: "🐇", speed: 3, amount: 3, en: ["Fast", "Super quick!\nShow your skills!"], ko: ["빠르게", "아주 빨라요\n실력을 뽐내요!"] },
   },
 };
-function renderStartModeSlide(heroId, group, mode, speed, spawnMs) {
+// Slide 2 is mostly pictures: a name, two little meters (speed bolts, falling balloons) and a two-line tagline.
+function startMeterHtml(label, icon, n) {
+  let h = `<span class="tg-meter"><em>${label}</em><span class="tg-meter-ico" role="img" aria-label="${n}/3">`;
+  for (let k = 1; k <= 3; k++) h += `<i class="${k <= n ? "on" : ""}">${icon}</i>`;
+  return h + "</span></span>";
+}
+function renderStartModeSlide(heroId, group, mode) {
   const hero = document.getElementById(heroId);
   const info = START_MODE_INFO[group][mode];
   if (!hero || !info) return;
-  const [name, desc] = currentLang === "ko" ? info.ko : info.en;
+  const ko = currentLang === "ko";
+  const [name, tag] = ko ? info.ko : info.en;
   hero.querySelector(".tg-mode-title").textContent = `${info.ico} ${name}`;
-  hero.querySelector(".tg-mode-desc").textContent = desc;
-  hero.querySelector(".tg-mode-stats").textContent = currentLang === "ko"
-    ? `⚡ 시작 속도 ${speed} · ⏱ ${(spawnMs / 1000).toFixed(1)}초마다 새 문제`
-    : `⚡ Start speed ${speed} · ⏱ new one every ${(spawnMs / 1000).toFixed(1)}s`;
+  hero.querySelector(".tg-mode-desc").textContent = tag;
+  hero.querySelector(".tg-mode-stats").innerHTML =
+    startMeterHtml(ko ? "속도" : "Speed", "⚡", info.speed) +
+    startMeterHtml(group === "type" ? (ko ? "단어" : "Words") : (ko ? "문제" : "Sums"), "🎈", info.amount);
 }
 const startHeroTimers = {};
 function showStartHeroSlide(heroId, second) {
@@ -7532,7 +7539,7 @@ const TYPEGAME_MODE_LABELS = {
 function renderTypeGameModes() {
   const seg = document.getElementById("typegame-mode-seg");
   if (!seg) return;
-  renderStartModeSlide("typegame-hero", "type", typeGameMode, TYPEGAME_MODES[typeGameMode].speed, TYPEGAME_MODES[typeGameMode].spawn);
+  renderStartModeSlide("typegame-hero", "type", typeGameMode);
   seg.querySelectorAll("[data-mode]").forEach((b) => {
     const m = b.dataset.mode;
     const lab = TYPEGAME_MODE_LABELS[m];
@@ -8583,7 +8590,7 @@ const TIMESTABLE_SPEED_LABELS = { slow: ["🐢", "Slow", "느리게"], normal: [
 function renderTimesTableSpeedModes() {
   const seg = document.getElementById("timestable-mode-seg");
   if (!seg) return;
-  renderStartModeSlide("timestable-hero", "tt", timesTableSpeedMode, TIMESTABLE_SPEED_MODES[timesTableSpeedMode].speed, TIMESTABLE_SPEED_MODES[timesTableSpeedMode].spawn);
+  renderStartModeSlide("timestable-hero", "tt", timesTableSpeedMode);
   seg.querySelectorAll("[data-mode]").forEach((b) => {
     const m = b.dataset.mode;
     const lab = TIMESTABLE_SPEED_LABELS[m];
