@@ -1549,6 +1549,7 @@ to Flip!</span></div>
             <button type="button" class="ocr-extract-hidden" id="ocr-extract-btn" tabindex="-1" aria-hidden="true" hidden></button>
           </div>
           <div class="ocr-dropzone-anim" id="ocr-dropzone-anim" aria-hidden="true">
+            <span class="ocr-dz-iconwrap">
             <svg class="ocr-dropzone-anim-icon" viewBox="0 0 64 64">
               <defs>
                 <linearGradient id="ocrDzIconGrad" x1="0" y1="0" x2="0" y2="1">
@@ -1558,9 +1559,11 @@ to Flip!</span></div>
               </defs>
               <path d="M14 6h22l14 14v32a6 6 0 01-6 6H14a6 6 0 01-6-6V12a6 6 0 016-6z" fill="url(#ocrDzIconGrad)" />
               <path d="M36 6l14 14H42a6 6 0 01-6-6V6z" fill="#fff" opacity="0.3" />
-              <path d="M32 22v22m0 0l-10-10m10 10l10-10" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path class="ocr-dz-arrow" d="M32 22v22m0 0l-10-10m10 10l10-10" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
+            <!-- "Extract" is written ON the icon once a file is chosen: the icon itself is the button. -->
             <span class="ocr-dropzone-extract-label" id="ocr-dropzone-extract-label" data-i18n="ocrExtractLabel" hidden>Extract</span>
+            </span>
             <p class="ocr-dropzone-caption">
               <span class="ocr-dropzone-caption-main" data-i18n="ocrDropzoneCaptionMain">Or drag a file here</span>
               <span class="ocr-dropzone-caption-sub" data-i18n="ocrDropzoneCaptionSub">Photos, TXT, PDF, Word, Excel supported · Max 10MB</span>

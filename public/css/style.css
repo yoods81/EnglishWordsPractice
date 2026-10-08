@@ -12652,3 +12652,36 @@ html[data-theme="dark"] .ocr-file-chip { background: rgba(34, 201, 163, 0.22); }
 .pw-edit .pw-field input[type="text"] { padding: 5px 9px; font-size: 0.92rem; }
 .pw-edit { gap: 5px; }
 .pw-edit .pw-field { grid-template-columns: 6.7em minmax(0, 1fr); gap: 4px; }
+
+/* Extract label sits INSIDE the (larger) arrow icon — no separate pill */
+.ocr-dz-iconwrap { position: relative; display: inline-flex; }
+.ocr-dz-arrow { transition: transform 0.2s ease; }
+.ocr-dropzone-anim.ocr-ready .ocr-dz-arrow { transform: translateY(-8px); }
+.ocr-dropzone-anim.ocr-ready .ocr-dropzone-anim-icon { width: 104px; height: 104px; }
+.ocr-dropzone-extract-label {
+  position: absolute;
+  left: 47%;
+  top: 68%;
+  transform: translateX(-50%);
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 80, 62, 0.45);
+  pointer-events: none;
+}
+
+/* Paid-words edit form: three dropdowns short, spaced apart, flat with a light border */
+.pw-edit .pw-edit-row { justify-content: space-between; gap: 10px; }
+.pw-edit .pw-edit-row > .pw-field { flex: 0 0 auto; }
+.pw-edit .pw-edit-row .pw-field select {
+  flex: 0 0 auto;
+  width: 4.9em;
+  box-shadow: none;
+  border: 1px solid rgba(14, 156, 125, 0.4);
+}
+.pw-edit .pw-edit-row .pw-field select { width: 6em; }
