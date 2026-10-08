@@ -318,7 +318,10 @@ const TRANSLATIONS = {
     flashBackShort: "Back",
     flashNextShort: "Next",
     flashEndBtn: "🏁 Finish",
-    flashAutoShort: "Auto",
+    flashAutoShort: "Read aloud",
+    flashTip: "💡 Flip the card and read it for 5 seconds to earn Coins!",
+    flashKnowTally: "I know",
+    flashStillTally: "Still learning",
     flashTapFlip: "Tap to flip",
     flashStartTitle: "Flashcards",
     fsDemo1: "a sleepy",
@@ -1071,7 +1074,10 @@ const TRANSLATIONS = {
     flashBackShort: "이전",
     flashNextShort: "다음",
     flashEndBtn: "🏁 결과 보기",
-    flashAutoShort: "자동",
+    flashAutoShort: "자동 읽기",
+    flashTip: "💡 카드를 뒤집어서 5초 이상 읽어야 코인을 받아요!",
+    flashKnowTally: "알고 있어요",
+    flashStillTally: "아직 어려워요",
     flashTapFlip: "눌러서 뒤집기",
     flashStartTitle: "플래시카드",
     fsDemo1: "나무에서 사는",
@@ -4324,10 +4330,12 @@ async function loadAdminEmail() {
     adminEmailStatusEl.className = "admin-email-status " + (st.configured ? "ok" : "bad");
     const cell = (label, value) => {
       const d = document.createElement("div");
-      d.textContent = label;
+      d.className = "aed-row";
+      const l = document.createElement("span");
+      l.textContent = label;
       const b = document.createElement("b");
       b.textContent = value;
-      d.appendChild(b);
+      d.append(l, b);
       return d;
     };
     adminEmailDetailsEl.innerHTML = "";
@@ -4651,7 +4659,6 @@ function renderFlashReport() {
   });
 }
 document.getElementById("flash-start-btn").addEventListener("click", startFlashPlay);
-document.getElementById("flash-info-btn")?.addEventListener("click", () => showFlashInfo());
 document.getElementById("flash-end").addEventListener("click", finishFlashRound);
 document.getElementById("flash-report-restart").addEventListener("click", showFlashStart);
 document.getElementById("flash-report-level")?.addEventListener("click", () => document.getElementById("level-badge")?.click());
@@ -4826,7 +4833,7 @@ if (typeof ResizeObserver !== "undefined") {
 function meaningFirstNow() { return flashFrontModeSel.value === "meaning"; }
 function updateFlashTally() {
   const el = document.getElementById("flash-tally");
-  if (el) el.innerHTML = `<span class="t-know" title="${t("flashKnowIt").replace(/"/g, "")}">✓ ${flashSession.known.size}</span><span class="t-still" title="${t("flashStillLearning").replace(/"/g, "")}">↻ ${flashSession.still.size}</span>`;
+  if (el) el.innerHTML = `<span class="t-know">😀 ${t("flashKnowTally")} <b>${flashSession.known.size}</b></span><span class="t-still">😕 ${t("flashStillTally")} <b>${flashSession.still.size}</b></span>`;
 }
 function setFlashAutoSpeak(on) {
   flashAutoSpeakOn = !!on;
@@ -4846,27 +4853,17 @@ function flashMarkCounted(word) {
 function flashSyncAnswerBtns() {
   [flashKnowBtn, flashDontKnowBtn].forEach((b) => { b.classList.toggle("is-wait", !flashCardFlipped); b.setAttribute("aria-disabled", String(!flashCardFlipped)); });
 }
-function showFlashInfo(open) {
-  const n = document.getElementById("flash-info-note"), b = document.getElementById("flash-info-btn");
+function showFlashInfo() {
+  // The 5-second tip lives permanently in the hint block; a too-quick answer just makes it pulse.
+  const n = document.getElementById("flash-info-note");
   if (!n) return;
-  n.textContent = rwL("💡 Flip the card and read it for 5 seconds first. Words you mark \"Still learning\" get a quick quiz at the end — answer right to earn Coins!", "💡 카드를 뒤집어 5초 이상 읽어 보세요. \"Still learning\" 단어는 마지막에 짧은 퀴즈를 풀어요 — 맞히면 코인이 쌓여요!");
-  n.hidden = open === undefined ? !n.hidden : !open;
-  n.onclick = () => { n.hidden = true; b.setAttribute("aria-expanded", "false"); };
-  b.setAttribute("aria-expanded", String(!n.hidden));
-  clearTimeout(flashInfoTimer);
-  if (!n.hidden) { flashInfoKeep = true; flashInfoTimer = setTimeout(hideFlashInfo, 6000); }
+  n.classList.remove("is-nudge"); void n.offsetWidth; n.classList.add("is-nudge");
 }
-let flashInfoKeep = false, flashInfoTimer = null;
-function hideFlashInfo() {
-  clearTimeout(flashInfoTimer);
-  const n = document.getElementById("flash-info-note"), b = document.getElementById("flash-info-btn");
-  if (n) n.hidden = true;
-  if (b) b.setAttribute("aria-expanded", "false");
-}
+function hideFlashInfo() { const n = document.getElementById("flash-info-note"); if (n) n.classList.remove("is-nudge"); }
 function renderFlashcard() {
   // The "read it for 5 seconds" tip shown by a too-quick answer survives the one
   // card change it caused, then goes away on the next flip / card change.
-  if (flashInfoKeep) flashInfoKeep = false; else hideFlashInfo();
+  hideFlashInfo();
   flashcardEl.classList.remove("flipped");
   flashShownAt = Date.now(); flashCardFlipped = false; flashSyncAnswerBtns();
   { const bt = document.querySelector("#flash-bubble .bubble-text"); if (bt) bt.textContent = t("fkIdle"); }
@@ -14252,7 +14249,7 @@ function renderAdminKoala({ resetRecentPaging = true } = {}) {
       <span class="admin-koala-cell-coins">${COIN_SVG} ${escapeHtml(bal)}${pend}</span>
       <div class="admin-koala-cell-adjust">
         <div class="admin-koala-chips">${chipsHtml}</div>
-        <input type="number" class="admin-koala-amt" min="1" max="100000" step="1" placeholder="10" value="10" aria-label="${rwL("Coins", "코인")}" />
+        <input type="number" class="admin-koala-amt" min="1" max="100000" step="1" placeholder="${rwL("Manual", "수동 입력")}" aria-label="${rwL("Coins", "코인")}" />
       </div>
       <div class="admin-koala-cell-actions">
         <button type="button" class="admin-koala-give-btn" data-admin-koala="give">${giveLabel}</button>

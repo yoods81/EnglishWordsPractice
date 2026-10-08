@@ -12280,3 +12280,74 @@ html body .tg-start-card .tg-meter-ico i.on { opacity: 1; filter: none; }
 .admin-sheet .admin-sheet-facts { display: grid; grid-template-columns: 90px minmax(0, 1fr); }
 .admin-sheet .admin-sheet-row { justify-content: flex-start; }
 @media (max-width: 480px) { .admin-sheet .admin-sheet-facts { grid-template-columns: 1fr; } }
+
+/* ===== Round: quiz header, flashcard footer, admin polish ===== */
+/* Quiz: no section title while playing; one cohesive stats strip */
+html body #view-quiz .card:has(#quiz-practice:not([hidden])) > .view-section-title { display: none; }
+.qz-stats { align-items: center; flex-wrap: nowrap; gap: 0; padding: 7px 16px; border-radius: 16px; border: 2px solid #bfe8da; background: linear-gradient(135deg, #e9f9f3, #f6fcf9); box-shadow: 0 2px 0 #cfeade; }
+.qz-count, .qz-score { font-family: var(--font-heading); font-weight: 800; font-size: 1.05rem; color: #0e6b57; white-space: nowrap; }
+.qz-count::before { content: "📖"; margin-right: 6px; }
+.qz-stat-dot { width: 2px; height: 18px; margin: 0 14px; border-radius: 2px; background: #a6dccb; font-size: 0; overflow: hidden; }
+@media (max-width: 420px) { .qz-stats { padding: 6px 12px; } .qz-count, .qz-score { font-size: .95rem; } .qz-stat-dot { margin: 0 10px; } }
+
+/* Flashcards: bigger hint block with the 5-second tip built in */
+html body #flash-practice .flash-help { max-width: 640px; gap: 8px; margin-top: 14px; }
+html body #flash-practice .flash-help .hint { font-size: 1.05rem; line-height: 1.5; font-weight: 700; color: #3f6b5e; text-align: center; margin: 0; }
+html body #flash-practice .flash-info-note { display: block; margin: 0; padding: 8px 16px; border-radius: 999px; background: #fff6d6; border: 2px solid #f6dc8a; color: #6b4600; font-size: .98rem; font-weight: 800; line-height: 1.4; text-align: center; cursor: default; }
+html body #flash-practice .flash-info-note.is-nudge { animation: flash-tip-nudge 1.1s ease 1; background: #ffe9a3; border-color: #f2b72a; }
+@keyframes flash-tip-nudge { 0%,100% { transform: scale(1); } 20% { transform: scale(1.06) rotate(-1deg); } 40% { transform: scale(1.06) rotate(1deg); } 60% { transform: scale(1.04); } }
+/* Footer: no white card; labelled counters, Finish + Read-aloud as clear buttons */
+html body #flash-practice .flash-end-row { display: flex; flex-direction: column; align-items: center; gap: 14px; max-width: 480px; margin: 22px auto 8px; padding: 0; background: none; border: 0; border-radius: 0; }
+html body #flash-practice .flash-tally { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; flex: none; width: 100%; text-align: center; }
+html body #flash-practice .flash-tally:empty { display: none; }
+html body #flash-practice .flash-tally .t-know, html body #flash-practice .flash-tally .t-still { padding: 7px 14px; border-radius: 14px; font-size: .95rem; font-weight: 800; color: #fff; display: inline-flex; align-items: center; gap: 6px; }
+html body #flash-practice .flash-tally b { font-size: 1.15rem; background: rgba(255,255,255,.25); border-radius: 10px; padding: 0 8px; }
+html body #flash-practice .flash-end-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; }
+html body #flash-practice .flash-end-row .flash-auto { flex: none; justify-self: auto; }
+html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill { width: auto; height: 44px; padding: 0 16px 0 12px; gap: 6px; font-size: .95rem; background: #fff; border-color: #b8e3d6; color: #4f7f70; }
+html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill > span { display: inline; }
+html body #flash-practice .flash-end-row .flash-auto.on .flash-auto-pill { background: #d9f3ea; border-color: #02c39a; color: #047857; }
+html body #flash-practice .flash-end-row #flash-end { padding: 0 20px; height: 44px; font-size: 1rem; }
+
+/* Admin: Manage window */
+.admin-sheet-hero { display: flex; align-items: center; gap: 14px; margin: 0 40px 16px 0; }
+.admin-sheet-av { flex: none; width: 56px; height: 56px; font-size: 1.5rem; }
+.admin-sheet-hero-txt { min-width: 0; }
+.admin-sheet-hero .admin-sheet-name { margin: 0 0 4px; font-size: 1.4rem; }
+.admin-sheet-you { font-size: .75rem; font-weight: 800; color: var(--muted); background: #eef3f1; border-radius: 999px; padding: 2px 8px; }
+.admin-sheet-email { font-size: .9rem; font-weight: 700; color: var(--muted); overflow-wrap: anywhere; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+.admin-sheet-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.admin-sheet-tile { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 10px 6px; border-radius: 16px; background: #f5faf8; border: 1.5px solid #e1efe9; min-width: 0; }
+.admin-sheet-tile .ast-ico { font-size: 1.2rem; line-height: 1; }
+.admin-sheet-tile b { font-size: 1rem; font-family: var(--font-heading); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-sheet-tile small { color: var(--muted); font-weight: 700; font-size: .72rem; line-height: 1.2; }
+.admin-sheet-tile.is-hot { background: #fff3e6; border-color: #ffd2a6; }
+.admin-sheet-note-line { margin: 10px 2px 0; font-size: .85rem; font-weight: 700; color: #8a5400; }
+.admin-sheet-alert { margin: 10px 0 0; padding: 8px 12px; border-radius: 12px; background: #ffe9e6; color: var(--error); font-weight: 700; font-size: .88rem; }
+.admin-sheet-sec { margin-top: 14px; padding: 14px 16px; border: 1.5px solid #e1efe9; border-radius: 18px; background: #fff; }
+.admin-sheet-sec .admin-sheet-h { margin: 0 0 10px; display: flex; align-items: center; gap: 6px; }
+.admin-sheet-count { margin-left: 2px; padding: 0 8px; border-radius: 999px; background: #e3f6ef; color: #0e7a63; font-size: .75rem; }
+.admin-sheet-empty { margin: 0; }
+.admin-sheet-danger { border-color: #f5cbc6; background: #fff8f7; }
+@media (max-width: 480px) {
+  .admin-sheet-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-sheet-av { width: 46px; height: 46px; font-size: 1.25rem; }
+}
+
+/* Admin: Coins */
+#admin-koala-search { margin-bottom: 16px; }
+.admin-koala-search-wrap, #admin-koala-search { margin-bottom: 16px; }
+.admin-koala-amt { width: 84px; font-size: .8rem; }
+.admin-koala-amt::placeholder { font-size: .75rem; color: #8aa39a; }
+@media (max-width: 900px) { .admin-koala-chip { width: 42px; } .admin-koala-amt { width: 72px; } }
+@media (max-width: 560px) { .admin-koala-amt { width: 64px; font-size: .72rem; } .admin-koala-amt::placeholder { font-size: .68rem; } }
+
+/* Admin: Email system as label/value rows (addresses never wrap) */
+.admin-email-details { display: block; border: 1px solid #dfe9e5; border-radius: 16px; background: #f7fbf9; margin-bottom: 18px; overflow-x: auto; }
+.admin-email-details .aed-row { display: grid; grid-template-columns: minmax(120px, 170px) max-content; align-items: center; gap: 4px 16px; padding: 11px 16px; border: 0; border-radius: 0; background: none; border-bottom: 1px solid #e8f0ed; font-size: .85rem; font-weight: 700; color: var(--muted); }
+.admin-email-details .aed-row:last-child { border-bottom: 0; }
+.admin-email-details .aed-row b { margin: 0; font-size: .95rem; color: var(--text); white-space: nowrap; overflow-wrap: normal; }
+@media (max-width: 480px) { .admin-email-details .aed-row { grid-template-columns: max-content; } .admin-email-details .aed-row b { font-size: .9rem; } }
+html body #flash-practice .flash-tally .t-know { background: #047857; color: #fff; }
+html body #flash-practice .flash-tally .t-still { background: #c2410c; color: #fff; }
+html body .card.game-immersive #flash-practice .flash-help .hint { display: block; font-size: .95rem; }

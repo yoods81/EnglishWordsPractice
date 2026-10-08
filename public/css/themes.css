@@ -2321,6 +2321,76 @@ html[data-theme="dark"] .admin-email-log-row {
 html[data-theme="dark"] .admin-email-log-row:nth-child(even) {
   background: #151f1a !important;
 }
+html[data-theme="dark"] .qz-stats {
+  border: 2px solid #3e6f5e !important;
+  background: linear-gradient(135deg, #182a23, #14231b) !important;
+}
+html[data-theme="dark"] .qz-count,
+html[data-theme="dark"] .qz-score {
+  color: #2ee4bd !important;
+}
+html[data-theme="dark"] .qz-stat-dot {
+  background: #305549 !important;
+}
+html[data-theme="dark"] body #flash-practice .flash-help .hint {
+  color: #c1ceca !important;
+}
+html[data-theme="dark"] body #flash-practice .flash-info-note {
+  background: #302b1b !important;
+  border: 2px solid #6f633e !important;
+  color: #ffa905 !important;
+}
+html[data-theme="dark"] body #flash-practice .flash-info-note.is-nudge {
+  background: #473f28 !important;
+}
+html[data-theme="dark"] body #flash-practice .flash-tally b {
+  background: rgba(19,27,25,0.25) !important;
+}
+html[data-theme="dark"] body #flash-practice .flash-end-row .flash-auto .flash-auto-pill {
+  background: #131b19 !important;
+  border-color: #3e6f60 !important;
+  color: #bac9c4 !important;
+}
+html[data-theme="dark"] body #flash-practice .flash-end-row .flash-auto.on .flash-auto-pill {
+  background: #1d342c !important;
+  color: #1ef7b9 !important;
+}
+html[data-theme="dark"] .admin-sheet-you {
+  background: #1d2622 !important;
+}
+html[data-theme="dark"] .admin-sheet-tile {
+  background: #15241e !important;
+  border: 1.5px solid #2f4d40 !important;
+}
+html[data-theme="dark"] .admin-sheet-tile.is-hot {
+  background: #292017 !important;
+  border-color: #6f563e !important;
+}
+html[data-theme="dark"] .admin-sheet-note-line {
+  color: #ffa924 !important;
+}
+html[data-theme="dark"] .admin-sheet-alert {
+  background: #291917 !important;
+}
+html[data-theme="dark"] .admin-sheet-sec {
+  border: 1.5px solid #2f4d40 !important;
+  background: #131b19 !important;
+}
+html[data-theme="dark"] .admin-sheet-count {
+  background: #1a2e27 !important;
+  color: #39e8c3 !important;
+}
+html[data-theme="dark"] .admin-sheet-danger {
+  border-color: #653e39 !important;
+  background: #211413 !important;
+}
+html[data-theme="dark"] .admin-email-details {
+  border: 1px solid #3b4f47 !important;
+  background: #14221b !important;
+}
+html[data-theme="dark"] .admin-email-details .aed-row {
+  border-bottom: 1px solid #2e413a !important;
+}
 html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; }
 html[data-theme="dark"] img, html[data-theme="dark"] video { filter: brightness(.92); }
 html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea { color-scheme: dark; }
@@ -3608,4 +3678,39 @@ html[data-theme="ivory"] .admin-email-log-row {
 }
 html[data-theme="ivory"] .admin-email-log-row:nth-child(even) {
   background: #faf7f2 !important;
+}
+html[data-theme="ivory"] .qz-stats {
+  border: 2px solid #d9cfb9 !important;
+  background: linear-gradient(135deg, #f4efe4, #f9f6ef) !important;
+}
+html[data-theme="ivory"] body #flash-practice .flash-tally b {
+  background: rgba(253,250,244,0.25) !important;
+}
+html[data-theme="ivory"] body #flash-practice .flash-end-row .flash-auto .flash-auto-pill {
+  background: #fdfaf4 !important;
+  border-color: #d5c9b1 !important;
+}
+html[data-theme="ivory"] body #flash-practice .flash-end-row .flash-auto.on .flash-auto-pill {
+  background: #eee6d4 !important;
+}
+html[data-theme="ivory"] .admin-sheet-you {
+  background: #f4efe3 !important;
+}
+html[data-theme="ivory"] .admin-sheet-tile {
+  background: #f8f5ed !important;
+  border: 1.5px solid #efe8d7 !important;
+}
+html[data-theme="ivory"] .admin-sheet-sec {
+  border: 1.5px solid #efe8d7 !important;
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] .admin-sheet-count {
+  background: #f1ebdd !important;
+}
+html[data-theme="ivory"] .admin-email-details {
+  border: 1px solid #ece4d1 !important;
+  background: #f9f6ef !important;
+}
+html[data-theme="ivory"] .admin-email-details .aed-row {
+  border-bottom: 1px solid #f1ebdd !important;
 }
