@@ -2802,12 +2802,15 @@ function applyStaticTranslations() {
   document.getElementById("app-subtitle").textContent = t("appSubtitle");
   document.getElementById("app-footer-text").textContent = t("footerText");
   {
-    // Flag of the language the button switches TO (Windows has no flag emoji,
-    // so these are drawn as small SVGs).
+    // The button shows the flag of the CURRENT language (Windows has no flag
+    // emoji, so these are small SVGs) plus a caret; tapping it opens a menu
+    // with the other language(s).
     const lt = document.getElementById("lang-toggle");
-    lt.innerHTML = FLAG_SVG[currentLang === "ko" ? "au" : "kr"];
-    lt.setAttribute("aria-label", t("langToggle"));
-    lt.title = t("langToggle");
+    lt.innerHTML = FLAG_SVG[currentLang === "ko" ? "kr" : "au"] + '<span class="lang-caret" aria-hidden="true"></span>';
+    const nm = currentLang === "ko" ? "한국어" : "English";
+    lt.setAttribute("aria-label", nm);
+    lt.title = nm;
+    lt.setAttribute("aria-haspopup", "menu");
   }
   document.getElementById("level-overlay-title").textContent = t("levelOverlayTitle");
   document.getElementById("level-overlay-desc").textContent = t("levelOverlayDesc");
@@ -2963,9 +2966,49 @@ function switchLanguage(lang) {
   }
 }
 
-langToggleBtn.addEventListener("click", () => {
-  switchLanguage(currentLang === "en" ? "ko" : "en");
+// Language dropdown: the button shows the current flag; the menu lists the others.
+const LANGS = [
+  { code: "en", flag: "au", name: "English" },
+  { code: "ko", flag: "kr", name: "한국어" },
+];
+const langMenu = document.createElement("div");
+langMenu.id = "lang-menu";
+langMenu.className = "lang-menu";
+langMenu.hidden = true;
+langMenu.setAttribute("role", "menu");
+langToggleBtn.insertAdjacentElement("afterend", langMenu);
+function renderLangMenu() {
+  langMenu.innerHTML = "";
+  LANGS.filter((l) => l.code !== currentLang).forEach((l) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "lang-menu-item";
+    b.setAttribute("role", "menuitem");
+    b.setAttribute("aria-label", l.name);
+    b.title = l.name;
+    b.innerHTML = FLAG_SVG[l.flag];
+    b.addEventListener("click", () => {
+      closeLangMenu();
+      switchLanguage(l.code);
+    });
+    langMenu.appendChild(b);
+  });
+}
+function closeLangMenu() {
+  langMenu.hidden = true;
+  langToggleBtn.setAttribute("aria-expanded", "false");
+}
+langToggleBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  if (!langMenu.hidden) { closeLangMenu(); return; }
+  renderLangMenu();
+  langMenu.style.left = langToggleBtn.offsetLeft + "px";
+  langMenu.style.top = langToggleBtn.offsetTop + langToggleBtn.offsetHeight + 4 + "px";
+  langMenu.hidden = false;
+  langToggleBtn.setAttribute("aria-expanded", "true");
 });
+document.addEventListener("click", (e) => { if (!langMenu.hidden && !langMenu.contains(e.target)) closeLangMenu(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLangMenu(); });
 
 /* ---------- Tab navigation ---------- */
 // ".tab-btn" picks up every button that switches views: the persistent

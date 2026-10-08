@@ -187,11 +187,7 @@ body.has-support-unread #auth-toggle::after, body.has-support-unread #contact-op
    (Loaded last; !important beats the older per-view card overrides.)
    ===================================================================== */
 html body :is(.card, .adm-card, .auth-card, .notice-card, .upgrade-card, .dash-card, .mission-card, .qz-start-card, .sp-start-card, .tg-start-card, .tg-over-card, .qz-result-card, .sp-report-card),
-html body #view-stats > .card,
-html body #view-koala > .card,
-html body :is(#view-stats, #view-admincodes, #view-addword, #view-myaccount, #view-quiz, #view-spelling, #view-flashcards, #view-wordlist) .card,
-html[data-theme] body #view-stats > .card,
-html[data-theme] body #view-koala > .card {
+html body :is(#view-admincodes, #view-addword, #view-myaccount, #view-quiz, #view-spelling, #view-flashcards, #view-wordlist) .card {
   border: 1px solid var(--outline) !important;
   border-radius: 20px !important;
   box-shadow: 0 3px 0 rgba(11, 107, 87, .12) !important;
@@ -217,8 +213,7 @@ html body :is(#view-stats, #view-koala) .stats-tab, html body :is(#view-stats, #
 html body :is(#view-addword, #view-admincodes) :is(button, .pill, .edit-btn, .retry-btn, .delete-btn, select, .admin-chip, .admin-tab) { box-shadow: none !important; }
 
 /* Home cards + menu tiles + My Progress cards use the same card edge */
-html body :is(.review-card, .photo-promo, .landing-tile, .dash-cat, .dash-badge-card, .dash-rec),
-html body :is(#view-stats) :is(.dash-cat, .dash-badge-card, .dash-rec) {
+html body :is(.review-card, .photo-promo, .landing-tile) {
   border: 1px solid var(--outline) !important;
   border-radius: 20px !important;
   box-shadow: 0 3px 0 rgba(11, 107, 87, .12) !important;
@@ -229,3 +224,39 @@ html body #view-stats .dash-rec .dash-rec-btn {
   display: block; width: auto; min-width: 0; min-height: 0; height: auto; margin: 12px auto 0; padding: 4px 14px;
   font-size: .78rem; line-height: 1.4; border: 0 !important; box-shadow: none !important; transform: none;
 }
+
+/* =====================================================================
+   Round 2 adjustments
+   ===================================================================== */
+
+/* Language dropdown: flag + caret button, borderless menu below it */
+html body .lang-toggle { gap: 4px; max-width: none; padding: 2px 4px; }
+.lang-caret { display: inline-block; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--muted); }
+.lang-menu { position: absolute; z-index: 40; padding: 4px; background: #fff; border: 0; border-radius: 8px; box-shadow: 0 4px 14px rgba(10, 60, 50, .12); }
+.lang-menu[hidden] { display: none; }
+.lang-menu-item { display: flex; align-items: center; justify-content: center; padding: 4px; border: 0; background: transparent; border-radius: 6px; cursor: pointer; line-height: 0; }
+.lang-menu-item:hover { background: #e9f8f3; }
+.lang-menu-item .flag-svg { display: block; border-radius: 3px; box-shadow: 0 0 0 1px rgba(0, 0, 0, .12); }
+@media (max-width: 480px) { html body .lang-toggle .flag-svg { width: 26px; height: 17px; } }
+
+/* Home: yellow cards get a yellow-family edge instead of mint */
+html body :is(.review-card, .photo-promo) { border-color: #e8bd4f !important; box-shadow: 0 3px 0 rgba(232, 189, 79, .45) !important; }
+
+/* Top navigation pop-ups: mint frame back on the menu itself; items stay flat */
+html body .tab-dropdown { border: 1px solid var(--outline) !important; }
+
+/* Account pop-up: Level label + dropdown aligned, full level names visible */
+.auth-menu { min-width: 230px; }
+.auth-menu label.auth-koala-level { justify-content: space-between; gap: 10px; }
+.auth-menu .auth-koala-level select { flex: 1 1 auto; width: auto; min-width: 140px; height: 30px; padding: 0 26px 0 12px; line-height: 28px; text-align: left; text-align-last: left; text-overflow: clip; border-radius: 10px; box-shadow: none; }
+
+/* My Koala: no card borders or shadows (equipped / try-on rings stay) */
+html body #view-koala > .card,
+html body #view-koala :is(.koala-studio-top, .koala-next, .koala-hero, .koala-subbox, .koala-trophy-wall, .koala-stage, .koala-streak-chip, .koala-studio-coins, .koala-next-pic, .koala-hero-streak, .koala-reason-card, .koala-subd-card),
+html body #view-koala .koala-item:not(.is-equipped):not(.is-trying) {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Add Word: no outlines on any button (dashed drop zone is not a button) */
+html body #view-addword :is(button, .pill, .edit-btn, .retry-btn, .delete-btn) { border: 0 !important; }
