@@ -15,7 +15,76 @@ const MAX_PROGRESS_JSON_LENGTH = 500000;
 const PBKDF2_ITERATIONS = 100000;
 const ADMIN_BOOTSTRAP_USERNAME = "admin";
 
+// Builds the same report the browser sends, from the progress copy saved on the
+// server (accounts that sync progress), for the last 7 days in the user's own time zone.
+function reportFromProgress(progress, tzOffset, lang) {
+  const ko = lang === "ko";
+  const day = 86400000;
+  const keyOf = (ms) => new Date(ms + tzOffset * 60000).toISOString().slice(0, 10);
+  const today = Date.now();
+  const modeDefs = [["quiz", ko ? "퀴즈" : "Quiz"], ["spelling", ko ? "스펠링" : "Spelling"], ["typing", ko ? "타이핑 게임" : "Typing Game"], ["tt", ko ? "구구단" : "Times Table"], ["flash", ko ? "플래시카드" : "Flashcards"]];
+  const daily = (progress && progress.daily) || {};
+  const perMode = {};
+  modeDefs.forEach(([m]) => (perMode[m] = [0, 0]));
+  const series = [];
+  let activeDays = 0, correct = 0, total = 0;
+  for (let i = 6; i >= 0; i--) {
+    const ms = today - i * day;
+    const rec = daily[keyOf(ms)] || {};
+    let c = 0, t = 0;
+    modeDefs.forEach(([m]) => { if (rec[m]) { c += rec[m][0]; t += rec[m][1]; perMode[m][0] += rec[m][0]; perMode[m][1] += rec[m][1]; } });
+    correct += c; total += t; if (t) activeDays++;
+    series.push({ l: new Date(ms + tzOffset * 60000).toLocaleDateString(ko ? "ko-KR" : "en-AU", { weekday: "narrow", timeZone: "UTC" }), c, t });
+  }
+  const fmt = (ms) => new Date(ms + tzOffset * 60000).toLocaleDateString(ko ? "ko-KR" : "en-AU", { day: "numeric", month: "short", timeZone: "UTC" });
+  const stages = [0, 0, 0, 0, 0];
+  Object.values((progress && progress.srs) || {}).forEach((e) => { const b = Math.min(5, Math.max(1, (e && e.box) || 1)); stages[b - 1]++; });
+  const tricky = Object.entries((progress && progress.wordStats) || {})
+    .filter(([k, v]) => !/^\d+x\d+$/.test(k) && v && v.incorrect > 0 && v.incorrect >= v.correct)
+    .sort((a, b) => b[1].incorrect - a[1].incorrect).slice(0, 6).map(([k]) => k);
+  const tips = [];
+  if (!activeDays) tips.push(ko ? "이 기간에는 학습 기록이 없어요. 저녁 식사 후 5분부터 시작해 보세요." : "No practice this week. Five minutes after dinner is a great place to start.");
+  else if (activeDays < 4) tips.push(ko ? `7일 중 ${activeDays}일 학습했어요. 매일 조금씩이 효과적이에요.` : `Practised ${activeDays} of 7 days. Short daily sessions work best.`);
+  else tips.push(ko ? `7일 중 ${activeDays}일 학습했어요. 좋은 습관이에요!` : `Practised ${activeDays} of 7 days — a great routine!`);
+  return {
+    lang: ko ? "ko" : "en", range: `${fmt(today - 6 * day)} – ${fmt(today)}`,
+    days: 7, activeDays, answers: total, pct: total ? Math.round((correct / total) * 100) : null,
+    streak: (progress && progress.streak && progress.streak.count) || 0, known: stages[2] + stages[3] + stages[4],
+    modes: modeDefs.map(([m, name]) => ({ name, c: perMode[m][0], t: perMode[m][1] })).filter((x) => x.t > 0),
+    series, stages, tricky, tips,
+  };
+}
+
+async function sendWeeklyReports(env) {
+  let rows;
+  try {
+    rows = (await env.DB.prepare(
+      `SELECT p.user_id, p.tz_offset, p.lang, p.last_sent_at, u.username, u.email, u.email_verified_at, u.role
+       FROM weekly_report_prefs p JOIN users u ON u.id = p.user_id WHERE p.enabled = 1`
+    ).all()).results || [];
+  } catch (e) {
+    return;
+  }
+  for (const r of rows) {
+    if (!r.email || (!r.email_verified_at && r.role !== "admin")) continue;
+    if (r.last_sent_at && Date.now() - r.last_sent_at < 5 * 86400000) continue;
+    let progress = null;
+    try {
+      const row = await env.DB.prepare("SELECT progress_json FROM user_progress WHERE account_key = ?").bind(r.user_id).first();
+      if (row) progress = JSON.parse(row.progress_json);
+    } catch (e) { /* send an empty-week report rather than nothing */ }
+    const report = reportFromProgress(progress, Number(r.tz_offset) || 0, r.lang);
+    const sent = await sendEmail(env, { to: r.email, kind: "weekly_report_auto", ...templates.weeklyReport(report, r.username) });
+    if (sent.ok) {
+      try { await env.DB.prepare("UPDATE weekly_report_prefs SET last_sent_at = ? WHERE user_id = ?").bind(Date.now(), r.user_id).run(); } catch (e) { /* ignore */ }
+    }
+  }
+}
+
 export default {
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(sendWeeklyReports(env));
+  },
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) return handleApi(request, env, url);
@@ -510,6 +579,60 @@ async function handleApi(request, env, url) {
     await env.DB.prepare("UPDATE users SET email = ?, email_verified_at = NULL WHERE id = ?").bind(email, user.id).run();
     const sent = await sendVerificationEmail(env, user, email);
     return json({ ok: true, email, emailVerified: false, verificationSent: sent.ok });
+  }
+
+  // Sends the signed-in user's own report to their own (verified) address.
+  // The report numbers come from the browser (progress lives on the device),
+  // so the template clamps and escapes them; the recipient is always the
+  // address on the account, never something the request supplies.
+  if (route === "/report/send" && request.method === "POST") {
+    if (!env.SESSION_SECRET) return json({ error: "server_not_configured" }, 500);
+    const session = await getSessionUser(request, env);
+    if (!session) return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    if (!body || typeof body !== "object") return json({ error: "bad_request" }, 400);
+    const user = await env.DB.prepare("SELECT * FROM users WHERE id = ?").bind(session.id).first();
+    if (!user || !user.email) return json({ error: "no_email" }, 400);
+    if (!user.email_verified_at && user.role !== "admin") return json({ error: "email_not_verified" }, 403);
+    const recent = await env.DB.prepare("SELECT created_at FROM email_log WHERE to_addr = ? AND kind = 'weekly_report' ORDER BY created_at DESC LIMIT 1")
+      .bind(user.email)
+      .first();
+    if (recent && Date.now() - recent.created_at < EMAIL_COOLDOWN_MS) return json({ error: "too_soon" }, 429);
+    const sent = await sendEmail(env, { to: user.email, kind: "weekly_report", ...templates.weeklyReport(body, user.username) });
+    return json({ ok: sent.ok, error: sent.ok ? undefined : sent.error }, sent.ok ? 200 : 502);
+  }
+
+  // "Send me this report every week": a per-account switch read by the weekly cron.
+  if (route === "/report/auto" && (request.method === "GET" || request.method === "PUT")) {
+    if (!env.SESSION_SECRET) return json({ error: "server_not_configured" }, 500);
+    const session = await getSessionUser(request, env);
+    if (!session) return json({ error: "unauthorized" }, 401);
+    try {
+      if (request.method === "GET") {
+        const row = await env.DB.prepare("SELECT enabled FROM weekly_report_prefs WHERE user_id = ?").bind(session.id).first();
+        return json({ enabled: !!(row && row.enabled) });
+      }
+      let body;
+      try { body = await request.json(); } catch (e) { return json({ error: "bad_request" }, 400); }
+      const user = await env.DB.prepare("SELECT * FROM users WHERE id = ?").bind(session.id).first();
+      if (!user || !user.email) return json({ error: "no_email" }, 400);
+      if (!user.email_verified_at && user.role !== "admin") return json({ error: "email_not_verified" }, 403);
+      const enabled = body && body.enabled ? 1 : 0;
+      const tz = Math.max(-720, Math.min(840, Math.round(Number(body && body.tzOffset) || 0)));
+      const lang = body && body.lang === "ko" ? "ko" : "en";
+      await env.DB.prepare(
+        `INSERT INTO weekly_report_prefs (user_id, enabled, tz_offset, lang, updated_at) VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(user_id) DO UPDATE SET enabled = excluded.enabled, tz_offset = excluded.tz_offset, lang = excluded.lang, updated_at = excluded.updated_at`
+      ).bind(session.id, enabled, tz, lang, Date.now()).run();
+      return json({ ok: true, enabled: !!enabled });
+    } catch (e) {
+      return json({ error: "not_ready" }, 503);
+    }
   }
 
   if (route === "/auth/resend-verification" && request.method === "POST") {

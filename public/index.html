@@ -330,7 +330,7 @@
     <div class="stat-bar">
       <button id="level-badge" class="level-badge" title="Change level">Level: Upper Primary ▾</button>
       <span id="streak-chip" class="stat-chip streak-chip" title="Daily streak">
-        <span class="stat-chip-icon" aria-hidden="true">🔥</span>
+        <span class="stat-chip-icon" aria-hidden="true">🌿</span>
         <span id="streak-count" class="stat-chip-value">0</span>
       </span>
     </div>
@@ -1832,9 +1832,9 @@ to Flip!</span></div>
         </div>
         <div class="stats-tabs" role="tablist">
           <button type="button" class="stats-tab on" role="tab" aria-selected="true" data-stats-tab="overview"><span data-i18n="statsTabOverview">📊 Overview</span></button>
-          <button type="button" class="stats-tab" role="tab" aria-selected="false" data-stats-tab="badges"><span data-i18n="statsTabBadges">🏅 Badges</span></button>
-          <button type="button" class="stats-tab" role="tab" aria-selected="false" data-stats-tab="wrong"><span data-i18n="statsTabWrong">📕 Mistakes</span><span class="stats-tab-count"></span></button>
+          <button type="button" class="stats-tab" role="tab" aria-selected="false" data-stats-tab="wrong"><span class="stats-tab-long" data-i18n="statsTabWrong">📕 Mistakes</span><span class="stats-tab-short" data-i18n="statsTabWrongShort">📕 Mistakes</span><span class="stats-tab-count"></span></button>
           <button type="button" class="stats-tab" role="tab" aria-selected="false" data-stats-tab="parent"><span data-i18n="statsTabParent">👪 Parent</span></button>
+          <button type="button" class="stats-tab" role="tab" aria-selected="false" data-stats-tab="badges"><span data-i18n="statsTabBadges">🏅 Badges</span></button>
         </div>
         <div id="stats-panel-overview">
           <div id="stats-skills"></div>
@@ -1854,13 +1854,35 @@ to Flip!</span></div>
            content plus a click-catching overlay that opens the upgrade
            prompt. Content here is a placeholder; the real report/analysis
            logic isn't built yet. -->
-      <div class="card" id="stats-insights-card">
+      <div class="card" id="stats-insights-card" role="button" tabindex="0" aria-expanded="false">
         <h3 data-i18n="statsInsightsTitle">✨ Premium Insights</h3>
         <ul class="premium-insights-list">
-          <li data-i18n="statsInsightsBullet1">📧 Weekly progress email reports</li>
-          <li data-i18n="statsInsightsBullet2">🎯 Category-by-category accuracy breakdown</li>
-          <li data-i18n="statsInsightsBullet3">👨‍👩‍👧‍👦 Track multiple children in one account</li>
+          <li data-i18n="statsInsightsBullet1">♾️ Unlimited Times Table and longer rounds</li>
+          <li data-i18n="statsInsightsBullet2">📷 Turn homework photos into words</li>
+          <li data-i18n="statsInsightsBullet3">✏️ Your own private word list</li>
+          <li data-i18n="statsInsightsBullet4">📕 Mistakes notebook and tricky-words review</li>
+          <li data-i18n="statsInsightsBullet5">📧 Weekly progress email reports</li>
+          <li data-i18n="statsInsightsBullet6">👨‍👩‍👧‍👦 Track multiple children in one account</li>
         </ul>
+        <div class="insights-hint"><span data-i18n="insightsHint">Tap to see how it works</span> <span class="insights-chev" aria-hidden="true">▾</span></div>
+        <div class="insights-detail"><div class="insights-detail-inner">
+          <ol class="insights-steps">
+            <li style="--i:0"><span class="insights-step-ico" aria-hidden="true">♾️</span><div><b data-i18n="insDetail1Title">Unlimited Times Table</b><p data-i18n="insDetail1Text">General accounts stop at 100 problems. With Premium you can keep going as long as you like.</p></div></li>
+            <li style="--i:1"><span class="insights-step-ico" aria-hidden="true">📚</span><div><b data-i18n="insDetail2Title">Longer practice rounds</b><p data-i18n="insDetail2Text">Go beyond 100 questions in a single round when you feel like a big session.</p></div></li>
+            <li style="--i:2"><span class="insights-step-ico" aria-hidden="true">📷</span><div><b data-i18n="insDetail3Title">Homework photo to words</b><p data-i18n="insDetail3Text">Snap a school word sheet or a book page. We pick out the words and turn them into practice.</p></div></li>
+            <li style="--i:3"><span class="insights-step-ico" aria-hidden="true">📄</span><div><b data-i18n="insDetail4Title">Photos, PDF, Word and Excel</b><p data-i18n="insDetail4Text">Upload almost any file. An Excel list adds every word straight in, with its meaning.</p></div></li>
+            <li style="--i:4"><span class="insights-step-ico" aria-hidden="true">✏️</span><div><b data-i18n="insDetail5Title">Your own word list</b><p data-i18n="insDetail5Text">Build a private list that matches your child's school week, typed in or added in bulk.</p></div></li>
+            <li style="--i:5"><span class="insights-step-ico" aria-hidden="true">🃏</span><div><b data-i18n="insDetail6Title">Flashcards from your list</b><p data-i18n="insDetail6Text">Practise your own words with flashcards, not only the built-in ones.</p></div></li>
+            <li style="--i:6"><span class="insights-step-ico" aria-hidden="true">📕</span><div><b data-i18n="insDetail7Title">Mistakes notebook</b><p data-i18n="insDetail7Text">Every missed word is collected, so you can practise them until they stick.</p></div></li>
+            <li style="--i:7"><span class="insights-step-ico" aria-hidden="true">🎯</span><div><b data-i18n="insDetail8Title">Tricky-words review</b><p data-i18n="insDetail8Text">One tap brings back the words you missed recently for a quick review.</p></div></li>
+            <li style="--i:8"><span class="insights-step-ico" aria-hidden="true">🔧</span><div><b data-i18n="insDetail9Title">Premium-only badges</b><p data-i18n="insDetail9Text">Earn the special Mistake Fixer and Mistake Master koala badges.</p></div></li>
+            <li style="--i:9"><span class="insights-step-ico" aria-hidden="true">📧</span><div><b data-i18n="insDetail10Title">Weekly email report</b><p data-i18n="insDetail10Text">Once a week we email a short summary: days practised, new words and how you did.</p></div></li>
+            <li style="--i:10"><span class="insights-step-ico" aria-hidden="true">📊</span><div><b data-i18n="insDetail11Title">Accuracy by category</b><p data-i18n="insDetail11Text">See Quiz, Spelling, Flashcards, Times Table and Typing one by one, so you know what to practise next.</p></div></li>
+            <li style="--i:11"><span class="insights-step-ico" aria-hidden="true">👨‍👩‍👧‍👦</span><div><b data-i18n="insDetail12Title">Several children, one account</b><p data-i18n="insDetail12Text">Keep the whole family together in one account instead of signing in and out.</p></div></li>
+            <li style="--i:12"><span class="insights-step-ico" aria-hidden="true">☁️</span><div><b data-i18n="insDetail13Title">Progress on every device</b><p data-i18n="insDetail13Text">Start on the tablet, carry on from the laptop. Your progress and coins come along.</p></div></li>
+          </ol>
+          <button type="button" class="pill accent small insights-cta" data-i18n="statsInsightsCta">See what Premium adds</button>
+        </div></div>
         <div class="insights-sample" aria-hidden="true">
           <div class="insights-sample-title" data-i18n="statsInsightsSample">Example weekly report</div>
           <div class="insights-sample-bars"><i style="height:40%"></i><i style="height:65%"></i><i style="height:50%"></i><i style="height:80%"></i><i style="height:70%"></i><i style="height:92%"></i><i style="height:60%"></i></div>

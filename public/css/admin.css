@@ -271,3 +271,494 @@ html body .wordlist-item .delete-btn { background: #ffb3b3 !important; color: #f
 html body .wordlist-item :is(.edit-btn,.retry-btn) { border: 0 !important; box-shadow: none !important; }
 html body #view-stats :is(.dash-sum,.dash-cat,.dash-badge-card,.dash-card:not(.dash-rec)) { border: 0 !important; box-shadow: none !important; }
 html body #view-stats .dash-rec { border: 1px solid #e8bd4f !important; box-shadow: none !important; }
+
+
+/* =====================================================================
+   Round 4
+   1. ONE soft "drop" shadow (the Today's Mission card's) on every big card
+   2. Home cards / Add Word paid-member cards: no outline
+   3. My Koala: visible category buttons in ONE scrollable row
+   ===================================================================== */
+:root { --card-drop: 0 3px 0 rgba(11, 107, 87, .12); }
+
+html:root body :is(#view-landing,#view-quiz,#view-spelling,#view-flashcards,#view-wordlist,#view-addword,#view-typegame,#view-timestable,#view-stats,#view-koala,#view-myaccount,#view-admincodes) :is(.card,.adm-card,.mission-card,.review-card,.photo-promo,.landing-tile,.dash-card,.dash-rec,.dash-cat,.dash-sum,.dash-badge-card,.koala-hero,.koala-next,.koala-wallet,.koala-earn,.koala-balance,.koala-trophy-wall,.koala-studio-preview,.sp-start-card,.tg-start-card,.qz-result-card,.sp-report-card,.tg-over-card),
+html:root body :is(.card,.adm-card,.mission-card,.review-card,.photo-promo,.landing-tile,.dash-card,.dash-rec,.dash-cat,.dash-sum,.dash-badge-card,.koala-hero,.koala-next,.koala-wallet,.koala-earn,.koala-balance,.koala-trophy-wall,.koala-studio-preview,.sp-start-card,.tg-start-card,.qz-result-card,.sp-report-card,.tg-over-card) {
+  box-shadow: var(--card-drop) !important;
+}
+
+/* Home: Today's Mission, the two yellow cards and every menu tile lose their outline */
+html:root body :is(.mission-card, .review-card, .photo-promo, .landing-tile),
+html:root body :is(#view-landing,#view-quiz,#view-spelling,#view-flashcards,#view-wordlist,#view-addword,#view-typegame,#view-timestable,#view-stats,#view-koala,#view-myaccount,#view-admincodes) :is(.mission-card, .review-card, .photo-promo, .landing-tile),
+html:root body #view-stats .dash-rec {
+  border: 0 !important;
+}
+
+/* Add Word > Paid members' words: word cards without the mint outline */
+html:root body #paid-words-grid .pw-row,
+html:root body #view-addword .pw-row { border: 0 !important; }
+html:root:not([data-theme="dark"]) body #paid-words-grid .pw-row { background: #f3faf7; }
+
+/* My Koala: category buttons you have not picked are white so they show on the pale background */
+html:root body #view-koala .koala-cat {
+  background: #fff; color: var(--accent-dark); border: 0 !important;
+  box-shadow: 0 1px 3px rgba(10, 60, 50, .22) !important;
+}
+html:root body #view-koala .koala-cat.on {
+  background: var(--accent); color: #fff; box-shadow: 0 2px 6px rgba(20, 160, 130, .35) !important;
+}
+html:root[data-theme="dark"] body #view-koala .koala-cat { background: #24372f; color: #6ff0cf; box-shadow: none !important; }
+html:root[data-theme="dark"] body #view-koala .koala-cat.on { background: var(--accent); color: #04281f; }
+
+/* My Koala: the categories sit in a single row (swipe / arrows / mouse wheel) instead of 2-5 wrapped rows */
+#view-koala .koala-cats-wrap { position: relative; margin: 0 0 6px; }
+html body #view-koala .koala-cats-wrap .koala-cats {
+  display: flex; flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important;
+  gap: 6px; padding: 5px 2px 7px; scroll-behavior: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+html body #view-koala .koala-cats-wrap .koala-cats::-webkit-scrollbar { display: none; }
+html body #view-koala .koala-cats-wrap .koala-cat { flex: 0 0 auto; white-space: nowrap; min-height: 40px; }
+#view-koala .koala-cats-wrap.can-right .koala-cats {
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 34px), transparent);
+}
+#view-koala .koala-cats-wrap.can-left .koala-cats {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 34px); mask-image: linear-gradient(90deg, transparent, #000 34px);
+}
+#view-koala .koala-cats-wrap.can-left.can-right .koala-cats {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 34px, #000 calc(100% - 34px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 34px, #000 calc(100% - 34px), transparent);
+}
+html body #view-koala .koala-cats-nav {
+  position: absolute; top: 50%; transform: translateY(-55%); z-index: 3; width: 32px; height: 32px; padding: 0;
+  display: flex; align-items: center; justify-content: center; border: 0 !important; border-radius: 50%;
+  background: #fff; color: var(--accent-dark); font-size: 1.4rem; font-weight: 800; line-height: 1; cursor: pointer;
+  box-shadow: 0 1px 5px rgba(10, 60, 50, .35) !important;
+}
+html body #view-koala .koala-cats-nav[hidden] { display: none; }
+html body #view-koala .koala-cats-nav.prev { left: -4px; }
+html body #view-koala .koala-cats-nav.next { right: -4px; }
+html[data-theme="dark"] body #view-koala .koala-cats-nav { background: #24372f; color: #6ff0cf; }
+
+/* Coin history: "Show more" button (the list itself never gets a scrollbar) */
+html body #view-koala .koala-history-more { display: block; margin: 10px auto 0; border: 0 !important; box-shadow: none !important; }
+
+
+/* =====================================================================
+   Round 5
+   - not-a-button cards carry no shadow (tricky-words card, My Koala level card, wallet)
+   - Coins: wallet stat buttons, Coin history as one card with tile rows, wider "show more"
+   - Badges: one merged summary card, badge cards = the other big cards
+   - leaf icon glow, tricky-words card layout, "More stats" chart cards, Premium Insights unfold
+   ===================================================================== */
+html:root body #view-stats .dash-rec,
+html:root body #view-koala :is(.koala-hero, .koala-hero-streak, .koala-wallet) { box-shadow: none !important; }
+
+/* Coin wallet: the three small boxes are 3-D buttons */
+html:root body #view-koala .koala-wallet-stat {
+  border: 0; font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 3px 0 rgba(122, 82, 0, .28); transition: transform .12s ease, box-shadow .12s ease;
+}
+html:root body #view-koala .koala-wallet-stat:hover { transform: translateY(-1px); box-shadow: 0 4px 0 rgba(122, 82, 0, .28); }
+html:root body #view-koala .koala-wallet-stat:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(122, 82, 0, .28); }
+html:root body #view-koala .koala-wallet-stat:focus-visible { outline: 3px solid var(--accent-dark); outline-offset: 2px; }
+
+/* Coin history = one card, rows look like the "Earn more Coins" tiles */
+html:root body #view-koala .koala-history-card { margin: 0 0 16px; }
+html:root body #view-koala .koala-history-card .koala-note { margin: 8px 0 2px; }
+html:root body #view-koala .koala-history-card .koala-history { gap: 10px; margin-top: 8px; }
+html:root body #view-koala .koala-history-card .koala-history li {
+  background: #e9f6f1; border: 0; border-radius: 14px; padding: 10px 12px;
+}
+html:root[data-theme="dark"] body #view-koala .koala-history-card .koala-history li { background: #1b2b25; }
+html body #view-koala .koala-history-card .koala-history-more {
+  display: block; width: 100%; max-width: none; min-height: 46px; margin: 14px 0 2px; padding: 12px 18px;
+  border: 0 !important; border-radius: 14px; box-shadow: none !important;
+  background: #ffe7a8; color: #7a4b00; font-size: .95rem; font-weight: 800;
+}
+html body #view-koala .koala-history-card .koala-history-more:active { transform: scale(.98); }
+html:root[data-theme="dark"] body #view-koala .koala-history-card .koala-history-more { background: #4a3a14; color: #ffd978; }
+
+/* Badges: merged summary card */
+.badge-overview {
+  display: flex; align-items: center; gap: 14px; margin: 0 0 14px; padding: 16px;
+  background: #fff; border-radius: 20px; box-shadow: var(--card-drop);
+}
+.badge-overview-ico { flex: 0 0 auto; width: 66px; height: 66px; display: grid; place-items: center; font-size: 2.5rem; background: #fff1c9; border-radius: 20px; }
+.badge-overview-main { flex: 1; min-width: 0; }
+.badge-overview-count { display: flex; align-items: baseline; gap: 6px; line-height: 1.1; }
+.badge-overview-count b { font-family: var(--font-heading); font-size: 2rem; color: var(--accent-dark); }
+.badge-overview-count span { font-size: 1.05rem; font-weight: 700; color: var(--muted); }
+html body .badge-overview .badge-summary { margin: 4px 0 8px; }
+html body .badge-overview .badge-meter { margin: 0 0 8px; }
+html body .badge-overview .badge-hint { margin: 0; }
+html:root[data-theme="dark"] .badge-overview { background: #172420; }
+html:root[data-theme="dark"] .badge-overview-ico { background: #3a3220; }
+
+/* Badge cards use the same edge as every other big card */
+html:root body :is(#view-koala, #view-stats) .badge-card { border: 0 !important; box-shadow: var(--card-drop) !important; }
+
+/* Leaf (replaces the flame) */
+html body .koala-flame { filter: drop-shadow(0 0 6px rgba(46, 204, 160, .55)); }
+html body .koala-flame:not(.on) { filter: grayscale(.9); }
+
+/* My Progress > tricky-words / next-up card: compact, big square button at the right, chips fill the rows */
+html:root body #view-stats .dash-rec {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "text side" "words words";
+  column-gap: 14px; row-gap: 8px; align-items: start; padding: 12px 14px;
+}
+html:root body #view-stats .dash-rec .dash-rec-text { grid-area: text; min-width: 0; }
+html:root body #view-stats .dash-rec .dash-rec-side { grid-area: side; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+html:root body #view-stats .dash-rec .dash-rec-words { grid-area: words; margin: 0; }
+html:root body #view-stats .dash-rec .dash-rec-koala { position: static; width: 46px; height: 46px; margin: 0; }
+html:root body #view-stats .dash-rec .dash-title { margin: 2px 0 2px; font-size: 1.15rem; }
+html:root body #view-stats .dash-rec .dash-reason { margin: 0; font-size: .9rem; }
+html:root body #view-stats .dash-rec .dash-rec-today { display: block; text-align: left !important; margin: 3px 0 0; padding: 0; font-size: .8rem; opacity: .85; }
+html:root body #view-stats .dash-rec .dash-rec-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  width: clamp(76px, 22vw, 92px); height: clamp(76px, 22vw, 92px); min-width: 0; min-height: 0; margin: 0; padding: 6px;
+  border: 0 !important; border-radius: 22px; background: #fff; color: var(--accent-dark);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .14) !important; cursor: pointer; font-family: var(--font-heading); line-height: 1.15; text-align: center;
+}
+html:root body #view-stats .dash-rec .dash-rec-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0, 0, 0, .14) !important; }
+html:root body #view-stats .dash-rec .dash-rec-btn-ico { font-size: 1.5rem; }
+html:root body #view-stats .dash-rec .dash-rec-btn-txt { font-size: .74rem; font-weight: 800; }
+html:root body #view-stats .dash-rec .dash-rec-words-label { display: block; margin: 0 0 6px; font-size: .78rem; font-weight: 800; }
+html:root body #view-stats .dash-rec .dash-rec-chips { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
+html:root body #view-stats .dash-rec .dash-rec-chips li {
+  flex: 1 1 auto; min-width: 72px; text-align: center; padding: 6px 12px; border-radius: 999px;
+  background: rgba(255, 255, 255, .78); font-weight: 700; font-size: .88rem;
+}
+html:root body #view-stats .dash-rec .dash-rec-chips li.more { flex: 0 0 auto; min-width: 0; background: rgba(255, 255, 255, .5); }
+
+/* My Progress > More stats: cards show their chart, no outline/shadow, not clickable */
+html:root body #view-stats #stats-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+html:root body #view-stats .stat-card {
+  display: block; text-align: left; cursor: default; padding: 14px; border: 0 !important; box-shadow: none !important; background: #fff;
+}
+html:root body #view-stats .stat-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+html:root body #view-stats .stat-card-nums .num { margin: 0; }
+html:root body #view-stats .stat-card .chart-title { margin: 8px 0 4px; }
+html:root body #view-stats .stat-card .chart-svg { display: block; width: 100%; height: auto; }
+html:root[data-theme="dark"] body #view-stats .stat-card { background: #172420; }
+
+/* Premium Insights: tap to unfold the details */
+html:root body #stats-insights-card { cursor: pointer; }
+html:root body #stats-insights-card .premium-gate-overlay { display: none !important; }
+html:root body #stats-insights-card.premium-gate > * { pointer-events: auto; opacity: 1; }
+html:root body #stats-insights-card.premium-gate > .insights-sample { opacity: .6; }
+.insights-hint { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: .82rem; font-weight: 800; color: var(--accent-dark); }
+.insights-chev { display: inline-block; transition: transform .4s ease; }
+#stats-insights-card.is-open .insights-chev { transform: rotate(180deg); }
+.insights-detail { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .5s cubic-bezier(.2, .8, .2, 1); }
+#stats-insights-card.is-open .insights-detail { grid-template-rows: 1fr; }
+.insights-detail-inner { overflow: hidden; min-height: 0; }
+.insights-steps { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 10px; }
+.insights-steps li {
+  display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px; border-radius: 14px; background: #eef9f5;
+  opacity: 0; transform: translateY(16px) scale(.97);
+  transition: opacity .35s ease, transform .5s cubic-bezier(.2, .9, .3, 1.25);
+}
+#stats-insights-card.is-open .insights-steps li { opacity: 1; transform: none; transition-delay: calc(.12s + var(--i) * .06s); }
+.insights-steps b { display: block; font-family: var(--font-heading); font-size: .98rem; }
+.insights-steps p { margin: 2px 0 0; font-size: .86rem; line-height: 1.4; color: var(--muted); }
+.insights-step-ico { flex: 0 0 auto; width: 44px; height: 44px; display: grid; place-items: center; font-size: 1.6rem; background: #fff; border-radius: 12px; }
+#stats-insights-card.is-open .insights-step-ico { animation: ins-pop .6s calc(.2s + var(--i) * .06s) both; }
+@keyframes ins-pop { 0% { transform: scale(.4) rotate(-14deg); } 60% { transform: scale(1.18) rotate(6deg); } 100% { transform: none; } }
+.insights-cta { margin: 12px auto 2px; display: block; opacity: 0; transition: opacity .4s ease .65s; }
+#stats-insights-card.is-open .insights-cta { opacity: 1; }
+#stats-insights-card:not(.premium-gate) .insights-cta { display: none; }
+#stats-insights-card.is-open .insights-sample-bars i { transform-origin: bottom; animation: ins-grow .8s ease both; }
+#stats-insights-card.is-open .insights-sample-bars i:nth-child(2) { animation-delay: .08s; } #stats-insights-card.is-open .insights-sample-bars i:nth-child(3) { animation-delay: .16s; }
+#stats-insights-card.is-open .insights-sample-bars i:nth-child(4) { animation-delay: .24s; } #stats-insights-card.is-open .insights-sample-bars i:nth-child(5) { animation-delay: .32s; }
+#stats-insights-card.is-open .insights-sample-bars i:nth-child(6) { animation-delay: .4s; } #stats-insights-card.is-open .insights-sample-bars i:nth-child(7) { animation-delay: .48s; }
+@keyframes ins-grow { from { transform: scaleY(.08); } to { transform: scaleY(1); } }
+html:root[data-theme="dark"] .insights-steps li { background: #1b2b25; }
+html:root[data-theme="dark"] .insights-step-ico { background: #0f1815; }
+@media (prefers-reduced-motion: reduce) {
+  .insights-detail, .insights-steps li, .insights-cta, .insights-chev { transition: none !important; }
+  #stats-insights-card.is-open :is(.insights-step-ico, .insights-sample-bars i) { animation: none !important; }
+}
+
+/* Round 6: plain stat boxes flat */
+html:root body #view-stats #stats-grid .stat-box { border: 0 !important; box-shadow: none !important; background: #fff; }
+
+/* Round 6: admin page - no mint outlines; shadows kept; nested cards tinted so they read apart from the white parent */
+html:root body :is(#view-admincodes, .admin-sheet) :is(.card, .adm-card, .admin-attention-card, .admin-email-details, .admin-email-log, .admin-email-test, .admin-koala-table, .admin-sheet-tile, .admin-sheet-emailrow, .admin-role-select) {
+  border: 0 !important;
+}
+html:root body #view-admincodes :is(.card, .adm-card, .admin-attention-card, .admin-email-details, .admin-email-log, .admin-email-test) {
+  box-shadow: var(--card-drop) !important; background: #fff;
+}
+/* inner tiles: tinted, flat */
+html:root body #view-admincodes :is(.wordlist-item, .admin-ticket-row, .admin-koala-table-row, .admin-email-log-row, .admin-email-details .aed-row, .admin-koala-chip, .adm-pending),
+html:root body .admin-sheet :is(.admin-sheet-tile, .admin-sheet-emailrow) {
+  border: 0 !important; box-shadow: none !important; background: #eef6f2 !important;
+}
+html:root body .admin-sheet .admin-sheet-tile.is-hot { background: #fff1e0 !important; }
+html:root body #view-admincodes .adm-user .admin-user-actions { border-top-color: rgba(11,107,87,.12) !important; }
+html:root[data-theme="dark"] body #view-admincodes :is(.wordlist-item, .admin-ticket-row, .admin-koala-table-row, .admin-email-log-row, .admin-email-details .aed-row, .admin-koala-chip, .adm-pending),
+html:root[data-theme="dark"] body .admin-sheet :is(.admin-sheet-tile, .admin-sheet-emailrow) { background: #243730 !important; }
+html:root[data-theme="dark"] body .admin-sheet .admin-sheet-tile.is-hot { background: #3a2c1c !important; }
+
+/* Round 7: breathing room above the gray level card (Coins + Badges tabs) */
+html:root body #view-koala .koala-hero { margin-top: 22px !important; }
+
+/* Round 8: tricky-words card, even more compact */
+html:root body #view-stats .dash-rec { padding: 10px 12px; row-gap: 6px; column-gap: 12px; align-items: center; }
+html:root body #view-stats .dash-rec .dash-eyebrow, html:root body #view-stats .dash-rec .dash-rec-koala { display: none !important; }
+html:root body #view-stats .dash-rec .dash-rec-side { gap: 0; }
+html:root body #view-stats .dash-rec .dash-rec-btn {
+  width: 72px; height: 72px; gap: 3px; border-radius: 20px; padding: 4px;
+  background: #22c9a4; color: #fff; box-shadow: 0 3px 0 #139c7d !important;
+}
+html:root body #view-stats .dash-rec .dash-rec-btn:active { box-shadow: 0 1px 0 #139c7d !important; }
+html:root body #view-stats .dash-rec .dash-rec-btn-ico { display: grid; place-items: center; line-height: 0; }
+html:root body #view-stats .dash-rec .dash-rec-btn-txt { color: #fff; font-size: .72rem; }
+html:root body #view-stats .dash-rec .dash-rec-words-label { margin: 0 0 4px; }
+html:root body #view-stats .dash-rec .dash-rec-chips { gap: 5px; }
+html:root body #view-stats .dash-rec .dash-rec-chips li {
+  flex: 0 0 auto !important; min-width: 0 !important; padding: 3px 10px; font-size: .84rem; line-height: 1.35;
+  box-shadow: none !important;
+}
+
+/* Round 9: My Progress > Mistakes / Parent tabs, compact badge summary */
+/* Round 11: Mistakes — underline English/Math tabs + sticky bottom action bar */
+html:root body #stats-panel-wrong .wrong-subtabs {
+  display: flex; gap: 20px; margin: 0 0 12px; padding: 0; border-radius: 0; background: transparent; box-shadow: none;
+  border-bottom: 2px solid #d3f0e5;
+}
+html:root body #stats-panel-wrong .wrong-subtab {
+  flex: 0 0 auto; position: relative; min-height: 0; border: 0 !important; border-radius: 0; background: transparent !important; box-shadow: none !important;
+  color: #5f736b !important; font-weight: 800; font-size: .95rem; padding: 6px 2px 9px; justify-content: flex-start; display: inline-flex; align-items: center; gap: 6px;
+}
+html:root body #stats-panel-wrong .wrong-subtab.on { color: #0b6b57 !important; background: transparent !important; }
+html:root body #stats-panel-wrong .wrong-subtab.on::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 3px; border-radius: 3px; background: #22c9a4;
+}
+html:root body #stats-panel-wrong .wrong-subtab-count {
+  display: inline-grid; place-items: center; background: #d3f0e5; color: #0b6b57; border-radius: 99px; padding: 0 8px; min-width: 28px; height: 26px;
+  font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; line-height: 1;
+}
+html:root body #stats-panel-wrong .wrong-subtab.on .wrong-subtab-count { background: #22c9a4; color: #fff; }
+/* bottom action bar (sticky inside the page scroll) */
+/* the card clips its sun decoration with overflow:hidden, which would trap sticky; clip does not */
+html:root body .scene-card:has(#stats-panel-wrong) { overflow: clip !important; }
+html:root body #stats-panel-wrong .wrong-list { margin-bottom: 8px; }
+html:root body #stats-panel-wrong .wrong-actions {
+  position: sticky; bottom: 8px; z-index: 5; display: flex; gap: 8px; margin: 12px 0 0; padding: 10px 12px;
+  background: #bfeadb; border: 2px solid #22c9a4; border-radius: 18px; box-shadow: 0 -4px 16px rgba(10, 60, 50, .10);
+}
+@media (max-width: 560px) {
+  html:root body #stats-panel-wrong .wrong-actions { bottom: 72px; }
+}
+html:root body #stats-panel-wrong .wrong-actions .pill {
+  flex: 1 1 0; min-height: 44px; height: 44px; padding: 0 12px; border-radius: 12px; border: 0 !important; font-size: .95rem; line-height: 1;
+  box-shadow: 0 3px 0 rgba(11, 107, 87, .22) !important; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;
+}
+html:root body #stats-panel-wrong .wrong-actions .pill.accent { background: #22c9a4; color: #fff; box-shadow: 0 3px 0 #139c7d !important; }
+html:root body #stats-panel-wrong .wrong-actions .pill:not(.accent) { background: #fff; color: #0b6b57; box-shadow: 0 3px 0 rgba(11, 107, 87, .22) !important; }
+html:root body #stats-panel-wrong .wrong-actions .pill:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(11, 107, 87, .25) !important; }
+html:root body #stats-panel-wrong .wrong-actions svg { width: 18px; height: 18px; }
+html:root[data-theme="dark"] body #stats-panel-wrong .wrong-actions { background: #24453b; border-color: #22c9a4; }
+html:root[data-theme="dark"] body #stats-panel-wrong .wrong-actions .pill:not(.accent) { background: #24372f; color: #6ff0cf; }
+/* Top tab: long/short label; short label (no count) on narrow screens */
+html:root body .stats-tab .stats-tab-short { display: none; }
+@media (max-width: 560px) {
+  html:root body .stats-tab .stats-tab-long { display: none; }
+  html:root body .stats-tab .stats-tab-short { display: inline; }
+  html:root body .stats-tab[data-stats-tab="wrong"] .stats-tab-count { display: none !important; }
+}
+/* word cards: no outline, everything on one line */
+html:root body #stats-panel-wrong .wrong-item { border: 0 !important; box-shadow: none !important; background: #fff; padding: 8px 10px 8px 14px; min-height: 0; }
+html:root body #stats-panel-wrong .wrong-main { display: flex; align-items: baseline; gap: 8px; min-width: 0; flex: 1; white-space: nowrap; overflow: hidden; }
+html:root body #stats-panel-wrong .wrong-main > * { display: inline; margin: 0; }
+html:root body #stats-panel-wrong .wrong-word { flex: 0 0 auto; }
+html:root body #stats-panel-wrong .wrong-def { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+html:root body #stats-panel-wrong .wrong-meta { flex: 0 0 auto; margin-left: auto; }
+html:root body #stats-panel-wrong .wrong-speak { border: 0 !important; box-shadow: none !important; }
+html:root body #stats-panel-wrong .wrong-remove {
+  display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0 !important; box-shadow: none !important;
+  border-radius: 50%; background: #ff9a9a !important; color: #fff !important;
+}
+html:root body #stats-panel-wrong .wrong-remove:active { background: #ff7f7f !important; }
+html:root[data-theme="dark"] body #stats-panel-wrong .wrong-item { background: #1b2b25; }
+html:root[data-theme="dark"] body #stats-panel-wrong .wrong-subtab { color: #93aaa1 !important; }
+html:root[data-theme="dark"] body #stats-panel-wrong .wrong-subtab.on { color: #6ff0cf !important; }
+
+/* Parent tab: nothing outlined; tiles are buttons with the standard soft shadow */
+html:root body #stats-panel-parent :is(.pr-range, .pr-tile, .pr-tips li, .pr-tricky li, .pr-actions .pill, .pr-share-menu, .pr-share-item) {
+  border: 0 !important; box-shadow: none !important;
+}
+html:root body #stats-panel-parent .pr-range { background: rgba(255, 255, 255, .7); }
+html:root body #stats-panel-parent .pr-tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+html:root body #stats-panel-parent .pr-tiles .pr-tile {
+  font: inherit; color: inherit; text-align: center; cursor: pointer; background: #fff; border-radius: 18px; padding: 12px 6px;
+  box-shadow: var(--card-drop) !important; transition: transform .12s ease, box-shadow .12s ease;
+}
+html:root body #stats-panel-parent .pr-tiles .pr-tile:hover { transform: translateY(-2px); }
+html:root body #stats-panel-parent .pr-tiles .pr-tile:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(11, 107, 87, .12) !important; }
+html:root body #stats-panel-parent .pr-tile:focus-visible { outline: 3px solid #22c9a4; outline-offset: 2px; }
+html:root body #stats-panel-parent .pr-tips li { background: #fff7dc; }
+html:root body #stats-panel-parent .pr-tricky li { background: #fff; }
+@media (max-width: 640px) {
+  html:root body #stats-panel-parent .pr-tiles { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+  html:root body #stats-panel-parent .pr-tiles > .pr-tile { grid-column: span 2; min-height: 0; }
+  html:root body #stats-panel-parent .pr-tiles > .pr-tile:nth-child(n+4) { grid-column: span 3; min-height: 0; }
+}
+/* activity lines: bold title, thick coloured bar */
+html:root body #stats-panel-parent .pr-acts { display: grid; gap: 8px; margin: 6px 0 14px; }
+html:root body #stats-panel-parent .pr-act { background: #fff; border-radius: 14px; padding: 9px 12px 10px; --c: #22c9a4; }
+html:root body #stats-panel-parent .pr-act:nth-child(2) { --c: #f0a020; }
+html:root body #stats-panel-parent .pr-act:nth-child(3) { --c: #5b83f0; }
+html:root body #stats-panel-parent .pr-act:nth-child(4) { --c: #f06a5b; }
+html:root body #stats-panel-parent .pr-act:nth-child(5) { --c: #9b6cf0; }
+html:root body #stats-panel-parent .pr-act-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+html:root body #stats-panel-parent .pr-act-name { font-family: var(--font-heading); font-weight: 800; font-size: 1rem; color: #17463c; }
+html:root body #stats-panel-parent .pr-act-num { font-weight: 800; font-size: .92rem; color: var(--c); }
+html:root body #stats-panel-parent .pr-act-bar { height: 14px; border-radius: 999px; background: #e3eee9; overflow: hidden; }
+html:root body #stats-panel-parent .pr-act-bar i { display: block; height: 100%; border-radius: 999px; background: var(--c); transition: width .5s ease; }
+html:root body #stats-panel-parent .pr-act.is-empty .pr-act-name, html:root body #stats-panel-parent .pr-act.is-empty .pr-act-num { color: var(--muted); }
+html:root[data-theme="dark"] body #stats-panel-parent :is(.pr-tile, .pr-act, .pr-tricky li) { background: #1b2b25; }
+html:root[data-theme="dark"] body #stats-panel-parent .pr-act-name { color: #e5f4ee; }
+html:root[data-theme="dark"] body #stats-panel-parent .pr-act-bar { background: #2b3f37; }
+html:root[data-theme="dark"] body #stats-panel-parent .pr-tips li { background: #3a3220; }
+/* copy / share: short, flat */
+html:root body #stats-panel-parent .pr-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+html:root body #stats-panel-parent .pr-actions .pill { min-height: 34px; height: 34px; padding: 0 16px; border-radius: 12px; font-size: .85rem; display: inline-flex; align-items: center; gap: 6px; }
+html:root body #stats-panel-parent .pr-actions .pill:not(.accent) { background: #fff; color: #0b6b57; }
+
+/* Koala badges: compact summary, flat */
+html:root body :is(#view-koala, #view-stats) .badge-overview { box-shadow: none !important; border: 0 !important; padding: 10px 14px; gap: 12px; margin: 0 0 10px; }
+.badge-overview-ico { width: 46px; height: 46px; font-size: 1.8rem; border-radius: 14px; }
+.badge-overview-count b { font-size: 1.5rem; }
+.badge-overview-count span { font-size: .95rem; }
+html body .badge-overview .badge-summary { margin: 2px 0 6px; font-size: .9rem; }
+html body .badge-overview .badge-meter { margin: 0 0 4px; }
+html body .badge-overview .badge-hint { font-size: .76rem; margin: 0; }
+
+html:root body :is(#view-koala, #view-stats) .badge-overview .badge-overview-count { display: none; }
+html:root body :is(#view-koala, #view-stats) .badge-overview .badge-hint { color: var(--muted); font-weight: 600; }
+
+/* Round 10 ------------------------------------------------------------ */
+/* Home: no tinted tiles; touch devices never keep a "hovered" fill after a tap */
+html:root:not([data-theme="dark"]):not([data-theme="ivory"]) body .landing-tile.landing-tile-highlight { background: #fff !important; }
+html:root:not([data-theme="dark"]):not([data-theme="ivory"]) body .landing-tile.landing-tile-highlight .landing-tile-icon { background: var(--bg) !important; border-color: var(--outline) !important; }
+@media (hover: none) {
+  html:root body .landing-tile:hover { transform: none; background: #fff; }
+  html:root:not([data-theme="dark"]) body .landing-tile:hover .landing-tile-icon { background: var(--bg); border-color: var(--outline); }
+  html:root body .landing-tile:hover .landing-tile-title { color: var(--text); }
+  html:root body .landing-tile:hover .landing-tile-desc { color: var(--muted); }
+}
+
+/* Stat popups: icon + title + value on a single line */
+.stat-sheet-head { display: block; padding-right: 48px; margin-bottom: 4px; }
+.stat-sheet-head > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
+.stat-sheet-head { display: flex; align-items: center; gap: 8px; }
+.stat-sheet-ico { font-size: 1.35rem; line-height: 1; flex: 0 0 auto; }
+.stat-sheet-head > div { flex: 1; min-width: 0; }
+.stat-sheet-title { font-family: var(--font-heading); font-weight: 800; font-size: 1.05rem; color: var(--accent-dark); }
+.stat-sheet-big { display: inline-flex; align-items: baseline; gap: 5px; margin-left: auto; white-space: nowrap; }
+.stat-sheet-big b { font-size: 1.25rem; color: var(--accent-dark); }
+.stat-sheet-big span { font-size: .84rem; font-weight: 700; color: var(--muted); }
+
+/* Parent tab: date chip (calendar icon + period) */
+html:root body #stats-panel-parent button.pr-range {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font: inherit; font-weight: 800; font-size: .88rem;
+  color: var(--accent-dark); background: #fff; cursor: pointer; border: 0 !important; box-shadow: none !important;
+}
+html:root body #stats-panel-parent button.pr-range:hover { background: #f2fbf8; }
+html:root body #stats-panel-parent button.pr-range:active { transform: translateY(1px); }
+.pr-range-ico { flex: 0 0 auto; }
+.pr-range-caret { font-size: .7rem; opacity: .7; }
+
+/* Tips: white cards so they read on the yellow panel */
+html:root body #stats-panel-parent .pr-tips { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+html:root body #stats-panel-parent .pr-tips li { display: flex; gap: 10px; align-items: flex-start; background: #fff; border-radius: 14px; padding: 11px 14px; line-height: 1.4; color: #223; font-weight: 600; }
+.pr-tip-ico { flex: 0 0 auto; }
+html:root[data-theme="dark"] body #stats-panel-parent .pr-tips li { background: #1b2b25; color: #e5f4ee; }
+
+/* Popups */
+.pr-modal-backdrop { z-index: 2200; }
+.pr-modal { padding-top: 18px; }
+.pr-modal-head { display: flex; align-items: center; gap: 8px; margin: 0 40px 10px 0; }
+.pr-modal-head h3 { margin: 0; font-family: var(--font-heading); font-size: 1.1rem; color: var(--accent-dark); }
+.pr-modal-ico { font-size: 1.3rem; }
+.pr-modal-text { margin: 4px 0 12px; line-height: 1.5; }
+.pr-modal-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.pr-modal-btns .pill { min-height: 38px; padding: 0 18px; border-radius: 12px; border: 0 !important; font-size: .9rem; background: #e8f3ee; color: #0b6b57; box-shadow: none !important; }
+.pr-modal-btns .pill.accent { background: #22c9a4; color: #fff; box-shadow: 0 3px 0 #139c7d !important; }
+.pr-modal-btns .pill:disabled { opacity: .6; }
+.pr-modal-q { margin: 12px 0 0; font-weight: 800; font-size: 1rem; }
+.pr-modal-msg { margin: 8px 0 0; color: #d6453f; font-weight: 700; font-size: .88rem; }
+.pr-modal-done { text-align: center; padding: 8px 0 0; }
+.pr-modal-done-ico { font-size: 2.6rem; }
+.pr-modal-done h3 { margin: 6px 0; font-family: var(--font-heading); color: var(--accent-dark); }
+.pr-modal-done .pr-modal-btns { justify-content: center; }
+/* Send-report preview */
+.pr-mail-card { background: #f1faf6; border-radius: 16px; padding: 12px 14px; }
+.pr-mail-range { font-weight: 800; color: var(--accent-dark); margin-bottom: 8px; }
+.pr-mail-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center; }
+.pr-mail-stats b { display: block; font-family: var(--font-heading); font-size: 1.15rem; color: var(--accent-dark); }
+.pr-mail-stats span { font-size: .7rem; color: var(--muted); line-height: 1.2; display: block; }
+.pr-mail-modes { list-style: none; margin: 10px 0 0; padding: 8px 0 0; border-top: 1px dashed rgba(11, 107, 87, .25); display: grid; gap: 3px; font-size: .88rem; }
+.pr-mail-modes li { display: flex; justify-content: space-between; }
+.pr-mail-tricky { margin-top: 8px; font-size: .86rem; } .pr-mail-tricky span { font-weight: 800; color: var(--accent-dark); }
+.pr-mail-to { display: flex; gap: 10px; align-items: baseline; margin-top: 12px; padding: 10px 14px; background: #f6f6f8; border-radius: 12px; font-size: .92rem; }
+.pr-mail-to span { color: var(--muted); font-weight: 700; flex: 0 0 auto; } .pr-mail-to b { overflow-wrap: anywhere; }
+/* Share sheet */
+.pr-share-preview { margin: 0 0 14px; padding: 10px 12px; max-height: 120px; overflow: auto; background: #f6f9f8; border-radius: 12px; font: inherit; font-size: .8rem; white-space: pre-wrap; color: var(--muted); }
+.pr-share-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 6px; }
+.pr-share-opt { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 0; border: 0; background: none; font: inherit; font-size: .76rem; font-weight: 700; color: var(--text); text-decoration: none; cursor: pointer; }
+.pr-share-ico { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; transition: transform .12s ease; }
+.pr-share-opt:hover .pr-share-ico { transform: translateY(-2px); }
+.pr-share-opt:active .pr-share-ico { transform: scale(.94); }
+/* Calendar */
+.pr-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.pr-presets button { border: 0; background: #e8f3ee; color: #0b6b57; font: inherit; font-weight: 800; font-size: .8rem; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+.pr-presets button:hover { background: #d3f0e5; }
+.pr-cal-nav { display: flex; align-items: center; justify-content: space-between; margin: 4px 0 6px; }
+.pr-cal-nav b { font-family: var(--font-heading); }
+.pr-cal-nav button { width: 36px; height: 36px; border-radius: 50%; border: 0; background: #eef5f2; font-size: 1.3rem; line-height: 1; cursor: pointer; color: var(--text); }
+.pr-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px 0; }
+.pr-cal-wd { text-align: center; font-size: .74rem; font-weight: 800; color: var(--muted); padding: 4px 0; }
+.pr-cal-day { position: relative; height: 38px; border: 0; background: transparent; font: inherit; font-weight: 700; font-size: .92rem; color: var(--text); cursor: pointer; border-radius: 0; }
+.pr-cal-day.in { background: #d3f0e5; }
+.pr-cal-day.start, .pr-cal-day.end { background: #22c9a4; color: #fff; }
+.pr-cal-day.start { border-radius: 999px 0 0 999px; } .pr-cal-day.end { border-radius: 0 999px 999px 0; }
+.pr-cal-day.start.end { border-radius: 999px; }
+.pr-cal-day.today:not(.start):not(.end) { color: #0b6b57; text-decoration: underline; }
+.pr-cal-day.has::after { content: ""; position: absolute; left: 50%; bottom: 4px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: #f0a020; }
+.pr-cal-day.start.has::after, .pr-cal-day.end.has::after { background: #fff; }
+.pr-cal-day.is-future { opacity: .3; cursor: default; }
+.pr-cal-sel { margin: 10px 0 0; text-align: center; font-weight: 800; color: var(--accent-dark); font-size: .9rem; }
+html:root[data-theme="dark"] .pr-mail-card, html:root[data-theme="dark"] .pr-share-preview, html:root[data-theme="dark"] .pr-mail-to { background: #1b2b25; }
+html:root[data-theme="dark"] .pr-cal-day.in { background: #24453b; }
+
+/* Round 12: overview review button, account page */
+html:root body #view-stats .dash-rec .dash-rec-btn-ico { font-size: 0; line-height: 0; }
+html:root body #view-stats .dash-rec .dash-rec-btn-txt { font-size: .92rem; font-weight: 800; color: #0b6b57; }
+html:root body #view-stats .dash-rec .dash-rec-btn { gap: 6px; }
+
+html:root body #view-myaccount .card { border: 0 !important; box-shadow: var(--card-drop, 0 3px 0 rgba(11, 107, 87, .12)) !important; }
+html:root body #view-myaccount .pill,
+html:root body #view-myaccount button.pill { border: 0 !important; box-shadow: none !important; }
+html:root body #view-myaccount .pill:not(.accent):not(.primary),
+html:root body #view-myaccount .pill.neutral { background: #22c9a4 !important; color: #fff !important; }
+html:root body #view-myaccount .admin-chip { border: 0 !important; box-shadow: none !important; }
+html:root body #view-myaccount .stat-box { border: 0 !important; box-shadow: none !important; background: #e4f6ef !important; }
+html:root[data-theme="dark"] body #view-myaccount .stat-box { background: #24372f !important; }
+
+/* Round 13: send-report popup */
+.pr-modal-send .pr-modal-head { flex-wrap: wrap; row-gap: 4px; }
+.pr-auto { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font-size: .82rem; font-weight: 800; color: #0b6b57; cursor: pointer; }
+.pr-auto input { width: 20px; height: 20px; accent-color: #22c9a4; margin: 0; cursor: pointer; }
+.pr-auto-msg { margin: 0 0 8px; font-size: .8rem; color: #0b6b57; }
+.pr-mail-stats { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.pr-mail-stats b { font-size: 1.05rem; }
+.pr-mail-tricky span { margin-right: 14px; }
+.pr-modal-send .pr-modal-q { margin-top: 2.4em; }
+.pr-modal-send .pr-modal-btns .pill.accent { box-shadow: none !important; }
+
+/* Round 13: coin wallet header on one line: coin, title, total */
+html:root body #view-koala .koala-wallet-top > div { display: flex; align-items: center; flex-wrap: wrap; column-gap: 14px; row-gap: 2px; min-width: 0; }
+html:root body #view-koala .koala-wallet-val { font-size: 2rem; }
+html:root body #view-koala .koala-wallet-lbl { font-size: 1.05rem; }

@@ -169,3 +169,13 @@ CREATE TABLE IF NOT EXISTS site_settings (
   value TEXT NOT NULL,
   updated_at INTEGER NOT NULL
 );
+
+-- Weekly report e-mail switch (see migrations/0011_weekly_report.sql).
+CREATE TABLE IF NOT EXISTS weekly_report_prefs (
+  user_id TEXT PRIMARY KEY,
+  enabled INTEGER NOT NULL DEFAULT 0,
+  tz_offset INTEGER NOT NULL DEFAULT 0,   -- minutes east of UTC, sent by the browser
+  lang TEXT NOT NULL DEFAULT 'en',
+  last_sent_at INTEGER,
+  updated_at INTEGER NOT NULL
+);

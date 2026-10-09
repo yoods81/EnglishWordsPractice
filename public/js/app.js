@@ -142,6 +142,7 @@ const TRANSLATIONS = {
     moreStats: "More stats",
     statsTabBadges: "🏅 Badges",
     statsTabWrong: "📕 Mistakes",
+    statsTabWrongShort: "📕 Mistakes",
     statsTabParent: "👪 Parent",
     navAddwordShort: "Add Word",
     navHomeShort: "Home",
@@ -159,11 +160,41 @@ const TRANSLATIONS = {
     landingDescFlashcards: "Flip through and review",
     landingDescWordlist: "Browse every word you have",
     statsInsightsTitle: "✨ Premium Insights",
-    statsInsightsBullet1: "📧 Weekly progress email reports",
-    statsInsightsBullet2: "🎯 Category-by-category accuracy breakdown",
-    statsInsightsBullet3: "👨‍👩‍👧‍👦 Track multiple children in one account",
+    statsInsightsBullet1: "♾️ Unlimited Times Table and longer rounds",
+    statsInsightsBullet2: "📷 Turn homework photos into words",
+    statsInsightsBullet3: "✏️ Your own private word list",
+    statsInsightsBullet4: "📕 Mistakes notebook and tricky-words review",
+    statsInsightsBullet5: "📧 Weekly progress email reports",
+    statsInsightsBullet6: "👨‍👩‍👧‍👦 Track multiple children in one account",
     statsInsightsSample: "Example weekly report",
     statsInsightsCta: "See what Premium adds",
+    insightsHint: "Tap to see how it works",
+    insDetail1Title: "Unlimited Times Table",
+    insDetail1Text: "General accounts stop at 100 problems. With Premium you can keep going as long as you like.",
+    insDetail2Title: "Longer practice rounds",
+    insDetail2Text: "Go beyond 100 questions in a single round when you feel like a big session.",
+    insDetail3Title: "Homework photo to words",
+    insDetail3Text: "Snap a school word sheet or a book page. We pick out the words and turn them into practice.",
+    insDetail4Title: "Photos, PDF, Word and Excel",
+    insDetail4Text: "Upload almost any file. An Excel list adds every word straight in, with its meaning.",
+    insDetail5Title: "Your own word list",
+    insDetail5Text: "Build a private list that matches your child's school week, typed in or added in bulk.",
+    insDetail6Title: "Flashcards from your list",
+    insDetail6Text: "Practise your own words with flashcards, not only the built-in ones.",
+    insDetail7Title: "Mistakes notebook",
+    insDetail7Text: "Every missed word is collected, so you can practise them until they stick.",
+    insDetail8Title: "Tricky-words review",
+    insDetail8Text: "One tap brings back the words you missed recently for a quick review.",
+    insDetail9Title: "Premium-only badges",
+    insDetail9Text: "Earn the special Mistake Fixer and Mistake Master koala badges.",
+    insDetail10Title: "Weekly email report",
+    insDetail10Text: "Once a week we email a short summary: days practised, new words and how you did.",
+    insDetail11Title: "Accuracy by category",
+    insDetail11Text: "See Quiz, Spelling, Flashcards, Times Table and Typing one by one, so you know what to practise next.",
+    insDetail12Title: "Several children, one account",
+    insDetail12Text: "Keep the whole family together in one account instead of signing in and out.",
+    insDetail13Title: "Progress on every device",
+    insDetail13Text: "Start on the tablet, carry on from the laptop. Your progress and coins come along.",
     adminCodesTitle: "🎁 Premium Signup Codes",
     adminCodesDesc: "Generate a one-time code and send it to someone so they can sign up as a premium account instead of general.",
     adminCodesGenerateBtn: "🎟️ Generate New Code",
@@ -272,7 +303,7 @@ const TRANSLATIONS = {
     timesTableStageLabel: (n) => `Stage ${n}`,
     gameOverNewRecord: "🎉 NEW RECORD!",
     gameOverGood: "Good Job! 👏",
-    gameOverKeepGoing: "Keep Going! 🔥",
+    gameOverKeepGoing: "Keep Going! ⚡",
     gameOverTryAgain: "Let's try again! 🌱",
     gameOverCleared: (n) => `✅ Solved: ${n}`,
     gameOverNextStar: (n) => `Next star: ${n} more!`,
@@ -290,7 +321,7 @@ const TRANSLATIONS = {
     ttSuperFast: "Super Fast!",
     ttCombo: (n) => `${n} Combo!`,
     kbCheer: "Yay! 🎉",
-    kbCombo: "Combo! 🔥",
+    kbCombo: "Combo! ⚡",
     kbFast: "Zoom! ⚡",
     timesTableChallengePrompt: (table) => `Ready to try the ${table} times table?`,
     categoryLabel: "Category",
@@ -349,7 +380,7 @@ const TRANSLATIONS = {
     qzDailyDone: "🎉 Daily goal reached!",
     qzCount: (i, n) => `Question ${i} / ${n}`,
     qzScoreTag: (n) => `✅ Correct ${n}`,
-    qzComboChip: (n) => `🔥 ${n} in a row`,
+    qzComboChip: (n) => `⚡ ${n} in a row`,
     qzInstrVocabulary: "Which word matches this meaning?",
     qzInstrMeaning: "What does this word mean?",
     qzInstrFillblank: "Which word fits the gap?",
@@ -447,7 +478,7 @@ const TRANSLATIONS = {
     spellingCheckedBtn: "Checked",
     spellingCheckAria: "Check answer",
     spLiveTyping: "Type the letters! ✏️",
-    spLiveAlmost: "Almost there! 🔥",
+    spLiveAlmost: "Almost there! ⚡",
     spListenBtn: "Listen",
     spListenAria: "Hear the word",
     spellingBackAria: "Previous word",
@@ -475,7 +506,7 @@ const TRANSLATIONS = {
     spReportPerfect: "Perfect! Every word right! 🎉",
     spReportGoodStart: "Great start! Shall we do more? 🌟",
     spReportScore: (c, n, p) => (c > 0 ? `${c} / ${n} · ${p}%` : `${c} / ${n}`),
-    spReportStreak: (d) => `🔥 ${d}-day streak`,
+    spReportStreak: (d) => `🌿 ${d}-day streak`,
     spReportStars: (n) => `⭐ +${n}`,
     spellingReportEmpty: "No mistakes today — great job! 🎉",
     spellingReportRestart: "Practice Again",
@@ -954,6 +985,7 @@ const TRANSLATIONS = {
     moreStats: "더 많은 통계",
     statsTabBadges: "🏅 배지",
     statsTabWrong: "📕 오답 노트",
+    statsTabWrongShort: "📕 오답",
     statsTabParent: "👪 학부모",
     navAddwordShort: "단어 추가",
     navHomeShort: "홈",
@@ -968,11 +1000,41 @@ const TRANSLATIONS = {
     landingDescFlashcards: "카드 넘기며 복습하기",
     landingDescWordlist: "가지고 있는 모든 단어 보기",
     statsInsightsTitle: "✨ 프리미엄 인사이트",
-    statsInsightsBullet1: "📧 주간 학습 리포트 이메일",
-    statsInsightsBullet2: "🎯 카테고리별 정확도 분석",
-    statsInsightsBullet3: "👨‍👩‍👧‍👦 여러 자녀 계정 함께 관리",
+    statsInsightsBullet1: "♾️ 구구단 무제한 · 더 긴 라운드",
+    statsInsightsBullet2: "📷 숙제 사진을 단어로 바꾸기",
+    statsInsightsBullet3: "✏️ 나만의 비공개 단어장",
+    statsInsightsBullet4: "📕 오답 노트와 어려운 단어 복습",
+    statsInsightsBullet5: "📧 주간 학습 리포트 이메일",
+    statsInsightsBullet6: "👨‍👩‍👧‍👦 여러 자녀 계정 함께 관리",
     statsInsightsSample: "주간 리포트 예시",
     statsInsightsCta: "프리미엄 기능 살펴보기",
+    insightsHint: "눌러서 자세히 보기",
+    insDetail1Title: "구구단 무제한",
+    insDetail1Text: "일반 계정은 100문제까지예요. 프리미엄이면 원하는 만큼 계속 풀 수 있어요.",
+    insDetail2Title: "더 긴 연습 라운드",
+    insDetail2Text: "한 라운드에 100문제가 넘어도 OK! 오늘은 길게 공부하고 싶을 때 딱이에요.",
+    insDetail3Title: "숙제 사진으로 단어 만들기",
+    insDetail3Text: "학교 단어 프린트나 책 한 쪽을 찍으면 단어를 골라 연습 문제로 바꿔줘요.",
+    insDetail4Title: "사진·PDF·워드·엑셀 모두 OK",
+    insDetail4Text: "거의 모든 파일을 올릴 수 있어요. 엑셀 목록은 뜻과 함께 단어가 한 번에 들어가요.",
+    insDetail5Title: "나만의 단어장",
+    insDetail5Text: "아이의 학교 주간 단어에 맞춘 비공개 단어장을 직접 입력하거나 한꺼번에 추가해요.",
+    insDetail6Title: "내 단어장으로 플래시카드",
+    insDetail6Text: "기본 단어뿐 아니라 내가 만든 단어장으로도 플래시카드 연습을 해요.",
+    insDetail7Title: "오답 노트",
+    insDetail7Text: "틀린 단어가 자동으로 모여서, 완전히 익힐 때까지 다시 연습할 수 있어요.",
+    insDetail8Title: "어려운 단어 복습",
+    insDetail8Text: "한 번 누르면 최근에 틀린 단어가 모여 빠르게 복습할 수 있어요.",
+    insDetail9Title: "프리미엄 전용 배지",
+    insDetail9Text: "오답 해결사, 오답 마스터 같은 특별한 코알라 배지를 모을 수 있어요.",
+    insDetail10Title: "주간 학습 리포트 이메일",
+    insDetail10Text: "일주일에 한 번, 며칠 공부했는지·새로 배운 단어·결과를 짧게 정리해서 보내드려요.",
+    insDetail11Title: "카테고리별 정확도",
+    insDetail11Text: "퀴즈, 스펠링, 플래시카드, 구구단, 타이핑을 하나씩 보여줘서 다음에 뭘 연습할지 바로 알 수 있어요.",
+    insDetail12Title: "여러 자녀를 한 계정에서",
+    insDetail12Text: "로그아웃하고 다시 로그인할 필요 없이 온 가족이 한 계정으로 함께 공부해요.",
+    insDetail13Title: "모든 기기에서 이어서",
+    insDetail13Text: "태블릿에서 하다가 노트북에서 이어서! 진행 상황과 코인이 함께 따라와요.",
     adminCodesTitle: "🎁 프리미엄 가입 코드",
     adminCodesDesc: "1회용 코드를 생성해서 전달하면, 받은 사람이 일반 대신 프리미엄 계정으로 가입할 수 있어요.",
     adminCodesGenerateBtn: "🎟️ 새 코드 생성",
@@ -1081,7 +1143,7 @@ const TRANSLATIONS = {
     timesTableStageLabel: (n) => `스테이지 ${n}`,
     gameOverNewRecord: "🎉 신기록 달성!",
     gameOverGood: "잘했어요! 👏",
-    gameOverKeepGoing: "계속 도전! 🔥",
+    gameOverKeepGoing: "계속 도전! ⚡",
     gameOverTryAgain: "한 번 더 해볼까요? 🌱",
     gameOverCleared: (n) => `✅ 맞힌 개수: ${n}개`,
     gameOverNextStar: (n) => `다음 별까지 ${n}개 더!`,
@@ -1099,7 +1161,7 @@ const TRANSLATIONS = {
     ttSuperFast: "슈퍼 패스트!",
     ttCombo: (n) => `${n} 콤보!`,
     kbCheer: "야호! 🎉",
-    kbCombo: "콤보! 🔥",
+    kbCombo: "콤보! ⚡",
     kbFast: "번개! ⚡",
     timesTableChallengePrompt: (table) => `${table}단에 도전하시겠습니까?`,
     categoryLabel: "카테고리",
@@ -1158,7 +1220,7 @@ const TRANSLATIONS = {
     qzDailyDone: "🎉 오늘의 목표 달성!",
     qzCount: (i, n) => `${i} / ${n}번 문제`,
     qzScoreTag: (n) => `✅ 정답 ${n}개`,
-    qzComboChip: (n) => `🔥 ${n}연속`,
+    qzComboChip: (n) => `⚡ ${n}연속`,
     qzInstrVocabulary: "이 뜻에 맞는 단어는 무엇일까요?",
     qzInstrMeaning: "이 단어의 뜻은 무엇일까요?",
     qzInstrFillblank: "빈칸에 알맞은 단어를 골라요.",
@@ -1259,7 +1321,7 @@ const TRANSLATIONS = {
     spellingCheckedBtn: "완료",
     spellingCheckAria: "정답 확인",
     spLiveTyping: "글자를 눌러 봐요! ✏️",
-    spLiveAlmost: "거의 다 왔어요! 🔥",
+    spLiveAlmost: "거의 다 왔어요! ⚡",
     spListenBtn: "듣기",
     spListenAria: "단어 듣기",
     spellingBackAria: "이전 단어",
@@ -1287,7 +1349,7 @@ const TRANSLATIONS = {
     spReportPerfect: "완벽해요! 전부 맞혔어요! 🎉",
     spReportGoodStart: "좋은 시작이에요! 더 해볼까요? 🌟",
     spReportScore: (c, n, p) => (c > 0 ? `${c} / ${n} · ${p}%` : `${c} / ${n}`),
-    spReportStreak: (d) => `🔥 ${d}일 연속`,
+    spReportStreak: (d) => `🌿 ${d}일 연속`,
     spReportStars: (n) => `⭐ +${n}`,
     spellingReportEmpty: "오늘은 틀린 단어가 없어요 — 정말 잘했어요! 🎉",
     spellingReportRestart: "다시 연습하기",
@@ -2234,7 +2296,7 @@ function updateSpellingStartChips() {
   if (sb) sb.textContent = t(today > 0 ? "spellingContinueBtn" : "spellingStartBtn");
   stats.innerHTML =
     `<span class="sp-stat"><i aria-hidden="true">⭐</i><b>${today}</b><em>${rwL("correct today", "오늘 정답")}</em></span>` +
-    `<span class="sp-stat"><i aria-hidden="true">🔥</i><b>${streak}</b><em>${rwL("day streak", "일 연속")}</em></span>`;
+    `<span class="sp-stat"><i aria-hidden="true">🌿</i><b>${streak}</b><em>${rwL("day streak", "일 연속")}</em></span>`;
 }
 
 // "Number of Questions" lives in each start screen's Settings dropdown as one row
@@ -3965,7 +4027,7 @@ function renderAuthMenuKoala() {
     <div class="auth-koala-chips">
       <span class="home-chip" title="${rwL("Koala Coins", "코알라 코인")}">${COIN_SVG} ${serverAdmin ? "∞" : k.coins}</span>
       <span class="home-chip" title="${rwL("Badges", "배지")}">🏆 ${badges}/${cat.length}</span>
-      <span class="home-chip" title="${rwL("Day streak", "연속 학습")}">🔥 ${rwL(`${st.count} day${st.count === 1 ? "" : "s"}`, `${st.count}일 연속`)}</span>
+      <span class="home-chip" title="${rwL("Day streak", "연속 학습")}">🌿 ${rwL(`${st.count} day${st.count === 1 ? "" : "s"}`, `${st.count}일 연속`)}</span>
     </div>
     <label class="auth-koala-level"><span>${t("levelBadgePrefix")}</span>
       <select id="auth-menu-level-select" aria-label="${t("levelBadgePrefix")}">${currentSystem().levels.map((lv) => `<option value="${escapeHtml(lv.id)}"${lv.id === currentLevel ? " selected" : ""}>${escapeHtml(lv.label)}</option>`).join("")}</select></label>`;
@@ -6450,7 +6512,7 @@ function showComboPopup(n) {
   const el = document.createElement("div");
   el.className = "combo-pop" + (big ? " combo-pop-big" : "");
   el.setAttribute("role", "status");
-  const icon = n >= 15 ? "🌟" : n >= 10 ? "⚡" : "🔥";
+  const icon = n >= 15 ? "🌟" : n >= 10 ? "⚡" : "✨";
   el.innerHTML = `<span class="combo-pop-n">${icon} ${n}${currentLang === "ko" ? "콤보!" : " Combo!"}</span>${big ? `<span class="combo-pop-sub">${currentLang === "ko" ? "대단해요!" : "Amazing!"}</span>` : ""}`;
   document.body.appendChild(el);
   setTimeout(() => el.remove(), big ? 1500 : 1000);
@@ -7650,7 +7712,7 @@ updateTypeGameSpeedUI();
 // are disabled on the banner (see CSS) so it never steals focus from the
 // input, and it auto-hides itself; no pause, no disabled input.
 const TYPEGAME_STAGE_MESSAGES = {
-  en: ["Great job!", "You're on fire!", "Keep it up!", "Awesome work!", "Fantastic pace!"],
+  en: ["Great job!", "You're on a roll!", "Keep it up!", "Awesome work!", "Fantastic pace!"],
   ko: ["잘하고 있어요!", "최고예요!", "계속 가요!", "정말 멋져요!", "속도가 대단해요!"],
 };
 
@@ -9053,7 +9115,7 @@ updateTimesTableSpeedUI();
 // than a shared helper, matching how this module's music/SFX code is
 // independent of Typing Game's throughout.
 const TIMESTABLE_STAGE_MESSAGES = {
-  en: ["Great job!", "You're on fire!", "Keep it up!", "Awesome work!", "Fantastic pace!"],
+  en: ["Great job!", "You're on a roll!", "Keep it up!", "Awesome work!", "Fantastic pace!"],
   ko: ["잘하고 있어요!", "최고예요!", "계속 가요!", "정말 멋져요!", "속도가 대단해요!"],
 };
 
@@ -9755,7 +9817,7 @@ function resetTimesTableCombo() {
 function showTimesTableComboBadge(n) {
   const tier = n >= 10 ? "mega" : n >= 5 ? "big" : "base";
   timesTableComboBadge.className = `tt-combo-badge tt-combo-${tier}`;
-  timesTableComboBadge.textContent = `${n >= 10 ? "🌟" : "🔥"} ${t("ttCombo", n)}`;
+  timesTableComboBadge.textContent = `${n >= 10 ? "🌟" : "⚡"} ${t("ttCombo", n)}`;
   timesTableComboBadge.hidden = false;
   timesTableComboBadge.style.animation = "none";
   void timesTableComboBadge.offsetWidth; // restart the pop
@@ -12267,8 +12329,21 @@ function setPremiumGate(card, overlay, locked) {
   overlay.hidden = !locked;
 }
 
-[ocrPremiumOverlay, manualPremiumOverlay, customPremiumOverlay, addwordLockBanner, statsPremiumOverlay].forEach((overlay) => {
+[ocrPremiumOverlay, manualPremiumOverlay, customPremiumOverlay, addwordLockBanner].forEach((overlay) => {
   overlay.addEventListener("click", promptUpgradeForFeature);
+});
+
+// Premium Insights (My Progress): tap the card to unfold what each perk does.
+function toggleInsightsCard() {
+  const open = statsInsightsCard.classList.toggle("is-open");
+  statsInsightsCard.setAttribute("aria-expanded", String(open));
+}
+statsInsightsCard.addEventListener("click", (e) => {
+  if (e.target.closest(".insights-cta")) { if (!canUsePaidFeatures()) promptUpgradeForFeature(); return; }
+  toggleInsightsCard();
+});
+statsInsightsCard.addEventListener("keydown", (e) => {
+  if ((e.key === "Enter" || e.key === " ") && e.target === statsInsightsCard) { e.preventDefault(); toggleInsightsCard(); }
 });
 
 // Extract-words, Add-manually and My-added-words are all paid features: the
@@ -13617,7 +13692,7 @@ function buildBadgeCatalog() {
     { id: "words200", emoji: "🧙", group: "english", name: rwL("Word Wizard", "단어 마법사"),
       desc: rwL("Practise 200 different words", "서로 다른 단어 200개 연습"),
       test: () => Object.keys(progress.wordStats).length >= 200, prog: () => [Math.min(Object.keys(progress.wordStats).length, 200), 200] },
-    { id: "streak3", emoji: "🔥", group: "habit", name: rwL("3-Day Streak", "3일 연속 학습"),
+    { id: "streak3", emoji: "🌿", group: "habit", name: rwL("3-Day Streak", "3일 연속 학습"),
       desc: rwL("Practise 3 days in a row", "3일 연속 학습"), test: () => streakNow() >= 3, prog: () => [Math.min(streakNow(), 3), 3] },
     { id: "streak7", emoji: "🌈", group: "habit", name: rwL("Week-long Koala", "일주일 연속 코알라"),
       desc: rwL("Practise 7 days in a row", "7일 연속 학습"), test: () => streakNow() >= 7, prog: () => [Math.min(streakNow(), 7), 7] },
@@ -13766,13 +13841,17 @@ function badgeGridHtml() {
   const groups = [
     ["math", rwL("🧮 Times Table", "🧮 구구단")],
     ["english", rwL("📖 English", "📖 영어")],
-    ["habit", rwL("🔥 Habits", "🔥 학습 습관")],
+    ["habit", rwL("🌿 Habits", "🌿 학습 습관")],
     ["koala", rwL('<span class="kface" aria-hidden="true"></span> My Koala', '<span class="kface" aria-hidden="true"></span> 나의 코알라')],
   ];
   let html = signedIn ? "" : badgeSignupLockHtml();
-  html += `<p class="badge-summary">${rwL(`Collected ${got} of ${cat.length} koala badges`, `코알라 배지 ${cat.length}개 중 ${got}개 모았어요`)}</p>
-    <div class="badge-meter" role="presentation"><i style="width:${Math.round((got / Math.max(1, cat.length)) * 100)}%"></i></div>
-    ${got < cat.length ? `<p class="badge-hint">${rwL("Tap a locked badge to see how to earn it.", "잠긴 배지를 누르면 얻는 방법이 보여요.")}</p>` : ""}`;
+  html += `<div class="badge-overview"><span class="badge-overview-ico" aria-hidden="true">🏆</span>
+    <div class="badge-overview-main">
+      <div class="badge-overview-count"><b>${got}</b><span>/ ${cat.length}</span></div>
+      <p class="badge-summary">${rwL(`Collected ${got} of ${cat.length} koala badges`, `코알라 배지 ${cat.length}개 중 ${got}개 모았어요`)}</p>
+      <div class="badge-meter" role="presentation"><i style="width:${Math.round((got / Math.max(1, cat.length)) * 100)}%"></i></div>
+      ${got < cat.length ? `<p class="badge-hint">${rwL("Tap a locked badge to see how to earn it.", "잠긴 배지를 누르면 얻는 방법이 보여요.")}</p>` : ""}
+    </div></div>`;
   groups.forEach(([g, title]) => {
     html += `<h4 class="badge-group-title">${title}</h4><div class="badge-grid">`;
     cat.filter((b) => b.group === g).forEach((b, i) => {
@@ -13907,6 +13986,7 @@ const KOALA_SLOT_TITLES = () => ({
 });
 const KOALA_SLOT_EMOJI = { headwear: "🎩", face: "👓", clothing: "👕", jewelry: "💍", shoes: "👟", accessory: "🎒", wallpaper: "🎨", rug: "🟡", poster: "🖼️", desk: "📚", lamp: "💡", shelf: "📖", plant: "🪴", window: "🪟", garland: "🎏", pet: "🐾", toy: "🧸" };
 let koalaTab = "character"; // "character" | "room" | "coins" | "badges"
+let koalaHistoryAll = false; // Coin history: false = latest 10 only, true = everything kept (up to 100)
 // The shop is a 2-split studio: the live preview stays on top, the item grid sits below.
 let koalaSlotPick = { character: "headwear", room: "wallpaper" }; // category chip per tab
 let koalaTry = null; // item id being tried on in the preview (not owned / not worn yet)
@@ -14282,7 +14362,9 @@ function koalaCatsHtml(mode) {
   const titles = KOALA_SLOT_TITLES();
   const catTitle = (s) => (koalaIsSubCat(s) ? koalaSubKindTitle(s.slice(4)) : titles[s]);
   const cats = slots.map((s) => `<button type="button" class="koala-cat${koalaIsSubCat(s) ? " koala-cat-sub" : ""}${koalaSlotPick[mode] === s ? " on" : ""}" role="tab" aria-selected="${koalaSlotPick[mode] === s}" data-koala-cat="${s}">${catTitle(s)}</button>`).join("");
-  return `<div class="koala-cats" role="tablist" aria-label="${rwL("Item categories", "아이템 종류")}">${cats}</div>`;
+  return `<div class="koala-cats-wrap"><button type="button" class="koala-cats-nav prev" data-koala-cats-nav="-1" aria-label="${rwL("Scroll left", "왼쪽으로")}" hidden>‹</button>
+    <div class="koala-cats" role="tablist" aria-label="${rwL("Item categories", "아이템 종류")}">${cats}</div>
+    <button type="button" class="koala-cats-nav next" data-koala-cats-nav="1" aria-label="${rwL("Scroll right", "오른쪽으로")}" hidden>›</button></div>`;
 }
 
 // "My items": everything you own that can be sold back (room / character items, plus the little things inside).
@@ -14416,22 +14498,24 @@ function koalaCoinsHtml(k) {
   const inf = serverAdmin;
   return `<div class="koala-wallet">
       <div class="koala-wallet-top"><span class="koala-wallet-ico" aria-hidden="true">${COIN_SVG}</span>
-        <div><div class="koala-wallet-lbl">${rwL("👛 My Coin Wallet", "👛 나의 코인 지갑")}${inf ? " · " + rwL("Admin — unlimited", "관리자 — 무제한") : ""}</div>
+        <div><div class="koala-wallet-lbl">${rwL("My Coin Wallet", "나의 코인 지갑")}${inf ? " · " + rwL("Admin — unlimited", "관리자 — 무제한") : ""}</div>
           <div class="koala-wallet-val">${inf ? "∞" : k.coins.toLocaleString()}</div></div></div>
       <div class="koala-wallet-stats">
-        <div class="koala-wallet-stat"><span>${rwL("⭐ Earned", "⭐ 번 코인")}</span><b>+${k.earned.toLocaleString()}</b></div>
-        <div class="koala-wallet-stat"><span>${rwL("🛒 Spent", "🛒 쓴 코인")}</span><b>−${k.spent.toLocaleString()}</b></div>
-        <div class="koala-wallet-stat"><span>${rwL("💰 Sold back", "💰 되판 환불")}</span><b>+${k.refunded.toLocaleString()}</b></div></div>
-      <p class="koala-wallet-note">${rwL("Sell an item back and 80% of its price returns here (a 20% fee). Every buy and sale is listed below.", "산 아이템을 되팔면 가격의 80%가 이 지갑으로 돌아와요 (수수료 20%). 사고 판 내역은 아래에 모두 기록돼요.")}</p></div>
-    ${koalaNextRewardHtml()}${koalaEarnHtml()}
-    <h3 class="koala-h">${COIN_SVG} ${rwL("Coin history", "코인 내역")}</h3>${koalaHistoryHtml(k)}`;
+        <button type="button" class="koala-wallet-stat" data-coin-detail="earned"><span>${rwL("💰 Collected", "💰 모은 코인")}</span><b>+${k.earned.toLocaleString()}</b></button>
+        <button type="button" class="koala-wallet-stat" data-coin-detail="spent"><span>${rwL("🛍️ Shopping", "🛍️ 쇼핑한 코인")}</span><b>−${k.spent.toLocaleString()}</b></button>
+        <button type="button" class="koala-wallet-stat" data-coin-detail="refunded"><span>${rwL("🐷 Got back", "🐷 돌려받은 코인")}</span><b>+${k.refunded.toLocaleString()}</b></button></div>
+      <p class="koala-wallet-note">${rwL("Sell an item back and 80% of its price returns here (a 20% fee). Every buy and sale is listed below. Tap a box to see its chart.", "산 아이템을 되팔면 가격의 80%가 이 지갑으로 돌아와요 (수수료 20%). 사고 판 내역은 아래에 모두 기록돼요. 칸을 누르면 그래프를 볼 수 있어요.")}</p></div>
+    ${koalaEarnHtml()}
+    ${koalaHistoryHtml(k)}`;
 }
 
 function koalaHistoryHtml(k) {
   const labels = KOALA_REASON_LABELS();
-  const recent = k.ledger.slice(-30).reverse();
+  const recent = k.ledger.slice(-100).reverse();
+  const shown = koalaHistoryAll ? recent : recent.slice(0, 10);
   if (!recent.length) {
-    return `<p class="koala-note">${rwL("No Coins yet — answer 10 questions correctly to earn your first Koala Coins!", "아직 코인이 없어요. 정답 10개를 맞히면 첫 코알라 코인을 받아요!")}</p>`;
+    return `<div class="koala-earn koala-history-card"><div class="koala-earn-title">${COIN_SVG} ${rwL("Coin history", "코인 내역")}</div>
+      <p class="koala-note">${rwL("No Coins yet — answer 10 questions correctly to earn your first Koala Coins!", "아직 코인이 없어요. 정답 10개를 맞히면 첫 코알라 코인을 받아요!")}</p></div>`;
   }
   const label = (why) => {
     const w = String(why);
@@ -14442,7 +14526,10 @@ function koalaHistoryHtml(k) {
     if (w.startsWith("sellsub:")) return "💰 " + subName(w.slice(8)) + rwL(" (sold back, 80%)", " 되팔기 (80%)");
     return labels[why] || why;
   };
-  return `<ul class="koala-history">${recent.map((e) => `<li><span class="koala-history-n${e.n < 0 ? " spent" : ""}">${e.n < 0 ? "−" : "+"}${Math.abs(e.n)} ${COIN_SVG}</span><span class="koala-history-why">${escapeHtml(label(e.why))}</span><span class="koala-history-day">${new Date(e.t).toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { day: "numeric", month: "short" })}</span></li>`).join("")}</ul>`;
+  const moreBtn = recent.length > 10
+    ? `<button type="button" class="pill neutral small koala-history-more" data-koala-history-more aria-expanded="${koalaHistoryAll}">${koalaHistoryAll ? rwL("Show less ▲", "접기 ▲") : rwL(`Show more (${recent.length - 10}) ▼`, `더보기 (${recent.length - 10}개) ▼`)}</button>`
+    : "";
+  return `<div class="koala-earn koala-history-card"><div class="koala-earn-title">${COIN_SVG} ${rwL("Coin history", "코인 내역")}</div><ul class="koala-history">${shown.map((e) => `<li><span class="koala-history-n${e.n < 0 ? " spent" : ""}">${e.n < 0 ? "−" : "+"}${Math.abs(e.n)} ${COIN_SVG}</span><span class="koala-history-why">${escapeHtml(label(e.why))}</span><span class="koala-history-day">${new Date(e.t).toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { day: "numeric", month: "short" })}</span></li>`).join("")}</ul>${moreBtn}</div>`;
 }
 
 // Streak items (Golden Crown) open by themselves; tell the child when one does.
@@ -14479,22 +14566,22 @@ function renderKoala() {
   const cat = buildBadgeCatalog();
   const badgeCount = cat.filter((b) => progress.badges[b.id]).length;
 
-  // Kid-friendly streak card: a flame that flickers once today's flame is lit, short cheerful lines, a goal bar.
+  // Kid-friendly streak card: a eucalyptus leaf that sways once today's leaf has grown, short cheerful lines, a goal bar.
   const goal = st.nextMilestone || 0;
   const goalPct = goal ? Math.min(100, Math.round((st.count / goal) * 100)) : 100;
   const streakTitle = st.count > 0
-    ? rwL(`<b>${st.count}</b>-day fire streak!`, `<b>${st.count}</b>일 연속 불꽃 학습!`)
-    : rwL("Let's light your first flame!", "첫 불꽃을 켜 볼까요?");
+    ? rwL(`<b>${st.count}</b>-day leaf streak!`, `<b>${st.count}</b>일 연속 유칼립투스 학습!`)
+    : rwL("Let's grow your first leaf!", "첫 유칼립투스 잎을 키워 볼까요?");
   const streakSub = st.countedToday
-    ? rwL("✅ Today's flame is ON — great job!", "✅ 오늘의 불꽃 ON! 정말 멋져요!")
-    : rwL(`Answer ${st.answersToGo} more to light today's flame!`, `${st.answersToGo}문제만 더 풀면 오늘의 불꽃이 켜져요!`);
+    ? rwL("✅ Today's leaf has grown — great job!", "✅ 오늘의 잎이 쑥쑥 자랐어요! 정말 멋져요!")
+    : rwL(`Answer ${st.answersToGo} more to grow today's leaf!`, `${st.answersToGo}문제만 더 풀면 오늘의 잎이 자라요!`);
   const streakGoal = goal ? `<div class="koala-streak-goal"><span class="koala-streak-goal-lbl">${rwL(`🎯 Next goal: ${st.count} / ${goal} days`, `🎯 다음 목표까지 ${st.count} / ${goal}일`)}</span>
       <div class="koala-level-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${Math.min(st.count, goal)}"
         aria-label="${rwL("Progress to the next streak goal", "다음 연속 목표까지")}"><span style="width:${goalPct}%"></span></div></div>` : "";
   const streakChips = [
     rwL(`📝 ${cfg.minAnswersPerDay} questions a day`, `📝 하루 ${cfg.minAnswersPerDay}문제`),
     rwL(`🏅 Best: ${st.best} ${st.best === 1 ? "day" : "days"}`, `🏅 최고 ${st.best}일`),
-    st.restAvailable ? rwL("🌙 1 rest day — your flame stays on!", "🌙 쉬는 날 1번! 쉬어도 불꽃은 그대로!") : "",
+    st.restAvailable ? rwL("🌙 1 rest day — your leaf keeps growing!", "🌙 쉬는 날 1번! 쉬어도 잎은 그대로!") : "",
   ].filter(Boolean).map((c) => `<span class="koala-streak-chip">${c}</span>`).join("");
 
   const studio = koalaTab === "character" || koalaTab === "room";
@@ -14507,7 +14594,7 @@ function renderKoala() {
         <div class="koala-hero-next">${serverAdmin ? rwL("Admin: unlimited Coins ∞", "관리자: 코인 무제한 ∞") : rwL(`🎉 Just ${lv.toNext} more Coins to reach Lv. ${lv.level + 1}!`, `🎉 Lv. ${lv.level + 1}까지 코인 ${lv.toNext}개만 더!`)}</div>
       </div></div>
       <div class="koala-hero-streak">
-        <div class="koala-streak-row"><span class="koala-flame${st.countedToday ? " on" : ""}" aria-hidden="true">🔥</span>
+        <div class="koala-streak-row"><span class="koala-flame${st.countedToday ? " on" : ""}" aria-hidden="true">🌿</span>
           <div class="koala-streak-text"><div class="koala-streak-title">${streakTitle}</div><div class="koala-streak-sub">${streakSub}</div></div></div>
         ${streakGoal}<div class="koala-streak-chips">${streakChips}</div></div>
     </div>`;
@@ -14521,16 +14608,13 @@ function renderKoala() {
   const tabs = `<div class="stats-tabs koala-tabs" role="tablist">${tabDefs.map(([id, label]) =>
     `<button type="button" class="stats-tab${koalaTab === id ? " on" : ""}" role="tab" aria-selected="${koalaTab === id}" data-koala-tab="${id}">${label}</button>`).join("")}</div>`;
 
-  const badgePct = cat.length ? Math.round((badgeCount / cat.length) * 100) : 0;
-  const badgesPanel = `<div class="koala-balance koala-badge-sum"><span class="koala-balance-ico" aria-hidden="true">🏆</span>
-      <div><div class="koala-balance-val">${badgeCount}/${cat.length}</div><div class="koala-balance-lbl">${rwL("Badges collected", "모은 배지")}</div>
-      <div class="koala-level-bar" aria-hidden="true"><span style="width:${badgePct}%"></span></div></div></div>${badgeGridHtml()}`;
+  const badgesPanel = badgeGridHtml();
 
   // Shop tabs (Character / Room): tabs, then the studio (live preview on top, items below), level + streak last.
-  // Coins / Badges keep the plain page: level card, tabs, panel.
+  // Coins / Badges: tabs, panel, then the level + streak card at the very bottom.
   const page = studio
     ? `${tabs}${koalaStudioHtml(k, koalaTab)}${koalaTab === "room" ? "" : hero}`
-    : `${tabs}${hero}<div class="koala-panel">${koalaTab === "badges" ? badgesPanel : koalaCoinsHtml(k)}</div>`;
+    : `${tabs}<div class="koala-panel">${koalaTab === "badges" ? badgesPanel : koalaCoinsHtml(k)}</div>${hero}`;
 
   // Re-rendering must not make the page or the category strip jump.
   const prevCats = box.querySelector(".koala-cats");
@@ -14546,7 +14630,46 @@ function renderKoala() {
     }
   }
   if (Math.abs(window.scrollY - scrollY) > 1) window.scrollTo(0, scrollY);
+  koalaCatsInit(box);
 }
+
+// The category strip is one scrollable row: arrow buttons + soft edge fade show
+// only while there is more to scroll to, and the mouse wheel scrolls it sideways.
+function koalaCatsInit(box) {
+  const wrap = box.querySelector(".koala-cats-wrap");
+  if (!wrap) return;
+  const strip = wrap.querySelector(".koala-cats");
+  const prev = wrap.querySelector(".koala-cats-nav.prev");
+  const next = wrap.querySelector(".koala-cats-nav.next");
+  const update = () => {
+    const max = strip.scrollWidth - strip.clientWidth;
+    const canL = strip.scrollLeft > 2;
+    const canR = strip.scrollLeft < max - 2;
+    prev.hidden = !canL; next.hidden = !canR;
+    wrap.classList.toggle("can-left", canL);
+    wrap.classList.toggle("can-right", canR);
+  };
+  strip.addEventListener("scroll", update, { passive: true });
+  strip.addEventListener("wheel", (e) => {
+    const max = strip.scrollWidth - strip.clientWidth;
+    if (max <= 2 || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+    const atEdge = (e.deltaY < 0 && strip.scrollLeft <= 0) || (e.deltaY > 0 && strip.scrollLeft >= max - 1);
+    if (atEdge) return; // let the page scroll normally at either end
+    e.preventDefault();
+    strip.scrollLeft += e.deltaY;
+  }, { passive: false });
+  update();
+  requestAnimationFrame(update);
+}
+document.addEventListener("click", (e) => {
+  const nav = e.target.closest("[data-koala-cats-nav]");
+  if (nav) {
+    const strip = nav.closest(".koala-cats-wrap").querySelector(".koala-cats");
+    strip.scrollBy({ left: Number(nav.dataset.koalaCatsNav) * Math.max(120, strip.clientWidth * 0.7), behavior: "smooth" });
+    return;
+  }
+  if (e.target.closest("[data-koala-history-more]")) { koalaHistoryAll = !koalaHistoryAll; renderKoala(); }
+});
 
 // A few sparkles over the Koala (or the room) after an item is put on.
 function koalaSparkle() {
@@ -14968,8 +15091,8 @@ function renderWrongPanel() {
   const mathItems = all.filter((it) => reviewKindMatch(it.key, "math"));
   const items = wrongSubTab === "math" ? mathItems : enItems;
   const subTabs = `<div class="wrong-subtabs" role="tablist">
-    <button type="button" class="wrong-subtab${wrongSubTab === "en" ? " on" : ""}" role="tab" aria-selected="${wrongSubTab === "en"}" data-wrong-tab="en">🔤 ${rwL("English", "영어")}<span class="wrong-subtab-count">${enItems.length}</span></button>
-    <button type="button" class="wrong-subtab${wrongSubTab === "math" ? " on" : ""}" role="tab" aria-selected="${wrongSubTab === "math"}" data-wrong-tab="math">🧮 ${rwL("Math", "수학")}<span class="wrong-subtab-count">${mathItems.length}</span></button>
+    <button type="button" class="wrong-subtab${wrongSubTab === "en" ? " on" : ""}" role="tab" aria-selected="${wrongSubTab === "en"}" data-wrong-tab="en">${rwL("English", "영어")}<span class="wrong-subtab-count">${enItems.length}</span></button>
+    <button type="button" class="wrong-subtab${wrongSubTab === "math" ? " on" : ""}" role="tab" aria-selected="${wrongSubTab === "math"}" data-wrong-tab="math">${rwL("Math", "수학")}<span class="wrong-subtab-count">${mathItems.length}</span></button>
   </div>`;
   if (!items.length) {
     el.innerHTML = `${subTabs}<div class="wrong-empty"><div class="wrong-empty-koala"><span class="kface" aria-hidden="true"></span>✨</div><p>${wrongSubTab === "math"
@@ -14980,11 +15103,10 @@ function renderWrongPanel() {
   const modeName = { quiz: rwL("Quiz", "퀴즈"), spelling: rwL("Spelling", "스펠링"), typing: rwL("Typing", "타이핑"), tt: rwL("Times Table", "구구단"), flash: rwL("Flashcards", "플래시카드") };
   const studyBtn = wrongSubTab === "math"
     ? ""
-    : ` <button type="button" class="pill small" id="wrong-study-btn">${FLASH_ICON_SVG} ${rwL("Study these words", "오답 단어 공부하기")}</button>`;
+    : `<button type="button" class="pill small" id="wrong-study-btn">${FLASH_ICON_SVG} ${rwL("Study words", "단어 공부")}</button>`;
   let html = `${subTabs}<p class="wrong-hint">${wrongSubTab === "math"
     ? rwL("Get a fact right in a review and it graduates from this list.", "복습에서 맞히면 오답 노트에서 바로 졸업해요.")
     : rwL("Get a word right in a review and it graduates from this list.", "복습에서 맞히면 오답 노트에서 바로 졸업해요.")}</p>
-    <div class="wrong-actions"><button type="button" class="pill accent small" id="wrong-review-btn"><span class="kface" aria-hidden="true"></span> ${rwL("Start review", "복습 시작")}</button>${studyBtn}</div>
     <ul class="wrong-list">`;
   items.forEach((it) => {
     const isMath = /^\d+x\d+$/.test(it.key);
@@ -14997,12 +15119,13 @@ function renderWrongPanel() {
       const info = findWordInfo(it.key);
       if (info && info.definition) sub = escapeHtml(info.definition);
     }
-    html += `<li class="wrong-item"><div class="wrong-main"><div class="wrong-word">${title}</div>${sub ? `<div class="wrong-def">${sub}</div>` : ""}
-      <div class="wrong-meta">${modeName[it.mode] || ""} · ${rwL(`missed ${it.n}×`, `${it.n}번 틀림`)}</div></div>
+    html += `<li class="wrong-item"><div class="wrong-main"><span class="wrong-word">${title}</span>${sub ? `<span class="wrong-def">${sub}</span>` : ""}
+      <span class="wrong-meta">${modeName[it.mode] || ""} · ${rwL(`missed ${it.n}×`, `${it.n}번 틀림`)}</span></div>
       ${isMath ? "" : `<button type="button" class="wrong-speak" data-say="${escapeHtml(it.key)}" aria-label="${rwL("Hear it", "들어보기")}">🔊</button>`}
-      <button type="button" class="wrong-remove" data-remove="${escapeHtml(it.key)}" aria-label="${rwL("Remove", "삭제")}">✕</button></li>`;
+      <button type="button" class="wrong-remove" data-remove="${escapeHtml(it.key)}" aria-label="${rwL("Remove", "삭제")}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></li>`;
   });
-  html += `</ul>`;
+  html += `</ul>
+    <div class="wrong-actions">${studyBtn}<button type="button" class="pill accent small" id="wrong-review-btn"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg> ${rwL("Start review", "복습 시작")}</button></div>`;
   el.innerHTML = html;
 }
 
@@ -15168,7 +15291,7 @@ function getRecommendedNext() {
     const reason = missed
       ? rwL(`${missed} tricky ${s(missed, "word is", "words are")} waiting. Let's beat ${s(missed, "it", "them")}!`, `최근에 틀린 단어 ${missed}개가 기다리고 있어요. 같이 정복해요!`)
       : rwL(`${review.length} ${s(review.length, "word is", "words are")} ready for review.`, `복습할 단어가 ${review.length}개 있어요.`);
-    return mk("review", rwL("Review tricky words", "어려운 단어 복습"), reason, rwL(`Review ${review.length} ${s(review.length, "word", "words")}`, `${review.length}개 복습`), "review");
+    return mk("review", rwL("Review tricky words", "어려운 단어 복습"), reason, rwL("Start review", "복습 시작"), "review");
   }
   for (const id of ["spelling", "tt", "vocab", "typing"]) {
     const c = byId[id];
@@ -15298,7 +15421,7 @@ function renderSkillsCard() {
   const streakN = currentStreakStatus().count;
   const summaryHtml = `<div class="dash-summary">
     <button type="button" class="dash-sum" data-stat-detail="today"><span class="dash-sum-ico" aria-hidden="true">⭐</span><b>${correctToday}</b><span>${rwL("correct today", "오늘 맞힌 문제")}</span></button>
-    <button type="button" class="dash-sum" data-stat-detail="streak"><span class="dash-sum-ico" aria-hidden="true">🔥</span><b>${streakN}</b><span>${rwL("day streak", "일 연속")}</span></button>
+    <button type="button" class="dash-sum" data-stat-detail="streak"><span class="dash-sum-ico" aria-hidden="true">🌿</span><b>${streakN}</b><span>${rwL("day streak", "일 연속")}</span></button>
     <button type="button" class="dash-sum" data-stat-detail="words"><span class="dash-sum-ico" aria-hidden="true">📚</span><b>${weekWords}</b><span>${rwL("words this week", "이번 주 단어")}</span></button></div>${weekStripHtml()}`;
 
   // One hero card: what to do next (this now also carries the words to review,
@@ -15308,13 +15431,17 @@ function renderSkillsCard() {
     : today.hasHistory ? rwL("Nothing practised yet today.", "오늘은 아직 연습하지 않았어요.") : "";
   const wordChips = review.length
     ? `<div class="dash-rec-words"><span class="dash-rec-words-label">${rwL("Words to review", "복습할 단어")} · ${review.length}</span>
-       <ul class="dash-rec-chips">${review.slice(0, 4).map((r) => `<li>${escapeHtml(r.word)}</li>`).join("")}${review.length > 4 ? `<li class="more">+${review.length - 4}</li>` : ""}</ul></div>`
+       <ul class="dash-rec-chips">${review.slice(0, 12).map((r) => `<li>${escapeHtml(r.word)}</li>`).join("")}${review.length > 12 ? `<li class="more">+${review.length - 12}</li>` : ""}</ul></div>`
     : "";
   const recEmoji = { review: "🎯", new: "🚀", mission: "⭐", explore: "🧭" }[rec.type] || "💪";
-  const recHtml = `<section class="dash-card dash-rec" aria-labelledby="dash-h-rec"><span class="kface dash-rec-koala" aria-hidden="true"></span><div class="dash-eyebrow">${rwL("Next up", "다음에 할 일")}</div>
-    <h3 class="dash-title" id="dash-h-rec"><span aria-hidden="true">${recEmoji}</span> ${escapeHtml(rec.title)}</h3><p class="dash-reason">${escapeHtml(rec.reason)}</p>${wordChips}
-    <button type="button" class="pill dash-btn dash-rec-btn" data-dash-act="${rec.action}">▶ ${escapeHtml(rec.actionLabel)}</button>
-    ${todayLine ? `<p class="dash-rec-today">${escapeHtml(todayLine)}</p>` : ""}</section>`;
+  const recIcon = `<svg class="dash-rec-svg" viewBox="0 0 32 32" width="34" height="34" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#fff"/><path d="M13 9.8v12.4a.9.9 0 0 0 1.4.76l9.3-6.2a.9.9 0 0 0 0-1.5l-9.3-6.2a.9.9 0 0 0-1.4.74z" fill="#139c7d"/></svg>`;
+  const recHtml = `<section class="dash-card dash-rec" aria-labelledby="dash-h-rec">
+    <div class="dash-rec-text">
+      <h3 class="dash-title" id="dash-h-rec"><span aria-hidden="true">${recEmoji}</span> ${escapeHtml(rec.title)}</h3>
+      <p class="dash-reason">${escapeHtml(rec.reason)}${todayLine ? `<span class="dash-rec-today">${escapeHtml(todayLine)}</span>` : ""}</p></div>
+    <div class="dash-rec-side">
+      <button type="button" class="dash-rec-btn" data-dash-act="${rec.action}"><span class="dash-rec-btn-ico" aria-hidden="true">${recIcon}</span><span class="dash-rec-btn-txt">${escapeHtml(rec.actionLabel)}</span></button></div>
+    ${wordChips}</section>`;
 
   // Category cards (2x2): weakest one first with a "Focus today" tag
   const cats = CAT_DEFS.map(catStats);
@@ -15454,9 +15581,9 @@ function statDetailContent(kind) {
     const two = statDayRange(14);
     const bars = two.map((x) => { const t = statDayTotals(x); return { label: x.label, a: t.tot, b: 0 }; });
     const n = currentStreakStatus().count;
-    return { ico: "🔥", title: rwL("Day streak", "연속 학습"), big: n, bigSub: rwL(n === 1 ? "day in a row" : "days in a row", "일 연속"),
+    return { ico: "🌿", title: rwL("Day streak", "연속 학습"), big: n, bigSub: rwL(n === 1 ? "day in a row" : "days in a row", "일 연속"),
       html: `<h4 class="chart-title">${rwL("Questions per day (last 14 days)", "하루 문제 수 (최근 14일)")}</h4>${bars.some((b) => b.a) ? statBarsSvg(bars, { color: "#f0a020", aria: rwL("Questions per day", "하루 문제 수") }) : statEmpty()}
-      <p class="stat-note">${rwL("Practise a little every day to keep the flame going!", "매일 조금씩 연습하면 불꽃이 계속 타올라요!")}</p>` };
+      <p class="stat-note">${rwL("Practise a little every day to keep your leaves growing!", "매일 조금씩 연습하면 잎이 계속 자라요!")}</p>` };
   }
   if (kind === "words") {
     const log = recLog().filter((e) => !reviewIsMath(e.w));
@@ -15507,6 +15634,11 @@ function openStatSheet(kind, opener) {
     // "Words practised" (all time) — show the same last-7-days chart but headline the all-time count.
     d.title = rwL("Words practised", "연습한 단어"); d.big = Object.keys(progress.wordStats).length; d.bigSub = rwL("different words so far", "지금까지 서로 다른 단어");
   }
+  showStatSheet(d, opener);
+}
+// Opens the chart sheet for any {ico, title, big, bigSub, html} (stat cards and the coin wallet use it).
+function showStatSheet(d, opener) {
+  closeStatSheet();
   statSheetOpener = opener || null;
   const el = document.createElement("div");
   el.className = "stat-sheet-backdrop";
@@ -15524,6 +15656,38 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape" && statShee
 document.addEventListener("click", (e) => {
   const b = e.target.closest("[data-stat-detail]");
   if (b) openStatSheet(b.dataset.statDetail, b);
+});
+
+// My Koala > Coins: tap Collected / Shopping / Got back -> chart of the last 14 days.
+function coinDetailContent(kind) {
+  const k = KoalaCore.ensureKoala(progress);
+  const isRefund = (w) => /^sell(sub)?:/.test(String(w));
+  const pick = (e) => (kind === "spent" ? e.n < 0 : kind === "refunded" ? e.n > 0 && isRefund(e.why) : e.n > 0 && !isRefund(e.why));
+  const sums = {};
+  (k.ledger || []).forEach((e) => {
+    if (!pick(e)) return;
+    const key = localDateKey(new Date(e.t));
+    sums[key] = (sums[key] || 0) + Math.abs(e.n);
+  });
+  const bars = statDayRange(14).map((x) => ({ label: x.label, a: sums[localDateKey(x.d)] || 0, b: 0 }));
+  const M = {
+    earned: { ico: "💰", title: rwL("Coins collected", "모은 코인"), big: k.earned, color: "var(--accent)",
+      note: rwL("Answer correctly, finish the daily mission and win badges to collect Coins.", "정답을 맞히고, 오늘의 미션을 끝내고, 배지를 받으면 코인이 모여요.") },
+    spent: { ico: "🛍️", title: rwL("Coins spent in the shop", "쇼핑한 코인"), big: k.spent, color: "#f0a020",
+      note: rwL("Unlocking an item in the shop uses Coins.", "상점에서 아이템을 열면 코인을 써요.") },
+    refunded: { ico: "🐷", title: rwL("Coins you got back", "돌려받은 코인"), big: k.refunded, color: "#3aa6c9",
+      note: rwL("Selling an item back returns 80% of its price.", "아이템을 되팔면 가격의 80%가 돌아와요.") },
+  }[kind];
+  if (!M) return null;
+  return { ico: M.ico, title: M.title, big: M.big.toLocaleString(), bigSub: rwL("Coins in total", "코인 (전체)"),
+    html: `<h4 class="chart-title">${rwL("Last 14 days", "최근 14일")}</h4>${bars.some((b) => b.a) ? statBarsSvg(bars, { color: M.color, aria: M.title }) : `<p class="chart-empty">${rwL("Nothing here yet.", "아직 내역이 없어요.")}</p>`}
+      <p class="stat-note">${M.note}</p>` };
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-coin-detail]");
+  if (!b) return;
+  const d = coinDetailContent(b.dataset.coinDetail);
+  if (d) showStatSheet(d, b);
 });
 
 /* ================= STATS ================= */
@@ -15553,7 +15717,7 @@ function renderStats() {
 
   statsGrid.innerHTML = stats
     .map((s) => s.key
-      ? `<button type="button" class="stat-box stat-tap" data-stat-detail="${s.key}"><span class="stat-ico" aria-hidden="true">${s.ico}</span><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div>${s.sub ? `<div class="sub">${s.sub}</div>` : ""}<span class="stat-peek" aria-hidden="true">📈 ${rwL("See chart", "그래프 보기")}</span></button>`
+      ? `<div class="stat-box stat-card"><div class="stat-card-head"><span class="stat-ico" aria-hidden="true">${s.ico}</span><div class="stat-card-nums"><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div>${s.sub ? `<div class="sub">${s.sub}</div>` : ""}</div></div><div class="stat-card-chart">${(statDetailContent(s.key) || { html: "" }).html}</div></div>`
       : `<div class="stat-box"><span class="stat-ico" aria-hidden="true">${s.ico}</span><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div>${s.sub ? `<div class="sub">${s.sub}</div>` : ""}</div>`)
     .join("");
   renderRewardPanels();
@@ -16065,14 +16229,38 @@ const PARENT_MODES = [
   ["flash", () => rwL("Flashcards", "플래시카드")],
 ];
 
+// Report period: null = the last 7 days; otherwise { from, to } (local Dates at midnight).
+let parentRange = null;
+const PR_DAY = 86400000;
+function prMidnight(d) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+function parentBounds() {
+  const to = parentRange ? prMidnight(parentRange.to) : prMidnight(new Date());
+  const from = parentRange ? prMidnight(parentRange.from) : new Date(to.getTime() - 6 * PR_DAY);
+  return { from, to, days: Math.round((to - from) / PR_DAY) + 1 };
+}
+function parentDays(prev) {
+  const b = parentBounds();
+  const out = [];
+  for (let i = 0; i < b.days; i++) {
+    const d = new Date(b.from.getTime() + i * PR_DAY);
+    if (prev) d.setDate(d.getDate() - b.days);
+    out.push(d);
+  }
+  return out;
+}
+function parentRangeLabel() {
+  const b = parentBounds();
+  const loc = currentLang === "ko" ? "ko-KR" : "en-AU";
+  const fmt = (d) => d.toLocaleDateString(loc, { day: "numeric", month: "short" });
+  return `${fmt(b.from)} – ${fmt(b.to)}`;
+}
 function parentWeekData(offsetDays) {
   ensureRewardData();
   const perMode = {};
   PARENT_MODES.forEach(([m]) => (perMode[m] = [0, 0]));
   let activeDays = 0, correct = 0, total = 0;
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i - offsetDays);
+  const days = parentDays(offsetDays > 0);
+  days.forEach((d) => {
     const rec = progress.daily[localDateKey(d)] || {};
     let dayTot = 0;
     PARENT_MODES.forEach(([m]) => {
@@ -16085,8 +16273,8 @@ function parentWeekData(offsetDays) {
       }
     });
     if (dayTot) activeDays++;
-  }
-  return { perMode, activeDays, correct, total, pct: total ? Math.round((correct / total) * 100) : 0 };
+  });
+  return { perMode, activeDays, correct, total, days: days.length, pct: total ? Math.round((correct / total) * 100) : 0 };
 }
 
 function parentTrickyWords(limit) {
@@ -16101,8 +16289,9 @@ function parentSummaryLines() {
   const w = parentWeekData(0), prev = parentWeekData(1 * 7);
   const lines = [];
   lines.push(`Koala Study Mate — ${rwL("weekly report", "주간 리포트")}`);
-  lines.push(`${rwL("Days practised", "학습한 날")}: ${w.activeDays}/7`);
-  lines.push(`${rwL("Answers", "푼 문제")}: ${w.total} (${rwL("accuracy", "정답률")} ${w.total ? w.pct + "%" : "–"})`);
+  lines.push(`${rwL("Period", "기간")}: ${parentRangeLabel()}`);
+  lines.push(`${rwL("Study days", "학습 기간")}: ${w.activeDays}/${w.days}`);
+  lines.push(`${rwL("Questions", "학습 문제")}: ${w.total} (${rwL("accuracy", "정답률")} ${w.total ? w.pct + "%" : "–"})`);
   PARENT_MODES.forEach(([m, name]) => {
     const [c, tot] = w.perMode[m];
     if (tot) lines.push(`• ${name()}: ${c}/${tot}`);
@@ -16117,11 +16306,11 @@ function parentSummaryLines() {
 function parentTips(w, prev) {
   const tips = [];
   if (w.activeDays === 0) {
-    tips.push(rwL("No practice yet this week. Five minutes after dinner is a great place to start.", "이번 주는 아직 학습 기록이 없어요. 저녁 식사 후 5분부터 시작해 보세요."));
+    tips.push(rwL("No practice in this period. Five minutes after dinner is a great place to start.", "이 기간에는 학습 기록이 없어요. 저녁 식사 후 5분부터 시작해 보세요."));
     return tips;
   }
-  if (w.activeDays < 4) tips.push(rwL(`Practised ${w.activeDays} of 7 days. Short daily sessions work better than one long one — aim for 4+ days.`, `이번 주 ${w.activeDays}일 학습했어요. 몰아서 하는 것보다 매일 조금씩이 효과적이에요. 주 4일 이상을 목표로 해 보세요.`));
-  else tips.push(rwL(`Practised ${w.activeDays} of 7 days — a great routine. Keep it going!`, `7일 중 ${w.activeDays}일 학습했어요. 좋은 습관이에요. 계속 이어가요!`));
+  if (w.activeDays < 4) tips.push(rwL(`Practised ${w.activeDays} of ${w.days} days. Short daily sessions work better than one long one — aim for 4+ days.`, `${w.days}일 중 ${w.activeDays}일 학습했어요. 몰아서 하는 것보다 매일 조금씩이 효과적이에요. 주 4일 이상을 목표로 해 보세요.`));
+  else tips.push(rwL(`Practised ${w.activeDays} of ${w.days} days — a great routine. Keep it going!`, `${w.days}일 중 ${w.activeDays}일 학습했어요. 좋은 습관이에요. 계속 이어가요!`));
   let low = null;
   PARENT_MODES.forEach(([m, name]) => {
     const [c, tot] = w.perMode[m];
@@ -16131,7 +16320,7 @@ function parentTips(w, prev) {
     }
   });
   if (low && low.p < 0.7) tips.push(rwL(`${low.name} is the toughest area (${Math.round(low.p * 100)}% correct). A few extra rounds there would help most.`, `${low.name}이(가) 가장 어려워 보여요(정답률 ${Math.round(low.p * 100)}%). 이 부분을 조금 더 연습하면 좋아요.`));
-  if (prev.total >= 10 && w.total >= 10 && w.pct - prev.pct >= 5) tips.push(rwL(`Accuracy is up ${w.pct - prev.pct} points on last week. Worth a compliment!`, `지난주보다 정답률이 ${w.pct - prev.pct}%p 올랐어요. 칭찬해 주세요!`));
+  if (prev.total >= 10 && w.total >= 10 && w.pct - prev.pct >= 5) tips.push(rwL(`Accuracy is up ${w.pct - prev.pct} points on the period before. Worth a compliment!`, `직전 기간보다 정답률이 ${w.pct - prev.pct}%p 올랐어요. 칭찬해 주세요!`));
   return tips;
 }
 
@@ -16158,64 +16347,299 @@ function renderParentPanel() {
   const deltaHtml = delta === null ? "" : `<span class="pr-delta ${delta >= 0 ? "up" : "down"}">${delta >= 0 ? "▲" : "▼"} ${Math.abs(delta)}%p</span>`;
   const streak = (progress.streak && progress.streak.count) || 0;
   const learned = Object.values(progress.srs || {}).filter((e) => e.box >= 3).length;
-  const mastered = `<div class="pr-tile"><span class="pr-ico" aria-hidden="true">🌟</span><div class="pr-num">${learned}</div><div class="pr-lbl">${rwL("words well known", "잘 아는 단어")}</div></div>`;
+  const mastered = `<button type="button" class="pr-tile" data-pr-detail="known"><span class="pr-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="1.25em" height="1.25em"><path d="M8.2 13.6L6.5 22l5.5-3 5.5 3-1.7-8.4" fill="#ff8f6b"/><circle cx="12" cy="9" r="7.2" fill="#ffc93c"/><circle cx="12" cy="9" r="5.4" fill="#ffdf6e"/><path d="M8.9 9.2l2.2 2.2 4-4.3" fill="none" stroke="#f08a00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div class="pr-num">${learned}</div><div class="pr-lbl">${rwL("words mastered", "완료 단어")}</div></button>`;
   let modes = "";
+  const modeIco = { quiz: "💡", spelling: "✏️", typing: "⌨️", tt: "🧮", flash: "🃏" };
   PARENT_MODES.forEach(([m, name]) => {
     const [c, tot] = w.perMode[m];
     const pct = tot ? Math.round((c / tot) * 100) : 0;
-    modes += `<div class="hbar-row"><span class="hbar-name">${name()}</span>
-      <span class="hbar-track"><span class="hbar-fill" style="width:${pct}%"></span></span>
-      <span class="hbar-pct">${tot ? c + "/" + tot : "–"}</span></div>`;
+    modes += `<div class="pr-act${tot ? "" : " is-empty"}"><div class="pr-act-top"><span class="pr-act-name"><span aria-hidden="true">${modeIco[m] || ""}</span> ${name()}</span>
+      <span class="pr-act-num">${tot ? `${c}/${tot} · ${pct}%` : "–"}</span></div>
+      <div class="pr-act-bar" role="presentation"><i style="width:${tot ? Math.max(pct, 4) : 0}%"></i></div></div>`;
   });
+  modes = `<div class="pr-acts">${modes}</div>`;
   const tricky = parentTrickyWords(6);
   const trickyHtml = tricky.length
     ? `<ul class="pr-tricky">${tricky.map((x) => `<li><button type="button" class="pr-say" data-say="${escapeHtml(x.word)}" aria-label="${rwL("Hear it", "들어보기")}">🔊</button><span class="pr-word">${escapeHtml(x.word)}</span><span class="pr-def">${x.info && x.info.definition ? escapeHtml(x.info.definition) : ""}</span><span class="pr-miss">${rwL(`missed ${x.miss}×`, `${x.miss}번 틀림`)}</span></li>`).join("")}</ul>`
     : `<p class="chart-empty">${rwL("No tricky words yet.", "아직 어려운 단어가 없어요.")}</p>`;
-  const tips = parentTips(w, prev).map((x) => `<li>${escapeHtml(x)}</li>`).join("");
-  const from = new Date(); from.setDate(from.getDate() - 6);
-  const loc = currentLang === "ko" ? "ko-KR" : "en-AU";
-  const range = `${from.toLocaleDateString(loc, { day: "numeric", month: "short" })} – ${new Date().toLocaleDateString(loc, { day: "numeric", month: "short" })}`;
-  el.innerHTML = `<div class="pr-head"><h4 class="chart-title">${rwL("Weekly report", "주간 리포트")}</h4><span class="pr-range">${range}</span></div>
+  const tips = parentTips(w, prev).map((x) => `<li><span class="pr-tip-ico" aria-hidden="true">💡</span><span>${escapeHtml(x)}</span></li>`).join("");
+  const range = parentRangeLabel();
+  el.innerHTML = `<div class="pr-head"><h4 class="chart-title">${rwL("Weekly report", "주간 리포트")}</h4><button type="button" class="pr-range" id="pr-range-btn" aria-haspopup="dialog" aria-label="${rwL("Choose report dates", "리포트 기간 선택")}"><svg class="pr-range-ico" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>${range}</span><span class="pr-range-caret" aria-hidden="true">▾</span></button></div>
     <div class="pr-tiles">
-      <div class="pr-tile"><span class="pr-ico" aria-hidden="true">📅</span><div class="pr-num">${w.activeDays}<small>/7</small></div><div class="pr-lbl">${rwL("days practised", "학습한 날")}</div></div>
-      <div class="pr-tile"><span class="pr-ico" aria-hidden="true">✏️</span><div class="pr-num">${w.total}</div><div class="pr-lbl">${rwL("answers", "푼 문제")}</div></div>
-      <div class="pr-tile"><span class="pr-ico" aria-hidden="true">🎯</span><div class="pr-num">${w.total ? w.pct + "%" : "–"}${deltaHtml}</div><div class="pr-lbl">${rwL("accuracy", "정답률")}</div></div>
-      <div class="pr-tile"><span class="pr-ico" aria-hidden="true">🔥</span><div class="pr-num">${streak}</div><div class="pr-lbl">${rwL("day streak", "연속 학습")}</div></div>
+      <button type="button" class="pr-tile" data-pr-detail="days"><span class="pr-ico" aria-hidden="true">🗓️</span><div class="pr-num">${w.activeDays}<small>/${w.days}</small></div><div class="pr-lbl">${rwL("study days", "학습 기간")}</div></button>
+      <button type="button" class="pr-tile" data-pr-detail="answers"><span class="pr-ico" aria-hidden="true">📝</span><div class="pr-num">${w.total}</div><div class="pr-lbl">${rwL("questions", "학습 문제")}</div></button>
+      <button type="button" class="pr-tile" data-pr-detail="accuracy"><span class="pr-ico" aria-hidden="true">🎯</span><div class="pr-num">${w.total ? w.pct + "%" : "–"}${deltaHtml}</div><div class="pr-lbl">${rwL("accuracy", "정답률")}</div></button>
+      <button type="button" class="pr-tile" data-pr-detail="streak"><span class="pr-ico" aria-hidden="true">🌿</span><div class="pr-num">${streak}</div><div class="pr-lbl">${rwL("day streak", "연속 학습")}</div></button>
       ${mastered}
     </div>
-    <h4 class="chart-title">${rwL("This week by activity", "이번 주 활동별")}</h4>${modes}
+    <h4 class="chart-title">${parentRange ? rwL("Activity in this period", "선택한 기간 활동별") : rwL("This week by activity", "이번 주 활동별")}</h4>${modes}
     <h4 class="chart-title">${rwL("Tricky words", "어려운 단어")}</h4>${trickyHtml}
-    <h4 class="chart-title">${rwL("Tips for this week", "이번 주 조언")}</h4><ul class="pr-tips">${tips}</ul>
-    <div class="pr-actions"><button type="button" class="pill accent small" id="pr-copy">📋 ${rwL("Copy summary", "요약 복사")}</button>
-    <div class="pr-share-wrap"><button type="button" class="pill small" id="pr-share" aria-haspopup="true" aria-expanded="false"><svg class="ios-share" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3v12M12 3L8 7M12 3l4 4M6 11H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ${rwL("Share", "공유")}</button>
-    <div class="pr-share-menu" id="pr-share-menu" hidden role="menu">${parentShareLinks().map((l) => `<a role="menuitem" class="pr-share-item" href="${l.href}" target="_blank" rel="noopener noreferrer">${l.name}</a>`).join("")}</div></div></div>
+    <h4 class="chart-title">${parentRange ? rwL("Tips for this period", "이 기간의 조언") : rwL("Tips for this week", "이번 주 조언")}</h4><ul class="pr-tips">${tips}</ul>
+    <div class="pr-actions"><button type="button" class="pill accent small" id="pr-send"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3.5 7.5l8.5 6 8.5-6"/></svg> ${rwL("Send report", "리포트 보내기")}</button>
+    <button type="button" class="pill small" id="pr-share"><svg class="ios-share" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M12 3L8 7M12 3l4 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg> ${rwL("Share", "공유")}</button></div>
     <p class="pr-note">${rwL("Based on this device. Premium accounts also keep progress across devices.", "이 기기의 기록을 기준으로 해요. 프리미엄 계정은 기기가 달라도 기록이 이어져요.")}</p>`;
 }
 
+function parentDetailContent(kind) {
+  const custom = !!parentRange;
+  const span = custom ? parentDays(false).slice(-31) : statDayRange(14).map((x) => x.d);
+  const days = span.map((d) => {
+    const rec = progress.daily[localDateKey(d)] || {};
+    let c = 0, t = 0;
+    PARENT_MODES.forEach(([m]) => { if (rec[m]) { c += rec[m][0]; t += rec[m][1]; } });
+    const label = span.length > 14 ? String(d.getDate()) : d.toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { weekday: "narrow" });
+    return { label, c, t };
+  });
+  const w = parentWeekData(0);
+  const streak = (progress.streak && progress.streak.count) || 0;
+  const last14 = custom ? parentRangeLabel() : rwL("Last 14 days", "최근 14일");
+  const chart = (bars, opts, title) => `<h4 class="chart-title">${title || last14}</h4>${bars.some((b) => (b.a || 0) + (b.b || 0)) ? statBarsSvg(bars, opts) : `<p class="chart-empty">${rwL("Nothing to chart yet. Practise today!", "아직 그래프가 없어요. 오늘 연습해 봐요!")}</p>`}`;
+  if (kind === "days") {
+    return { ico: "🗓️", title: rwL("Study days", "학습 기간"), big: `${w.activeDays}/${w.days}`, bigSub: custom ? rwL("days", "일") : rwL("this week", "이번 주"),
+      html: chart(days.map((d) => ({ label: d.label, a: d.t ? Math.max(d.t, 1) : 0, b: 0 })), { aria: "days" }) + `<p class="stat-note">${rwL("A bar means you practised that day. Taller = more questions.", "막대가 있는 날은 공부한 날이에요. 높을수록 문제를 많이 풀었어요.")}</p>` };
+  }
+  if (kind === "answers") {
+    return { ico: "📝", title: rwL("Questions", "학습 문제"), big: w.total, bigSub: custom ? parentRangeLabel() : rwL("this week", "이번 주"),
+      html: chart(days.map((d) => ({ label: d.label, a: d.c, b: d.t - d.c })), { aria: "answers" }) + `<p class="stat-note">${rwL("Green = right, grey = missed.", "초록은 맞은 문제, 회색은 틀린 문제예요.")}</p>` };
+  }
+  if (kind === "accuracy") {
+    return { ico: "🎯", title: rwL("Accuracy", "정답률"), big: w.total ? w.pct + "%" : "–", bigSub: custom ? parentRangeLabel() : rwL("this week", "이번 주"),
+      html: chart(days.map((d) => ({ label: d.label, a: d.t ? Math.round((d.c / d.t) * 100) : 0, b: 0, text: d.t ? d.c === d.t ? "100" : Math.round((d.c / d.t) * 100) : "" })), { max: 100, aria: "accuracy" }, rwL("% right each day", "하루 정답률")) + `<p class="stat-note">${rwL("Each bar is the share of answers that were right that day.", "막대는 그날 맞힌 문제의 비율이에요.")}</p>` };
+  }
+  if (kind === "streak") {
+    return { ico: "🌿", title: rwL("Learning streak", "연속 학습"), big: streak, bigSub: rwL("days in a row", "일 연속"),
+      html: chart(days.map((d) => ({ label: d.label, a: d.t ? 1 : 0, b: 0, text: d.t ? "✓" : "" })), { max: 1.3, aria: "streak" }) + `<p class="stat-note">${rwL("Practise a little every day to keep the leaf growing.", "하루에 조금씩 공부하면 잎이 쑥쑥 자라요.")}</p>` };
+  }
+  if (kind === "known") {
+    const counts = [0, 0, 0, 0, 0];
+    Object.values(progress.srs || {}).forEach((e) => { const b = Math.min(5, Math.max(1, e.box || 1)); counts[b - 1]++; });
+    const learned = counts[2] + counts[3] + counts[4];
+    return { ico: "🏅", title: rwL("Words mastered", "완료 단어"), big: learned, bigSub: rwL("words", "단어"),
+      html: chart(counts.map((n, i) => ({ label: rwL("Lv ", "단계 ") + (i + 1), a: n, b: 0 })), { aria: "known", color: "#f0a020" }, rwL("Words by learning stage", "단계별 단어 수")) + `<p class="stat-note">${rwL("A word moves up a stage each time you remember it. Stage 3 and up counts as well known.", "단어를 기억할 때마다 한 단계씩 올라가요. 3단계부터는 잘 아는 단어예요.")}</p>` };
+  }
+  return null;
+}
+// ---- Parent tab popups: send report, share, pick dates ----
+let prModalEl = null;
+function closePrModal() { if (prModalEl) { prModalEl.remove(); prModalEl = null; } }
+function showPrModal(html, cls) {
+  closePrModal();
+  const el = document.createElement("div");
+  el.className = "stat-sheet-backdrop pr-modal-backdrop";
+  el.innerHTML = `<div class="stat-sheet pr-modal ${cls || ""}" role="dialog" aria-modal="true"><button type="button" class="stat-sheet-close" data-pr-close aria-label="${rwL("Close", "닫기")}">✕</button>${html}</div>`;
+  el.addEventListener("click", (e) => { if (e.target === el || e.target.closest("[data-pr-close]")) closePrModal(); });
+  document.body.appendChild(el);
+  prModalEl = el;
+  return el;
+}
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && prModalEl) closePrModal(); });
+
+// Plain-data version of the report (also what the email is built from).
+function parentReportData() {
+  const w = parentWeekData(0), prev = parentWeekData(7);
+  const series = parentDays(false).slice(-31).map((d) => {
+    const rec = progress.daily[localDateKey(d)] || {};
+    let c = 0, t = 0;
+    PARENT_MODES.forEach(([m]) => { if (rec[m]) { c += rec[m][0]; t += rec[m][1]; } });
+    return { l: parentDays(false).length > 14 ? String(d.getDate()) : d.toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { weekday: "narrow" }), c, t };
+  });
+  const stages = [0, 0, 0, 0, 0];
+  Object.values(progress.srs || {}).forEach((e) => { stages[Math.min(5, Math.max(1, e.box || 1)) - 1]++; });
+  return {
+    series, stages, known: stages[2] + stages[3] + stages[4],
+    lang: currentLang === "ko" ? "ko" : "en",
+    range: parentRangeLabel(),
+    days: w.days, activeDays: w.activeDays, answers: w.total, pct: w.total ? w.pct : null,
+    streak: (progress.streak && progress.streak.count) || 0,
+    modes: PARENT_MODES.map(([m, name]) => ({ name: name(), c: w.perMode[m][0], t: w.perMode[m][1] })).filter((x) => x.t > 0),
+    tricky: parentTrickyWords(6).map((x) => x.word),
+    tips: parentTips(w, prev),
+  };
+}
+
+function openSendReport() {
+  const email = currentUser && currentUser.email;
+  if (!currentUser || !email) {
+    showPrModal(`<div class="pr-modal-head"><span class="pr-modal-ico" aria-hidden="true">📧</span><h3>${rwL("Send report", "리포트 보내기")}</h3></div>
+      <p class="pr-modal-text">${rwL("Add an email address to your account first, then you can send the report to it.", "먼저 계정에 이메일 주소를 등록하면, 그 주소로 리포트를 보낼 수 있어요.")}</p>
+      <div class="pr-modal-btns"><button type="button" class="pill accent small" data-pr-close>${rwL("OK", "확인")}</button></div>`);
+    return;
+  }
+  const r = parentReportData();
+  const rows = r.modes.map((m) => `<li><span>${escapeHtml(m.name)}</span><b>${m.c}/${m.t}</b></li>`).join("");
+  const el = showPrModal(`<div class="pr-modal-head"><span class="pr-modal-ico" aria-hidden="true">📧</span><h3>${rwL("Weekly report", "주간 리포트")}</h3>
+      <label class="pr-auto"><input type="checkbox" id="pr-auto-chk"><span>${rwL("Send every week", "매주 자동 보내기")}</span></label></div>
+    <p class="pr-auto-msg" id="pr-auto-msg" hidden></p>
+    <div class="pr-mail-card">
+      <div class="pr-mail-range">${escapeHtml(r.range)}</div>
+      <div class="pr-mail-stats">
+        <div><b>${r.activeDays}/${r.days}</b><span>${rwL("study days", "학습 기간")}</span></div>
+        <div><b>${r.answers}</b><span>${rwL("questions", "학습 문제")}</span></div>
+        <div><b>${r.pct === null ? "–" : r.pct + "%"}</b><span>${rwL("accuracy", "정답률")}</span></div>
+        <div><b>${r.streak}</b><span>${rwL("day streak", "연속 학습")}</span></div>
+        <div><b>${r.known}</b><span>${rwL("mastered", "완료 단어")}</span></div>
+      </div>
+      ${rows ? `<ul class="pr-mail-modes">${rows}</ul>` : ""}
+      ${r.tricky.length ? `<div class="pr-mail-tricky"><span>${rwL("Tricky words", "어려운 단어")}</span> ${r.tricky.map(escapeHtml).join(", ")}</div>` : ""}
+    </div>
+    <div class="pr-mail-to"><span>${rwL("To", "받는 사람")}</span><b>${escapeHtml(email)}</b></div>
+    <p class="pr-modal-q">${rwL("Send the report to this email?", "이 이메일로 보내시겠습니까?")}</p>
+    <p class="pr-modal-msg" id="pr-send-msg" hidden></p>
+    <div class="pr-modal-btns"><button type="button" class="pill small" data-pr-close>${rwL("Cancel", "취소")}</button><button type="button" class="pill accent small" id="pr-send-ok">${rwL("Send", "확인")}</button></div>`, "pr-modal-send");
+  const ok = el.querySelector("#pr-send-ok"), msg = el.querySelector("#pr-send-msg");
+  // "Send every week" switch: saved on the server the moment it is ticked.
+  const chk = el.querySelector("#pr-auto-chk"), autoMsg = el.querySelector("#pr-auto-msg");
+  const say = (t) => { autoMsg.textContent = t; autoMsg.hidden = !t; };
+  fetch("/api/report/auto", { credentials: "same-origin" }).then((x) => x.json()).then((d) => { if (d && d.enabled) { chk.checked = true; say(rwL("A report is emailed every Monday.", "매주 월요일 아침에 리포트를 보내 드려요.")); } }).catch(() => {});
+  chk.addEventListener("change", async () => {
+    const want = chk.checked;
+    chk.disabled = true;
+    let res = null, data = null;
+    try {
+      res = await fetch("/api/report/auto", { method: "PUT", headers: { "content-type": "application/json" }, credentials: "same-origin",
+        body: JSON.stringify({ enabled: want, tzOffset: -new Date().getTimezoneOffset(), lang: currentLang === "ko" ? "ko" : "en" }) });
+      data = await res.json().catch(() => ({}));
+    } catch (e) { res = null; }
+    chk.disabled = false;
+    if (res && res.ok && data && data.ok) {
+      say(want ? rwL("A report is emailed every Monday.", "매주 월요일 아침에 리포트를 보내 드려요.") : rwL("Weekly emails are off.", "매주 자동 보내기를 껐어요."));
+      return;
+    }
+    chk.checked = !want;
+    say(data && data.error === "email_not_verified" ? rwL("Please confirm your email address first.", "먼저 이메일 주소를 인증해 주세요.")
+      : rwL("Couldn't save that. Please try again later.", "저장하지 못했어요. 잠시 뒤에 다시 시도해 주세요."));
+  });
+  ok.addEventListener("click", async () => {
+    ok.disabled = true; ok.textContent = rwL("Sending…", "보내는 중…");
+    msg.hidden = true;
+    let res = null, data = null;
+    try {
+      res = await fetch("/api/report/send", { method: "POST", headers: { "content-type": "application/json" }, credentials: "same-origin", body: JSON.stringify(parentReportData()) });
+      data = await res.json().catch(() => ({}));
+    } catch (e) { res = null; }
+    if (res && res.ok && data && data.ok) {
+      el.querySelector(".pr-modal").innerHTML = `<div class="pr-modal-done"><div class="pr-modal-done-ico" aria-hidden="true">✅</div><h3>${rwL("Report sent!", "리포트를 보냈어요!")}</h3><p class="pr-modal-text">${rwL("Check your inbox:", "받은편지함을 확인해 주세요:")} <b>${escapeHtml(email)}</b></p><div class="pr-modal-btns"><button type="button" class="pill accent small" data-pr-close>${rwL("Done", "확인")}</button></div></div>`;
+      return;
+    }
+    const code = data && data.error;
+    msg.textContent = res && res.status === 429 ? rwL("A report was just sent. Please wait a minute and try again.", "방금 리포트를 보냈어요. 1분 뒤에 다시 시도해 주세요.")
+      : code === "email_not_verified" ? rwL("Please confirm your email address first.", "먼저 이메일 주소를 인증해 주세요.")
+      : code === "email_not_configured" ? rwL("Email sending isn't set up yet.", "이메일 발송이 아직 설정되지 않았어요.")
+      : rwL("Couldn't send the report. Please try again.", "리포트를 보내지 못했어요. 다시 시도해 주세요.");
+    msg.hidden = false; ok.disabled = false; ok.textContent = rwL("Try again", "다시 시도");
+  });
+}
+
+function openShareSheet() {
+  const text = parentSummaryLines().join("\n");
+  const url = parentShareUrl();
+  const t = encodeURIComponent(text), u = encodeURIComponent(url), both = encodeURIComponent(text + "\n" + url);
+  const ico = (bg, svg) => `<span class="pr-share-ico" style="background:${bg}">${svg}</span>`;
+  const W = (d) => `<svg viewBox="0 0 24 24" width="26" height="26" fill="#fff" aria-hidden="true"><path d="${d}"/></svg>`;
+  const items = [
+    { id: "wa", name: "WhatsApp", href: `https://wa.me/?text=${both}`, icon: ico("#25d366", W("M12 3a9 9 0 00-7.7 13.6L3 21l4.5-1.2A9 9 0 1012 3zm0 1.8a7.2 7.2 0 11-3.7 13.4l-.3-.2-2.4.6.6-2.3-.2-.3A7.2 7.2 0 0112 4.8zm-2.6 3.4c-.2 0-.5.1-.7.4-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.9 4.5 3.9 2.2.8 2.7.7 3.1.6.5 0 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2-.1-.1-.3-.2-.6-.3l-1.9-.9c-.3-.1-.5-.1-.7.1l-.9 1.1c-.1.2-.3.2-.6.1-.3-.1-1.1-.4-2.1-1.3-.8-.7-1.3-1.5-1.5-1.8-.1-.3 0-.4.1-.5l.4-.5c.1-.1.2-.3.3-.4.1-.2 0-.3 0-.5l-.8-2c-.2-.5-.4-.5-.6-.5z")) },
+    { id: "fb", name: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${u}&quote=${t}`, icon: ico("#1877f2", W("M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H8v3h2.5V21z")) },
+    { id: "x", name: "X", href: `https://twitter.com/intent/tweet?text=${t}&url=${u}`, icon: ico("#111", W("M17.8 3h3l-6.6 7.5L22 21h-6l-4.7-6.1L5.9 21h-3l7-8L2.4 3h6.2l4.2 5.6zm-1 16.2h1.7L7.3 4.7H5.5z")) },
+    { id: "tg", name: "Telegram", href: `https://t.me/share/url?url=${u}&text=${t}`, icon: ico("#2aabee", W("M20.7 4.3L3.4 11c-1.2.5-1.1 1.1-.2 1.4l4.4 1.4 1.7 5.2c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.1-2 4.4 3.2c.8.4 1.4.2 1.6-.7l2.9-13.6c.3-1.1-.4-1.6-1.3-1.3zM9 13.5l9-5.6c.4-.3.8-.1.5.2l-7.4 6.7-.3 3z")) },
+    { id: "mail", name: rwL("Email", "이메일"), href: `mailto:?subject=${encodeURIComponent("Koala Study Mate — " + rwL("weekly report", "주간 리포트"))}&body=${both}`, icon: ico("#6b7a99", `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3.5 7.5l8.5 6 8.5-6"/></svg>`) },
+    { id: "sms", name: rwL("Message", "문자"), href: `sms:?&body=${both}`, icon: ico("#34c759", `<svg viewBox="0 0 24 24" width="26" height="26" fill="#fff" aria-hidden="true"><path d="M5 4h14a2 2 0 012 2v9a2 2 0 01-2 2h-8l-5 4v-4H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg>`) },
+  ];
+  const grid = items.map((i) => `<a class="pr-share-opt" href="${i.href}" target="_blank" rel="noopener noreferrer">${i.icon}<span>${i.name}</span></a>`).join("")
+    + `<button type="button" class="pr-share-opt" data-pr-copy>${ico("#22c9a4", `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="3"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/></svg>`)}<span>${rwL("Copy", "복사")}</span></button>`
+    + (navigator.share ? `<button type="button" class="pr-share-opt" data-pr-native>${ico("#9aa7a2", `<svg viewBox="0 0 24 24" width="26" height="26" fill="#fff" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>`)}<span>${rwL("More", "더 보기")}</span></button>` : "");
+  const el = showPrModal(`<div class="pr-modal-head"><span class="pr-modal-ico" aria-hidden="true">📤</span><h3>${rwL("Share report", "리포트 공유")}</h3></div>
+    <pre class="pr-share-preview">${escapeHtml(text)}</pre>
+    <div class="pr-share-grid">${grid}</div>`, "pr-modal-share");
+  el.addEventListener("click", async (e) => {
+    const copy = e.target.closest("[data-pr-copy]");
+    if (copy) {
+      const label = copy.querySelector("span:last-child");
+      try { await navigator.clipboard.writeText(text + "\n" + url); label.textContent = rwL("Copied!", "복사됨!"); }
+      catch (err) { label.textContent = rwL("Copy failed", "복사 실패"); }
+      setTimeout(() => { label.textContent = rwL("Copy", "복사"); }, 1600);
+    } else if (e.target.closest("[data-pr-native]")) {
+      navigator.share({ title: "Koala Study Mate", text, url }).catch(() => {});
+    }
+  });
+}
+
+// Calendar popup: pick the report period (tap a start day, then an end day).
+function openRangePicker() {
+  const b = parentBounds();
+  const today = prMidnight(new Date());
+  let from = new Date(b.from), to = new Date(b.to), picking = false;
+  let view = new Date(to.getFullYear(), to.getMonth(), 1);
+  const loc = currentLang === "ko" ? "ko-KR" : "en-AU";
+  const fmt = (d) => d.toLocaleDateString(loc, { day: "numeric", month: "short", year: "numeric" });
+  const same = (a, c) => a.getTime() === c.getTime();
+  const el = showPrModal(`<div class="pr-modal-head"><span class="pr-modal-ico" aria-hidden="true">📅</span><h3>${rwL("Report dates", "리포트 기간")}</h3></div>
+    <div class="pr-presets"><button type="button" data-pr-preset="7">${rwL("Last 7 days", "최근 7일")}</button><button type="button" data-pr-preset="prev7">${rwL("Week before", "그 전 주")}</button><button type="button" data-pr-preset="30">${rwL("Last 30 days", "최근 30일")}</button><button type="button" data-pr-preset="month">${rwL("This month", "이번 달")}</button></div>
+    <div class="pr-cal-nav"><button type="button" data-pr-nav="-1" aria-label="${rwL("Previous month", "이전 달")}">‹</button><b id="pr-cal-title"></b><button type="button" data-pr-nav="1" aria-label="${rwL("Next month", "다음 달")}">›</button></div>
+    <div class="pr-cal" id="pr-cal"></div>
+    <p class="pr-cal-sel" id="pr-cal-sel"></p>
+`, "pr-modal-cal");
+  const draw = () => {
+    el.querySelector("#pr-cal-title").textContent = view.toLocaleDateString(loc, { month: "long", year: "numeric" });
+    const first = new Date(view.getFullYear(), view.getMonth(), 1);
+    const lead = first.getDay();
+    const dim = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+    let h = "";
+    const wd = new Date(2023, 0, 1);
+    for (let i = 0; i < 7; i++) { const d = new Date(wd); d.setDate(1 + i); h += `<span class="pr-cal-wd">${d.toLocaleDateString(loc, { weekday: "narrow" })}</span>`; }
+    for (let i = 0; i < lead; i++) h += "<span></span>";
+    for (let n = 1; n <= dim; n++) {
+      const d = new Date(view.getFullYear(), view.getMonth(), n);
+      const fut = d > today;
+      const inR = d >= from && d <= to;
+      const cls = ["pr-cal-day", fut ? "is-future" : "", inR ? "in" : "", same(d, from) ? "start" : "", same(d, to) ? "end" : "", same(d, today) ? "today" : "", progress.daily && progress.daily[localDateKey(d)] ? "has" : ""].filter(Boolean).join(" ");
+      h += `<button type="button" class="${cls}" data-pr-day="${d.getTime()}"${fut ? " disabled" : ""}>${n}</button>`;
+    }
+    el.querySelector("#pr-cal").innerHTML = h;
+    const nTxt = Math.round((to - from) / PR_DAY) + 1;
+    el.querySelector("#pr-cal-sel").textContent = picking ? rwL("Now tap the last day", "마지막 날을 눌러 주세요") : `${fmt(from)} – ${fmt(to)} · ${nTxt} ${rwL(nTxt === 1 ? "day" : "days", "일")}`;
+  };
+  // The range applies as soon as it is complete (no OK button); the X closes the window.
+  const apply = () => {
+    const isDefault = same(to, today) && Math.round((to - from) / PR_DAY) === 6;
+    parentRange = isDefault ? null : { from, to };
+    renderParentPanel();
+  };
+  draw();
+  el.addEventListener("click", (e) => {
+    const day = e.target.closest("[data-pr-day]");
+    if (day) {
+      const d = new Date(Number(day.dataset.prDay));
+      if (!picking) { from = d; to = d; picking = true; }
+      else {
+        if (d < from) { to = from; from = d; } else { to = d; }
+        if ((to - from) / PR_DAY > 89) from = new Date(to.getTime() - 89 * PR_DAY);
+        picking = false;
+        apply();
+      }
+      draw(); return;
+    }
+    const nav = e.target.closest("[data-pr-nav]");
+    if (nav) { view = new Date(view.getFullYear(), view.getMonth() + Number(nav.dataset.prNav), 1); draw(); return; }
+    const pre = e.target.closest("[data-pr-preset]");
+    if (pre) {
+      const k = pre.dataset.prPreset;
+      if (k === "7") { to = new Date(today); from = new Date(today.getTime() - 6 * PR_DAY); }
+      else if (k === "prev7") { to = new Date(today.getTime() - 7 * PR_DAY); from = new Date(to.getTime() - 6 * PR_DAY); }
+      else if (k === "30") { to = new Date(today); from = new Date(today.getTime() - 29 * PR_DAY); }
+      else { to = new Date(today); from = new Date(today.getFullYear(), today.getMonth(), 1); }
+      picking = false; view = new Date(to.getFullYear(), to.getMonth(), 1); apply(); draw(); return;
+    }
+  });
+}
+
 statsPanels.parent.addEventListener("click", async (e) => {
+  const det = e.target.closest("[data-pr-detail]");
+  if (det) { const d = parentDetailContent(det.dataset.prDetail); if (d) showStatSheet(d, det); return; }
   const say = e.target.closest("[data-say]");
   if (say) { speak(say.dataset.say); return; }
-  const text = parentSummaryLines().join("\n");
-  if (e.target.closest("#pr-copy")) {
-    const btn = e.target.closest("#pr-copy");
-    try { await navigator.clipboard.writeText(text); btn.textContent = "✓ " + rwL("Copied!", "복사됨!"); }
-    catch (err) { btn.textContent = rwL("Copy failed", "복사 실패"); }
-    setTimeout(() => { btn.textContent = "📋 " + rwL("Copy summary", "요약 복사"); }, 1800);
-  } else if (e.target.closest("#pr-share")) {
-    // Phones/tablets: the system share sheet (iMessage, WhatsApp, KakaoTalk, …).
-    if (navigator.share) { navigator.share({ title: "Koala Study Mate", text, url: parentShareUrl() }).catch(() => {}); return; }
-    const menu = document.getElementById("pr-share-menu");
-    menu.hidden = !menu.hidden;
-    document.getElementById("pr-share").setAttribute("aria-expanded", menu.hidden ? "false" : "true");
-  }
-});
-document.addEventListener("click", (e) => {
-  const menu = document.getElementById("pr-share-menu");
-  if (menu && !menu.hidden && !e.target.closest(".pr-share-wrap")) {
-    menu.hidden = true;
-    const b = document.getElementById("pr-share");
-    if (b) b.setAttribute("aria-expanded", "false");
-  }
+  if (e.target.closest("#pr-send")) { openSendReport(); return; }
+  if (e.target.closest("#pr-share")) { openShareSheet(); return; }
+  if (e.target.closest("#pr-range-btn")) { openRangePicker(); }
 });
 
 

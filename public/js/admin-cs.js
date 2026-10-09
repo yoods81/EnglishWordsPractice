@@ -668,7 +668,7 @@
       <div class="admin-sheet-tiles">
         ${tile("📅", L("Joined", "가입일"), esc(formatDate(u.createdAt)))}
         ${tile(coinIco, L("Coins", "코인"), k ? esc(k.coins) : "–")}
-        ${tile("🔥", L("Streak", "연속"), k ? esc(k.streak) + esc(L("d", "일")) : "–")}
+        ${tile("🌿", L("Streak", "연속"), k ? esc(k.streak) + esc(L("d", "일")) : "–")}
         ${tile("💬", L("Open inquiries", "진행 중 문의"), esc(openCount), openCount ? "is-hot" : "")}
       </div>
       <div class="admin-sheet-emailrow"><span aria-hidden="true">✉️</span> ${u.email ? esc(u.email) : `<span class="muted">${esc(L("No email on file", "등록된 이메일 없음"))}</span>`}</div>

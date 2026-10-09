@@ -25,6 +25,8 @@
 		"MAIL_REPLY_TO": "admin@koalastudymate.com",
 		"APP_URL": "https://koalastudymate.com"
 	},
+	// Weekly parent report e-mails (for accounts that switched it on): Mondays 00:00 UTC.
+	"triggers": { "crons": ["0 0 * * 1"] },
 	// The Worker reads this as env.DB.
 	"d1_databases": [
 		{
