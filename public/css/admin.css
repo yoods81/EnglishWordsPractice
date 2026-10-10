@@ -1174,3 +1174,16 @@ html:root body .guest-coin-teaser .guest-signup-btn { margin-left: 6px; backgrou
 html:root body .manual-trial-note, html:root body .wrong-trial-note { margin: 0 0 10px; padding: 8px 12px; border-radius: 12px; background: #fff7e0; color: #7a5200; font-weight: 700; line-height: 1.45; }
 html:root body .manual-trial-note[hidden] { display: none; }
 html[data-theme="dark"]:root body .guest-coin-teaser, html[data-theme="dark"]:root body .manual-trial-note, html[data-theme="dark"]:root body .wrong-trial-note { background: #3a3220; color: #f6dc9a; }
+
+/* Round 41: sign-up notice inside the auth window; static (non-floating) wrong-notebook unlock button */
+html:root body .auth-notice { margin: 0 0 12px; padding: 10px 14px; border-radius: 14px; background: #e3f7ef; color: #0b6b57; font-family: var(--font-heading); font-weight: 700; font-size: .92rem; line-height: 1.5; text-align: center; }
+html:root body .auth-notice[hidden] { display: none; }
+html[data-theme="dark"]:root body .auth-notice { background: #24453b; color: #8fe3c8; }
+html[data-theme="ivory"]:root body .auth-notice { background: #f3ead2; color: #6b4e12; }
+html:root:root:root:root:root:root body #stats-panel-wrong .wrong-actions.wrong-actions-static { position: static !important; width: auto !important; margin: 14px 0 4px !important; padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; border-radius: 0 !important; }
+html:root:root:root:root:root:root body #stats-panel-wrong .wrong-actions.wrong-actions-static .wrong-unlock-btn {
+  flex: none; min-height: 48px !important; height: 48px !important; padding: 0 26px !important; border-radius: 999px !important; border: 0 !important; gap: 8px; font-size: 1rem; font-weight: 800; letter-spacing: .01em;
+  color: #fff !important; background: linear-gradient(135deg, #22c9a3 0%, #6ee0a8 100%) !important; box-shadow: 0 6px 16px rgba(34, 201, 163, .30) !important; transform: none;
+}
+html:root:root:root:root:root:root body #stats-panel-wrong .wrong-actions.wrong-actions-static .wrong-unlock-btn:active { transform: translateY(1px); box-shadow: 0 3px 8px rgba(34, 201, 163, .30) !important; }
+html:root:root:root:root:root:root body #stats-panel-wrong .wrong-actions.wrong-actions-static .wrong-unlock-btn .wt-lock { width: 18px; height: 18px; flex: none; }

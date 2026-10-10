@@ -2527,7 +2527,7 @@ function dailyRoundsBlocked(mode) {
   return dailyQuotaUsed(mode) >= 1;
 }
 function promptDailyRound() {
-  kidConfirm(t("dailyRoundGuest")).then((ok) => { if (ok) openAuthOverlay("signup"); });
+  promptSignup(t("dailyRoundGuest"));
 }
 function dailyQuotaRead() {
   const d = localDateKey(new Date());
@@ -2556,16 +2556,14 @@ function dailyQuotaAdd(mode, n = 1) {
 function promptDailyCap() {
   const cap = dailyQuotaCap();
   if (!currentUser) {
-    kidConfirm(t("dailyCapGuest", cap)).then((ok) => { if (ok) openAuthOverlay("signup"); });
+    promptSignup(t("dailyCapGuest", cap));
   } else {
-    kidConfirm(t("dailyCapFree", cap)).then((ok) => { if (ok) openUpgradeOverlay(); });
+    openUpgradeOverlay(t("dailyCapFree", cap));
   }
 }
 
 function promptSignupForMoreQuestions() {
-  kidConfirm(t("anonymousQuestionCapPrompt")).then((ok) => {
-    if (ok) openAuthOverlay("signup");
-  });
+  promptSignup(t("anonymousQuestionCapPrompt"));
 }
 
 // Shows the congratulations panel once a round's correct count reaches the
@@ -3521,9 +3519,20 @@ document.querySelectorAll(".bottom-tab-btn[data-group]").forEach((btn) => {
   });
 });
 
-function goToTab(view) {
+function goToTab(view, opts) {
   const previousBtn = document.querySelector(".tab-btn.active");
   const previousView = previousBtn ? previousBtn.dataset.view : null;
+  // Browser Back/Forward: every tab change is its own history entry, so Back
+  // returns to the page you were on instead of leaving the site.
+  if (!(opts && opts.fromPop)) {
+    try {
+      const cur = history.state && history.state.view;
+      if (cur !== view) {
+        if (!cur) history.replaceState({ view: previousView || "landing" }, "");
+        history.pushState({ view }, "");
+      }
+    } catch (e) { /* history unavailable: tabs still work */ }
+  }
   // Leaving mid-round freezes the game in place rather than ending it, so
   // switching tabs to check something doesn't cost the player their score.
   if (previousView === "typegame" && view !== "typegame") pauseTypeGame();
@@ -3555,6 +3564,18 @@ function goToTab(view) {
 
 const adminCodesTabButton = document.querySelector('.tab-btn[data-view="admincodes"]');
 
+// Back/Forward support (see goToTab). A reload keeps the old history state
+// but always opens on the landing view, so re-tag the current entry first.
+try { history.replaceState({ view: currentViewName() || "landing" }, ""); } catch (e) { /* ignore */ }
+window.addEventListener("popstate", (e) => {
+  const v = e.state && e.state.view;
+  if (!v || !document.getElementById("view-" + v)) return;
+  if (v === "admincodes" && !serverAdmin) return;
+  if (v === currentViewName()) return;
+  goToTab(v, { fromPop: true });
+  window.scrollTo(0, 0);
+});
+
 // Add Word / Flashcards / Word List / My Progress are all open to anyone to
 // browse — Quiz/Spelling/Typing Game already were. Only the account-specific
 // *actions* inside them (saving a word, building a custom flashcard deck,
@@ -3585,9 +3606,7 @@ function promptUpgradeForFeature() {
     openUpgradeOverlay();
     return;
   }
-  kidConfirm(t("anonymousPremiumFeaturePrompt")).then((ok) => {
-    if (ok) openAuthOverlay("signup");
-  });
+  promptSignup(t("anonymousPremiumFeaturePrompt"));
 }
 
 // Set once the Add Word section further down this file has its own DOM
@@ -4111,7 +4130,15 @@ function setAuthMode(mode) {
   resetError.hidden = true;
 }
 
-function openAuthOverlay(mode) {
+// Shows the real sign-up / log-in window with a short reason on top, instead of
+// a separate confirm popup — one consistent look for every "please sign up".
+function promptSignup(message) {
+  openAuthOverlay("signup", message);
+}
+
+function openAuthOverlay(mode, notice) {
+  const noticeEl = document.getElementById("auth-notice");
+  if (noticeEl) { noticeEl.textContent = notice || ""; noticeEl.hidden = !notice; }
   loginUsernameInput.value = "";
   loginPasswordInput.value = "";
   signupUsernameInput.value = "";
@@ -4935,7 +4962,9 @@ function renderUpgradeOverlayState() {
   if (status === "fulfilled") upgradeRequestFulfilledCode.textContent = pendingUpgradeRequest.code || "";
 }
 
-function openUpgradeOverlay() {
+function openUpgradeOverlay(notice) {
+  const upNotice = document.getElementById("upgrade-notice");
+  if (upNotice) { upNotice.textContent = typeof notice === "string" ? notice : ""; upNotice.hidden = typeof notice !== "string" || !notice; }
   document.getElementById("upgrade-pay-note").hidden = true;
   upgradeCodeInput.value = "";
   upgradeError.hidden = true;
@@ -6895,6 +6924,7 @@ let spellingTotalCountedWords = new Set(); // this round only — stops a retrie
 let spellingWrongThisRound = new Set(); // this round only — word had >=1 wrong attempt, so it can't earn "correct" credit this round
 let spellingCreditedWords = new Set(); // this round only — word already earned "correct" credit, so a duplicate/re-submitted check can't award it twice
 let spellingSessionWrongWords = new Map(); // word -> {word, meaning} — for the end-of-round report
+let spellingPassedIdx = new Set(); // this round only — deck positions already spelled right (drives the leaf bar and ends the round)
 let spellingCurrentChecked = false; // has the current word passed a "Check Answer" yet — gates the Next button
 
 // resetScreen: false is used when the round is being resized in place (the
@@ -6920,6 +6950,7 @@ function buildSpellingDeck({ resetScreen = true } = {}) {
   spellingWrongThisRound = new Set();
   spellingCreditedWords = new Set();
   spellingSessionWrongWords = new Map();
+  spellingPassedIdx = new Set();
   renderGoalStepper("spelling");
   updateSpellingScoreLabel();
   spellingInput.value = "";
@@ -7078,7 +7109,7 @@ function renderSpellingProgress(advanced = false) {
   const cur = Math.min(spellingIndex, n - 1);
   spellingProgressEl.textContent = t("spProgressLabel", cur + 1, n);
   const done = cur + (advanced ? 1 : 0);
-  const target = Math.min(spellingLeafTotal, Math.round((spellingScore.correct / n) * spellingLeafTotal)); // lit leaves = correct answers
+  const target = Math.min(spellingLeafTotal, Math.round((spellingPassedIdx.size / n) * spellingLeafTotal)); // lit leaves = words finished
   const leaves = spellingBranch.querySelectorAll(".sp-leaf");
   leaves.forEach((l, i) => {
     const eaten = i < target;
@@ -7480,6 +7511,7 @@ function checkSpellingAnswer() {
       progress.spelling.correct++;
       progress.spellingStatus[current.word] = "correct";
     }
+    spellingPassedIdx.add(spellingIndex);
     saveProgress();
     updateSpellingScoreLabel();
     spellingInput.className = "correct";
@@ -7499,7 +7531,8 @@ function checkSpellingAnswer() {
     spellingNextBtn.disabled = false;
 
     const goal = effectiveGoal("spelling", spellingDeck.length);
-    if (goal && !spellingGoalCelebrated && spellingScore.correct >= goal) {
+    const lastWord = spellingIndex >= spellingDeck.length - 1;
+    if (!spellingGoalCelebrated && ((goal && spellingScore.correct >= goal) || lastWord)) {
       spellingGoalCelebrated = true;
       setTimeout(() => { if (!spellingPractice.hidden) renderSpellingReport(); }, 1800);
     }
@@ -7528,6 +7561,13 @@ function checkSpellingAnswer() {
 
 function goToNextSpellingWord() {
   if (!spellingCurrentChecked) return;
+  // Past the last word the round is over — go to the report instead of
+  // reshuffling the same words back in (that made rounds endless).
+  if (spellingIndex >= spellingDeck.length - 1) {
+    spellingGoalCelebrated = true;
+    renderSpellingReport();
+    return;
+  }
   spellingIndex++;
   loadSpellingWord();
   spellingReact("next", "spLiveNext");
@@ -12591,7 +12631,9 @@ function updatePaidFeatureGates() {
   } else if (trialNote) {
     trialNote.hidden = true;
   }
-  addwordLockBanner.hidden = !locked;
+  // Free accounts can use the manual form (10-word trial), so the viewport-centred
+  // lock banner must not sit on top of it; the dimmed photo card still prompts on tap.
+  addwordLockBanner.hidden = !locked || trialOpen;
   setPremiumGate(statsInsightsCard, statsPremiumOverlay, locked);
 
   // The premium-gate overlay blocks a mouse/touch click on everything under
@@ -15389,7 +15431,7 @@ function renderWrongPanel() {
       <button type="button" class="wrong-remove" data-remove="${escapeHtml(it.key)}" aria-label="${rwL("Remove", "삭제")}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></li>`;
   });
   html += `</ul>
-    ${wrongTrial ? `<p class="wrong-hint wrong-trial-note">${t("wrongTrialNote")}</p><div class="wrong-actions"><button type="button" class="pill accent small" data-rw-upgrade>${t("wrongTrialBtn")}</button></div>` : `<div class="wrong-actions">${studyBtn}<button type="button" class="pill accent small" id="wrong-review-btn"><span class="go-label">${rwL("Start review", "복습 시작")}</span><span class="go-disc"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span></button></div>`}`;
+    ${wrongTrial ? `<p class="wrong-hint wrong-trial-note">${t("wrongTrialNote")}</p><div class="wrong-actions wrong-actions-static"><button type="button" class="pill accent small wrong-unlock-btn" data-rw-upgrade><svg class="wt-lock" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2.5" fill="currentColor" stroke="none"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>${t("wrongTrialBtn")}</span></button></div>` : `<div class="wrong-actions">${studyBtn}<button type="button" class="pill accent small" id="wrong-review-btn"><span class="go-label">${rwL("Start review", "복습 시작")}</span><span class="go-disc"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span></button></div>`}`;
   el.innerHTML = html;
 }
 
