@@ -762,3 +762,415 @@ html:root[data-theme="dark"] body #view-myaccount .stat-box { background: #24372
 html:root body #view-koala .koala-wallet-top > div { display: flex; align-items: center; flex-wrap: wrap; column-gap: 14px; row-gap: 2px; min-width: 0; }
 html:root body #view-koala .koala-wallet-val { font-size: 2rem; }
 html:root body #view-koala .koala-wallet-lbl { font-size: 1.05rem; }
+
+/* Round 14: the send-report window closes with Cancel only */
+.pr-modal-send > .stat-sheet-close { display: none; }
+.pr-modal-send .pr-modal-head { margin-right: 0; }
+
+/* Round 15: "My added words" header (Option F) — Edit mode, Select All + Delete row */
+html:root body #my-added-words-card .my-added-words-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 10px; }
+html:root body #my-added-words-card .my-added-words-header-actions { display: flex; flex-wrap: wrap; gap: 8px; width: auto; margin-left: auto; justify-content: flex-end; }
+html:root body #my-added-words-card .my-added-words-header-actions > :is(#custom-word-mgmt-select, #custom-export-btn, #custom-upload-btn) { width: auto; height: 36px; min-height: 36px; }
+html:root body #my-added-words-card #custom-edit-toggle {
+  height: 36px; min-height: 36px; padding: 0 18px; border: 0 !important; border-radius: 12px; box-shadow: none !important;
+  background: #22c9a4 !important; color: #fff !important; font-weight: 800; font-size: .9rem; width: auto;
+}
+html:root body #my-added-words-card #custom-edit-toggle.is-done { background: #d3f0e5 !important; color: #0b6b57 !important; }
+html:root body #my-added-words-card .cw-select-row { display: flex; align-items: center; gap: 8px; margin: 10px 0 4px; }
+html:root body #my-added-words-card .cw-select-row[hidden] { display: none; }
+html:root body #my-added-words-card .cw-select-row :is(.select-all-toggle, #custom-delete-selected-btn) {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 36px; min-height: 36px; padding: 0 14px; margin: 0;
+  border: 0 !important; border-radius: 999px; box-shadow: none !important; font-family: inherit; font-size: .88rem; font-weight: 800; line-height: 1; width: auto; white-space: nowrap;
+}
+html:root body #my-added-words-card .cw-select-row .select-all-toggle { background: #d3f0e5; color: #0b6b57; }
+html:root body #my-added-words-card .cw-select-row .select-all-toggle input { width: 18px; height: 18px; margin: 0; }
+html:root body #my-added-words-card .cw-select-row #custom-delete-selected-btn { background: #ffd9d9; color: #b84b4b; }
+html:root body #my-added-words-card .cw-select-row #custom-delete-selected-btn:disabled { opacity: .55; }
+html:root body #my-added-words-card .cw-select-row #custom-delete-selected-btn.error:not(:disabled) { background: #ff8f8f; color: #fff; }
+html:root body #my-added-words-card .cw-select-count { margin-left: auto; font-size: .85rem; font-weight: 800; color: #0b6b57; }
+html:root[data-theme="dark"] body #my-added-words-card .cw-select-row .select-all-toggle { background: #24453b; color: #6ff0cf; }
+html:root[data-theme="dark"] body #my-added-words-card #custom-edit-toggle.is-done { background: #24453b !important; color: #6ff0cf !important; }
+html:root[data-theme="dark"] body #my-added-words-card .cw-select-count { color: #6ff0cf; }
+html:root body #my-added-words-card .my-added-words-header > h3 { flex: 1 1 170px; width: auto; min-width: 0; margin: 0; }
+html:root body #my-added-words-card .my-added-words-header-actions { flex: 0 1 auto; }
+
+/* Round 16: admin pages */
+/* coin "Recent adjustments": no outline, each row a tinted card */
+html:root body #view-admincodes #admin-koala-recent { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+html:root body #view-admincodes #admin-koala-recent .admin-koala-log-row {
+  border: 0 !important; box-shadow: none !important; background: #eef6f2 !important; border-radius: 14px; padding: 12px 14px; margin: 0;
+}
+html:root[data-theme="dark"] body #view-admincodes #admin-koala-recent .admin-koala-log-row { background: #243730 !important; }
+/* sign-up codes: the row wraps on phones instead of being cut off, no sideways scrollbar */
+html:root body #admin-codes-grid { overflow: visible; }
+html:root body #admin-codes-grid .wordlist-item { flex-wrap: wrap; row-gap: 8px; min-width: 0; overflow: visible; }
+html:root body #admin-codes-grid .wordlist-item-main { flex: 1 1 200px; min-width: 0; }
+html:root body #admin-codes-grid .wordlist-item > div:last-child { margin-left: auto; }
+@media (max-width: 520px) {
+  html:root body #admin-codes-grid .admin-code-text { font-size: .9rem; letter-spacing: 0; }
+}
+/* recent emails: show the whole list instead of a clipped scroll box */
+html:root body #view-admincodes .admin-email-log { max-height: none; overflow: visible; display: grid; gap: 8px; border: 0 !important; background: transparent !important; box-shadow: none !important; }
+html:root body #view-admincodes .admin-email-log-row { border-radius: 12px; border-bottom: 0; }
+html:root body #view-admincodes .admin-email-log-row:nth-child(even) { background: #eef6f2 !important; }
+
+/* Round 18: admin Settings tab - email system tidy (flat tiles, no nested card, readable log) */
+html:root body #view-admincodes #admin-email-details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; background: transparent !important; box-shadow: none !important; border: 0 !important; padding: 0; margin: 0 0 18px; overflow: visible; border-radius: 0; }
+html:root body #view-admincodes #admin-email-details .aed-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; padding: 10px 14px; border-radius: 14px; border: 0; font-size: .78rem; grid-column: span 2; }
+html:root body #view-admincodes #admin-email-details .aed-row:nth-child(n+4) { grid-column: span 1; }
+html:root body #view-admincodes #admin-email-details .aed-row b { white-space: normal; overflow-wrap: anywhere; font-size: .95rem; }
+html:root body #view-admincodes #admin-email-test-form { background: transparent !important; box-shadow: none !important; border: 0 !important; padding: 0; margin: 0 0 6px; }
+html:root body #view-admincodes #admin-email-test-form input { max-width: none; }
+html:root body #view-admincodes .admin-email-log-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "when st" "to st"; gap: 2px 10px; align-items: center; padding: 10px 14px; }
+html:root body #view-admincodes .admin-email-log-row > span:nth-child(1) { grid-area: when; color: var(--muted); font-size: .74rem; }
+html:root body #view-admincodes .admin-email-log-row > .to { grid-area: to; font-weight: 600; word-break: normal; overflow-wrap: anywhere; }
+html:root body #view-admincodes .admin-email-log-row > :is(.st-sent, .st-failed) { grid-area: st; font-size: 1.1rem; }
+html:root body #view-admincodes .admin-email-log-row .err { grid-column: 1 / -1; grid-area: auto; }
+html:root body #view-admincodes .admin-email-log-row:nth-child(even) { background: #eef6f2 !important; }
+
+/* Round 19: mobile - code + Copy/Delete on one line */
+@media (max-width: 520px) {
+  html:root body #admin-codes-grid .wordlist-item { flex-wrap: nowrap; align-items: center; gap: 8px; padding: 10px 10px 10px 12px; }
+  html:root body #admin-codes-grid .wordlist-item-main { flex: 1 1 auto; min-width: 0; }
+  html:root body #admin-codes-grid .admin-code-text { font-size: .8rem; letter-spacing: 0; white-space: nowrap; }
+  html:root body #admin-codes-grid .wordlist-item > div:last-child { margin-left: 0; flex: 0 0 auto; }
+  html:root body #admin-codes-grid .wordlist-item > div:last-child > div { gap: 4px !important; flex-wrap: nowrap; }
+  html:root body #admin-codes-grid .wordlist-item button { padding: 7px 10px; font-size: .78rem; white-space: nowrap; min-height: 0; }
+}
+
+/* Round 20: mobile - compact coin log cards (2 lines: date/user/amount, reason/status) */
+@media (max-width: 640px) {
+  html:root body #view-admincodes #admin-koala-recent .admin-koala-log-row { grid-template-columns: 58px minmax(0, 1fr) auto; grid-template-areas: "date user amount" "reason reason status"; gap: 2px 10px; padding: 9px 14px; }
+  html:root body #view-admincodes #admin-koala-recent .admin-koala-log-date { grid-area: date; }
+  html:root body #view-admincodes #admin-koala-recent .admin-koala-log-user { grid-area: user; }
+  html:root body #view-admincodes #admin-koala-recent .admin-koala-log-amount { grid-area: amount; justify-self: end; }
+  html:root body #view-admincodes #admin-koala-recent .admin-koala-log-reason { grid-area: reason; grid-column: auto; }
+  html:root body #view-admincodes #admin-koala-recent .admin-koala-log-status { grid-area: status; grid-column: auto; justify-self: end; }
+}
+
+/* Round 21: desktop - coins tab column headers line up with the rows (fixed column widths shared by head + rows) */
+@media (min-width: 901px) {
+  html:root body #view-admincodes :is(.admin-koala-table-head, .admin-koala-table-row) { grid-template-columns: minmax(120px, 1fr) 110px 310px 160px; column-gap: 12px; }
+  html:root body #view-admincodes .admin-koala-table-head { padding: 0 14px 6px; }
+  html:root body #view-admincodes .admin-koala-table-row { padding: 6px 14px; }
+}
+@media (min-width: 641px) {
+  html:root body #view-admincodes :is(.admin-koala-log-head, #admin-koala-recent .admin-koala-log-row) { grid-template-columns: 76px minmax(90px, 1fr) 110px minmax(100px, 1.3fr) 90px; column-gap: 12px; }
+  html:root body #view-admincodes .admin-koala-log-head { padding: 0 14px; }
+  html:root body #view-admincodes #admin-koala-recent .admin-koala-log-status { justify-self: start; }
+}
+@media (min-width: 901px) { html:root body #view-admincodes .admin-koala-table-head > span:last-child { text-align: right; } }
+
+/* Round 22: login / sign-up modal - flat buttons, no cut-off on big screens, amber sign-up colour, plan rows */
+html:root body #auth-overlay .auth-card { max-height: calc(100dvh - 32px); overflow-y: auto; max-width: 400px; }
+html:root body #auth-overlay :is(button.pill, .plan-card, .auth-link) { border: 0 !important; box-shadow: none !important; --pill-shadow: transparent; }
+html:root body #auth-overlay button.pill.neutral { background: #eef6f2; color: var(--text); }
+html:root[data-theme="dark"] body #auth-overlay button.pill.neutral { background: #243730; color: #e8f3ee; }
+/* sign-up uses a warm amber, clearly different from the mint Log In button */
+html:root body #auth-overlay button.pill.primary { background: #ffbf47; color: #4a3000; }
+html:root body #auth-overlay button.pill.primary:hover { background: #ffb324; }
+html:root body #auth-overlay button.pill.primary:disabled { opacity: .6; }
+/* plan picker: two full-width rows, title never wraps */
+html:root body #auth-overlay .plan-picker { grid-template-columns: minmax(0, 1fr); gap: 8px; margin-bottom: 8px; }
+html:root body #auth-overlay .plan-card { display: grid; grid-template-columns: minmax(0, 1fr) 22px; column-gap: 12px; row-gap: 2px; align-items: center; padding: 12px 14px; border-radius: 16px; background: #eef6f2; }
+html:root body #auth-overlay .plan-card strong { grid-column: 1; font-size: .95rem; white-space: nowrap; }
+html:root body #auth-overlay .plan-card span { grid-column: 1; font-size: .78rem; }
+html:root body #auth-overlay .plan-card::after { content: ""; grid-column: 2; grid-row: 1 / span 2; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 2px #b9d8cd; }
+html:root body #auth-overlay .plan-card.is-active { background: #d6f3e7; box-shadow: none !important; }
+html:root body #auth-overlay .plan-card.is-active::after { background: var(--accent-dark) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-6.5' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 20px no-repeat; box-shadow: none; }
+html:root body #auth-overlay #signup-plan-premium-btn { background: #fff4d6; }
+html:root body #auth-overlay #signup-plan-premium-btn::after { box-shadow: inset 0 0 0 2px #f0cf86; }
+html:root body #auth-overlay #signup-plan-premium-btn.is-active { background: #ffe9a8; }
+html:root body #auth-overlay #signup-plan-premium-btn.is-active::after { background-color: #e39a00; }
+html:root[data-theme="dark"] body #auth-overlay .plan-card { background: #243730; }
+html:root[data-theme="dark"] body #auth-overlay .plan-card.is-active { background: #2f5a49; }
+html:root[data-theme="dark"] body #auth-overlay #signup-plan-premium-btn { background: #3a3220; }
+html:root[data-theme="dark"] body #auth-overlay #signup-plan-premium-btn.is-active { background: #5a4818; }
+
+/* Round 23: login / sign-up modal, layout G (brand panel left, form right; stacks on phones) */
+html:root body #auth-overlay .auth-card { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); max-width: 600px; padding: 0; overflow: hidden; }
+html:root body #auth-overlay .auth-main { padding: 22px 22px 20px; overflow-y: auto; max-height: calc(100dvh - 32px); min-width: 0; }
+html:root body #auth-overlay .auth-main > h2 { display: none; }
+html:root body #auth-overlay .auth-brand { background: #d6f3e7; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; }
+html:root body #auth-overlay .auth-brand-logo { width: 92px; height: 92px; }
+html:root body #auth-overlay .auth-brand-name { margin: 0; font-family: var(--font-heading); font-size: 1.1rem; line-height: 1.2; color: #23403a; }
+html:root body #auth-overlay .auth-brand-tag { margin: 0; font-size: .8rem; line-height: 1.5; color: #5f7d75; white-space: pre-line; }
+html:root body #auth-overlay .auth-brand-pills { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+html:root body #auth-overlay .auth-brand-pills span { background: #fff; color: #0e9c7d; border-radius: 999px; padding: 5px 10px; font-size: .72rem; font-weight: 700; }
+html:root[data-theme="dark"] body #auth-overlay .auth-brand { background: #254a3d; }
+html:root[data-theme="dark"] body #auth-overlay .auth-brand-name { color: #e6f3ee; }
+html:root[data-theme="dark"] body #auth-overlay .auth-brand-tag { color: #93b0a8; }
+html:root[data-theme="dark"] body #auth-overlay .auth-brand-pills span { background: #1d302a; color: #8fe3c8; }
+@media (max-width: 640px) {
+  html:root body #auth-overlay .auth-card { grid-template-columns: minmax(0, 1fr); max-width: 400px; max-height: calc(100dvh - 32px); overflow-y: auto; }
+  html:root body #auth-overlay .auth-main { max-height: none; overflow: visible; padding: 16px 18px 20px; }
+  /* sign-up and recovery screens are long: keep the brand strip compact */
+  html:root body #auth-overlay .auth-card:not(:has(#login-form:not([hidden]))) .auth-brand { flex-direction: row; justify-content: flex-start; padding: 12px 18px; gap: 12px; }
+  html:root body #auth-overlay .auth-card:not(:has(#login-form:not([hidden]))) :is(.auth-brand-tag, .auth-brand-pills) { display: none; }
+  html:root body #auth-overlay .auth-card:not(:has(#login-form:not([hidden]))) .auth-brand-logo { width: 44px; height: 44px; }
+}
+@media (max-width: 480px) {
+  html:root body #auth-overlay .auth-card { max-width: none; max-height: 90dvh; border-radius: 22px 22px 0 0; }
+}
+
+/* Round 24: sign-up marketing - Premium benefits (left panel on desktop, under the plan cards on phones) */
+html:root body #auth-overlay .auth-perks { display: none; width: 100%; text-align: left; }
+html:root body #auth-overlay .auth-card:has(#signup-form:not([hidden])) .auth-brand { justify-content: flex-start; padding-top: 28px; background: linear-gradient(180deg, #d6f3e7, #fff1c8 100%); }
+html:root body #auth-overlay .auth-card:has(#signup-form:not([hidden])) :is(.auth-brand-tag, .auth-brand-pills) { display: none; }
+html:root body #auth-overlay .auth-card:has(#signup-form:not([hidden])) .auth-perks { display: block; margin-top: 4px; }
+html:root body #auth-overlay .auth-perks-badge { display: inline-block; background: #ffbf47; color: #4a3000; font-family: var(--font-heading); font-weight: 700; font-size: .95rem; border-radius: 999px; padding: 6px 14px; }
+html:root body #auth-overlay .auth-perks-sub { margin: 8px 0 10px; font-size: .8rem; color: #5f7d75; font-weight: 600; }
+html:root body #auth-overlay :is(.auth-perks ul, ul.plan-perks) { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+html:root body #auth-overlay :is(.auth-perks, .plan-perks) li { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.85); border-radius: 14px; padding: 8px 10px; font-size: .84rem; font-weight: 700; line-height: 1.3; color: #23403a; }
+html:root body #auth-overlay :is(.auth-perks, .plan-perks) li i { font-style: normal; flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: #ffe9a8; font-size: 1.05rem; }
+html:root body #auth-overlay ul.plan-perks { display: none; }
+html:root body #auth-overlay :is(.auth-perks ul) { display: grid; }
+@media (max-width: 640px) {
+  html:root body #auth-overlay .auth-card:has(#signup-form:not([hidden])) .auth-perks { display: none; }
+  html:root body #auth-overlay .auth-card:has(#signup-form:not([hidden])) .auth-brand { background: #d6f3e7; }
+  html:root body #auth-overlay #signup-form:has(#signup-plan-premium-btn.is-active) ul.plan-perks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 0 0 8px; padding: 10px; background: #fff4d6; border-radius: 16px; }
+  html:root body #auth-overlay .plan-perks li { background: #fff; padding: 6px 8px; font-size: .74rem; gap: 7px; }
+  html:root body #auth-overlay .plan-perks li i { width: 26px; height: 26px; font-size: .9rem; }
+}
+html:root[data-theme="dark"] body #auth-overlay .auth-card:has(#signup-form:not([hidden])) .auth-brand { background: linear-gradient(180deg, #254a3d, #4a3c18); }
+html:root[data-theme="dark"] body #auth-overlay .auth-perks-sub { color: #b9d2c9; }
+html:root[data-theme="dark"] body #auth-overlay :is(.auth-perks, .plan-perks) li { background: rgba(0,0,0,.25); color: #e6f3ee; }
+html:root[data-theme="dark"] body #auth-overlay :is(.auth-perks, .plan-perks) li i { background: #5a4818; }
+@media (max-width: 640px) { html:root[data-theme="dark"] body #auth-overlay #signup-form:has(#signup-plan-premium-btn.is-active) .plan-perks { background: #3a3220; } }
+
+/* Round 25: perks panel - centred badge with space below the title, icons without circles */
+html:root body #auth-overlay .auth-perks { text-align: center; }
+html:root body #auth-overlay .auth-card:has(#signup-form:not([hidden])) .auth-perks { margin-top: 30px; }
+html:root body #auth-overlay :is(.auth-perks, .plan-perks) li { text-align: left; }
+html:root body #auth-overlay :is(.auth-perks, .plan-perks) li i { background: none !important; width: 30px; height: 30px; font-size: 1.45rem; border-radius: 0; }
+html:root body #auth-overlay .plan-perks li i { width: 26px; height: 26px; font-size: 1.2rem; }
+html:root body #auth-overlay :is(.auth-perks, .plan-perks) li i svg { width: 28px; height: 18px; }
+
+/* Round 26: home screen - flat pills (no outline or shadow), header login button matches the popup's mint Login button */
+html:root body :is(#auth-toggle, #level-badge, #streak-chip, #view-landing .mission-go, #promo-btn, .sp-start-btn) { border: 0 !important; box-shadow: none !important; --pill-shadow: transparent; }
+html:root body #auth-toggle { background: var(--accent); color: #fff; font-family: var(--font-heading); font-weight: 700; padding: 8px 18px; font-size: .85rem; }
+html:root body #auth-toggle.auth-toggle-active { background: #d6f3e7; color: #0b6b57; }
+html:root body #auth-toggle.auth-toggle-admin { background: #0b6b57; color: #fff; }
+html:root body :is(#level-badge, #streak-chip) { background: #d6f3e7; color: #0b6b57; }
+html:root[data-theme="dark"] body #auth-toggle.auth-toggle-active { background: #254a3d; color: #8fe3c8; }
+html:root[data-theme="dark"] body :is(#level-badge, #streak-chip) { background: #254a3d; color: #8fe3c8; }
+
+/* Round 27: top navigation (capsule trough) and the phone bottom bar, same colours, no outlines or shadows */
+html:root body nav.tabs { background: #d6f3e7; border-radius: 999px; padding: 5px; gap: 2px; overflow-x: auto; }
+html:root body nav.tabs button { border: 0 !important; box-shadow: none !important; background: transparent; color: #0b6b57; padding: 8px 14px; font-size: .8rem; transform: none; }
+html:root body nav.tabs button:hover { background: rgba(34, 201, 163, .18); transform: none; }
+html:root body :is(nav.tabs button.active, nav.tabs button.tab-btn-highlight.active, nav.tabs button[data-view="admincodes"].active, .tab-group-trigger.has-active) { background: var(--accent); color: #fff; }
+html:root body .tab-group-trigger { gap: 4px; }
+html:root body .tab-dropdown { border: 0 !important; background: #d6f3e7; border-radius: 18px; padding: 6px; }
+html:root body .tab-dropdown-item { background: transparent; color: #0b6b57; border: 0 !important; box-shadow: none !important; transform: none; padding: 8px 14px; }
+html:root body .tab-dropdown-item:hover { background: var(--accent); color: #fff; transform: none; }
+html:root[data-theme="dark"] body nav.tabs, html:root[data-theme="dark"] body .tab-dropdown { background: #254a3d; }
+html:root[data-theme="dark"] body nav.tabs button, html:root[data-theme="dark"] body .tab-dropdown-item { color: #8fe3c8; }
+html:root[data-theme="dark"] body :is(nav.tabs button.active, nav.tabs button.tab-btn-highlight.active, .tab-group-trigger.has-active) { background: var(--accent); color: #06382d; }
+@media (max-width: 480px) {
+  html:root body .bottom-tabs { background: #d6f3e7; border-top: 0; border-radius: 22px 22px 0 0; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); gap: 2px; }
+  html:root body .bottom-tab-btn { color: #0b6b57; border-radius: 16px; }
+  html:root body :is(.bottom-tab-btn.active, .bottom-tab-btn.has-active, .bottom-tab-btn-highlight.active, .bottom-tab-btn-highlight.has-active) { background: var(--accent); color: #fff; box-shadow: none; }
+  html:root body .bottom-tab-badge { border: 0; box-shadow: none; }
+  html:root[data-theme="dark"] body .bottom-tabs { background: #254a3d; }
+  html:root[data-theme="dark"] body .bottom-tab-btn { color: #8fe3c8; }
+  html:root[data-theme="dark"] body :is(.bottom-tab-btn.active, .bottom-tab-btn.has-active, .bottom-tab-btn-highlight.active, .bottom-tab-btn-highlight.has-active) { background: var(--accent); color: #06382d; }
+}
+@media (max-width: 480px) {
+  html:root body .mode-tabs:not([hidden]) { background: #d6f3e7; border: 0; padding: 5px; }
+  html:root body .mode-tab { color: #0b6b57; }
+  html:root body .mode-tab.active { background: var(--accent); color: #fff; box-shadow: none; }
+  html:root[data-theme="dark"] body .mode-tabs:not([hidden]) { background: #254a3d; }
+  html:root[data-theme="dark"] body .mode-tab { color: #8fe3c8; }
+  html:root[data-theme="dark"] body .mode-tab.active { color: #06382d; }
+}
+
+/* Round 28: level prompt (blinking badge), My Account level picker, header login colour, review Start button */
+html:root body #level-badge.level-badge-prompt { background: #ffbf47; color: #4a3000; animation: level-prompt-blink 1.1s ease-in-out infinite; }
+@keyframes level-prompt-blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .45; transform: scale(1.05); } }
+@media (prefers-reduced-motion: reduce) { html:root body #level-badge.level-badge-prompt { animation: none; } }
+/* a signed-in account with no level saved still sees the prompt (the rest of the stat bar stays hidden) */
+body.signed-in.level-needed .stat-bar { display: flex; justify-content: center; align-items: center; }
+body.signed-in.level-needed .stat-bar #streak-chip { display: none; }
+html:root body .acct-level-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 6px; }
+html:root body .acct-level-choice { border: 0 !important; box-shadow: none !important; background: #eef6f2; border-radius: 16px; padding: 12px 14px; text-align: left; cursor: pointer; display: grid; gap: 2px; font: inherit; color: var(--text); }
+html:root body .acct-level-choice strong { font-family: var(--font-heading); font-size: .95rem; }
+html:root body .acct-level-choice span { font-size: .75rem; color: var(--muted); }
+html:root body .acct-level-choice.is-active { background: var(--accent); color: #fff; }
+html:root body .acct-level-choice.is-active span { color: rgba(255, 255, 255, .9); }
+html:root[data-theme="dark"] body .acct-level-choice { background: #243730; }
+html:root[data-theme="dark"] body .acct-level-choice.is-active { background: var(--accent); color: #06382d; }
+html:root body #auth-toggle.auth-toggle-active { background: #0e9c7d; color: #fff; }
+html:root body #auth-toggle.auth-toggle-admin { background: #0b4f41; color: #fff; }
+html:root[data-theme="dark"] body #auth-toggle.auth-toggle-active { background: #1fb28a; color: #06382d; }
+html:root body #review-card-btn { border: 0 !important; box-shadow: none !important; --pill-shadow: transparent; }
+
+/* Round 29: level dropdown (replaces the popup), bigger readable badge, kid-friendly hero line */
+html:root body .level-dd { position: relative; display: inline-block; }
+html:root body #level-badge { font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif; font-weight: 800; font-size: 1rem; padding: 9px 20px; letter-spacing: -.01em; }
+html:root body .level-menu { position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); z-index: 60; min-width: 260px; max-width: calc(100vw - 32px); background: #fff; border-radius: 18px; padding: 8px; display: flex; flex-direction: column; gap: 4px; text-align: left; font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif; }
+html:root body .level-menu[hidden] { display: none; }
+html:root body .level-menu-item { display: flex; flex-direction: column; gap: 2px; width: 100%; border: 0 !important; box-shadow: none !important; background: transparent; color: #0b6b57; padding: 11px 16px; border-radius: 12px; cursor: pointer; font: inherit; text-align: left; }
+html:root body .level-menu-item strong { font-size: 1.08rem; font-weight: 800; }
+html:root body .level-menu-item span { font-size: .92rem; font-weight: 500; color: #4d6b62; }
+html:root body .level-menu-item:hover, html:root body .level-menu-item:focus-visible { background: #d6f3e7; outline: 0; }
+html:root body .level-menu-item.is-active { background: var(--accent); color: #fff; }
+html:root body .level-menu-item.is-active span { color: #e8fff8; }
+html:root[data-theme="dark"] body .level-menu { background: #1b3329; }
+html:root[data-theme="dark"] body .level-menu-item { color: #8fe3c8; }
+html:root[data-theme="dark"] body .level-menu-item span { color: #9bbdb0; }
+html:root[data-theme="dark"] body .level-menu-item:hover, html:root[data-theme="dark"] body .level-menu-item:focus-visible { background: #254a3d; }
+html:root[data-theme="dark"] body .level-menu-item.is-active { background: var(--accent); color: #06382d; }
+html:root[data-theme="ivory"] body .level-menu { background: #fffaf0; }
+html:root body .hero-sub { font-family: var(--font-heading); font-size: clamp(1.1rem, 4.6vw, 1.45rem); font-weight: 700; line-height: 1.35; max-width: 460px; color: var(--accent-dark); text-wrap: balance; }
+html:root[lang="ko"] body .hero-sub { font-family: "Jua", var(--font-heading), "Malgun Gothic", sans-serif; font-weight: 400; font-size: clamp(1.15rem, 4.8vw, 1.55rem); }
+
+/* Round 30: review Start buttons: mint pill, label left, white play disc right; flat (no outline or shadow) in all three places */
+html:root:root:root:root:root body #stats-panel-wrong .wrong-actions { background: #d6f3e7; border: 0; box-shadow: none; }
+html:root[data-theme="dark"]:root:root:root body #stats-panel-wrong .wrong-actions { background: #254a3d; border: 0; }
+html:root:root:root:root:root body #wrong-study-btn { background: #fff; color: #0b6b57; border: 0 !important; box-shadow: none !important; border-radius: 999px; transform: none; }
+html:root[data-theme="dark"]:root:root:root body #wrong-study-btn { background: #1b3329; color: #8fe3c8; }
+html:root:root:root:root:root body #wrong-review-btn,
+html:root:root:root:root:root body #review-card-btn,
+html:root:root:root:root:root body #view-stats .dash-rec button.dash-rec-btn { display: inline-flex !important; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; background: #22c9a3 !important; color: #fff !important; border: 0 !important; box-shadow: none !important; border-radius: 999px !important; padding: 6px 6px 6px 20px !important; width: auto; height: auto; min-height: 46px !important; font-family: var(--font-heading); font-weight: 700; transform: none; cursor: pointer; }
+html:root:root:root:root:root body #wrong-review-btn:active,
+html:root:root:root:root:root body #review-card-btn:active,
+html:root:root:root:root:root body #view-stats .dash-rec button.dash-rec-btn:active { transform: scale(.97); box-shadow: none !important; }
+html:root:root:root:root:root body #wrong-review-btn .go-disc,
+html:root:root:root:root:root body #review-card-btn .go-disc { width: 34px; height: 34px; border-radius: 50%; background: #fff; color: #0e9c7d; display: grid; place-items: center; flex: none; }
+html:root:root:root:root:root body :is(#wrong-review-btn, #review-card-btn) .go-disc svg { width: 16px; height: 16px; }
+html:root:root:root:root:root body #wrong-review-btn { flex: none; justify-content: flex-start; gap: 14px; }
+html:root:root:root:root:root body #review-card-btn { font-size: .92rem; min-height: 40px !important; padding: 5px 5px 5px 16px !important; gap: 10px; flex: none; }
+html:root:root:root:root:root body #review-card-btn .go-disc { width: 30px; height: 30px; }
+html:root:root:root:root:root body #view-stats .dash-rec button.dash-rec-btn { margin: 12px auto 0; font-size: .92rem; min-height: 40px !important; padding: 5px 5px 5px 16px !important; }
+html:root:root:root:root:root body #view-stats .dash-rec button.dash-rec-btn .dash-rec-btn-ico { display: grid; place-items: center; line-height: 0; flex: none; }
+html:root:root:root:root:root body #view-stats .dash-rec button.dash-rec-btn .dash-rec-svg { width: 30px; height: 30px; }
+html:root:root:root:root:root body #view-stats .dash-rec button.dash-rec-btn .dash-rec-btn-txt { order: -1; color: #fff; font-size: .92rem; font-weight: 700; }
+html:root:root:root:root:root body #view-stats .dash-rec .dash-rec-side { align-items: center; }
+
+/* Round 31: home tiles - hover keeps the text readable; lock/star badges: no outline, a bit bigger */
+@media (hover: hover) {
+  html:root:root:not([data-theme="dark"]):not([data-theme="ivory"]) body .landing-tile.landing-tile-highlight:hover { background: var(--accent) !important; }
+  html:root:root:not([data-theme="dark"]):not([data-theme="ivory"]) body .landing-tile.landing-tile-highlight:hover .landing-tile-icon { background: #fff !important; border-color: #fff !important; }
+  html:root:root body .landing-tile.landing-tile-highlight:hover :is(.landing-tile-title, .landing-tile-desc) { color: #fff; }
+}
+html:root:root body .landing-tile-badge { border: 0 !important; box-shadow: none !important; width: 26px; height: 26px; font-size: 1rem; top: 7px; right: 7px; }
+
+/* Round 32: mission retry, earn-more button, review coins line */
+html:root body .mission-retry { display: block; margin: 10px auto 0; border: 0 !important; box-shadow: none !important; background: var(--accent); color: #fff; font-family: var(--font-heading); font-weight: 700; padding: 9px 20px; font-size: .95rem; }
+html:root body .mission-retry[hidden] { display: none; }
+html:root body .koala-earn-more { border: 0 !important; box-shadow: none !important; background: var(--accent); color: #fff; white-space: nowrap; }
+html:root body .review-coins { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 4px 0 8px; font-family: var(--font-heading); font-weight: 700; font-size: 1.1rem; color: #0b6b57; }
+html:root[data-theme="dark"] body .review-coins { color: #8fe3c8; }
+
+/* Round 33: the floating action bar hugs its two buttons (about half the old width) and sits centred */
+html:root:root:root:root:root body #stats-panel-wrong .wrong-actions { width: fit-content; max-width: 100%; margin-left: auto; margin-right: auto; justify-content: center; gap: 8px; padding: 8px 10px; border-radius: 999px; }
+html:root:root:root:root:root body #stats-panel-wrong .wrong-actions .pill { flex: none; padding: 0 20px; }
+html:root:root:root:root:root body #stats-panel-wrong .wrong-actions #wrong-review-btn { padding: 5px 5px 5px 20px !important; }
+
+/* Round 34: quiz result screen - flat, roomy card; mint primary pill; no outlines or shadows */
+html:root:root body .qz-result-card { border: 0 !important; box-shadow: none !important; background: rgba(255, 255, 255, .93); border-radius: 24px; width: min(100%, 440px); margin: 8px auto; padding: 22px 18px 20px; gap: 14px; }
+html:root[data-theme="dark"]:root body .qz-result-card { background: rgba(27, 51, 41, .85); }
+html:root:root body .qz-missed-chip { border: 0 !important; box-shadow: none !important; background: #d6f3e7; color: #0b6b57; }
+html:root:root body .qz-missed-chip-more { background: transparent; }
+html:root:root body .qz-coin-chip { border: 0 !important; box-shadow: none !important; background: #fff1c4; }
+html:root:root body .qz-gift-icon-btn { border: 0 !important; box-shadow: none !important; }
+html:root:root body .qz-result-primary { background: #22c9a3 !important; color: #fff !important; border: 0 !important; box-shadow: none !important; border-radius: 999px; padding: 13px 28px; font-family: var(--font-heading); font-weight: 700; font-size: 1.05rem; transform: none; }
+html:root:root body .qz-result-primary:active { transform: scale(.97); box-shadow: none !important; }
+html:root:root body .qz-result-link { border: 0 !important; box-shadow: none !important; background: #eef6f2; color: #0b6b57; border-radius: 999px; padding: 8px 16px; }
+html:root[data-theme="dark"]:root body .qz-result-link { background: #254a3d; color: #8fe3c8; }
+html:root:root body #view-quiz .card.scene-card { border: 0 !important; box-shadow: none !important; }
+
+/* Round 35: hero line in a warm colour of its own; retry button uses a big white cycle icon */
+html:root body .hero-sub { color: #e8742a; }
+html:root[data-theme="dark"] body .hero-sub { color: #ffb86b; }
+html:root[data-theme="ivory"] body .hero-sub { color: #c85f1a; }
+html:root body .mission-retry { display: flex; align-items: center; justify-content: center; gap: 8px; width: fit-content; }
+html:root body .mission-retry[hidden] { display: none; }
+html:root body .mission-retry .retry-ico { width: 24px; height: 24px; flex: none; }
+
+/* Round 36: quiz report = Spelling report layout */
+html body .qz-report { display: flex; flex-direction: column; gap: 12px; padding: 4px 0 8px; }
+html body #view-quiz .qz-report .sp-report-card { width: min(100%, 520px); margin: 0 auto; box-sizing: border-box; }
+html body .qz-report[data-state="perfect"] .sp-report-koala .sk-svg { animation: sp-koala-jump 1.1s cubic-bezier(0.3, 0.7, 0.4, 1) infinite; }
+html body .qz-report[data-state="some"] .sp-report-koala .sk-svg { animation: sp-koala-jump 0.85s cubic-bezier(0.3, 0.7, 0.4, 1) 3; }
+html body .qz-report .qz-report-btn { flex: 1 1 0; min-width: 0; white-space: nowrap; background: #e3f6ef; color: #0e9c7d; border: 2px solid #9fd8c6; box-shadow: 0 2px 0 #9fd8c6; border-radius: 999px; font-family: var(--font-heading); font-weight: 800; font-size: .85rem; padding: 6px 8px; }
+html body .qz-report .qz-report-btn:active { transform: translateY(2px); box-shadow: none; }
+html body .qz-report .sp-report-stats { flex-wrap: wrap; align-items: center; }
+html body .qz-report .qz-coin-tag { display: inline-flex; align-items: center; gap: 4px; }
+html body .qz-report .qz-report-more { text-align: center; margin: 0; }
+html body #view-quiz .qz-report { width: 100%; }
+html body #view-quiz .qz-report .sp-report-card { width: min(100%, 520px); }
+html body #view-quiz .qz-report .sp-report-restart { background: linear-gradient(180deg, #ffe066, #ffab1a) !important; color: #5a3000 !important; border: 0 !important; box-shadow: 0 4px 0 #c27400, 0 7px 12px rgba(194, 116, 0, .3) !important; border-radius: 999px; padding: 8px 20px; font-size: 1.05rem; font-family: var(--font-heading); font-weight: 800; }
+html body #view-quiz .qz-report .sp-report-restart:active { transform: translateY(3px); box-shadow: 0 1px 0 #c27400 !important; }
+
+/* Round 37: flat play screens, capsule add-modes, start cards as wide as the nav bar with the My Koala backdrop */
+html:root:root body #view-quiz .sp-start-card,
+html:root:root body #view-spelling .sp-start-card,
+html:root:root body #view-flashcards .sp-start-card,
+html:root:root body #view-typegame .tg-start-card,
+html:root:root body #view-timestable .tg-start-card { width: min(100%, var(--nav-w, 594px)) !important; max-width: none !important; border: 0 !important; box-shadow: none !important; background: url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%27150%27%20height=%27150%27%3E%3Cg%20opacity=%27.9%27%3E%3Cellipse%20cx=%2728%27%20cy=%2732%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%28-35%2028%2032%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cellipse%20cx=%27112%27%20cy=%2796%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%2830%20112%2096%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cpolygon%20points=%27100%2C20%20103%2C28%20112%2C28%20105%2C33%20108%2C42%20100%2C37%2092%2C42%2095%2C33%2088%2C28%2097%2C28%27%20fill=%27%23f6c343%27%20opacity=%27.3%27/%3E%3Cpolygon%20points=%2740%2C108%2042%2C114%2049%2C114%2043%2C118%2045%2C125%2040%2C121%2035%2C125%2037%2C118%2031%2C114%2038%2C114%27%20fill=%27%23f6c343%27%20opacity=%27.25%27/%3E%3Ccircle%20cx=%2770%27%20cy=%2760%27%20r=%273%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%27136%27%20cy=%2750%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%2714%27%20cy=%2788%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3C/g%3E%3C/svg%3E") 0 0 / 150px 150px, radial-gradient(circle at 10% 6%, rgba(255, 226, 140, .55) 0 70px, transparent 71px), radial-gradient(circle at 94% 20%, rgba(168, 230, 207, .65) 0 80px, transparent 81px), linear-gradient(180deg, #d9f6ea 0%, #eefaea 55%, #fff3cf 100%) !important; box-sizing: border-box; }
+html[data-theme="dark"]:root:root body #view-quiz .sp-start-card,
+html[data-theme="dark"]:root:root body #view-spelling .sp-start-card,
+html[data-theme="dark"]:root:root body #view-flashcards .sp-start-card,
+html[data-theme="dark"]:root:root body #view-typegame .tg-start-card,
+html[data-theme="dark"]:root:root body #view-timestable .tg-start-card { background: url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%27150%27%20height=%27150%27%3E%3Cg%20opacity=%27.9%27%3E%3Cellipse%20cx=%2728%27%20cy=%2732%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%28-35%2028%2032%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cellipse%20cx=%27112%27%20cy=%2796%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%2830%20112%2096%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cpolygon%20points=%27100%2C20%20103%2C28%20112%2C28%20105%2C33%20108%2C42%20100%2C37%2092%2C42%2095%2C33%2088%2C28%2097%2C28%27%20fill=%27%23f6c343%27%20opacity=%27.3%27/%3E%3Cpolygon%20points=%2740%2C108%2042%2C114%2049%2C114%2043%2C118%2045%2C125%2040%2C121%2035%2C125%2037%2C118%2031%2C114%2038%2C114%27%20fill=%27%23f6c343%27%20opacity=%27.25%27/%3E%3Ccircle%20cx=%2770%27%20cy=%2760%27%20r=%273%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%27136%27%20cy=%2750%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%2714%27%20cy=%2788%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3C/g%3E%3C/svg%3E") 0 0 / 150px 150px, radial-gradient(circle at 10% 6%, rgba(81,72,46,0.55) 0 70px, transparent 71px), radial-gradient(circle at 94% 20%, rgba(45,80,67,0.65) 0 80px, transparent 81px), linear-gradient(180deg, #1c3229 0%, #1c2917 55%, #332d1d 100%) !important; }
+html[data-theme="ivory"]:root:root body #view-quiz .sp-start-card,
+html[data-theme="ivory"]:root:root body #view-spelling .sp-start-card,
+html[data-theme="ivory"]:root:root body #view-flashcards .sp-start-card,
+html[data-theme="ivory"]:root:root body #view-typegame .tg-start-card,
+html[data-theme="ivory"]:root:root body #view-timestable .tg-start-card { background: url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%27150%27%20height=%27150%27%3E%3Cg%20opacity=%27.9%27%3E%3Cellipse%20cx=%2728%27%20cy=%2732%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%28-35%2028%2032%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cellipse%20cx=%27112%27%20cy=%2796%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%2830%20112%2096%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cpolygon%20points=%27100%2C20%20103%2C28%20112%2C28%20105%2C33%20108%2C42%20100%2C37%2092%2C42%2095%2C33%2088%2C28%2097%2C28%27%20fill=%27%23f6c343%27%20opacity=%27.3%27/%3E%3Cpolygon%20points=%2740%2C108%2042%2C114%2049%2C114%2043%2C118%2045%2C125%2040%2C121%2035%2C125%2037%2C118%2031%2C114%2038%2C114%27%20fill=%27%23f6c343%27%20opacity=%27.25%27/%3E%3Ccircle%20cx=%2770%27%20cy=%2760%27%20r=%273%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%27136%27%20cy=%2750%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%2714%27%20cy=%2788%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3C/g%3E%3C/svg%3E") 0 0 / 150px 150px, radial-gradient(circle at 10% 6%, rgba(255, 226, 140, .55) 0 70px, transparent 71px), radial-gradient(circle at 94% 20%, rgba(168, 230, 207, .65) 0 80px, transparent 81px), linear-gradient(180deg, #eee7d6 0%, #f5f0e5 55%, #fff3cf 100%) !important; }
+html:root:root body :is(#view-quiz, #view-spelling, #view-flashcards) .sp-start-card .sp-start-panel { background: #e4f7f0; border: 3px solid #fff !important; box-shadow: 0 0 0 2px #8fe3c6 !important; border-radius: 1.5rem; }
+html[data-theme="dark"]:root:root body :is(#view-quiz, #view-spelling, #view-flashcards) .sp-start-card .sp-start-panel { background: #192d26 !important; border-color: #151e1c !important; }
+html[data-theme="ivory"]:root:root body :is(#view-quiz, #view-spelling, #view-flashcards) .sp-start-card .sp-start-panel { background: #f2ecdf !important; border-color: #fdfaf4 !important; }
+/* Flashcards: no frame on the scene card; Next only after the card was flipped */
+html:root:root body #view-flashcards > .card.scene-card, html:root:root body #view-quiz > .card.scene-card, html:root:root body #view-spelling > .card.scene-card { border: 0 !important; box-shadow: none !important; }
+html:root:root body #flash-next.is-await-flip { visibility: hidden; pointer-events: none; }
+/* My flashcards: flat card, capsule add-mode tabs, small flat add button */
+html:root:root body #my-deck-card { border: 0 !important; box-shadow: none !important; }
+html:root:root body #my-deck-card .add-mode-toggle { display: flex; gap: 4px; padding: 4px; margin-bottom: 20px; background: #d4efe4; border-radius: 999px; }
+html:root:root body #my-deck-card .add-mode-toggle button { flex: 1 1 0; min-width: 0; min-height: 2.6rem; padding: 4px 6px; font-size: 0.85rem; font-weight: 800; background: transparent !important; color: #0b8a6e; border: 0 !important; box-shadow: none !important; border-radius: 999px; font-family: var(--font-heading); }
+html:root:root body #my-deck-card .add-mode-toggle button.accent { background: var(--accent) !important; color: #fff; }
+html[data-theme="dark"]:root:root body #my-deck-card .add-mode-toggle { background: #254a3d; }
+html[data-theme="dark"]:root:root body #my-deck-card .add-mode-toggle button:not(.accent) { color: #8fe0c5; }
+html:root:root body #my-deck-card #my-deck-form .form-actions { justify-content: flex-start; }
+html:root:root body #my-deck-card #my-deck-save-btn { width: 25%; min-width: 108px; min-height: 44px; font-size: 0.95rem; padding: 6px 10px; border: 0 !important; box-shadow: none !important; align-self: flex-start; margin-right: auto; }
+/* Quiz play: flat option buttons with the home-card shadow; flat footer buttons */
+html:root:root body #quiz-options .option-btn, html:root:root body #quiz-options .qz-opt { border: 0 !important; box-shadow: 0 2px 12px rgba(10, 60, 50, .08) !important; }
+html:root:root body #quiz-practice .quiz-footer :is(.sfx-toggle, .qz-end-btn), html:root:root body #spelling-practice .sp-footer :is(.sfx-toggle, .sp-finish-btn) { border: 0 !important; box-shadow: none !important; }
+/* Spelling play: score pill removed (leaves count the correct answers); sound button on the far left */
+html:root:root body #spelling-practice .sp-footer #spelling-score { display: none !important; }
+html:root:root body #spelling-practice .sp-footer .sfx-toggle { margin-left: 0 !important; margin-right: auto; order: -1; }
+html:root:root body #spelling-practice .sp-footer { justify-content: space-between; }
+/* leaves: unlit = faint ghost, lit = bright green, one per correct answer */
+html:root:root body #spelling-practice .sp-leaf { opacity: 0.32; filter: grayscale(0.6); transform: rotate(var(--r, 0deg)) scale(0.9); animation: none; }
+html:root:root body #spelling-practice .sp-leaf.eaten { opacity: 1; filter: none; transform: rotate(var(--r, 0deg)) scale(1.05); }
+html:root:root body #spelling-practice .sp-leaf.eaten.miss { opacity: 1; filter: none; }
+
+/* Round 38: start buttons = mockup 15 (mint-to-lime gradient pill, arrow disc, soft glow) */
+html:root:root:root:root:root:root body button:is(#flash-start-btn, #quiz-start-btn, #spelling-start-btn, #typegame-start-btn, #timestable-start-btn).pill.accent.pill.accent.pill { display: inline-flex; align-items: center; justify-content: center; gap: 12px; background: linear-gradient(135deg, #22c9a3 0%, #6ee0a8 100%) !important; color: #fff !important; border: 0 !important; border-radius: 999px; padding: 8px 10px 8px 30px; min-height: 0; width: auto; max-width: none; margin-top: 6px; filter: none; font-family: var(--font-heading); font-weight: 700; font-size: 1.3rem; text-shadow: none; box-shadow: 0 6px 16px rgba(34, 201, 163, .35) !important; animation: none; }
+html:root:root:root:root:root:root body button:is(#flash-start-btn, #quiz-start-btn, #spelling-start-btn, #typegame-start-btn, #timestable-start-btn).pill.accent.pill.accent.pill::before { content: none !important; }
+html:root:root:root:root:root:root body button:is(#flash-start-btn, #quiz-start-btn, #spelling-start-btn, #typegame-start-btn, #timestable-start-btn).pill.accent.pill.accent.pill::after { content: ""; flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%; background-color: rgba(255, 255, 255, .28); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: center; background-size: 20px; filter: none; -webkit-mask: none; }
+html:root:root:root:root:root:root body button:is(#flash-start-btn, #quiz-start-btn, #spelling-start-btn, #typegame-start-btn, #timestable-start-btn).pill.accent.pill.accent.pill:hover:not(:disabled) { filter: brightness(1.05); transform: translateY(-1px); }
+html:root:root:root:root:root:root body button:is(#flash-start-btn, #quiz-start-btn, #spelling-start-btn, #typegame-start-btn, #timestable-start-btn).pill.accent.pill.accent.pill:active:not(:disabled) { transform: translateY(1px); box-shadow: 0 3px 8px rgba(34, 201, 163, .3) !important; }
+html:root:root:root:root:root:root body button:is(#flash-start-btn, #quiz-start-btn, #spelling-start-btn, #typegame-start-btn, #timestable-start-btn).pill.accent.pill.accent.pill:disabled { filter: grayscale(.5); opacity: .6; }
+
+/* Round 39: every other big yellow button (Play again / restart, Check, sign-up CTAs) = the start-button look */
+html:root:root:root:root:root:root body button:is(.new-quiz-btn, #signup-submit-btn, #signup-pay-btn).pill.pill.pill, html:root:root:root:root:root:root body #spelling-practice #spelling-check.sp-check-btn { background: linear-gradient(135deg, #22c9a3 0%, #6ee0a8 100%) !important; color: #fff !important; border: 0 !important; border-radius: 999px; box-shadow: 0 6px 16px rgba(34, 201, 163, .35) !important; text-shadow: none; font-family: var(--font-heading); font-weight: 700; animation: none; filter: none; }
+html:root:root:root:root:root:root body button:is(.new-quiz-btn, #signup-submit-btn, #signup-pay-btn).pill.pill.pill:hover:not(:disabled), html:root:root:root:root:root:root body #spelling-practice #spelling-check.sp-check-btn:hover:not(:disabled) { filter: brightness(1.05); transform: translateY(-1px); }
+html:root:root:root:root:root:root body button:is(.new-quiz-btn, #signup-submit-btn, #signup-pay-btn).pill.pill.pill:active:not(:disabled), html:root:root:root:root:root:root body #spelling-practice #spelling-check.sp-check-btn:active:not(:disabled) { transform: translateY(1px); box-shadow: 0 3px 8px rgba(34, 201, 163, .3) !important; }
+html:root:root:root:root:root:root body button:is(.new-quiz-btn, #signup-submit-btn, #signup-pay-btn).pill.pill.pill:disabled, html:root:root:root:root:root:root body #spelling-practice #spelling-check.sp-check-btn:disabled { filter: grayscale(.5); opacity: .6; box-shadow: none !important; }
+html:root:root:root:root:root:root body button:is(.new-quiz-btn, #signup-submit-btn, #signup-pay-btn).pill.pill.pill :is(svg, .retry-ico), html:root:root:root:root:root:root body button:is(.new-quiz-btn, #signup-submit-btn, #signup-pay-btn).pill.pill.pill span { color: #fff; }
+/* Check button label while "Checked" keeps readable text */
+html:root:root:root:root:root:root body #spelling-practice #spelling-check.sp-check-btn .sp-lbl { color: #fff; text-shadow: none; }
+/* login button: always fully visible on phones */
+html:root:root body #auth-toggle:not(.auth-toggle-active):not(.auth-toggle-admin) { max-width: none !important; overflow: visible !important; text-overflow: clip !important; white-space: nowrap; flex: 0 0 auto; padding: 8px 14px; font-size: .8rem; }
+html:root:root body #auth-toggle.auth-toggle-active, html:root:root body #auth-toggle.auth-toggle-admin { max-width: 46vw !important; }
+
+/* Round 40: guest sign-up nudge on report screens, trial notes */
+html:root body .guest-coin-teaser { margin: 10px auto 2px; max-width: 420px; text-align: center; font-family: var(--font-heading); font-weight: 700; font-size: .92rem; color: #0b6b57; background: #fff7e0; border-radius: 16px; padding: 10px 14px; line-height: 1.5; }
+html:root body .guest-coin-teaser[hidden] { display: none; }
+html:root body .guest-coin-teaser .guest-signup-btn { margin-left: 6px; background: #22c9a3 !important; color: #fff !important; border: 0 !important; box-shadow: none !important; padding: 5px 14px; }
+html:root body .manual-trial-note, html:root body .wrong-trial-note { margin: 0 0 10px; padding: 8px 12px; border-radius: 12px; background: #fff7e0; color: #7a5200; font-weight: 700; line-height: 1.45; }
+html:root body .manual-trial-note[hidden] { display: none; }
+html[data-theme="dark"]:root body .guest-coin-teaser, html[data-theme="dark"]:root body .manual-trial-note, html[data-theme="dark"]:root body .wrong-trial-note { background: #3a3220; color: #f6dc9a; }

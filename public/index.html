@@ -16,7 +16,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=4" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Gaegu:wght@700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Gaegu:wght@700&family=Jua&display=swap" rel="stylesheet" />
   <script>try{var _t=localStorage.getItem("ywp_theme_v1");if(_t==="dark"||_t==="ivory")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/themes.css" />
@@ -52,6 +52,18 @@
   <!-- Account overlay: log in or sign up -->
   <div id="auth-overlay" class="auth-overlay" hidden>
     <div class="auth-card">
+      <div class="auth-brand">
+        <img class="auth-brand-logo" src="favicon.svg?v=4" alt="" width="92" height="92">
+        <h3 class="auth-brand-name">Koala Study Mate</h3>
+        <p class="auth-brand-tag" data-i18n="authBrandTag">Learn a little every day,<br>master English words</p>
+        <div class="auth-brand-pills"><span data-i18n="authBrandPill1">Daily mission</span><span data-i18n="authBrandPill2">Coins</span><span data-i18n="authBrandPill3">Badges</span></div>
+        <div class="auth-perks">
+          <span class="auth-perks-badge" data-i18n="perksTitle">⭐ Premium benefits</span>
+          <p class="auth-perks-sub" data-i18n="perksSub">Join as Premium and get everything:</p>
+          <ul><li><i aria-hidden="true"><svg viewBox="0 0 32 20" width="28" height="18" aria-hidden="true"><path d="M16 10c-2.6-3.6-5-6-8-6a6 6 0 0 0 0 12c3 0 5.400-2.400 8-6s5-6 8-6a6 6 0 0 1 0 12c-3 0-5.400-2.400-8-6z" fill="none" stroke="#0e9c7d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></i><span data-i18n="perk1">Unlimited practice questions</span></li><li><i aria-hidden="true">🎮</i><span data-i18n="perk2">Word and times-table games</span></li><li><i aria-hidden="true">📷</i><span data-i18n="perk3">Snap your English book to pull out words</span></li><li><i aria-hidden="true">📖</i><span data-i18n="perk4">Your own word list</span></li><li><i aria-hidden="true">🐨</i><span data-i18n="perk5">Dress up your own koala</span></li></ul>
+        </div>
+      </div>
+      <div class="auth-main">
       <h2 id="auth-title">🔑 Log In</h2>
       <div class="add-mode-toggle" id="auth-mode-toggle">
         <button type="button" class="pill accent" id="auth-mode-login-btn" data-i18n="authModeLogin">Log In</button>
@@ -83,6 +95,7 @@
             <span data-i18n="signupPlanPremiumDesc">More questions + your own word list</span>
           </button>
         </div>
+        <ul class="plan-perks" aria-hidden="false"><li><i aria-hidden="true"><svg viewBox="0 0 32 20" width="28" height="18" aria-hidden="true"><path d="M16 10c-2.6-3.6-5-6-8-6a6 6 0 0 0 0 12c3 0 5.400-2.400 8-6s5-6 8-6a6 6 0 0 1 0 12c-3 0-5.400-2.400-8-6z" fill="none" stroke="#0e9c7d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></i><span data-i18n="perk1">Unlimited practice questions</span></li><li><i aria-hidden="true">🎮</i><span data-i18n="perk2">Word and times-table games</span></li><li><i aria-hidden="true">📷</i><span data-i18n="perk3">Snap your English book to pull out words</span></li><li><i aria-hidden="true">📖</i><span data-i18n="perk4">Your own word list</span></li><li><i aria-hidden="true">🐨</i><span data-i18n="perk5">Dress up your own koala</span></li></ul>
 
         <label id="signup-username-label" for="signup-username-input" data-i18n="authUsernameLabel">Username</label>
         <input id="signup-username-input" type="text" autocomplete="username" />
@@ -162,6 +175,7 @@
         </div>
       </form>
       <p class="auth-help"><button type="button" id="auth-help-btn" class="auth-link"></button></p>
+      </div>
     </div>
   </div>
 
@@ -328,7 +342,7 @@
     <h1><img class="brand-logo" src="favicon.svg?v=4" alt="" width="34" height="34"> <span id="app-title">Koala Study Mate</span></h1>
     <p id="app-subtitle">Build your vocabulary, spelling, times tables and word skills!</p>
     <div class="stat-bar">
-      <button id="level-badge" class="level-badge" title="Change level">Level: Upper Primary ▾</button>
+      <span class="level-dd"><button id="level-badge" class="level-badge" type="button" title="Change level" aria-haspopup="listbox" aria-expanded="false">Level: Upper Primary ▾</button><div id="level-menu" class="level-menu" role="listbox" hidden></div></span>
       <span id="streak-chip" class="stat-chip streak-chip" title="Daily streak">
         <span class="stat-chip-icon" aria-hidden="true">🌿</span>
         <span id="streak-count" class="stat-chip-value">0</span>
@@ -426,7 +440,8 @@
         </div>
         <div class="mission-bar"><div class="mission-bar-fill" id="mission-bar-fill"></div></div>
         <ul class="mission-list" id="mission-list"></ul>
-        <p class="mission-done-msg" id="mission-done-msg" hidden data-i18n="missionDoneMsg">🎉 Mission complete! Come back tomorrow for a new one.</p>
+        <p class="mission-done-msg" id="mission-done-msg" hidden>🎉 Mission complete! Retry for a new mission and earn more coins.</p>
+        <button type="button" class="pill accent small mission-retry" id="mission-retry-btn" hidden>Retry mission</button>
       </div>
       <div class="review-card" id="review-card" hidden>
         <div class="review-card-icon" aria-hidden="true"><span class="kface" aria-hidden="true"></span></div>
@@ -657,7 +672,7 @@
             </svg>
         <ol class="sp-steps fs-steps"><li class="sp-step sp-step1"><b aria-hidden="true">👀</b><span data-i18n="fsStep1">Look</span></li><li class="sp-step-arrow" aria-hidden="true">›</li><li class="sp-step sp-step2"><b aria-hidden="true">👆</b><span data-i18n="fsStep2">Flip</span></li><li class="sp-step-arrow" aria-hidden="true">›</li><li class="sp-step sp-step3"><b aria-hidden="true">🙋</b><span data-i18n="fsStep3">I know it?</span></li></ol></div>
         <p class="sp-start-stats fs-count" id="flash-count"></p>
-            <div class="fs-start-bar"><button class="pill accent sp-start-btn" id="flash-start-btn" type="button" data-i18n="flashStartBtn">▶ Start Flashcards</button></div>
+            <div class="fs-start-bar"><button class="pill accent sp-start-btn" id="flash-start-btn" type="button" data-i18n="flashStartBtn">Start Flashcards</button></div>
           </div>
         </div>
 
@@ -915,7 +930,7 @@ to Flip!</span></div>
         </svg>
             <ol class="sp-steps fs-steps"><li class="sp-step sp-step1"><b aria-hidden="true">👀</b><span data-i18n="qzStep1">Read</span></li><li class="sp-step-arrow" aria-hidden="true">›</li><li class="sp-step sp-step2"><b aria-hidden="true">👆</b><span data-i18n="qzStep2">Pick</span></li><li class="sp-step-arrow" aria-hidden="true">›</li><li class="sp-step sp-step3"><b aria-hidden="true">🎉</b><span data-i18n="qzStep3">Score!</span></li></ol></div>
             <p class="qz-start-warn" id="quiz-start-warn" hidden></p>
-            <div class="fs-start-bar"><button class="pill accent sp-start-btn" id="quiz-start-btn" type="button" data-i18n="quizStartBtn">▶ Start Quiz</button></div>
+            <div class="fs-start-bar"><button class="pill accent sp-start-btn" id="quiz-start-btn" type="button" data-i18n="quizStartBtn">Start Quiz</button></div>
           </div>
         </div>
 
@@ -1082,7 +1097,7 @@ to Flip!</span></div>
               <li class="sp-step sp-step3"><b>⭐</b><span data-i18n="spStep3">Win a star</span></li>
             </ol></div>
             <div class="sp-start-stats" id="spelling-start-stats" aria-live="off"></div>
-            <div class="fs-start-bar"><button class="pill accent sp-start-btn" id="spelling-start-btn">▶ Start</button></div>
+            <div class="fs-start-bar"><button class="pill accent sp-start-btn" id="spelling-start-btn">Start</button></div>
             <details class="sp-why">
               <summary class="sp-why-title" data-i18n="spWhyTitle">Why practise spelling?</summary>
               <ul>
@@ -1146,6 +1161,7 @@ to Flip!</span></div>
             </div>
             <p class="sp-report-review" id="spelling-report-review" hidden></p>
             <div class="wordlist-grid" id="spelling-report-list"></div>
+            <p class="guest-coin-teaser" id="spelling-guest-teaser" hidden></p>
             <div class="flash-controls">
               <button class="pill accent new-quiz-btn sp-report-restart" id="spelling-report-restart">
                 <span class="new-quiz-icon" aria-hidden="true">
@@ -1279,7 +1295,7 @@ to Flip!</span></div>
                 <button type="button" class="qz-seg-btn" role="radio" data-mode="intermediate"></button>
                 <button type="button" class="qz-seg-btn" role="radio" data-mode="pro"></button>
               </div>
-              <button class="pill accent tg-start-btn" id="typegame-start-btn" data-i18n="typeGameStartBtn">▶ Start Game</button>
+              <button class="pill accent tg-start-btn" id="typegame-start-btn" data-i18n="typeGameStartBtn">Start Game</button>
             </div>
           </div>
 
@@ -1460,7 +1476,7 @@ to Flip!</span></div>
                 <button type="button" class="qz-seg-btn" role="radio" data-mode="normal"></button>
                 <button type="button" class="qz-seg-btn" role="radio" data-mode="fast"></button>
               </div>
-              <button class="pill accent tg-start-btn" id="timestable-start-btn" data-i18n="timesTableStartBtn">▶ Start Game</button>
+              <button class="pill accent tg-start-btn" id="timestable-start-btn" data-i18n="timesTableStartBtn">Start Game</button>
             </div>
           </div>
 
@@ -1737,11 +1753,6 @@ to Flip!</span></div>
         <div class="my-added-words-header">
           <h3 data-i18n="myAddedWordsTitle">📝 My added words</h3>
           <div class="my-added-words-header-actions">
-            <label class="select-all-toggle" for="custom-select-all-checkbox">
-              <input type="checkbox" id="custom-select-all-checkbox" />
-              <span data-i18n="selectAllLabel">Select All</span>
-            </label>
-            <button type="button" class="pill neutral small" id="custom-delete-selected-btn" data-i18n="deleteSelectedBtn" disabled>🗑️ Delete</button>
             <select id="custom-word-mgmt-select" class="level-bulk-select" hidden>
               <option value="" data-i18n="wordManagementLabel">🛠️ Word Management</option>
               <option value="merge" data-i18n="mergeDuplicatesBtn">🧹 Merge Duplicates</option>
@@ -1766,6 +1777,15 @@ to Flip!</span></div>
           <p class="muted wordlist-count" id="paid-words-count"></p>
           <div id="paid-words-status" class="spelling-tip"></div>
           <div class="wordlist-grid" id="paid-words-grid"></div>
+        </div>
+        <!-- Always visible: tick words, then delete them here (cards have no Delete button). Level is changed in each word's Edit form. -->
+        <div class="cw-select-row" id="cw-select-row">
+          <label class="select-all-toggle" for="custom-select-all-checkbox">
+            <input type="checkbox" id="custom-select-all-checkbox" />
+            <span data-i18n="selectAllLabel">Select All</span>
+          </label>
+          <button type="button" class="pill neutral small" id="custom-delete-selected-btn" data-i18n="deleteSelectedBtn" disabled>🗑️ Delete</button>
+          <span class="cw-select-count" id="cw-select-count"></span>
         </div>
         <p class="muted wordlist-count" id="custom-words-count"></p>
         <p class="muted" id="custom-words-storage-note" hidden></p>
@@ -1798,7 +1818,7 @@ to Flip!</span></div>
               </div>
             </div>
           </div>
-          <select id="custom-level-select" class="level-bulk-select" disabled></select>
+          <select id="custom-level-select" class="level-bulk-select" disabled hidden></select>
           <input type="text" class="wordlist-search custom-search-half" id="custom-search" data-i18n-placeholder="customSearchPlaceholder" placeholder="🔍 Search added words..." />
         </div>
         <div class="wordlist-grid" id="custom-words-grid"></div>
@@ -1818,7 +1838,7 @@ to Flip!</span></div>
       <!-- Phones: appears only while words are ticked, above the bottom tab bar. -->
       <div class="wl-action-bar cw-action-bar" id="custom-action-bar" hidden>
         <span class="wl-action-text" id="custom-action-text" role="status" aria-live="polite"></span>
-        <select class="level-bulk-select" id="custom-bar-level" aria-label="Change level"></select>
+        <select class="level-bulk-select" id="custom-bar-level" aria-label="Change level" hidden></select>
         <button type="button" class="pill error small" id="custom-bar-delete-btn" data-i18n="deleteSelectedBtn">🗑️ Delete</button>
       </div>
     </section>
@@ -1994,7 +2014,7 @@ to Flip!</span></div>
         </div>
         <div class="admin-koala-table" id="admin-koala-grid"></div>
         <p class="muted" id="admin-koala-empty" hidden>No accounts found.</p>
-        <h4 class="badge-group-title">Recent adjustments</h4>
+        <h4 class="badge-group-title" id="admin-koala-recent-title">Recent adjustments</h4>
         <div class="admin-koala-log-head" id="admin-koala-log-head">
           <span id="admin-koala-lh-date">Date</span>
           <span id="admin-koala-lh-user">User</span>
@@ -2065,6 +2085,11 @@ to Flip!</span></div>
       <div class="card">
         <h3 data-i18n="myAccountTitle">🧑 My Account</h3>
         <div id="my-account-status" class="stats-grid"></div>
+      </div>
+      <div class="card" id="my-account-level-card">
+        <h3 data-i18n="myAccountLevelTitle">📚 Study level</h3>
+        <p class="auth-hint" data-i18n="myAccountLevelDesc">Pick the level you practise at. It is saved to your account and set automatically when you log in on any device.</p>
+        <div id="my-account-level-choices" class="acct-level-choices" role="radiogroup" aria-label="Study level"></div>
       </div>
       <div class="card upgrade-card" id="my-account-upgrade-card" hidden>
         <div class="upgrade-card-head">

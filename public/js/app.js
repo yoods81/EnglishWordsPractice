@@ -12,7 +12,7 @@ const GOAL_MIN = 5;
 // Three tiers of question-count ceiling: signed-out visitors are capped at
 // 50 (going further nudges them to sign up), a free account at 100 (going
 // further nudges an upgrade to paid), and a paid or admin account at 200.
-const GOAL_MAX_ANONYMOUS = 50;
+const GOAL_MAX_ANONYMOUS = 30;
 const GOAL_MAX_FREE = 100;
 const GOAL_MAX_PAID = 200;
 const GOAL_STEP = 5;
@@ -35,7 +35,7 @@ const TRANSLATIONS = {
     heroWord1: "Learn.",
     heroWord2: "Practise.",
     heroWord3: "Remember.",
-    heroSub: "A fun study buddy for Australian primary students, helping you build vocabulary, spelling and times-table skills.",
+    heroSub: "Ace quizzes, win coins and grow your koala — become a word master! 🐨✨",
     homePitch: "Short, fun daily practice that builds vocabulary, spelling and times tables — a few minutes a day.",
     homeAus: "🇦🇺 Made for Australian primary students · Year 4–6",
     homeChooseYear: "Choose your year level",
@@ -47,6 +47,9 @@ const TRANSLATIONS = {
     missionTT: (n) => `Practise ${n} times-table facts`,
     missionGo: "Go",
     missionDoneMsg: "🎉 Mission complete! Come back tomorrow for a new one.",
+    missionRetryMsg: "🎉 Mission complete! Retry for a new mission and earn more coins.",
+    missionRetryMsgGuest: "🎉 Mission complete! Retry for a brand-new mission.",
+    missionRetry: "Retry mission",
     missionToast: "Mission complete!",
     promoTitle: "📸 From your child's book to a quiz",
     promoSteps: "Snap a page → pick the tricky words → practise them as flashcards, spelling and quizzes.",
@@ -60,6 +63,9 @@ const TRANSLATIONS = {
     homeMine: "My learning",
     langToggle: "한국어",
     levelBadgePrefix: "Level",
+    levelBadgePrompt: "Please set your level",
+    myAccountLevelTitle: "📚 Study level",
+    myAccountLevelDesc: "Pick the level you practise at. It is saved to your account and set automatically when you log in on any device.",
     levelOverlayTitle: "📚 Choose your level",
     levelOverlayDesc: "Pick the level you want to practise. You can change this anytime.",
     navFlashcards: "Flashcards",
@@ -249,7 +255,7 @@ const TRANSLATIONS = {
     upgradeReadyBanner: "⭐ Your upgrade code has arrived — tap to enter it!",
     typeGameTitle: "⌨️ Typing Game",
     typeGameDesc: "Type the falling words!\nBefore they reach the bottom!",
-    typeGameStartBtn: "▶ Start Game",
+    typeGameStartBtn: "Start Game",
     typeGameNotEnough: (lvl) => `${lvl} needs a few more words before you can play — add some in Add Word or Word List first!`,
     typeGameStartTip: "Just type the word, then press Enter ✨",
     typeGameHint: "Just type! The matching word locks on all by itself. Press Enter to check ✨",
@@ -282,7 +288,7 @@ const TRANSLATIONS = {
     timesTableLabelDefault: "2–9",
     timesTableLabelAll: "All",
     timesTableNone: "Pick tables",
-    timesTableStartBtn: "▶ Start Game",
+    timesTableStartBtn: "Start Game",
     timesTableHint: "How to answer when the problem is 8 × 2: enter one of 8216 / 82 16 / 8 2 16",
     timesTableTypoMsg: "❌ No matching fact — try again!",
     timesTableMute: "Mute music",
@@ -341,8 +347,8 @@ const TRANSLATIONS = {
     qzModeTime: "⏱ Time Attack",
     qzModeNoteRelaxed: "Take your time. No clock!",
     qzModeNoteTime: (c, ty) => `Beat the clock: ${c}s a question (${ty}s typing)!`,
-    quizStartBtn: "▶ Start Quiz",
-    flashStartBtn: "▶ Start Flashcards",
+    quizStartBtn: "Start Quiz",
+    flashStartBtn: "Start Flashcards",
     flashRoundTitle: "Cards per round",
     flashRoundAll: "All",
     setDifficultyTitle: "Difficulty",
@@ -455,6 +461,15 @@ const TRANSLATIONS = {
     goalDecreaseLabel: "Fewer questions",
     goalIncreaseLabel: "More questions",
     anonymousQuestionCapPrompt: "Sign up for free to unlock more questions and the whole app!",
+    dailyCapGuest: (n) => `You've used today's ${n} free questions. Sign up for free to keep going!`,
+    dailyCapFree: (n) => `You've used today's ${n} questions. Upgrade to Premium for unlimited practice!`,
+    dailyLeftNote: (n) => `Today: ${n} questions left`,
+    dailyRoundGuest: "You've played today's free round. Sign up for free to keep playing without limits!",
+    guestCoinTeaser: "Sign up free to turn your hard work into Koala Coins and save your progress! 🪙",
+    guestCoinTeaserBtn: "Sign up free",
+    wrongTrialNote: "Free accounts keep your 10 latest mistakes. Upgrade to Premium for the full notebook and daily review!",
+    wrongTrialBtn: "Unlock the full notebook",
+    wordTrialNote: (n) => `Free trial: ${n} of 10 words. Words added now are kept only while this page is open — Premium keeps them forever.`,
     goalReached: (score, level) => `🎉 ${score} correct — you've hit your target for ${level}!`,
     goalReachedTop: (score, level) => `🎉 ${score} correct on ${level} — that's the highest level. Brilliant!`,
     goalNextLevelBtn: "🚀 Try the next level",
@@ -470,8 +485,8 @@ const TRANSLATIONS = {
     spellingPlaceholder: "Type what you hear",
     spLiveTapHear: "🔊 Tap my tummy to listen!",
     spKbToggleAria: "Use the phone keyboard",
-    spellingStartBtn: "▶ Start",
-    spellingContinueBtn: "▶ Keep going",
+    spellingStartBtn: "Start",
+    spellingContinueBtn: "Keep going",
     spellingBackBtn: "🍃 Back",
     spellingNextBtn: "Next 🌿",
     spellingCheckBtn: "Check 🔍",
@@ -738,6 +753,17 @@ const TRANSLATIONS = {
     myAccountJoined: "Joined",
     myAccountUpgraded: "Upgraded to premium",
     authModeLogin: "Log In",
+    authBrandTag: "Learn a little every day,\nmaster English words",
+    authBrandPill1: "Daily mission",
+    authBrandPill2: "Coins",
+    authBrandPill3: "Badges",
+    perksTitle: "⭐ Premium benefits",
+    perksSub: "Join as Premium and get everything:",
+    perk1: "Unlimited practice questions",
+    perk2: "Word and times-table games",
+    perk3: "Snap your English book to pull out words",
+    perk4: "Your own word list",
+    perk5: "Dress up your own koala",
     authModeSignup: "Sign Up",
     authUsernameLabel: "Username",
     authUsernameHint: "3-20 characters: letters, numbers, underscore.",
@@ -888,7 +914,7 @@ const TRANSLATIONS = {
     heroWord1: "배우고.",
     heroWord2: "익히고.",
     heroWord3: "기억해요.",
-    heroSub: "영어 필수 단어를 공부하는 친구들을 위한 재미있는 공부 친구예요. 어휘, 스펠링, 구구단 실력을 함께 키워요.",
+    heroSub: "퀴즈 깨고, 코인 모으고, 코알라 키우며 영어 단어 마스터가 되자! 🐨✨",
     homePitch: "하루 몇 분, 짧고 재미있게 어휘력, 스펠링, 구구단을 키워요.",
     homeAus: "🇰🇷 영어 필수 단어를 공부하는 학생들을 위해 만들었어요",
     homeChooseYear: "학년을 골라요",
@@ -900,6 +926,9 @@ const TRANSLATIONS = {
     missionTT: (n) => `구구단 ${n}문제 연습하기`,
     missionGo: "GO",
     missionDoneMsg: "🎉 미션 완료! 내일 새로운 미션이 기다려요.",
+    missionRetryMsg: "🎉 미션 완료! 미션에 다시 도전하면 코인을 더 벌 수 있어요.",
+    missionRetryMsgGuest: "🎉 미션 완료! 새로운 미션에 다시 도전해 보세요.",
+    missionRetry: "미션 재도전",
     missionToast: "미션 완료!",
     promoTitle: "📸 아이의 책에서 바로 퀴즈로",
     promoSteps: "책 한 페이지를 찍고 → 어려운 단어를 고르면 → 플래시카드, 스펠링, 퀴즈로 연습해요.",
@@ -913,6 +942,9 @@ const TRANSLATIONS = {
     homeMine: "내 공부",
     langToggle: "English",
     levelBadgePrefix: "레벨",
+    levelBadgePrompt: "레벨을 설정해주세요",
+    myAccountLevelTitle: "📚 학습 레벨",
+    myAccountLevelDesc: "연습할 레벨을 골라 주세요. 계정에 저장되어 어느 기기에서 로그인해도 자동으로 설정돼요.",
     levelOverlayTitle: "📚 레벨을 선택하세요",
     levelOverlayDesc: "학습할 레벨을 선택하세요. 언제든지 바꿀 수 있어요.",
     navFlashcards: "플래시카드",
@@ -1089,7 +1121,7 @@ const TRANSLATIONS = {
     upgradeReadyBanner: "⭐ 업그레이드 코드가 도착했어요 — 눌러서 입력하세요!",
     typeGameTitle: "⌨️ 타이핑 게임",
     typeGameDesc: "떨어지는 단어를 타이핑해요!\n바닥에 닿기 전에!",
-    typeGameStartBtn: "▶ 게임 시작",
+    typeGameStartBtn: "게임 시작",
     typeGameNotEnough: (lvl) => `${lvl} 레벨에 단어가 조금 더 필요해요 — 단어 추가나 단어장에서 먼저 추가해주세요!`,
     typeGameStartTip: "단어를 입력하고 Enter를 눌러요 ✨",
     typeGameHint: "그냥 입력해 보세요! 맞는 단어가 알아서 조준돼요. Enter를 누르면 확인해요 ✨",
@@ -1122,7 +1154,7 @@ const TRANSLATIONS = {
     timesTableLabelDefault: "2~9단",
     timesTableLabelAll: "전체",
     timesTableNone: "단 고르기",
-    timesTableStartBtn: "▶ 게임 시작",
+    timesTableStartBtn: "게임 시작",
     timesTableHint: "문제가 8 × 2 일 때 정답 입력 방법: 8216 / 82 16 / 8 2 16 셋 중 하나를 입력 — 계속 입력하면 돼요, Enter는 필요 없어요.",
     timesTableTypoMsg: "❌ 일치하는 식이 없어요 — 다시 시도해보세요!",
     timesTableMute: "음악 끄기",
@@ -1181,8 +1213,8 @@ const TRANSLATIONS = {
     qzModeTime: "⏱ 타임어택",
     qzModeNoteRelaxed: "천천히 풀어요. 시간 제한이 없어요!",
     qzModeNoteTime: (c, ty) => `문제당 ${c}초 (쓰기 ${ty}초)! 시계와 승부해요!`,
-    quizStartBtn: "▶ 퀴즈 시작",
-    flashStartBtn: "▶ 플래시카드 시작",
+    quizStartBtn: "퀴즈 시작",
+    flashStartBtn: "플래시카드 시작",
     flashRoundTitle: "카드 수",
     flashRoundAll: "전체",
     setDifficultyTitle: "난이도",
@@ -1298,6 +1330,15 @@ const TRANSLATIONS = {
     goalDecreaseLabel: "문제 수 줄이기",
     goalIncreaseLabel: "문제 수 늘리기",
     anonymousQuestionCapPrompt: "더 많은 문제와 모든 기능을 사용하려면 무료로 가입해보세요!",
+    dailyCapGuest: (n) => `오늘의 무료 문제 ${n}개를 모두 풀었어요. 무료로 가입하면 계속 풀 수 있어요!`,
+    dailyCapFree: (n) => `오늘의 문제 ${n}개를 모두 풀었어요. 프리미엄으로 업그레이드하면 제한 없이 풀 수 있어요!`,
+    dailyLeftNote: (n) => `오늘 남은 문제 ${n}개`,
+    dailyRoundGuest: "오늘의 무료 1판을 모두 했어요. 무료로 가입하면 제한 없이 계속 할 수 있어요!",
+    guestCoinTeaser: "무료로 가입하면 열심히 푼 만큼 코알라 코인을 모으고 기록도 저장할 수 있어요! 🪙",
+    guestCoinTeaserBtn: "무료 가입",
+    wrongTrialNote: "일반 회원은 최근 틀린 단어 10개까지 볼 수 있어요. 프리미엄이면 전체 오답 노트와 매일 복습을 쓸 수 있어요!",
+    wrongTrialBtn: "전체 오답 노트 열기",
+    wordTrialNote: (n) => `무료 체험: 10개 중 ${n}개. 지금 추가한 단어는 이 화면을 열어 두는 동안만 유지돼요 — 프리미엄은 계속 저장돼요.`,
     goalReached: (score, level) => `🎉 ${score}개 정답 — ${level} 목표를 달성했어요!`,
     goalReachedTop: (score, level) => `🎉 ${level}에서 ${score}개 정답 — 가장 높은 레벨이에요. 정말 잘했어요!`,
     goalNextLevelBtn: "🚀 다음 레벨 도전",
@@ -1313,8 +1354,8 @@ const TRANSLATIONS = {
     spellingPlaceholder: "들리는 대로 써요",
     spLiveTapHear: "🔊 배를 눌러 들어봐요!",
     spKbToggleAria: "휴대폰 키보드 쓰기",
-    spellingStartBtn: "▶ 시작하기",
-    spellingContinueBtn: "▶ 이어서 하기",
+    spellingStartBtn: "시작하기",
+    spellingContinueBtn: "이어서 하기",
     spellingBackBtn: "🍃 이전",
     spellingNextBtn: "다음 🌿",
     spellingCheckBtn: "제출 🚀",
@@ -1574,6 +1615,17 @@ const TRANSLATIONS = {
     myAccountJoined: "가입일",
     myAccountUpgraded: "프리미엄 업그레이드일",
     authModeLogin: "로그인",
+    authBrandTag: "매일 조금씩,\n영어 단어 마스터",
+    authBrandPill1: "오늘의 미션",
+    authBrandPill2: "코인",
+    authBrandPill3: "배지",
+    perksTitle: "⭐ 프리미엄 혜택",
+    perksSub: "프리미엄으로 가입하면 모두 이용해요",
+    perk1: "무제한 문제 풀이",
+    perk2: "단어 · 구구단 게임",
+    perk3: "내 영어책을 사진으로 찍어 단어 추출",
+    perk4: "나만의 단어장",
+    perk5: "나만의 코알라 캐릭터 꾸미기",
     authModeSignup: "회원가입",
     authUsernameLabel: "아이디",
     authUsernameHint: "3~20자: 영문, 숫자, 밑줄(_)만 가능해요.",
@@ -1829,6 +1881,15 @@ function rewardLearning(mode) {
   const day = localDateKey(new Date());
   const rec = progress.daily && progress.daily[day] && progress.daily[day][mode];
   const paid = KoalaCore.awardLearning(progress, mode, rec ? rec[0] : 0, day);
+  // Past the daily cap, a few smaller bonus rounds keep paying ("Earn more Coins").
+  const ep = KOALA_EARN.find((x) => x.mode === mode);
+  if (ep) {
+    const bp = koalaBonusProgress(mode, rec ? rec[0] : 0);
+    for (let i = 1; i <= bp.done; i++) {
+      const n = KoalaCore.awardCoins(progress, KOALA_BONUS.coins, ep.why, { key: `learnbonus:${mode}:${day}:${i}` });
+      if (n) paid.push({ why: ep.why, n });
+    }
+  }
   paid.forEach((r) => {
     rwToastQueue.push({
       emojiHtml: COIN_SVG, title: rwL(`+${r.n} Koala Coins!`, `+${r.n} 코알라 코인!`),
@@ -2306,7 +2367,7 @@ function updateSpellingStartChips() {
 // goals[mode] === 0 means "All": every question the pool holds, up to the account ceiling.
 function effectiveGoal(mode, poolSize) {
   const g = goals[mode];
-  return g > 0 ? Math.min(g, poolSize) : Math.min(poolSize, goalMaxFor());
+  return g > 0 ? Math.min(g, poolSize, goalMaxFor()) : Math.min(poolSize, goalMaxFor());
 }
 function poolSizeSafe(mode) {
   try { return goalPoolSize(mode); } catch (e) { return Infinity; } // quiz pool is not ready during early init
@@ -2447,6 +2508,59 @@ document.addEventListener(
   },
   true
 );
+
+// ---- Daily question quota ----
+// The per-round ceilings (GOAL_MAX_*) alone let anyone chain "Play again" rounds
+// forever, so Quiz / Spelling / Times Table also share a per-day total per mode:
+// signed-out = GOAL_MAX_ANONYMOUS, free = GOAL_MAX_FREE; premium and admin are uncapped.
+const DAILY_QUOTA_KEY = "ywp_daily_quota_v1";
+function dailyQuotaCap() {
+  if (isAdmin || serverAdmin) return Infinity;
+  if (!currentUser) return GOAL_MAX_ANONYMOUS;
+  if (currentUser.role === "free") return GOAL_MAX_FREE;
+  return Infinity;
+}
+// Flashcards and the Typing Game: a signed-out visitor gets one free round a day (a taste);
+// any signed-in account plays them without limit.
+function dailyRoundsBlocked(mode) {
+  if (isAdmin || serverAdmin || currentUser) return false;
+  return dailyQuotaUsed(mode) >= 1;
+}
+function promptDailyRound() {
+  kidConfirm(t("dailyRoundGuest")).then((ok) => { if (ok) openAuthOverlay("signup"); });
+}
+function dailyQuotaRead() {
+  const d = localDateKey(new Date());
+  let st = null;
+  try { st = JSON.parse(localStorage.getItem(DAILY_QUOTA_KEY) || "null"); } catch (e) { st = null; }
+  if (!st || st.d !== d || typeof st.by !== "object" || !st.by) st = { d, by: {} };
+  return st;
+}
+function dailyQuotaWho() { return currentUser ? "u" + currentUser.id : "anon"; }
+function dailyQuotaUsed(mode) {
+  const st = dailyQuotaRead();
+  return Number((st.by[dailyQuotaWho()] || {})[mode]) || 0;
+}
+function dailyQuotaLeft(mode) {
+  const cap = dailyQuotaCap();
+  return cap === Infinity ? Infinity : Math.max(0, cap - dailyQuotaUsed(mode));
+}
+function dailyQuotaAdd(mode, n = 1) {
+  if (dailyQuotaCap() === Infinity) return;
+  const st = dailyQuotaRead();
+  const who = dailyQuotaWho();
+  st.by[who] = st.by[who] || {};
+  st.by[who][mode] = (Number(st.by[who][mode]) || 0) + n;
+  try { localStorage.setItem(DAILY_QUOTA_KEY, JSON.stringify(st)); } catch (e) { /* private mode: still enforced per round */ }
+}
+function promptDailyCap() {
+  const cap = dailyQuotaCap();
+  if (!currentUser) {
+    kidConfirm(t("dailyCapGuest", cap)).then((ok) => { if (ok) openAuthOverlay("signup"); });
+  } else {
+    kidConfirm(t("dailyCapFree", cap)).then((ok) => { if (ok) openUpgradeOverlay(); });
+  }
+}
 
 function promptSignupForMoreQuestions() {
   kidConfirm(t("anonymousQuestionCapPrompt")).then((ok) => {
@@ -2945,7 +3059,13 @@ function renderLevelChoices() {
 }
 
 function updateLevelBadge() {
-  levelBadge.textContent = `${t("levelBadgePrefix")}: ${levelLabel(currentLevel)} ▾`;
+  // No level chosen yet (visitor, or an account that has none saved): the badge
+  // itself asks for one, blinking, instead of a popup covering the page.
+  const needsLevel = !savedLevels[currentLang];
+  levelBadge.textContent = needsLevel ? `${t("levelBadgePrompt")} ▾` : `${t("levelBadgePrefix")}: ${levelLabel(currentLevel)} ▾`;
+  levelBadge.classList.toggle("level-badge-prompt", needsLevel);
+  document.body.classList.toggle("level-needed", needsLevel);
+  renderAccountLevelChoices();
 }
 
 function applyLevel(level) {
@@ -2957,15 +3077,74 @@ function applyLevel(level) {
   populateLevelSelects();
   refreshCurrentView();
   renderCustomWords();
+  // A signed-in account keeps its level on the server so any device picks it up.
+  if (currentUser && typeof pushKoalaData === "function") pushKoalaData();
 }
 
-levelBadge.addEventListener("click", () => {
-  renderLevelChoices();
-  // Reopened from the badge means a level is already set, so this visit is
-  // optional — show the close button (see the CSS comment on
-  // .level-overlay-close for why the mandatory first-run pick never does).
-  levelOverlayCloseBtn.hidden = false;
-  levelOverlay.hidden = false;
+// My Account: the same four levels as buttons.
+function renderAccountLevelChoices() {
+  const box = document.getElementById("my-account-level-choices");
+  if (!box) return;
+  const descMap = LEVEL_DESCRIPTIONS[currentLang] || {};
+  const chosen = savedLevels[currentLang];
+  box.innerHTML = "";
+  currentSystem().levels.forEach((lv) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "acct-level-choice" + (chosen === lv.id ? " is-active" : "");
+    b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", chosen === lv.id ? "true" : "false");
+    b.innerHTML = `<strong>${escapeHtml(lv.label)}</strong><span>${escapeHtml(descMap[lv.id] || "")}</span>`;
+    b.addEventListener("click", () => applyLevel(lv.id));
+    box.appendChild(b);
+  });
+}
+
+// Level badge opens a dropdown menu right under it (no popup).
+const levelMenuEl = document.getElementById("level-menu");
+function closeLevelMenu() {
+  levelMenuEl.hidden = true;
+  levelBadge.setAttribute("aria-expanded", "false");
+}
+function openLevelMenu() {
+  const descMap = LEVEL_DESCRIPTIONS[currentLang] || {};
+  const chosen = savedLevels[currentLang];
+  levelMenuEl.innerHTML = "";
+  currentSystem().levels.forEach((lv) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.setAttribute("role", "option");
+    b.setAttribute("aria-selected", chosen === lv.id ? "true" : "false");
+    b.className = "level-menu-item" + (chosen === lv.id ? " is-active" : "");
+    const s = document.createElement("strong");
+    s.textContent = lv.label;
+    const d = document.createElement("span");
+    d.textContent = descMap[lv.id] || "";
+    b.appendChild(s);
+    b.appendChild(d);
+    b.addEventListener("click", () => { closeLevelMenu(); applyLevel(lv.id); });
+    levelMenuEl.appendChild(b);
+  });
+  levelMenuEl.hidden = false;
+  levelBadge.setAttribute("aria-expanded", "true");
+}
+levelBadge.addEventListener("click", (e) => {
+  e.stopPropagation();
+  if (levelMenuEl.hidden) openLevelMenu(); else closeLevelMenu();
+});
+document.addEventListener("click", (e) => {
+  if (!levelMenuEl.hidden && !levelMenuEl.contains(e.target)) closeLevelMenu();
+});
+document.addEventListener("keydown", (e) => {
+  if (levelMenuEl.hidden) return;
+  if (e.key === "Escape") { closeLevelMenu(); levelBadge.focus(); return; }
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    const items = Array.from(levelMenuEl.querySelectorAll("button"));
+    const i = items.indexOf(document.activeElement);
+    const n = e.key === "ArrowDown" ? (i + 1) % items.length : (i - 1 + items.length) % items.length;
+    items[n].focus();
+    e.preventDefault();
+  }
 });
 
 levelOverlayCloseBtn.addEventListener("click", () => {
@@ -3022,9 +3201,6 @@ function switchLanguage(lang) {
     populateLevelSelects();
     refreshCurrentView();
     renderCustomWords();
-  } else if (!currentUser) {
-    levelOverlayCloseBtn.hidden = false;
-    levelOverlay.hidden = false;
   }
 }
 
@@ -3490,6 +3666,7 @@ async function pullKoalaData() {
   if (!currentUser) return;
   try {
     const { data } = await api("/koala/data");
+    if (data && data.levels) applyServerLevels(data.levels);
     if (data && KoalaCore.mergeRewards(progress, data)) {
       saveProgress();
       announceKoalaUnlocks();
@@ -3502,10 +3679,28 @@ async function pullKoalaData() {
   }
 }
 
+// The account's saved level wins over whatever this device had.
+function applyServerLevels(lv) {
+  let changed = false;
+  ["en", "ko"].forEach((l) => {
+    if (typeof lv[l] === "string" && lv[l] && lv[l] !== savedLevels[l]) { savedLevels[l] = lv[l]; changed = true; }
+  });
+  if (!changed) return;
+  saveLevels();
+  const next = savedLevels[currentLang];
+  if (next && next !== currentLevel && currentSystem().levels.some((x) => x.id === next)) {
+    currentLevel = next;
+    populateLevelSelects();
+    refreshCurrentView();
+    renderCustomWords();
+  }
+  updateLevelBadge();
+}
+
 var koalaDataSent = "";
 function pushKoalaData() {
   if (!currentUser || !progress) return Promise.resolve();
-  const body = JSON.stringify({ data: KoalaCore.rewardSlice(progress) });
+  const body = JSON.stringify({ data: Object.assign({}, KoalaCore.rewardSlice(progress), { levels: Object.assign({}, savedLevels) }) });
   if (body === koalaDataSent) return Promise.resolve();
   koalaDataSent = body;
   return api("/koala/data", { method: "PUT", body }).catch(() => { koalaDataSent = ""; });
@@ -4129,6 +4324,7 @@ async function renderMyAccount() {
   myAccountStatusEl.innerHTML = tiles
     .map((s) => `<div class="stat-box"><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div></div>`)
     .join("");
+  renderAccountLevelChoices();
   refreshEmailCard(account);
   refreshUpgradeCard(account);
   if (window.koalaSupportUI) koalaSupportUI.renderAccountCard();
@@ -4828,10 +5024,8 @@ async function restoreSession() {
   renderUpgradeReadyBanner();
   // The "Choose your level" picker is for signed-out visitors only; a signed-in
   // child changes year level from the account popup instead.
-  if (!currentUser && !savedLevels[currentLang]) {
-    levelOverlayCloseBtn.hidden = false;
-    levelOverlay.hidden = false;
-  }
+  // (No popup any more: the level badge blinks "Please set your level" instead.)
+  updateLevelBadge();
   koalaAfterLogin();
 }
 
@@ -4962,7 +5156,11 @@ function renderFlashReport() {
     list.appendChild(row);
   });
 }
-document.getElementById("flash-start-btn").addEventListener("click", startFlashPlay);
+document.getElementById("flash-start-btn").addEventListener("click", () => {
+  if (dailyRoundsBlocked("flash")) { promptDailyRound(); return; }
+  dailyQuotaAdd("flash", 1);
+  startFlashPlay();
+});
 document.getElementById("flash-end").addEventListener("click", finishFlashRound);
 document.getElementById("flash-report-restart").addEventListener("click", showFlashStart);
 document.getElementById("flash-report-level")?.addEventListener("click", () => document.getElementById("level-badge")?.click());
@@ -5157,6 +5355,7 @@ function flashMarkCounted(word) {
 }
 function flashSyncAnswerBtns() {
   [flashKnowBtn, flashDontKnowBtn].forEach((b) => { b.classList.toggle("is-wait", !flashCardFlipped); b.setAttribute("aria-disabled", String(!flashCardFlipped)); });
+  if (flashNextBtn) { flashNextBtn.classList.toggle("is-await-flip", !flashCardFlipped); flashNextBtn.setAttribute("aria-hidden", String(!flashCardFlipped)); flashNextBtn.tabIndex = flashCardFlipped ? 0 : -1; }
 }
 function showFlashInfo() {
   // The 5-second tip lives permanently in the hint block; a too-quick answer just makes it pulse.
@@ -5318,7 +5517,7 @@ function nextFlashcard() {
   koalaReact("next", "fkNext");
 }
 
-flashNextBtn.addEventListener("click", nextFlashcard);
+flashNextBtn.addEventListener("click", () => { if (!flashCardFlipped) return; nextFlashcard(); });
 flashPrevBtn.addEventListener("click", () => {
   if (flashDeck.length === 0) return;
   flashIndex = (flashIndex - 1 + flashDeck.length) % flashDeck.length;
@@ -5904,6 +6103,7 @@ function renderQuizStart() {
   const poolSize = buildQuizPool().length;
   quizStartWarn.hidden = poolSize > 0;
   quizStartWarn.textContent = poolSize > 0 ? "" : t("quizNotEnough", levelLabel(currentLevel));
+  { const left = dailyQuotaLeft("quiz"); if (poolSize > 0 && left !== Infinity && left <= effectiveGoal("quiz", poolSize)) { quizStartWarn.hidden = false; quizStartWarn.textContent = t("dailyLeftNote", left); } }
   quizStartBtn.disabled = poolSize === 0;
 }
 
@@ -5920,6 +6120,7 @@ function buildQuizQuestions() {
 }
 
 function startQuizRound(retryList) {
+  if (dailyQuotaLeft("quiz") <= 0) { showQuizStart(); promptDailyCap(); return; }
   stopQuizTimer();
   quizGoalBanner.hidden = true;
   quizGoalCelebrated = false;
@@ -5928,6 +6129,7 @@ function startQuizRound(retryList) {
   if (retryList) {
     list = QuizCore.retryQuestions(retryList, shuffle);
     quizIsRetry = true;
+    list = list.slice(0, dailyQuotaLeft("quiz"));
   } else {
     const pool = buildQuizPool();
     if (!pool.length) { showQuizStart(); return; }
@@ -5939,6 +6141,7 @@ function startQuizRound(retryList) {
     // is shortened to what the pool can supply.
     list = pickWordsForSession(pool, effectiveGoal("quiz", pool.length), (q) => q.target);
     quizIsRetry = false;
+    list = list.slice(0, dailyQuotaLeft("quiz"));
   }
 
   quizQuestions = list;
@@ -6122,6 +6325,7 @@ function finishQuizQuestion(outcome) {
   quizActiveMs += Math.min(Date.now() - quizQuestionShownAt, 120000);
 
   if (correct) quizScore++;
+  dailyQuotaAdd("quiz", 1);
   quizCombo = comboAfterAnswer(quizCombo, correct);
   if (correct) {
     quizBestCombo = Math.max(quizBestCombo, quizCombo);
@@ -6167,7 +6371,9 @@ function finishQuizQuestion(outcome) {
   const goal = effectiveGoal("quiz", quizQuestions.length);
   if (!quizIsRetry && goal && !quizGoalCelebrated && quizScore >= goal) {
     quizGoalCelebrated = true;
-    showGoalReached(quizGoalBanner, quizGoalMessage, quizGoalNextLevelBtn, quizScore);
+    // No banner: after a short beat (so the last answer's feedback is seen) go straight to the report.
+    const idxAtGoal = quizIndex;
+    setTimeout(() => { if (quizPhase === "play" && quizIndex === idxAtGoal) { quizIndex = quizQuestions.length; showQuizResult(); } }, 1100);
   }
 }
 
@@ -6302,53 +6508,44 @@ function showQuizResult() {
   // also repeating the mood line right above it.
   const praiseText = quizMissed.length === 0 ? t("qzNoMissed") : t(moodKey);
 
-  const stars = [1, 2, 3].map((n) => `<span class="qz-star${n <= sum.stars ? " on" : ""}" aria-hidden="true">${n <= sum.stars ? "★" : "☆"}</span>`).join("");
-  const coinChipHtml = showCoins && coins > 0 ? `<div class="qz-coin-chip">${COIN_SVG} +${coins}</div>` : "";
-
-  // The gift button only shows up when there's something to open right now —
-  // no progress bar or "coming soon" card sitting here the rest of the time.
-  // It's a small pill next to the coin chip, not a second big CTA competing
-  // with the primary button below — but it still carries a text label
-  // (icon alone read as "what is this?"), and nudges gently so it isn't
-  // missed in among the rest of the row.
   const nextReward = showCoins ? KoalaCore.nextReward(progress, Object.assign({ kind: "character" }, koalaOpts())) : null;
-  const giftHtml = nextReward && nextReward.affordable
-    ? `<button type="button" class="qz-gift-icon-btn" data-qz-act="opengift" aria-label="${escapeHtml(t("qzGiftBtn"))}" title="${escapeHtml(t("qzGiftBtn"))}"><span aria-hidden="true">🎁</span><span class="qz-gift-icon-label">${escapeHtml(t("qzGiftBtnLabel"))}</span></button>`
-    : "";
-  const rewardRowHtml = coinChipHtml || giftHtml ? `<div class="qz-reward-row">${coinChipHtml}${giftHtml}</div>` : "";
-
-  // Up to 5 missed words as small tap-to-hear chips, right above the primary
-  // button — the retry button's own "(N)" count already says how many there
-  // are, so no separate collapsed list repeating that.
-  const missedChips = quizMissed.slice(0, QUIZ_RESULT_MISSED_SHOWN);
-  const missedOverflow = quizMissed.length - missedChips.length;
-  const missedHtml = quizMissed.length
-    ? `<div class="qz-missed-chips">${
-        missedChips.map((q) => `<button type="button" class="qz-missed-chip" data-say="${escapeHtml(q.target)}">${escapeHtml(q.target)}</button>`).join("")
-      }${missedOverflow > 0 ? `<span class="qz-missed-chip qz-missed-chip-more">+${missedOverflow}</span>` : ""}</div>`
-    : "";
-
-  // One big primary action: retry just the missed words when there are any,
-  // otherwise a plain replay — never both at once.
+  const missedOverflow = quizMissed.length - Math.min(quizMissed.length, QUIZ_RESULT_MISSED_SHOWN);
   const primaryAct = quizMissed.length ? "retry" : "again";
   const primaryLabel = quizMissed.length ? t("qzRetryBtn", quizMissed.length) : t("qzAgainBtn");
-  const nextLevelHtml = !quizIsRetry && !quizEndedEarly && quizScore === total && total >= GOAL_MIN && nextLevelId()
-    ? `<button type="button" class="qz-result-link" data-qz-act="nextlevel">${escapeHtml(t("goalNextLevelBtn"))}</button>`
+  const nextLevelHtml = !quizIsRetry && !quizEndedEarly && quizScore === total && total >= GOAL_MIN && nextLevelId() ? "yes" : "";
+  // Laid out like the Spelling report (same cards, chips, word rows and buttons).
+  const state = quizMissed.length === 0 ? "perfect" : quizScore > 0 ? "some" : "none";
+  const pct = total ? Math.round((quizScore / total) * 100) : 0;
+  const flowers = state === "perfect" ? ["⭐", "✨", "💚", "⭐", "✨", "💛"].map((c, i) => `<span class="sr-fl" style="--i:${i}">${c}</span>`).join("") : "";
+  const coinTag = showCoins && coins > 0 ? `<span class="score-tag qz-coin-tag">${COIN_SVG} +${coins}</span>` : "";
+  const giftTag = nextReward && nextReward.affordable
+    ? `<button type="button" class="qz-gift-icon-btn" data-qz-act="opengift" aria-label="${escapeHtml(t("qzGiftBtn"))}" title="${escapeHtml(t("qzGiftBtn"))}"><span aria-hidden="true">🎁</span><span class="qz-gift-icon-label">${escapeHtml(t("qzGiftBtnLabel"))}</span></button>`
     : "";
+  const missedRows = quizMissed.slice(0, QUIZ_RESULT_MISSED_SHOWN).map((q) => `<div class="wordlist-item sp-report-row" data-say="${escapeHtml(q.target)}"><div class="wordlist-item-main"><div class="w speakable-line">${escapeHtml(q.target)}</div>${q.definition ? `<div class="d">${escapeHtml(q.definition)}</div>` : ""}</div></div>`).join("");
+  const moreRow = missedOverflow > 0 ? `<p class="sp-report-review qz-report-more">+${missedOverflow}</p>` : "";
+  const retryIcon = '<span class="new-quiz-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0 1 13.66-5.66M20 12a8 8 0 0 1-13.66 5.66" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M17 3v4.5h-4.5M7 21v-4.5h4.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+  const primaryText = String(primaryLabel).replace(/^[↻▶]\s*/, "");
 
   quizResultEl.innerHTML = `
-    <div class="qz-result-card">
-      <div class="qz-result-koala is-${sum.mood}" aria-hidden="true"><span class="kface" aria-hidden="true"></span></div>
-      <div class="qz-stars" role="img" aria-label="${sum.stars} / 3">${stars}</div>
-      <div class="qz-result-score">${quizScore} / ${total}</div>
-      <p class="qz-result-mood">${escapeHtml(praiseText)}</p>
-      ${rewardRowHtml}
-      ${missedHtml}
-      <div class="qz-result-actions">
-        <button type="button" class="qz-result-primary" data-qz-act="${primaryAct}">${escapeHtml(primaryLabel)}</button>
-        <div class="qz-result-links">
-          <button type="button" class="qz-result-link" data-qz-act="settings">${escapeHtml(t("qzSettingsBtn"))}</button>
-          ${nextLevelHtml}
+    <div class="sp-report qz-report" data-state="${state}">
+      <div class="sp-report-card">
+        <h3>${rwL("⭐ Quiz Report", "⭐ 퀴즈 리포트")}</h3>
+        <div class="sp-report-hero">
+          <div class="sp-report-koala-wrap"><div class="sp-live-scene sp-report-koala${state !== "none" ? " sp-cheer" : ""}" aria-hidden="true">${SPELL_KOALA_SVG}</div><div class="sr-fl-layer" aria-hidden="true">${flowers}</div></div>
+          ${quizScore > 0 ? `<div class="sp-report-star">⭐ +${quizScore}</div>` : ""}
+          <p class="sp-report-msg">${escapeHtml(praiseText)}</p>
+        </div>
+        <div class="sp-report-stats">
+          <span class="score-tag">${quizScore} / ${total}${quizScore > 0 ? ` · ${pct}%` : ""}</span>${coinTag}${giftTag}
+        </div>
+        ${quizMissed.length ? `<p class="sp-report-review">${rwL("Words to review · tap to hear 🔊", "다시 볼 단어 · 탭하면 소리가 나요 🔊")}</p><div class="wordlist-grid">${missedRows}</div>${moreRow}` : ""}
+        ${!canUseAccountFeatures() ? `<p class="guest-coin-teaser">${escapeHtml(t("guestCoinTeaser"))} <button type="button" class="pill small guest-signup-btn" data-guest-signup>${escapeHtml(t("guestCoinTeaserBtn"))}</button></p>` : ""}
+        <div class="flash-controls">
+          <button type="button" class="pill accent new-quiz-btn sp-report-restart" data-qz-act="${primaryAct}">${retryIcon}<span>${escapeHtml(primaryText)}</span></button>
+        </div>
+        <div class="sp-report-next">
+          <button type="button" class="pill neutral small qz-report-btn" data-qz-act="settings">${escapeHtml(String(t("qzSettingsBtn")))}</button>
+          ${nextLevelHtml ? `<button type="button" class="pill neutral small qz-report-btn" data-qz-act="nextlevel">${escapeHtml(t("goalNextLevelBtn"))}</button>` : ""}
         </div>
       </div>
     </div>`;
@@ -6881,7 +7078,7 @@ function renderSpellingProgress(advanced = false) {
   const cur = Math.min(spellingIndex, n - 1);
   spellingProgressEl.textContent = t("spProgressLabel", cur + 1, n);
   const done = cur + (advanced ? 1 : 0);
-  const target = Math.round((done / n) * spellingLeafTotal);
+  const target = Math.min(spellingLeafTotal, Math.round((spellingScore.correct / n) * spellingLeafTotal)); // lit leaves = correct answers
   const leaves = spellingBranch.querySelectorAll(".sp-leaf");
   leaves.forEach((l, i) => {
     const eaten = i < target;
@@ -6891,7 +7088,7 @@ function renderSpellingProgress(advanced = false) {
     l.classList.toggle("miss", eaten && spellingMissedIdx.has(i));
     // The leaf for the word being spelled glows gently; when it is earned it
     // pops (bigger + sparkle) and settles into the "done" look.
-    l.classList.toggle("cur", i === target && target < spellingLeafTotal);
+    l.classList.remove("cur");
     if (justDone) {
       l.classList.remove("sp-leaf-pop");
       void l.offsetWidth;
@@ -6995,6 +7192,7 @@ function spellingConfetti() {
 }
 
 spellingStartBtn.addEventListener("click", () => {
+  if (dailyQuotaLeft("spelling") <= 0) { promptDailyCap(); return; }
   spellingStartScreen.hidden = true;
   spellingPractice.hidden = false;
   loadSpellingWord();
@@ -7261,6 +7459,10 @@ function checkSpellingAnswer() {
     spellingTotalCountedWords.add(current.word);
     spellingScore.total++;
     progress.spelling.total++;
+    dailyQuotaAdd("spelling", 1);
+    if (dailyQuotaLeft("spelling") <= 0) {
+      setTimeout(() => { if (!spellingPractice.hidden) { renderSpellingReport(); promptDailyCap(); } }, 2200);
+    }
   }
 
   if (correct) {
@@ -7299,7 +7501,7 @@ function checkSpellingAnswer() {
     const goal = effectiveGoal("spelling", spellingDeck.length);
     if (goal && !spellingGoalCelebrated && spellingScore.correct >= goal) {
       spellingGoalCelebrated = true;
-      showGoalReached(spellingGoalBanner, spellingGoalMessage, spellingGoalNextLevelBtn, spellingScore.correct);
+      setTimeout(() => { if (!spellingPractice.hidden) renderSpellingReport(); }, 1800);
     }
   } else {
     spellingCombo = comboAfterAnswer(spellingCombo, false);
@@ -7368,6 +7570,7 @@ spellingBackBtn.addEventListener("click", () => {
 });
 
 function renderSpellingReport() {
+  { const gt = document.getElementById("spelling-guest-teaser"); if (gt) { const g = !canUseAccountFeatures(); gt.hidden = !g; if (g) gt.innerHTML = `${escapeHtml(t("guestCoinTeaser"))} <button type="button" class="pill small guest-signup-btn" data-guest-signup>${escapeHtml(t("guestCoinTeaserBtn"))}</button>`; } }
   spellingPractice.hidden = true;
   spellingReport.hidden = false;
   if (canUsePaidFeatures() && spellingScore.total >= 5 && spellingScore.correct === spellingScore.total) {
@@ -7909,6 +8112,8 @@ function resetTypeGame() {
 
 function startTypeGame() {
   if (typeGameWordPool.length < TYPEGAME_MIN_POOL_SIZE) return;
+  if (dailyRoundsBlocked("type")) { promptDailyRound(); return; }
+  dailyQuotaAdd("type", 1);
   kb("type")?.reset();
   typeGameRunning = true;
   typeGamePaused = false;
@@ -9045,9 +9250,10 @@ function timesTableKey(p) {
 // same numbers Quiz/Spelling already nudge signup/upgrade at); Premium and
 // admin have no ceiling here — their round only ends by running out of
 // lives, the same as Typing Game.
+let timesTableRoundCap = Infinity; // this round's ceiling = per-round cap, shortened to what is left of today's quota
 function timesTableMaxProblems() {
-  if (!currentUser) return GOAL_MAX_ANONYMOUS;
-  if (currentUser.role === "free") return GOAL_MAX_FREE;
+  if (!currentUser) return Math.min(GOAL_MAX_ANONYMOUS, timesTableRoundCap);
+  if (currentUser.role === "free") return Math.min(GOAL_MAX_FREE, timesTableRoundCap);
   return Infinity;
 }
 
@@ -9202,6 +9408,8 @@ function startTimesTable() {
     }, 0);
     return;
   }
+  if (dailyQuotaLeft("tt") <= 0) { promptDailyCap(); return; }
+  timesTableRoundCap = dailyQuotaLeft("tt");
   ttKb((b) => b.reset());
   resetTimesTableCombo();
   setTimesTableGuideOpen(false);
@@ -9325,6 +9533,7 @@ function spawnTimesTableProblem() {
   }
   if (!problem) return;
   timesTableProblemsShown++;
+  dailyQuotaAdd("tt", 1);
 
   const el = buildTimesTableObject(problem);
   timesTableWordsEl.appendChild(el);
@@ -11145,9 +11354,15 @@ function populateBulkLevelSelect() {
   customLevelSelect.value = "";
 }
 
+// A free account can try the manual form for 10 words (kept only while the page is open — see
+// newWordStorageFlags); bulk / photo / Excel stay premium.
+const FREE_WORD_TRIAL = 10;
+function isFreeAccount() { return !!currentUser && currentUser.role === "free"; }
+function freeWordTrialUsed() { return customWords.filter((w) => w.volatile).length; }
 manualForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  if (!canUsePaidFeatures()) {
+  const trialOk = isFreeAccount() && (!!manualEditId.value || freeWordTrialUsed() < FREE_WORD_TRIAL);
+  if (!canUsePaidFeatures() && !trialOk) {
     promptUpgradeForFeature();
     return;
   }
@@ -11197,6 +11412,7 @@ manualForm.addEventListener("submit", (e) => {
   resetManualForm();
   renderCustomWords();
   renderWordList();
+  if (refreshPaidFeatureGates) refreshPaidFeatureGates();
   pushSharedWords([newWord || editedWord].filter((w) => w && w.remote));
 
   if (newWord) {
@@ -11348,6 +11564,8 @@ function updateDeleteSelectedBtn() {
   customDeleteSelectedBtn.classList.toggle("error", hasSelection);
   customDeleteSelectedBtn.classList.toggle("neutral", !hasSelection);
   customLevelSelect.disabled = !hasSelection;
+  const selCount = document.getElementById("cw-select-count");
+  if (selCount) selCount.textContent = hasSelection ? (currentLang === "ko" ? `${selectedCustomWordIds.size}개 선택됨` : `${selectedCustomWordIds.size} selected`) : "";
   syncCustomActionBar();
 }
 
@@ -11360,8 +11578,10 @@ function syncCustomActionBar() {
   const bar = document.getElementById("custom-action-bar");
   if (!bar) return;
   const n = selectedCustomWordIds.size;
-  bar.hidden = n === 0;
-  bar.closest(".view").classList.toggle("has-action-bar", n > 0);
+  bar.hidden = true;
+  bar.closest(".view").classList.remove("has-action-bar");
+  return;
+  // eslint-disable-next-line no-unreachable
   if (n === 0) return;
   document.getElementById("custom-action-text").textContent = t("selectedCountText", n);
   // Mirror the toolbar's level choices (they depend on the current language track).
@@ -11592,13 +11812,7 @@ function renderCustomWords({ resetPaging = true } = {}) {
       editBtn.textContent = t("editBtn");
       editBtn.addEventListener("click", () => startEditCustomWord(w.id));
 
-      const deleteBtn = document.createElement("button");
-      deleteBtn.className = "delete-btn";
-      deleteBtn.textContent = t("deleteBtn");
-      deleteBtn.addEventListener("click", () => deleteCustomWord(w.id));
-
       btnRow.appendChild(editBtn);
-      btnRow.appendChild(deleteBtn);
       right.appendChild(btnRow);
 
       row.appendChild(right);
@@ -12358,9 +12572,25 @@ statsInsightsCard.addEventListener("keydown", (e) => {
 // account manages only its own words and never needs them.
 function updatePaidFeatureGates() {
   const locked = !canUsePaidFeatures();
+  // Free accounts get the manual form + their trial words list unlocked (10-word taste).
+  const trialOpen = locked && isFreeAccount();
+  const lockedManual = locked && !trialOpen;
   setPremiumGate(addwordExtractCard, ocrPremiumOverlay, locked);
-  setPremiumGate(addwordManualCard, manualPremiumOverlay, locked);
-  setPremiumGate(myAddedWordsCard, customPremiumOverlay, locked);
+  setPremiumGate(addwordManualCard, manualPremiumOverlay, lockedManual);
+  setPremiumGate(myAddedWordsCard, customPremiumOverlay, lockedManual);
+  let trialNote = document.getElementById("manual-trial-note");
+  if (trialOpen) {
+    if (!trialNote) {
+      trialNote = document.createElement("p");
+      trialNote.id = "manual-trial-note";
+      trialNote.className = "muted manual-trial-note";
+      manualForm.insertAdjacentElement("beforebegin", trialNote);
+    }
+    trialNote.textContent = t("wordTrialNote", Math.min(freeWordTrialUsed(), FREE_WORD_TRIAL));
+    trialNote.hidden = false;
+  } else if (trialNote) {
+    trialNote.hidden = true;
+  }
   addwordLockBanner.hidden = !locked;
   setPremiumGate(statsInsightsCard, statsPremiumOverlay, locked);
 
@@ -12369,11 +12599,12 @@ function updatePaidFeatureGates() {
   // being activated — disabling these directly closes that gap. (Delete/
   // change-level already end up disabled whenever locked, since the grid is
   // always empty with nothing addable to it — see updateDeleteSelectedBtn().)
-  [manualWordInput, manualDefinitionInput, manualExampleInput, manualLevelSelect, bulkWordsInput].forEach((el) => {
-    el.disabled = locked;
+  [manualWordInput, manualDefinitionInput, manualExampleInput, manualLevelSelect].forEach((el) => {
+    el.disabled = lockedManual;
   });
+  bulkWordsInput.disabled = locked;
   [customSearchInput, customFilterToggleBtn, customSelectAllCheckbox, customWordMgmtSelect, customExportBtn].forEach((el) => {
-    el.disabled = locked;
+    el.disabled = lockedManual;
   });
 
   customWordMgmtSelect.hidden = !isAdmin;
@@ -13579,6 +13810,7 @@ function ensureRewardData() {
   if (!Array.isArray(progress.recent)) progress.recent = []; // [{ t, m, w, ok }] last answers, newest last
 }
 
+const WRONG_TRIAL_MAX = 10;
 function trackActivity(word, isCorrect, mode) {
   ensureRewardData();
   mode = mode || "flash";
@@ -13601,12 +13833,15 @@ function trackActivity(word, isCorrect, mode) {
   // The Wrong-answer notebook is a Premium/admin perk — nothing is collected
   // for free or signed-out visitors (charts above still are).
   const paid = canUsePaidFeatures();
+  // Free accounts keep a small taste of the notebook (their 10 latest mistakes); premium keeps all.
+  const trial = !paid && !!currentUser && currentUser.role === "free";
+  const keepWrong = paid || trial;
   const key = String(word);
   if (isCorrect) {
     // Times-table facts feed the table-mastery badges, which every signed-in
     // account can earn.
     if (mode === "tt" && canUseAccountFeatures()) progress.ttSolved[key] = 1;
-    const w = paid ? progress.wrong[key] : null;
+    const w = keepWrong ? progress.wrong[key] : null;
     if (w) {
       w.ok = (w.ok || 0) + 1;
       if (w.ok >= 2) {
@@ -13614,12 +13849,19 @@ function trackActivity(word, isCorrect, mode) {
         progress.counters.wrongCleared++;
       }
     }
-  } else if (paid) {
+  } else if (keepWrong) {
     const w = progress.wrong[key] || (progress.wrong[key] = { n: 0, last: 0, ok: 0, mode });
     w.n++;
     w.ok = 0;
     w.last = Date.now();
     w.mode = mode;
+    if (trial) {
+      const keys = Object.keys(progress.wrong);
+      if (keys.length > WRONG_TRIAL_MAX) {
+        keys.sort((a, b) => (progress.wrong[b].last || 0) - (progress.wrong[a].last || 0));
+        keys.slice(WRONG_TRIAL_MAX).forEach((k) => { delete progress.wrong[k]; });
+      }
+    }
   }
   checkBadges();
 }
@@ -13792,11 +14034,11 @@ function escapeHtml(s) {
 
 function renderRewardPanels() {
   ensureRewardData();
-  const wrongCount = canUsePaidFeatures() ? Object.keys(progress.wrong).length : 0;
+  const wrongCount = canUseAccountFeatures() ? Object.keys(progress.wrong).length : 0;
   const wrongTab = document.querySelector('.stats-tab[data-stats-tab="wrong"]');
   if (wrongTab) {
     wrongTab.querySelector(".stats-tab-count").textContent = wrongCount ? String(wrongCount) : "";
-    wrongTab.classList.toggle("is-locked", !canUsePaidFeatures());
+    wrongTab.classList.toggle("is-locked", !canUseAccountFeatures());
   }
   if (statsTab === "overview") renderStatsCharts();
   else if (statsTab === "badges") renderBadgePanel();
@@ -13812,6 +14054,7 @@ function premiumLockHtml() {
 }
 document.addEventListener("click", (e) => {
   if (e.target.closest("[data-rw-upgrade]")) promptUpgradeForFeature();
+  if (e.target.closest("[data-guest-signup]")) openAuthOverlay("signup");
 });
 
 // Signed-out visitors can look at the badges but can't collect them.
@@ -13951,6 +14194,7 @@ window.addEventListener("resize", hideBadgeTip);
 // The coin is drawn, not an emoji: the coin emoji glyph is missing from many
 // Windows and older Android fonts and shows up as an empty box. Sizes with the text.
 const FLASH_ICON_SVG = '<svg class="fl-svg" viewBox="0 0 44 36" width="1.15em" height="1em" fill="none" aria-hidden="true" focusable="false"><rect x="4" y="9" width="26" height="20" rx="5" fill="#d9f3ea" stroke="#0b6b57" stroke-width="2.5" transform="rotate(-9 17 19)"/><rect x="12" y="5" width="27" height="21" rx="5" fill="#fff" stroke="#0b6b57" stroke-width="2.5"/><path d="M19 15.5h13M19 20h8" stroke="#02c39a" stroke-width="2.6" stroke-linecap="round"/><path d="M33 29c3-1 5-4 4.5-7.5" stroke="#f5a623" stroke-width="2.8" stroke-linecap="round"/></svg>';
+const PIG_SVG = '<svg viewBox="0 0 24 24" width="1.15em" height="1.15em" aria-hidden="true" focusable="false" style="vertical-align:-.2em"><path d="M4.2 8.2L3.4 3.6 8 5.4z M19.8 8.2l.8-4.6L16 5.4z" fill="#ff9fb8"/><circle cx="12" cy="13" r="9" fill="#ffb8cb"/><ellipse cx="12" cy="15.4" rx="4.2" ry="3.1" fill="#ff8fae"/><circle cx="10.5" cy="15.4" r=".9" fill="#c9456f"/><circle cx="13.5" cy="15.4" r=".9" fill="#c9456f"/><circle cx="8.3" cy="10.8" r="1.15" fill="#3b2a30"/><circle cx="15.7" cy="10.8" r="1.15" fill="#3b2a30"/></svg>';
 const COIN_SVG = '<svg class="koala-coin" viewBox="0 0 24 24" width="1.1em" height="1.1em" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10.5" fill="#f6c343" stroke="#c98a12" stroke-width="1.5"/><circle cx="12" cy="12" r="7" fill="none" stroke="#e0a21a" stroke-width="1.2"/><path d="M12 7.2v9.6M9.3 9.6c0-1.2 1.2-1.9 2.7-1.9s2.7.7 2.7 1.9c0 2.7-5.4 1.5-5.4 4.2 0 1.2 1.2 2 2.7 2s2.7-.8 2.7-2" fill="none" stroke="#a86f0c" stroke-width="1.3" stroke-linecap="round"/></svg>';
 
 const KOALA_REASON_LABELS = () => ({
@@ -14444,6 +14688,15 @@ const KOALA_EARN = [
   { mode: "tt", why: "timesTable", view: "timestable", emoji: "🧮" },
   { mode: "typing", why: "typing", view: "typegame", emoji: "⌨️" },
 ];
+// Bonus rounds after a mode's daily coin rounds are used up.
+const KOALA_BONUS = { rounds: 3, coins: 3 };
+function koalaBonusProgress(mode, correct) {
+  const cfg = Object.assign({}, KoalaCore.REWARD_CONFIG.learning, (KoalaCore.REWARD_CONFIG.learningByMode || {})[mode]);
+  const extra = Math.max(0, (correct || 0) - cfg.correctPerReward * cfg.dailyRewardsPerMode);
+  const done = Math.min(Math.floor(extra / cfg.correctPerReward), KOALA_BONUS.rounds);
+  const all = done >= KOALA_BONUS.rounds;
+  return { done, all, have: all ? cfg.correctPerReward : extra % cfg.correctPerReward, goal: cfg.correctPerReward };
+}
 function koalaEarnHtml() {
   const cfg = KoalaCore.REWARD_CONFIG;
   const day = localDateKey(new Date());
@@ -14455,26 +14708,34 @@ function koalaEarnHtml() {
   // button just vanishing, which read as a blank space rather than
   // "you already finished this."
   const doneBtnHtml = () => `<button type="button" class="pill small neutral koala-earn-done" disabled>${rwL("Done ✓", "완료됨 ✓")}</button>`;
+  const moreBtnHtml = (view) => `<button type="button" class="pill small accent koala-earn-go koala-earn-more" data-koala-go="${view}">${rwL("Earn more", "코인 더 모으기")}</button>`;
   const rows = KOALA_EARN.map((e) => {
-    const lp = KoalaCore.learningProgress(e.mode, (today[e.mode] && today[e.mode][0]) || 0);
-    const text = lp.capped
-      ? rwL("✓ All done for today", "✓ 오늘은 다 했어요")
-      : rwL(`${lp.have} / ${lp.goal} correct`, `${lp.have} / ${lp.goal} 정답`);
+    const correct = (today[e.mode] && today[e.mode][0]) || 0;
+    const lp = KoalaCore.learningProgress(e.mode, correct);
+    const bp = koalaBonusProgress(e.mode, correct);
+    const barPct = lp.capped ? Math.round((bp.have / bp.goal) * 100) : Math.round((lp.have / lp.goal) * 100);
+    let text;
+    if (!lp.capped) text = rwL(`${lp.have} / ${lp.goal} correct${lp.roundsDone ? ` · ${lp.roundsDone} of ${lp.roundsMax} rounds done today` : ""}`, `${lp.have} / ${lp.goal} 정답${lp.roundsDone ? ` · 오늘 ${lp.roundsDone}/${lp.roundsMax}회 완료` : ""}`);
+    else if (bp.all) text = rwL("✓ Done! All bonuses collected today", "✓ 완료됨! 오늘 보너스도 모두 받았어요");
+    else text = rwL(`✓ Done! Bonus +${KOALA_BONUS.coins}: ${bp.have} / ${bp.goal} correct`, `✓ 완료됨! 보너스 +${KOALA_BONUS.coins}: ${bp.have} / ${bp.goal} 정답`);
+    const btn = !lp.capped ? `<button type="button" class="pill small koala-earn-go" data-koala-go="${e.view}">${rwL("Go", "GO")}</button>` : bp.all ? doneBtnHtml() : moreBtnHtml(e.view);
     return `<li class="koala-earn-row${lp.capped ? " koala-earn-row--done" : ""}"><span class="koala-earn-emoji" aria-hidden="true">${e.emoji}</span>
       <span class="koala-earn-main"><span class="koala-earn-name">${labels[e.why]} <b>+${lp.coins}</b> ${COIN_SVG}</span>
-      <span class="koala-level-bar" aria-hidden="true"><span style="width:${Math.round((lp.have / lp.goal) * 100)}%"></span></span>
+      <span class="koala-level-bar" aria-hidden="true"><span style="width:${barPct}%"></span></span>
       <small>${text}</small></span>
-      ${lp.capped ? doneBtnHtml() : `<button type="button" class="pill small koala-earn-go" data-koala-go="${e.view}">${rwL("Go", "GO")}</button>`}</li>`;
+      ${btn}</li>`;
   }).join("");
-  const missionDone = progress.missionDone === day;
+  const mRound = missionRoundState();
+  const missionDone = progress.missionPaid === day + ":" + mRound.n || (mRound.n === 0 && progress.missionDone === day);
+  const missionMore = missionDone && mRound.n < missionRetryCfg().max;
   return `<div class="koala-earn"><div class="koala-earn-title">${COIN_SVG} ${rwL("Earn more Coins", "코인 더 모으기")}</div>
     <p class="koala-note">${rwL(
       `Every ${cfg.learning.correctPerReward} correct answers earn Coins (up to ${cfg.learning.dailyRewardsPerMode} times per activity each day; Flashcards: every ${cfg.learningByMode.flash.correctPerReward}, up to ${cfg.learningByMode.flash.dailyRewardsPerMode} times). Wrong answers never cost Coins.`,
       `정답 ${cfg.learning.correctPerReward}개마다 코인을 받아요 (활동마다 하루 ${cfg.learning.dailyRewardsPerMode}번까지, 플래시카드는 ${cfg.learningByMode.flash.correctPerReward}개마다 하루 ${cfg.learningByMode.flash.dailyRewardsPerMode}번). 틀려도 코인은 줄지 않아요.`)}</p>
     <ul class="koala-earn-list">${rows}
-      <li class="koala-earn-row${missionDone ? " koala-earn-row--done" : ""}"><span class="koala-earn-emoji" aria-hidden="true">🎯</span><span class="koala-earn-main"><span class="koala-earn-name">${labels.dailyMission} <b>+${cfg.coins.dailyMission}</b> ${COIN_SVG}</span>
-        <small>${missionDone ? rwL("✓ Done today", "✓ 오늘 완료") : rwL("Finish all 3 mission tasks", "미션 3개를 모두 끝내요")}</small></span>
-        ${missionDone ? doneBtnHtml() : `<button type="button" class="pill small koala-earn-go" data-koala-go="landing">${rwL("Go", "GO")}</button>`}</li>
+      <li class="koala-earn-row${missionDone ? " koala-earn-row--done" : ""}"><span class="koala-earn-emoji" aria-hidden="true">🎯</span><span class="koala-earn-main"><span class="koala-earn-name">${labels.dailyMission} <b>+${mRound.n ? missionRetryCfg().coins : cfg.coins.dailyMission}</b> ${COIN_SVG}</span>
+        <small>${missionDone ? (missionMore ? rwL(`✓ Completed! Retry for a new mission (+${missionRetryCfg().coins})`, `✓ 완료됨! 재도전하면 +${missionRetryCfg().coins}코인`) : rwL("✓ Completed! All missions done today", "✓ 완료됨! 오늘 미션을 모두 끝냈어요")) : rwL("Finish all 3 mission tasks", "미션 3개를 모두 끝내요")}</small></span>
+        ${missionDone ? (missionMore ? moreBtnHtml("landing") : doneBtnHtml()) : `<button type="button" class="pill small koala-earn-go" data-koala-go="landing">${rwL("Go", "GO")}</button>`}</li>
       <li class="koala-earn-row"><span class="koala-earn-emoji" aria-hidden="true">🏆</span><span class="koala-earn-main"><span class="koala-earn-name">${labels.badge} <b>+${cfg.badgeDefault}</b> ${COIN_SVG}</span>
         <small>${rwL("Every new badge pays a bonus", "새 배지를 받을 때마다 보너스")}</small></span>
         <button type="button" class="pill small koala-earn-go" data-koala-tab="badges">${rwL("Badges", "배지")}</button></li>
@@ -14503,7 +14764,7 @@ function koalaCoinsHtml(k) {
       <div class="koala-wallet-stats">
         <button type="button" class="koala-wallet-stat" data-coin-detail="earned"><span>${rwL("💰 Collected", "💰 모은 코인")}</span><b>+${k.earned.toLocaleString()}</b></button>
         <button type="button" class="koala-wallet-stat" data-coin-detail="spent"><span>${rwL("🛍️ Shopping", "🛍️ 쇼핑한 코인")}</span><b>−${k.spent.toLocaleString()}</b></button>
-        <button type="button" class="koala-wallet-stat" data-coin-detail="refunded"><span>${rwL("🐷 Got back", "🐷 돌려받은 코인")}</span><b>+${k.refunded.toLocaleString()}</b></button></div>
+        <button type="button" class="koala-wallet-stat" data-coin-detail="refunded"><span>${PIG_SVG} ${rwL("Got back", "돌려받은 코인")}</span><b>+${k.refunded.toLocaleString()}</b></button></div>
       <p class="koala-wallet-note">${rwL("Sell an item back and 80% of its price returns here (a 20% fee). Every buy and sale is listed below. Tap a box to see its chart.", "산 아이템을 되팔면 가격의 80%가 이 지갑으로 돌아와요 (수수료 20%). 사고 판 내역은 아래에 모두 기록돼요. 칸을 누르면 그래프를 볼 수 있어요.")}</p></div>
     ${koalaEarnHtml()}
     ${koalaHistoryHtml(k)}`;
@@ -14872,7 +15133,9 @@ function renderAdminKoalaTableHeaders() {
   document.getElementById("admin-koala-th-coins").textContent = rwL("Coins", "코인");
   document.getElementById("admin-koala-th-adjust").textContent = rwL("Quick adjustment", "빠른 조정");
   document.getElementById("admin-koala-th-actions").textContent = rwL("Actions", "작업");
+  document.getElementById("admin-koala-search").placeholder = rwL("Search by username", "사용자 이름으로 검색");
   document.getElementById("admin-koala-lh-date").textContent = rwL("Date", "일시");
+  document.getElementById("admin-koala-recent-title").textContent = rwL("Recent adjustments", "최근 조정 내역");
   document.getElementById("admin-koala-lh-user").textContent = rwL("User", "사용자");
   document.getElementById("admin-koala-lh-change").textContent = rwL("Change", "변동");
   document.getElementById("admin-koala-lh-reason").textContent = rwL("Reason", "사유");
@@ -15075,7 +15338,8 @@ function wrongEntries() {
 
 function renderWrongPanel() {
   const el = statsPanels.wrong;
-  if (!canUsePaidFeatures()) {
+  const wrongTrial = !canUsePaidFeatures() && canUseAccountFeatures();
+  if (!canUseAccountFeatures()) {
     el.innerHTML = premiumLockHtml();
     return;
   }
@@ -15101,7 +15365,7 @@ function renderWrongPanel() {
     return;
   }
   const modeName = { quiz: rwL("Quiz", "퀴즈"), spelling: rwL("Spelling", "스펠링"), typing: rwL("Typing", "타이핑"), tt: rwL("Times Table", "구구단"), flash: rwL("Flashcards", "플래시카드") };
-  const studyBtn = wrongSubTab === "math"
+  const studyBtn = wrongSubTab === "math" || wrongTrial
     ? ""
     : `<button type="button" class="pill small" id="wrong-study-btn">${FLASH_ICON_SVG} ${rwL("Study words", "단어 공부")}</button>`;
   let html = `${subTabs}<p class="wrong-hint">${wrongSubTab === "math"
@@ -15125,7 +15389,7 @@ function renderWrongPanel() {
       <button type="button" class="wrong-remove" data-remove="${escapeHtml(it.key)}" aria-label="${rwL("Remove", "삭제")}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></li>`;
   });
   html += `</ul>
-    <div class="wrong-actions">${studyBtn}<button type="button" class="pill accent small" id="wrong-review-btn"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg> ${rwL("Start review", "복습 시작")}</button></div>`;
+    ${wrongTrial ? `<p class="wrong-hint wrong-trial-note">${t("wrongTrialNote")}</p><div class="wrong-actions"><button type="button" class="pill accent small" data-rw-upgrade>${t("wrongTrialBtn")}</button></div>` : `<div class="wrong-actions">${studyBtn}<button type="button" class="pill accent small" id="wrong-review-btn"><span class="go-label">${rwL("Start review", "복습 시작")}</span><span class="go-disc"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span></button></div>`}`;
   el.innerHTML = html;
 }
 
@@ -15675,7 +15939,7 @@ function coinDetailContent(kind) {
       note: rwL("Answer correctly, finish the daily mission and win badges to collect Coins.", "정답을 맞히고, 오늘의 미션을 끝내고, 배지를 받으면 코인이 모여요.") },
     spent: { ico: "🛍️", title: rwL("Coins spent in the shop", "쇼핑한 코인"), big: k.spent, color: "#f0a020",
       note: rwL("Unlocking an item in the shop uses Coins.", "상점에서 아이템을 열면 코인을 써요.") },
-    refunded: { ico: "🐷", title: rwL("Coins you got back", "돌려받은 코인"), big: k.refunded, color: "#3aa6c9",
+    refunded: { ico: PIG_SVG, title: rwL("Coins you got back", "돌려받은 코인"), big: k.refunded, color: "#3aa6c9",
       note: rwL("Selling an item back returns 80% of its price.", "아이템을 되팔면 가격의 80%가 돌아와요.") },
   }[kind];
   if (!M) return null;
@@ -15836,16 +16100,39 @@ function missionTodayCounts() {
   ensureRewardData();
   return progress.daily[localDateKey(new Date())] || {};
 }
+// Retrying the mission: today's counts are measured from a baseline taken at
+// the retry, and the third task alternates, so each round is a fresh mission.
+// A function (not a const) so early renderHome() calls during start-up can use it.
+function missionRetryCfg() { return { max: 3, coins: 10 }; }
+function missionRoundState() {
+  const day = localDateKey(new Date());
+  const r = progress.missionRound;
+  return r && r.day === day ? r : { day, n: 0, base: {} };
+}
 function missionTasks() {
   const d = missionTodayCounts();
-  const n = (m) => (d[m] && d[m][1]) || 0;
-  const day = Math.floor(Date.now() / 86400000);
+  const r = missionRoundState();
+  const n = (m) => Math.max(0, ((d[m] && d[m][1]) || 0) - ((r.base && r.base[m]) || 0));
+  const day = Math.floor(Date.now() / 86400000) + r.n;
   const third = day % 2 ? { id: "quiz", mode: "quiz", view: "quiz", key: "missionQuiz", emoji: "💡" } : { id: "tt", mode: "tt", view: "timestable", key: "missionTT", emoji: "🧮" };
   return [
     { id: "flash", mode: "flash", view: "flashcards", key: "missionFlash", emoji: FLASH_ICON_SVG },
     { id: "spelling", mode: "spelling", view: "spelling", key: "missionSpelling", emoji: "✏️" },
     third,
   ].map((x) => ({ ...x, done: Math.min(n(x.mode), missionGoal()), goal: missionGoal() }));
+}
+function retryMission() {
+  const tasks = missionTasks();
+  const r = missionRoundState();
+  if (!tasks.every((x) => x.done >= x.goal) || r.n >= missionRetryCfg().max) return;
+  const d = missionTodayCounts();
+  const base = {};
+  ["flash", "spelling", "quiz", "tt"].forEach((m) => { base[m] = (d[m] && d[m][1]) || 0; });
+  progress.missionRound = { day: r.day, n: r.n + 1, base };
+  saveProgress();
+  renderMission();
+  renderReviewCard();
+  if (typeof renderKoala === "function" && document.getElementById("view-koala") && !document.getElementById("view-koala").hidden) { try { renderKoala(); } catch (e) { /* koala not ready */ } }
 }
 function renderHomeYears() {
   const box = document.getElementById("home-years");
@@ -15886,28 +16173,48 @@ function renderMission() {
   document.getElementById("mission-bar-fill").style.width = `${(tasks.reduce((s, x) => s + x.done / x.goal, 0) / tasks.length) * 100}%`;
   const all = doneCount === tasks.length;
   document.getElementById("mission-card").classList.toggle("complete", all);
-  document.getElementById("mission-done-msg").hidden = !all;
+  const canRetry = all && missionRoundState().n < missionRetryCfg().max;
+  const msg = document.getElementById("mission-done-msg");
+  if (msg) {
+    msg.hidden = !all;
+    msg.textContent = canRetry ? t(canUseAccountFeatures() ? "missionRetryMsg" : "missionRetryMsgGuest") : t("missionDoneMsg");
+  }
+  const retryBtn = ensureMissionRetryBtn();
+  if (retryBtn) {
+    retryBtn.hidden = !canRetry;
+    retryBtn.innerHTML = `<svg class="retry-ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.3-4.6M4 4v4.4h4.4"/><path d="M4 13a8 8 0 0 0 14.3 4.6M20 20v-4.4h-4.4"/></svg><span>${escapeHtml(t("missionRetry"))}</span>`;
+  }
   return all;
 }
 function checkMissionComplete() {
   const all = missionTasks().every((x) => x.done >= x.goal);
   const today = localDateKey(new Date());
-  if (all && progress.missionDone !== today) {
+  const round = missionRoundState().n;
+  const tag = today + ":" + round;
+  const already = progress.missionPaid === tag || (round === 0 && progress.missionDone === today);
+  if (all && !already) {
+    progress.missionPaid = tag;
     progress.missionDone = today;
     ensureRewardData();
     progress.counters.missions = (progress.counters.missions || 0) + 1;
-    const coins = canUseAccountFeatures() ? KoalaCore.awardMission(progress, today) : 0;
+    let coins = 0;
+    if (canUseAccountFeatures()) {
+      coins = round === 0
+        ? KoalaCore.awardMission(progress, today)
+        : KoalaCore.awardCoins(progress, missionRetryCfg().coins, "dailyMission", { key: `mission:${today}:r${round}` });
+    }
     saveProgress();
     // The "reward moment": a bigger toast that doubles as a link to My Koala.
     rwToastQueue.push({
       emoji: "🎯", title: t("missionToast"),
-      name: coins ? rwL(`+${coins} Koala Coins!`, `+${coins} 코알라 코인!`) : t("missionDoneMsg").replace(/^🎉 /, ""),
+      name: coins ? rwL(`+${coins} Koala Coins!`, `+${coins} 코알라 코인!`) : rwL("Great work today!", "오늘도 잘했어요!"),
       go: coins > 0,
     });
     showNextBadgeToast();
     checkBadges();
     checkLevelUp();
   }
+  renderMission();
 }
 function renderHome() {
   window.__koalaUiReady = true; // the reward UI above is defined from here on
@@ -15915,11 +16222,30 @@ function renderHome() {
   document.querySelectorAll(".landing-tile-title").forEach((el) => {
     el.textContent = el.textContent.replace(/^[^\p{L}\p{N}]+/u, "").trim();
   });
-  renderHomeYears();
-  renderMission();
-  renderReviewCard();
+  // Each part is isolated: one failing must never stop the rest of start-up.
+  [renderHomeYears, renderMission, renderReviewCard].forEach((fn) => {
+    try { fn(); } catch (e) { console.warn("renderHome:", fn.name, e); }
+  });
 }
 document.getElementById("promo-btn").addEventListener("click", () => goToTab("addword"));
+// The retry button lives in index.html; build it if an older cached page lacks it,
+// so a missing element can never stop the rest of start-up.
+function ensureMissionRetryBtn() {
+  let b = document.getElementById("mission-retry-btn");
+  if (!b) {
+    const msg = document.getElementById("mission-done-msg");
+    if (!msg) return null;
+    b = document.createElement("button");
+    b.type = "button";
+    b.id = "mission-retry-btn";
+    b.className = "pill accent small mission-retry";
+    b.hidden = true;
+    msg.insertAdjacentElement("afterend", b);
+  }
+  return b;
+}
+const missionRetryBtnEl = ensureMissionRetryBtn();
+if (missionRetryBtnEl) missionRetryBtnEl.addEventListener("click", retryMission);
 renderHome();
 
 
@@ -15973,7 +16299,7 @@ function renderReviewCard() {
     ? rwL("Meaning, listen, then spell it.", "뜻 보고, 듣고, 직접 써 봐요.")
     : rwL(`${waiting} word${waiting === 1 ? "" : "s"} to retest tomorrow.`, `내일 다시 확인할 단어 ${waiting}개`);
   const btn = document.getElementById("review-card-btn");
-  btn.textContent = rwL("Start", "START");
+  btn.innerHTML = `<span class="go-label">${rwL("Start review", "복습 시작")}</span><span class="go-disc"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span>`;
   btn.hidden = !due;
 }
 document.getElementById("review-card-btn").addEventListener("click", () => startReview());
@@ -16196,6 +16522,7 @@ function reviewSummary() {
     s.rewarded = true;
     const coins = KoalaCore.awardReview(progress, localDateKey(new Date()) + ":" + Date.now());
     if (coins) {
+      s.coins = coins;
       saveProgress();
       rwToastQueue.push({ emojiHtml: COIN_SVG, title: rwL(`+${coins} Koala Coins!`, `+${coins} 코알라 코인!`), name: KOALA_REASON_LABELS().review, go: true });
       showNextBadgeToast();
@@ -16208,6 +16535,7 @@ function reviewSummary() {
   const left = reviewDueList(s.kind).length;
   document.getElementById("review-body").innerHTML = `<div class="review-done-koala"><span class="kface" aria-hidden="true"></span>🍃</div>
     <h3 class="review-done-title">${rwL("Review complete!", "복습 완료!")}</h3>
+    ${s.coins ? `<p class="review-coins">${COIN_SVG} ${rwL(`You earned ${s.coins} coins!`, `${s.coins}개의 코인을 벌었어요!`)}</p>` : ""}
     <p class="review-def">${rwL(`${s.right} correct`, `${s.right}개 맞혔어요`)}${s.graduated ? ` · ${rwL(`${s.graduated} graduated 🎓`, `${s.graduated}개 졸업 🎓`)}` : ""}</p>
     ${waiting ? `<p class="review-ex">${rwL(`${waiting} word${waiting === 1 ? "" : "s"} will be retested tomorrow.`, `내일 다시 확인할 단어 ${waiting}개`)}</p>` : ""}
     ${left ? `<button type="button" class="pill accent review-next" id="review-more">${rwL(`Review ${left} more`, `${left}개 더 복습`)}</button>` : ""}
@@ -16689,4 +17017,15 @@ statsPanels.parent.addEventListener("click", async (e) => {
     new MutationObserver(schedule).observe(overlay, { attributes: true, attributeFilter: ["hidden"], childList: true, subtree: true, characterData: true });
     schedule();
   });
+})();
+
+// Start-screen cards are as wide as the top navigation bar: publish its width as --nav-w.
+(function trackNavWidth() {
+  const nav = document.querySelector("nav.tabs");
+  if (!nav) return;
+  const set = () => { const w = Math.round(nav.getBoundingClientRect().width); if (w > 0) document.documentElement.style.setProperty("--nav-w", w + "px"); };
+  set();
+  if (window.ResizeObserver) new ResizeObserver(set).observe(nav);
+  window.addEventListener("resize", set);
+  window.addEventListener("load", set);
 })();
