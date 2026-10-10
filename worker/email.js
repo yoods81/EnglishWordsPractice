@@ -104,6 +104,41 @@ export const templates = {
   // The parent's weekly report, sent on request from My Progress > Parent.
   // `r` comes from the browser, so every value is clamped and escaped here.
   weeklyReport(r, username) {
+    const kids = Array.isArray(r && r.children) ? r.children.slice(0, 4) : [];
+    if (kids.length > 1) return templates.weeklyReportMulti(r, kids, username);
+    return templates.weeklyReportOne(r, username);
+  },
+  // Several children: one section per child. A child with no practice that
+  // week only gets a short "no activity" line instead of a full report.
+  weeklyReportMulti(r, kids, username) {
+    const ko = r.lang === "ko";
+    const str = (v, n) => String(v == null ? "" : v).slice(0, n);
+    const AV = { koala: "🐨", kangaroo: "🦘", parrot: "🦜", turtle: "🐢", dolphin: "🐬", owl: "🦉" };
+    const L = ko
+      ? { title: "주간 학습 리포트", none: "이번 주에는 활동 기록이 없어 리포트를 반영할 수 없어요.", open: "앱 열기" }
+      : { title: "Weekly report", none: "No activity this week, so a report can't be included.", open: "Open the app" };
+    const range = str(r.range, 40);
+    const parts = kids.map((k) => {
+      const rep = Object.assign({}, k.report || {}, { lang: r.lang });
+      const name = str(k.name, 20) || "Child";
+      const icon = AV[k.avatar] || "🐨";
+      const idle = !(Number(rep.answers) > 0);
+      if (idle) {
+        return { html: `<div style="margin:22px 0 0;padding:14px 16px;background:#f4f6f5;border-radius:14px"><div style="font-size:16px;font-weight:800">${icon} ${escapeHtml(name)}</div><p style="margin:6px 0 0;color:#667">${escapeHtml(L.none)}</p></div>`, text: `== ${icon} ${name} ==\n${L.none}` };
+      }
+      const one = templates.weeklyReportOne(rep, name, true);
+      return { html: `<div style="margin:22px 0 0;padding-top:14px;border-top:2px solid #d8e8e1"><div style="font-size:17px;font-weight:800;margin-bottom:8px">${icon} ${escapeHtml(name)}</div>${one.html}</div>`, text: `== ${icon} ${name} ==\n${one.text}` };
+    });
+    const html = `<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;font-size:15px;color:#223;max-width:560px;margin:0 auto;padding:20px">
+      <h2 style="margin:0 0 4px;font-size:18px">🐨 ${BRAND}</h2>
+      <p style="margin:0 0 4px;color:#667">${escapeHtml(L.title)} · ${escapeHtml(range)} · ${escapeHtml(username)}</p>
+      ${parts.map((p) => p.html).join("")}
+      <p style="margin:20px 0"><a href="${DEFAULT_APP_URL}" style="display:inline-block;padding:11px 20px;background:#1fb28a;color:#fff;border-radius:10px;text-decoration:none;font-weight:700">${escapeHtml(L.open)}</a></p>
+    </div>`;
+    const text = [`${BRAND} — ${L.title} (${range})`, ...parts.map((p) => p.text), DEFAULT_APP_URL].join("\n\n");
+    return { subject: `[${BRAND}] ${L.title} / ${ko ? "Weekly report" : "주간 리포트"} · ${range}`, text, html };
+  },
+  weeklyReportOne(r, username, embedded) {
     const num = (v, max) => { const n = Number(v); return Number.isFinite(n) ? Math.max(0, Math.min(max, Math.round(n))) : 0; };
     const str = (v, n) => String(v == null ? "" : v).slice(0, n);
     const ko = r.lang === "ko";
@@ -141,25 +176,27 @@ export const templates = {
       chart(L.streak, series.map((d) => ({ l: d.l, a: d.t ? 1 : 0, top: d.t ? "✓" : "", color: "#7ac943" })), L.noteStreak),
     ].join("") : "";
     const knownChart = stages.length ? chart(L.known, stages.map((n, i) => ({ l: L.lv + (i + 1), a: n, top: String(n), color: "#f0a020" })), L.noteKnown) : "";
-    const html = `<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;font-size:15px;color:#223;max-width:560px;margin:0 auto;padding:20px">
-      <h2 style="margin:0 0 4px;font-size:18px">🐨 ${BRAND}</h2>
-      <p style="margin:0 0 14px;color:#667">${escapeHtml(L.title)} · ${range} · ${escapeHtml(username)}</p>
-      <table style="width:100%;background:#f1faf6;border-radius:12px;border-collapse:separate"><tr>${cell(`${active}/${days}`, L.days)}${cell(answers, L.ans)}${cell(pct === null ? "–" : pct + "%", L.acc)}${cell(streak, L.streak)}${cell(known, L.known)}</tr></table>
+    const inner = `<table style="width:100%;background:#f1faf6;border-radius:12px;border-collapse:separate"><tr>${cell(`${active}/${days}`, L.days)}${cell(answers, L.ans)}${cell(pct === null ? "–" : pct + "%", L.acc)}${cell(streak, L.streak)}${cell(known, L.known)}</tr></table>
       ${charts}${knownChart}
       ${modeRows ? `<h3 style="margin:18px 0 6px;font-size:15px">${escapeHtml(L.act)}</h3><table style="width:100%;border-collapse:collapse">${modeRows}</table>` : ""}
       ${tricky.length ? `<h3 style="margin:18px 0 6px;font-size:15px">${escapeHtml(L.tricky)}</h3><p style="margin:0">${tricky.map(escapeHtml).join(", ")}</p>` : ""}
       ${tips.length ? `<h3 style="margin:18px 0 6px;font-size:15px">${escapeHtml(L.tips)}</h3>${tips.map((t) => `<p style="margin:0 0 8px;padding:10px 12px;background:#fff7dc;border-radius:10px">💡 ${escapeHtml(t)}</p>`).join("")}` : ""}
+`;
+    const html = embedded ? inner : `<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;font-size:15px;color:#223;max-width:560px;margin:0 auto;padding:20px">
+      <h2 style="margin:0 0 4px;font-size:18px">🐨 ${BRAND}</h2>
+      <p style="margin:0 0 14px;color:#667">${escapeHtml(L.title)} · ${range} · ${escapeHtml(username)}</p>
+      ${inner}
       <p style="margin:20px 0"><a href="${appUrl}" style="display:inline-block;padding:11px 20px;background:#1fb28a;color:#fff;border-radius:10px;text-decoration:none;font-weight:700">${escapeHtml(L.open)}</a></p>
     </div>`;
     const text = [
-      `${BRAND} — ${L.title} (${str(r.range, 40)})`,
+      ...(embedded ? [] : [`${BRAND} — ${L.title} (${str(r.range, 40)})`]),
       `${L.days}: ${active}/${days}`, `${L.ans}: ${answers}`, `${L.acc}: ${pct === null ? "–" : pct + "%"}`, `${L.streak}: ${streak}`, `${L.known}: ${known}`,
       ...(series.length ? [`${L.ans}: ` + series.map((d) => `${d.l}=${d.c}/${d.t}`).join(" ")] : []),
       ...(stages.length ? [`${L.known}: ` + stages.map((n, i) => `${L.lv}${i + 1}=${n}`).join(" ")] : []),
       ...modes.map((m) => `• ${m.name}: ${m.c}/${m.t}`),
       ...(tricky.length ? [`${L.tricky}: ${tricky.join(", ")}`] : []),
       ...tips.map((t) => `- ${t}`),
-      appUrl,
+      ...(embedded ? [] : [appUrl]),
     ].join("\n");
     return { subject: `[${BRAND}] ${L.title} / ${ko ? "Weekly report" : "주간 리포트"} · ${str(r.range, 40)}`, text, html };
   },

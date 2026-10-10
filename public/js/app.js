@@ -19,6 +19,8 @@ const GOAL_STEP = 5;
 const LEVELS_KEY = "ywp_levels_v1"; // { en: "elem_high", ko: "elem_high" }
 const LANG_KEY = "ywp_lang_v1";
 const ADMIN_KEY = "ywp_admin_v1";
+const PROFILE_KEY = "ywp_active_profile_v1"; // { uid, n } — which child (slot) is learning on this device
+const PROFILES_CACHE_KEY = "ywp_profiles_v1"; // { uid, list } — last known child list
 let flashWrongOverride = null; // set by the Wrong-notes "Study these words" button
 const TYPEGAME_HIGH_SCORE_KEY = "ywp_typegame_highscores_v1";
 // Only used to recognise a login attempt against the reserved admin
@@ -740,6 +742,14 @@ const TRANSLATIONS = {
     authHeaderLoginBtn: "🔑 Log In",
     authToggleLoggedOutHint: "Sign in to save your progress",
     authLogoutBtn: "Logout",
+    childrenTitle: "Children",
+    childrenDesc: "Premium: up to 4 children on one account. Each child has their own progress, coins and koala. Tap Switch to change who is learning.",
+    childrenAddBtn: "+ Add a child",
+    childrenFull: "You have added all 4 children.",
+    childrenLocked: "Premium lets you add up to 4 children and keep each child's progress separate.",
+    childrenUpgradeBtn: "Upgrade to Premium",
+    childPickerTitle: "Who is learning?",
+    childPickerClose: "Close",
     myAccountMenuItem: "My Account",
     myAccountTitle: "🧑 My Account",
     myAccountChangePasswordTitle: "🔒 Change Password",
@@ -836,7 +846,7 @@ const TRANSLATIONS = {
     upgCardTitle: "Upgrade to Premium",
     upgCardLead: "Turn any homework into practice.",
     upgCardPayNote: "Online payment is coming soon. For now, tap \"I have a special code\".",
-    upgBenefit1: "Practise with more than 100 questions per round",
+    upgBenefit1: "Practise without a daily limit",
     upgBenefit2: "Photo, PDF, Word or Excel files all work",
     upgBenefit3: "Your own word list, matched to your child's school week",
     upgBenefit4: "Your progress follows you to any device",
@@ -888,7 +898,7 @@ const TRANSLATIONS = {
     adminEmailLogEmpty: "No emails sent yet.",
     adminEmailKinds: { verify: "Confirmation", reset: "Password reset", forgot_username: "Username reminder", test: "Test", support: "Support reply", support_admin: "Support alert" },
     upgradeTitle: "⭐ Upgrade to Premium",
-    upgradeDesc: "Snap your child's homework and we turn the words into practice. Enter a special code from the admin to unlock premium: photo word extraction, your own private word list, and more than 100 questions per round.",
+    upgradeDesc: "Snap your child's homework and we turn the words into practice. Enter a special code from the admin to unlock premium: unlimited practice, photo word extraction, your own private word list and the full mistakes notebook.",
     upgradeSubmitBtn: "Upgrade",
     upgradeErrorNotEligible: "This account can't be upgraded from here.",
     anonymousPremiumFeaturePrompt: "Sign up and upgrade to premium to unlock this feature!",
@@ -1602,6 +1612,14 @@ const TRANSLATIONS = {
     authHeaderLoginBtn: "🔑 로그인",
     authToggleLoggedOutHint: "로그인하면 학습 진행 상황이 저장돼요",
     authLogoutBtn: "로그아웃",
+    childrenTitle: "자녀",
+    childrenDesc: "프리미엄: 한 계정에 자녀를 최대 4명까지 추가할 수 있어요. 자녀마다 학습 기록, 코인, 코알라가 따로 저장돼요. '전환'을 눌러 학습할 자녀를 바꾸세요.",
+    childrenAddBtn: "+ 자녀 추가",
+    childrenFull: "자녀 4명을 모두 추가했어요.",
+    childrenLocked: "프리미엄이면 자녀를 최대 4명까지 추가하고 자녀별로 기록을 따로 관리할 수 있어요.",
+    childrenUpgradeBtn: "프리미엄으로 업그레이드",
+    childPickerTitle: "누가 공부할까요?",
+    childPickerClose: "닫기",
     myAccountMenuItem: "내 계정",
     myAccountTitle: "🧑 내 계정",
     myAccountChangePasswordTitle: "🔒 비밀번호 변경",
@@ -1698,7 +1716,7 @@ const TRANSLATIONS = {
     upgCardTitle: "프리미엄으로 업그레이드",
     upgCardLead: "숙제가 곧 연습 문제가 돼요.",
     upgCardPayNote: "온라인 결제는 곧 열릴 예정이에요. 지금은 \"특별 코드가 있어요\"를 눌러 주세요.",
-    upgBenefit1: "한 라운드에 100문제 넘게, 마음껏 연습",
+    upgBenefit1: "하루 제한 없이 마음껏 연습",
     upgBenefit2: "사진, PDF, 워드, 엑셀 파일 모두 OK",
     upgBenefit3: "우리 아이 학교 진도에 딱 맞는 나만의 단어장",
     upgBenefit4: "기기를 바꿔도 학습 기록이 그대로 이어져요",
@@ -1750,7 +1768,7 @@ const TRANSLATIONS = {
     adminEmailLogEmpty: "아직 보낸 메일이 없어요.",
     adminEmailKinds: { verify: "이메일 인증", reset: "비밀번호 재설정", forgot_username: "아이디 안내", test: "테스트", support: "문의 답변", support_admin: "문의 알림" },
     upgradeTitle: "⭐ 프리미엄으로 업그레이드",
-    upgradeDesc: "숙제를 사진으로 찍으면 단어가 연습 문제로 바뀌어요. admin에게 받은 특별 코드를 입력하면 사진 단어 추출, 나만의 단어장, 한 라운드 100문제 이상을 모두 쓸 수 있어요.",
+    upgradeDesc: "숙제를 사진으로 찍으면 단어가 연습 문제로 바뀌어요. admin에게 받은 특별 코드를 입력하면 무제한 연습, 사진 단어 추출, 나만의 단어장, 전체 오답 노트를 모두 쓸 수 있어요.",
     upgradeSubmitBtn: "업그레이드",
     upgradeErrorNotEligible: "이 계정은 여기서 업그레이드할 수 없어요.",
     anonymousPremiumFeaturePrompt: "이 기능을 사용하려면 가입 후 프리미엄으로 업그레이드해야 해요!",
@@ -2244,6 +2262,8 @@ function saveLevels() {
   } catch (e) {
     console.warn("Could not save levels", e);
   }
+  // An extra child's level is saved with their own progress.
+  try { if (activeProfileNum() > 0 && typeof saveProgress === "function") { progress.levels = Object.assign({}, savedLevels); saveProgress(); } } catch (e) { /* still starting up */ }
 }
 
 function loadLang() {
@@ -2767,25 +2787,26 @@ function speak(text, opts = {}) {
       }, 1800);
     }
 
-    // Long-standing Chrome bug: an utterance can silently stop after ~15s
-    // unless something nudges the engine in the meantime. A harmless
-    // pause/resume every quarter-second keeps that from cutting off longer
-    // text (example sentences) partway through; capped so a genuinely stuck
-    // synth doesn't spin this forever. Desktop only — see IS_MOBILE_TTS above.
-    if (!IS_MOBILE_TTS) {
+    // Long-standing Chrome bug: an utterance from an online (network) voice
+    // can silently stop after ~15s unless the engine is nudged. The nudge is a
+    // pause/resume, which makes an audible "tick" every time it fires — so it
+    // runs only for network voices, and only every 8s (well inside the 15s
+    // limit) instead of every quarter-second. Local voices never need it, so
+    // sentences now play without clicks. Desktop only — see IS_MOBILE_TTS above.
+    if (!IS_MOBILE_TTS && voice && voice.localService === false) {
       let ticks = 0;
       watchdog = setInterval(() => {
         if (!synth.speaking) {
           clearInterval(watchdog);
           return;
         }
-        if (++ticks > 40) {
+        if (++ticks > 8) {
           clearInterval(watchdog);
           return;
         }
         synth.pause();
         synth.resume();
-      }, 250);
+      }, 8000);
     }
   };
 
@@ -3661,6 +3682,7 @@ function scheduleProgressSync() {
 }
 
 async function pushProgressToServer() {
+  if (activeProfileNum() > 0) progress.levels = Object.assign({}, savedLevels); // study level is per child
   try {
     await api("/progress", { method: "PUT", body: JSON.stringify({ progress }) });
   } catch (e) {
@@ -3672,6 +3694,8 @@ async function pushProgressToServer() {
 // then the saved Koala world (every account), then apply any coins an admin
 // gave, then report this device's balance.
 async function koalaAfterLogin() {
+  if (currentUser && restoreUserData(currentUser.id)) { location.reload(); return; }
+  await loadChildProfiles();
   if (canWriteServerWords()) await syncProgressOnLogin();
   await pullKoalaData();
   await applyKoalaGrants();
@@ -3682,7 +3706,7 @@ async function koalaAfterLogin() {
 // The Koala world follows the account, not the device. Merge, never overwrite,
 // so coins earned on two devices are not lost (KoalaCore.mergeRewards).
 async function pullKoalaData() {
-  if (!currentUser) return;
+  if (!currentUser || activeProfileNum() > 0) return;
   try {
     const { data } = await api("/koala/data");
     if (data && data.levels) applyServerLevels(data.levels);
@@ -3718,7 +3742,7 @@ function applyServerLevels(lv) {
 
 var koalaDataSent = "";
 function pushKoalaData() {
-  if (!currentUser || !progress) return Promise.resolve();
+  if (!currentUser || !progress || activeProfileNum() > 0) return Promise.resolve(); // an extra child's Koala world lives in their own progress row
   const body = JSON.stringify({ data: Object.assign({}, KoalaCore.rewardSlice(progress), { levels: Object.assign({}, savedLevels) }) });
   if (body === koalaDataSent) return Promise.resolve();
   koalaDataSent = body;
@@ -3728,7 +3752,7 @@ function pushKoalaData() {
 // Coins the admin gave or took are waiting on the server. Apply each exactly
 // once (the key makes it idempotent), then tell the server they're done.
 async function applyKoalaGrants() {
-  if (!currentUser) return;
+  if (!currentUser || activeProfileNum() > 0) return;
   try {
     const { grants } = await api("/koala/grants");
     if (!grants || !grants.length) return;
@@ -3763,7 +3787,7 @@ function scheduleKoalaSummary() {
   koalaSummaryTimer = setTimeout(() => { pushKoalaData(); pushKoalaSummary(); }, 4000);
 }
 function pushKoalaSummary() {
-  if (!currentUser || !progress || !progress.koala) return Promise.resolve();
+  if (!currentUser || !progress || !progress.koala || activeProfileNum() > 0) return Promise.resolve();
   const k = KoalaCore.ensureKoala(progress);
   const st = KoalaCore.ensureStreak(progress.streak);
   const body = JSON.stringify({ coins: k.coins, earned: k.earned, streak: st.count, best: st.best });
@@ -3784,6 +3808,7 @@ async function syncProgressOnLogin() {
       if (!progress.srs) progress.srs = {};
       if (!progress.spellingStatus) progress.spellingStatus = {};
       if (!progress.updatedAt) progress.updatedAt = updatedAt;
+      if (activeProfileNum() > 0 && progress.levels) applyServerLevels(progress.levels);
       saveProgress();
       renderStats();
       renderWordList();
@@ -3830,7 +3855,214 @@ function storageNoteKey() {
   return "storageNoteLocal";
 }
 
+/* ================= CHILD PROFILES (Premium: up to 4 learners per account) =================
+   Each child has a fixed "slot" (0-3). Slot 0 is the account's own progress row,
+   exactly as before; slots 1-3 are extra rows on the server (?p=<slot>). The
+   device only ever holds the child who is learning right now: switching saves
+   that child to the server, clears the local copy and reloads, and the normal
+   sign-in sync then pulls the chosen child's data back down. */
+const PROFILE_AVATARS = { koala: "🐨", kangaroo: "🦘", parrot: "🦜", turtle: "🐢", dolphin: "🐬", owl: "🦉" };
+const PROFILE_AVATAR_KEYS = Object.keys(PROFILE_AVATARS);
+const MAX_CHILD_PROFILES = 4;
+let childProfiles = []; // [{ slot, name, avatar }]
+
+function activeProfileNum() {
+  try {
+    if (!currentUser || !(serverAdmin || currentUser.role === "paid")) return 0;
+    const st = JSON.parse(localStorage.getItem(PROFILE_KEY) || "null");
+    return st && st.uid === currentUser.id && Number.isInteger(st.n) && st.n > 0 && st.n < MAX_CHILD_PROFILES ? st.n : 0;
+  } catch (e) {
+    return 0;
+  }
+}
+function setActiveProfileNum(n) {
+  try { localStorage.setItem(PROFILE_KEY, JSON.stringify({ uid: currentUser.id, n })); } catch (e) { /* ignore */ }
+}
+function activeChild() {
+  const n = activeProfileNum();
+  return childProfiles.find((c) => c.slot === n) || childProfiles.find((c) => c.slot === 0) || null;
+}
+function defaultChildProfiles() {
+  return [{ slot: 0, name: rwL("Child 1", "자녀 1"), avatar: "koala" }];
+}
+function childPicLabel(c) { return `${PROFILE_AVATARS[c.avatar] || "🐨"} ${c.name}`; }
+
+async function loadChildProfiles() {
+  if (!currentUser || !(serverAdmin || currentUser.role === "paid")) { childProfiles = []; renderChildrenUI(); return; }
+  try {
+    const { profiles } = await api("/profiles");
+    childProfiles = Array.isArray(profiles) && profiles.length ? profiles : defaultChildProfiles();
+    try { localStorage.setItem(PROFILES_CACHE_KEY, JSON.stringify({ uid: currentUser.id, list: childProfiles })); } catch (e) { /* ignore */ }
+  } catch (e) {
+    try {
+      const c = JSON.parse(localStorage.getItem(PROFILES_CACHE_KEY) || "null");
+      childProfiles = c && c.uid === currentUser.id && Array.isArray(c.list) && c.list.length ? c.list : defaultChildProfiles();
+    } catch (e2) { childProfiles = defaultChildProfiles(); }
+  }
+  // The child who was learning no longer exists (removed elsewhere): fall back to the first one.
+  const n = activeProfileNum();
+  if (n > 0 && !childProfiles.some((c) => c.slot === n)) {
+    setActiveProfileNum(0);
+    try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(LEVELS_KEY); } catch (e) { /* ignore */ }
+    location.reload();
+    return;
+  }
+  renderChildrenUI();
+}
+
+function saveChildProfiles() {
+  try { localStorage.setItem(PROFILES_CACHE_KEY, JSON.stringify({ uid: currentUser.id, list: childProfiles })); } catch (e) { /* ignore */ }
+  return api("/profiles", { method: "PUT", body: JSON.stringify({ profiles: childProfiles }) }).catch(() => {});
+}
+
+async function switchChild(slot) {
+  if (!currentUser || slot === activeProfileNum()) return;
+  // Save the child who is leaving, then hand the device to the next one.
+  clearTimeout(progressSyncTimer);
+  progressSyncTimer = null;
+  clearTimeout(koalaSummaryTimer);
+  await pushProgressToServer();
+  if (activeProfileNum() === 0) { await pushKoalaData(); await pushKoalaSummary(); }
+  setActiveProfileNum(slot);
+  try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(LEVELS_KEY); } catch (e) { /* ignore */ }
+  location.reload();
+}
+
+async function addChild() {
+  if (!canUsePaidFeatures() || childProfiles.length >= MAX_CHILD_PROFILES) return;
+  const used = new Set(childProfiles.map((c) => c.slot));
+  const slot = [1, 2, 3].find((s) => !used.has(s));
+  if (slot == null) return;
+  childProfiles.push({ slot, name: rwL(`Child ${slot + 1}`, `자녀 ${slot + 1}`), avatar: PROFILE_AVATAR_KEYS[slot % PROFILE_AVATAR_KEYS.length] });
+  childProfiles.sort((a, b) => a.slot - b.slot);
+  renderChildrenUI();
+  await saveChildProfiles();
+}
+
+async function removeChild(slot) {
+  if (slot === 0) return;
+  const c = childProfiles.find((x) => x.slot === slot);
+  if (!c) return;
+  const wasActive = activeProfileNum() === slot;
+  const ok = await kidConfirm(rwL(`Remove ${c.name}? Their progress, coins and koala will be deleted for good.`, `${c.name} 프로필을 삭제할까요? 학습 기록, 코인, 코알라가 모두 영구히 사라져요.`), rwL("Remove", "삭제"), rwL("Keep", "취소"), { danger: true });
+  if (!ok) return;
+  if (wasActive) {
+    // Leave the child being removed first, without saving them back to the server.
+    clearTimeout(progressSyncTimer);
+    progressSyncTimer = null;
+    setActiveProfileNum(0);
+    try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(LEVELS_KEY); } catch (e) { /* ignore */ }
+  }
+  childProfiles = childProfiles.filter((x) => x.slot !== slot);
+  try { await api(`/profiles/progress?p=${slot}`, { method: "DELETE" }); } catch (e) { /* the slot's data is simply orphaned */ }
+  await saveChildProfiles();
+  if (wasActive) location.reload();
+  else renderChildrenUI();
+}
+
+function childRowsHtml() {
+  const act = activeProfileNum();
+  return childProfiles.map((c) => {
+    const on = c.slot === act;
+    return `<div class="child-row${on ? " is-active" : ""}" data-slot="${c.slot}">
+      <button type="button" class="child-avatar" data-child-act="avatar" aria-label="${rwL("Change picture", "그림 바꾸기")}">${PROFILE_AVATARS[c.avatar] || "🐨"}</button>
+      <input class="child-name" type="text" maxlength="20" value="${escapeHtml(c.name)}" aria-label="${rwL("Child's name", "자녀 이름")}" data-child-act="name">
+      ${on ? `<span class="child-now">${rwL("Learning now", "학습 중")}</span>` : `<button type="button" class="pill accent small child-switch" data-child-act="switch">${rwL("Switch", "전환")}</button>`}
+      ${c.slot === 0 ? "" : `<button type="button" class="child-del" data-child-act="del" aria-label="${rwL("Remove child", "자녀 삭제")}">✕</button>`}
+    </div>`;
+  }).join("");
+}
+
+function renderChildrenUI() {
+  const card = document.getElementById("my-account-children-card");
+  const listEl = document.getElementById("children-list");
+  const addBtn = document.getElementById("children-add-btn");
+  const lockedEl = document.getElementById("children-locked");
+  const menuBtn = document.getElementById("auth-menu-child-btn");
+  const chip = document.getElementById("progress-child");
+  const paid = !!currentUser && canUsePaidFeatures();
+  if (card) {
+    card.hidden = !currentUser;
+    if (listEl) listEl.hidden = !paid;
+    if (addBtn) { addBtn.hidden = !paid; addBtn.disabled = childProfiles.length >= MAX_CHILD_PROFILES; }
+    if (lockedEl) lockedEl.hidden = paid;
+    if (paid && listEl && !listEl.contains(document.activeElement)) listEl.innerHTML = childRowsHtml();
+    const full = document.getElementById("children-full-note");
+    if (full) full.hidden = !(paid && childProfiles.length >= MAX_CHILD_PROFILES);
+  }
+  const multi = paid && childProfiles.length > 1;
+  if (menuBtn) {
+    menuBtn.hidden = !multi;
+    const c = activeChild();
+    const lbl = menuBtn.querySelector(".auth-menu-child-label");
+    if (lbl && c) lbl.textContent = childPicLabel(c);
+  }
+  if (chip) {
+    const c = activeChild();
+    chip.hidden = !(multi && c);
+    if (multi && c) chip.textContent = rwL(`Showing: ${childPicLabel(c)}`, `보고 있는 자녀: ${childPicLabel(c)}`);
+  }
+}
+
+function openChildPicker() {
+  const ov = document.getElementById("child-picker-overlay");
+  if (!ov) return;
+  const act = activeProfileNum();
+  document.getElementById("child-picker-list").innerHTML = childProfiles.map((c) =>
+    `<button type="button" class="child-pick${c.slot === act ? " is-active" : ""}" data-slot="${c.slot}"><span class="child-pick-ico" aria-hidden="true">${PROFILE_AVATARS[c.avatar] || "🐨"}</span><span class="child-pick-name">${escapeHtml(c.name)}</span></button>`
+  ).join("");
+  ov.hidden = false;
+}
+function closeChildPicker() {
+  const ov = document.getElementById("child-picker-overlay");
+  if (ov) ov.hidden = true;
+}
+
+document.addEventListener("click", (e) => {
+  const pick = e.target.closest("#child-picker-list .child-pick");
+  if (pick) { closeChildPicker(); switchChild(Number(pick.dataset.slot)); return; }
+  if (e.target.id === "child-picker-overlay" || e.target.closest("#child-picker-close-btn")) { closeChildPicker(); return; }
+  if (e.target.closest("#auth-menu-child-btn")) { closeAuthMenu(); openChildPicker(); return; }
+  if (e.target.closest("#children-add-btn")) { addChild(); return; }
+  if (e.target.closest("#children-upgrade-btn")) { promptUpgradeForFeature(); return; }
+  const actEl = e.target.closest("#children-list [data-child-act]");
+  if (!actEl) return;
+  const row = actEl.closest(".child-row");
+  const slot = Number(row.dataset.slot);
+  const c = childProfiles.find((x) => x.slot === slot);
+  if (!c) return;
+  const act = actEl.dataset.childAct;
+  if (act === "switch") switchChild(slot);
+  else if (act === "del") removeChild(slot);
+  else if (act === "avatar") {
+    c.avatar = PROFILE_AVATAR_KEYS[(PROFILE_AVATAR_KEYS.indexOf(c.avatar) + 1) % PROFILE_AVATAR_KEYS.length];
+    actEl.textContent = PROFILE_AVATARS[c.avatar];
+    saveChildProfiles();
+    renderChildrenUI();
+  }
+});
+document.addEventListener("change", (e) => {
+  if (!e.target.matches("#children-list .child-name")) return;
+  const slot = Number(e.target.closest(".child-row").dataset.slot);
+  const c = childProfiles.find((x) => x.slot === slot);
+  if (!c) return;
+  c.name = e.target.value.replace(/[<>]/g, "").trim().slice(0, 20) || rwL(`Child ${slot + 1}`, `자녀 ${slot + 1}`);
+  e.target.value = c.name;
+  saveChildProfiles();
+  renderChildrenUI();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && e.target.matches("#children-list .child-name")) e.target.blur();
+  if (e.key === "Escape") closeChildPicker();
+});
+
 async function api(path, options = {}) {
+  // A child other than the account's first one keeps their progress in their
+  // own server row — same endpoint, picked by ?p=<slot>.
+  if (path === "/progress") {
+    const slot = activeProfileNum();
+    if (slot > 0) path += `?p=${slot}`;
+  }
   const res = await fetch(`/api${path}`, {
     credentials: "same-origin",
     headers: options.body ? { "content-type": "application/json" } : undefined,
@@ -3966,6 +4198,7 @@ function updateAdminUI() {
   // admin, it still names the account since the button's own label no
   // longer does.
   authToggleBtn.title = !currentUser ? t("authToggleLoggedOutHint") : serverAdmin ? `${currentUser.username} · ${t("myAccountMenuItem")}` : t("myAccountMenuItem");
+  try { renderChildrenUI(); } catch (e) { /* page still initialising */ }
   authToggleBtn.classList.toggle("auth-toggle-active", !!currentUser && !serverAdmin);
   authToggleBtn.classList.toggle("auth-toggle-admin", !!serverAdmin);
   // Signed in: level picker + streak live in the account popover instead.
@@ -4164,13 +4397,46 @@ function closeAuthMenu() {
   authMenu.hidden = true;
 }
 
+// Everything on this device that shows one account's learning (progress,
+// missions, streak, coins, reports, scores, My cards). On sign-out it is put
+// away under that account's id and wiped, so the next visitor (guest or
+// another account) sees nothing of it; it comes straight back when the same
+// account signs in again.
+function userDataKeys() {
+  return [STORAGE_KEY, MY_DECK_KEY, TYPEGAME_HIGH_SCORE_KEY, TIMESTABLE_HIGH_SCORE_KEY, SHARED_WORDS_CACHE_KEY];
+}
+function snapshotUserData() {
+  const box = {};
+  userDataKeys().forEach((k) => {
+    try { const v = localStorage.getItem(k); if (v != null) box[k] = v; } catch (e) { /* ignore */ }
+  });
+  return box;
+}
+function stashUserData(id, box) {
+  try { localStorage.setItem("ywp_user_stash_" + id, JSON.stringify(box)); } catch (e) { /* storage full/blocked: data stays server-side for paid */ }
+}
+function wipeUserData() {
+  userDataKeys().forEach((k) => { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } });
+}
+// Returns true when a stash was put back (the page then reloads to show it).
+function restoreUserData(id) {
+  let box = null;
+  try { box = JSON.parse(localStorage.getItem("ywp_user_stash_" + id) || "null"); } catch (e) { box = null; }
+  if (!box) return false;
+  try { localStorage.removeItem("ywp_user_stash_" + id); } catch (e) { /* ignore */ }
+  userDataKeys().forEach((k) => { try { if (box[k] != null) localStorage.setItem(k, box[k]); else localStorage.removeItem(k); } catch (e) { /* ignore */ } });
+  return true;
+}
+
 async function logOut() {
   // Save the Koala world one last time while the session can still write it.
+  const stashId = currentUser && currentUser.id;
   if (currentUser) {
     clearTimeout(koalaSummaryTimer);
     await pushKoalaData();
     await pushKoalaSummary();
   }
+  const stashBox = stashId ? snapshotUserData() : null; // taken before anything below clears it
   const wasSyncable = canWriteServerWords();
   if (wasSyncable) {
     // Flush one last time before the session that authenticates this write
@@ -4225,6 +4491,14 @@ async function logOut() {
     await api("/auth/logout", { method: "POST" });
   } catch (e) {
     /* nothing to end server-side */
+  }
+  // Put this account's learning data away and reload, so no mission, streak,
+  // report or stat from the account stays on screen or in memory.
+  if (stashId) {
+    stashUserData(stashId, stashBox);
+    wipeUserData();
+    location.reload();
+    return;
   }
   refreshSharedWords();
 }
@@ -4352,6 +4626,7 @@ async function renderMyAccount() {
     .map((s) => `<div class="stat-box"><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div></div>`)
     .join("");
   renderAccountLevelChoices();
+  renderChildrenUI();
   refreshEmailCard(account);
   refreshUpgradeCard(account);
   if (window.koalaSupportUI) koalaSupportUI.renderAccountCard();
@@ -5048,6 +5323,17 @@ async function restoreSession() {
     currentUser = null;
     serverAdmin = false;
     pendingUpgradeRequest = null;
+  }
+  // One-time clean-up for data left on this browser by an account that signed
+  // out before sign-out started putting it away: a signed-out visitor starts
+  // empty. (Later sign-outs stash and wipe it themselves, see logOut().)
+  if (!currentUser) {
+    try {
+      if (!localStorage.getItem("ywp_privacy_clean_v2")) {
+        localStorage.setItem("ywp_privacy_clean_v2", "1");
+        if (localStorage.getItem(STORAGE_KEY)) { wipeUserData(); location.reload(); return; }
+      }
+    } catch (e) { /* storage blocked: nothing to clean */ }
   }
   updateAdminUI();
   renderUpgradeReadyBanner();
@@ -16824,6 +17110,8 @@ function parentReportData() {
     modes: PARENT_MODES.map(([m, name]) => ({ name: name(), c: w.perMode[m][0], t: w.perMode[m][1] })).filter((x) => x.t > 0),
     tricky: parentTrickyWords(6).map((x) => x.word),
     tips: parentTips(w, prev),
+    activeSlot: (typeof activeProfileNum === "number" ? activeProfileNum : 0),
+    tzOffset: -new Date().getTimezoneOffset(),
   };
 }
 

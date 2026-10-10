@@ -55,6 +55,29 @@ function reportFromProgress(progress, tzOffset, lang) {
   };
 }
 
+// Every child's report for an account with 2+ children. `override` lets the
+// browser-supplied report stand in for one slot (the child currently open on
+// the device, whose latest progress may not have reached the server yet).
+async function childrenReports(env, userId, tzOffset, lang, override) {
+  let profiles = [];
+  try {
+    const row = await env.DB.prepare("SELECT progress_json FROM user_progress WHERE account_key = ?").bind(`${userId}:profiles`).first();
+    if (row) profiles = cleanProfiles((JSON.parse(row.progress_json) || {}).profiles);
+  } catch (e) { return []; }
+  if (profiles.length < 2) return [];
+  const out = [];
+  for (const p of profiles) {
+    if (override && override.slot === p.slot) { out.push({ name: p.name, avatar: p.avatar, report: override.report }); continue; }
+    let progress = null;
+    try {
+      const row = await env.DB.prepare("SELECT progress_json FROM user_progress WHERE account_key = ?").bind(p.slot === 0 ? userId : `${userId}:p${p.slot}`).first();
+      if (row) progress = JSON.parse(row.progress_json);
+    } catch (e) { /* treated as no activity */ }
+    out.push({ name: p.name, avatar: p.avatar, report: reportFromProgress(progress, tzOffset, lang) });
+  }
+  return out;
+}
+
 async function sendWeeklyReports(env) {
   let rows;
   try {
@@ -74,6 +97,8 @@ async function sendWeeklyReports(env) {
       if (row) progress = JSON.parse(row.progress_json);
     } catch (e) { /* send an empty-week report rather than nothing */ }
     const report = reportFromProgress(progress, Number(r.tz_offset) || 0, r.lang);
+    const kids = await childrenReports(env, r.user_id, Number(r.tz_offset) || 0, r.lang, null);
+    if (kids.length > 1) report.children = kids;
     const sent = await sendEmail(env, { to: r.email, kind: "weekly_report_auto", ...templates.weeklyReport(report, r.username) });
     if (sent.ok) {
       try { await env.DB.prepare("UPDATE weekly_report_prefs SET last_sent_at = ? WHERE user_id = ?").bind(Date.now(), r.user_id).run(); } catch (e) { /* ignore */ }
@@ -93,6 +118,32 @@ export default {
 };
 
 /* ---------- helpers ---------- */
+
+// Which user_progress row a request means: profile 0 (the default) is the
+// account's own row exactly as before; ?p=1..3 picks one of the extra children.
+function progressKey(session, url) {
+  const p = Number(url.searchParams.get("p"));
+  return Number.isInteger(p) && p >= 1 && p <= 3 ? `${session.id}:p${p}` : session.id;
+}
+
+const PROFILE_AVATARS = ["koala", "kangaroo", "parrot", "turtle", "dolphin", "owl"];
+// 1-4 learners, each { slot, name, avatar }. The slot (0-3) is the learner's
+// fixed storage row, so removing one child never shifts another child's data.
+// Slot 0 always exists. Anything invalid is dropped or defaulted.
+function cleanProfiles(list) {
+  const seen = new Set();
+  const out = [];
+  (Array.isArray(list) ? list : []).forEach((p) => {
+    const slot = Number(p && p.slot);
+    if (!Number.isInteger(slot) || slot < 0 || slot > 3 || seen.has(slot) || out.length >= 4) return;
+    seen.add(slot);
+    const name = String((p && p.name) || "").replace(/[<>]/g, "").trim().slice(0, 20) || `Child ${slot + 1}`;
+    const avatar = PROFILE_AVATARS.includes(p && p.avatar) ? p.avatar : PROFILE_AVATARS[slot % PROFILE_AVATARS.length];
+    out.push({ slot, name, avatar });
+  });
+  if (!seen.has(0)) out.push({ slot: 0, name: "Child 1", avatar: "koala" });
+  return out.sort((a, b) => a.slot - b.slot).slice(0, 4);
+}
 
 function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), {
@@ -603,6 +654,14 @@ async function handleApi(request, env, url) {
       .bind(user.email)
       .first();
     if (recent && Date.now() - recent.created_at < EMAIL_COOLDOWN_MS) return json({ error: "too_soon" }, 429);
+    // 2+ children: add the others' reports (from the server) next to the one
+    // the browser sent for the child that is open on the device.
+    delete body.children;
+    const prefs = await env.DB.prepare("SELECT tz_offset FROM weekly_report_prefs WHERE user_id = ?").bind(user.id).first().catch(() => null);
+    const tz = Number.isFinite(Number(body.tzOffset)) ? Math.max(-840, Math.min(840, Number(body.tzOffset))) : Number(prefs && prefs.tz_offset) || 0;
+    const slot = Number.isInteger(Number(body.activeSlot)) ? Number(body.activeSlot) : 0;
+    const kids = await childrenReports(env, user.id, tz, body.lang === "ko" ? "ko" : "en", { slot, report: body });
+    if (kids.length > 1) body.children = kids;
     const sent = await sendEmail(env, { to: user.email, kind: "weekly_report", ...templates.weeklyReport(body, user.username) });
     return json({ ok: sent.ok, error: sent.ok ? undefined : sent.error }, sent.ok ? 200 : 502);
   }
@@ -1069,6 +1128,7 @@ async function handleApi(request, env, url) {
       env.DB.prepare("DELETE FROM koala_grants WHERE user_id = ?").bind(userId),
       env.DB.prepare("DELETE FROM user_koala WHERE user_id = ?").bind(userId),
       env.DB.prepare("DELETE FROM user_rewards WHERE user_id = ?").bind(userId),
+      env.DB.prepare("DELETE FROM user_progress WHERE account_key IN (?, ?, ?, ?, ?)").bind(userId, `${userId}:p1`, `${userId}:p2`, `${userId}:p3`, `${userId}:profiles`),
       env.DB.prepare("DELETE FROM email_tokens WHERE user_id = ?").bind(userId),
       env.DB.prepare("DELETE FROM support_messages WHERE ticket_id IN (SELECT id FROM support_tickets WHERE user_id = ?)").bind(userId),
       env.DB.prepare("DELETE FROM support_tickets WHERE user_id = ?").bind(userId),
@@ -1106,7 +1166,13 @@ async function handleApi(request, env, url) {
     }
     const d = body && body.data;
     if (!d || typeof d !== "object" || Array.isArray(d) || typeof d.koala !== "object" || d.koala === null) return json({ error: "bad_request" }, 400);
-    const text = JSON.stringify({ koala: d.koala, streak: d.streak || {}, badges: d.badges || {} });
+    // The account's chosen study level per language (e.g. { en: "elem_high" }).
+    const levels = {};
+    ["en", "ko"].forEach((l) => {
+      const v = d.levels && d.levels[l];
+      if (typeof v === "string" && /^[a-z_]{2,20}$/.test(v)) levels[l] = v;
+    });
+    const text = JSON.stringify({ koala: d.koala, streak: d.streak || {}, badges: d.badges || {}, levels });
     if (text.length > 100000) return json({ error: "too_large" }, 413);
     const now = Date.now();
     await env.DB.prepare(
@@ -1307,7 +1373,7 @@ async function handleApi(request, env, url) {
       return json({ error: "unauthorized" }, 401);
     }
     const row = await env.DB.prepare("SELECT progress_json, updated_at FROM user_progress WHERE account_key = ?")
-      .bind(session.id)
+      .bind(progressKey(session, url))
       .first();
     if (!row) return json({ progress: null, updatedAt: null });
     let progress;
@@ -1341,9 +1407,48 @@ async function handleApi(request, env, url) {
       `INSERT INTO user_progress (account_key, progress_json, updated_at) VALUES (?, ?, ?)
        ON CONFLICT(account_key) DO UPDATE SET progress_json = excluded.progress_json, updated_at = excluded.updated_at`
     )
-      .bind(session.id, progressJson, now)
+      .bind(progressKey(session, url), progressJson, now)
       .run();
     return json({ ok: true, updatedAt: now });
+  }
+
+  // Child profiles (premium: up to 4 learners per account). Profile 0 is the
+  // account's own progress row; profiles 1-3 are extra rows keyed "<id>:p<n>"
+  // in the same user_progress table, and the list of names/avatars is one more
+  // row keyed "<id>:profiles". Every key starts with the session's own id, so
+  // an account can only ever reach its own children.
+  if (route === "/profiles" && request.method === "GET") {
+    const session = await getSessionUser(request, env);
+    if (!session || (session.role !== "admin" && session.role !== "paid")) return json({ error: "unauthorized" }, 401);
+    const row = await env.DB.prepare("SELECT progress_json FROM user_progress WHERE account_key = ?").bind(`${session.id}:profiles`).first();
+    let profiles = null;
+    try { profiles = row ? JSON.parse(row.progress_json).profiles : null; } catch (e) { profiles = null; }
+    return json({ profiles: cleanProfiles(profiles) });
+  }
+
+  if (route === "/profiles" && request.method === "PUT") {
+    const session = await getSessionUser(request, env);
+    if (!session || (session.role !== "admin" && session.role !== "paid")) return json({ error: "unauthorized" }, 401);
+    let body;
+    try { body = await request.json(); } catch (e) { return json({ error: "bad_request" }, 400); }
+    if (!body || !Array.isArray(body.profiles)) return json({ error: "bad_request" }, 400);
+    const profiles = cleanProfiles(body.profiles);
+    await env.DB.prepare(
+      `INSERT INTO user_progress (account_key, progress_json, updated_at) VALUES (?, ?, ?)
+       ON CONFLICT(account_key) DO UPDATE SET progress_json = excluded.progress_json, updated_at = excluded.updated_at`
+    ).bind(`${session.id}:profiles`, JSON.stringify({ profiles }), Date.now()).run();
+    return json({ ok: true, profiles });
+  }
+
+  // Removes one extra child's saved progress (the learner slot itself is
+  // dropped from the list by the client's PUT /profiles).
+  if (route === "/profiles/progress" && request.method === "DELETE") {
+    const session = await getSessionUser(request, env);
+    if (!session || (session.role !== "admin" && session.role !== "paid")) return json({ error: "unauthorized" }, 401);
+    const n = Number(url.searchParams.get("p"));
+    if (!Number.isInteger(n) || n < 1 || n > 3) return json({ error: "bad_request" }, 400);
+    await env.DB.prepare("DELETE FROM user_progress WHERE account_key = ?").bind(`${session.id}:p${n}`).run();
+    return json({ ok: true });
   }
 
   if (route === "/words" && (request.method === "PUT" || request.method === "DELETE")) {
