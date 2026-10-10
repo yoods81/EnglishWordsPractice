@@ -3995,7 +3995,9 @@ function renderChildrenUI() {
     menuBtn.hidden = !multi;
     const c = activeChild();
     const lbl = menuBtn.querySelector(".auth-menu-child-label");
-    if (lbl && c) lbl.textContent = childPicLabel(c);
+    if (lbl && c) lbl.textContent = c.name;
+    const ico = menuBtn.querySelector(".auth-menu-child-ico");
+    if (ico && c) ico.textContent = PROFILE_AVATARS[c.avatar] || "🐨";
   }
   if (chip) {
     const c = activeChild();
