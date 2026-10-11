@@ -13078,8 +13078,7 @@ html body #quiz-start-screen .fs-settings-body .qz-pick-note {
 html[data-theme] body #quiz-start-screen .fs-settings-body .qz-pick-note { background: none !important; box-shadow: none !important; }
 
 
-/* ==========================================================================
-   FLAT LOOK (desktop / tablet match the phone; Coins + Badges fixes for every size)
+/* ===================================================================   FLAT LOOK (desktop / tablet match the phone; Coins + Badges fixes for every size)
    - no outlines on cards / shop buttons; existing shadows are kept
    - Coins: borderless wallet + earn rows with their own tinted background
    - Badges: the "x of y collected" bar and hint text are easy to see
@@ -13178,3 +13177,13 @@ html[data-theme] body #quiz-start-screen .fs-settings-body .qz-pick-note { backg
   html body #view-addword #addword-manual-card,
   html body #view-addword #my-added-words-card { border: 0 !important; }
 }
+=======
+/* Quiz result: two big actions (retry missed / new questions) stacked, plus a small note. */
+.qz-result-actions .qz-result-primary { width: 100%; }
+.qz-result-actions .qz-result-retry { background: linear-gradient(180deg, #7be3c8, #1fb893); color: #05382d; box-shadow: 0 5px 0 #0e7a60, 0 9px 18px rgba(14, 122, 96, 0.3); }
+.qz-result-actions .qz-result-retry:active { box-shadow: 0 1px 0 #0e7a60; }
+.qz-result-actions { gap: 14px; }
+.qz-result-actions .qz-result-links { margin-top: 4px; }
+.qz-result-note { margin: 0; font-size: 0.86rem; font-weight: 700; color: #4f8274; text-align: center; background: none; border: 0; }
+html body .qz-result-actions .qz-result-primary { width: 240px !important; max-width: 100% !important; margin: 0 auto !important; }
+html body .qz-result-actions .qz-result-retry { background: linear-gradient(180deg, #7be3c8, #1fb893) !important; color: #05382d !important; box-shadow: 0 4px 0 #0e7a60, 0 7px 12px rgba(14, 122, 96, .3) !important; text-shadow: 0 1px 0 rgba(255, 255, 255, .35); }

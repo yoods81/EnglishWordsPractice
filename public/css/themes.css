@@ -2551,6 +2551,105 @@ html[data-theme="dark"] .qz-scene .qzs-o2 rect:first-child {
   fill: #223c31 !important;
 }
 }
+@media (min-width: 481px) {
+html[data-theme="dark"] body #view-koala .koala-cat,
+html[data-theme="dark"] body #view-koala .koala-back {
+  background: #1a2e27 !important;
+}
+html[data-theme="dark"] body #view-koala .koala-back {
+  background: #3d3522 !important;
+  color: #ffa814 !important;
+}
+html[data-theme="dark"] body #view-koala .koala-back.on {
+  color: #e39300 !important;
+}
+html[data-theme="dark"][data-theme="dark"] body #view-koala .koala-cat {
+  background: #36544a !important;
+}
+html[data-theme="dark"][data-theme="dark"] body #view-koala .koala-cat.on {
+  color: #12b38b !important;
+}
+html[data-theme="dark"][data-theme="dark"] body #view-koala .koala-back {
+  background: #615436 !important;
+}
+html[data-theme="dark"][data-theme="dark"] body #view-koala .koala-back.on {
+  color: #b68400 !important;
+}
+html[data-theme="dark"] body #view-koala .koala-item {
+  background: #15261f !important;
+}
+html[data-theme="dark"] body #view-koala .koala-item .koala-item-pic {
+  background: #131b19 !important;
+}
+html[data-theme="dark"] body #view-koala .koala-item.is-equipped {
+  background: #162721 !important;
+}
+html[data-theme="dark"] body #view-koala .koala-item.is-trying {
+  background: #292417 !important;
+}
+html[data-theme="dark"] body #view-koala .koala-item.is-locked {
+  background: #1a1f1d !important;
+}
+html[data-theme="dark"] body #view-koala .koala-item.is-sell {
+  background: #241f14 !important;
+}
+}
+@media all {
+html[data-theme="dark"] body #view-koala .koala-earn-row,
+html[data-theme="dark"] body #view-koala .koala-earn-row.koala-earn-row--done {
+  background: #182b24 !important;
+}
+html[data-theme="dark"] body #view-koala .koala-earn-row.koala-earn-row--done {
+  background: #2c2b1e !important;
+}
+html[data-theme="dark"] body #view-koala .koala-earn-row .koala-level-bar {
+  background: #131b19 !important;
+}
+html[data-theme="dark"][data-theme="dark"] body #view-koala .koala-earn-row {
+  background: #335145 !important;
+}
+html[data-theme="dark"][data-theme="dark"] body #view-koala .koala-earn-row.koala-earn-row--done {
+  background: #404941 !important;
+}
+html[data-theme="dark"][data-theme="dark"] body #view-koala .koala-earn-row .koala-level-bar {
+  background: #273e36 !important;
+}
+html[data-theme="dark"] body #view-koala .koala-earn-done,
+html[data-theme="dark"] body #view-koala .koala-earn-done:disabled {
+  background: #283731 !important;
+  color: #bbcac5 !important;
+}
+html[data-theme="dark"][data-theme="dark"] body #view-koala .koala-earn-go {
+  color: #12b38b !important;
+}
+html[data-theme="dark"][data-theme="dark"] body #view-koala .koala-earn-done,
+html[data-theme="dark"][data-theme="dark"] body #view-koala .koala-earn-done:disabled {
+  background: #455e55 !important;
+}
+html[data-theme="dark"] body #stats-panel-badges .badge-meter,
+html[data-theme="dark"] body #view-koala .badge-meter {
+  background: #2f443b !important;
+}
+html[data-theme="dark"] body #view-koala .koala-badge-sum .koala-level-bar {
+  background: #554c30 !important;
+}
+html[data-theme="dark"] body #stats-panel-badges .badge-hint,
+html[data-theme="dark"] body #view-koala .badge-hint {
+  color: #c5d2ce !important;
+}
+html[data-theme="dark"][data-theme="dark"] body #view-koala .koala-badge-sum .koala-level-bar {
+  background: #72673d !important;
+}
+}
+html[data-theme="dark"] .qz-result-actions .qz-result-retry {
+  color: #12c49e !important;
+}
+html[data-theme="dark"] .qz-result-note {
+  color: #b9c8c4 !important;
+}
+html[data-theme="dark"] body .qz-result-actions .qz-result-retry {
+  color: #12c49e !important;
+}
 html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; }
 html[data-theme="dark"] img, html[data-theme="dark"] video { filter: brightness(.92); }
 html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea { color-scheme: dark; }
@@ -3954,4 +4053,31 @@ html[data-theme="ivory"] .ocr-file-clear {
 html[data-theme="ivory"] .qz-scene .qzs-opt rect:first-child {
   fill: #fdfaf4 !important;
   stroke: #e1d9c7 !important;
+}
+@media (min-width: 481px) {
+html[data-theme="ivory"] body #view-koala .koala-cat,
+html[data-theme="ivory"] body #view-koala .koala-back {
+  background: #f1ebdd !important;
+}
+html[data-theme="ivory"] body #view-koala .koala-item {
+  background: #f7f3ea !important;
+}
+html[data-theme="ivory"] body #view-koala .koala-item .koala-item-pic {
+  background: #fdfaf4 !important;
+}
+html[data-theme="ivory"] body #view-koala .koala-item.is-equipped {
+  background: #f6f2e9 !important;
+}
+html[data-theme="ivory"] body #view-koala .koala-item.is-locked {
+  background: #f7f4ec !important;
+}
+}
+@media all {
+html[data-theme="ivory"] body #view-koala .koala-earn-row,
+html[data-theme="ivory"] body #view-koala .koala-earn-row.koala-earn-row--done {
+  background: #f3eee2 !important;
+}
+html[data-theme="ivory"] body #view-koala .koala-earn-row .koala-level-bar {
+  background: #fdfaf4 !important;
+}
 }

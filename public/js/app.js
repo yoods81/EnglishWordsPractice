@@ -417,8 +417,10 @@ const TRANSLATIONS = {
     qzMoodGood: "Great job! Keep it up! 💪",
     qzMoodKeep: "Good try! Practice makes perfect 🌱",
     qzNoMissed: "You didn't miss a single one! 🎉",
-    qzRetryBtn: (n) => `↻ Retry missed words (${n})`,
-    qzAgainBtn: "▶ Play again",
+    qzRetryBtn: (n) => `↻ Retry missed (${n})`,
+    qzAgainBtn: "▶ New questions",
+    qzAllDone: "You have played every question here! 🎉",
+    qzAgainAllBtn: "↻ Start over",
     qzSettingsBtn: "⚙️ Change settings",
     qzGiftBtn: "🎁 Open gift",
     qzGiftBtnLabel: "Open gift",
@@ -1291,8 +1293,10 @@ const TRANSLATIONS = {
     qzMoodGood: "잘했어요! 계속 가요! 💪",
     qzMoodKeep: "좋은 시도예요! 연습하면 늘어요 🌱",
     qzNoMissed: "하나도 안 틀렸어요! 🎉",
-    qzRetryBtn: (n) => `↻ 틀린 단어 다시 풀기 (${n})`,
-    qzAgainBtn: "▶ 다시 하기",
+    qzRetryBtn: (n) => `↻ 틀린 문제 풀기 (${n})`,
+    qzAgainBtn: "▶ 새로운 문제 풀기",
+    qzAllDone: "여기 있는 문제를 전부 풀었어요! 🎉",
+    qzAgainAllBtn: "↻ 처음부터 다시 풀기",
     qzSettingsBtn: "⚙️ 설정 바꾸기",
     qzGiftBtn: "🎁 선물 열기",
     qzGiftBtnLabel: "선물 열기",
@@ -6436,7 +6440,27 @@ function buildQuizQuestions() {
   else showQuizStart();
 }
 
-function startQuizRound(retryList) {
+// Questions already answered for the current category + level (this visit), so "New questions"
+// on the result screen really serves ones that have not been played yet.
+const quizSeen = { key: "", words: new Set() };
+const quizSeenKey = () => [quizCategorySel.value, currentLevel, currentLang].join("|");
+function quizSeenSet() {
+  const k = quizSeenKey();
+  if (quizSeen.key !== k) { quizSeen.key = k; quizSeen.words = new Set(); }
+  return quizSeen.words;
+}
+// Never-played words first (no spaced-repetition history), then the rest in the usual review order.
+function pickFreshQuizQuestions(pool, count) {
+  const seen = quizSeenSet();
+  const unseen = pool.filter((q) => !seen.has(q.target));
+  if (unseen.length === 0) { seen.clear(); return pickWordsForSession(pool, count, (q) => q.target); }
+  const isNew = (q) => !progress.srs[String(q.target).toLowerCase()];
+  const fresh = shuffle(unseen.filter(isNew));
+  const older = pickWordsForSession(unseen.filter((q) => !isNew(q)), unseen.length, (q) => q.target);
+  return [...fresh, ...older].slice(0, count);
+}
+
+function startQuizRound(retryList, opts = {}) {
   if (dailyQuotaLeft("quiz") <= 0) { showQuizStart(); promptDailyCap(); return; }
   stopQuizTimer();
   quizGoalBanner.hidden = true;
@@ -6456,7 +6480,8 @@ function startQuizRound(retryList) {
     // "Number of Questions" and the question count never disagree.
     // The saved preference is kept as picked (5, 10 ... 100); only this round
     // is shortened to what the pool can supply.
-    list = pickWordsForSession(pool, effectiveGoal("quiz", pool.length), (q) => q.target);
+    const want = effectiveGoal("quiz", pool.length);
+    list = opts.fresh ? pickFreshQuizQuestions(pool, want) : pickWordsForSession(pool, want, (q) => q.target);
     quizIsRetry = false;
     list = list.slice(0, dailyQuotaLeft("quiz"));
   }
@@ -6639,6 +6664,7 @@ function finishQuizQuestion(outcome) {
   stopQuizTimer();
   const q = quizCurrent();
   const correct = !!outcome.correct;
+  if (q && q.target != null) quizSeenSet().add(q.target);
   quizActiveMs += Math.min(Date.now() - quizQuestionShownAt, 120000);
 
   if (correct) quizScore++;
@@ -6827,8 +6853,6 @@ function showQuizResult() {
 
   const nextReward = showCoins ? KoalaCore.nextReward(progress, Object.assign({ kind: "character" }, koalaOpts())) : null;
   const missedOverflow = quizMissed.length - Math.min(quizMissed.length, QUIZ_RESULT_MISSED_SHOWN);
-  const primaryAct = quizMissed.length ? "retry" : "again";
-  const primaryLabel = quizMissed.length ? t("qzRetryBtn", quizMissed.length) : t("qzAgainBtn");
   const nextLevelHtml = !quizIsRetry && !quizEndedEarly && quizScore === total && total >= GOAL_MIN && nextLevelId() ? "yes" : "";
   // Laid out like the Spelling report (same cards, chips, word rows and buttons).
   const state = quizMissed.length === 0 ? "perfect" : quizScore > 0 ? "some" : "none";
@@ -6838,10 +6862,11 @@ function showQuizResult() {
   const giftTag = nextReward && nextReward.affordable
     ? `<button type="button" class="qz-gift-icon-btn" data-qz-act="opengift" aria-label="${escapeHtml(t("qzGiftBtn"))}" title="${escapeHtml(t("qzGiftBtn"))}"><span aria-hidden="true">🎁</span><span class="qz-gift-icon-label">${escapeHtml(t("qzGiftBtnLabel"))}</span></button>`
     : "";
+  const seenNow = quizSeenSet();
+  const allDone = buildQuizPool().every((q) => seenNow.has(q.target));
   const missedRows = quizMissed.slice(0, QUIZ_RESULT_MISSED_SHOWN).map((q) => `<div class="wordlist-item sp-report-row" data-say="${escapeHtml(q.target)}"><div class="wordlist-item-main"><div class="w speakable-line">${escapeHtml(q.target)}</div>${q.definition ? `<div class="d">${escapeHtml(q.definition)}</div>` : ""}</div></div>`).join("");
   const moreRow = missedOverflow > 0 ? `<p class="sp-report-review qz-report-more">+${missedOverflow}</p>` : "";
   const retryIcon = '<span class="new-quiz-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0 1 13.66-5.66M20 12a8 8 0 0 1-13.66 5.66" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M17 3v4.5h-4.5M7 21v-4.5h4.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
-  const primaryText = String(primaryLabel).replace(/^[↻▶]\s*/, "");
 
   quizResultEl.innerHTML = `
     <div class="sp-report qz-report" data-state="${state}">
@@ -6857,8 +6882,10 @@ function showQuizResult() {
         </div>
         ${quizMissed.length ? `<p class="sp-report-review">${rwL("Words to review · tap to hear 🔊", "다시 볼 단어 · 탭하면 소리가 나요 🔊")}</p><div class="wordlist-grid">${missedRows}</div>${moreRow}` : ""}
         ${!canUseAccountFeatures() ? `<p class="guest-coin-teaser">${escapeHtml(t("guestCoinTeaser"))} <button type="button" class="pill small guest-signup-btn" data-guest-signup>${escapeHtml(t("guestCoinTeaserBtn"))}</button></p>` : ""}
-        <div class="flash-controls">
-          <button type="button" class="pill accent new-quiz-btn sp-report-restart" data-qz-act="${primaryAct}">${retryIcon}<span>${escapeHtml(primaryText)}</span></button>
+        <div class="flash-controls qz-result-actions">
+          ${quizMissed.length ? `<button type="button" class="pill accent new-quiz-btn sp-report-restart qz-result-retry" data-qz-act="retry">${retryIcon}<span>${escapeHtml(String(t("qzRetryBtn", quizMissed.length)).replace(/^[↻▶]\s*/, ""))}</span></button>` : ""}
+          <button type="button" class="pill accent new-quiz-btn sp-report-restart qz-result-new" data-qz-act="again">${retryIcon}<span>${escapeHtml(String(t(allDone ? "qzAgainAllBtn" : "qzAgainBtn")).replace(/^[↻▶]\s*/, ""))}</span></button>
+          ${allDone ? `<p class="qz-result-note">${escapeHtml(t("qzAllDone"))}</p>` : ""}
         </div>
         <div class="sp-report-next">
           <button type="button" class="pill neutral small qz-report-btn" data-qz-act="settings">${escapeHtml(String(t("qzSettingsBtn")))}</button>
@@ -7110,7 +7137,7 @@ quizResultEl.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-qz-act]");
   if (!btn) return;
   if (btn.dataset.qzAct === "retry") startQuizRound(quizMissed.slice());
-  else if (btn.dataset.qzAct === "again") startQuizRound();
+  else if (btn.dataset.qzAct === "again") startQuizRound(undefined, { fresh: true });
   else if (btn.dataset.qzAct === "settings") showQuizStart();
   else if (btn.dataset.qzAct === "nextlevel") { const next = nextLevelId(); if (next) applyLevel(next); }
   else if (btn.dataset.qzAct === "opengift") quizOpenGift();
@@ -7558,9 +7585,17 @@ function loadSpellingWord(speakAloud = true) {
 const spellingHintTray = document.getElementById("spelling-hint-tray");
 const SPELLING_DECOY_POOL = "abcdefghijklmnopqrstuvwxyz";
 
+// Which tile "owns" each typed character (same index as the input text, null when typed
+// with no free tile). Tiles are matched by identity, not by letter, so with two "a" tiles
+// the one the child tapped is the one that lights, and tapping it again frees that very
+// tile (it used to light/unlight the first "a" in the tray no matter which one was tapped).
+let spellingTileAssign = [];
+let spellingTileValue = "";
 function renderSpellingLetterHints(word) {
   if (!spellingHintTray) return;
   spellingHintTray.innerHTML = "";
+  spellingTileAssign = [];
+  spellingTileValue = "";
   if (!word) return;
   const letters = word.toLowerCase().split("").filter((ch) => /[a-z]/.test(ch));
   if (!letters.length) return;
@@ -7586,13 +7621,17 @@ function renderSpellingLetterHints(word) {
     tile.dataset.letter = letter;
     tile.setAttribute("aria-label", `${letter}`);
     tile.addEventListener("click", () => {
+      reconcileSpellingTiles();
       const v = spellingInput.value;
-      if (tile.classList.contains("spelling-hint-tile-used")) {
-        const idx = v.toLowerCase().lastIndexOf(letter);
-        if (idx !== -1) spellingInput.value = v.slice(0, idx) + v.slice(idx + 1);
+      const at = spellingTileAssign.indexOf(tile);
+      if (at !== -1) {
+        spellingInput.value = v.slice(0, at) + v.slice(at + 1);
+        spellingTileAssign.splice(at, 1);
       } else {
         spellingInput.value = v + letter;
+        spellingTileAssign.push(tile);
       }
+      spellingTileValue = spellingInput.value.toLowerCase();
       spellingInput.dispatchEvent(new Event("input"));
       spellingInput.focus();
     });
@@ -7610,15 +7649,35 @@ function renderSpellingLetterHints(word) {
   syncSpellingHintTiles(false);
 }
 
-// Lights one tile per typed letter (first matching tiles in tray order).
+// Brings spellingTileAssign back in line with the input text after any edit (taps keep it
+// exact already; typing, Backspace or pasting land here). A character that still sits at the
+// same position keeps its tile; new characters take the first free tile with that letter.
+function reconcileSpellingTiles() {
+  if (!spellingHintTray) return;
+  const tiles = Array.from(spellingHintTray.querySelectorAll(".spelling-hint-tile"));
+  const v = spellingInput.value.toLowerCase();
+  const used = new Set();
+  const next = new Array(v.length).fill(null);
+  for (let i = 0; i < v.length; i++) {
+    const keep = spellingTileAssign[i];
+    if (spellingTileValue[i] === v[i] && keep && !used.has(keep)) { next[i] = keep; used.add(keep); }
+  }
+  for (let i = 0; i < v.length; i++) {
+    if (next[i]) continue;
+    const free = tiles.find((tl) => tl.dataset.letter === v[i] && !used.has(tl));
+    if (free) { next[i] = free; used.add(free); }
+  }
+  spellingTileAssign = next;
+  spellingTileValue = v;
+}
+
+// Lights exactly the tiles that own a typed letter.
 function syncSpellingHintTiles(flash = true) {
   if (!spellingHintTray) return;
-  const counts = {};
-  for (const ch of spellingInput.value.toLowerCase()) counts[ch] = (counts[ch] || 0) + 1;
+  reconcileSpellingTiles();
+  const owned = new Set(spellingTileAssign.filter(Boolean));
   spellingHintTray.querySelectorAll(".spelling-hint-tile").forEach((tile) => {
-    const l = tile.dataset.letter;
-    const on = counts[l] > 0;
-    if (on) counts[l]--;
+    const on = owned.has(tile);
     const was = tile.classList.contains("spelling-hint-tile-used");
     tile.classList.toggle("spelling-hint-tile-used", on);
     if (on && !was && flash) {
