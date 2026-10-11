@@ -7265,7 +7265,24 @@ let spellingCurrentChecked = false; // has the current word passed a "Check Answ
 // Number of Questions stepper) rather than freshly entered — it keeps
 // whichever screen (start / practice) was already showing instead of
 // bouncing back to "Start the first word".
-function buildSpellingDeck({ resetScreen = true } = {}) {
+const spellingSeen = { key: "", words: new Set() };
+function spellingSeenSet() {
+  const k = [currentLevel, currentLang].join("|");
+  if (spellingSeen.key !== k) { spellingSeen.key = k; spellingSeen.words = new Set(); }
+  return spellingSeen.words;
+}
+// Words not played yet (this visit) first; never-studied ones ahead of older ones.
+function pickFreshSpellingWords(pool, count) {
+  const seen = spellingSeenSet();
+  const unseen = pool.filter((w) => !seen.has(w.word));
+  if (unseen.length === 0) { seen.clear(); return pickWordsForSession(pool, count); }
+  const isNew = (w) => !progress.srs[String(w.word).toLowerCase()];
+  const fresh = shuffle(unseen.filter(isNew));
+  const older = pickWordsForSession(unseen.filter((w) => !isNew(w)), unseen.length);
+  return [...fresh, ...older].slice(0, count);
+}
+
+function buildSpellingDeck({ resetScreen = true, list = null, fresh = false } = {}) {
   spellingGoalBanner.hidden = true;
   spellingGoalCelebrated = false;
   const pool = getSpellingPool(currentLevel);
@@ -7275,7 +7292,8 @@ function buildSpellingDeck({ resetScreen = true } = {}) {
   // replaces the old wrong/untried/done split with a real spaced-repetition
   // schedule; progress.spellingStatus itself is untouched and keeps driving
   // whatever else already reads it (e.g. the mastery badge).
-  spellingDeck = pickWordsForSession(pool, effectiveGoal("spelling", pool.length));
+  const goalN = effectiveGoal("spelling", pool.length);
+  spellingDeck = list ? list : fresh ? pickFreshSpellingWords(pool, goalN) : pickWordsForSession(pool, goalN);
   spellingIndex = 0;
   spellingMissedIdx.clear();
   spellingScore = { correct: 0, total: 0 };
@@ -7847,8 +7865,12 @@ function checkSpellingAnswer() {
   spellingTappedSpeaker = true; // they are clearly hearing the words fine; stop nagging
   spellingSpeakBtn.classList.remove("sp-belly-hint");
   const current = spellingDeck[spellingIndex];
-  const guess = spellingInput.value.trim().toLowerCase();
-  const correct = guess === current.word.toLowerCase();
+  // Phrases like "upside down" have no space tile in the tray, so spaces/hyphens/apostrophes
+  // are ignored: the letters in order are what has to be right.
+  const spellKey = (x) => String(x).toLowerCase().replace(/[^a-z0-9]/g, "");
+  const guess = spellKey(spellingInput.value);
+  const correct = guess.length > 0 && guess === spellKey(current.word);
+  spellingSeenSet().add(current.word);
   recordResult(current.word, correct, "spelling");
   recordSrsResult(current.word, correct);
 
@@ -8004,6 +8026,14 @@ function renderSpellingReport() {
   const rv = document.getElementById("spelling-report-review");
   rv.hidden = !words.length;
   rv.textContent = t("spReportReview");
+  const retryBtn = document.getElementById("spelling-report-retry");
+  if (retryBtn) {
+    retryBtn.hidden = !words.length;
+    const lab = retryBtn.querySelector("span:last-child");
+    if (lab) lab.textContent = rwL(`Retry missed (${words.length})`, `틀린 단어 다시 풀기 (${words.length})`);
+  }
+  const newLab = spellingReportRestartBtn.querySelector("span:last-child");
+  if (newLab) newLab.textContent = rwL("New words", "새로운 단어 풀기");
   spellingReport.classList.toggle("sr-big", state === "perfect" && big);
   if (!spellingReportKoala.firstChild) spellingReportKoala.innerHTML = SPELL_KOALA_SVG;
   spellingReportKoala.classList.toggle("sp-cheer", state === "perfect" || (state === "some" && spellingScore.correct > 0));
@@ -8040,8 +8070,22 @@ spellingFinishBtn.addEventListener("click", renderSpellingReport);
 document.getElementById("spelling-report-level")?.addEventListener("click", () => document.getElementById("level-badge")?.click());
 document.getElementById("spelling-report-game")?.addEventListener("click", () => goToTab("typegame"));
 
-spellingReportRestartBtn.addEventListener("click", () => {
-  buildSpellingDeck();
+// Report buttons start the next round straight away (no detour via the start screen).
+function startSpellingRoundNow(opts) {
+  if (dailyQuotaLeft("spelling") <= 0) { promptDailyCap(); return; }
+  buildSpellingDeck(opts);
+  if (!spellingDeck.length) return;
+  spellingStartScreen.hidden = true;
+  spellingReport.hidden = true;
+  spellingPractice.hidden = false;
+  loadSpellingWord();
+}
+spellingReportRestartBtn.addEventListener("click", () => startSpellingRoundNow({ fresh: true }));
+document.getElementById("spelling-report-retry")?.addEventListener("click", () => {
+  const missed = new Set(Array.from(spellingSessionWrongWords.keys()));
+  const list = shuffle(getSpellingPool(currentLevel).filter((w) => missed.has(w.word)));
+  if (!list.length) return;
+  startSpellingRoundNow({ list: list.slice(0, Math.max(1, dailyQuotaLeft("spelling"))) });
 });
 
 spellingGoalDismissBtn.addEventListener("click", () => {

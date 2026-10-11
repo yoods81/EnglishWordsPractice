@@ -2676,6 +2676,12 @@ html[data-theme="dark"]:root:root:root:root:root:root:root:root:root:root body #
 html[data-theme="dark"]:root:root:root:root:root:root:root:root:root:root body #quiz-result button.qz-result-new.new-quiz-btn.pill.pill.pill:hover {
   background: linear-gradient(180deg, #324858, #2f8fe6) !important;
 }
+html[data-theme="dark"]:root:root:root:root:root:root:root:root:root:root body :is(#quiz-result, #spelling-report) .qz-result-actions button.qz-result-retry.new-quiz-btn.pill.pill {
+  color: #12c49e !important;
+}
+html[data-theme="dark"]:root:root:root:root:root:root:root:root:root:root body :is(#quiz-result, #spelling-report) .qz-result-actions button.qz-result-new.new-quiz-btn.pill.pill {
+  background: linear-gradient(180deg, #324858, #2f8fe6) !important;
+}
 html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; }
 html[data-theme="dark"] img, html[data-theme="dark"] video { filter: brightness(.92); }
 html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea { color-scheme: dark; }

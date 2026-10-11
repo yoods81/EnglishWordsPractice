@@ -13288,3 +13288,22 @@ html:root:root:root:root:root:root:root:root:root:root body #quiz-result button.
 }
 html:root:root:root:root:root:root:root:root:root:root body #quiz-result button.qz-result-new.new-quiz-btn.pill.pill.pill:active { box-shadow: 0 1px 0 #1d62b8 !important; transform: translateY(3px); }
 html body #quiz-result .qz-result-new .new-quiz-icon svg { width: 1.15em; height: 1.15em; }
+
+/* Quiz + Spelling result buttons share the Start button's look (size, weight, pill, deep shadow, bounce); colours stay: green retry / sky-blue new */
+html:root:root:root:root:root:root:root:root:root:root body :is(#quiz-result, #spelling-report) .qz-result-actions button.new-quiz-btn.pill.pill {
+  width: 100% !important; max-width: 280px !important; min-height: 56px; margin: 0 auto !important; font-size: 1.25rem; font-weight: 800;
+  border: 0 !important; border-radius: 999px; animation: tg-play-bounce 1.6s ease-in-out infinite; gap: 8px;
+}
+html:root:root:root:root:root:root:root:root:root:root body :is(#quiz-result, #spelling-report) .qz-result-actions button.qz-result-retry.new-quiz-btn.pill.pill {
+  background: linear-gradient(180deg, #7be3c8, #1fb893) !important; color: #05382d !important; text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+  box-shadow: 0 5px 0 #0e7a60, 0 9px 18px rgba(14, 122, 96, .4) !important;
+}
+html:root:root:root:root:root:root:root:root:root:root body :is(#quiz-result, #spelling-report) .qz-result-actions button.qz-result-new.new-quiz-btn.pill.pill {
+  background: linear-gradient(180deg, #7cc8ff, #2f8fe6) !important; color: #fff !important; text-shadow: 0 1px 0 rgba(0, 0, 0, .2);
+  box-shadow: 0 5px 0 #1d62b8, 0 9px 18px rgba(47, 143, 230, .4) !important;
+}
+html:root:root:root:root:root:root:root:root:root:root body :is(#quiz-result, #spelling-report) .qz-result-actions button.new-quiz-btn.pill.pill:hover { filter: brightness(1.05); }
+html:root:root:root:root:root:root:root:root:root:root body :is(#quiz-result, #spelling-report) .qz-result-actions button.qz-result-retry.new-quiz-btn.pill.pill:active { animation: none; transform: translateY(4px) scale(.97); box-shadow: 0 1px 0 #0e7a60 !important; }
+html:root:root:root:root:root:root:root:root:root:root body :is(#quiz-result, #spelling-report) .qz-result-actions button.qz-result-new.new-quiz-btn.pill.pill:active { animation: none; transform: translateY(4px) scale(.97); box-shadow: 0 1px 0 #1d62b8 !important; }
+html:root:root:root:root:root:root:root:root:root:root body :is(#quiz-result, #spelling-report) .qz-result-actions .new-quiz-icon svg { width: 1.15em; height: 1.15em; }
+@media (prefers-reduced-motion: reduce) { html:root:root:root:root:root:root:root:root:root:root body :is(#quiz-result, #spelling-report) .qz-result-actions button.new-quiz-btn.pill.pill { animation: none; } }
