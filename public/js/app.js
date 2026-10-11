@@ -6309,6 +6309,21 @@ const MIN_POOL_FOR_QUIZ = QuizCore.MIN_CHOICES;
 const QUIZ_PREFS_KEY = "ywp_quiz_prefs_v1";
 const QUIZ_KO_MEANING_KEY = "ywp_quiz_ko_meaning_v1";
 const QUIZ_RESULT_MISSED_SHOWN = 5;
+// "Show more" for lists that only show the first few rows. Rows past the limit carry .is-extra;
+// the button toggles .expanded on the surrounding scope (see the click handler below).
+function moreToggleHtml(n, cls = "") {
+  const more = rwL(`Show more (+${n})`, `더보기 (+${n})`), less = rwL("Show less", "접기");
+  return `<button type="button" class="pill neutral small more-toggle ${cls}" data-more-toggle data-more-label="${escapeHtml(more)}" data-less-label="${escapeHtml(less)}" aria-expanded="false">${escapeHtml(more)}</button>`;
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-more-toggle]");
+  if (!b) return;
+  const scope = b.closest(".sp-report-card, .dash-rec-words");
+  if (!scope) return;
+  const on = scope.classList.toggle("expanded");
+  b.textContent = on ? b.dataset.lessLabel : b.dataset.moreLabel;
+  b.setAttribute("aria-expanded", on ? "true" : "false");
+});
 
 const quizStartScreen = document.getElementById("quiz-start-screen");
 const quizPractice = document.getElementById("quiz-practice");
@@ -6882,8 +6897,8 @@ function showQuizResult() {
     : "";
   const seenNow = quizSeenSet();
   const allDone = buildQuizPool().every((q) => seenNow.has(q.target));
-  const missedRows = quizMissed.slice(0, QUIZ_RESULT_MISSED_SHOWN).map((q) => `<div class="wordlist-item sp-report-row" data-say="${escapeHtml(q.target)}"><div class="wordlist-item-main"><div class="w speakable-line">${escapeHtml(q.target)}</div>${q.definition ? `<div class="d">${escapeHtml(q.definition)}</div>` : ""}</div></div>`).join("");
-  const moreRow = missedOverflow > 0 ? `<p class="sp-report-review qz-report-more">+${missedOverflow}</p>` : "";
+  const missedRows = quizMissed.map((q, i) => `<div class="wordlist-item sp-report-row${i >= QUIZ_RESULT_MISSED_SHOWN ? " is-extra" : ""}" data-say="${escapeHtml(q.target)}"><div class="wordlist-item-main"><div class="w speakable-line">${escapeHtml(q.target)}</div>${q.definition ? `<div class="d">${escapeHtml(q.definition)}</div>` : ""}</div></div>`).join("");
+  const moreRow = missedOverflow > 0 ? moreToggleHtml(missedOverflow) : "";
   const newQuizIcon = '<span class="new-quiz-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg></span>';
   const retryIcon = '<span class="new-quiz-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0 1 13.66-5.66M20 12a8 8 0 0 1-13.66 5.66" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M17 3v4.5h-4.5M7 21v-4.5h4.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
 
@@ -8038,9 +8053,9 @@ function renderSpellingReport() {
   if (!spellingReportKoala.firstChild) spellingReportKoala.innerHTML = SPELL_KOALA_SVG;
   spellingReportKoala.classList.toggle("sp-cheer", state === "perfect" || (state === "some" && spellingScore.correct > 0));
 
-  words.forEach((w) => {
+  words.forEach((w, wi) => {
     const row = document.createElement("div");
-    row.className = "wordlist-item";
+    row.className = "wordlist-item" + (wi >= QUIZ_RESULT_MISSED_SHOWN ? " is-extra" : "");
 
     const left = document.createElement("div");
     left.className = "wordlist-item-main";
@@ -8063,6 +8078,10 @@ function renderSpellingReport() {
     spellingReportList.appendChild(row);
   });
 
+  spellingReport.querySelector(".sp-report-card").classList.remove("expanded");
+  const oldMore = document.getElementById("spelling-report-more");
+  if (oldMore) oldMore.remove();
+  if (words.length > QUIZ_RESULT_MISSED_SHOWN) spellingReportList.insertAdjacentHTML("afterend", moreToggleHtml(words.length - QUIZ_RESULT_MISSED_SHOWN).replace("<button ", '<button id="spelling-report-more" '));
   spellingReportScoreEl.textContent = tot ? t("spReportScore", spellingScore.correct, tot, pct) : t("spellingTodayScore", 0, 0);
 }
 
@@ -16365,7 +16384,7 @@ function renderSkillsCard() {
     : today.hasHistory ? rwL("Nothing practised yet today.", "오늘은 아직 연습하지 않았어요.") : "";
   const wordChips = review.length
     ? `<div class="dash-rec-words"><span class="dash-rec-words-label">${rwL("Words to review", "복습할 단어")} · ${review.length}</span>
-       <ul class="dash-rec-chips">${review.slice(0, 12).map((r) => `<li>${escapeHtml(r.word)}</li>`).join("")}${review.length > 12 ? `<li class="more">+${review.length - 12}</li>` : ""}</ul></div>`
+       <ul class="dash-rec-chips">${review.map((r, i) => `<li${i >= 12 ? ' class="is-extra"' : ""}>${escapeHtml(r.word)}</li>`).join("")}${review.length > 12 ? `<li class="more">${moreToggleHtml(review.length - 12, "chip-more")}</li>` : ""}</ul></div>`
     : "";
   const recEmoji = { review: "🎯", new: "🚀", mission: "⭐", explore: "🧭" }[rec.type] || "💪";
   const recIcon = `<svg class="dash-rec-svg" viewBox="0 0 32 32" width="34" height="34" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#fff"/><path d="M13 9.8v12.4a.9.9 0 0 0 1.4.76l9.3-6.2a.9.9 0 0 0 0-1.5l-9.3-6.2a.9.9 0 0 0-1.4.74z" fill="#139c7d"/></svg>`;

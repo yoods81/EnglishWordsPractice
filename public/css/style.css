@@ -13307,3 +13307,12 @@ html:root:root:root:root:root:root:root:root:root:root body :is(#quiz-result, #s
 html:root:root:root:root:root:root:root:root:root:root body :is(#quiz-result, #spelling-report) .qz-result-actions button.qz-result-new.new-quiz-btn.pill.pill:active { animation: none; transform: translateY(4px) scale(.97); box-shadow: 0 1px 0 #1d62b8 !important; }
 html:root:root:root:root:root:root:root:root:root:root body :is(#quiz-result, #spelling-report) .qz-result-actions .new-quiz-icon svg { width: 1.15em; height: 1.15em; }
 @media (prefers-reduced-motion: reduce) { html:root:root:root:root:root:root:root:root:root:root body :is(#quiz-result, #spelling-report) .qz-result-actions button.new-quiz-btn.pill.pill { animation: none; } }
+
+/* "Show more" lists: no inner scroll box (rows simply grow), extra rows hidden until expanded */
+html body .sp-report-card .wordlist-grid { max-height: none !important; overflow: visible !important; }
+.sp-report-card:not(.expanded) .is-extra, .dash-rec-words:not(.expanded) .is-extra { display: none !important; }
+html body .more-toggle { display: block; margin: 8px auto 0; }
+html body .dash-rec-chips li.more { background: none; border: 0; padding: 0; }
+html body .dash-rec-chips .more-toggle.chip-more { display: inline-flex; margin: 0; min-height: 0; padding: 4px 12px; }
+.sp-report-card, .sp-report-card * { scrollbar-width: none; }
+.sp-report-card *::-webkit-scrollbar { display: none; }
