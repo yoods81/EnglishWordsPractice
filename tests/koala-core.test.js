@@ -327,35 +327,44 @@ test("mergeRewards: nothing earned on either device is lost", () => {
   assert.equal(K.mergeRewards({}, a.koala ? K.rewardSlice(a) : null), true, "new device gets everything");
 });
 
-test("reward loop: rounds of correct answers pay coins once, capped per day", () => {
+test("reward loop: rounds of correct answers pay coins once; free = 3 rounds + 3 bonus, paid = unlimited", () => {
   const p = {};
   assert.deepEqual(K.awardLearning(p, "quiz", 9, "2026-10-02"), []);
   assert.deepEqual(K.awardLearning(p, "quiz", 10, "2026-10-02"), [{ why: "quiz", n: 5 }]);
   assert.deepEqual(K.awardLearning(p, "quiz", 10, "2026-10-02"), [], "same round is never paid twice");
   assert.equal(K.awardLearning(p, "quiz", 25, "2026-10-02").length, 1, "second round only");
-  assert.equal(K.awardLearning(p, "quiz", 500, "2026-10-02").length, 1, "third round, then capped");
+  assert.equal(K.awardLearning(p, "quiz", 35, "2026-10-02").length, 1, "third round");
+  const bonus = K.awardLearning(p, "quiz", 500, "2026-10-02");
+  assert.deepEqual(bonus.map((r) => r.n), [3, 3, 3], "three bonus rounds of 3 coins, then nothing more");
   assert.equal(K.awardLearning(p, "quiz", 900, "2026-10-02").length, 0);
-  assert.equal(p.koala.coins, 15);
+  assert.equal(p.koala.coins, 15 + 9, "free max 24 a day");
   assert.equal(K.awardLearning(p, "quiz", 10, "2026-10-03").length, 1, "new day, new rounds");
-  assert.deepEqual(K.awardLearning(p, "flash", 14, "d"), [], "flashcards pay every 15 credited answers");
-  assert.equal(K.awardLearning(p, "flash", 15, "d")[0].why, "flashcards");
-  assert.equal(K.awardLearning(p, "flash", 900, "d").length, 1, "flashcards: only 2 rounds a day");
-  assert.equal(K.awardLearning(p, "tt", 10, "d")[0].why, "timesTable");
+  const q = {};
+  assert.equal(K.awardLearning(q, "quiz", 100, "d", { unlimited: true }).length, 10, "paid: no daily cap, no bonus tier");
+  assert.equal(q.koala.coins, 50);
+  assert.deepEqual(K.awardLearning(p, "flash", 9, "d"), [], "flashcards (quiz answers) pay every 10");
+  assert.equal(K.awardLearning(p, "flash", 10, "d")[0].why, "flashcards");
+  assert.equal(K.awardLearning(p, "tt", 49, "d").length, 0, "times table needs 50");
+  assert.equal(K.awardLearning(p, "tt", 50, "d")[0].why, "timesTable");
+  const t = {};
+  assert.deepEqual(K.awardLearning(t, "typing", 900, "d").map((r) => r.n), [5, 5, 3, 3], "typing/times table: 2 rounds + 2 bonus = 16");
   assert.deepEqual(K.awardLearning(p, "bogus", 99, "d"), []);
 });
 
 test("reward loop: mission, badge and review coins are one-time and wrong answers never cost", () => {
   const p = {};
-  assert.equal(K.awardMission(p, "2026-10-02"), 15);
+  assert.equal(K.awardMission(p, "2026-10-02"), 5);
   assert.equal(K.awardMission(p, "2026-10-02"), 0);
   assert.equal(K.awardBadge(p, "tt3"), 25);
   assert.equal(K.awardBadge(p, "tt3"), 0);
   assert.equal(K.awardReview(p, "2026-10-02:1"), 10);
   assert.equal(K.awardReview(p, "2026-10-02:1"), 0);
-  assert.equal(p.koala.coins, 50);
+  assert.equal(p.koala.coins, 40);
   const lp = K.learningProgress("quiz", 13);
   assert.deepEqual([lp.have, lp.goal, lp.roundsDone, lp.capped], [3, 10, 1, false]);
   assert.equal(K.learningProgress("quiz", 30).capped, true);
+  assert.equal(K.learningProgress("quiz", 30, { unlimited: true }).capped, false);
+  assert.equal(K.learningProgress("typing", 120).goal, 50);
 });
 
 test("Study Room: room items follow the same rules and never mix with character items", () => {
@@ -551,20 +560,15 @@ test("sub-items: old floor toys become owned toy-box toys; bad data is cleaned; 
   assert.equal(K.isSubOwned(a, "toyCar"), false);
 });
 
-test("gameCoinMultiplier: free = 1, paid grows with stage and speed (capped), locked = half and unweighted", () => {
-  assert.equal(K.gameCoinMultiplier({ weighted: false, stage: 9, speed: 20 }), 1, "free members get no weight");
-  assert.equal(K.gameCoinMultiplier({ weighted: true, stage: 0, speed: 1 }), 1);
-  assert.equal(K.gameCoinMultiplier({ weighted: true, stage: 2, speed: 1 }), 1.2);
-  assert.ok(K.gameCoinMultiplier({ weighted: true, stage: 2, speed: 5 }) > 1.2, "faster is worth more");
-  assert.equal(K.gameCoinMultiplier({ weighted: true, stage: 50, speed: 20 }), 2, "capped");
-  assert.equal(K.gameCoinMultiplier({ weighted: true, stage: 5, speed: 10, locked: true }), 0.5);
-  assert.equal(K.gameCoinMultiplier({ weighted: false, locked: true }), 0.5, "free members still get the lock discount");
+test("gameCoinMultiplier: locked = half, everyone else 1", () => {
+  assert.equal(K.gameCoinMultiplier({ locked: false }), 1);
+  assert.equal(K.gameCoinMultiplier({ weighted: true, stage: 50, speed: 20 }), 1, "no stage/speed weight any more");
+  assert.equal(K.gameCoinMultiplier({ locked: true }), 0.5);
 });
 
-test("awardLearning scales a game round by opts.mult but never pays 0 and stays idempotent", () => {
+test("awardLearning scales a game round by opts.mult (rounded down, never 0) and stays idempotent", () => {
   const p = {};
-  assert.deepEqual(K.awardLearning(p, "typing", 10, "2026-10-02", { mult: 2 }), [{ why: "typing", n: 10 }]);
-  assert.deepEqual(K.awardLearning(p, "typing", 10, "2026-10-02", { mult: 0.5 }), [], "same round never paid twice");
-  assert.deepEqual(K.awardLearning(p, "tt", 10, "2026-10-02", { mult: 0.5 }), [{ why: "timesTable", n: 3 }]);
-  assert.deepEqual(K.awardLearning(p, "tt", 20, "2026-10-02", { mult: 0.01 }), [{ why: "timesTable", n: 1 }]);
+  assert.deepEqual(K.awardLearning(p, "typing", 50, "2026-10-02", { mult: 0.5 }), [{ why: "typing", n: 2 }]);
+  assert.deepEqual(K.awardLearning(p, "typing", 50, "2026-10-02", { mult: 0.5 }), [], "same round never paid twice");
+  assert.deepEqual(K.awardLearning(p, "tt", 100, "2026-10-02", { mult: 0.01 }), [{ why: "timesTable", n: 1 }, { why: "timesTable", n: 1 }]);
 });

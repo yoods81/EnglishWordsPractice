@@ -26,16 +26,22 @@
 })(typeof self !== "undefined" ? self : this, function () {
   /* ---------- Configuration: every reward number lives here ---------- */
   const REWARD_CONFIG = {
-    // Coins for a learning round: every `correctPerReward` correct answers in a
-    // mode earn that mode's coins, up to `dailyRewardsPerMode` rounds per mode
-    // per day (so the day's total is bounded and wrong answers never cost coins).
-    learning: { correctPerReward: 10, dailyRewardsPerMode: 3 },
-    // Flashcards are self-rated, so they pay out more slowly (15 credited answers, 2 rounds a day).
-    learningByMode: { flash: { correctPerReward: 15, dailyRewardsPerMode: 2 } },
-    // Typing / times-table games: coins per round are scaled by a multiplier.
-    //  - weighted (paid members only): +perStage per stage reached, +perSpeed per speed level above 1, capped at maxMult
-    //  - locked speed (everyone who earns): lockedMult, and no stage/speed weight at all
-    game: { lockedMult: 0.5, perStage: 0.1, perSpeed: 0.05, maxMult: 2 },
+    // Coins for a learning round: every `correctPerReward` correct answers in a mode earn that mode's
+    // coins. Free accounts get `dailyRewardsPerMode` rounds a day, then `bonusRounds` smaller rounds of
+    // `bonusCoins`; paid (premium) accounts have no daily cap and no bonus tier. Wrong answers never cost coins.
+    learning: { correctPerReward: 10, dailyRewardsPerMode: 3, bonusRounds: 3, bonusCoins: 3 },
+    // Flashcards pay for correct answers in the quiz that follows every flashcard round.
+    // Typing / times-table are easy to farm, so a round needs 50 correct answers.
+    learningByMode: {
+      tt: { correctPerReward: 50, dailyRewardsPerMode: 2, bonusRounds: 2, bonusCoins: 3 },
+      typing: { correctPerReward: 50, dailyRewardsPerMode: 2, bonusRounds: 2, bonusCoins: 3 },
+    },
+    // Typing / times-table: coins per round are scaled by a multiplier (locked speed = half; everyone else 1x).
+    game: { lockedMult: 0.5 },
+    // Today's Mission: every task needs `goal` correct answers; finishing pays dailyMission (retry: missionRetry).
+    mission: { goal: 15, retryMaxFree: 3 },
+    // A review session pays only when it has at least `minQuestions` questions and `minRightPct` of them are right.
+    reviewRule: { minQuestions: 10, minRightPct: 0.5 },
     coins: {
       quiz: 5,
       spelling: 5,
@@ -43,7 +49,8 @@
       timesTable: 5,
       typing: 5,
       review: 10,
-      dailyMission: 15,
+      dailyMission: 5,
+      missionRetry: 5,
     },
     // Bonus coins when a badge is earned (badge id -> coins).
     // Unlisted badges use badgeDefault.
@@ -805,43 +812,60 @@
   // Called after an answer. `correctToday` = correct answers in this mode today.
   // Awards every round reached and not yet paid (idempotent per day+round).
   // Returns [{why, n}] for the rounds paid just now.
-  // Multiplier for one round of a falling-words game. `weighted` = paid member.
+  // Multiplier for one round of a falling-words game: locked speed pays half, otherwise normal.
   function gameCoinMultiplier(st) {
-    const g = REWARD_CONFIG.game;
-    st = st || {};
-    if (st.locked) return g.lockedMult;
-    if (!st.weighted) return 1;
-    const m = 1 + g.perStage * Math.max(0, st.stage || 0) + g.perSpeed * Math.max(0, (st.speed || 1) - 1);
-    return Math.min(g.maxMult, Math.round(m * 100) / 100);
+    return st && st.locked ? REWARD_CONFIG.game.lockedMult : 1;
   }
 
+  function learnCfg(mode) {
+    return Object.assign({}, REWARD_CONFIG.learning, (REWARD_CONFIG.learningByMode || {})[mode]);
+  }
+  const scaleCoins = (base, opts) => (opts && opts.mult != null ? Math.max(1, Math.floor(base * opts.mult + 1e-9)) : base);
+
+  // opts.unlimited (paid accounts): every reached round pays, no daily cap, no bonus tier.
+  // opts.mult scales a round (typing / times table), never below 1 coin.
   function awardLearning(progress, mode, correctToday, day, opts) {
     const why = MODE_COINS[mode];
-    const cfg = Object.assign({}, REWARD_CONFIG.learning, (REWARD_CONFIG.learningByMode || {})[mode]);
     if (!why) return [];
-    const rounds = Math.min(Math.floor((correctToday || 0) / cfg.correctPerReward), cfg.dailyRewardsPerMode);
+    const cfg = learnCfg(mode);
+    const reached = Math.floor((correctToday || 0) / cfg.correctPerReward);
+    const unlimited = !!(opts && opts.unlimited);
+    const rounds = unlimited ? reached : Math.min(reached, cfg.dailyRewardsPerMode);
     const paid = [];
+    const o = Object.assign({}, opts); delete o.unlimited;
     for (let i = 1; i <= rounds; i++) {
-      const base = REWARD_CONFIG.coins[why];
-      const amount = opts && opts.mult != null ? Math.max(1, Math.round(base * opts.mult)) : base;
-      const n = awardCoins(progress, amount, why, Object.assign({}, opts, { key: `learn:${mode}:${day}:${i}` }));
+      const n = awardCoins(progress, scaleCoins(REWARD_CONFIG.coins[why], opts), why, Object.assign({}, o, { key: `learn:${mode}:${day}:${i}` }));
       if (n) paid.push({ why, n });
+    }
+    if (!unlimited) {
+      const bonus = Math.min(Math.max(0, reached - cfg.dailyRewardsPerMode), cfg.bonusRounds);
+      for (let i = 1; i <= bonus; i++) {
+        const n = awardCoins(progress, scaleCoins(cfg.bonusCoins, opts), why, Object.assign({}, o, { key: `learnbonus:${mode}:${day}:${i}` }));
+        if (n) paid.push({ why, n, bonus: true });
+      }
     }
     return paid;
   }
 
-  // Where the child stands towards the next round in a mode (for "Earn more Coins").
-  function learningProgress(mode, correctToday) {
-    const cfg = Object.assign({}, REWARD_CONFIG.learning, (REWARD_CONFIG.learningByMode || {})[mode]);
-    const done = Math.floor((correctToday || 0) / cfg.correctPerReward);
-    const capped = done >= cfg.dailyRewardsPerMode;
+  // Where the child stands in a mode today (for "Earn more Coins"). opts.unlimited = paid account.
+  function learningProgress(mode, correctToday, opts) {
+    const cfg = learnCfg(mode);
+    const correct = correctToday || 0;
+    const reached = Math.floor(correct / cfg.correctPerReward);
+    const unlimited = !!(opts && opts.unlimited);
+    const capped = !unlimited && reached >= cfg.dailyRewardsPerMode;
+    const bonusDone = Math.min(Math.max(0, reached - cfg.dailyRewardsPerMode), cfg.bonusRounds);
+    const bonusAll = !unlimited && bonusDone >= cfg.bonusRounds;
+    const extra = Math.max(0, correct - cfg.correctPerReward * cfg.dailyRewardsPerMode);
     return {
       coins: REWARD_CONFIG.coins[MODE_COINS[mode]] || 0,
-      have: capped ? cfg.correctPerReward : (correctToday || 0) % cfg.correctPerReward,
       goal: cfg.correctPerReward,
-      roundsDone: Math.min(done, cfg.dailyRewardsPerMode),
-      roundsMax: cfg.dailyRewardsPerMode,
+      unlimited,
+      have: capped ? (bonusAll ? cfg.correctPerReward : extra % cfg.correctPerReward) : correct % cfg.correctPerReward,
+      roundsDone: unlimited ? reached : Math.min(reached, cfg.dailyRewardsPerMode),
+      roundsMax: unlimited ? Infinity : cfg.dailyRewardsPerMode,
       capped,
+      bonusCoins: cfg.bonusCoins, bonusDone, bonusMax: cfg.bonusRounds, bonusAll,
     };
   }
 

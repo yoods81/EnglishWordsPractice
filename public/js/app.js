@@ -43,7 +43,7 @@ const TRANSLATIONS = {
     homeChooseYear: "Choose your year level",
     homeStartBtn: "▶ Start today's practice",
     missionTitle: "🎯 Today's Mission",
-    missionFlash: (n) => `Learn ${n} words with Flashcards`,
+    missionFlash: (n) => `Get ${n} flashcard quiz answers right`,
     missionSpelling: (n) => `Spell ${n} words`,
     missionQuiz: (n) => `Answer ${n} quiz questions`,
     missionTT: (n) => `Practise ${n} times-table facts`,
@@ -364,7 +364,7 @@ const TRANSLATIONS = {
     flashNextShort: "Next",
     flashEndBtn: "🏁 Finish",
     flashAutoShort: "Read aloud",
-    flashTip: "Tap the card to flip it · Read it for 5 seconds to earn Coins",
+    flashTip: "Tap the card to flip it · A quiz after the round earns Coins",
     flashKnowTally: "I know",
     flashStillTally: "Still learning",
     flashTapFlip: "Tap to flip",
@@ -939,7 +939,7 @@ const TRANSLATIONS = {
     homeChooseYear: "학년을 골라요",
     homeStartBtn: "▶ 오늘의 연습 시작",
     missionTitle: "🎯 오늘의 미션",
-    missionFlash: (n) => `플래시카드로 ${n}단어 익히기`,
+    missionFlash: (n) => `플래시카드 퀴즈 ${n}문제 맞히기`,
     missionSpelling: (n) => `스펠링 ${n}단어 쓰기`,
     missionQuiz: (n) => `퀴즈 ${n}문제 풀기`,
     missionTT: (n) => `구구단 ${n}문제 연습하기`,
@@ -1247,7 +1247,7 @@ const TRANSLATIONS = {
     flashNextShort: "다음",
     flashEndBtn: "🏁 결과 보기",
     flashAutoShort: "자동 읽기",
-    flashTip: "카드를 탭하면 뒤집혀요 · 5초 이상 읽어야 코인을 받아요",
+    flashTip: "카드를 탭하면 뒤집혀요 · 라운드 뒤 퀴즈를 맞히면 코인을 받아요",
     flashKnowTally: "알고 있어요",
     flashStillTally: "아직 어려워요",
     flashTapFlip: "눌러서 뒤집기",
@@ -1916,18 +1916,12 @@ function rewardLearning(mode) {
   if (!canUseAccountFeatures()) return;
   const day = localDateKey(new Date());
   const rec = progress.daily && progress.daily[day] && progress.daily[day][mode];
-  // Typing / times-table rounds are scaled by stage, speed and the speed lock.
+  // Typing / times-table rounds are scaled by the speed lock (locked = half).
   const gm = mode === "typing" ? "typing" : mode === "tt" ? "tt" : "";
-  const paid = KoalaCore.awardLearning(progress, mode, rec ? rec[0] : 0, day, gm ? { mult: gameCoinMult(gm) } : undefined);
-  // Past the daily cap, a few smaller bonus rounds keep paying ("Earn more Coins").
-  const ep = KOALA_EARN.find((x) => x.mode === mode);
-  if (ep) {
-    const bp = koalaBonusProgress(mode, rec ? rec[0] : 0);
-    for (let i = 1; i <= bp.done; i++) {
-      const n = KoalaCore.awardCoins(progress, KOALA_BONUS.coins, ep.why, { key: `learnbonus:${mode}:${day}:${i}` });
-      if (n) paid.push({ why: ep.why, n });
-    }
-  }
+  // Paid accounts: every round pays, no daily cap. Free: capped rounds, then smaller bonus rounds.
+  const opts = { unlimited: canUsePaidFeatures() };
+  if (gm) opts.mult = gameCoinMult(gm);
+  const paid = KoalaCore.awardLearning(progress, mode, rec ? rec[0] : 0, day, opts);
   // Each payout opens the Koala gift box at the top of the screen.
   const gmult = gm ? gameCoinMult(gm) : 1;
   paid.forEach((r) => showKoalaGift(r, gmult, gm && gameSpeedLocked[gm]));
@@ -5413,14 +5407,14 @@ function startFlashPlay() {
   flashPractice.hidden = false;
   renderFlashcard();
 }
-// ---- "Know it? Prove it!" — cards marked "I know this" earn Coins only after a short quiz ----
-const FLASH_CHECK_MAX = 10;
+// ---- Every flashcard round ends with a quiz on the cards that were looked at; correct answers earn Coins ----
+const FLASH_CHECK_MAX = 50;
 let flashCheck = null; // { qs, i, passed }
 function finishFlashRound() {
-  const need = Array.from(flashSession.still.values()).filter((c) => c && c.definition && !flashCounted(c.word));
-  if (!need.length) { renderFlashReport(); return; }
+  const seen = flashDeck.filter((c) => c && c.definition && flashSession.seen.has(c.word));
+  if (!seen.length) { renderFlashReport(); return; }
   const pool = flashDeckFull.length > 4 ? flashDeckFull : flashDeck;
-  const qs = shuffle(need.slice()).slice(0, FLASH_CHECK_MAX).map((c) => {
+  const qs = shuffle(seen.slice()).slice(0, FLASH_CHECK_MAX).map((c) => {
     const others = shuffle(pool.filter((x) => x.word !== c.word && x.word)).slice(0, 3).map((x) => x.word);
     return { card: c, opts: shuffle([c.word, ...others]) };
   });
@@ -5434,7 +5428,7 @@ function renderFlashCheck() {
   const c = flashCheck;
   if (!box || !c) return;
   const q = c.qs[c.i];
-  box.innerHTML = `<p class="fc-note">${rwL("Quick quiz on your Still learning words — right answers earn Coins!", "Still learning 단어 퀴즈 — 맞히면 코인이 쌓여요!")}</p>
+  box.innerHTML = `<p class="fc-note">${rwL("Quiz time on the cards you just flipped — right answers earn Coins!", "방금 본 카드로 퀴즈 — 맞히면 코인이 쌓여요!")}</p>
     <div class="fc-prog">${c.i + 1} / ${c.qs.length}</div>
     <div class="fc-q">${escapeHtml(q.card.definition)}</div>
     <div class="fc-opts">${q.opts.map((o) => `<button type="button" class="pill neutral fc-opt" data-fc="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")}</div>`;
@@ -5907,11 +5901,10 @@ flashKnowBtn.addEventListener("click", () => {
   if (!flashCardFlipped) { showFlashInfo(true); return; }
   const word = flashDeck[flashIndex].word;
   flashSession.known.add(word); flashSession.still.delete(word);
-  const slow = Date.now() - flashShownAt >= FLASH_MIN_MS;
-  if (!slow) showFlashInfo(true);
-  // Credit only for a card that was really looked at, and once per word per day.
-  if (slow && !flashCounted(word)) { progress.flashKnown[word] = true; flashMarkCounted(word); recordResult(word, true, "flash"); }
-  else if (slow) progress.flashKnown[word] = true;
+  // "Know it" / "Still learning" are only the child's own checklist: they never touch Coins or missions.
+  // Coins come from the quiz that follows every flashcard round.
+  progress.flashKnown[word] = true;
+  saveProgress();
   pulseScoreTag(flashKnowBtn, "flash-know-bounce");
   updateFlashTally();
   nextFlashcard();
@@ -8347,9 +8340,7 @@ function renderTypeGameHearts() {
 
 /* ---------- Speed lock + coin weight (Typing Game and Times Table) ----------
    Locking freezes the fall speed (no automatic speed-up, the +/- buttons stop) in exchange for
-   fewer Coins per round. Unlocked, a paid member's rounds are worth more the further they get
-   (stage) and the faster they play (speed); free members never get that weight. All of the
-   maths is KoalaCore.gameCoinMultiplier(). */
+   fewer Coins per round. Unlocked rounds pay the normal rate. The maths is KoalaCore.gameCoinMultiplier(). */
 const gameSpeedLocked = { typing: false, tt: false };
 const GAME_UI = {
   typing: { pre: "typegame", stage: () => typeGameStageIndex, speed: () => typeGameSpeedLevel },
@@ -8357,13 +8348,7 @@ const GAME_UI = {
 };
 
 function gameCoinMult(mode) {
-  const g = GAME_UI[mode];
-  return KoalaCore.gameCoinMultiplier({
-    weighted: canUsePaidFeatures(),
-    locked: gameSpeedLocked[mode],
-    stage: g.stage(),
-    speed: g.speed(),
-  });
+  return KoalaCore.gameCoinMultiplier({ locked: gameSpeedLocked[mode] });
 }
 
 function updateGameLockUI(mode) {
@@ -8386,7 +8371,7 @@ function updateGameLockUI(mode) {
   if (chip) {
     const m = canUseAccountFeatures() ? gameCoinMult(mode) : 1;
     // Shown only when it differs from the normal rate (or for paid members, whose rate can grow).
-    chip.hidden = !(canUseAccountFeatures() && (m !== 1 || (canUsePaidFeatures() && !locked)));
+    chip.hidden = !(canUseAccountFeatures() && m !== 1);
     chip.textContent = `🪙×${m}`;
     chip.classList.toggle("is-low", m < 1);
     chip.title = t("gameCoinMultTip");
@@ -15377,15 +15362,6 @@ const KOALA_EARN = [
   { mode: "tt", why: "timesTable", view: "timestable", emoji: "🧮" },
   { mode: "typing", why: "typing", view: "typegame", emoji: "⌨️" },
 ];
-// Bonus rounds after a mode's daily coin rounds are used up.
-const KOALA_BONUS = { rounds: 3, coins: 3 };
-function koalaBonusProgress(mode, correct) {
-  const cfg = Object.assign({}, KoalaCore.REWARD_CONFIG.learning, (KoalaCore.REWARD_CONFIG.learningByMode || {})[mode]);
-  const extra = Math.max(0, (correct || 0) - cfg.correctPerReward * cfg.dailyRewardsPerMode);
-  const done = Math.min(Math.floor(extra / cfg.correctPerReward), KOALA_BONUS.rounds);
-  const all = done >= KOALA_BONUS.rounds;
-  return { done, all, have: all ? cfg.correctPerReward : extra % cfg.correctPerReward, goal: cfg.correctPerReward };
-}
 function koalaEarnHtml() {
   const cfg = KoalaCore.REWARD_CONFIG;
   const day = localDateKey(new Date());
@@ -15400,14 +15376,14 @@ function koalaEarnHtml() {
   const moreBtnHtml = (view) => `<button type="button" class="pill small accent koala-earn-go koala-earn-more" data-koala-go="${view}">${rwL("Earn more", "코인 더 모으기")}</button>`;
   const rows = KOALA_EARN.map((e) => {
     const correct = (today[e.mode] && today[e.mode][0]) || 0;
-    const lp = KoalaCore.learningProgress(e.mode, correct);
-    const bp = koalaBonusProgress(e.mode, correct);
-    const barPct = lp.capped ? Math.round((bp.have / bp.goal) * 100) : Math.round((lp.have / lp.goal) * 100);
+    const lp = KoalaCore.learningProgress(e.mode, correct, { unlimited: canUsePaidFeatures() });
+    const barPct = Math.round((lp.have / lp.goal) * 100);
     let text;
-    if (!lp.capped) text = rwL(`${lp.have} / ${lp.goal} correct${lp.roundsDone ? ` · ${lp.roundsDone} of ${lp.roundsMax} rounds done today` : ""}`, `${lp.have} / ${lp.goal} 정답${lp.roundsDone ? ` · 오늘 ${lp.roundsDone}/${lp.roundsMax}회 완료` : ""}`);
-    else if (bp.all) text = rwL("✓ Done! All bonuses collected today", "✓ 완료됨! 오늘 보너스도 모두 받았어요");
-    else text = rwL(`✓ Done! Bonus +${KOALA_BONUS.coins}: ${bp.have} / ${bp.goal} correct`, `✓ 완료됨! 보너스 +${KOALA_BONUS.coins}: ${bp.have} / ${bp.goal} 정답`);
-    const btn = !lp.capped ? `<button type="button" class="pill small koala-earn-go" data-koala-go="${e.view}">${rwL("Go", "GO")}</button>` : bp.all ? doneBtnHtml() : moreBtnHtml(e.view);
+    if (lp.unlimited) text = rwL(`${lp.have} / ${lp.goal} correct · ${lp.roundsDone} rounds today · no daily limit`, `${lp.have} / ${lp.goal} 정답 · 오늘 ${lp.roundsDone}회 · 하루 제한 없음`);
+    else if (!lp.capped) text = rwL(`${lp.have} / ${lp.goal} correct${lp.roundsDone ? ` · ${lp.roundsDone} of ${lp.roundsMax} rounds done today` : ""}`, `${lp.have} / ${lp.goal} 정답${lp.roundsDone ? ` · 오늘 ${lp.roundsDone}/${lp.roundsMax}회 완료` : ""}`);
+    else if (lp.bonusAll) text = rwL("✓ Done! All bonuses collected today", "✓ 완료됨! 오늘 보너스도 모두 받았어요");
+    else text = rwL(`✓ Done! Bonus +${lp.bonusCoins}: ${lp.have} / ${lp.goal} correct`, `✓ 완료됨! 보너스 +${lp.bonusCoins}: ${lp.have} / ${lp.goal} 정답`);
+    const btn = !lp.capped ? `<button type="button" class="pill small koala-earn-go" data-koala-go="${e.view}">${rwL("Go", "GO")}</button>` : lp.bonusAll ? doneBtnHtml() : moreBtnHtml(e.view);
     return `<li class="koala-earn-row${lp.capped ? " koala-earn-row--done" : ""}"><span class="koala-earn-emoji" aria-hidden="true">${e.emoji}</span>
       <span class="koala-earn-main"><span class="koala-earn-name">${labels[e.why]} <b>+${lp.coins}</b> ${COIN_SVG}</span>
       <span class="koala-level-bar" aria-hidden="true"><span style="width:${barPct}%"></span></span>
@@ -15418,9 +15394,11 @@ function koalaEarnHtml() {
   const missionDone = progress.missionPaid === day + ":" + mRound.n || (mRound.n === 0 && progress.missionDone === day);
   const missionMore = missionDone && mRound.n < missionRetryCfg().max;
   return `<div class="koala-earn"><div class="koala-earn-title">${COIN_SVG} ${rwL("Earn more Coins", "코인 더 모으기")}</div>
-    <p class="koala-note">${rwL(
-      `Every ${cfg.learning.correctPerReward} correct answers earn Coins (up to ${cfg.learning.dailyRewardsPerMode} times per activity each day; Flashcards: every ${cfg.learningByMode.flash.correctPerReward}, up to ${cfg.learningByMode.flash.dailyRewardsPerMode} times). Wrong answers never cost Coins.`,
-      `정답 ${cfg.learning.correctPerReward}개마다 코인을 받아요 (활동마다 하루 ${cfg.learning.dailyRewardsPerMode}번까지, 플래시카드는 ${cfg.learningByMode.flash.correctPerReward}개마다 하루 ${cfg.learningByMode.flash.dailyRewardsPerMode}번). 틀려도 코인은 줄지 않아요.`)}</p>
+    <p class="koala-note">${canUsePaidFeatures()
+      ? rwL(`Premium: every ${cfg.learning.correctPerReward} correct answers earn Coins, with no daily limit (Typing Game and Times Table: every ${cfg.learningByMode.typing.correctPerReward}). Flashcards pay for the quiz after each round. Wrong answers never cost Coins.`,
+          `프리미엄: 정답 ${cfg.learning.correctPerReward}개마다 코인, 하루 제한 없음 (타이핑·구구단은 ${cfg.learningByMode.typing.correctPerReward}개마다). 플래시카드는 라운드 뒤 퀴즈 정답으로 받아요. 틀려도 코인은 줄지 않아요.`)
+      : rwL(`Every ${cfg.learning.correctPerReward} correct answers earn Coins (${cfg.learning.dailyRewardsPerMode} times a day, then ${cfg.learning.bonusRounds} bonus rounds of +${cfg.learning.bonusCoins}). Typing Game and Times Table: every ${cfg.learningByMode.typing.correctPerReward}, ${cfg.learningByMode.typing.dailyRewardsPerMode} times + ${cfg.learningByMode.typing.bonusRounds} bonus rounds. Flashcards pay for the quiz after each round. Wrong answers never cost Coins.`,
+          `정답 ${cfg.learning.correctPerReward}개마다 코인 (하루 ${cfg.learning.dailyRewardsPerMode}번, 이후 +${cfg.learning.bonusCoins}코인 보너스 ${cfg.learning.bonusRounds}번). 타이핑·구구단은 ${cfg.learningByMode.typing.correctPerReward}개마다 ${cfg.learningByMode.typing.dailyRewardsPerMode}번 + 보너스 ${cfg.learningByMode.typing.bonusRounds}번. 플래시카드는 라운드 뒤 퀴즈 정답으로 받아요. 틀려도 코인은 줄지 않아요.`)}</p>
     <ul class="koala-earn-list">${rows}
       <li class="koala-earn-row${missionDone ? " koala-earn-row--done" : ""}"><span class="koala-earn-emoji" aria-hidden="true">🎯</span><span class="koala-earn-main"><span class="koala-earn-name">${labels.dailyMission} <b>+${mRound.n ? missionRetryCfg().coins : cfg.coins.dailyMission}</b> ${COIN_SVG}</span>
         <small>${missionDone ? (missionMore ? rwL(`✓ Completed! Retry for a new mission (+${missionRetryCfg().coins})`, `✓ 완료됨! 재도전하면 +${missionRetryCfg().coins}코인`) : rwL("✓ Completed! All missions done today", "✓ 완료됨! 오늘 미션을 모두 끝냈어요")) : rwL("Finish all 3 mission tasks", "미션 3개를 모두 끝내요")}</small></span>
@@ -16784,7 +16762,7 @@ renderCustomWords();
 })();
 
 /* ---- Home: year chips, Today's Mission ---- */
-function missionGoal() { return 5; }
+function missionGoal() { return KoalaCore.REWARD_CONFIG.mission.goal; }
 function missionTodayCounts() {
   ensureRewardData();
   return progress.daily[localDateKey(new Date())] || {};
@@ -16792,7 +16770,7 @@ function missionTodayCounts() {
 // Retrying the mission: today's counts are measured from a baseline taken at
 // the retry, and the third task alternates, so each round is a fresh mission.
 // A function (not a const) so early renderHome() calls during start-up can use it.
-function missionRetryCfg() { return { max: 3, coins: 10 }; }
+function missionRetryCfg() { return { max: canUsePaidFeatures() ? Infinity : KoalaCore.REWARD_CONFIG.mission.retryMaxFree, coins: KoalaCore.REWARD_CONFIG.coins.missionRetry }; }
 function missionRoundState() {
   const day = localDateKey(new Date());
   const r = progress.missionRound;
@@ -16943,7 +16921,7 @@ renderHome();
 // A word answered right in a review graduates (is removed from the notebook)
 // immediately. A wrong answer keeps it due, and it is asked again this session.
 // (w.retestAt is legacy: entries parked by the old next-day rule still honour it.)
-const REVIEW_SESSION_MAX = 8;
+const REVIEW_SESSION_MAX = 10;
 let reviewState = null;
 
 function reviewIsMath(key) { return /^\d+x\d+$/.test(key); }
@@ -17207,7 +17185,8 @@ function reviewRecord(item, ok, isMath) {
 
 function reviewSummary() {
   const s = reviewState;
-  if (!s.rewarded && s.right > 0 && canUseAccountFeatures()) {
+  const rr = KoalaCore.REWARD_CONFIG.reviewRule;
+  if (!s.rewarded && s.total >= rr.minQuestions && (s.total - new Set(s.missed).size) / s.total >= rr.minRightPct && canUseAccountFeatures()) {
     s.rewarded = true;
     const coins = KoalaCore.awardReview(progress, localDateKey(new Date()) + ":" + Date.now());
     if (coins) {
