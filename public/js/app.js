@@ -2446,14 +2446,19 @@ function renderLevelSeg(seg) {
 }
 
 // The closed Settings row always shows the current choices, e.g. "Vocabulary · Upper Primary · 10 questions".
+// The collapsed Settings row shows the current choices on two tidy lines (one line on wide screens).
+function setSettingsNow(el, items) {
+  const half = items.length > 2 ? 2 : items.length;
+  const a = items.slice(0, half), b = items.slice(half);
+  el.innerHTML = [a, b].filter((g) => g.length).map((g) => `<span>${g.map(escapeHtml).join(" · ")}</span>`).join("");
+}
 function bindSettingsNow(bodyId, nowId) {
   const body = document.getElementById(bodyId);
   const now = document.getElementById(nowId);
   if (!body || !now) return;
   const update = () => {
-    now.textContent = Array.from(body.querySelectorAll(".qz-seg-btn.on"))
-      .map((b) => (b.dataset.now || b.textContent).replace(/^[^\p{L}\p{N}]+/u, "").trim())
-      .join(" · ");
+    setSettingsNow(now, Array.from(body.querySelectorAll(".qz-seg-btn.on"))
+      .map((b) => (b.dataset.now || b.textContent).replace(/^[^\p{L}\p{N}]+/u, "").trim()));
   };
   new MutationObserver(update).observe(body, { subtree: true, childList: true, attributes: true, attributeFilter: ["class", "data-now"] });
   update();
@@ -5983,7 +5988,7 @@ const flashSettingsBody = document.getElementById("flash-settings-body");
 function updateFlashSettingsNow() {
   const now = document.getElementById("flash-settings-now");
   if (!flashSettingsBody || !now) return;
-  now.textContent = Array.from(flashSettingsBody.querySelectorAll(".qz-seg-btn.on")).map((b) => b.textContent.replace(/^[^\p{L}\p{N}]+/u, "").trim()).join(" · ");
+  setSettingsNow(now, Array.from(flashSettingsBody.querySelectorAll(".qz-seg-btn.on")).map((b) => b.textContent.replace(/^[^\p{L}\p{N}]+/u, "").trim()));
 }
 if (flashSettingsBody) {
   new MutationObserver(updateFlashSettingsNow).observe(flashSettingsBody, { subtree: true, childList: true, attributes: true, attributeFilter: ["class"] });

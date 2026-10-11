@@ -13254,3 +13254,29 @@ html body .qz-result-actions .qz-result-retry { background: linear-gradient(180d
 .kg-rain .koala-coin { width: 100%; height: 100%; }
 @keyframes kg-fall { to { transform: translateY(46vh) rotate(360deg); opacity: .2; } }
 @media (prefers-reduced-motion: reduce) { .kg-pop, .kg-pop *, .kg-rain { animation-duration: .01s !important; transition-duration: .01s !important; } }
+
+/* ---- Settings dropdown: tidy grids (no overlap on tablets, even blocks on phones) ---- */
+html body #flash-start-screen .fs-settings-body .qz-seg,
+html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #spelling-start-screen .fs-settings-body .qz-seg {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); gap: 6px; flex-wrap: initial;
+}
+html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
+  display: flex; align-items: center; justify-content: center; text-align: center; white-space: normal; line-height: 1.15; min-height: 44px; padding: 6px 4px; flex: none; width: auto;
+}
+html body #quiz-start-screen #quiz-category-seg, html body #flash-start-screen #flash-category-seg { --cols: 3; }
+html body #quiz-start-screen #quiz-level-seg, html body #spelling-start-screen #spelling-level-seg { --cols: 2; }
+html body #quiz-start-screen #quiz-mode-seg { --cols: 2; }
+html body #quiz-start-screen #quiz-round-seg, html body #spelling-start-screen #spelling-round-seg { --cols: 3; }
+@media (min-width: 640px) {
+  html body #quiz-start-screen #quiz-level-seg, html body #spelling-start-screen #spelling-level-seg { --cols: 4; }
+  html body #quiz-start-screen #quiz-round-seg, html body #spelling-start-screen #spelling-round-seg { --cols: 6; }
+}
+/* collapsed row: two right-aligned lines on phones, one line when there is room */
+.fs-settings-now span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; }
+@media (min-width: 640px) {
+  .fs-settings-now span { display: inline; }
+  .fs-settings-now span + span::before { content: " · "; }
+}
