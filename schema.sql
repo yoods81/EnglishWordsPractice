@@ -179,3 +179,10 @@ CREATE TABLE IF NOT EXISTS weekly_report_prefs (
   last_sent_at INTEGER,
   updated_at INTEGER NOT NULL
 );
+
+-- Per-account learning progress (see migrations/0005_user_progress.sql).
+CREATE TABLE IF NOT EXISTS user_progress (
+  account_key TEXT PRIMARY KEY,
+  progress_json TEXT NOT NULL,
+  updated_at INTEGER NOT NULL
+);
