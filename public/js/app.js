@@ -6884,6 +6884,7 @@ function showQuizResult() {
   const allDone = buildQuizPool().every((q) => seenNow.has(q.target));
   const missedRows = quizMissed.slice(0, QUIZ_RESULT_MISSED_SHOWN).map((q) => `<div class="wordlist-item sp-report-row" data-say="${escapeHtml(q.target)}"><div class="wordlist-item-main"><div class="w speakable-line">${escapeHtml(q.target)}</div>${q.definition ? `<div class="d">${escapeHtml(q.definition)}</div>` : ""}</div></div>`).join("");
   const moreRow = missedOverflow > 0 ? `<p class="sp-report-review qz-report-more">+${missedOverflow}</p>` : "";
+  const newQuizIcon = '<span class="new-quiz-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg></span>';
   const retryIcon = '<span class="new-quiz-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0 1 13.66-5.66M20 12a8 8 0 0 1-13.66 5.66" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M17 3v4.5h-4.5M7 21v-4.5h4.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
 
   quizResultEl.innerHTML = `
@@ -6902,7 +6903,7 @@ function showQuizResult() {
         ${!canUseAccountFeatures() ? `<p class="guest-coin-teaser">${escapeHtml(t("guestCoinTeaser"))} <button type="button" class="pill small guest-signup-btn" data-guest-signup>${escapeHtml(t("guestCoinTeaserBtn"))}</button></p>` : ""}
         <div class="flash-controls qz-result-actions">
           ${quizMissed.length ? `<button type="button" class="pill accent new-quiz-btn sp-report-restart qz-result-retry" data-qz-act="retry">${retryIcon}<span>${escapeHtml(String(t("qzRetryBtn", quizMissed.length)).replace(/^[↻▶]\s*/, ""))}</span></button>` : ""}
-          <button type="button" class="pill accent new-quiz-btn sp-report-restart qz-result-new" data-qz-act="again">${retryIcon}<span>${escapeHtml(String(t(allDone ? "qzAgainAllBtn" : "qzAgainBtn")).replace(/^[↻▶]\s*/, ""))}</span></button>
+          <button type="button" class="pill accent new-quiz-btn sp-report-restart qz-result-new" data-qz-act="again">${newQuizIcon}<span>${escapeHtml(String(t(allDone ? "qzAgainAllBtn" : "qzAgainBtn")).replace(/^[↻▶]\s*/, ""))}</span></button>
           ${allDone ? `<p class="qz-result-note">${escapeHtml(t("qzAllDone"))}</p>` : ""}
         </div>
         <div class="sp-report-next">
