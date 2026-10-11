@@ -40,8 +40,9 @@
     game: { lockedMult: 0.5 },
     // Today's Mission: every task needs `goal` correct answers; finishing pays dailyMission (retry: missionRetry).
     mission: { goal: 15, retryMaxFree: 3 },
-    // A review session pays only when it has at least `minQuestions` questions and `minRightPct` of them are right.
-    reviewRule: { minQuestions: 10, minRightPct: 0.5 },
+    // A review session pays only when it has at least `minQuestions` questions and `minRightPct` of them are right,
+    // and only the first `maxPaidPerDay` sessions of a day pay.
+    reviewRule: { minQuestions: 10, minRightPct: 0.5, maxPaidPerDay: 2 },
     coins: {
       quiz: 5,
       spelling: 5,

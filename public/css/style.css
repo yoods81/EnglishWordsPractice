@@ -13310,3 +13310,9 @@ html body .dash-rec-chips li.more { background: none; border: 0; padding: 0; }
 html body .dash-rec-chips .more-toggle.chip-more { display: inline-flex; margin: 0; min-height: 0; padding: 4px 12px; }
 .sp-report-card, .sp-report-card * { scrollbar-width: none; }
 .sp-report-card *::-webkit-scrollbar { display: none; }
+
+/* "New today" note under Start buttons */
+.newleft-note { margin: 8px auto 0; max-width: 340px; text-align: center; font-size: .9rem; font-weight: 600; color: #3f6f61; line-height: 1.45; }
+.newleft-note.is-empty { background: #fff7de; border: 1px solid #f1dd9a; border-radius: 14px; padding: 10px 12px; color: #6a5200; }
+.newleft-note .newleft-review { margin-left: 6px; vertical-align: middle; }
+.newleft-note[hidden] { display: none; }

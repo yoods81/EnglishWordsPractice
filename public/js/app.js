@@ -1960,6 +1960,8 @@ function recordSrsResult(word, isCorrect) {
   const entry = progress.srs[key] || { box: 0, dueAt: 0 };
   entry.box = isCorrect ? Math.min(entry.box + 1, SRS_MAX_BOX) : 0;
   entry.dueAt = Date.now() + SRS_INTERVALS_MS[entry.box];
+  // A miss is never "due right now" (that would bring it straight back the same day); it is due tomorrow.
+  if (!isCorrect) { const t0 = new Date(); t0.setHours(24, 0, 0, 0); entry.dueAt = t0.getTime(); }
   progress.srs[key] = entry;
   saveProgress();
 }
@@ -1983,6 +1985,87 @@ function pickWordsForSession(pool, count, keyFn = (item) => (typeof item === "st
   overdue.sort((a, b) => progress.srs[keyFn(a).toLowerCase()].dueAt - progress.srs[keyFn(b).toLowerCase()].dueAt);
   return [...overdue, ...shuffle(brandNew), ...shuffle(notDue)].slice(0, count);
 }
+
+// ---- "Done today" — a word shown/answered in a mode never comes back in that mode the same day ----
+// progress.doneToday = { d: "YYYY-MM-DD", m: { quiz: { word: 1 }, spelling: {...}, flash: {...}, typing: {...} } }
+// A new day starts empty. Rounds are built only from words NOT in this set (see pickFreshWords), so
+// "new questions" / restarting the Typing Game always serves words the child has not met today.
+// Reviewing is a separate, opt-in action (the Review button) and ignores this set.
+const doneKey = (w) => String(w).trim().toLowerCase();
+function doneTodayStore() {
+  const d = localDateKey(new Date());
+  if (!progress.doneToday || progress.doneToday.d !== d) progress.doneToday = { d, m: {} };
+  return progress.doneToday.m;
+}
+function markDoneToday(mode, word) {
+  if (word == null || word === "") return;
+  const m = doneTodayStore();
+  (m[mode] || (m[mode] = {}))[doneKey(word)] = 1;
+}
+function isDoneToday(mode, word) {
+  const m = doneTodayStore();
+  return !!(m[mode] && m[mode][doneKey(word)]);
+}
+// Share of each round reserved for older words that are due for review (0 = strictly new words only;
+// older words then appear only through the Review button, or once a level has no unseen words left).
+const DAILY_REVIEW_MIX = 0;
+// Words for one round: never-played-today only (one entry per word), unseen-ever first, then older words whose
+// spaced-repetition date has come, then the rest. `keyFn` gives the word of an item.
+function pickFreshWords(pool, count, mode, keyFn = (item) => (typeof item === "string" ? item : item.word)) {
+  const now = Date.now();
+  const taken = new Set();
+  const avail = pool.filter((item) => {
+    const k = doneKey(keyFn(item));
+    if (taken.has(k) || isDoneToday(mode, k)) return false;
+    taken.add(k);
+    return true;
+  });
+  const brandNew = [], due = [], later = [];
+  avail.forEach((item) => {
+    const e = progress.srs[doneKey(keyFn(item))];
+    if (!e) brandNew.push(item);
+    else if (e.dueAt <= now) due.push(item);
+    else later.push(item);
+  });
+  due.sort((a, b) => progress.srs[doneKey(keyFn(a))].dueAt - progress.srs[doneKey(keyFn(b))].dueAt);
+  const reviewSlots = Math.min(due.length, Math.round(count * DAILY_REVIEW_MIX));
+  const first = due.slice(0, reviewSlots);
+  return [...first, ...shuffle(brandNew), ...due.slice(reviewSlots), ...shuffle(later)].slice(0, count);
+}
+// Union of two "done today" records (only entries from today count).
+function unionDoneToday(a, b) {
+  const today = localDateKey(new Date());
+  const out = { d: today, m: {} };
+  [a, b].forEach((x) => { if (x && x.d === today) Object.keys(x.m || {}).forEach((mode) => { out.m[mode] = Object.assign(out.m[mode] || {}, x.m[mode]); }); });
+  return out;
+}
+function freshLeft(pool, mode, keyFn = (item) => (typeof item === "string" ? item : item.word)) {
+  const seen = new Set();
+  pool.forEach((item) => { const k = doneKey(keyFn(item)); if (!isDoneToday(mode, k)) seen.add(k); });
+  return seen.size;
+}
+// Little note under a Start button: how many new words are left today, or "all done" + a Review shortcut.
+function renderNewLeft(mode, total, left, anchor, scopeEn, scopeKo) {
+  if (!anchor) return;
+  let el = document.getElementById("newleft-" + mode);
+  if (!el) {
+    el = document.createElement("p");
+    el.id = "newleft-" + mode;
+    el.className = "newleft-note";
+    anchor.insertAdjacentElement("afterend", el);
+  }
+  if (!total) { el.hidden = true; return; }
+  const due = reviewDueList().length;
+  const rev = due ? ` <button type="button" class="pill small neutral newleft-review" data-start-review>${rwL(`🔁 Review (${due})`, `🔁 복습하기 (${due})`)}</button>` : "";
+  el.hidden = false;
+  el.classList.toggle("is-empty", left === 0);
+  el.innerHTML = left === 0
+    ? `${rwL(`🎉 You finished all the new ${scopeEn} for today! Try another level or come back tomorrow.`, `🎉 오늘 이 ${scopeKo}의 새 문제를 모두 끝냈어요! 다른 레벨에 도전하거나 내일 다시 만나요.`)}${rev}`
+    : `${rwL(`New today: <b>${left}</b> left`, `오늘 남은 새 문제 <b>${left}</b>개`)}${rev}`;
+}
+document.addEventListener("click", (e) => {
+  if (e.target.closest("[data-start-review]")) startReview();
+});
 
 function loadCustomWords() {
   try {
@@ -3819,8 +3902,10 @@ function pushKoalaSummary() {
 async function syncProgressOnLogin() {
   try {
     const { progress: serverProgress, updatedAt } = await api("/progress");
+    const localDone = progress.doneToday; // words done today on either device stay done on both
     if (serverProgress && typeof updatedAt === "number" && updatedAt > (progress.updatedAt || 0)) {
       progress = serverProgress;
+      progress.doneToday = unionDoneToday(localDone, serverProgress.doneToday);
       if (!progress.srs) progress.srs = {};
       if (!progress.spellingStatus) progress.spellingStatus = {};
       if (!progress.updatedAt) progress.updatedAt = updatedAt;
@@ -3829,6 +3914,7 @@ async function syncProgressOnLogin() {
       renderStats();
       renderWordList();
     } else {
+      if (serverProgress) { progress.doneToday = unionDoneToday(progress.doneToday, serverProgress.doneToday); }
       pushProgressToServer();
     }
   } catch (e) {
@@ -5392,14 +5478,20 @@ function showFlashStart() {
   flashReport.hidden = true;
   flashStartScreen.hidden = false;
   flashPractice.hidden = true;
+  if (typeof updateFlashCount === "function") updateFlashCount();
 }
 // One round = a shuffled slice of the full deck (10 / 20 / 50 cards, or all).
 let flashDeckFull = [];
 let flashRoundSize = 20;
 let flashAutoSpeakOn = false;
+// Cards already looked at in Flashcards today are not dealt again today (a Wrong-notes "Study these words" deck is a
+// deliberate review and ignores that).
+const flashFreshCards = () => (flashWrongOverride ? flashDeckFull.slice() : flashDeckFull.filter((c) => !isDoneToday("flash", c.word)));
 function startFlashPlay() {
   resetFlashSession(); flashCheck = null; delete flashReport.dataset.check;
-  flashDeck = shuffle(flashDeckFull.slice());
+  const avail = flashFreshCards();
+  if (!avail.length) { showFlashStart(); return; }
+  flashDeck = shuffle(avail);
   if (flashRoundSize > 0 && flashDeck.length > flashRoundSize) flashDeck = flashDeck.slice(0, flashRoundSize);
   flashIndex = 0;
   flashReport.hidden = true;
@@ -5495,7 +5587,7 @@ document.getElementById("flash-start-btn").addEventListener("click", () => {
   startFlashPlay();
 });
 document.getElementById("flash-end").addEventListener("click", finishFlashRound);
-document.getElementById("flash-report-restart").addEventListener("click", showFlashStart);
+document.getElementById("flash-report-restart").addEventListener("click", () => { showFlashStart(); updateFlashCount(); });
 document.getElementById("flash-report-level")?.addEventListener("click", () => document.getElementById("level-badge")?.click());
 document.getElementById("flash-report-game")?.addEventListener("click", () => goToTab("typegame"));
 
@@ -5621,7 +5713,9 @@ function updateFlashCount() {
     el.classList.toggle("is-empty", n === 0);
     el.hidden = false;
   }
-  if (startBtn) startBtn.disabled = n === 0;
+  const flashLeft = flashWrongOverride ? n : freshLeft(flashDeckFull, "flash");
+  if (startBtn) startBtn.disabled = n === 0 || flashLeft === 0;
+  if (!flashWrongOverride) renderNewLeft("flash", n, flashLeft, startBtn && startBtn.parentElement, "cards", "카드");
   syncFlashPreviewFront();
 }
 // The demo card on the start screen shows what the chosen "Card front" looks
@@ -5718,6 +5812,7 @@ function renderFlashcard() {
   const item = flashDeck[flashIndex];
   flashPrevBtn.disabled = flashIndex === 0;
   flashSession.seen.add(item.word);
+  if (!flashWrongOverride) { markDoneToday("flash", item.word); saveProgress(); }
   updateFlashTally();
   { const fb = document.getElementById("flash-bubble"); if (fb) fb.classList.toggle("is-hushed", flashSession.seen.size > 3); }
   const fpl = document.getElementById("flash-progress-label"), fpf = document.getElementById("flash-progress-fill");
@@ -6447,11 +6542,14 @@ function renderQuizStart() {
   quizStartDaily.textContent = daily.done ? t("qzDailyDone") : t("qzDailyLine", daily.have, daily.goal);
   quizStartDaily.classList.toggle("is-done", daily.done);
 
-  const poolSize = buildQuizPool().length;
+  const quizPoolAll = buildQuizPool();
+  const poolSize = quizPoolAll.length;
+  const newLeft = freshLeft(quizPoolAll, "quiz", (q) => q.target);
   quizStartWarn.hidden = poolSize > 0;
   quizStartWarn.textContent = poolSize > 0 ? "" : t("quizNotEnough", levelLabel(currentLevel));
   { const left = dailyQuotaLeft("quiz"); if (poolSize > 0 && left !== Infinity && left <= effectiveGoal("quiz", poolSize)) { quizStartWarn.hidden = false; quizStartWarn.textContent = t("dailyLeftNote", left); } }
-  quizStartBtn.disabled = poolSize === 0;
+  quizStartBtn.disabled = poolSize === 0 || newLeft === 0;
+  renderNewLeft("quiz", poolSize, newLeft, quizStartBtn.parentElement, "questions here", "설정");
 }
 
 /* ---------- Starting a round ---------- */
@@ -6466,26 +6564,8 @@ function buildQuizQuestions() {
   else showQuizStart();
 }
 
-// Questions already answered for the current category + level (this visit), so "New questions"
-// on the result screen really serves ones that have not been played yet.
-const quizSeen = { key: "", words: new Set() };
-const quizSeenKey = () => [quizCategorySel.value, currentLevel, currentLang].join("|");
-function quizSeenSet() {
-  const k = quizSeenKey();
-  if (quizSeen.key !== k) { quizSeen.key = k; quizSeen.words = new Set(); }
-  return quizSeen.words;
-}
-// Never-played words first (no spaced-repetition history), then the rest in the usual review order.
-function pickFreshQuizQuestions(pool, count) {
-  const seen = quizSeenSet();
-  const unseen = pool.filter((q) => !seen.has(q.target));
-  if (unseen.length === 0) { seen.clear(); return pickWordsForSession(pool, count, (q) => q.target); }
-  const isNew = (q) => !progress.srs[String(q.target).toLowerCase()];
-  const fresh = shuffle(unseen.filter(isNew));
-  const older = pickWordsForSession(unseen.filter((q) => !isNew(q)), unseen.length, (q) => q.target);
-  return [...fresh, ...older].slice(0, count);
-}
-
+// Quiz questions already answered today are never served again today (see markDoneToday). Keyed by target word.
+const quizFreshPool = () => buildQuizPool().filter((q) => !isDoneToday("quiz", q.target));
 function startQuizRound(retryList, opts = {}) {
   if (dailyQuotaLeft("quiz") <= 0) { showQuizStart(); promptDailyCap(); return; }
   stopQuizTimer();
@@ -6506,8 +6586,10 @@ function startQuizRound(retryList, opts = {}) {
     // "Number of Questions" and the question count never disagree.
     // The saved preference is kept as picked (5, 10 ... 100); only this round
     // is shortened to what the pool can supply.
-    const want = effectiveGoal("quiz", pool.length);
-    list = opts.fresh ? pickFreshQuizQuestions(pool, want) : pickWordsForSession(pool, want, (q) => q.target);
+    const left = freshLeft(pool, "quiz", (q) => q.target);
+    if (left === 0) { showQuizStart(); return; } // everything here was done today — the start screen says so
+    const want = Math.min(effectiveGoal("quiz", pool.length), left);
+    list = pickFreshWords(pool, want, "quiz", (q) => q.target);
     quizIsRetry = false;
     list = list.slice(0, dailyQuotaLeft("quiz"));
   }
@@ -6690,7 +6772,7 @@ function finishQuizQuestion(outcome) {
   stopQuizTimer();
   const q = quizCurrent();
   const correct = !!outcome.correct;
-  if (q && q.target != null) quizSeenSet().add(q.target);
+  if (q && q.target != null) markDoneToday("quiz", q.target);
   quizActiveMs += Math.min(Date.now() - quizQuestionShownAt, 120000);
 
   if (correct) quizScore++;
@@ -6888,8 +6970,9 @@ function showQuizResult() {
   const giftTag = nextReward && nextReward.affordable
     ? `<button type="button" class="qz-gift-icon-btn" data-qz-act="opengift" aria-label="${escapeHtml(t("qzGiftBtn"))}" title="${escapeHtml(t("qzGiftBtn"))}"><span aria-hidden="true">🎁</span><span class="qz-gift-icon-label">${escapeHtml(t("qzGiftBtnLabel"))}</span></button>`
     : "";
-  const seenNow = quizSeenSet();
-  const allDone = buildQuizPool().every((q) => seenNow.has(q.target));
+  const quizPoolNow = buildQuizPool();
+  const allDone = freshLeft(quizPoolNow, "quiz", (q) => q.target) === 0;
+  const dueForReview = reviewDueList().length;
   const missedRows = quizMissed.map((q, i) => `<div class="wordlist-item sp-report-row${i >= QUIZ_RESULT_MISSED_SHOWN ? " is-extra" : ""}" data-say="${escapeHtml(q.target)}"><div class="wordlist-item-main"><div class="w speakable-line">${escapeHtml(q.target)}</div>${q.definition ? `<div class="d">${escapeHtml(q.definition)}</div>` : ""}</div></div>`).join("");
   const moreRow = missedOverflow > 0 ? moreToggleHtml(missedOverflow) : "";
   const newQuizIcon = '<span class="new-quiz-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg></span>';
@@ -6911,8 +6994,9 @@ function showQuizResult() {
         ${!canUseAccountFeatures() ? `<p class="guest-coin-teaser">${escapeHtml(t("guestCoinTeaser"))} <button type="button" class="pill small guest-signup-btn" data-guest-signup>${escapeHtml(t("guestCoinTeaserBtn"))}</button></p>` : ""}
         <div class="flash-controls qz-result-actions">
           ${quizMissed.length ? `<button type="button" class="pill accent new-quiz-btn sp-report-restart qz-result-retry" data-qz-act="retry">${retryIcon}<span>${escapeHtml(String(t("qzRetryBtn", quizMissed.length)).replace(/^[↻▶]\s*/, ""))}</span></button>` : ""}
-          <button type="button" class="pill accent new-quiz-btn sp-report-restart qz-result-new" data-qz-act="again">${newQuizIcon}<span>${escapeHtml(String(t(allDone ? "qzAgainAllBtn" : "qzAgainBtn")).replace(/^[↻▶]\s*/, ""))}</span></button>
-          ${allDone ? `<p class="qz-result-note">${escapeHtml(t("qzAllDone"))}</p>` : ""}
+          ${allDone ? "" : `<button type="button" class="pill accent new-quiz-btn sp-report-restart qz-result-new" data-qz-act="again">${newQuizIcon}<span>${escapeHtml(String(t("qzAgainBtn")).replace(/^[↻▶]\s*/, ""))}</span></button>`}
+          ${allDone ? `<p class="qz-result-note">${rwL("🎉 You finished all the new questions here for today! Change the level or category, or come back tomorrow.", "🎉 오늘 이 설정의 새 문제를 모두 풀었어요! 레벨·카테고리를 바꾸거나 내일 다시 만나요.")}</p>` : ""}
+          ${dueForReview ? `<button type="button" class="pill neutral small" data-start-review>${rwL(`🔁 Review (${dueForReview})`, `🔁 복습하기 (${dueForReview})`)}</button>` : ""}
         </div>
         <div class="sp-report-next">
           <button type="button" class="pill neutral small qz-report-btn" data-qz-act="settings">${escapeHtml(String(t("qzSettingsBtn")))}</button>
@@ -7262,6 +7346,7 @@ let spellingDeck = [];
 let spellingIndex = 0;
 const spellingMissedIdx = new Set(); // word positions answered wrong at least once (leaf colour)
 let spellingScore = { correct: 0, total: 0 };
+let spellingRoundToken = 0; // bumps on every new deck so a stale auto-report timer can't hide the next round
 let spellingTotalCountedWords = new Set(); // this round only — stops a retried word double-counting "total"
 let spellingWrongThisRound = new Set(); // this round only — word had >=1 wrong attempt, so it can't earn "correct" credit this round
 let spellingCreditedWords = new Set(); // this round only — word already earned "correct" credit, so a duplicate/re-submitted check can't award it twice
@@ -7273,24 +7358,13 @@ let spellingCurrentChecked = false; // has the current word passed a "Check Answ
 // Number of Questions stepper) rather than freshly entered — it keeps
 // whichever screen (start / practice) was already showing instead of
 // bouncing back to "Start the first word".
-const spellingSeen = { key: "", words: new Set() };
-function spellingSeenSet() {
-  const k = [currentLevel, currentLang].join("|");
-  if (spellingSeen.key !== k) { spellingSeen.key = k; spellingSeen.words = new Set(); }
-  return spellingSeen.words;
+function renderSpellingNewLeft() {
+  const pool = getSpellingPool(currentLevel);
+  const left = freshLeft(pool, "spelling");
+  spellingStartBtn.disabled = pool.length > 0 && left === 0;
+  renderNewLeft("spelling", pool.length, left, spellingStartBtn.parentElement, "words for this level", "레벨");
 }
-// Words not played yet (this visit) first; never-studied ones ahead of older ones.
-function pickFreshSpellingWords(pool, count) {
-  const seen = spellingSeenSet();
-  const unseen = pool.filter((w) => !seen.has(w.word));
-  if (unseen.length === 0) { seen.clear(); return pickWordsForSession(pool, count); }
-  const isNew = (w) => !progress.srs[String(w.word).toLowerCase()];
-  const fresh = shuffle(unseen.filter(isNew));
-  const older = pickWordsForSession(unseen.filter((w) => !isNew(w)), unseen.length);
-  return [...fresh, ...older].slice(0, count);
-}
-
-function buildSpellingDeck({ resetScreen = true, list = null, fresh = false } = {}) {
+function buildSpellingDeck({ resetScreen = true, list = null } = {}) {
   spellingGoalBanner.hidden = true;
   spellingGoalCelebrated = false;
   const pool = getSpellingPool(currentLevel);
@@ -7301,7 +7375,9 @@ function buildSpellingDeck({ resetScreen = true, list = null, fresh = false } = 
   // schedule; progress.spellingStatus itself is untouched and keeps driving
   // whatever else already reads it (e.g. the mastery badge).
   const goalN = effectiveGoal("spelling", pool.length);
-  spellingDeck = list ? list : fresh ? pickFreshSpellingWords(pool, goalN) : pickWordsForSession(pool, goalN);
+  // Only words not met in Spelling today; a retry of missed words (list) is the child's own choice.
+  spellingDeck = list ? list : pickFreshWords(pool, Math.min(goalN, freshLeft(pool, "spelling")), "spelling");
+  spellingRoundToken++;
   spellingIndex = 0;
   spellingMissedIdx.clear();
   spellingScore = { correct: 0, total: 0 };
@@ -7312,6 +7388,7 @@ function buildSpellingDeck({ resetScreen = true, list = null, fresh = false } = 
   spellingSessionWrongWords = new Map();
   spellingPassedIdx = new Set();
   renderGoalStepper("spelling");
+  renderSpellingNewLeft();
   updateSpellingScoreLabel();
   spellingInput.value = "";
   spellingInput.className = "";
@@ -7878,7 +7955,7 @@ function checkSpellingAnswer() {
   const spellKey = (x) => String(x).toLowerCase().replace(/[^a-z0-9]/g, "");
   const guess = spellKey(spellingInput.value);
   const correct = guess.length > 0 && guess === spellKey(current.word);
-  spellingSeenSet().add(current.word);
+  markDoneToday("spelling", current.word);
   recordResult(current.word, correct, "spelling");
   recordSrsResult(current.word, correct);
 
@@ -7888,7 +7965,8 @@ function checkSpellingAnswer() {
     progress.spelling.total++;
     dailyQuotaAdd("spelling", 1);
     if (dailyQuotaLeft("spelling") <= 0) {
-      setTimeout(() => { if (!spellingPractice.hidden) { renderSpellingReport(); promptDailyCap(); } }, 2200);
+      const tok = spellingRoundToken;
+      setTimeout(() => { if (tok === spellingRoundToken && !spellingPractice.hidden) { renderSpellingReport(); promptDailyCap(); } }, 2200);
     }
   }
 
@@ -7930,7 +8008,8 @@ function checkSpellingAnswer() {
     const lastWord = spellingIndex >= spellingDeck.length - 1;
     if (!spellingGoalCelebrated && ((goal && spellingScore.correct >= goal) || lastWord)) {
       spellingGoalCelebrated = true;
-      setTimeout(() => { if (!spellingPractice.hidden) renderSpellingReport(); }, 1800);
+      const tok = spellingRoundToken;
+      setTimeout(() => { if (tok === spellingRoundToken && !spellingPractice.hidden) renderSpellingReport(); }, 1800);
     }
   } else {
     spellingCombo = comboAfterAnswer(spellingCombo, false);
@@ -8040,6 +8119,13 @@ function renderSpellingReport() {
     const lab = retryBtn.querySelector("span:last-child");
     if (lab) lab.textContent = rwL(`Retry missed (${words.length})`, `틀린 단어 다시 풀기 (${words.length})`);
   }
+  const leftNow = freshLeft(getSpellingPool(currentLevel), "spelling");
+  spellingReportRestartBtn.hidden = leftNow === 0;
+  let sNote = document.getElementById("spelling-report-note");
+  if (!sNote) { sNote = document.createElement("p"); sNote.id = "spelling-report-note"; sNote.className = "qz-result-note"; spellingReportRestartBtn.parentElement.appendChild(sNote); }
+  sNote.hidden = leftNow !== 0;
+  const dueRev = reviewDueList().length;
+  sNote.innerHTML = leftNow === 0 ? `${rwL("🎉 You finished all the new words for this level today! Try another level or come back tomorrow.", "🎉 오늘 이 레벨의 새 단어를 모두 끝냈어요! 다른 레벨에 도전하거나 내일 다시 만나요.")}${dueRev ? ` <button type="button" class="pill small neutral" data-start-review>${rwL(`🔁 Review (${dueRev})`, `🔁 복습하기 (${dueRev})`)}</button>` : ""}` : "";
   const newLab = spellingReportRestartBtn.querySelector("span:last-child");
   if (newLab) newLab.textContent = rwL("New words", "새로운 단어 풀기");
   spellingReport.classList.toggle("sr-big", state === "perfect" && big);
@@ -8085,6 +8171,7 @@ document.getElementById("spelling-report-game")?.addEventListener("click", () =>
 // Report buttons start the next round straight away (no detour via the start screen).
 function startSpellingRoundNow(opts) {
   if (dailyQuotaLeft("spelling") <= 0) { promptDailyCap(); return; }
+  if (!opts || !opts.list) { if (freshLeft(getSpellingPool(currentLevel), "spelling") === 0) { renderSpellingReport(); return; } }
   buildSpellingDeck(opts);
   if (!spellingDeck.length) return;
   spellingStartScreen.hidden = true;
@@ -8092,7 +8179,7 @@ function startSpellingRoundNow(opts) {
   spellingPractice.hidden = false;
   loadSpellingWord();
 }
-spellingReportRestartBtn.addEventListener("click", () => startSpellingRoundNow({ fresh: true }));
+spellingReportRestartBtn.addEventListener("click", () => startSpellingRoundNow());
 document.getElementById("spelling-report-retry")?.addEventListener("click", () => {
   const missed = new Set(Array.from(spellingSessionWrongWords.keys()));
   const list = shuffle(getSpellingPool(currentLevel).filter((w) => missed.has(w.word)));
@@ -8257,6 +8344,7 @@ const TYPEGAME_SRS_QUEUE_SIZE = 30;
 // re-firing after almost every answer instead of after a real round of play.
 let typeGameRoundSolved = new Set();
 let typeGameMissed = new Set(); // words missed this round, for the Review recap
+let typeGameOutOfWords = false; // every new word of the level has been dealt: the round ends once the last one is gone
 
 function loadTypeGameHighScores() {
   try {
@@ -8294,6 +8382,9 @@ function buildTypeGameWordPool() {
     .filter((w) => /^[A-Za-z']+$/.test(w));
   return Array.from(new Set(words));
 }
+// Words not met in the Typing Game today. Each falling word is marked as soon as it appears, so a restart (and
+// a later game the same day) only deals words that are still new.
+const typeGameFreshWords = () => typeGameWordPool.filter((w) => !isDoneToday("typing", w));
 
 function updateTypeGameHud() {
   typeGameScoreEl.textContent = t("typeGameScoreLabel", typeGameScore);
@@ -8632,8 +8723,11 @@ function resetTypeGame() {
 
   typeGameWordPool = buildTypeGameWordPool();
   const notEnough = typeGameWordPool.length < TYPEGAME_MIN_POOL_SIZE;
-  typeGameStartBtn.disabled = notEnough;
+  const freshN = typeGameFreshWords().length;
+  const usedUp = !notEnough && freshN < TYPEGAME_MIN_POOL_SIZE;
+  typeGameStartBtn.disabled = notEnough || usedUp;
   typeGameStartMessage.textContent = notEnough ? t("typeGameNotEnough", levelLabel(currentLevel)) : t("typeGameDesc");
+  renderNewLeft("typing", typeGameWordPool.length, usedUp ? 0 : freshN, typeGameStartMessage, "words for this level", "레벨");
   updateTypeGameStartChips();
   typeGameOverOverlay.hidden = true;
   typeGameStartOverlay.hidden = false;
@@ -8641,6 +8735,7 @@ function resetTypeGame() {
 
 function startTypeGame() {
   if (typeGameWordPool.length < TYPEGAME_MIN_POOL_SIZE) return;
+  if (typeGameFreshWords().length < TYPEGAME_MIN_POOL_SIZE) { resetTypeGame(); return; } // nothing new left today
   if (dailyRoundsBlocked("type")) { promptDailyRound(); return; }
   dailyQuotaAdd("type", 1);
   kb("type")?.reset();
@@ -8677,7 +8772,8 @@ function startTypeGame() {
   // This round's falling words prefer overdue-for-review/new words first —
   // same spaced-repetition schedule Quiz and Spelling use — falling back to
   // the plain random pool once this queue runs out.
-  typeGameSrsQueue = pickWordsForSession(typeGameWordPool, TYPEGAME_SRS_QUEUE_SIZE);
+  typeGameSrsQueue = pickFreshWords(typeGameWordPool, typeGameWordPool.length, "typing");
+  typeGameOutOfWords = false;
 
   spawnTypeGameWord();
   scheduleTypeGameSpawn();
@@ -8804,10 +8900,15 @@ function spawnTypeGameWord() {
   }
 
   if (!word) {
-    const candidates = shuffle(typeGameWordPool).filter(noPrefixCollision);
-    word = candidates[0] || shuffle(typeGameWordPool)[0];
+    // Never repeat a word: only words not dealt today are eligible. A word that collides with a falling one is
+    // simply tried again on the next spawn.
+    const fresh = typeGameFreshWords();
+    const candidates = shuffle(fresh).filter(noPrefixCollision);
+    word = candidates[0] || null;
+    if (!word && !fresh.length) { typeGameOutOfWords = true; if (!typeGameActive.length) endTypeGame(); return; }
   }
   if (!word) return;
+  markDoneToday("typing", word);
 
   const el = buildTypeGameObject(word);
   typeGameWordsEl.appendChild(el);
@@ -8903,6 +9004,7 @@ function loseTypeGameLife(missedWord) {
   void typeGameStage.offsetWidth;
   typeGameStage.classList.add("typegame-shake");
   if (typeGameLives <= 0) endTypeGame();
+  else if (typeGameOutOfWords && !typeGameActive.length && typeGameRunning) endTypeGame();
 }
 
 function clearTypeGameHighlights() {
@@ -9013,6 +9115,7 @@ function clearTypeGameWord(word) {
   }
   updateTypeGameHud();
   maybeOfferTypeGameLevelChallenge();
+  if (typeGameOutOfWords && !typeGameActive.length && typeGameRunning) endTypeGame();
 }
 
 // Once every word in the current level's pool has been typed correctly at
@@ -9100,7 +9203,7 @@ function endTypeGame() {
     isNewBest,
     best: Math.max(prevBest, typeGameScore),
     score: typeGameScore,
-    reason: "lives",
+    reason: typeGameOutOfWords ? "words" : "lives",
     encourage: TYPEGAME_ENCOURAGE_MESSAGES,
     missed: [...typeGameMissed].map((word) => {
       const info = findWordInfo(word);
@@ -17186,10 +17289,13 @@ function reviewRecord(item, ok, isMath) {
 function reviewSummary() {
   const s = reviewState;
   const rr = KoalaCore.REWARD_CONFIG.reviewRule;
-  if (!s.rewarded && s.total >= rr.minQuestions && (s.total - new Set(s.missed).size) / s.total >= rr.minRightPct && canUseAccountFeatures()) {
+  const day = localDateKey(new Date());
+  const paidToday = progress.reviewPaid && progress.reviewPaid.d === day ? progress.reviewPaid.n : 0;
+  if (!s.rewarded && paidToday < rr.maxPaidPerDay && s.total >= rr.minQuestions && (s.total - new Set(s.missed).size) / s.total >= rr.minRightPct && canUseAccountFeatures()) {
     s.rewarded = true;
-    const coins = KoalaCore.awardReview(progress, localDateKey(new Date()) + ":" + Date.now());
+    const coins = KoalaCore.awardReview(progress, day + ":" + (paidToday + 1));
     if (coins) {
+      progress.reviewPaid = { d: day, n: paidToday + 1 };
       s.coins = coins;
       saveProgress();
       rwToastQueue.push({ emojiHtml: COIN_SVG, title: rwL(`+${coins} Koala Coins!`, `+${coins} 코알라 코인!`), name: KOALA_REASON_LABELS().review, go: true });
