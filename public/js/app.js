@@ -1928,13 +1928,10 @@ function rewardLearning(mode) {
       if (n) paid.push({ why: ep.why, n });
     }
   }
-  paid.forEach((r) => {
-    rwToastQueue.push({
-      emojiHtml: COIN_SVG, title: rwL(`+${r.n} Koala Coins!`, `+${r.n} 코알라 코인!`),
-      name: KOALA_REASON_LABELS()[r.why] || r.why, go: true,
-    });
-  });
-  if (paid.length) { showNextBadgeToast(); checkLevelUp(); }
+  // Each payout opens the Koala gift box at the top of the screen.
+  const gmult = gm ? gameCoinMult(gm) : 1;
+  paid.forEach((r) => showKoalaGift(r, gmult, gm && gameSpeedLocked[gm]));
+  if (paid.length) checkLevelUp();
 }
 
 function recordResult(word, isCorrect, mode) {
@@ -14552,6 +14549,82 @@ function showNextBadgeToast() {
   const life = b.go ? 4800 : 3200;
   setTimeout(() => el.classList.add("out"), life);
   setTimeout(() => { el.remove(); rwToastShowing = false; showNextBadgeToast(); }, life + 500);
+}
+
+
+/* ---------- Koala gift box: the coin-reward pop-up ----------
+   Drops in from the top of the screen, wobbles, the lid flies off, the koala pops out and coins
+   rain down. Shown for every coin payout (Quiz, Spelling, Flashcards, Times Table, Typing Game).
+   It never takes clicks or focus (pointer-events: none) so a falling-words game keeps going. */
+const KG_KOALA = '<svg viewBox="0 0 84 70" width="84" height="70" aria-hidden="true"><circle cx="14" cy="26" r="13" fill="#9aa5ad"/><circle cx="70" cy="26" r="13" fill="#9aa5ad"/><circle cx="14" cy="26" r="7" fill="#f1c9d2"/><circle cx="70" cy="26" r="7" fill="#f1c9d2"/><ellipse cx="42" cy="38" rx="30" ry="28" fill="#b8c2c9"/><circle cx="31" cy="36" r="3.4" fill="#16352c"/><circle cx="53" cy="36" r="3.4" fill="#16352c"/><ellipse cx="42" cy="47" rx="7.5" ry="9" fill="#3a4750"/><path d="M35 60q7 7 14 0" fill="none" stroke="#16352c" stroke-width="2.6" stroke-linecap="round"/></svg>';
+const KG_MSG = {
+  quiz: ["정답 행진!", "Answer streak!"],
+  spelling: ["철자 마스터!", "Spelling star!"],
+  flashcards: ["카드 척척!", "Card champ!"],
+  timesTable: ["구구단 박사!", "Times table whiz!"],
+  typing: ["번개 손가락!", "Lightning fingers!"],
+};
+let kgQueue = [];
+let kgShowing = false;
+
+function showKoalaGift(r, mult, locked) {
+  kgQueue.push({ r, mult, locked });
+  if (!kgShowing) nextKoalaGift();
+}
+
+function nextKoalaGift() {
+  const job = kgQueue.shift();
+  if (!job) { kgShowing = false; return; }
+  kgShowing = true;
+  const { r, mult, locked } = job;
+  const m = KG_MSG[r.why] || [rwL("Coins!", "코인!"), "Coins!"];
+  const title = currentLang === "ko" ? m[0] : m[1];
+  const label = KOALA_REASON_LABELS()[r.why] || r.why;
+  const chip = locked
+    ? `<span class="kg-mult kg-mult-low">${rwL(`Speed locked x${mult}`, `속도 고정 x${mult}`)}</span>`
+    : mult > 1 ? `<span class="kg-mult">${rwL(`Bonus x${mult}`, `보너스 x${mult}`)}</span>` : "";
+  const el = document.createElement("div");
+  el.className = "kg-pop";
+  el.setAttribute("role", "status");
+  el.innerHTML = `
+    <div class="kg-gift"><div class="kg-koala">${KG_KOALA}</div>
+      <svg class="kg-box" viewBox="0 0 132 120" width="132" height="120" aria-hidden="true"><rect x="10" y="48" width="112" height="66" rx="10" fill="#ff7a8a"/><rect x="58" y="48" width="16" height="66" fill="#ffd45a"/></svg>
+      <svg class="kg-lid" viewBox="0 0 132 120" width="132" height="120" aria-hidden="true"><rect x="4" y="30" width="124" height="26" rx="9" fill="#ff5d73"/><rect x="58" y="30" width="16" height="26" fill="#ffd45a"/><path d="M66 30c-26-30-40-4-22 0zM66 30c26-30 40-4 22 0z" fill="#ffd45a"/></svg></div>
+    <div class="kg-card"><div class="kg-title">${escapeHtml(title)}</div>
+      <div class="kg-coins">${COIN_SVG}<b>+${r.n}</b></div>
+      <div class="kg-sub">${escapeHtml(label)} ${rwL("round complete", "달성")}</div>${chip}</div>`;
+  document.body.appendChild(el);
+  const burstColors = ["#ffc83d", "#ff7a3d", "#2fd4a6", "#4dabf7", "#ff6b8b", "#fff"];
+  const timers = [];
+  const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+  at(1150, () => {
+    el.classList.add("open");
+    // paper bits around the box
+    for (let i = 0; i < 26; i++) {
+      const p = document.createElement("i");
+      const a = Math.random() * Math.PI * 2, d = 60 + Math.random() * 120;
+      p.className = "kg-bit" + (i % 3 ? "" : " kg-round");
+      p.style.cssText = `--c:${burstColors[i % burstColors.length]};--x:${Math.cos(a) * d}px;--y:${Math.sin(a) * d + 30}px;--r:${Math.random() * 720 - 360}deg`;
+      el.querySelector(".kg-gift").appendChild(p);
+    }
+    // coins rain from the top of the screen
+    const n = Math.min(r.n + 4, 12);
+    for (let i = 0; i < n; i++) {
+      at(i * 70, () => {
+        const c = document.createElement("span");
+        c.className = "kg-rain";
+        c.innerHTML = COIN_SVG;
+        c.style.left = `${10 + Math.random() * 80}vw`;
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 1500);
+      });
+    }
+  });
+  at(1350, () => el.classList.add("show-card"));
+  at(850, () => el.classList.add("wob"));
+  const life = chip ? 4300 : 3700;
+  at(life, () => el.classList.add("out"));
+  at(life + 450, () => { el.remove(); nextKoalaGift(); });
 }
 
 /* ---- Stats sub-tabs ---- */

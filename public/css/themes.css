@@ -2665,6 +2665,13 @@ html[data-theme="dark"] .game-lock-pause.is-on {
   background: #443d26 !important;
   color: #f39f00 !important;
 }
+html[data-theme="dark"] .kg-card {
+  background: #131b19 !important;
+  color: #d4ddda !important;
+}
+html[data-theme="dark"] .kg-sub {
+  color: #bfcdc7 !important;
+}
 html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; }
 html[data-theme="dark"] img, html[data-theme="dark"] video { filter: brightness(.92); }
 html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea { color-scheme: dark; }
@@ -4095,4 +4102,7 @@ html[data-theme="ivory"] body #view-koala .koala-earn-row.koala-earn-row--done {
 html[data-theme="ivory"] body #view-koala .koala-earn-row .koala-level-bar {
   background: #fdfaf4 !important;
 }
+}
+html[data-theme="ivory"] .kg-card {
+  background: #fdfaf4 !important;
 }
