@@ -13213,9 +13213,15 @@ html body .qz-result-actions .qz-result-retry { background: linear-gradient(180d
 .tg-key:disabled { opacity: 0.45; cursor: default; }
 .tg-key-wide { flex: 1.5 1 0; max-width: 78px; background: linear-gradient(180deg, #4dabf7, #2f8fe6); box-shadow: 0 4px 0 #1d62b8; }
 .tg-key-enter { background: linear-gradient(180deg, #ffb340, #f08c00); box-shadow: 0 4px 0 #a96000; }
-.tg-kb-row2 { padding: 0 2%; }
-.tg-kb-row3 { padding: 0 8%; }
+
 @media (max-width: 480px) { .tg-key { min-height: 42px; font-size: 1.1rem; } }
 /* keyboard on: the answer box is just a read-out, keep the hint short */
 .tg-kb-on .tg-hint { display: none; }
 .card.tg-over .tg-keyboard { display: none !important; }
+
+/* Real QWERTY stagger: fixed key width, rows start further right (a is 1/4 key in, z is 3/4 key in) */
+.tg-kb-row { justify-content: flex-start; gap: 0.8%; padding: 0; }
+.tg-kb-row .tg-key { flex: 0 0 7.8%; max-width: none; }
+.tg-kb-row .tg-key-wide { flex: 0 0 12.8%; }
+.tg-kb-row2 { padding-left: 2.2%; }
+.tg-kb-row3 { padding-left: 6.6%; }
