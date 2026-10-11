@@ -32,6 +32,10 @@
     learning: { correctPerReward: 10, dailyRewardsPerMode: 3 },
     // Flashcards are self-rated, so they pay out more slowly (15 credited answers, 2 rounds a day).
     learningByMode: { flash: { correctPerReward: 15, dailyRewardsPerMode: 2 } },
+    // Typing / times-table games: coins per round are scaled by a multiplier.
+    //  - weighted (paid members only): +perStage per stage reached, +perSpeed per speed level above 1, capped at maxMult
+    //  - locked speed (everyone who earns): lockedMult, and no stage/speed weight at all
+    game: { lockedMult: 0.5, perStage: 0.1, perSpeed: 0.05, maxMult: 2 },
     coins: {
       quiz: 5,
       spelling: 5,
@@ -801,6 +805,16 @@
   // Called after an answer. `correctToday` = correct answers in this mode today.
   // Awards every round reached and not yet paid (idempotent per day+round).
   // Returns [{why, n}] for the rounds paid just now.
+  // Multiplier for one round of a falling-words game. `weighted` = paid member.
+  function gameCoinMultiplier(st) {
+    const g = REWARD_CONFIG.game;
+    st = st || {};
+    if (st.locked) return g.lockedMult;
+    if (!st.weighted) return 1;
+    const m = 1 + g.perStage * Math.max(0, st.stage || 0) + g.perSpeed * Math.max(0, (st.speed || 1) - 1);
+    return Math.min(g.maxMult, Math.round(m * 100) / 100);
+  }
+
   function awardLearning(progress, mode, correctToday, day, opts) {
     const why = MODE_COINS[mode];
     const cfg = Object.assign({}, REWARD_CONFIG.learning, (REWARD_CONFIG.learningByMode || {})[mode]);
@@ -808,7 +822,9 @@
     const rounds = Math.min(Math.floor((correctToday || 0) / cfg.correctPerReward), cfg.dailyRewardsPerMode);
     const paid = [];
     for (let i = 1; i <= rounds; i++) {
-      const n = awardCoins(progress, REWARD_CONFIG.coins[why], why, Object.assign({}, opts, { key: `learn:${mode}:${day}:${i}` }));
+      const base = REWARD_CONFIG.coins[why];
+      const amount = opts && opts.mult != null ? Math.max(1, Math.round(base * opts.mult)) : base;
+      const n = awardCoins(progress, amount, why, Object.assign({}, opts, { key: `learn:${mode}:${day}:${i}` }));
       if (n) paid.push({ why, n });
     }
     return paid;
@@ -908,7 +924,7 @@
   return {
     REWARD_CONFIG,
     dateKey, daysBetween, shiftDay, weekKey,
-    ensureKoala, awardCoins, spendCoins, adjustCoins, awardLearning, learningProgress, awardMission, awardBadge, awardReview, rewardSlice, mergeRewards,
+    ensureKoala, awardCoins, spendCoins, adjustCoins, awardLearning, gameCoinMultiplier, learningProgress, awardMission, awardBadge, awardReview, rewardSlice, mergeRewards,
     ITEM_SLOTS, ROOM_SLOTS, ITEMS, isSeasonActive, visibleItems, itemById, itemStatus, buyItem, equipItem, unequipSlot, syncStreakUnlocks, nextReward,
     SUB_RULES, SUB_PARENTS, SUB_ITEMS, subKind, subById, subItemsFor, subLimit, subSelection, toggleSub, isSubOwned, buySub, sellItem, sellSub, sellValue, SELL_RATE, SUB_COST,
     levelInfo,

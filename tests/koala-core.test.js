@@ -550,3 +550,21 @@ test("sub-items: old floor toys become owned toy-box toys; bad data is cleaned; 
   K.mergeRewards(a, b);
   assert.equal(K.isSubOwned(a, "toyCar"), false);
 });
+
+test("gameCoinMultiplier: free = 1, paid grows with stage and speed (capped), locked = half and unweighted", () => {
+  assert.equal(K.gameCoinMultiplier({ weighted: false, stage: 9, speed: 20 }), 1, "free members get no weight");
+  assert.equal(K.gameCoinMultiplier({ weighted: true, stage: 0, speed: 1 }), 1);
+  assert.equal(K.gameCoinMultiplier({ weighted: true, stage: 2, speed: 1 }), 1.2);
+  assert.ok(K.gameCoinMultiplier({ weighted: true, stage: 2, speed: 5 }) > 1.2, "faster is worth more");
+  assert.equal(K.gameCoinMultiplier({ weighted: true, stage: 50, speed: 20 }), 2, "capped");
+  assert.equal(K.gameCoinMultiplier({ weighted: true, stage: 5, speed: 10, locked: true }), 0.5);
+  assert.equal(K.gameCoinMultiplier({ weighted: false, locked: true }), 0.5, "free members still get the lock discount");
+});
+
+test("awardLearning scales a game round by opts.mult but never pays 0 and stays idempotent", () => {
+  const p = {};
+  assert.deepEqual(K.awardLearning(p, "typing", 10, "2026-10-02", { mult: 2 }), [{ why: "typing", n: 10 }]);
+  assert.deepEqual(K.awardLearning(p, "typing", 10, "2026-10-02", { mult: 0.5 }), [], "same round never paid twice");
+  assert.deepEqual(K.awardLearning(p, "tt", 10, "2026-10-02", { mult: 0.5 }), [{ why: "timesTable", n: 3 }]);
+  assert.deepEqual(K.awardLearning(p, "tt", 20, "2026-10-02", { mult: 0.01 }), [{ why: "timesTable", n: 1 }]);
+});

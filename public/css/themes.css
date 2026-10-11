@@ -2650,6 +2650,21 @@ html[data-theme="dark"] .qz-result-note {
 html[data-theme="dark"] body .qz-result-actions .qz-result-retry {
   color: #12c49e !important;
 }
+html[data-theme="dark"] .game-speed-control .game-lock-btn.is-on {
+  background: #443d26 !important;
+}
+html[data-theme="dark"] .game-coin-mult {
+  color: #ffb324 !important;
+  background: #332d1d !important;
+}
+html[data-theme="dark"] .game-coin-mult.is-low {
+  color: #cfc7c2 !important;
+  background: #34281d !important;
+}
+html[data-theme="dark"] .game-lock-pause.is-on {
+  background: #443d26 !important;
+  color: #f39f00 !important;
+}
 html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; }
 html[data-theme="dark"] img, html[data-theme="dark"] video { filter: brightness(.92); }
 html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea { color-scheme: dark; }

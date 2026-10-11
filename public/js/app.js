@@ -914,6 +914,13 @@ const TRANSLATIONS = {
     gameResumeBtn: "▶ Resume",
     gameSpeedLabel: "Game speed",
     gameSpeedDecreaseLabel: "Slower",
+    typeGameKbToggle: "On-screen keyboard",
+    gameLockLabel: "Lock speed",
+    gameUnlockLabel: "Unlock speed",
+    gameLockBtn: "🔒 Lock speed",
+    gameUnlockBtn: "🔓 Unlock speed",
+    gameLockHint: "Locking keeps the speed steady, but each round earns fewer Coins.",
+    gameCoinMultTip: "Coin rate for this round",
     gameSpeedIncreaseLabel: "Faster",
     customDeleteOthersBlocked: "You can only delete words you added yourself.",
     roleAdmin: "Admin",
@@ -1786,6 +1793,13 @@ const TRANSLATIONS = {
     gameResumeBtn: "▶ 계속하기",
     gameSpeedLabel: "게임 속도",
     gameSpeedDecreaseLabel: "느리게",
+    typeGameKbToggle: "화면 키보드",
+    gameLockLabel: "속도 고정",
+    gameUnlockLabel: "속도 고정 해제",
+    gameLockBtn: "🔒 속도 고정",
+    gameUnlockBtn: "🔓 고정 해제",
+    gameLockHint: "속도를 고정하면 계속 같은 속도로 하지만, 코인은 더 적게 받아요.",
+    gameCoinMultTip: "이번 라운드 코인 배율",
     gameSpeedIncreaseLabel: "빠르게",
     customDeleteOthersBlocked: "본인이 추가한 단어만 삭제 가능합니다.",
     roleAdmin: "관리자",
@@ -1902,7 +1916,9 @@ function rewardLearning(mode) {
   if (!canUseAccountFeatures()) return;
   const day = localDateKey(new Date());
   const rec = progress.daily && progress.daily[day] && progress.daily[day][mode];
-  const paid = KoalaCore.awardLearning(progress, mode, rec ? rec[0] : 0, day);
+  // Typing / times-table rounds are scaled by stage, speed and the speed lock.
+  const gm = mode === "typing" ? "typing" : mode === "tt" ? "tt" : "";
+  const paid = KoalaCore.awardLearning(progress, mode, rec ? rec[0] : 0, day, gm ? { mult: gameCoinMult(gm) } : undefined);
   // Past the daily cap, a few smaller bonus rounds keep paying ("Earn more Coins").
   const ep = KOALA_EARN.find((x) => x.mode === mode);
   if (ep) {
@@ -8223,6 +8239,7 @@ function buildTypeGameWordPool() {
 function updateTypeGameHud() {
   typeGameScoreEl.textContent = t("typeGameScoreLabel", typeGameScore);
   typeGameStageTagEl.textContent = t("typeGameStageLabel", typeGameStageIndex + 1);
+  updateGameLockUI("typing");
   renderTypeGameHearts();
 }
 
@@ -8262,6 +8279,77 @@ function renderTypeGameHearts() {
   typeGameLivesEl.setAttribute("aria-label", currentLang === "ko" ? `목숨 ${lives}/${TYPEGAME_LIVES}` : `Lives ${lives} of ${TYPEGAME_LIVES}`);
 }
 
+/* ---------- Speed lock + coin weight (Typing Game and Times Table) ----------
+   Locking freezes the fall speed (no automatic speed-up, the +/- buttons stop) in exchange for
+   fewer Coins per round. Unlocked, a paid member's rounds are worth more the further they get
+   (stage) and the faster they play (speed); free members never get that weight. All of the
+   maths is KoalaCore.gameCoinMultiplier(). */
+const gameSpeedLocked = { typing: false, tt: false };
+const GAME_UI = {
+  typing: { pre: "typegame", stage: () => typeGameStageIndex, speed: () => typeGameSpeedLevel },
+  tt: { pre: "timestable", stage: () => timesTableStageIndex, speed: () => timesTableSpeedLevel },
+};
+
+function gameCoinMult(mode) {
+  const g = GAME_UI[mode];
+  return KoalaCore.gameCoinMultiplier({
+    weighted: canUsePaidFeatures(),
+    locked: gameSpeedLocked[mode],
+    stage: g.stage(),
+    speed: g.speed(),
+  });
+}
+
+function updateGameLockUI(mode) {
+  const g = GAME_UI[mode];
+  const locked = gameSpeedLocked[mode];
+  const btn = document.getElementById(g.pre + "-lock-btn");
+  const pauseBtn = document.getElementById(g.pre + "-lock-pause");
+  const chip = document.getElementById(g.pre + "-coin-mult");
+  if (btn) {
+    btn.textContent = locked ? "🔒" : "🔓";
+    btn.classList.toggle("is-on", locked);
+    btn.setAttribute("aria-pressed", locked ? "true" : "false");
+    btn.title = locked ? t("gameUnlockLabel") : t("gameLockLabel");
+  }
+  if (pauseBtn) {
+    pauseBtn.textContent = locked ? t("gameUnlockBtn") : t("gameLockBtn");
+    pauseBtn.classList.toggle("is-on", locked);
+    pauseBtn.setAttribute("aria-pressed", locked ? "true" : "false");
+  }
+  if (chip) {
+    const m = canUseAccountFeatures() ? gameCoinMult(mode) : 1;
+    // Shown only when it differs from the normal rate (or for paid members, whose rate can grow).
+    chip.hidden = !(canUseAccountFeatures() && (m !== 1 || (canUsePaidFeatures() && !locked)));
+    chip.textContent = `🪙×${m}`;
+    chip.classList.toggle("is-low", m < 1);
+    chip.title = t("gameCoinMultTip");
+  }
+}
+
+function toggleGameLock(mode) {
+  gameSpeedLocked[mode] = !gameSpeedLocked[mode];
+  if (mode === "typing") updateTypeGameSpeedUI(); else updateTimesTableSpeedUI();
+}
+
+["typing", "tt"].forEach((mode) => {
+  const pre = GAME_UI[mode].pre;
+  document.getElementById(pre + "-lock-btn")?.addEventListener("click", () => toggleGameLock(mode));
+  document.getElementById(pre + "-lock-pause")?.addEventListener("click", () => toggleGameLock(mode));
+});
+
+// Sequential falling: a new item is released only when the previous one has dropped a
+// good way down and fewer than `maxActive` are on screen, so a missed word never
+// lands together with several others.
+function fallingSpawnReady(activeList, container, maxActive) {
+  if (activeList.length >= maxActive) return false;
+  if (!activeList.length) return true;
+  const gap = Math.max(76, (container.clientHeight || 400) * 0.22);
+  return Math.min(...activeList.map((a) => a.top)) >= gap - 30; // items enter at top ≈ -30
+}
+const TYPEGAME_MAX_ACTIVE = { beginner: 3, intermediate: 4, pro: 5 };
+const TIMESTABLE_MAX_ACTIVE = { slow: 3, normal: 4, fast: 5 };
+
 /* ---------- Live fall-speed control ----------
    The stepper's number IS the current game speed — it starts at 1 every
    round, climbs by 1 on its own each time the stage-based ramp-up advances
@@ -8281,17 +8369,19 @@ function typeGameEffectiveSpeed() {
 function updateTypeGameSpeedUI() {
   typeGameSpeedValueEl.textContent = String(typeGameSpeedLevel);
   typeGameSpeedMinusBtn.disabled = typeGameSpeedLevel <= TYPEGAME_SPEED_LEVEL_MIN;
-  typeGameSpeedPlusBtn.disabled = typeGameSpeedLevel >= TYPEGAME_SPEED_LEVEL_MAX;
+  typeGameSpeedPlusBtn.disabled = typeGameSpeedLevel >= TYPEGAME_SPEED_LEVEL_MAX || gameSpeedLocked.typing;
+  if (gameSpeedLocked.typing) typeGameSpeedMinusBtn.disabled = true;
+  updateGameLockUI("typing");
 }
 
 typeGameSpeedMinusBtn.addEventListener("click", () => {
-  if (typeGameSpeedLevel <= TYPEGAME_SPEED_LEVEL_MIN) return;
+  if (typeGameSpeedLevel <= TYPEGAME_SPEED_LEVEL_MIN || gameSpeedLocked.typing) return;
   typeGameSpeedLevel--;
   updateTypeGameSpeedUI();
 });
 
 typeGameSpeedPlusBtn.addEventListener("click", () => {
-  if (typeGameSpeedLevel >= TYPEGAME_SPEED_LEVEL_MAX) return;
+  if (typeGameSpeedLevel >= TYPEGAME_SPEED_LEVEL_MAX || gameSpeedLocked.typing) return;
   typeGameSpeedLevel++;
   updateTypeGameSpeedUI();
 });
@@ -8474,6 +8564,7 @@ function resetTypeGame() {
   typeGameMissed = new Set();
   typeGameLives = TYPEGAME_LIVES;
   typeGameSpeedLevel = TYPEGAME_MODES[typeGameMode].speed;
+  gameSpeedLocked.typing = false;
   updateTypeGameSpeedUI();
   typeGameSpawnInterval = TYPEGAME_MODES[typeGameMode].spawn;
   typeGameStageIndex = 0;
@@ -8510,6 +8601,7 @@ function startTypeGame() {
   typeGameMissed = new Set();
   typeGameLives = TYPEGAME_LIVES;
   typeGameSpeedLevel = TYPEGAME_MODES[typeGameMode].speed;
+  gameSpeedLocked.typing = false;
   updateTypeGameSpeedUI();
   typeGameSpawnInterval = TYPEGAME_MODES[typeGameMode].spawn;
   typeGameStageIndex = 0;
@@ -8587,8 +8679,12 @@ function resumeTypeGameManual() {
 
 function scheduleTypeGameSpawn() {
   clearTimeout(typeGameSpawnTimer);
-  typeGameSpawnTimer = setTimeout(() => {
+  typeGameSpawnTimer = setTimeout(function tick() {
     if (!typeGameRunning) return;
+    if (!fallingSpawnReady(typeGameActive, typeGameWordsEl, TYPEGAME_MAX_ACTIVE[typeGameMode] || 3)) {
+      typeGameSpawnTimer = setTimeout(tick, 200); // wait until the last word has dropped clear
+      return;
+    }
     spawnTypeGameWord();
     scheduleTypeGameSpawn();
   }, typeGameSpawnInterval);
@@ -8851,13 +8947,13 @@ function clearTypeGameWord(word) {
   // faster game — the pace only picks up once they've clearly got the hang
   // of it.
   const speedUps = Math.floor(typeGameWordsCleared / TYPEGAME_WORDS_PER_SPEEDUP);
-  typeGameSpawnInterval = Math.max(TYPEGAME_SPAWN_MIN, TYPEGAME_MODES[typeGameMode].spawn - speedUps * TYPEGAME_SPAWN_STEP);
+  if (!gameSpeedLocked.typing) typeGameSpawnInterval = Math.max(TYPEGAME_SPAWN_MIN, TYPEGAME_MODES[typeGameMode].spawn - speedUps * TYPEGAME_SPAWN_STEP);
   if (speedUps !== typeGameStageIndex) {
     typeGameStageIndex = speedUps;
     // A relative +1 (not recomputed from the stage index) so a manual
     // adjustment the player already made isn't overwritten by the
     // automatic ramp-up — the stepper stays the single source of truth.
-    typeGameSpeedLevel = Math.min(typeGameSpeedLevel + 1, TYPEGAME_SPEED_LEVEL_MAX);
+    if (!gameSpeedLocked.typing) typeGameSpeedLevel = Math.min(typeGameSpeedLevel + 1, TYPEGAME_SPEED_LEVEL_MAX);
     updateTypeGameSpeedUI();
     typeGameMelodyIndex = typeGameStageIndex % TYPEGAME_MELODIES.length;
     typeGameMusicIndex = 0;
@@ -9024,6 +9120,57 @@ typeGameInput.addEventListener("keydown", (e) => {
     clearTypeGameHighlights();
   }
 });
+
+
+/* ---------- On-screen letter keyboard ----------
+   A tablet's own keyboard covers half of the play area and pushes the game up, so the
+   child can't see the words. This optional keyboard sits under the answer box instead and
+   the box asks the OS keyboard to stay away (inputmode="none"). Default ON for touch screens,
+   remembered once chosen. Keys edit the box and fire the same "input"/Enter events typing does,
+   so matching and scoring are shared with a physical keyboard (which still works). */
+const TYPEGAME_KB_KEY = "ywp_typegame_kb_v1";
+const typeGameKeyboard = document.getElementById("typegame-keyboard");
+const typeGameKbToggle = document.getElementById("typegame-kb-toggle");
+function typeGameKbWanted() {
+  try {
+    const v = localStorage.getItem(TYPEGAME_KB_KEY);
+    if (v === "1") return true;
+    if (v === "0") return false;
+  } catch (e) { /* device default */ }
+  return window.matchMedia("(pointer: coarse)").matches;
+}
+function applyTypeGameKb(on, persist) {
+  typeGameKeyboard.hidden = !on;
+  typeGameKbToggle.setAttribute("aria-pressed", on ? "true" : "false");
+  typeGameInput.setAttribute("inputmode", on ? "none" : "text");
+  typeGameInput.closest(".card")?.classList.toggle("tg-kb-on", on);
+  if (persist) { try { localStorage.setItem(TYPEGAME_KB_KEY, on ? "1" : "0"); } catch (e) { /* ignore */ } }
+  if (typeGameRunning) { typeGameInput.blur(); typeGameInput.focus({ preventScroll: true }); }
+}
+function syncTypeGameKbEnabled() {
+  const idle = typeGameInput.disabled;
+  typeGameKeyboard.classList.toggle("tg-idle", idle);
+  typeGameKeyboard.querySelectorAll(".tg-key").forEach((k) => { k.disabled = idle; });
+}
+function pressTypeGameKey(key) {
+  if (!typeGameRunning) return;
+  if (key === "enter") {
+    typeGameInput.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
+  } else {
+    typeGameInput.value = key === "back" ? typeGameInput.value.slice(0, -1) : typeGameInput.value + key;
+    typeGameInput.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  typeGameInput.focus({ preventScroll: true });
+}
+typeGameKeyboard.addEventListener("mousedown", (e) => e.preventDefault());
+typeGameKeyboard.addEventListener("click", (e) => {
+  const b = e.target.closest(".tg-key");
+  if (b && !b.disabled) pressTypeGameKey(b.dataset.key);
+});
+typeGameKbToggle.addEventListener("click", () => applyTypeGameKb(typeGameKeyboard.hidden, true));
+new MutationObserver(syncTypeGameKbEnabled).observe(typeGameInput, { attributes: true, attributeFilter: ["disabled"] });
+applyTypeGameKb(typeGameKbWanted(), false);
+syncTypeGameKbEnabled();
 
 typeGameStartBtn.addEventListener("click", startTypeGame);
 typeGameRestartBtn.addEventListener("click", startTypeGame);
@@ -9601,6 +9748,7 @@ document.getElementById("timestable-mode-seg")?.addEventListener("click", (e) =>
   startHeroCarousel("timestable-hero");
   try { localStorage.setItem(TIMESTABLE_SPEEDMODE_KEY, timesTableSpeedMode); } catch (err) { /* ignore */ }
   timesTableSpeedLevel = TIMESTABLE_SPEED_MODES[timesTableSpeedMode].speed;
+  gameSpeedLocked.tt = false;
   timesTableSpawnInterval = TIMESTABLE_SPEED_MODES[timesTableSpeedMode].spawn;
   updateTimesTableSpeedUI();
   renderTimesTableSpeedModes();
@@ -9666,6 +9814,7 @@ function renderTimesTableHearts() {
 function updateTimesTableHud() {
   timesTableScoreEl.textContent = t("timesTableScoreLabel", timesTableScore);
   timesTableStageTagEl.textContent = t("timesTableStageLabel", timesTableStageIndex + 1);
+  updateGameLockUI("tt");
   renderTimesTableHearts();
 }
 
@@ -9686,17 +9835,19 @@ function timesTableEffectiveSpeed() {
 function updateTimesTableSpeedUI() {
   timesTableSpeedValueEl.textContent = String(timesTableSpeedLevel);
   timesTableSpeedMinusBtn.disabled = timesTableSpeedLevel <= TIMESTABLE_SPEED_LEVEL_MIN;
-  timesTableSpeedPlusBtn.disabled = timesTableSpeedLevel >= TIMESTABLE_SPEED_LEVEL_MAX;
+  timesTableSpeedPlusBtn.disabled = timesTableSpeedLevel >= TIMESTABLE_SPEED_LEVEL_MAX || gameSpeedLocked.tt;
+  if (gameSpeedLocked.tt) timesTableSpeedMinusBtn.disabled = true;
+  updateGameLockUI("tt");
 }
 
 timesTableSpeedMinusBtn.addEventListener("click", () => {
-  if (timesTableSpeedLevel <= TIMESTABLE_SPEED_LEVEL_MIN) return;
+  if (timesTableSpeedLevel <= TIMESTABLE_SPEED_LEVEL_MIN || gameSpeedLocked.tt) return;
   timesTableSpeedLevel--;
   updateTimesTableSpeedUI();
 });
 
 timesTableSpeedPlusBtn.addEventListener("click", () => {
-  if (timesTableSpeedLevel >= TIMESTABLE_SPEED_LEVEL_MAX) return;
+  if (timesTableSpeedLevel >= TIMESTABLE_SPEED_LEVEL_MAX || gameSpeedLocked.tt) return;
   timesTableSpeedLevel++;
   updateTimesTableSpeedUI();
 });
@@ -9760,6 +9911,7 @@ function resetTimesTable() {
   timesTableMissed = new Set();
   timesTableLives = TIMESTABLE_LIVES;
   timesTableSpeedLevel = TIMESTABLE_SPEED_MODES[timesTableSpeedMode].speed;
+  gameSpeedLocked.tt = false;
   updateTimesTableSpeedUI();
   timesTableSpawnInterval = TIMESTABLE_SPEED_MODES[timesTableSpeedMode].spawn;
   timesTableInput.value = "";
@@ -9812,6 +9964,7 @@ function startTimesTable() {
   timesTableMissed = new Set();
   timesTableLives = TIMESTABLE_LIVES;
   timesTableSpeedLevel = TIMESTABLE_SPEED_MODES[timesTableSpeedMode].speed;
+  gameSpeedLocked.tt = false;
   updateTimesTableSpeedUI();
   timesTableSpawnInterval = TIMESTABLE_SPEED_MODES[timesTableSpeedMode].spawn;
   timesTableActive.forEach((w) => w.el.remove());
@@ -9883,8 +10036,13 @@ function resumeTimesTableManual() {
 function scheduleTimesTableSpawn() {
   clearTimeout(timesTableSpawnTimer);
   if (timesTableProblemsShown >= timesTableMaxProblems()) return;
-  timesTableSpawnTimer = setTimeout(() => {
+  timesTableSpawnTimer = setTimeout(function tick() {
     if (!timesTableRunning) return;
+    const maxActive = Math.min(TIMESTABLE_MAX_ACTIVE[timesTableSpeedMode] || 3, timesTableObjectCap());
+    if (!fallingSpawnReady(timesTableActive, timesTableWordsEl, maxActive)) {
+      timesTableSpawnTimer = setTimeout(tick, 200);
+      return;
+    }
     spawnTimesTableProblem();
     scheduleTimesTableSpawn();
   }, timesTableSpawnInterval);
@@ -10048,13 +10206,13 @@ function clearTimesTableProblem(item) {
   playTimesTableCorrectSfx();
 
   const stage = Math.floor(timesTableCorrectCount / TIMESTABLE_PROBLEMS_PER_STAGE);
-  timesTableSpawnInterval = Math.max(TIMESTABLE_SPAWN_MIN, TIMESTABLE_SPEED_MODES[timesTableSpeedMode].spawn - stage * TIMESTABLE_SPAWN_STEP);
+  if (!gameSpeedLocked.tt) timesTableSpawnInterval = Math.max(TIMESTABLE_SPAWN_MIN, TIMESTABLE_SPEED_MODES[timesTableSpeedMode].spawn - stage * TIMESTABLE_SPAWN_STEP);
   if (stage !== timesTableStageIndex) {
     timesTableStageIndex = stage;
     // A relative +1 (not recomputed from the stage index) so a manual
     // adjustment the player already made isn't overwritten by the
     // automatic ramp-up — the stepper stays the single source of truth.
-    timesTableSpeedLevel = Math.min(timesTableSpeedLevel + 1, TIMESTABLE_SPEED_LEVEL_MAX);
+    if (!gameSpeedLocked.tt) timesTableSpeedLevel = Math.min(timesTableSpeedLevel + 1, TIMESTABLE_SPEED_LEVEL_MAX);
     updateTimesTableSpeedUI();
     timesTableMelodyIndex = stage % TIMESTABLE_MELODIES.length;
     timesTableMusicNoteIndex = 0;

@@ -13187,3 +13187,34 @@ html[data-theme] body #quiz-start-screen .fs-settings-body .qz-pick-note { backg
 .qz-result-note { margin: 0; font-size: 0.86rem; font-weight: 700; color: #4f8274; text-align: center; background: none; border: 0; }
 html body .qz-result-actions .qz-result-primary { width: 240px !important; max-width: 100% !important; margin: 0 auto !important; }
 html body .qz-result-actions .qz-result-retry { background: linear-gradient(180deg, #7be3c8, #1fb893) !important; color: #05382d !important; box-shadow: 0 4px 0 #0e7a60, 0 7px 12px rgba(14, 122, 96, .3) !important; text-shadow: 0 1px 0 rgba(255, 255, 255, .35); }
+
+/* Speed lock + coin multiplier (Typing Game / Times Table) */
+.game-speed-control .game-lock-btn { font-size: 0.85rem; padding: 0 6px; }
+.game-speed-control .game-lock-btn.is-on { background: #ffe9a8; border-color: #f0b429; }
+.game-coin-mult { font-size: 0.74rem; font-weight: 800; color: #8a5a00; background: #fff3cf; border-radius: 999px; padding: 2px 7px; white-space: nowrap; }
+.game-coin-mult.is-low { color: #7a4a2a; background: #f3e4d8; }
+.game-lock-pause { margin-top: 8px; }
+.game-lock-pause.is-on { background: #ffe9a8; color: #5a3b00; }
+.game-lock-hint { margin: 6px 0 0; font-size: 0.78rem; font-weight: 700; opacity: 0.8; text-align: center; max-width: 240px; }
+
+/* ---- Typing Game on-screen keyboard ---- */
+.tg-keyboard { display: flex; flex-direction: column; gap: 6px; max-width: 560px; margin: 8px auto 0; }
+.tg-keyboard[hidden] { display: none; }
+.tg-kb-row { display: flex; justify-content: center; gap: 5px; }
+.tg-key {
+  flex: 1 1 0; max-width: 52px; min-height: 46px; padding: 0; border: 0; border-radius: 11px;
+  font-family: var(--font-heading); font-weight: 700; font-size: 1.25rem; text-transform: lowercase;
+  color: #fff; cursor: pointer; touch-action: manipulation; user-select: none; -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  background: linear-gradient(180deg, #38d9a9, #20b98c); box-shadow: 0 4px 0 #12805f;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25); transition: transform 0.06s ease, box-shadow 0.06s ease;
+}
+.tg-key:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #12805f; }
+.tg-key:disabled { opacity: 0.45; cursor: default; }
+.tg-key-wide { flex: 1.5 1 0; max-width: 78px; background: linear-gradient(180deg, #4dabf7, #2f8fe6); box-shadow: 0 4px 0 #1d62b8; }
+.tg-key-enter { background: linear-gradient(180deg, #ffb340, #f08c00); box-shadow: 0 4px 0 #a96000; }
+.tg-kb-row2 { padding: 0 3%; }
+@media (max-width: 480px) { .tg-key { min-height: 42px; font-size: 1.1rem; } }
+/* keyboard on: the answer box is just a read-out, keep the hint short */
+.tg-kb-on .tg-hint { display: none; }
+.card.tg-over .tg-keyboard { display: none !important; }
