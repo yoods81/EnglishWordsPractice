@@ -316,6 +316,13 @@
   <!-- Customers: "Contact us" form. Signed-in accounts are attached automatically;
        a signed-out visitor leaves an email address so we can answer. Wired up
        by public/js/support.js. -->
+  <div id="datanote-overlay" class="kid-modal-overlay" hidden>
+    <div class="kid-modal-card datanote-card" role="dialog" aria-modal="true" aria-labelledby="datanote-title">
+      <h2 id="datanote-title"></h2>
+      <div id="datanote-rows" class="datanote-rows"></div>
+      <div class="contact-actions"><button type="button" class="pill accent" id="datanote-ok-btn"></button></div>
+    </div>
+  </div>
   <div id="faq-overlay" class="kid-modal-overlay" hidden>
     <div class="kid-modal-card faq-card" role="dialog" aria-modal="true" aria-labelledby="faq-title">
       <h2 id="faq-title">Help</h2>
@@ -2159,6 +2166,10 @@ to Flip!</span></div>
         <h3 data-i18n="myAccountLevelTitle">📚 Study level</h3>
         <p class="auth-hint" data-i18n="myAccountLevelDesc">Pick the level you practise at. It is saved to your account and set automatically when you log in on any device.</p>
         <div id="my-account-level-choices" class="acct-level-choices" role="radiogroup" aria-label="Study level"></div>
+      </div>
+      <div class="card" id="my-account-data-card" hidden>
+        <h3 id="my-account-data-title">🗂️ What is saved</h3>
+        <div id="my-account-data-rows" class="datanote-rows"></div>
       </div>
       <div class="card" id="my-account-children-card" hidden>
         <h3>👪 <span data-i18n="childrenTitle">Children</span></h3>

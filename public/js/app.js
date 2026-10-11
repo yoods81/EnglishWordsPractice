@@ -3800,6 +3800,7 @@ async function koalaAfterLogin() {
   await applyKoalaGrants();
   pushKoalaData();
   pushKoalaSummary();
+  maybeShowDataNote();
 }
 
 // The Koala world follows the account, not the device. Merge, never overwrite,
@@ -4706,6 +4707,42 @@ function formatDate(ms) {
   return ms ? new Date(ms).toLocaleDateString() : "—";
 }
 
+
+// ---- "What is saved" note: coins/items follow the account, word history stays on this device (free) ----
+function dataNoteRows(role) {
+  const paid = role === "paid" || role === "admin";
+  if (paid) return [
+    { icon: "☁️", title: rwL("Everything follows you", "모든 기록이 따라와요"), text: rwL("Your koala, coins, items and the words you have practised are saved to your account, so any phone or computer picks up where you left off.", "코알라, 코인, 아이템, 푼 단어 기록이 계정에 저장돼서 어느 기기에서든 이어서 할 수 있어요.") },
+  ];
+  return [
+    { icon: "🐨", title: rwL("Your koala follows you", "코알라는 어디서나 그대로예요"), text: rwL("Coins, items, your koala's room, streak, badges and study level are saved to your account on any device.", "코인, 아이템, 코알라의 방, 연속 학습일, 배지, 학습 레벨은 어느 기기에서든 계정에 저장돼 있어요.") },
+    { icon: "📱", title: rwL("Words you've done stay on this device", "푼 단어 기록은 이 기기에 남아요"), text: rwL("Which words you have already practised is remembered in this browser only. On another device you may see a word again.", "어떤 단어를 이미 풀었는지는 이 브라우저에만 기억해요. 다른 기기에서는 같은 단어가 다시 나올 수 있어요.") },
+    { icon: "💡", title: rwL("Tip", "알아두면 좋아요"), text: rwL("Use the same phone or computer, and don't clear your browser data, to keep your word history. Premium remembers it everywhere.", "같은 기기를 쓰고 브라우저 데이터를 지우지 않으면 기록이 유지돼요. 프리미엄은 어디서나 기억해 줘요.") },
+  ];
+}
+function dataNoteHtml(rows) {
+  return rows.map((r) => `<div class="datanote-row"><span class="datanote-ico" aria-hidden="true">${r.icon}</span><div class="datanote-txt"><strong>${escapeHtml(r.title)}</strong><span>${escapeHtml(r.text)}</span></div></div>`).join("");
+}
+function renderDataCard(account) {
+  const card = document.getElementById("my-account-data-card");
+  if (!card || !account) return;
+  card.hidden = false;
+  document.getElementById("my-account-data-title").textContent = "🗂️ " + rwL("What is saved", "저장되는 내용");
+  document.getElementById("my-account-data-rows").innerHTML = dataNoteHtml(dataNoteRows(account.role));
+}
+function maybeShowDataNote() {
+  if (!currentUser || currentUser.role !== "free") return;
+  const key = "ywp_datanote_seen_" + currentUser.id;
+  try { if (localStorage.getItem(key)) return; } catch (e) { return; }
+  const ov = document.getElementById("datanote-overlay");
+  if (!ov) return;
+  document.getElementById("datanote-title").textContent = rwL("Good to know", "알려드려요");
+  document.getElementById("datanote-rows").innerHTML = dataNoteHtml(dataNoteRows("free"));
+  document.getElementById("datanote-ok-btn").textContent = rwL("Got it", "알겠어요");
+  ov.hidden = false;
+  document.getElementById("datanote-ok-btn").onclick = () => { ov.hidden = true; try { localStorage.setItem(key, "1"); } catch (e) { /* ignore */ } };
+}
+
 async function renderMyAccount() {
   if (!currentUser) return;
   let account = currentUser;
@@ -4733,6 +4770,7 @@ async function renderMyAccount() {
   renderChildrenUI();
   refreshEmailCard(account);
   refreshUpgradeCard(account);
+  renderDataCard(account);
   if (window.koalaSupportUI) koalaSupportUI.renderAccountCard();
 }
 

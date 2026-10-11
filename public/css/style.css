@@ -13316,3 +13316,35 @@ html body .dash-rec-chips .more-toggle.chip-more { display: inline-flex; margin:
 .newleft-note.is-empty { background: #fff7de; border: 1px solid #f1dd9a; border-radius: 14px; padding: 10px 12px; color: #6a5200; }
 .newleft-note .newleft-review { margin-left: 6px; vertical-align: middle; }
 .newleft-note[hidden] { display: none; }
+
+/* ---------- "What is saved" note (My Account card + first-login popup) ---------- */
+.datanote-card { max-width: 380px; text-align: left; }
+.datanote-card h2 { margin: 0 0 14px; text-align: center; font-family: var(--font-heading); font-size: 1.35rem; color: var(--text); }
+.datanote-rows { display: grid; gap: 10px; text-align: left; }
+.datanote-row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 11px 12px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--accent) 8%, #fff);
+}
+.datanote-ico {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: grid; place-items: center;
+  font-size: 1.35rem; line-height: 1;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+.datanote-txt { display: grid; gap: 3px; min-width: 0; }
+.datanote-txt strong { font-family: var(--font-heading); font-weight: 600; font-size: 1rem; line-height: 1.3; color: var(--text); }
+.datanote-txt span { font-size: 0.9rem; line-height: 1.55; color: var(--muted); overflow-wrap: anywhere; }
+html[lang="ko"] .datanote-card h2,
+html[lang="ko"] .datanote-txt strong { font-family: "Jua", var(--font-heading), "Malgun Gothic", sans-serif; font-weight: 400; }
+html[lang="ko"] .datanote-txt span { word-break: keep-all; }
+.datanote-card .contact-actions { margin-top: 16px; justify-content: center; }
+@media (max-width: 420px) {
+  .datanote-row { grid-template-columns: 34px minmax(0, 1fr); gap: 10px; padding: 10px; }
+  .datanote-ico { width: 34px; height: 34px; font-size: 1.15rem; }
+}
