@@ -11960,8 +11960,8 @@ html body #spelling-start-screen .fs-start-bar { display: flex; justify-content:
   html body #view-timestable .tg-over-overlay .tg-over-card .tg-play-again,
 html body #quiz-start-screen .sp-start-card button.sp-start-btn.pill.accent,
 html body #spelling-start-screen .sp-start-card button.sp-start-btn.pill.accent {
-    width: 200px !important; max-width: 100% !important; min-height: 48px !important; height: auto; margin: 4px auto 0 !important;
-    padding: 8px 16px !important; font-size: 1.12rem !important; font-weight: 800; white-space: nowrap;
+    width: auto !important; min-width: min(100%, 14.3rem) !important; max-width: 100% !important; min-height: 3.45rem !important; height: auto; margin: 4px auto 0 !important;
+    padding: 0.55rem 1.15rem !important; font-size: 1.12rem !important; font-weight: 800; white-space: nowrap;
     display: flex; align-items: center; justify-content: center; gap: 6px; border: 0 !important; border-radius: 999px;
     color: #5a3000 !important; background: linear-gradient(180deg, #ffe066, #ffab1a) !important;
     box-shadow: 0 4px 0 #c27400, 0 7px 12px rgba(194, 116, 0, .3) !important; text-shadow: 0 1px 0 rgba(255, 255, 255, .5);

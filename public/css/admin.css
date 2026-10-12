@@ -1105,20 +1105,32 @@ html body #view-quiz .qz-report .sp-report-restart { background: linear-gradient
 html body #view-quiz .qz-report .sp-report-restart:active { transform: translateY(3px); box-shadow: 0 1px 0 #c27400 !important; }
 
 /* Round 37: flat play screens, capsule add-modes, start cards as wide as the nav bar with the My Koala backdrop */
-html:root:root body #view-quiz .sp-start-card,
-html:root:root body #view-spelling .sp-start-card,
-html:root:root body #view-flashcards .sp-start-card,
-html:root:root body #view-typegame .tg-start-card,
+html:root:root body #view-quiz .sp-start-card,
+
+html:root:root body #view-spelling .sp-start-card,
+
+html:root:root body #view-flashcards .sp-start-card,
+
+html:root:root body #view-typegame .tg-start-card,
+
 html:root:root body #view-timestable .tg-start-card { width: min(100%, var(--nav-w, 594px)) !important; max-width: none !important; border: 0 !important; box-shadow: none !important; background: url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%27150%27%20height=%27150%27%3E%3Cg%20opacity=%27.9%27%3E%3Cellipse%20cx=%2728%27%20cy=%2732%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%28-35%2028%2032%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cellipse%20cx=%27112%27%20cy=%2796%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%2830%20112%2096%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cpolygon%20points=%27100%2C20%20103%2C28%20112%2C28%20105%2C33%20108%2C42%20100%2C37%2092%2C42%2095%2C33%2088%2C28%2097%2C28%27%20fill=%27%23f6c343%27%20opacity=%27.3%27/%3E%3Cpolygon%20points=%2740%2C108%2042%2C114%2049%2C114%2043%2C118%2045%2C125%2040%2C121%2035%2C125%2037%2C118%2031%2C114%2038%2C114%27%20fill=%27%23f6c343%27%20opacity=%27.25%27/%3E%3Ccircle%20cx=%2770%27%20cy=%2760%27%20r=%273%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%27136%27%20cy=%2750%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%2714%27%20cy=%2788%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3C/g%3E%3C/svg%3E") 0 0 / 150px 150px, radial-gradient(circle at 10% 6%, rgba(255, 226, 140, .55) 0 70px, transparent 71px), radial-gradient(circle at 94% 20%, rgba(168, 230, 207, .65) 0 80px, transparent 81px), linear-gradient(180deg, #d9f6ea 0%, #eefaea 55%, #fff3cf 100%) !important; box-sizing: border-box; }
-html[data-theme="dark"]:root:root body #view-quiz .sp-start-card,
-html[data-theme="dark"]:root:root body #view-spelling .sp-start-card,
-html[data-theme="dark"]:root:root body #view-flashcards .sp-start-card,
-html[data-theme="dark"]:root:root body #view-typegame .tg-start-card,
+html[data-theme="dark"]:root:root body #view-quiz .sp-start-card,
+
+html[data-theme="dark"]:root:root body #view-spelling .sp-start-card,
+
+html[data-theme="dark"]:root:root body #view-flashcards .sp-start-card,
+
+html[data-theme="dark"]:root:root body #view-typegame .tg-start-card,
+
 html[data-theme="dark"]:root:root body #view-timestable .tg-start-card { background: url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%27150%27%20height=%27150%27%3E%3Cg%20opacity=%27.9%27%3E%3Cellipse%20cx=%2728%27%20cy=%2732%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%28-35%2028%2032%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cellipse%20cx=%27112%27%20cy=%2796%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%2830%20112%2096%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cpolygon%20points=%27100%2C20%20103%2C28%20112%2C28%20105%2C33%20108%2C42%20100%2C37%2092%2C42%2095%2C33%2088%2C28%2097%2C28%27%20fill=%27%23f6c343%27%20opacity=%27.3%27/%3E%3Cpolygon%20points=%2740%2C108%2042%2C114%2049%2C114%2043%2C118%2045%2C125%2040%2C121%2035%2C125%2037%2C118%2031%2C114%2038%2C114%27%20fill=%27%23f6c343%27%20opacity=%27.25%27/%3E%3Ccircle%20cx=%2770%27%20cy=%2760%27%20r=%273%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%27136%27%20cy=%2750%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%2714%27%20cy=%2788%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3C/g%3E%3C/svg%3E") 0 0 / 150px 150px, radial-gradient(circle at 10% 6%, rgba(81,72,46,0.55) 0 70px, transparent 71px), radial-gradient(circle at 94% 20%, rgba(45,80,67,0.65) 0 80px, transparent 81px), linear-gradient(180deg, #1c3229 0%, #1c2917 55%, #332d1d 100%) !important; }
-html[data-theme="ivory"]:root:root body #view-quiz .sp-start-card,
-html[data-theme="ivory"]:root:root body #view-spelling .sp-start-card,
-html[data-theme="ivory"]:root:root body #view-flashcards .sp-start-card,
-html[data-theme="ivory"]:root:root body #view-typegame .tg-start-card,
+html[data-theme="ivory"]:root:root body #view-quiz .sp-start-card,
+
+html[data-theme="ivory"]:root:root body #view-spelling .sp-start-card,
+
+html[data-theme="ivory"]:root:root body #view-flashcards .sp-start-card,
+
+html[data-theme="ivory"]:root:root body #view-typegame .tg-start-card,
+
 html[data-theme="ivory"]:root:root body #view-timestable .tg-start-card { background: url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%27150%27%20height=%27150%27%3E%3Cg%20opacity=%27.9%27%3E%3Cellipse%20cx=%2728%27%20cy=%2732%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%28-35%2028%2032%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cellipse%20cx=%27112%27%20cy=%2796%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%2830%20112%2096%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cpolygon%20points=%27100%2C20%20103%2C28%20112%2C28%20105%2C33%20108%2C42%20100%2C37%2092%2C42%2095%2C33%2088%2C28%2097%2C28%27%20fill=%27%23f6c343%27%20opacity=%27.3%27/%3E%3Cpolygon%20points=%2740%2C108%2042%2C114%2049%2C114%2043%2C118%2045%2C125%2040%2C121%2035%2C125%2037%2C118%2031%2C114%2038%2C114%27%20fill=%27%23f6c343%27%20opacity=%27.25%27/%3E%3Ccircle%20cx=%2770%27%20cy=%2760%27%20r=%273%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%27136%27%20cy=%2750%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%2714%27%20cy=%2788%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3C/g%3E%3C/svg%3E") 0 0 / 150px 150px, radial-gradient(circle at 10% 6%, rgba(255, 226, 140, .55) 0 70px, transparent 71px), radial-gradient(circle at 94% 20%, rgba(168, 230, 207, .65) 0 80px, transparent 81px), linear-gradient(180deg, #eee7d6 0%, #f5f0e5 55%, #fff3cf 100%) !important; }
 html:root:root body :is(#view-quiz, #view-spelling, #view-flashcards) .sp-start-card .sp-start-panel { background: #e4f7f0; border: 3px solid #fff !important; box-shadow: 0 0 0 2px #8fe3c6 !important; border-radius: 1.5rem; }
 html[data-theme="dark"]:root:root body :is(#view-quiz, #view-spelling, #view-flashcards) .sp-start-card .sp-start-panel { background: #192d26 !important; border-color: #151e1c !important; }
@@ -1306,3 +1318,44 @@ html[data-theme="dark"]:root body .child-now, html[data-theme="dark"]:root body 
 html[data-theme="dark"]:root body .children-locked { background: #3a3220; color: #f6dc9a; }
 html[data-theme="dark"]:root body .child-pick { background: #243730; color: #e6f3ee; }
 html[data-theme="dark"]:root body .child-pick.is-active { background: #2f5a49; }
+
+/* Round 41: start buttons scale with the fluid root size (rem, not px) so the label and arrow disc
+   always fit: label + disc sit as one centred group, the disc hugging the right end. */
+html:root:root:root:root:root:root:root:root body button:is(#flash-start-btn, #quiz-start-btn, #spelling-start-btn, #typegame-start-btn, #timestable-start-btn).pill.accent.pill.accent.pill {
+  width: auto !important; min-width: min(100%, 14.3rem) !important; max-width: 100% !important; min-height: 3.6rem !important;
+  padding: 0.5rem 0.55rem 0.5rem 1.7rem !important; gap: 0.75rem !important; font-size: 1.2rem !important; white-space: nowrap; line-height: 1.15;
+}
+html:root:root:root:root:root:root:root:root body button:is(#flash-start-btn, #quiz-start-btn, #spelling-start-btn, #typegame-start-btn, #timestable-start-btn).pill.accent.pill.accent.pill::after {
+  width: 2.5rem !important; height: 2.5rem !important; background-size: 1.3rem !important; margin-left: 0;
+}
+@media (max-width: 360px) {
+  html:root:root:root:root:root:root:root:root body button:is(#flash-start-btn, #quiz-start-btn, #spelling-start-btn, #typegame-start-btn, #timestable-start-btn).pill.accent.pill.accent.pill { font-size: 1.08rem !important; padding-left: 1.3rem !important; }
+}
+
+/* Round 41b: segmented option buttons never spill their label — they may wrap onto a second line
+   and their row may wrap, at any window width. */
+html:root:root:root:root body :is(.qz-seg-btn, #flash-source-mine, .qz-pick .qz-seg-btn) { white-space: normal !important; overflow-wrap: break-word; word-break: keep-all; line-height: 1.15; text-align: center; box-sizing: border-box; }
+@media (max-width: 400px) { html:root:root:root:root body :is(#typegame-start-overlay, #timestable-start-overlay) .qz-seg-btn { font-size: 0.7rem !important; padding-left: 6px !important; padding-right: 6px !important; letter-spacing: -0.01em; } }
+html:root:root:root:root body :is(#flash-start-screen, #quiz-start-screen, #spelling-start-screen, #typegame-start-overlay, #timestable-start-overlay) .qz-seg { flex-wrap: wrap !important; }
+
+/* Round 41c: narrow phones — steps row and the settings summary line never get cut off. */
+html:root:root:root:root body .fs-steps { flex-wrap: wrap !important; justify-content: center !important; row-gap: 0.15rem; max-width: 100%; }
+@media (max-width: 400px) {
+  html:root:root:root:root body .fs-steps { font-size: 0.72rem !important; gap: 0.1rem !important; padding-left: 0 !important; padding-right: 0 !important; }
+  html:root:root:root:root body .fs-steps .sp-step b { font-size: 1.1em !important; }
+  html:root:root:root:root body .fs-steps .sp-step { padding-left: 0.3rem !important; padding-right: 0.3rem !important; }
+  html:root:root:root:root body :is(#flash-start-screen, #quiz-start-screen, #spelling-start-screen) .fs-settings-now { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; line-height: 1.25; }
+  html:root:root:root:root body :is(#typegame-start-overlay, #timestable-start-overlay) .qz-seg-btn { font-size: 0.76rem !important; }
+}
+@media (max-width: 400px) {
+  html:root:root:root:root body .fs-steps .sp-step-arrow { margin: 0 !important; padding: 0 !important; width: 0.9rem; text-align: center; }
+  html:root:root:root:root body .fs-steps .sp-step b { font-size: 1.25em !important; }
+}
+html:root:root:root:root body :is(#flash-start-screen, #quiz-start-screen, #spelling-start-screen) .fs-count { word-break: keep-all; text-wrap: pretty; }
+
+/* Round 41d: flashcard "Still learning / I know this" — label and count stay on one line and the two buttons match. */
+html:root:root:root:root body :is(#flash-dont-know, #flash-know) { display: inline-flex !important; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: nowrap; white-space: nowrap; min-height: 3.2rem; padding-left: 0.9rem !important; padding-right: 0.9rem !important; font-size: clamp(0.85rem, 0.95rem, 1.05rem); }
+@media (max-width: 400px) { html:root:root:root:root body :is(#flash-dont-know, #flash-know) { font-size: 0.8rem !important; gap: 0.3rem; padding-left: 0.5rem !important; padding-right: 0.5rem !important; } }
+
+/* Round 41e: Korean text breaks between words, never in the middle of one (long words still wrap if they must). */
+html:root[lang="ko"] body :is(p, h1, h2, h3, h4, li, label, summary, span, button, a, div) { word-break: keep-all; overflow-wrap: break-word; }
