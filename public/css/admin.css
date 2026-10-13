@@ -1359,3 +1359,8 @@ html:root:root:root:root body :is(#flash-dont-know, #flash-know) { display: inli
 
 /* Round 41e: Korean text breaks between words, never in the middle of one (long words still wrap if they must). */
 html:root[lang="ko"] body :is(p, h1, h2, h3, h4, li, label, summary, span, button, a, div) { word-break: keep-all; overflow-wrap: break-word; }
+
+/* Round 42: home menu tiles get a soft mint outline (a shade deeper than the page's light mint) so neighbouring cards read as separate. */
+html:root:root:root:root:not([data-theme="dark"]) body #view-landing .landing-tile { border: 2px solid #a9dccb !important; }
+html:root:root:root:root:not([data-theme="dark"]) body #view-landing .landing-tile:hover { border-color: #6cc9ad !important; }
+html:root:root:root:root[data-theme="dark"] body #view-landing .landing-tile { border: 2px solid rgba(110, 224, 168, 0.28) !important; }
