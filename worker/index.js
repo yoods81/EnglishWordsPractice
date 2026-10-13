@@ -235,10 +235,6 @@ function sessionCookie(token, maxAgeSeconds) {
   return `${SESSION_COOKIE}=${encodeURIComponent(token)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAgeSeconds}`;
 }
 
-function validUsername(username) {
-  return typeof username === "string" && /^[A-Za-z0-9_]{3,20}$/.test(username);
-}
-
 // Password policy: 8+ characters with at least one uppercase letter, one digit
 // and one special character. (The frontend shows the same rules; the server
 // is the real check.)
@@ -467,18 +463,22 @@ async function handleApi(request, env, url) {
     } catch (e) {
       return json({ error: "bad_request" }, 400);
     }
-    const username = typeof body?.username === "string" ? body.username.trim() : "";
     const password = typeof body?.password === "string" ? body.password : "";
     const specialCode = typeof body?.specialCode === "string" ? body.specialCode.trim() : "";
+    // The login ID is the email address itself (lower-cased), so the email
+    // doubles as the unique username.
     const email = normalizeEmail(body?.email);
+    const username = email;
 
-    if (username.toLowerCase() === ADMIN_BOOTSTRAP_USERNAME) return json({ error: "reserved_username" }, 400);
-    if (!validUsername(username)) return json({ error: "invalid_username" }, 400);
-    if (!validPassword(password)) return json({ error: "invalid_password" }, 400);
     if (!validEmail(email)) return json({ error: "invalid_email" }, 400);
+    if (!validPassword(password)) return json({ error: "invalid_password" }, 400);
+    // Account owner must be an adult guardian who accepted the terms.
+    if (body?.agreedTerms !== true || body?.isGuardian !== true) return json({ error: "consent_required" }, 400);
 
-    const existing = await env.DB.prepare("SELECT id FROM users WHERE username = ?").bind(username).first();
-    if (existing) return json({ error: "username_taken" }, 409);
+    // Taken if it's already someone's login ID or the email on any account
+    // (older accounts may still carry the email in a separate column).
+    const existing = await env.DB.prepare("SELECT id FROM users WHERE username = ? OR email = ?").bind(username, email).first();
+    if (existing) return json({ error: "email_taken" }, 409);
 
     let role = "free";
     let redeemedCode = null;
@@ -537,9 +537,15 @@ async function handleApi(request, env, url) {
     } catch (e) {
       return json({ error: "bad_request" }, 400);
     }
-    const username = typeof body?.username === "string" ? body.username.trim() : "";
+    // The login ID is the email address. "admin" stays accepted as the one
+    // non-email ID (the bootstrap admin account); anything else that isn't an
+    // email gets a specific answer so the login window can explain the change.
+    const rawId = typeof body?.email === "string" ? body.email : typeof body?.username === "string" ? body.username : "";
     const password = typeof body?.password === "string" ? body.password : "";
+    const isBootstrapAdmin = rawId.trim() === ADMIN_BOOTSTRAP_USERNAME;
+    const username = isBootstrapAdmin ? ADMIN_BOOTSTRAP_USERNAME : normalizeEmail(rawId);
     if (!username || !password) return json({ error: "invalid_credentials" }, 401);
+    if (!isBootstrapAdmin && !validEmail(username)) return json({ error: "login_use_email" }, 401);
 
     let user = await env.DB.prepare("SELECT * FROM users WHERE username = ?").bind(username).first();
 
@@ -627,8 +633,21 @@ async function handleApi(request, env, url) {
     if (!password || !(await verifyPassword(password, user.password_salt, user.password_hash))) {
       return json({ error: "wrong_current_password" }, 400);
     }
-    await env.DB.prepare("UPDATE users SET email = ?, email_verified_at = NULL WHERE id = ?").bind(email, user.id).run();
-    const sent = await sendVerificationEmail(env, user, email);
+    // The email is the login ID, so it must not belong to anyone else —
+    // either as their ID or as the address on their account.
+    const clash = await env.DB.prepare("SELECT id FROM users WHERE id != ? AND (username = ? OR email = ?)")
+      .bind(user.id, email, email)
+      .first();
+    if (clash) return json({ error: "email_taken" }, 409);
+    // The admin account keeps its "admin" login ID; everyone else's ID follows the email.
+    if (user.role === "admin") {
+      await env.DB.prepare("UPDATE users SET email = ?, email_verified_at = NULL WHERE id = ?").bind(email, user.id).run();
+    } else {
+      await env.DB.prepare("UPDATE users SET email = ?, username = ?, email_verified_at = NULL WHERE id = ?")
+        .bind(email, email, user.id)
+        .run();
+    }
+    const sent = await sendVerificationEmail(env, { ...user, username: email }, email);
     return json({ ok: true, email, emailVerified: false, verificationSent: sent.ok });
   }
 
@@ -734,9 +753,14 @@ async function handleApi(request, env, url) {
     } catch (e) {
       return json({ error: "bad_request" }, 400);
     }
-    const username = typeof body?.username === "string" ? body.username.trim() : "";
+    const idRaw = typeof body?.email === "string" ? body.email : typeof body?.username === "string" ? body.username : "";
+    const username = normalizeEmail(idRaw);
     if (!username) return json({ error: "bad_request" }, 400);
-    const user = await env.DB.prepare("SELECT * FROM users WHERE username = ?").bind(username).first();
+    // Login ID is the email; fall back to the address column for any older
+    // account whose ID wasn't converted.
+    const user = await env.DB.prepare("SELECT * FROM users WHERE username = ? OR email = ? ORDER BY (username = ?) DESC LIMIT 1")
+      .bind(username, username, username)
+      .first();
     if (user && user.role !== "admin" && user.email && user.email_verified_at && !(await recentlyEmailed(env, user.id, "reset"))) {
       const link = `${emailSettings(env).appUrl}/?reset=${await makeEmailToken(env, user.id, "reset", RESET_TTL_MS)}`;
       await sendEmail(env, { to: user.email, kind: "reset", ...templates.resetPassword(link, user.username) });

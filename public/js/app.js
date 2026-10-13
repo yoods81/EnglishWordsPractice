@@ -786,18 +786,23 @@ const TRANSLATIONS = {
     authCancelBtn: "Cancel",
     authLoginBtn: "Login",
     authSignupBtn: "Sign Up",
-    authLoginErrorText: "Incorrect username or password.",
+    authLoginErrorText: "Incorrect email or password. Your login ID is your email address.",
+    authConsentTerms: "I agree to the Terms of Use and the Privacy Policy.",
+    authConsentGuardian: "I am 18 or older (a parent or guardian) and I'm creating this account for my family.",
+    authSignupErrorConsent: "Please tick both boxes to continue.",
+    authLoginIdLabel: "Email",
+    authLoginUseEmail: "Your login ID is now your email address. Please type the email you signed up with instead of a username.",
     authAdminOfflineErrorText: "Can't reach the server right now, so admin login isn't available. Please try again later.",
-    authSignupErrorTaken: "That username is already taken.",
+    authSignupErrorTaken: "That email is already registered. Try logging in instead.",
     authSignupErrorCode: "That special code isn't valid, or has already been used.",
     authSignupErrorUsername: "Username must be 3-20 characters: letters, numbers, underscore.",
     authSignupErrorPassword: "Password needs 8+ characters with a capital letter, a number and a special character.",
     authSignupErrorGeneric: "Sign up failed — please try again.",
-    authForgotLink: "Forgot your username or password?",
-    authModeRecover: "Find Username / Password",
+    authForgotLink: "Forgot your password?",
+    authModeRecover: "Forgot Password",
     authModeReset: "Choose a New Password",
     authEmailLabel: "Email",
-    authEmailHint: "Used to find your username or reset your password. We'll send a confirmation link.",
+    authEmailHint: "This email is your login ID. We'll send a confirmation link, and use it if you forget your password.",
     authSignupErrorEmail: "Please enter a valid email address.",
     authSignupErrorPremiumCode: "Premium needs a special code for now. Enter one, or choose the free account.",
     signupPlanLabel: "Choose your plan",
@@ -812,7 +817,7 @@ const TRANSLATIONS = {
     payBtn: "💳 Pay and join Premium",
     payComingSoon: "Online payment is coming soon. For now, join Premium with a special code below.",
     forgotPasswordTitle: "Forgot password",
-    forgotPasswordHint: "Type your username. We'll email a reset link to the address on your account.",
+    forgotPasswordHint: "Type your email (your login ID). We'll email a reset link to it.",
     forgotPasswordBtn: "Send reset link",
     forgotUsernameTitle: "Forgot username",
     forgotUsernameHint: "Type the email you signed up with. We'll email you your username.",
@@ -821,7 +826,7 @@ const TRANSLATIONS = {
     recoverNoEmailHint: "No email on your account, or it isn't confirmed yet? Ask the site admin to help.",
     recoverBackBtn: "Back to Log In",
     recoverErrorGeneric: "Something went wrong — please try again.",
-    recoverErrorUsername: "Please type your username.",
+    recoverErrorUsername: "Please type your email.",
     resetIntro: "Choose a new password for your account.",
     recoverNewPasswordLabel: "New password",
     resetConfirmLabel: "Type it again",
@@ -858,7 +863,7 @@ const TRANSLATIONS = {
     upgPendingNote: "Your upgrade request is waiting for the admin.",
     upgReadyNote: "The admin sent you a code. Tap the button below to use it.",
     noticeSignupTitle: "Welcome, new friend!",
-    noticeSignupSent: "Your account is ready!\nCheck your inbox and tap the link to confirm your email. Then you can find your username or reset your password any time.",
+    noticeSignupSent: "Your account is ready!\nCheck your inbox and tap the link to confirm your email. Then you can reset your password any time.",
     noticeSignupNotSent: "Your account is ready!\nWe couldn't send the confirmation email just now. You can send it again from My Account.",
     noticeVerifiedTitle: "Email confirmed!",
     noticeVerifiedText: "Thanks! Now you can find your username or reset your password by email.",
@@ -867,7 +872,7 @@ const TRANSLATIONS = {
     noticeAddEmailTitle: "Add your email",
     noticeAddEmailText: "Add an email in My Account so you can find your username or reset your password if you ever forget them.",
     myAccountEmailTitle: "✉️ Email",
-    myAccountEmailDesc: "We use this address to help you find your username or reset your password.",
+    myAccountEmailDesc: "This email is your login ID and is used to reset your password. Changing it changes your login ID.",
     myAccountEmailNone: "No email yet. Add one below.",
     myAccountEmailUnverified: (e) => `${e} — not confirmed yet. Open the link in the email we sent.`,
     myAccountEmailVerified: (e) => `${e} — confirmed`,
@@ -1665,18 +1670,23 @@ const TRANSLATIONS = {
     authCancelBtn: "취소",
     authLoginBtn: "로그인",
     authSignupBtn: "회원가입",
-    authLoginErrorText: "아이디 또는 비밀번호가 올바르지 않아요.",
+    authLoginErrorText: "이메일 또는 비밀번호가 올바르지 않아요. 로그인 아이디는 이메일 주소예요.",
+    authConsentTerms: "이용약관과 개인정보처리방침에 동의합니다.",
+    authConsentGuardian: "저는 만 18세 이상의 보호자이며, 가족을 위해 이 계정을 만듭니다.",
+    authSignupErrorConsent: "계속하려면 두 항목에 모두 체크해 주세요.",
+    authLoginIdLabel: "이메일",
+    authLoginUseEmail: "이제 로그인 아이디는 이메일 주소예요. 아이디 대신 가입할 때 쓴 이메일을 입력해 주세요.",
     authAdminOfflineErrorText: "지금은 서버에 연결할 수 없어서 관리자 로그인을 할 수 없어요. 잠시 후 다시 시도해 주세요.",
-    authSignupErrorTaken: "이미 사용 중인 아이디예요.",
+    authSignupErrorTaken: "이미 가입된 이메일이에요. 로그인해 주세요.",
     authSignupErrorCode: "특별 코드가 올바르지 않거나 이미 사용됐어요.",
     authSignupErrorUsername: "아이디는 3~20자의 영문/숫자/밑줄(_)만 가능해요.",
     authSignupErrorPassword: "비밀번호는 8자 이상이며 대문자, 숫자, 특수문자를 각각 1개 이상 포함해야 해요.",
     authSignupErrorGeneric: "회원가입에 실패했어요 — 다시 시도해주세요.",
-    authForgotLink: "아이디 또는 비밀번호를 잊으셨나요?",
-    authModeRecover: "아이디 / 비밀번호 찾기",
+    authForgotLink: "비밀번호를 잊으셨나요?",
+    authModeRecover: "비밀번호 찾기",
     authModeReset: "새 비밀번호 정하기",
     authEmailLabel: "이메일",
-    authEmailHint: "아이디 찾기와 비밀번호 재설정에 쓰여요. 확인 메일을 보내드려요.",
+    authEmailHint: "이 이메일이 로그인 아이디예요. 확인 메일을 보내드리고, 비밀번호를 잊었을 때도 사용돼요.",
     authSignupErrorEmail: "올바른 이메일 주소를 입력해 주세요.",
     authSignupErrorPremiumCode: "지금은 프리미엄 가입에 특별 코드가 필요해요. 코드를 입력하거나 일반 회원으로 가입해 주세요.",
     signupPlanLabel: "가입 유형을 선택해 주세요",
@@ -1691,7 +1701,7 @@ const TRANSLATIONS = {
     payBtn: "💳 결제하고 프리미엄 가입",
     payComingSoon: "온라인 결제는 곧 열릴 예정이에요. 지금은 아래 특별 코드로 프리미엄에 가입할 수 있어요.",
     forgotPasswordTitle: "비밀번호를 잊었어요",
-    forgotPasswordHint: "아이디를 입력하면 계정에 등록된 이메일로 재설정 링크를 보내드려요.",
+    forgotPasswordHint: "이메일(로그인 아이디)을 입력하면 그 주소로 재설정 링크를 보내드려요.",
     forgotPasswordBtn: "재설정 링크 보내기",
     forgotUsernameTitle: "아이디를 잊었어요",
     forgotUsernameHint: "가입할 때 쓴 이메일을 입력하면 아이디를 메일로 보내드려요.",
@@ -1700,7 +1710,7 @@ const TRANSLATIONS = {
     recoverNoEmailHint: "계정에 이메일이 없거나 아직 인증하지 않았다면 사이트 관리자에게 도움을 요청해 주세요.",
     recoverBackBtn: "로그인으로 돌아가기",
     recoverErrorGeneric: "문제가 생겼어요 — 다시 시도해 주세요.",
-    recoverErrorUsername: "아이디를 입력해 주세요.",
+    recoverErrorUsername: "이메일을 입력해 주세요.",
     resetIntro: "계정의 새 비밀번호를 정해 주세요.",
     recoverNewPasswordLabel: "새 비밀번호",
     resetConfirmLabel: "한 번 더 입력",
@@ -1737,7 +1747,7 @@ const TRANSLATIONS = {
     upgPendingNote: "업그레이드 요청을 관리자가 확인하는 중이에요.",
     upgReadyNote: "관리자가 코드를 보냈어요. 아래 버튼을 눌러 사용해 보세요.",
     noticeSignupTitle: "환영해요, 새 친구!",
-    noticeSignupSent: "계정이 만들어졌어요!\n메일함에서 확인 링크를 눌러 이메일을 인증해 주세요. 그러면 아이디 찾기와 비밀번호 재설정을 쓸 수 있어요.",
+    noticeSignupSent: "계정이 만들어졌어요!\n메일함에서 확인 링크를 눌러 이메일을 인증해 주세요. 그러면 비밀번호 재설정을 언제든 쓸 수 있어요.",
     noticeSignupNotSent: "계정이 만들어졌어요!\n지금은 확인 메일을 보내지 못했어요. 내 계정에서 다시 보낼 수 있어요.",
     noticeVerifiedTitle: "이메일 인증 완료!",
     noticeVerifiedText: "고마워요! 이제 이메일로 아이디 찾기와 비밀번호 재설정을 할 수 있어요.",
@@ -1746,7 +1756,7 @@ const TRANSLATIONS = {
     noticeAddEmailTitle: "이메일을 등록해 주세요",
     noticeAddEmailText: "내 계정에서 이메일을 등록하면, 아이디나 비밀번호를 잊어버려도 찾을 수 있어요.",
     myAccountEmailTitle: "✉️ 이메일",
-    myAccountEmailDesc: "아이디를 찾거나 비밀번호를 다시 정할 때 이 주소를 사용해요.",
+    myAccountEmailDesc: "이 이메일이 로그인 아이디이고 비밀번호를 다시 정할 때도 쓰여요. 바꾸면 로그인 아이디도 바뀌어요.",
     myAccountEmailNone: "아직 이메일이 없어요. 아래에서 등록해 주세요.",
     myAccountEmailUnverified: (e) => `${e} — 아직 인증 전이에요. 보내드린 메일의 링크를 눌러 주세요.`,
     myAccountEmailVerified: (e) => `${e} — 인증 완료`,
@@ -4271,7 +4281,8 @@ const recoverMessage = document.getElementById("recover-message");
 const recoverError = document.getElementById("recover-error");
 const resetForm = document.getElementById("reset-form");
 const resetError = document.getElementById("reset-error");
-const signupUsernameInput = document.getElementById("signup-username-input");
+const signupGuardianCheck = document.getElementById("signup-guardian-check");
+const signupTermsCheck = document.getElementById("signup-terms-check");
 const signupPasswordInput = document.getElementById("signup-password-input");
 const signupPasswordConfirm = document.getElementById("signup-password-confirm");
 const signupCodeInput = document.getElementById("signup-code-input");
@@ -4297,7 +4308,7 @@ function updateAdminUI() {
   // the same ADMIN MODE wording/coloring that used to sit in a separate
   // badge beside this button — one persistent, hard-to-miss marker across
   // the whole app (not just Add Word) instead of two things saying it.
-  authToggleBtn.textContent = !currentUser ? t("authHeaderLoginBtn") : serverAdmin ? t("adminModeBadge") : `👤 ${currentUser.username}`;
+  authToggleBtn.textContent = !currentUser ? t("authHeaderLoginBtn") : serverAdmin ? t("adminModeBadge") : `👤 ${accountDisplayName(currentUser)}`;
   // Signed out, the tooltip carries the actual reason to bother — "why
   // would I sign in?" rather than repeating the button's own label back; as
   // admin, it still names the account since the button's own label no
@@ -4401,6 +4412,14 @@ document.querySelectorAll("input[data-no-autofill]").forEach((input) => {
 // Go back to hidden whenever a form is sent, so a shown password never lingers.
 document.addEventListener("submit", (e) => hidePasswords(e.target), true);
 
+// The login ID is the email address; in tight spots (the header button) show
+// just the part before the @.
+function accountDisplayName(user) {
+  const name = (user && user.username) || "";
+  const at = name.indexOf("@");
+  return at > 0 ? name.slice(0, at) : name;
+}
+
 function validEmailClient(email) {
   return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
@@ -4479,7 +4498,8 @@ function openAuthOverlay(mode, notice) {
   if (noticeEl) { noticeEl.textContent = notice || ""; noticeEl.hidden = !notice; }
   loginUsernameInput.value = "";
   loginPasswordInput.value = "";
-  signupUsernameInput.value = "";
+  signupGuardianCheck.checked = false;
+  signupTermsCheck.checked = false;
   signupPasswordInput.value = "";
   signupPasswordConfirm.value = "";
   signupCodeInput.value = "";
@@ -4487,7 +4507,7 @@ function openAuthOverlay(mode, notice) {
   setSignupPlan("free");
   setAuthMode(mode);
   authOverlay.hidden = false;
-  ({ signup: signupUsernameInput, recover: document.getElementById("forgot-password-username"), reset: document.getElementById("reset-password-input") }[mode] || loginUsernameInput).focus();
+  ({ signup: signupEmailInput, recover: document.getElementById("forgot-password-username"), reset: document.getElementById("reset-password-input") }[mode] || loginUsernameInput).focus();
 }
 
 function closeAuthOverlay() {
@@ -4847,6 +4867,8 @@ myAccountEmailForm.addEventListener("submit", async (e) => {
   btn.disabled = true;
   try {
     const res = await api("/auth/set-email", { method: "POST", body: JSON.stringify({ email, password }) });
+    // The login ID follows the email (the admin account keeps "admin").
+    if (currentUser && currentUser.role !== "admin") { currentUser.username = res.email; updateAdminUI(); }
     myAccountEmailPassword.value = "";
     refreshEmailCard({ ...currentUser, email: res.email, emailVerified: false });
     refreshVerifyGate(); // a new address must be confirmed before the site works again
@@ -4854,7 +4876,7 @@ myAccountEmailForm.addEventListener("submit", async (e) => {
     myAccountEmailSuccess.hidden = false;
   } catch (err) {
     const code = err && err.data && err.data.error;
-    myAccountEmailError.textContent = t(code === "wrong_current_password" ? "myAccountWrongCurrentPassword" : code === "invalid_email" ? "authSignupErrorEmail" : "authSignupErrorGeneric");
+    myAccountEmailError.textContent = t(code === "wrong_current_password" ? "myAccountWrongCurrentPassword" : code === "invalid_email" ? "authSignupErrorEmail" : code === "email_taken" ? "authSignupErrorTaken" : "authSignupErrorGeneric");
     myAccountEmailError.hidden = false;
   }
   btn.disabled = false;
@@ -4921,13 +4943,21 @@ loginForm.addEventListener("submit", async (e) => {
   const password = loginPasswordInput.value;
   loginError.hidden = true;
 
+  // The login ID is the email address. Anything else (an old-style username)
+  // gets an explanation straight away. "admin" is the one non-email ID.
+  if (username && username !== ADMIN_USERNAME && !validEmailClient(username.toLowerCase())) {
+    loginError.textContent = t("authLoginUseEmail");
+    loginError.hidden = false;
+    return;
+  }
+
   // The server is the real check: passwords are hashed there and never
   // travel back to the browser.
   let serverRejected = false;
   try {
     const { user, pendingUpgradeRequest: pending } = await api("/auth/login", {
       method: "POST",
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email: username, password }),
     });
     currentUser = user;
     serverAdmin = user.role === "admin";
@@ -4937,6 +4967,11 @@ loginForm.addEventListener("submit", async (e) => {
     // 401 means the server answered and the credentials were wrong. Anything
     // else (no API deployed yet, offline, misconfigured) means we couldn't ask.
     serverRejected = err && err.status === 401;
+    if (err && err.data && err.data.error === "login_use_email") {
+      loginError.textContent = t("authLoginUseEmail");
+      loginError.hidden = false;
+      return;
+    }
   }
 
   // Admin login is checked by the server only now — there is no local
@@ -4961,7 +4996,8 @@ loginForm.addEventListener("submit", async (e) => {
 });
 
 const SIGNUP_ERROR_KEYS = {
-  username_taken: "authSignupErrorTaken",
+  email_taken: "authSignupErrorTaken",
+  consent_required: "authSignupErrorConsent",
   invalid_code: "authSignupErrorCode",
   invalid_username: "authSignupErrorUsername",
   invalid_password: "authSignupErrorPassword",
@@ -5002,8 +5038,7 @@ bindPasswordRules(signupPasswordInput, document.getElementById("signup-password-
 
 signupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const username = signupUsernameInput.value.trim();
-  const email = signupEmailInput.value.trim();
+  const email = signupEmailInput.value.trim().toLowerCase();
   const password = signupPasswordInput.value;
   const specialCode = signupPlan === "premium" ? signupCodeInput.value.trim() : "";
   signupError.hidden = true;
@@ -5014,12 +5049,13 @@ signupForm.addEventListener("submit", async (e) => {
   if (!validEmailClient(email)) return fail("authSignupErrorEmail");
   if (!passwordMeetsPolicy(password)) return fail("authSignupErrorPassword");
   if (password !== signupPasswordConfirm.value) return fail("resetMismatch");
+  if (!signupGuardianCheck.checked || !signupTermsCheck.checked) return fail("authSignupErrorConsent");
   if (signupPlan === "premium" && !specialCode) return fail("authSignupErrorPremiumCode");
 
   try {
     const { user, verificationSent } = await api("/auth/signup", {
       method: "POST",
-      body: JSON.stringify(specialCode ? { username, password, email, specialCode } : { username, password, email }),
+      body: JSON.stringify({ email, password, agreedTerms: true, isGuardian: true, ...(specialCode ? { specialCode } : {}) }),
     });
     currentUser = user;
     closeAuthOverlay();
@@ -5059,25 +5095,14 @@ async function submitRecover(btn, path, body) {
 }
 document.getElementById("forgot-password-form").addEventListener("submit", (e) => {
   e.preventDefault();
-  const username = document.getElementById("forgot-password-username").value.trim();
-  if (!username) {
+  const email = document.getElementById("forgot-password-username").value.trim();
+  if (!email) {
     recoverError.textContent = t("recoverErrorUsername");
     recoverError.hidden = false;
     return;
   }
-  submitRecover(document.getElementById("forgot-password-btn"), "/auth/forgot-password", { username });
+  submitRecover(document.getElementById("forgot-password-btn"), "/auth/forgot-password", { email });
 });
-document.getElementById("forgot-username-form").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const email = document.getElementById("forgot-username-email").value.trim();
-  if (!validEmailClient(email)) {
-    recoverError.textContent = t("authSignupErrorEmail");
-    recoverError.hidden = false;
-    return;
-  }
-  submitRecover(document.getElementById("forgot-username-btn"), "/auth/forgot-username", { email });
-});
-
 // The reset link in the email opens the site at /?reset=TOKEN.
 let pendingResetToken = null;
 const resetPasswordInput = document.getElementById("reset-password-input");
@@ -5231,6 +5256,8 @@ document.getElementById("verify-gate-change-form").addEventListener("submit", as
   }
   try {
     const res = await api("/auth/set-email", { method: "POST", body: JSON.stringify({ email, password }) });
+    // The login ID follows the email (the admin account keeps "admin").
+    if (currentUser && currentUser.role !== "admin") { currentUser.username = res.email; updateAdminUI(); }
     currentUser = { ...currentUser, email: res.email, emailVerified: false };
     document.getElementById("verify-gate-password").value = "";
     document.getElementById("verify-gate-change-form").hidden = true;
@@ -5239,7 +5266,7 @@ document.getElementById("verify-gate-change-form").addEventListener("submit", as
     msg.hidden = false;
   } catch (e2) {
     const code = e2 && e2.data && e2.data.error;
-    err.textContent = t(code === "wrong_current_password" ? "myAccountWrongCurrentPassword" : code === "invalid_email" ? "authSignupErrorEmail" : "authSignupErrorGeneric");
+    err.textContent = t(code === "wrong_current_password" ? "myAccountWrongCurrentPassword" : code === "invalid_email" ? "authSignupErrorEmail" : code === "email_taken" ? "authSignupErrorTaken" : "authSignupErrorGeneric");
     err.hidden = false;
   }
 });

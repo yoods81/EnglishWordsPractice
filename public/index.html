@@ -72,12 +72,12 @@
       </div>
 
       <form id="login-form" class="auth-form">
-        <label id="login-username-label" for="login-username-input" data-i18n="authUsernameLabel">Username</label>
-        <input id="login-username-input" type="text" autocomplete="username" />
+        <label id="login-username-label" for="login-username-input" data-i18n="authLoginIdLabel">Email</label>
+        <input id="login-username-input" type="text" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" />
         <label id="login-password-label" for="login-password-input" data-i18n="authPasswordLabel">Password</label>
         <input id="login-password-input" type="password" autocomplete="current-password" />
         <p id="login-error" class="auth-error" hidden></p>
-        <button type="button" id="login-forgot-btn" class="auth-link" data-i18n="authForgotLink">Forgot your username or password?</button>
+        <button type="button" id="login-forgot-btn" class="auth-link" data-i18n="authForgotLink">Forgot your password?</button>
         <div class="auth-actions">
           <button type="button" id="login-cancel-btn" class="pill neutral" data-i18n="authCancelBtn">Cancel</button>
           <button type="submit" id="login-submit-btn" class="pill accent" data-i18n="authLoginBtn">Login</button>
@@ -98,13 +98,9 @@
         </div>
         <ul class="plan-perks" aria-hidden="false"><li><i aria-hidden="true"><svg viewBox="0 0 32 20" width="28" height="18" aria-hidden="true"><path d="M16 10c-2.6-3.6-5-6-8-6a6 6 0 0 0 0 12c3 0 5.400-2.400 8-6s5-6 8-6a6 6 0 0 1 0 12c-3 0-5.400-2.400-8-6z" fill="none" stroke="#0e9c7d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></i><span data-i18n="perk1">Unlimited practice questions</span></li><li><i aria-hidden="true">🎮</i><span data-i18n="perk2">Word and times-table games</span></li><li><i aria-hidden="true">📷</i><span data-i18n="perk3">Snap your English book to pull out words</span></li><li><i aria-hidden="true">📖</i><span data-i18n="perk4">Your own word list</span></li><li><i aria-hidden="true">🐨</i><span data-i18n="perk5">Dress up your own koala</span></li></ul>
 
-        <label id="signup-username-label" for="signup-username-input" data-i18n="authUsernameLabel">Username</label>
-        <input id="signup-username-input" type="text" autocomplete="username" />
-        <p class="auth-hint" data-i18n="authUsernameHint">3-20 characters: letters, numbers, underscore.</p>
-
         <label for="signup-email-input" data-i18n="authEmailLabel">Email</label>
-        <input id="signup-email-input" type="email" autocomplete="email" inputmode="email" />
-        <p class="auth-hint" data-i18n="authEmailHint">Used to find your username or reset your password. We'll send a confirmation link.</p>
+        <input id="signup-email-input" type="email" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" />
+        <p class="auth-hint" data-i18n="authEmailHint">This email is your login ID. We'll send a confirmation link, and use it if you forget your password.</p>
 
         <label id="signup-password-label" for="signup-password-input" data-i18n="authPasswordLabel">Password</label>
         <input id="signup-password-input" type="password" autocomplete="new-password" />
@@ -123,6 +119,8 @@
           <label id="signup-code-label" for="signup-code-input" data-i18n="authCodeLabelPlain">Special code</label>
           <input id="signup-code-input" type="text" autocomplete="off" />
         </div>
+        <label class="auth-consent"><input type="checkbox" id="signup-guardian-check" /><span data-i18n="authConsentGuardian">I am 18 or older (a parent or guardian) and I'm creating this account for my family.</span></label>
+        <label class="auth-consent"><input type="checkbox" id="signup-terms-check" /><span data-i18n="authConsentTerms">I agree to the Terms of Use and the Privacy Policy.</span></label>
         <p id="signup-error" class="auth-error" hidden></p>
         <div class="auth-actions">
           <button type="button" id="signup-cancel-btn" class="pill neutral" data-i18n="authCancelBtn">Cancel</button>
@@ -133,20 +131,11 @@
       <div id="recover-panel" hidden>
         <form id="forgot-password-form" class="auth-form" novalidate>
           <h3 class="auth-subtitle" data-i18n="forgotPasswordTitle">Forgot password</h3>
-          <p class="auth-hint" data-i18n="forgotPasswordHint">Type your username. We'll email a reset link to the address on your account.</p>
-          <label for="forgot-password-username" data-i18n="authUsernameLabel">Username</label>
-          <input id="forgot-password-username" type="text" autocomplete="username" />
+          <p class="auth-hint" data-i18n="forgotPasswordHint">Type your email (your login ID). We'll email a reset link to it.</p>
+          <label for="forgot-password-username" data-i18n="authEmailLabel">Email</label>
+          <input id="forgot-password-username" type="email" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" />
           <div class="auth-actions auth-actions-start">
             <button type="submit" id="forgot-password-btn" class="pill accent" data-i18n="forgotPasswordBtn">Send reset link</button>
-          </div>
-        </form>
-        <form id="forgot-username-form" class="auth-form" novalidate>
-          <h3 class="auth-subtitle" data-i18n="forgotUsernameTitle">Forgot username</h3>
-          <p class="auth-hint" data-i18n="forgotUsernameHint">Type the email you signed up with. We'll email you your username.</p>
-          <label for="forgot-username-email" data-i18n="authEmailLabel">Email</label>
-          <input id="forgot-username-email" type="email" autocomplete="email" inputmode="email" />
-          <div class="auth-actions auth-actions-start">
-            <button type="submit" id="forgot-username-btn" class="pill accent" data-i18n="forgotUsernameBtn">Email my username</button>
           </div>
         </form>
         <p id="recover-message" class="auth-success" hidden></p>

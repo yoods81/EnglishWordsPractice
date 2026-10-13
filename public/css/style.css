@@ -13348,3 +13348,8 @@ html[lang="ko"] .datanote-txt span { word-break: keep-all; }
   .datanote-row { grid-template-columns: 34px minmax(0, 1fr); gap: 10px; padding: 10px; }
   .datanote-ico { width: 34px; height: 34px; font-size: 1.15rem; }
 }
+
+/* Sign-up consent checkboxes (guardian + terms) */
+.auth-consent { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0 0; font-size: 0.9rem; line-height: 1.4; cursor: pointer; }
+.auth-consent input[type="checkbox"] { flex: 0 0 auto; width: 20px; height: 20px; margin: 1px 0 0; accent-color: #0e9c7d; }
+.auth-consent span { flex: 1; text-align: left; }
