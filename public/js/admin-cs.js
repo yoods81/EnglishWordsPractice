@@ -21,6 +21,77 @@
 
   const api2 = (path, body) => api(path, body === undefined ? {} : { method: "POST", body: JSON.stringify(body) });
   const warn = (msg) => alert(msg);
+
+  /* Themed "new password" dialog (replaces window.prompt): characters hidden
+     by default, an eye button on each box (added by addPasswordToggles in
+     app.js), a confirm box, and the same rules list as sign-up. It saves
+     through onSave and shows the result inside the dialog itself. */
+  const pwOverlay = $("admin-pw-overlay");
+  const pwForm = $("admin-pw-form");
+  const pwInput = $("admin-pw-input");
+  const pwConfirm = $("admin-pw-confirm");
+  const pwError = $("admin-pw-error");
+  const pwDone = $("admin-pw-done");
+  const pwSaveBtn = $("admin-pw-save-btn");
+  const pwCancelBtn = $("admin-pw-cancel-btn");
+  let pwOnSave = null;
+  let pwFinished = false;
+  bindPasswordRules(pwInput, $("admin-pw-rules"));
+  function closePwDialog() {
+    pwOverlay.hidden = true;
+    hidePasswords(pwForm);
+    pwInput.value = "";
+    pwConfirm.value = "";
+    pwOnSave = null;
+  }
+  function openPwDialog(username, onSave) {
+    $("admin-pw-who").textContent = t("adminPwWho", username);
+    pwInput.value = "";
+    pwConfirm.value = "";
+    pwInput.dispatchEvent(new Event("input"));
+    pwError.hidden = true;
+    pwDone.hidden = true;
+    $("admin-pw-fields").hidden = false;
+    pwSaveBtn.textContent = t("adminPwSaveBtn");
+    pwSaveBtn.disabled = false;
+    pwCancelBtn.hidden = false;
+    pwFinished = false;
+    hidePasswords(pwForm);
+    pwOnSave = onSave;
+    pwOverlay.hidden = false;
+    pwInput.removeAttribute("readonly");
+    pwConfirm.removeAttribute("readonly");
+    pwInput.focus();
+  }
+  pwForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (pwFinished) return closePwDialog();
+    const fail = (key) => { pwError.textContent = t(key); pwError.hidden = false; };
+    pwError.hidden = true;
+    if (!passwordMeetsPolicy(pwInput.value)) return fail("authSignupErrorPassword");
+    if (pwInput.value !== pwConfirm.value) return fail("resetMismatch");
+    pwSaveBtn.disabled = true;
+    try {
+      await pwOnSave(pwInput.value);
+      pwFinished = true;
+      hidePasswords(pwForm);
+      pwInput.value = "";
+      pwConfirm.value = "";
+      $("admin-pw-fields").hidden = true;
+      pwDone.textContent = pwDone.dataset.msg || "";
+      pwDone.hidden = false;
+      pwCancelBtn.hidden = true;
+      pwSaveBtn.textContent = t("noticeOkBtn");
+    } catch (err) {
+      fail("authSignupErrorGeneric");
+    }
+    pwSaveBtn.disabled = false;
+  });
+  pwCancelBtn.addEventListener("click", closePwDialog);
+  pwOverlay.addEventListener("click", (e) => { if (e.target === pwOverlay) closePwDialog(); });
+  document.addEventListener("keydown", (e) => {
+    if (!pwOverlay.hidden && e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closePwDialog(); }
+  }, true);
   const failMsg = () => L("Could not save that. Please try again.", "저장하지 못했어요. 다시 시도해 주세요.");
 
   /* ---------- tabs ---------- */
@@ -794,14 +865,9 @@
 
     const reset = $("admin-sheet-reset");
     if (reset) {
-      reset.addEventListener("click", async () => {
-        const newPassword = prompt(t("adminUserResetPasswordPrompt", u.username));
-        if (!newPassword) return;
-        if (!passwordMeetsPolicy(newPassword)) return alert(t("authSignupErrorPassword"));
-        try {
-          await api2("/admin/users/set-password", { userId: u.id, newPassword });
-          alert(t("adminUserResetPasswordDone", u.username));
-        } catch (e) { warn(failMsg()); }
+      reset.addEventListener("click", () => {
+        pwDone.dataset.msg = t("adminUserResetPasswordDone", u.username);
+        openPwDialog(u.username, (newPassword) => api2("/admin/users/set-password", { userId: u.id, newPassword }));
       });
       $("admin-sheet-delete").addEventListener("click", async () => {
         const ok = await kidConfirm(t("adminUserConfirmDelete", u.username), t("deleteConfirmYesBtn"), t("deleteConfirmNoBtn"), { danger: true });

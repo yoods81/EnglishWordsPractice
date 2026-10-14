@@ -254,7 +254,7 @@ function normalizeEmail(email) {
 }
 
 function validEmail(email) {
-  return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+  return email.length <= 254 && /^[^\s@<>"'`\\]+@[^\s@<>"'`\\]+\.[^\s@<>"'`\\]{2,}$/.test(email);
 }
 
 const VERIFY_TTL_MS = 24 * 60 * 60 * 1000;

@@ -13411,3 +13411,25 @@ html[data-theme="dark"] .muted.ocr-already-note {
 .auth-consent { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0 0; font-size: 0.9rem; line-height: 1.4; cursor: pointer; }
 .auth-consent input[type="checkbox"] { flex: 0 0 auto; width: 20px; height: 20px; margin: 1px 0 0; accent-color: #0e9c7d; }
 .auth-consent span { flex: 1; text-align: left; }
+
+/* Sign-up consent checkboxes: clear gap between the box and its sentence */
+.auth-form label.auth-consent { display: flex; align-items: flex-start; gap: 12px; margin: 12px 0 0; font-weight: 500; font-size: 0.85rem; line-height: 1.45; }
+.auth-form .auth-consent input[type="checkbox"] { flex: 0 0 22px; width: 22px; height: 22px; padding: 0; margin: 0; border-radius: 6px; accent-color: #0e9c7d; }
+.auth-form .auth-consent span { flex: 1 1 auto; min-width: 0; text-align: left; }
+@media (max-width: 480px) {
+  .auth-form label.auth-consent { gap: 10px; font-size: 0.82rem; }
+  .auth-form .auth-consent input[type="checkbox"] { flex-basis: 24px; width: 24px; height: 24px; }
+}
+
+/* My Account: the login email gets its own full-width card so it always fits */
+.stat-box.stat-box-id { grid-column: 1 / -1; }
+.stat-box.stat-box-id .num { font-size: 1.1rem; line-height: 1.25; overflow-wrap: anywhere; word-break: break-word; }
+@media (max-width: 480px) { .stat-box.stat-box-id .num { font-size: 1rem; } }
+
+/* Admin: set a customer's new password (themed dialog, above the customer sheet) */
+.kid-modal-overlay.admin-pw-overlay { z-index: 1300; overflow-y: auto; }
+.admin-pw-card { width: 100%; max-width: 380px; max-height: calc(100vh - 32px); overflow-y: auto; text-align: left; }
+.admin-pw-card .kid-modal-icon, .admin-pw-card .kid-modal-brand { text-align: center; }
+.admin-pw-card .admin-pw-who { text-align: center; margin: 4px 0 6px; font-size: 0.9rem; overflow-wrap: anywhere; }
+.admin-pw-card .auth-success { text-align: center; margin: 10px 0 4px; }
+.admin-pw-card .kid-modal-actions { margin-top: 14px; }

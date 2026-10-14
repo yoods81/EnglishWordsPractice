@@ -264,6 +264,33 @@
     </div>
   </div>
 
+  <!-- Admin: set a new password for a customer (replaces the browser's plain prompt box) -->
+  <div id="admin-pw-overlay" class="kid-modal-overlay admin-pw-overlay" hidden>
+    <form id="admin-pw-form" class="kid-modal-card admin-pw-card auth-form" novalidate role="dialog" aria-modal="true" aria-labelledby="admin-pw-title">
+      <div class="kid-modal-icon" aria-hidden="true"><img src="favicon.svg?v=4" alt="" width="56" height="56"></div>
+      <div class="kid-modal-brand" id="admin-pw-title" data-i18n="adminPwTitle">Reset password</div>
+      <p class="kid-modal-message admin-pw-who" id="admin-pw-who"></p>
+      <div id="admin-pw-fields">
+      <label for="admin-pw-input" data-i18n="recoverNewPasswordLabel">New password</label>
+      <input id="admin-pw-input" type="password" autocomplete="new-password" data-no-autofill />
+      <ul class="pw-rules" id="admin-pw-rules" aria-live="polite">
+        <li data-rule="len" data-i18n="pwRuleLen">8+ characters</li>
+        <li data-rule="upper" data-i18n="pwRuleUpper">1 uppercase letter</li>
+        <li data-rule="digit" data-i18n="pwRuleDigit">1 number</li>
+        <li data-rule="special" data-i18n="pwRuleSpecial">1 special character (! @ # …)</li>
+      </ul>
+      <label for="admin-pw-confirm" data-i18n="adminPwConfirmLabel">Confirm password</label>
+      <input id="admin-pw-confirm" type="password" autocomplete="new-password" data-no-autofill />
+      </div>
+      <p id="admin-pw-error" class="auth-error" hidden></p>
+      <p id="admin-pw-done" class="auth-success" hidden></p>
+      <div class="kid-modal-actions">
+        <button type="submit" class="pill primary kid-modal-btn" id="admin-pw-save-btn" data-i18n="adminPwSaveBtn">Save new password</button>
+        <button type="button" class="pill neutral kid-modal-btn" id="admin-pw-cancel-btn" data-i18n="authCancelBtn">Cancel</button>
+      </div>
+    </form>
+  </div>
+
   <!-- Friendly, branded stand-in for window.confirm() on the signup/upgrade nudges — a
        real browser confirm() shows the raw URL and can't be styled or animated. -->
   <div id="kid-confirm-overlay" class="kid-modal-overlay" hidden>

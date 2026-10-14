@@ -242,6 +242,10 @@ const TRANSLATIONS = {
     adminUserApplyRoleBtn: "Apply",
     adminUserConfirmRoleChange: (username, role) => `Change ${username}'s role to ${role}?`,
     adminUserResetPasswordBtn: "Reset password",
+    adminPwWho: (username) => `Set a new password for ${username}`,
+    adminPwSaveBtn: "Save new password",
+    adminPwConfirmLabel: "Confirm password",
+    adminPwTitle: "Reset password",
     adminUserResetPasswordPrompt: (username) => `New password for ${username} (min. 8 characters):`,
     adminUserResetPasswordDone: (username) => `${username}'s password has been reset.`,
     adminUserDeleteBtn: "🗑️ Delete account",
@@ -763,7 +767,7 @@ const TRANSLATIONS = {
     myAccountPasswordChanged: "Password updated.",
     myAccountChangePasswordBtn: "Update password",
     myAccountWrongCurrentPassword: "That current password isn't right.",
-    myAccountUsername: "Username",
+    myAccountUsername: "Email (login ID)",
     myAccountRole: "Role",
     myAccountJoined: "Joined",
     myAccountUpgraded: "Upgraded to premium",
@@ -1133,6 +1137,10 @@ const TRANSLATIONS = {
     adminUserApplyRoleBtn: "적용",
     adminUserConfirmRoleChange: (username, role) => `${username}님의 역할을 ${role}(으)로 변경할까요?`,
     adminUserResetPasswordBtn: "비밀번호 재설정",
+    adminPwWho: (username) => `${username}님의 새 비밀번호를 정해 주세요`,
+    adminPwSaveBtn: "새 비밀번호 저장",
+    adminPwConfirmLabel: "비밀번호 확인",
+    adminPwTitle: "비밀번호 재설정",
     adminUserResetPasswordPrompt: (username) => `${username}님의 새 비밀번호 (최소 8자):`,
     adminUserResetPasswordDone: (username) => `${username}님의 비밀번호를 재설정했어요.`,
     adminUserDeleteBtn: "🗑️ 계정 삭제",
@@ -1650,7 +1658,7 @@ const TRANSLATIONS = {
     myAccountPasswordChanged: "비밀번호가 변경됐어요.",
     myAccountChangePasswordBtn: "비밀번호 변경",
     myAccountWrongCurrentPassword: "현재 비밀번호가 올바르지 않아요.",
-    myAccountUsername: "아이디",
+    myAccountUsername: "이메일 (로그인 아이디)",
     myAccountRole: "역할",
     myAccountJoined: "가입일",
     myAccountUpgraded: "프리미엄 업그레이드일",
@@ -4427,7 +4435,7 @@ function accountDisplayName(user) {
 }
 
 function validEmailClient(email) {
-  return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+  return email.length <= 254 && /^[^\s@<>"'`\\]+@[^\s@<>"'`\\]+\.[^\s@<>"'`\\]{2,}$/.test(email);
 }
 
 // Small "message with an OK button" popup (welcome, email confirmed, ...).
@@ -4782,7 +4790,7 @@ async function renderMyAccount() {
   // Same stat-tile look as My Progress, so the account's own status reads
   // as one more "at a glance" summary instead of a plain label/value list.
   const tiles = [
-    { num: account.username, lbl: t("myAccountUsername") },
+    { num: escapeHtml(account.username), lbl: t("myAccountUsername"), cls: "stat-box-id" },
     { num: roleLabel(account.role), lbl: t("myAccountRole") },
     { num: formatDate(account.createdAt), lbl: t("myAccountJoined") },
     // The premium-upgrade date only means something once an account has upgraded.
@@ -4790,7 +4798,7 @@ async function renderMyAccount() {
   ];
   myAccountStatusEl.classList.toggle("stats-grid-3", tiles.length === 3);
   myAccountStatusEl.innerHTML = tiles
-    .map((s) => `<div class="stat-box"><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div></div>`)
+    .map((s) => `<div class="stat-box${s.cls ? " " + s.cls : ""}"><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div></div>`)
     .join("");
   renderAccountLevelChoices();
   renderChildrenUI();
