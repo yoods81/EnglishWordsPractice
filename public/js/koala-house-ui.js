@@ -28,6 +28,28 @@
   const T = (ko, en) => curOpts.L(en, ko);
   const nm = (d) => T(d.name[0], d.name[1]);
   const COIN = '<span class="kh-coin" aria-hidden="true"></span>';
+  // line icons (24 x 24, drawn with the text colour) used by every button
+  const ICONS = {
+    rotl: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+    rot: '<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>',
+    trash: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+    x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+    plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+    minus: '<path d="M5 12h14"/>',
+    maximize: '<path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/>',
+    minimize: '<path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    pencil: '<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>',
+    home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/>',
+    left: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+    right: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    chev: '<path d="m9 18 6-6-6-6"/>',
+    up: '<path d="M14 9 9 4 4 9"/><path d="M20 20h-7a4 4 0 0 1-4-4V4"/>',
+    sit: '<path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/><path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"/><path d="M5 18v2"/><path d="M19 18v2"/>',
+    stand: '<circle cx="12" cy="5" r="2"/><path d="M12 7v7"/><path d="M8 11h8"/><path d="m9 22 3-8 3 8"/>',
+    inside: '<rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>',
+  };
+  const ic = (n) => `<svg class="kh-i" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[n] || ""}</svg>`;
 
   const roomDef = (id) => H.roomOf(ses.S, id);
   const roomState = (id) => H.stateOf(ses.S, id);
@@ -85,7 +107,7 @@
     ses.full = !ses.full;
     ses.root.classList.toggle("kh-full", ses.full);
     document.body.classList.toggle("kh-open", ses.full);
-    const b = ses.root.querySelector("[data-full]"); if (b) { b.textContent = ses.full ? "🗗" : "⛶"; b.setAttribute("aria-label", ses.full ? T("작게 보기", "Exit full screen") : T("크게 보기", "Full screen")); }
+    const b = ses.root.querySelector("[data-full]"); if (b) { b.innerHTML = ic(ses.full ? "minimize" : "maximize"); b.setAttribute("aria-label", ses.full ? T("작게 보기", "Exit full screen") : T("크게 보기", "Full screen")); }
     if (ses.screen === "plan") placeMarker(false); else showMenu();
   }
   function onKey(e) {
@@ -133,7 +155,7 @@
 
   /* ------------------------------ floor plan ------------------------------ */
   function topBar(title) {
-    return `<div class="kh-top"><h2 class="kh-title">${title}</h2><span class="kh-sp"></span><span class="kh-coins">${COIN}<b data-kh-coins>${coinsText()}</b></span><button type="button" class="kh-round blue" data-full aria-label="${T("크게 보기", "Full screen")}">⛶</button></div>`;
+    return `<div class="kh-top"><h2 class="kh-title">${title}</h2><span class="kh-sp"></span><span class="kh-coins">${COIN}<b data-kh-coins>${coinsText()}</b></span><button type="button" class="kh-ibtn" data-full aria-label="${T("크게 보기", "Full screen")}">${ic("maximize")}</button></div>`;
   }
   function renderPlan() {
     ses.screen = "plan"; ses.sel = null; ses.koala.pose = "stand"; ses.koala.z = 0;
@@ -210,19 +232,19 @@
   function openRoom(id) {
     if (!roomDef(id)) { renderPlan(); return; }
     ses.screen = "room"; ses.roomId = id; ses.S.cur = id; ses.sel = null; ses.edit = true; ses.zoom = 1;
-    ses.root.classList.remove("kh-planmode"); fit(ses.root);
+    ses.root.classList.remove("kh-planmode"); fit(ses.root); ses.subOf = null;
     const yard = id === "yard";
     ses.tab = yard ? "outdoor" : "furniture";
     save();
     ses.root.innerHTML = `<div class="kh-room-screen">
       <div class="kh-stage" id="kh-stage">
         <div class="kh-scene" id="kh-scene"></div>
-        <div class="kh-top over"><button type="button" class="kh-round red" data-back aria-label="${T("집 전체 보기", "Back to the floor plan")}">🚪</button>
+        <div class="kh-top over"><button type="button" class="kh-pillbtn" data-back aria-label="${T("집 전체 보기", "Back to the floor plan")}">${ic("left")}${ic("home")}<span>${T("평면도", "Floor plan")}</span></button>
           <h2 class="kh-title pill">${esc(roomLabel(curRoom()))}</h2><span class="kh-sp"></span>
           <span class="kh-coins">${COIN}<b data-kh-coins>${coinsText()}</b></span>
-          <button type="button" class="kh-round blue" data-zoom="out" aria-label="${T("작게", "Zoom out")}">－</button><button type="button" class="kh-round blue" data-zoom="in" aria-label="${T("크게", "Zoom in")}">＋</button>
-          <button type="button" class="kh-round blue" data-full aria-label="${T("크게 보기", "Full screen")}">⛶</button>
-          <button type="button" class="kh-round orange" data-edit aria-pressed="true" aria-label="${T("꾸미기 끝내기", "Finish decorating")}">✔</button></div>
+          <button type="button" class="kh-ibtn" data-zoom="out" aria-label="${T("작게", "Zoom out")}">${ic("minus")}</button><button type="button" class="kh-ibtn" data-zoom="in" aria-label="${T("크게", "Zoom in")}">${ic("plus")}</button>
+          <button type="button" class="kh-ibtn" data-full aria-label="${T("크게 보기", "Full screen")}">${ic("maximize")}</button>
+          <button type="button" class="kh-pillbtn done" data-edit aria-pressed="true" aria-label="${T("꾸미기 끝내기", "Finish decorating")}">${ic("check")}<span>${T("완료", "Done")}</span></button></div>
         <div class="kh-menu" id="kh-menu" hidden></div><p class="kh-toast" role="status"></p></div>
       <aside class="kh-panel" id="kh-panel" aria-label="${T("아이템", "Items")}"></aside></div>`;
     const q = (s) => ses.root.querySelector(s);
@@ -248,7 +270,7 @@
   function toggleEdit() {
     ses.edit = !ses.edit; ses.sel = null;
     const b = ses.root.querySelector("[data-edit]");
-    b.textContent = ses.edit ? "✔" : "✏️"; b.setAttribute("aria-pressed", String(ses.edit));
+    b.innerHTML = ses.edit ? ic("check") + `<span>${T("완료", "Done")}</span>` : ic("pencil") + `<span>${T("꾸미기", "Decorate")}</span>`; b.setAttribute("aria-pressed", String(ses.edit));
     b.setAttribute("aria-label", ses.edit ? T("꾸미기 끝내기", "Finish decorating") : T("꾸미기", "Decorate"));
     ses.root.querySelector(".kh-room-screen").classList.toggle("viewing", !ses.edit);
     hideMenu();
@@ -263,8 +285,16 @@
     const one = (src) => { const b = KBOX.base; return `<image href="${src}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; };
     const stand = `<svg class="kh-kstand" x="-27" y="-82" width="54" height="85" viewBox="64 100 553 868" overflow="hidden">${imgs}</svg>`;
     const back = extraImg.back ? `<svg class="kh-kback" x="-27" y="-82" width="54" height="85" viewBox="64 100 553 868" overflow="hidden" display="none">${one(extraImg.back)}</svg>` : "";
-    const sit = `<svg class="kh-ksit" x="-27" y="-76" width="54" height="78" viewBox="64 100 553 790" overflow="hidden" display="none">${extraImg.sit ? one(extraImg.sit) : imgs}</svg>`;
-    return `<g class="kh-koala" data-k="0"><ellipse class="kh-kshadow" cx="0" cy="2" rx="24" ry="8" fill="#000" opacity=".16"/><g class="kh-kbody"><g class="kh-kflip">${stand}${back}${sit}</g></g></g>`;
+    // the sitting koala is its own picture (img/koala/sit.webp, or "koala:sit" in the manifest)
+    const sit = `<image class="kh-ksit" href="${extraImg.sit || kimg("sit")}" x="-26" y="-56" width="52" height="${(52 * 512 / 488).toFixed(1)}" preserveAspectRatio="xMidYMax meet" display="none"/>`;
+    // reading / watering: a picture of its own when the manifest has one ("koala:read", "koala:water"), else the standing koala holding a prop
+    const pose = (cls, src) => (src ? `<svg class="${cls}" x="-27" y="-82" width="54" height="85" viewBox="64 100 553 868" overflow="hidden" display="none">${one(src)}</svg>` : "");
+    const book = `<g class="kh-kread" display="none"><path d="M-13 -35 0 -31.5 13 -35 13 -21 0 -17.5 -13 -21Z" fill="#e0674f" stroke="#b44a37" stroke-width="1.2" stroke-linejoin="round"/><path d="M-11 -33.6 0 -30.4V-19.4L-11 -22.6Z" fill="#fffaf0"/><path d="M11 -33.6 0 -30.4V-19.4L11 -22.6Z" fill="#f6efe0"/><path d="M-8.5 -29.5 -3 -27.9M-8.5 -26 -3 -24.4M8.5 -29.5 3 -27.9M8.5 -26 3 -24.4" stroke="#cdbb9a" stroke-width="1" stroke-linecap="round"/><path d="M0 -30.4V-19.4" stroke="#b44a37" stroke-width="1.2"/>
+      <path d="M4 -31 9 -33.2 9 -22 4 -19.8Z" fill="#fffaf0" opacity="0"><animate attributeName="opacity" values="0;0.95;0" dur="3.2s" repeatCount="indefinite"/></path></g>`;
+    const can = `<g class="kh-kwater" display="none"><g><animateTransform attributeName="transform" type="rotate" values="0 17 -30;-20 17 -30;-20 17 -30;0 17 -30" keyTimes="0;.3;.8;1" dur="2.6s" repeatCount="indefinite"/>
+      <path d="M10 -37q-8 1-7 9" fill="none" stroke="#3b86b8" stroke-width="2.2" stroke-linecap="round"/><rect x="9" y="-38" width="16" height="12" rx="3" fill="#7cc4ee" stroke="#3b86b8" stroke-width="1.3"/><path d="M24 -32 33 -40" stroke="#3b86b8" stroke-width="2.6" stroke-linecap="round"/><path d="M31 -44 37 -40.5 32 -37Z" fill="#3b86b8"/><rect x="11" y="-36" width="4" height="8" rx="1.5" fill="#fff" opacity=".45"/></g>
+      <g fill="#8fd3f5"><circle cx="38" cy="-32" r="1.6"><animate attributeName="cy" values="-36;-14" dur=".9s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0" dur=".9s" repeatCount="indefinite"/></circle><circle cx="34" cy="-33" r="1.4"><animate attributeName="cy" values="-36;-14" dur=".9s" begin=".3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0" dur=".9s" begin=".3s" repeatCount="indefinite"/></circle><circle cx="41" cy="-33" r="1.4"><animate attributeName="cy" values="-36;-14" dur=".9s" begin=".6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0" dur=".9s" begin=".6s" repeatCount="indefinite"/></circle></g></g>`;
+    return `<g class="kh-koala" data-k="0"><ellipse class="kh-kshadow" cx="0" cy="2" rx="24" ry="8" fill="#000" opacity=".16"/><g class="kh-kbody"><g class="kh-kflip">${stand}${back}${sit}${pose("kh-kreadimg", extraImg.read)}${pose("kh-kwaterimg", extraImg.water)}${book}${can}</g></g></g>`;
   }
   const FLIP = [-1, 1, 1, -1]; // facing 0 (+r, left-down) 1 (+c, right-down) 2 (-r, right-up) 3 (-c, left-up)
   function koalaCellFree(c, r) {
@@ -275,6 +305,7 @@
   function placeKoalaFree() {
     const k = ses.koala, room = curRoom();
     if (k.pose === "sit" && k.seat && H.seatAt(curState(), Math.round(k.c), Math.round(k.r))) return;
+    if ((k.pose === "read" || k.pose === "water") && curState().items.some((i) => i.uid === k.act)) return;
     standUp(true);
     if (koalaCellFree(Math.round(k.c), Math.round(k.r))) { k.c = Math.round(k.c); k.r = Math.round(k.r); return; }
     const cells = H.freeCells(room, curState());
@@ -287,10 +318,12 @@
     if (!g) return;
     const k = ses.koala, [x, y] = H.proj(k.c + 0.5, k.r + 0.5, k.z || 0);
     g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
-    const sit = k.pose === "sit", away = k.dir === 2 || k.dir === 3, hasBack = !!g.querySelector(".kh-kback");
+    const sit = k.pose === "sit", rd = k.pose === "read", wt = k.pose === "water", away = k.dir === 2 || k.dir === 3, hasBack = !!g.querySelector(".kh-kback");
+    const hasRd = !!g.querySelector(".kh-kreadimg"), hasWt = !!g.querySelector(".kh-kwaterimg");
     const show = (sel, on) => { const e = g.querySelector(sel); if (e) e.setAttribute("display", on ? "inline" : "none"); };
-    show(".kh-kstand", !sit && !(away && hasBack)); show(".kh-kback", !sit && away && hasBack); show(".kh-ksit", sit);
-    g.querySelector(".kh-kbody").setAttribute("transform", `translate(0 ${(-Math.abs(Math.sin(k.bob)) * 4).toFixed(1)})`);
+    show(".kh-kstand", !sit && !(rd && hasRd) && !(wt && hasWt) && !(k.pose === "stand" && away && hasBack)); show(".kh-kback", k.pose === "stand" && away && hasBack); show(".kh-ksit", sit);
+    show(".kh-kreadimg", rd); show(".kh-kwaterimg", wt); show(".kh-kread", rd && !hasRd); show(".kh-kwater", wt && !hasWt);
+    g.querySelector(".kh-kbody").setAttribute("transform", `translate(0 ${(-Math.abs(Math.sin(k.bob)) * (k.pose === "stand" ? 4 : 1.2)).toFixed(1)})`);
     g.querySelector(".kh-kflip").setAttribute("transform", `scale(${FLIP[k.dir]} 1)`);
     g.querySelector(".kh-kshadow").setAttribute("opacity", (k.z ? 0 : 0.16));
     const key = k.c + k.r + 2.02;
@@ -322,10 +355,25 @@
   }
   function standUp(quiet) {
     const k = ses.koala;
-    if (k.pose !== "sit") return;
+    if (k.pose === "stand") return;
     if (k.seat && k.exit && koalaCellFree(k.exit[0], k.exit[1])) { k.c = k.exit[0]; k.r = k.exit[1]; }
-    k.pose = "stand"; k.z = 0; k.seat = null; k.exit = null;
+    k.pose = "stand"; k.z = 0; k.seat = null; k.exit = null; k.act = null;
     if (!quiet) k.wait = 0.8;
+  }
+  // doing something at a piece: reading at a shelf, tending a plant. The koala stands next to it, facing it.
+  const actAt = (st, c, r) => (st.items || []).find((i) => { const d = H.D[i.id]; return d && d.act && H.cellsOf(i).includes(c + "," + r); }) || null;
+  function doAct(item, cell) {
+    const k = ses.koala, d = H.D[item.id], dc = cell[0] - k.c, dr = cell[1] - k.r;
+    k.pose = d.act; k.act = item.uid; k.z = 0; k.seat = null; k.exit = null; k.path = []; k.after = null; k.sitT = 6 + Math.random() * 4; k.bob = 0;
+    if (Math.abs(dc) >= Math.abs(dr)) k.dir = dc > 0 ? 1 : 3; else k.dir = dr > 0 ? 0 : 2;
+  }
+  function startAct(item) { // drag the koala onto the piece: it steps to a free tile beside it
+    const k = ses.koala, cells = H.cellsOf(item).map((x) => x.split(",").map(Number)), from = [Math.round(k.c), Math.round(k.r)];
+    let best = null;
+    cells.forEach((cell) => neighbourFree(cell[0], cell[1]).forEach((n) => { const dist = Math.hypot(n[0] - from[0], n[1] - from[1]); if (!best || dist < best.dist) best = { n, cell, dist }; }));
+    if (!best) { toast(T("옆에 설 자리가 없어요", "No free spot beside it"), true); return false; }
+    standUp(true); k.c = best.n[0]; k.r = best.n[1]; doAct(item, best.cell);
+    return true;
   }
   const neighbourFree = (c, r) => [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([a, b]) => [c + a, r + b]).filter((p) => koalaCellFree(p[0], p[1]));
   function koalaThink(dt) {
@@ -336,13 +384,19 @@
       if (k.sitT <= 0) standUp();
       updateKoala(); return;
     }
+    if (k.pose === "read" || k.pose === "water") {
+      if (!st.items.some((i) => i.uid === k.act)) { standUp(); return; }
+      k.sitT -= dt; k.bob += dt * 2.4;
+      if (k.sitT <= 0) standUp();
+      updateKoala(); return;
+    }
     if (k.path.length) {
       const [tc, tr] = k.path[0], dc = tc - k.c, dr = tr - k.r, d = Math.hypot(dc, dr), step = 1.7 * dt;
       k.bob += dt * 11;
       if (d <= step) {
         k.c = tc; k.r = tr; k.path.shift();
         if (!k.path.length) {
-          if (k.after) { const a = k.after; k.after = null; const seat = st.items.find((i) => i.uid === a.uid); if (seat) sitOn(seat, a.cell, [tc, tr]); }
+          if (k.after) { const a = k.after; k.after = null; const piece = st.items.find((i) => i.uid === a.uid); if (piece) { if (a.kind === "act") doAct(piece, a.cell); else sitOn(piece, a.cell, [tc, tr]); } }
           else k.wait = 1.5 + Math.random() * 3;
         }
       } else { k.c += (dc / d) * step; k.r += (dr / d) * step; }
@@ -352,16 +406,18 @@
     k.wait -= dt; k.bob = 0;
     if (k.wait <= 0) {
       const room = curRoom(), cells = H.freeCells(room, st), from = [Math.round(k.c), Math.round(k.r)], roll = Math.random();
-      const seats = st.items.filter((i) => H.D[i.id] && H.D[i.id].seat);
-      if (roll < 0.35 && seats.length) { // go and sit on a seat
-        const s = seats[Math.floor(Math.random() * seats.length)];
-        for (const cell of H.cellsOf(s).map((x) => x.split(",").map(Number))) {
+      const seats = st.items.filter((i) => H.D[i.id] && H.D[i.id].seat), acts = st.items.filter((i) => H.D[i.id] && H.D[i.id].act);
+      const goTo = (piece, kind) => { // walk to a free tile beside the piece, then sit / read / water there
+        for (const cell of H.cellsOf(piece).map((x) => x.split(",").map(Number))) {
           const adj = neighbourFree(cell[0], cell[1]).sort((a, b) => Math.hypot(a[0] - from[0], a[1] - from[1]) - Math.hypot(b[0] - from[0], b[1] - from[1]))[0];
           if (!adj) continue;
           const p = adj[0] === from[0] && adj[1] === from[1] ? [] : bfs(from, adj);
-          if (p) { if (p.length) { k.path = p; k.after = { uid: s.uid, cell }; } else sitOn(s, cell, adj); break; }
+          if (p) { if (p.length) { k.path = p; k.after = { uid: piece.uid, cell, kind }; } else if (kind === "act") doAct(piece, cell); else sitOn(piece, cell, adj); return; }
         }
-      } else if (roll < 0.5) sitOn(null);
+      };
+      if (roll < 0.25 && seats.length) goTo(seats[Math.floor(Math.random() * seats.length)], "seat");
+      else if (roll < 0.5 && acts.length) goTo(acts[Math.floor(Math.random() * acts.length)], "act");
+      else if (roll < 0.6) sitOn(null);
       else for (let i = 0; i < 6 && !k.path.length && cells.length; i++) { const t = cells[Math.floor(Math.random() * cells.length)]; if (t[0] !== from[0] || t[1] !== from[1]) { const p = bfs(from, t); if (p && p.length) k.path = p; } }
       k.wait = 1;
     }
@@ -462,7 +518,7 @@
     const st = curState();
     if (!piece) piece = autoPlace(id);
     if (!piece) { toast(T("자리가 없어요. 아이템을 치워 보세요.", "No room left. Remove something first."), true); return null; }
-    st.items.push(piece); recalcZ(st);
+    st.items.push(piece); recalcZ(st); leaveSubs();
     ses.sel = piece.uid; save(); drawScene(); showMenu();
     return piece;
   }
@@ -475,21 +531,23 @@
     const target = selEl();
     if (!ses.sel || !ses.edit || !target) { m.hidden = true; return; }
     let name, btns;
-    const b = (act, ic, label) => `<button type="button" data-act="${act}" aria-label="${esc(label)}" title="${esc(label)}">${ic}</button>`;
+    const b = (act, icon, label, cls) => `<button type="button" class="kh-mbtn${cls ? " " + cls : ""}" data-act="${act}" aria-label="${esc(label)}">${ic(icon)}<span>${esc(label)}</span></button>`;
+    const turn = b("rotl", "rotl", T("왼쪽", "Left")) + b("rot", "rot", T("오른쪽", "Right"));
     if (ses.sel === "koala") {
+      const up = ses.koala.pose !== "stand";
       name = T("코알라", "Koala");
-      btns = b("rotl", "↺", T("왼쪽으로 돌리기", "Turn left")) + b("rot", "↻", T("오른쪽으로 돌리기", "Turn right")) + b("sit", ses.koala.pose === "sit" ? "🧍" : "🪑", ses.koala.pose === "sit" ? T("일어서기", "Stand up") : T("앉기", "Sit"));
+      btns = turn + b("sit", up ? "stand" : "sit", up ? T("일어서기", "Stand") : T("앉기", "Sit"));
     } else if (ses.sel === "house") {
       name = T("집", "House");
-      btns = b("hl", "◀", T("왼쪽으로", "Move left")) + b("hr", "▶", T("오른쪽으로", "Move right")) + b("rotl", "↺", T("돌리기", "Turn")) + b("rot", "↻", T("돌리기", "Turn"));
+      btns = b("hl", "left", T("왼쪽 이동", "Move left")) + b("hr", "right", T("오른쪽 이동", "Move right")) + turn;
     } else {
       const it = curState().items.find((x) => x.uid === ses.sel);
       if (!it) { m.hidden = true; return; }
       const d = H.D[it.id];
       name = nm(d);
-      btns = (d.wall ? "" : b("rotl", "↺", T("왼쪽으로 돌리기", "Turn left")) + b("rot", "↻", T("오른쪽으로 돌리기", "Turn right"))) + (d.subKind && curOpts.subs ? b("subs", "🧺", T("안에 넣기", "What's inside")) : "") + b("del", "🗑️", T("치우기", "Remove"));
+      btns = (d.wall ? "" : turn) + (d.subKind && curOpts.subs ? b("subs", "inside", T("안쪽 꾸미기", "Inside"), "accent") : "") + b("del", "trash", T("치우기", "Remove"), "danger");
     }
-    m.innerHTML = `<b class="kh-menu-name">${esc(name)}</b>${btns}<button type="button" data-act="x" aria-label="${T("닫기", "Close")}">✕</button>`;
+    m.innerHTML = `<div class="kh-mhead"><b>${esc(name)}</b><button type="button" class="kh-mclose" data-act="x" aria-label="${T("닫기", "Close")}">${ic("x")}</button></div><div class="kh-mrow">${btns}</div>`;
     m.hidden = false;
     const sr = ses.root.querySelector("#kh-stage").getBoundingClientRect(), tr = target.getBoundingClientRect();
     const w = m.offsetWidth, h = m.offsetHeight;
@@ -528,8 +586,8 @@
     }
     const it = st.items.find((x) => x.uid === ses.sel);
     if (!it) return;
-    if (act === "del") { st.items = st.items.filter((x) => x.uid !== it.uid); ses.sel = null; recalcZ(st); save(); drawScene(); hideMenu(); placeKoalaFree(); updateKoala(); return; }
-    if (act === "subs") { openSubs(it); return; }
+    if (act === "del") { leaveSubs(); st.items = st.items.filter((x) => x.uid !== it.uid); ses.sel = null; recalcZ(st); save(); drawScene(); hideMenu(); placeKoalaFree(); updateKoala(); return; }
+    if (act === "subs") { ses.subOf = it.uid; hideMenu(); drawPanel(); return; }
     if (act === "rot" || act === "rotl") {
       const room = curRoom(), want = Object.assign({}, it, { m: ((it.m | 0) + (act === "rot" ? 1 : 3)) % 4 });
       let ok = null;
@@ -544,40 +602,39 @@
     }
   }
 
-  /* ---- what is inside furniture (sub-items): books, desk things, the picture in a frame, toys ---- */
-  function openSubs(it) {
-    const d = H.D[it.id], kind = d.subKind, api = curOpts.subs;
-    if (!api) return;
-    const list = api.list(kind), grp = {}; list.forEach((e) => { grp[e.id] = e.group; });
-    const cur = it.sub || [];
-    const title = { books: T("책장 속 책", "Books on the shelf"), desk: T("책상 위·서랍", "On the desk"), frame: T("액자 그림", "Picture"), toys: T("장난감 상자", "Toys") }[kind] || nm(d);
+  /* ---- what is inside furniture (sub-items): shown in the right-hand / lower panel, like opening a folder ---- */
+  function leaveSubs() { if (ses.subOf) { ses.subOf = null; drawPanel(); } }
+  function subsPanel(panel, it) {
+    const d = H.D[it.id], kind = d.subKind, api = curOpts.subs, list = api.list(kind), grp = {}; list.forEach((e) => { grp[e.id] = e.group; });
+    const cur = it.sub || [], tabs = tabsFor(ses.roomId === "yard"), cat = (tabs.find((t) => t[0] === d.cat) || [0, 0, T("가구", "Furniture")])[2];
     const icon = (e) => { const v = H.subVis(e.id); return v ? `<span class="kh-subic" style="background:${v[1]}" aria-hidden="true">${v[0]}</span>` : `<span class="kh-subic" style="background:${H.bookColor(e.id)}" aria-hidden="true">📖</span>`; };
-    const groups = Array.from(new Set(list.map((e) => e.group)));
-    const gname = { main: "", top: T("책상 위", "On top"), drawer: T("서랍 속", "In the drawer") };
-    modal(`<h2>🧺 ${esc(title)}</h2><p class="kh-buy-note">${kind === "books" && !it.sub ? T("지금은 기본 책이 꽂혀 있어요. 골라 넣으면 바뀌어요.", "Default books for now — pick some to replace them.") : T("눌러서 넣고 빼요. 코인으로 새 물건도 살 수 있어요.", "Tap to put in or take out. New things cost coins.")}</p>
-      <div class="kh-sublist">${groups.map((g) => `${gname[g] ? `<h3>${gname[g]}</h3>` : ""}<div class="kh-subgrid">${list.filter((e) => e.group === g).map((e) => { const on = cur.includes(e.id); return `<button type="button" class="kh-subitem${on ? " on" : ""}${e.owned ? "" : " locked"}" data-sub="${e.id}" aria-pressed="${on}">${icon(e)}<span class="kh-nm">${esc(T(e.name[0], e.name[1]))}</span>${e.owned ? (on ? `<span class="kh-pr">✓</span>` : "") : `<span class="kh-pr">${COIN}${e.cost}</span>`}</button>`; }).join("")}</div>`).join("")}</div>
-      <div class="kh-btns">${it.sub && kind === "books" ? `<button type="button" class="kh-btn alt" data-reset>${T("기본 책으로", "Default books")}</button>` : ""}<button type="button" class="kh-btn" data-primary data-ok>${T("완료", "Done")}</button></div>`, (m) => {
-      m.querySelector("[data-ok]").onclick = closeModal;
-      const rs = m.querySelector("[data-reset]"); if (rs) rs.onclick = () => { delete it.sub; save(); drawScene(); applySel(); showMenu(); openSubs(it); };
-      m.querySelectorAll("[data-sub]").forEach((b) => {
-        b.onclick = () => {
-          const e = list.find((x) => x.id === b.dataset.sub);
-          const toggle = () => {
-            let sub = (it.sub || []).slice();
-            const at = sub.indexOf(e.id);
-            if (at >= 0) sub.splice(at, 1);
-            else {
-              if (kind === "frame") sub = [];
-              const same = sub.filter((x) => grp[x] === e.group), lim = api.limit(kind, e.group) || 99;
-              if (same.length >= lim) sub.splice(sub.indexOf(same[0]), 1);
-              sub.push(e.id);
-            }
-            it.sub = sub; save(); drawScene(); applySel(); showMenu(); openSubs(it);
-          };
-          if (e.owned) toggle();
-          else buy(T(e.name[0], e.name[1]), icon(e), e.cost, "sub:" + e.id, () => { e.owned = true; toggle(); }, () => api.buy(e.id));
+    const groups = Array.from(new Set(list.map((e) => e.group))), gname = { main: "", top: T("책상 위", "On top"), drawer: T("서랍 속", "In the drawer") };
+    const title = { books: T("책장 속 책", "Books on the shelf"), desk: T("책상 위·서랍", "On the desk"), frame: T("액자 그림", "Picture"), toys: T("장난감 상자", "Toys") }[kind] || nm(d);
+    const note = kind === "books" && !it.sub ? T("지금은 기본 책이 꽂혀 있어요. 골라 넣으면 바뀌어요.", "Default books for now — pick some to replace them.") : T("눌러서 넣고 빼요. 코인으로 새 물건도 살 수 있어요.", "Tap to put in or take out. New things cost coins.");
+    panel.innerHTML = `<nav class="kh-crumbs" aria-label="${T("현재 위치", "You are here")}"><button type="button" class="kh-up" data-up aria-label="${T("상위로", "Up one level")}">${ic("up")}</button>
+      <button type="button" class="kh-crumb" data-up>${esc(cat)}</button><span class="kh-sep">${ic("chev")}</span><span class="kh-crumb cur">${esc(nm(d))}</span></nav>
+      <div class="kh-grid" id="kh-grid">${shelfHead(title)}<p class="kh-subnote">${note}</p>${groups.map((g) => `${gname[g] ? `<h3>${gname[g]}</h3>` : ""}<div class="kh-subgrid">${list.filter((e) => e.group === g).map((e) => { const on = cur.includes(e.id); return `<button type="button" class="kh-subitem${on ? " on" : ""}${e.owned ? "" : " locked"}" data-sub="${e.id}" aria-pressed="${on}">${icon(e)}<span class="kh-nm">${esc(T(e.name[0], e.name[1]))}</span>${e.owned ? (on ? `<span class="kh-pr kh-ok">${ic("check")}</span>` : "") : `<span class="kh-pr">${COIN}${e.cost}</span>`}</button>`; }).join("")}</div>`).join("")}
+      ${it.sub && kind === "books" ? `<button type="button" class="kh-btn alt kh-clear" data-reset>${T("기본 책으로", "Default books")}</button>` : ""}</div>`;
+    panel.querySelectorAll("[data-up]").forEach((x) => { x.onclick = () => { ses.subOf = null; drawPanel(); }; });
+    const rs = panel.querySelector("[data-reset]"); if (rs) rs.onclick = () => { delete it.sub; save(); drawScene(); drawPanel(); };
+    panel.querySelectorAll("[data-sub]").forEach((bt) => {
+      bt.onclick = () => {
+        const e = list.find((x) => x.id === bt.dataset.sub);
+        const toggle = () => {
+          let sub = (it.sub || []).slice();
+          const at = sub.indexOf(e.id);
+          if (at >= 0) sub.splice(at, 1);
+          else {
+            if (kind === "frame") sub = [];
+            const same = sub.filter((x) => grp[x] === e.group), lim = api.limit(kind, e.group) || 99;
+            if (same.length >= lim) sub.splice(sub.indexOf(same[0]), 1);
+            sub.push(e.id);
+          }
+          it.sub = sub; save(); drawScene(); drawPanel();
         };
-      });
+        if (e.owned) toggle();
+        else buy(T(e.name[0], e.name[1]), icon(e), e.cost, "sub:" + e.id, () => { e.owned = true; toggle(); }, () => api.buy(e.id));
+      };
     });
   }
 
@@ -592,8 +649,14 @@
     const q = Object.assign({}, p, { c: c0, r: r0 });
     return poly + H.floorItemSvg(q) + (drag.riders || []).map((rd) => H.floorItemSvg(Object.assign({}, rd.it, { c: c0 + rd.dc, r: r0 + rd.dr }))).join("");
   }
+  function itemUnder(ev, st) { // a placed piece the koala can act on, seen under the pointer (its drawn body, not just its floor tile)
+    const els = document.elementsFromPoint(ev.clientX, ev.clientY);
+    for (const el of els) { const g = el.closest && el.closest(".kh-it[data-uid]"); if (g) { const it = st.items.find((x) => x.uid === g.dataset.uid); if (it && H.D[it.id] && H.D[it.id].act) return it; } }
+    return null;
+  }
   function updateDrag(ev) {
     const drag = ses.drag, room = curRoom(), st = curState(), p = toScene(ev);
+    drag.under = drag.koala ? itemUnder(ev, st) : null;
     if (drag.house) { drag.overStage = true; return; }
     const d = H.D[drag.piece.id];
     if (d && d.wall) {
@@ -603,7 +666,7 @@
       const g = cellOf(p.x, p.y + (drag.fromPanel ? 20 : 0)), f = H.footprint(drag.piece);
       drag.piece.c = Math.round(drag.fromPanel ? g.c - f.w / 2 : g.c - drag.grab.c);
       drag.piece.r = Math.round(drag.fromPanel ? g.r - f.d / 2 : g.r - drag.grab.r);
-      if (drag.koala) { const c = drag.piece.c, r = drag.piece.r; drag.valid = koalaCellFree(c, r) || !!H.seatAt(st, c, r); }
+      if (drag.koala) { const c = drag.piece.c, r = drag.piece.r; drag.valid = koalaCellFree(c, r) || !!H.seatAt(st, c, r) || !!actAt(st, c, r) || !!drag.under; }
       else { const res = H.canPlace(room, st, drag.piece, drag.uid); drag.valid = res.ok; if (res.ok) drag.piece.z = res.z; }
     }
     const gh = ses.root.querySelector(".kh-ghost");
@@ -632,8 +695,9 @@
     if (drag.koala) {
       const c = Math.round(drag.piece.c), r = Math.round(drag.piece.r), k = ses.koala;
       if (drag.overStage) {
-        const seat = H.seatAt(st, c, r);
+        const seat = H.seatAt(st, c, r), act = seat ? null : (drag.under || actAt(st, c, r));
         if (seat) sitOn(seat, [c, r], neighbourFree(c, r)[0] || null);
+        else if (act) startAct(act);
         else if (koalaCellFree(c, r)) { standUp(true); k.c = c; k.r = r; k.path = []; }
       }
       ses.sel = "koala"; drawScene(); showMenu(); return;
@@ -677,6 +741,7 @@
       const g = ev.target.closest && ev.target.closest(".kh-it:not(.kh-fixed),.kh-koala,.kh-house");
       if (!g) {
         if (ses.sel) { ses.sel = null; applySel(); hideMenu(); }
+        leaveSubs();
         if (ses.zoom > 1) { // drag the background to look around
           const sc = ses.root.querySelector("#kh-scene"), x0 = ev.clientX, y0 = ev.clientY, l0 = sc.scrollLeft, t0 = sc.scrollTop;
           const mv = (e) => { sc.scrollLeft = l0 - (e.clientX - x0); sc.scrollTop = t0 - (e.clientY - y0); };
@@ -696,7 +761,7 @@
       const it = st.items.find((x) => x.uid === g.dataset.uid);
       if (!it) return;
       const d = H.D[it.id];
-      if (ses.sel !== it.uid) { ses.sel = it.uid; applySel(); hideMenu(); }
+      if (ses.sel !== it.uid) { ses.sel = it.uid; applySel(); hideMenu(); if (ses.subOf !== it.uid) leaveSubs(); }
       const init = { uid: it.uid, piece: Object.assign({}, it) };
       if (!d.wall) {
         const gc = cellOf(p.x, p.y); init.grab = { c: gc.c - it.c, r: gc.r - it.r };
@@ -713,6 +778,9 @@
   function drawPanel() {
     const yard = ses.roomId === "yard", tabs = tabsFor(yard), panel = ses.root.querySelector("#kh-panel");
     if (!tabs.some((t) => t[0] === ses.tab)) ses.tab = tabs[0][0];
+    const subIt = ses.subOf && curState().items.find((i) => i.uid === ses.subOf);
+    if (ses.subOf && !(subIt && H.D[subIt.id] && H.D[subIt.id].subKind && curOpts.subs)) ses.subOf = null;
+    if (ses.subOf) { subsPanel(panel, subIt); return; }
     panel.innerHTML = `${chipsHtml(tabs, ses.tab)}<div class="kh-grid" id="kh-grid">${gridHtml(yard)}</div>`;
     panel.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { ses.tab = b.dataset.tab; drawPanel(); }; });
     wireGrid(panel.querySelector("#kh-grid"), yard);

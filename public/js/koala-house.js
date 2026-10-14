@@ -259,6 +259,9 @@
   out("hedge1", ["울타리 나무", "Border Hedge"], 1, 1, 0, [B(0, 0.1, 0, 1, 0.8, 26, "#3e9560"), B(0.06, 0.16, 26, 0.88, 0.68, 4, "#4aa36a")], { virtual: true });
   out("stoneWall1", ["돌담", "Stone Wall"], 1, 1, 0, [B(0, 0.2, 0, 1, 0.6, 22, "#aeb4ba"), B(0, 0.16, 22, 1, 0.68, 4, "#c9cfd4")], { virtual: true });
   D.fence.seat = 0;
+  // pieces the koala can be dragged onto to do something: read a book at a shelf, tend a plant
+  ["shelfWood", "shelfWhite"].forEach((id) => { D[id].act = "read"; });
+  ["plantBig", "cactus", "palm", "flowerBed", "tulips", "bush"].forEach((id) => { D[id].act = "water"; });
 
   /* ---- wall decorations: art is drawn in px on the wall plane (64 px = 1 tile along the wall) ---- */
   const wd = (id, name, uw, vh, price, art, extra) => { D[id] = Object.assign({ id, cat: "wall", name, wall: true, uw, vh, pw: uw * 64, price, where: "in", art, defH: 60 }, extra || {}); };
