@@ -55,6 +55,7 @@
     ses = { opts, S, root, screen: "plan", roomId: null, edit: true, sel: null, tab: "furniture", drag: null, zoom: 1, full: false,
       koala: { c: 2, r: 3, dir: 1, pose: "stand", z: 0, seat: null, exit: null, path: [], wait: 1.2, bob: 0, sitT: 0, after: null } };
     root.className = "kh-app kh-embed";
+    fit(root);
     root.setAttribute("aria-label", T("내 집", "My House"));
     document.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
@@ -76,7 +77,7 @@
     window.removeEventListener("resize", onResize);
     if (ses.drag) { window.removeEventListener("pointermove", ses.drag.mv); window.removeEventListener("pointerup", ses.drag.up); window.removeEventListener("pointercancel", ses.drag.cn); if (ses.drag.ghostEl) ses.drag.ghostEl.remove(); }
     document.body.classList.remove("kh-open");
-    ses.root.classList.remove("kh-full");
+    ses.root.classList.remove("kh-full", "kh-planmode");
     memo = { screen: ses.screen, roomId: ses.screen === "room" ? ses.roomId : null };
     ses = null;
   }
@@ -93,7 +94,9 @@
     if (e.key === "Escape") { if (ses.modal) closeModal(); else if (ses.full) toggleFull(); else if (ses.screen === "room") backToPlan(); return; }
     if ((e.key === "r" || e.key === "R") && ses.screen === "room" && ses.sel && !ses.modal && !/INPUT|TEXTAREA/.test((e.target || {}).tagName || "")) menuAct(e.shiftKey ? "rotl" : "rot");
   }
-  function onResize() { if (ses && ses.screen === "plan") placeMarker(false); }
+  // a narrow box (a phone, or a small window) stacks the picture above the shop panel
+  const fit = (r) => r.classList.toggle("kh-narrow", r.clientWidth > 0 && r.clientWidth < 820);
+  function onResize() { if (!ses) return; fit(ses.root); if (ses.screen === "plan") placeMarker(false); }
 
   /* ------------------------------ modal ------------------------------ */
   function closeModal() { if (ses && ses.modal) { ses.modal.remove(); ses.modal = null; } }
@@ -121,33 +124,35 @@
     });
   }
 
+  // The shop panel is built like the 2D one: a row of category chips on top, the items of the chosen category below.
+  function chipsHtml(tabs, cur) { // tabs: [id, icon, label]
+    return `<div class="kh-cats" role="tablist">${tabs.map((t) => `<button type="button" role="tab" class="kh-cat${t[0] === cur ? " on" : ""}" data-tab="${t[0]}" aria-selected="${t[0] === cur}">${esc(t[2])}</button>`).join("")}</div>`;
+  }
+  const shelfHead = (title, count) => `<div class="kh-shelf-head"><span class="kh-shelf-title">${esc(title)}${count ? ` <small>${count}</small>` : ""}</span></div>`;
+  const press = (node, fn) => { node.onclick = fn; node.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fn(); } }; };
+
   /* ------------------------------ floor plan ------------------------------ */
   function topBar(title) {
     return `<div class="kh-top"><h2 class="kh-title">${title}</h2><span class="kh-sp"></span><span class="kh-coins">${COIN}<b data-kh-coins>${coinsText()}</b></span><button type="button" class="kh-round blue" data-full aria-label="${T("크게 보기", "Full screen")}">⛶</button></div>`;
   }
   function renderPlan() {
     ses.screen = "plan"; ses.sel = null; ses.koala.pose = "stand"; ses.koala.z = 0;
-    const S = ses.S;
-    const miniCard = (id) => {
-      const r = roomDef(id), st = roomState(id), name = roomLabel(r);
-      return `<button type="button" class="kh-card${ses.justBuilt === id ? " pop" : ""}" data-room="${id}" aria-label="${esc(name)}"><span class="kh-card-pic">${H.roomSvg(r, st, {})}</span><span class="kh-card-name">${r.ic ? r.ic + " " : ""}${esc(name)}</span></button>`;
-    };
-    const slots = H.SLOTS.map((sl) => (S.slots[sl] ? miniCard(sl) : `<button type="button" class="kh-card empty" data-empty="${sl}" aria-label="${T("빈 칸: 방 짓기", "Empty plot: build a room")}"><span class="kh-plus" aria-hidden="true">＋</span><span class="kh-card-name">${T("방 짓기", "Build a room")}</span></button>`)).join("");
-    const yard = roomDef("yard");
+    ses.root.classList.add("kh-planmode"); fit(ses.root);
+    const S = ses.S, built = Object.keys(S.slots).length;
+    const house = H.planSvg(S, { name: (r) => (r.ic ? r.ic + " " : "") + roomLabel(r), empty: T("방 짓기", "Build a room"), fresh: ses.justBuilt, title: T("우리 집 평면도", "Our house floor plan") });
     ses.root.innerHTML = `<div class="kh-plan-screen">
       <div class="kh-planmain">${topBar("🏠 " + T("내 집", "My House"))}
         <p class="kh-hint">${T("방을 누르면 코알라가 들어가요. 빈 칸에는 상점에서 방을 사서 지어요.", "Tap a room to walk in. Buy rooms in the shop and build them on the empty plots.")}</p>
-        <div class="kh-plan" id="kh-plan"><div class="kh-house-frame"><div class="kh-roof"><span>${T("우리 집", "Our House")}</span></div>
-          <div class="kh-plan-grid">${slots}</div>
-          <button type="button" class="kh-entrance" data-room="yard" aria-label="${T("입구: 마당", "Entrance: the yard")}"><span class="kh-door" aria-hidden="true">🚪</span><span class="kh-card-pic">${H.roomSvg(yard, S.yard, {})}</span><span class="kh-card-name">${T("입구 · 마당과 집 외관", "Entrance · yard & house front")}</span></button></div>
+        <div class="kh-plan" id="kh-plan">${house}
+          <button type="button" class="kh-entrance" data-room="yard" aria-label="${T("입구: 마당", "Entrance: the yard")}"><span class="kh-door" aria-hidden="true">🚪</span><span class="kh-card-name">${T("입구 · 마당과 집 외관 꾸미기", "Entrance · yard & house front")}</span></button>
           <img class="kh-marker" id="kh-marker" src="${kimg("base")}" alt="${T("코알라", "Koala")}" draggable="false"></div></div>
       <aside class="kh-panel" id="kh-panel" aria-label="${T("방 상점", "Room shop")}">
-        <div class="kh-tabs" role="tablist"><button type="button" role="tab" class="kh-tab" aria-selected="true"><span aria-hidden="true">🏠</span><small>${T("방", "Rooms")}</small></button></div>
-        <div class="kh-grid"><h3>${T("방 상점", "Room shop")}</h3><div class="kh-items-grid kh-rooms">${H.ROOM_ORDER.map((t) => roomShopCard(t)).join("")}</div></div></aside></div><div class="kh-toast" role="status"></div>`;
+        ${chipsHtml([["rooms", "🏠", T("방", "Rooms")]], "rooms")}
+        <div class="kh-grid">${shelfHead(T("방 상점", "Room shop"), `${built}/${H.SLOTS.length}`)}<div class="kh-items-grid kh-rooms">${H.ROOM_ORDER.map((t) => roomShopCard(t)).join("")}</div></div></aside></div><div class="kh-toast" role="status"></div>`;
     ses.justBuilt = null;
     ses.root.querySelector("[data-full]").onclick = toggleFull;
-    ses.root.querySelectorAll("[data-room]").forEach((b) => { b.onclick = () => pickRoom(b.dataset.room); });
-    ses.root.querySelectorAll("[data-empty]").forEach((b) => { b.onclick = () => chooseRoomType(b.dataset.empty); });
+    ses.root.querySelectorAll("[data-room]").forEach((b) => { press(b, () => pickRoom(b.dataset.room)); });
+    ses.root.querySelectorAll("[data-empty]").forEach((b) => { press(b, () => chooseRoomType(b.dataset.empty)); });
     ses.root.querySelectorAll("[data-buyroom]").forEach((b) => { b.onclick = () => buildRoom(b.dataset.buyroom); });
     requestAnimationFrame(() => placeMarker(false));
     ses.root.querySelector("#kh-marker").addEventListener("load", () => placeMarker(false));
@@ -160,12 +165,13 @@
     if (!ses) return;
     const m = ses.root.querySelector("#kh-marker"), plan = ses.root.querySelector("#kh-plan");
     if (!m || !plan) return;
-    const id = toId || ses.roomId || ses.S.cur, c = plan.querySelector(`[data-room="${id}"]`) || plan.querySelector(`[data-room="yard"]`);
+    const id = toId || ses.roomId || ses.S.cur;
+    const c = plan.querySelector(`[data-room="${id}"] .kh-hit`) || plan.querySelector(`[data-room="${id}"]`) || plan.querySelector('[data-room="yard"]');
     if (!c) return;
-    const pr = plan.getBoundingClientRect(), cr = c.getBoundingClientRect();
+    const pr = plan.getBoundingClientRect(), cr = c.getBoundingClientRect(), onFloor = c.classList.contains("kh-hit");
     m.style.transition = animate && !reduced() ? "left .7s ease-in-out, top .7s ease-in-out" : "none";
-    m.style.left = (cr.left - pr.left + plan.scrollLeft + cr.width * 0.5) + "px";
-    m.style.top = (cr.top - pr.top + plan.scrollTop + cr.height * 0.8) + "px";
+    m.style.left = (cr.left - pr.left + cr.width * 0.5) + "px";
+    m.style.top = (cr.top - pr.top + cr.height * (onFloor ? 0.5 : 0.8)) + "px";
     m.classList.toggle("walk", !!animate && !reduced());
   }
   function pickRoom(id) {
@@ -204,6 +210,7 @@
   function openRoom(id) {
     if (!roomDef(id)) { renderPlan(); return; }
     ses.screen = "room"; ses.roomId = id; ses.S.cur = id; ses.sel = null; ses.edit = true; ses.zoom = 1;
+    ses.root.classList.remove("kh-planmode"); fit(ses.root);
     const yard = id === "yard";
     ses.tab = yard ? "outdoor" : "furniture";
     save();
@@ -706,7 +713,7 @@
   function drawPanel() {
     const yard = ses.roomId === "yard", tabs = tabsFor(yard), panel = ses.root.querySelector("#kh-panel");
     if (!tabs.some((t) => t[0] === ses.tab)) ses.tab = tabs[0][0];
-    panel.innerHTML = `<div class="kh-tabs" role="tablist">${tabs.map((t) => `<button type="button" role="tab" class="kh-tab" data-tab="${t[0]}" aria-selected="${t[0] === ses.tab}" title="${esc(t[2])}"><span aria-hidden="true">${t[1]}</span><small>${esc(t[2])}</small></button>`).join("")}</div><div class="kh-grid" id="kh-grid">${gridHtml(yard)}</div>`;
+    panel.innerHTML = `${chipsHtml(tabs, ses.tab)}<div class="kh-grid" id="kh-grid">${gridHtml(yard)}</div>`;
     panel.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { ses.tab = b.dataset.tab; drawPanel(); }; });
     wireGrid(panel.querySelector("#kh-grid"), yard);
   }
@@ -736,7 +743,8 @@
         <h3>${T("마당 크기", "Yard size")}</h3><div class="kh-sws">${Object.keys(H.YARD_SIZES).map((k) => { const z = H.YARD_SIZES[k]; return optBtn("data-gsize", k, (st.size || "normal") === k, `${z.C}×${z.R}`, T(z.n[0], z.n[1]), z.p, own("yardSizes", k, z.p)); }).join("")}</div>`;
     }
     const list = Object.values(H.D).filter((d) => !d.virtual && d.cat === ses.tab && (d.where === "both" || d.where === (yard ? "out" : "in"))).sort((a, b) => a.price - b.price);
-    return `<div class="kh-items-grid">${list.map((d) => { const own = ownedItem(d); return `<button type="button" class="kh-item${own ? "" : " locked"}" data-item="${d.id}" aria-label="${esc(nm(d))}${own ? "" : ", " + d.price}">${H.thumbSvg(d.id)}<span class="kh-nm">${esc(nm(d))}</span>${own ? "" : `<span class="kh-pr">${COIN}${d.price}</span>`}</button>`; }).join("")}</div>`;
+    const haveN = list.filter(ownedItem).length, tabName = (tabsFor(yard).find((t) => t[0] === ses.tab) || [0, 0, ""])[2];
+    return `${shelfHead(tabName, `${haveN}/${list.length}`)}<div class="kh-items-grid">${list.map((d) => { const own = ownedItem(d); return `<button type="button" class="kh-item${own ? "" : " locked"}" data-item="${d.id}" aria-label="${esc(nm(d))}${own ? "" : ", " + d.price}">${H.thumbSvg(d.id)}<span class="kh-nm">${esc(nm(d))}</span>${own ? "" : `<span class="kh-pr">${COIN}${d.price}</span>`}</button>`; }).join("")}</div>`;
   }
   // change the yard; may cost coins (a new size / ground / house style)
   function planYard(patch, price, why, label) {
@@ -799,20 +807,40 @@
   }
 
   /* ------------------------------ 3D wardrobe (Character tab) ------------------------------ */
+  // The 3D koala as a small picture (the Character tab's status card uses it). worn: { slot: name } (default: what is saved).
+  function koala3d(worn, cls) {
+    const w = worn || (H.load().worn || {});
+    const names = ["base"].concat(KORDER.filter((n) => Object.values(w).includes(n)));
+    const imgs = names.map((n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; }).join("");
+    return `<svg class="${cls || "kh-k3d"}" viewBox="64 130 553 840" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="3D Koala" focusable="false">${imgs}</svg>`;
+  }
+  // wall + floor behind the 3D koala: the same room backdrop the 2D koala stands in
+  function wardBackdrop() {
+    if (!window.KoalaArt || !KoalaArt.room) return "";
+    return KoalaArt.room({}, {}, { bare: true }).replace('class="koala-room-svg"', 'class="kh-ward-bg" preserveAspectRatio="xMidYMax slice"');
+  }
+  let wardSlot = "hat";
   function mountWardrobe(root, opts) {
     if (ses) destroy();
     curOpts = opts;
     const S = H.load();
     S.worn = S.worn || {};
     const slotName = { hat: T("머리", "Head"), face: T("얼굴", "Face"), neck: T("목", "Neck"), body: T("몸", "Body"), back: T("등", "Back") };
+    const slots = Object.keys(KSLOT);
+    if (!KSLOT[wardSlot]) wardSlot = slots[0];
     const draw = () => {
       const names = ["base"].concat(KORDER.filter((n) => Object.values(S.worn).includes(n)));
       const imgs = names.map((n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; }).join("");
+      const wornN = slots.filter((sl) => S.worn[sl]).length;
       root.className = "kh-app kh-embed kh-ward";
-      root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage"><svg class="kh-ward-koala" viewBox="64 100 553 868" role="img" aria-label="${T("3D 코알라", "3D Koala")}"><g class="kh-wbody">${imgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
-        <aside class="kh-panel"><div class="kh-grid">${Object.keys(KSLOT).map((slot) => `<h3>${slotName[slot]}</h3><div class="kh-sws">${KSLOT[slot].map((n) => `<button type="button" class="kh-sw kh-kitem${S.worn[slot] === n ? " on" : ""}" data-wear="${slot}:${n}" aria-pressed="${S.worn[slot] === n}"><img src="${kimg(n)}" alt="" draggable="false"><span class="kh-sw-n">${esc(T(KNAME[n][0], KNAME[n][1]))}</span></button>`).join("")}</div>`).join("")}<button type="button" class="kh-btn alt kh-clear" data-clear>${T("모두 벗기기", "Take everything off")}</button></div></aside>`;
-      root.querySelectorAll("[data-wear]").forEach((b) => { b.onclick = () => { const [slot, n] = b.dataset.wear.split(":"); if (S.worn[slot] === n) delete S.worn[slot]; else S.worn[slot] = n; H.persist(S); draw(); }; });
-      root.querySelector("[data-clear]").onclick = () => { S.worn = {}; H.persist(S); draw(); };
+      fit(root);
+      root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage">${wardBackdrop()}<svg class="kh-ward-koala" viewBox="64 100 553 890" role="img" aria-label="${T("3D 코알라", "3D Koala")}"><ellipse cx="340" cy="962" rx="205" ry="22" fill="#000" opacity=".16"/><g class="kh-wbody">${imgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
+        <aside class="kh-panel">${chipsHtml(slots.map((sl) => [sl, "", slotName[sl]]), wardSlot)}
+        <div class="kh-grid">${shelfHead(slotName[wardSlot], `${S.worn[wardSlot] ? 1 : 0}/${KSLOT[wardSlot].length}`)}<div class="kh-items-grid">${KSLOT[wardSlot].map((n) => `<button type="button" class="kh-item kh-kitem${S.worn[wardSlot] === n ? " on" : ""}" data-wear="${wardSlot}:${n}" aria-pressed="${S.worn[wardSlot] === n}"><img src="${kimg(n)}" alt="" draggable="false"><span class="kh-nm">${esc(T(KNAME[n][0], KNAME[n][1]))}</span><span class="kh-pr kh-state">${S.worn[wardSlot] === n ? T("입는 중", "Wearing") : T("입기", "Wear")}</span></button>`).join("")}</div>
+        ${wornN ? `<button type="button" class="kh-btn alt kh-clear" data-clear>${T("모두 벗기기", "Take everything off")}</button>` : ""}</div></aside>`;
+      root.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { wardSlot = b.dataset.tab; draw(); }; });
+      root.querySelectorAll("[data-wear]").forEach((b) => { b.onclick = () => { const [slot, n] = b.dataset.wear.split(":"); if (S.worn[slot] === n) delete S.worn[slot]; else S.worn[slot] = n; H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); }; });
+      const clr = root.querySelector("[data-clear]"); if (clr) clr.onclick = () => { S.worn = {}; H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); };
       const kb = root.querySelector(".kh-wbody"); root.querySelector("#kh-wstage").onclick = () => { kb.classList.remove("hop"); void kb.getBoundingClientRect(); kb.classList.add("hop"); };
     };
     draw();
@@ -821,4 +849,5 @@
   window.KoalaHouse.mount = mount;
   window.KoalaHouse.unmount = destroy;
   window.KoalaHouse.mountWardrobe = mountWardrobe;
+  window.KoalaHouse.koala3d = koala3d;
 })();

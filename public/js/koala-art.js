@@ -664,7 +664,8 @@
     const koala = avatar(koalaEq, { view: "full" }).replace('class="koala-avatar-svg" ', "").replace("<svg ", '<svg x="106" y="84" width="108" height="111" ');
     const kst = over.koala;
     const shadow = o.shadow ? '<ellipse cx="160" cy="182" rx="42" ry="5.5" fill="#000" opacity=".16"/>' : "";
-    stack.push({ order: 10000 + ((kst && kst.z) || 0) * 100 + 50, svg: `<g data-item="koala" data-key="koala"${o.pick === "koala" ? ' class="koala-picked"' : ""}${layoutTransform(over, "koala", 160, 140)}>${shadow}${koala}</g>` });
+    // opts.bare: just the wall and floor (the 3D koala page draws its own koala on top of this backdrop)
+    if (!o.bare) stack.push({ order: 10000 + ((kst && kst.z) || 0) * 100 + 50, svg: `<g data-item="koala" data-key="koala"${o.pick === "koala" ? ' class="koala-picked"' : ""}${layoutTransform(over, "koala", 160, 140)}>${shadow}${koala}</g>` });
     stack.sort((a, b) => a.order - b.order);
     const parts = [grp(byLayer.wall, byLayer.wall, null), ROOM_BASE_FLOOR].concat(stack.map((x) => x.svg));
     const label = o.label ? ` role="img" aria-label="${String(o.label).replace(/"/g, "&quot;")}"` : ` aria-hidden="true"`;

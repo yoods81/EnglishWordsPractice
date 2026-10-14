@@ -15853,6 +15853,18 @@ function koalaHouseOpts() {
 }
 
 // 2D / 3D switch above the character and room tabs. 3D is a premium feature.
+function koalaHeroAvatarHtml(k) {
+  if (koalaDim === "3d" && window.KoalaHouse && KoalaHouse.koala3d) {
+    return `<div class="koala-hero-avatar is-3d">${KoalaHouse.koala3d(canUsePaidFeatures() ? undefined : {})}</div>`;
+  }
+  return `<div class="koala-hero-avatar">${KoalaArt.avatar(k.items.equipped, { label: rwL("Your Koala", "나의 코알라") })}</div>`;
+}
+// Dressing the 3D Koala (in the 3D house wardrobe) changes the picture on the status card at once.
+window.addEventListener("kh-worn", () => {
+  const box = document.querySelector(".koala-hero-avatar.is-3d");
+  if (box && window.KoalaHouse && KoalaHouse.koala3d) box.innerHTML = KoalaHouse.koala3d(canUsePaidFeatures() ? undefined : {}).trim();
+});
+
 function koalaDimBarHtml() {
   const paid = canUsePaidFeatures();
   const b = (id, label) => `<button type="button" class="koala-dim-btn${koalaDim === id ? " on" : ""}" role="tab" aria-selected="${koalaDim === id}" data-koala-dim="${id}">${label}</button>`;
@@ -15919,8 +15931,9 @@ function renderKoala() {
   ].filter(Boolean).map((c) => `<span class="koala-streak-chip">${c}</span>`).join("");
 
   const studio = koalaTab === "character" || koalaTab === "room";
-  const heroAvatar = `<div class="koala-hero-avatar">${KoalaArt.avatar(k.items.equipped, { label: rwL("Your Koala", "나의 코알라") })}</div>`;
-  const hero = `<div class="koala-hero"><div class="koala-hero-top">${studio ? "" : heroAvatar}
+  // The status card shows the Koala that matches the 2D / 3D switch (3D is a premium look: free accounts get the plain 3D Koala as a preview).
+  const heroAvatar = koalaHeroAvatarHtml(k);
+  const hero = `<div class="koala-hero"><div class="koala-hero-top">${koalaTab === "room" ? "" : heroAvatar}
       <div class="koala-hero-main">
         <div class="koala-hero-level">${rwL(`Koala Lv. ${lv.level}`, `코알라 Lv. ${lv.level}`)}</div>
         <div class="koala-level-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${lv.span}" aria-valuenow="${lv.intoLevel}"

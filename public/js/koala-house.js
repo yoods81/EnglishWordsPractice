@@ -393,26 +393,27 @@
     else if (k === "planks") for (let x = 0; x < W; x += 32) s += `<rect x="${x}" y="${-WALL_H}" width="2" height="${WALL_H}" fill="${a}"/>`;
     return s;
   }
-  function shellSvg(room, st, kind) {
+  function shellSvg(room, st, kind, opt) {
     const C_ = room.C, R_ = room.R, wl = WALLS[st.wall] || WALLS.cream, fl = FLOORS[st.floor] || FLOORS.wood;
+    const hl = (opt && opt.hl) || WALL_H, hr = (opt && opt.hr) || WALL_H, tall = hl === WALL_H && hr === WALL_H; // floor-plan view: low walls between neighbouring rooms
     const o = [];
     const floorTop = [proj(0, 0, 0), proj(C_, 0, 0), proj(C_, R_, 0), proj(0, R_, 0)];
     if (kind !== "yard") {
       // wall slabs (left wall along c=0 / right wall along r=0)
-      const L = [proj(0, 0, WALL_H), proj(0, R_, WALL_H), proj(0, R_, 0), proj(0, 0, 0)];
-      const Rg = [proj(0, 0, WALL_H), proj(C_, 0, WALL_H), proj(C_, 0, 0), proj(0, 0, 0)];
+      const L = [proj(0, 0, hl), proj(0, R_, hl), proj(0, R_, 0), proj(0, 0, 0)];
+      const Rg = [proj(0, 0, hr), proj(C_, 0, hr), proj(C_, 0, 0), proj(0, 0, 0)];
       o.push(`<polygon points="${pstr(L)}" fill="${shade(wl.c, -0.1)}"/><g transform="matrix(-0.5 0.25 0 1 0 0)" clip-path="url(#khL${room.uid})">${wallPattern(wl.k, wl.c, shade(wl.a, -0.1), R_)}</g>`);
       o.push(`<polygon points="${pstr(Rg)}" fill="${wl.c}"/><g transform="matrix(0.5 0.25 0 1 0 0)" clip-path="url(#khR${room.uid})">${wallPattern(wl.k, wl.c, wl.a, C_)}</g>`);
       // skirting boards + wall top edge + corner
       o.push(`<polygon points="${pstr([proj(0, 0, 8), proj(0, R_, 8), proj(0, R_, 0), proj(0, 0, 0)])}" fill="${shade(wl.c, -0.28)}"/><polygon points="${pstr([proj(0, 0, 8), proj(C_, 0, 8), proj(C_, 0, 0), proj(0, 0, 0)])}" fill="${shade(wl.c, -0.18)}"/>`);
-      o.push(`<polygon points="${pstr([proj(0, 0, WALL_H), proj(0, R_, WALL_H), proj(-0.18, R_, WALL_H + 0), proj(-0.18, 0, WALL_H)])}" fill="${shade(wl.c, 0.5)}"/>`);
-      o.push(`<polygon points="${pstr([proj(0, 0, WALL_H), proj(C_, 0, WALL_H), proj(C_, -0.18, WALL_H), proj(0, -0.18, WALL_H)])}" fill="${shade(wl.c, 0.5)}"/>`);
-      o.push(`<polygon points="${pstr([proj(0, -0.18, WALL_H), proj(0, 0, WALL_H), proj(0, 0, WALL_H - 8), proj(0, -0.18, WALL_H - 8)])}" fill="${shade(wl.c, -0.3)}"/>`);
+      o.push(`<polygon points="${pstr([proj(0, 0, hl), proj(0, R_, hl), proj(-0.18, R_, hl), proj(-0.18, 0, hl)])}" fill="${shade(wl.c, 0.5)}"/>`);
+      o.push(`<polygon points="${pstr([proj(0, 0, hr), proj(C_, 0, hr), proj(C_, -0.18, hr), proj(0, -0.18, hr)])}" fill="${shade(wl.c, 0.5)}"/>`);
+      if (tall) o.push(`<polygon points="${pstr([proj(0, -0.18, WALL_H), proj(0, 0, WALL_H), proj(0, 0, WALL_H - 8), proj(0, -0.18, WALL_H - 8)])}" fill="${shade(wl.c, -0.3)}"/>`);
     }
     // floor slab (thickness) + top
     const frontL = [proj(0, R_, 0), proj(C_, R_, 0), proj(C_, R_, -12), proj(0, R_, -12)];
     const frontR = [proj(C_, 0, 0), proj(C_, R_, 0), proj(C_, R_, -12), proj(C_, 0, -12)];
-    o.push(`<polygon points="${pstr(frontL)}" fill="${shade(fl.c, -0.38)}"/><polygon points="${pstr(frontR)}" fill="${shade(fl.c, -0.5)}"/>`);
+    if (!(opt && opt.noSlab)) o.push(`<polygon points="${pstr(frontL)}" fill="${shade(fl.c, -0.38)}"/><polygon points="${pstr(frontR)}" fill="${shade(fl.c, -0.5)}"/>`);
     o.push(`<polygon points="${pstr(floorTop)}" fill="${fl.c}"/>`);
     if (fl.k === "checker") {
       for (let c = 0; c < C_; c++) for (let r = 0; r < R_; r++) if ((c + r) % 2) o.push(`<polygon points="${pstr([proj(c, r, 0), proj(c + 1, r, 0), proj(c + 1, r + 1, 0), proj(c, r + 1, 0)])}" fill="${fl.a}"/>`);
@@ -429,7 +430,7 @@
       for (const [c, r] of [[3, 6], [9, 8]]) if (c + 1 < C_ && r + 1 < R_) o.push(`<ellipse cx="${proj(c + 0.5, r + 0.5, 0)[0]}" cy="${proj(c + 0.5, r + 0.5, 0)[1] - 3}" rx="14" ry="8" fill="#b9b2a4"/>`);
     } else for (let c = 1; c < C_; c += 1) for (let r = (c % 2); r < R_; r += 2) o.push(`<circle cx="${proj(c + 0.5, r + 0.5, 0)[0]}" cy="${proj(c + 0.5, r + 0.5, 0)[1]}" r="1.6" fill="${fl.a}"/>`);
     if (kind === "yard") o.push(pathSvg(st));
-    return { svg: o.join(""), clips: `<clipPath id="khL${room.uid}"><rect x="0" y="${-WALL_H}" width="${R_ * 64}" height="${WALL_H}"/></clipPath><clipPath id="khR${room.uid}"><rect x="0" y="${-WALL_H}" width="${C_ * 64}" height="${WALL_H}"/></clipPath>` };
+    return { svg: o.join(""), clips: `<clipPath id="khL${room.uid}"><rect x="0" y="${-hl}" width="${R_ * 64}" height="${hl}"/></clipPath><clipPath id="khR${room.uid}"><rect x="0" y="${-hr}" width="${C_ * 64}" height="${hr}"/></clipPath>` };
   }
 
   /* ---- yard: house exteriors + garden ---- */
@@ -456,6 +457,7 @@
     autumn: { n: ["가을 정원", "Autumn Garden"], floor: "autumn", border: "hedge", path: "brick", size: "normal" },
   };
   const YARD = { ko: "마당", en: "Yard", label: ["마당", "Yard"], kind: "yard", C: 14, R: 12, wall: "cream", floor: "grass", id: "yard" };
+  const esc = (t) => String(t).replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   function yardDims(y) { const z = YARD_SIZES[(y && y.size)] || YARD_SIZES.normal; return { C: z.C, R: z.R }; }
   function yardRoom(y) { return Object.assign({}, YARD, yardDims(y), { uid: "yard" + ((y && y.size) || "normal") }); }
@@ -658,6 +660,47 @@
   }
   const stateOf = (S, id) => (id === "yard" ? S.yard : S.slots[id]);
 
+  /* ---- the whole house as one connected isometric picture (the floor plan) ----
+     Every plot of the 3 x 3 plan is a cell of the grid; built rooms sit in the back-left corner of their cell
+     (any spare floor is a hall). Walls on the outside of the house are full height, walls between rooms are low,
+     so every room stays visible. Rooms carry data-room, empty plots data-empty. opts: { name(room) -> text, empty: text, fresh: slot } */
+  const PLAN_PART = 34;
+  function planSvg(S, opts) {
+    const o = opts || {}, nC = PLAN.cols, nR = PLAN.rows, colW = new Array(nC).fill(0), rowD = new Array(nR).fill(0);
+    SLOTS.forEach((sl, i) => { const c = i % nC, r = Math.floor(i / nC), st = S.slots[sl], t = st && ROOMS[st.type]; colW[c] = Math.max(colW[c], t ? t.C : 6); rowD[r] = Math.max(rowD[r], t ? t.R : 6); });
+    const cx0 = [], ry0 = []; let acc = 0;
+    colW.forEach((w, i) => { cx0[i] = acc; acc += w; }); const totC = acc; acc = 0;
+    rowD.forEach((d, i) => { ry0[i] = acc; acc += d; }); const totR = acc;
+    const cells = SLOTS.map((sl, i) => ({ sl, c: i % nC, r: Math.floor(i / nC) })).sort((a, b) => (a.c + a.r) - (b.c + b.r) || a.r - b.r);
+    const quad = (x, y, w, d, z) => pstr([proj(x, y, z), proj(x + w, y, z), proj(x + w, y + d, z), proj(x, y + d, z)]);
+    const out = [], labels = [];
+    cells.forEach(({ sl, c, r }) => {
+      const ox = cx0[c], oy = ry0[r], cw = colW[c], rd = rowD[r], st = S.slots[sl], hall = st ? "#e6dcc8" : "#e4f2ea";
+      out.push(`<polygon points="${pstr([proj(ox, oy + rd, 0), proj(ox + cw, oy + rd, 0), proj(ox + cw, oy + rd, -12), proj(ox, oy + rd, -12)])}" fill="${shade(hall, -0.38)}"/><polygon points="${pstr([proj(ox + cw, oy, 0), proj(ox + cw, oy + rd, 0), proj(ox + cw, oy + rd, -12), proj(ox + cw, oy, -12)])}" fill="${shade(hall, -0.5)}"/><polygon points="${quad(ox, oy, cw, rd, 0)}" fill="${hall}"/>`);
+      if (!st) {
+        const [mx, my] = proj(ox + cw / 2, oy + rd / 2, 0);
+        out.push(`<g class="kh-pempty" data-empty="${sl}" role="button" tabindex="0" aria-label="${esc(o.empty || "")}"><polygon points="${quad(ox + 0.3, oy + 0.3, cw - 0.6, rd - 0.6, 0)}" fill="#f6fcf9" stroke="#7fbfa8" stroke-width="3" stroke-dasharray="12 9"/><text x="${mx.toFixed(1)}" y="${(my + 4).toFixed(1)}" text-anchor="middle" font-size="64" font-weight="800" fill="#5fae95">＋</text><text x="${mx.toFixed(1)}" y="${(my + 40).toFixed(1)}" text-anchor="middle" font-size="22" font-weight="800" fill="#4e6b63">${esc(o.empty || "")}</text></g>`);
+        return;
+      }
+      const room = roomOf(S, sl), tallL = c === 0, tallR = r === 0, [px, py] = proj(ox, oy, 0);
+      const sh = shellSvg(room, st, "room", { hl: tallL ? WALL_H : PLAN_PART, hr: tallR ? WALL_H : PLAN_PART, noSlab: true });
+      const keyed = [], flat = [], walls = [];
+      (st.items || []).forEach((i) => {
+        const d = D[i.id]; if (!d) return;
+        if (d.wall) { if (i.side === "L" ? tallL : tallR) walls.push(wallItemSvg(i)); }
+        else if (d.flat) flat.push(floorItemSvg(i));
+        else keyed.push({ k: depthKey(i), svg: floorItemSvg(i) });
+      });
+      keyed.sort((a, b) => a.k - b.k);
+      const name = String(o.name ? o.name(room) : room.en), lw = Math.round(Math.max(70, name.length * 21 + 34)), [lx, ly] = proj(room.C - 1, room.R - 1, 0);
+      const floor = pstr([proj(0, 0, 0), proj(room.C, 0, 0), proj(room.C, room.R, 0), proj(0, room.R, 0)]);
+      out.push(`<g class="kh-proom${o.fresh === sl ? " pop" : ""}" data-room="${sl}" role="button" tabindex="0" aria-label="${esc(name)}" transform="translate(${px.toFixed(1)} ${py.toFixed(1)})"><defs>${sh.clips}</defs><g class="kh-shell">${sh.svg}</g><polygon class="kh-hit" points="${floor}" fill="transparent"/><g class="kh-items">${walls.join("")}${flat.join("")}${keyed.map((x) => x.svg).join("")}</g></g>`);
+      labels.push(`<g class="kh-plabel" transform="translate(${(px + lx).toFixed(1)} ${(py + ly - 4).toFixed(1)})"><rect x="${-lw / 2}" y="-19" width="${lw}" height="36" rx="18" fill="#fff" opacity=".94"/><text x="0" y="7" text-anchor="middle" font-size="22" font-weight="800" fill="#27403a">${esc(name)}</text></g>`);
+    });
+    const box = sceneBox({ C: totC, R: totR }, "room");
+    return `<svg class="kh-plan-svg" viewBox="${box.x} ${box.y} ${box.w} ${box.h}" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="${esc(o.title || "")}">${out.join("")}${labels.join("")}</svg>`;
+  }
+
   /* ---- placement rules ---- */
   function footprint(i) { const o = orient(D[i.id], i.m); return { w: o.w, d: o.d }; }
   function cellsOf(i) { const f = footprint(i), a = []; for (let c = 0; c < f.w; c++) for (let r = 0; r < f.d; r++) a.push((Math.floor(i.c + 1e-6) + c) + "," + (Math.floor(i.r + 1e-6) + r)); return a; }
@@ -711,7 +754,7 @@
 
   return {
     TW, TH, WALL_H, D, WALLS, FLOORS, ROOMS, ROOM_ORDER, PLAN, SLOTS, START_SLOT, YARD, HOUSE_WALLS, HOUSE_ROOFS, HOUSE_DOORS, HOUSE_STYLES, YARD_SIZES, BORDERS, PATHS, GARDEN_PRESETS,
-    proj, shade, orient, itemBox, itemInner, thumbSvg, roomSvg, wallItemSvg, floorItemSvg, sceneBox, depthCmp, roomOf, stateOf, yardDims, houseRect, subVis, bookColor,
+    proj, shade, orient, itemBox, itemInner, thumbSvg, roomSvg, planSvg, wallItemSvg, floorItemSvg, sceneBox, depthCmp, roomOf, stateOf, yardDims, houseRect, subVis, bookColor,
     canPlace, freeCells, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts,
   };
 });
