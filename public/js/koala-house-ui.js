@@ -1,8 +1,8 @@
-// Koala Study Mate — My Koala House: screens and interaction.
-// KoalaHouse.open({ L, coins, unlimited, spend, onClose })
-//   L(en, ko)        -> the text in the current language
-//   coins()          -> current Koala Coins
-//   spend(n, why)    -> true if the coins were taken (and saved)
+// Koala Study Mate — My Koala House (3D): screens and interaction.
+//   KoalaHouse.mount(el, opts)          the floor plan + room editor, inside the page
+//   KoalaHouse.mountWardrobe(el, opts)  the 3D koala wardrobe (the Character tab's 3D view)
+// opts: { L(en, ko), coins(), unlimited, spend(n, why) -> bool, subs? }
+//   subs: { list(kind) -> [{id, name:[ko,en], cost, owned, group}], limit(kind, group), buy(id) -> bool }
 (function () {
   "use strict";
   const H = window.KoalaHouse;
@@ -16,25 +16,29 @@
   const KNAME = { bushhat: ["부시햇", "Bush Hat"], partyhat: ["파티 모자", "Party Hat"], crown: ["왕관", "Crown"], glasses: ["안경", "Glasses"], scarf: ["목도리", "Scarf"], hoodie: ["후드티", "Hoodie"], backpack: ["배낭", "Backpack"] };
   const kimg = (n) => `/img/koala/${n}.webp`;
 
-  let ses = null;
+  let ses = null;           // the house session
+  let curOpts = null;       // opts of whatever is mounted (for T)
+  let memo = { screen: "plan", roomId: null };   // where the player was, to come back to after the page redraws
+  let extraImg = {};        // optional koala pictures from the manifest: { back, sit }
 
   /* ------------------------------ small helpers ------------------------------ */
   const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const reduced = () => !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
-  const T = (ko, en) => ses.opts.L(en, ko);
+  const T = (ko, en) => curOpts.L(en, ko);
   const nm = (d) => T(d.name[0], d.name[1]);
   const COIN = '<span class="kh-coin" aria-hidden="true"></span>';
 
-  const roomDef = (id) => (id === "yard" ? H.YARD : H.ROOMS[id]);
-  const roomState = (id) => (id === "yard" ? ses.S.yard : ses.S.rooms[id]);
+  const roomDef = (id) => H.roomOf(ses.S, id);
+  const roomState = (id) => H.stateOf(ses.S, id);
   const curRoom = () => roomDef(ses.roomId);
   const curState = () => roomState(ses.roomId);
+  const roomLabel = (r) => T(r.label[0], r.label[1]);
   const save = () => H.persist(ses.S);
   const ownedItem = (d) => d.price === 0 || !!ses.S.owned[d.id];
 
-  function coinsText() { return ses.opts.unlimited ? "∞" : Number(ses.opts.coins()).toLocaleString(); }
-  function refreshCoins() { ses.root.querySelectorAll("[data-kh-coins]").forEach((e) => { e.textContent = coinsText(); }); }
+  const coinsText = () => (curOpts.unlimited ? "∞" : Number(curOpts.coins()).toLocaleString());
+  function refreshCoins() { if (ses) ses.root.querySelectorAll("[data-kh-coins]").forEach((e) => { e.textContent = coinsText(); }); }
   function toast(msg, bad) {
     const t = ses.root.querySelector(".kh-toast");
     if (!t) return;
@@ -43,43 +47,56 @@
     ses.toastT = setTimeout(() => { t.className = "kh-toast"; }, 2200);
   }
 
-  /* ------------------------------ open / close ------------------------------ */
-  function open(opts) {
-    if (ses) close();
+  /* ------------------------------ mount / close ------------------------------ */
+  function mount(root, opts) {
+    if (ses) destroy();
+    curOpts = opts;
     const S = H.load();
-    ses = { opts, S, screen: "plan", roomId: S.cur || "study", edit: true, sel: null, tab: "furniture", drag: null, koala: { c: 2, r: 3, face: 1, path: [], wait: 1.2, bob: 0 }, root: null };
-    const root = el("div", "kh-app");
-    root.setAttribute("role", "dialog"); root.setAttribute("aria-modal", "true"); root.setAttribute("aria-label", T("내 집", "My House"));
-    document.body.appendChild(root);
-    document.body.classList.add("kh-open");
-    ses.root = root;
+    ses = { opts, S, root, screen: "plan", roomId: null, edit: true, sel: null, tab: "furniture", drag: null, zoom: 1, full: false,
+      koala: { c: 2, r: 3, dir: 1, pose: "stand", z: 0, seat: null, exit: null, path: [], wait: 1.2, bob: 0, sitT: 0, after: null } };
+    root.className = "kh-app kh-embed";
+    root.setAttribute("aria-label", T("내 집", "My House"));
     document.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
-    renderPlan(true);
     ses.last = performance.now();
     ses.raf = requestAnimationFrame(loop);
-    fetch("/img/house/manifest.json").then((r) => (r.ok ? r.json() : {})).then((m) => { if (ses && m && Object.keys(m).length) { H.setManifest(m); if (ses.screen === "room") drawScene(); else renderPlan(); } }).catch(() => {});
+    const back = memo.roomId && memo.screen === "room" ? roomDef(memo.roomId) : null;
+    if (back) openRoom(memo.roomId); else renderPlan();
+    fetch("/img/house/manifest.json").then((r) => (r.ok ? r.json() : {})).then((m) => {
+      if (!ses || !m || !Object.keys(m).length) return;
+      H.setManifest(m);
+      extraImg = { back: m["koala:back"] && m["koala:back"].src, sit: m["koala:sit"] && m["koala:sit"].src };
+      if (ses.screen === "room") drawScene(); else renderPlan();
+    }).catch(() => {});
   }
-  function close() {
+  function destroy() {
     if (!ses) return;
     cancelAnimationFrame(ses.raf);
     document.removeEventListener("keydown", onKey);
     window.removeEventListener("resize", onResize);
-    ses.root.remove();
+    if (ses.drag) { window.removeEventListener("pointermove", ses.drag.mv); window.removeEventListener("pointerup", ses.drag.up); window.removeEventListener("pointercancel", ses.drag.cn); if (ses.drag.ghostEl) ses.drag.ghostEl.remove(); }
     document.body.classList.remove("kh-open");
-    const cb = ses.opts.onClose;
+    ses.root.classList.remove("kh-full");
+    memo = { screen: ses.screen, roomId: ses.screen === "room" ? ses.roomId : null };
     ses = null;
-    if (cb) cb();
+  }
+  function toggleFull() {
+    ses.full = !ses.full;
+    ses.root.classList.toggle("kh-full", ses.full);
+    document.body.classList.toggle("kh-open", ses.full);
+    const b = ses.root.querySelector("[data-full]"); if (b) { b.textContent = ses.full ? "🗗" : "⛶"; b.setAttribute("aria-label", ses.full ? T("작게 보기", "Exit full screen") : T("크게 보기", "Full screen")); }
+    if (ses.screen === "plan") placeMarker(false); else showMenu();
   }
   function onKey(e) {
-    if (e.key !== "Escape" || !ses) return;
-    if (ses.modal) { closeModal(); return; }
-    if (ses.screen === "room") backToPlan(); else close();
+    if (!ses) return;
+    if (!ses.root.isConnected) { destroy(); return; }
+    if (e.key === "Escape") { if (ses.modal) closeModal(); else if (ses.full) toggleFull(); else if (ses.screen === "room") backToPlan(); return; }
+    if ((e.key === "r" || e.key === "R") && ses.screen === "room" && ses.sel && !ses.modal && !/INPUT|TEXTAREA/.test((e.target || {}).tagName || "")) menuAct(e.shiftKey ? "rotl" : "rot");
   }
   function onResize() { if (ses && ses.screen === "plan") placeMarker(false); }
 
   /* ------------------------------ modal ------------------------------ */
-  function closeModal() { if (ses.modal) { ses.modal.remove(); ses.modal = null; } }
+  function closeModal() { if (ses && ses.modal) { ses.modal.remove(); ses.modal = null; } }
   function modal(html, wire) {
     closeModal();
     const m = el("div", "kh-modal", `<div class="kh-sheet" role="alertdialog" aria-modal="true">${html}</div>`);
@@ -89,92 +106,137 @@
     if (wire) wire(m);
     const b = m.querySelector("[data-primary]"); if (b) b.focus();
   }
-  // buy something: returns via cb(true) after the coins were spent
-  function buy(title, picHtml, price, why, cb) {
-    const afford = ses.opts.unlimited || ses.opts.coins() >= price;
+  // buy something: cb() runs after the coins were taken. spendFn(price, why) overrides the default spending.
+  function buy(title, picHtml, price, why, cb, spendFn) {
+    const afford = curOpts.unlimited || curOpts.coins() >= price;
     modal(`<h2>${esc(title)}</h2><div class="kh-buy-pic">${picHtml}</div><p class="kh-buy-price">${COIN} <b>${price}</b></p>
-      <p class="kh-buy-note">${afford ? T("코인으로 살까요?", "Buy it with your coins?") : T(`코인이 ${price - ses.opts.coins()}개 모자라요. 공부하고 코인을 모아 봐요!`, `You need ${price - ses.opts.coins()} more coins. Keep studying to earn them!`)}</p>
+      <p class="kh-buy-note">${afford ? T("코인으로 살까요?", "Buy it with your coins?") : T(`코인이 ${price - curOpts.coins()}개 모자라요. 공부하고 코인을 모아 봐요!`, `You need ${price - curOpts.coins()} more coins. Keep studying to earn them!`)}</p>
       <div class="kh-btns"><button type="button" class="kh-btn" data-primary data-yes ${afford ? "" : "disabled"}>${T("살래요", "Buy")}</button><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button></div>`, (m) => {
       m.querySelector("[data-no]").onclick = closeModal;
-      const y = m.querySelector("[data-yes]");
-      y.onclick = () => { if (!ses.opts.spend(price, why)) { toast(T("코인이 모자라요", "Not enough coins"), true); closeModal(); return; } closeModal(); refreshCoins(); cb(true); };
+      m.querySelector("[data-yes]").onclick = () => {
+        const ok = spendFn ? spendFn(price, why) : curOpts.spend(price, why);
+        if (!ok) { toast(T("코인이 모자라요", "Not enough coins"), true); closeModal(); return; }
+        closeModal(); refreshCoins(); cb(true);
+      };
     });
   }
 
   /* ------------------------------ floor plan ------------------------------ */
-  function renderPlan(first) {
-    ses.screen = "plan"; ses.sel = null;
+  function topBar(title) {
+    return `<div class="kh-top"><h2 class="kh-title">${title}</h2><span class="kh-sp"></span><span class="kh-coins">${COIN}<b data-kh-coins>${coinsText()}</b></span><button type="button" class="kh-round blue" data-full aria-label="${T("크게 보기", "Full screen")}">⛶</button></div>`;
+  }
+  function renderPlan() {
+    ses.screen = "plan"; ses.sel = null; ses.koala.pose = "stand"; ses.koala.z = 0;
     const S = ses.S;
-    const card = (id) => {
-      const r = roomDef(id), own = id === "yard" || !!S.owned_rooms[id];
-      const st = id === "yard" ? S.yard : S.rooms[id] || { wall: r.wall, floor: r.floor, items: [] };
-      const name = T(r.ko, r.en);
-      return `<button type="button" class="kh-card${own ? "" : " locked"}${ses.justBuilt === id ? " pop" : ""}" data-room="${id}" aria-label="${esc(name)}${own ? "" : ", " + T("잠김", "locked") + " " + r.price}">
-        <span class="kh-card-pic">${H.roomSvg(r, st, {})}</span><span class="kh-card-name">${id === "yard" ? "🚪 " : ""}${esc(name)}</span>
-        ${own ? "" : `<span class="kh-lock"><span class="kh-lock-ic" aria-hidden="true">🔒</span>${COIN}<b>${r.price}</b></span>`}</button>`;
+    const miniCard = (id) => {
+      const r = roomDef(id), st = roomState(id), name = roomLabel(r);
+      return `<button type="button" class="kh-card${ses.justBuilt === id ? " pop" : ""}" data-room="${id}" aria-label="${esc(name)}"><span class="kh-card-pic">${H.roomSvg(r, st, {})}</span><span class="kh-card-name">${r.ic ? r.ic + " " : ""}${esc(name)}</span></button>`;
     };
+    const slots = H.SLOTS.map((sl) => (S.slots[sl] ? miniCard(sl) : `<button type="button" class="kh-card empty" data-empty="${sl}" aria-label="${T("빈 칸: 방 짓기", "Empty plot: build a room")}"><span class="kh-plus" aria-hidden="true">＋</span><span class="kh-card-name">${T("방 짓기", "Build a room")}</span></button>`)).join("");
+    const yard = roomDef("yard");
     ses.root.innerHTML = `<div class="kh-plan-screen">
-      <div class="kh-top"><button type="button" class="kh-round red" data-close aria-label="${T("닫기", "Close")}">✕</button><h2 class="kh-title">${T("내 집", "My House")}</h2><span class="kh-sp"></span><span class="kh-coins">${COIN}<b data-kh-coins>${coinsText()}</b></span></div>
-      <p class="kh-hint">${T("방을 누르면 코알라가 들어가요. 잠긴 방은 코인으로 지을 수 있어요. 🚪 입구에서는 마당과 집 외관을 꾸며요.", "Tap a room to walk in. Locked rooms can be built with coins. The 🚪 entrance leads to the yard and the front of the house.")}</p>
-      <div class="kh-plan" id="kh-plan"><div class="kh-plan-grid">${H.ROOM_ORDER.map(card).join("")}${card("yard")}</div>
-        <img class="kh-marker" id="kh-marker" src="${kimg("base")}" alt="${T("코알라", "Koala")}" draggable="false"></div></div>`;
+      <div class="kh-planmain">${topBar("🏠 " + T("내 집", "My House"))}
+        <p class="kh-hint">${T("방을 누르면 코알라가 들어가요. 빈 칸에는 상점에서 방을 사서 지어요.", "Tap a room to walk in. Buy rooms in the shop and build them on the empty plots.")}</p>
+        <div class="kh-plan" id="kh-plan"><div class="kh-house-frame"><div class="kh-roof"><span>${T("우리 집", "Our House")}</span></div>
+          <div class="kh-plan-grid">${slots}</div>
+          <button type="button" class="kh-entrance" data-room="yard" aria-label="${T("입구: 마당", "Entrance: the yard")}"><span class="kh-door" aria-hidden="true">🚪</span><span class="kh-card-pic">${H.roomSvg(yard, S.yard, {})}</span><span class="kh-card-name">${T("입구 · 마당과 집 외관", "Entrance · yard & house front")}</span></button></div>
+          <img class="kh-marker" id="kh-marker" src="${kimg("base")}" alt="${T("코알라", "Koala")}" draggable="false"></div></div>
+      <aside class="kh-panel" id="kh-panel" aria-label="${T("방 상점", "Room shop")}">
+        <div class="kh-tabs" role="tablist"><button type="button" role="tab" class="kh-tab" aria-selected="true"><span aria-hidden="true">🏠</span><small>${T("방", "Rooms")}</small></button></div>
+        <div class="kh-grid"><h3>${T("방 상점", "Room shop")}</h3><div class="kh-items-grid kh-rooms">${H.ROOM_ORDER.map((t) => roomShopCard(t)).join("")}</div></div></aside></div><div class="kh-toast" role="status"></div>`;
     ses.justBuilt = null;
-    ses.root.querySelector("[data-close]").onclick = close;
+    ses.root.querySelector("[data-full]").onclick = toggleFull;
     ses.root.querySelectorAll("[data-room]").forEach((b) => { b.onclick = () => pickRoom(b.dataset.room); });
-    requestAnimationFrame(() => { placeMarker(false); });
-    const imgm = ses.root.querySelector("#kh-marker"); imgm.addEventListener("load", () => placeMarker(false));
+    ses.root.querySelectorAll("[data-empty]").forEach((b) => { b.onclick = () => chooseRoomType(b.dataset.empty); });
+    ses.root.querySelectorAll("[data-buyroom]").forEach((b) => { b.onclick = () => buildRoom(b.dataset.buyroom); });
+    requestAnimationFrame(() => placeMarker(false));
+    ses.root.querySelector("#kh-marker").addEventListener("load", () => placeMarker(false));
+  }
+  function roomShopCard(t) {
+    const r = H.ROOMS[t], have = Object.values(ses.S.slots).filter((x) => x.type === t).length;
+    return `<button type="button" class="kh-item kh-roomitem" data-buyroom="${t}" aria-label="${esc(T(r.ko, r.en))}, ${r.price}"><span class="kh-roomic" aria-hidden="true">${r.ic}</span><span class="kh-nm">${esc(T(r.ko, r.en))}</span><span class="kh-subtxt">${r.C}×${r.R}${have ? " · " + T(`${have}개`, `${have} built`) : ""}</span>${r.price ? `<span class="kh-pr">${COIN}${r.price}</span>` : `<span class="kh-pr">${T("무료", "Free")}</span>`}</button>`;
   }
   function placeMarker(animate, toId) {
+    if (!ses) return;
     const m = ses.root.querySelector("#kh-marker"), plan = ses.root.querySelector("#kh-plan");
     if (!m || !plan) return;
-    const id = toId || ses.roomId, c = plan.querySelector(`[data-room="${id}"]`);
+    const id = toId || ses.roomId || ses.S.cur, c = plan.querySelector(`[data-room="${id}"]`) || plan.querySelector(`[data-room="yard"]`);
     if (!c) return;
     const pr = plan.getBoundingClientRect(), cr = c.getBoundingClientRect();
     m.style.transition = animate && !reduced() ? "left .7s ease-in-out, top .7s ease-in-out" : "none";
     m.style.left = (cr.left - pr.left + plan.scrollLeft + cr.width * 0.5) + "px";
-    m.style.top = (cr.top - pr.top + plan.scrollTop + cr.height * 0.78) + "px";
+    m.style.top = (cr.top - pr.top + plan.scrollTop + cr.height * 0.8) + "px";
     m.classList.toggle("walk", !!animate && !reduced());
   }
   function pickRoom(id) {
-    const r = roomDef(id), own = id === "yard" || !!ses.S.owned_rooms[id];
-    if (!own) {
-      buy(T(r.ko, r.en) + T(" 짓기", " — build"), `<span class="kh-card-pic">${H.roomSvg(r, { wall: r.wall, floor: r.floor, items: [] }, {})}</span>`, r.price, "room:" + id, () => {
-        ses.S.owned_rooms[id] = 1; ses.S.rooms[id] = { wall: r.wall, floor: r.floor, items: [] }; ses.justBuilt = id; save(); renderPlan(); toast(T("새 방이 생겼어요!", "A new room!"));
-      });
-      return;
-    }
     placeMarker(true, id);
     setTimeout(() => { if (ses && ses.screen === "plan") openRoom(id); }, reduced() ? 0 : 760);
   }
   function backToPlan() { renderPlan(); }
 
+  /* ---- buying rooms: the shop sells kinds of rooms, and you choose the plot ---- */
+  function roomPic(t) { const r = H.ROOMS[t]; return `<span class="kh-card-pic">${H.roomSvg(Object.assign({}, r, { uid: "shop" + t }), { wall: r.wall, floor: r.floor, items: [] }, {})}</span>`; }
+  function chooseRoomType(slot) {
+    modal(`<h2>${T("어떤 방을 지을까요?", "Which room?")}</h2><div class="kh-items-grid kh-rooms">${H.ROOM_ORDER.map((t) => roomShopCard(t)).join("")}</div><div class="kh-btns"><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button></div>`, (m) => {
+      m.querySelector("[data-no]").onclick = closeModal;
+      m.querySelectorAll("[data-buyroom]").forEach((b) => { b.onclick = () => buildRoom(b.dataset.buyroom, slot); });
+    });
+  }
+  function buildRoom(type, slot) {
+    const S = ses.S, t = H.ROOMS[type], empties = H.SLOTS.filter((sl) => !S.slots[sl]);
+    if (!empties.length) { closeModal(); toast(T("빈 칸이 없어요", "No empty plots left"), true); return; }
+    const go = (sl) => buy(T(t.ko, t.en) + T(" 짓기", " — build"), roomPic(type), t.price, "room:" + type, () => {
+      S.slots[sl] = { type, wall: t.wall, floor: t.floor, items: [] }; ses.justBuilt = sl; save(); renderPlan(); toast(T("새 방이 생겼어요!", "A new room!"));
+    });
+    if (slot || empties.length === 1) { go(slot || empties[0]); return; }
+    modal(`<h2>${T("어느 칸에 지을까요?", "Which plot?")}</h2><div class="kh-slotpick">${H.SLOTS.map((sl) => { const o = S.slots[sl]; return o ? `<span class="kh-slotcell taken" aria-hidden="true">${H.ROOMS[o.type].ic}</span>` : `<button type="button" class="kh-slotcell" data-slot="${sl}" aria-label="${T("빈 칸", "Empty plot")}">＋</button>`; }).join("")}<span class="kh-slotdoor">🚪 ${T("입구", "Entrance")}</span></div><div class="kh-btns"><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button></div>`, (m) => {
+      m.querySelector("[data-no]").onclick = closeModal;
+      m.querySelectorAll("[data-slot]").forEach((b) => { b.onclick = () => go(b.dataset.slot); });
+    });
+  }
+
   /* ------------------------------ room screen ------------------------------ */
   function tabsFor(yard) {
     return yard
-      ? [["outdoor", "🌳", T("정원", "Garden")], ["plant", "🪴", T("식물", "Plants")], ["house", "🏠", T("집 외관", "House")], ["style", "🎨", T("잔디", "Lawn")], ["koala", "🐨", T("코알라", "Koala")]]
-      : [["furniture", "🛋️", T("가구", "Furniture")], ["rug", "🟦", T("러그", "Rugs")], ["plant", "🪴", T("식물", "Plants")], ["small", "🧸", T("소품", "Props")], ["wall", "🖼️", T("벽장식", "Wall")], ["style", "🎨", T("벽·바닥", "Style")], ["koala", "🐨", T("코알라", "Koala")]];
+      ? [["outdoor", "🌳", T("정원 물건", "Garden")], ["plant", "🪴", T("식물", "Plants")], ["house", "🏠", T("집 외관", "House")], ["garden", "🌷", T("정원 형태", "Layout")]]
+      : [["furniture", "🛋️", T("가구", "Furniture")], ["rug", "🟦", T("러그", "Rugs")], ["plant", "🪴", T("식물", "Plants")], ["small", "🧸", T("소품", "Props")], ["wall", "🖼️", T("벽장식", "Wall")], ["style", "🎨", T("벽·바닥", "Style")]];
   }
   function openRoom(id) {
-    ses.screen = "room"; ses.roomId = id; ses.S.cur = id; ses.sel = null; ses.edit = true;
+    if (!roomDef(id)) { renderPlan(); return; }
+    ses.screen = "room"; ses.roomId = id; ses.S.cur = id; ses.sel = null; ses.edit = true; ses.zoom = 1;
     const yard = id === "yard";
     ses.tab = yard ? "outdoor" : "furniture";
-    if (!yard) { const st = ses.S.rooms[id]; if (!st) ses.S.rooms[id] = { wall: H.ROOMS[id].wall, floor: H.ROOMS[id].floor, items: [] }; }
     save();
     ses.root.innerHTML = `<div class="kh-room-screen">
       <div class="kh-stage" id="kh-stage">
         <div class="kh-scene" id="kh-scene"></div>
         <div class="kh-top over"><button type="button" class="kh-round red" data-back aria-label="${T("집 전체 보기", "Back to the floor plan")}">🚪</button>
-          <h2 class="kh-title pill">${esc(T(curRoom().ko, curRoom().en))}</h2><span class="kh-sp"></span>
+          <h2 class="kh-title pill">${esc(roomLabel(curRoom()))}</h2><span class="kh-sp"></span>
           <span class="kh-coins">${COIN}<b data-kh-coins>${coinsText()}</b></span>
+          <button type="button" class="kh-round blue" data-zoom="out" aria-label="${T("작게", "Zoom out")}">－</button><button type="button" class="kh-round blue" data-zoom="in" aria-label="${T("크게", "Zoom in")}">＋</button>
+          <button type="button" class="kh-round blue" data-full aria-label="${T("크게 보기", "Full screen")}">⛶</button>
           <button type="button" class="kh-round orange" data-edit aria-pressed="true" aria-label="${T("꾸미기 끝내기", "Finish decorating")}">✔</button></div>
         <div class="kh-menu" id="kh-menu" hidden></div><p class="kh-toast" role="status"></p></div>
       <aside class="kh-panel" id="kh-panel" aria-label="${T("아이템", "Items")}"></aside></div>`;
-    ses.root.querySelector("[data-back]").onclick = backToPlan;
-    ses.root.querySelector("[data-edit]").onclick = toggleEdit;
+    const q = (s) => ses.root.querySelector(s);
+    q("[data-back]").onclick = backToPlan;
+    q("[data-edit]").onclick = toggleEdit;
+    q("[data-full]").onclick = toggleFull;
+    q('[data-zoom="in"]').onclick = () => setZoom(ses.zoom + 0.5);
+    q('[data-zoom="out"]').onclick = () => setZoom(ses.zoom - 0.5);
+    if (yard && ses.root.clientWidth < 720) ses.zoom = 1.5;
     attachStage();
     placeKoalaFree();
     drawScene();
     drawPanel();
+  }
+  function setZoom(z) {
+    ses.zoom = Math.max(1, Math.min(3, z));
+    const svg = ses.root.querySelector(".kh-room-svg");
+    if (svg) { svg.style.width = `calc((100% - 16px) * ${ses.zoom})`; svg.style.height = `calc((100% - 64px) * ${ses.zoom})`; }
+    const sc = ses.root.querySelector("#kh-scene");
+    if (sc) { sc.classList.toggle("zoomed", ses.zoom > 1); sc.scrollLeft = (sc.scrollWidth - sc.clientWidth) / 2; sc.scrollTop = (sc.scrollHeight - sc.clientHeight) / 2; }
+    showMenu();
   }
   function toggleEdit() {
     ses.edit = !ses.edit; ses.sel = null;
@@ -183,25 +245,30 @@
     b.setAttribute("aria-label", ses.edit ? T("꾸미기 끝내기", "Finish decorating") : T("꾸미기", "Decorate"));
     ses.root.querySelector(".kh-room-screen").classList.toggle("viewing", !ses.edit);
     hideMenu();
-    if (ses.edit) { ses.koala.path = []; placeKoalaFree(); } else ses.koala.wait = 0.6;
+    if (ses.edit) { standUp(true); ses.koala.path = []; placeKoalaFree(); } else ses.koala.wait = 0.6;
     drawScene();
   }
 
   /* ---- koala ---- */
+  const wornNames = () => ["base"].concat(KORDER.filter((n) => Object.values(ses.S.worn || {}).includes(n)));
   function koalaMarkup() {
-    const worn = ses.S.worn || {};
-    const names = ["base"].concat(KORDER.filter((n) => Object.values(worn).includes(n)));
-    const imgs = names.map((n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; }).join("");
-    return `<g class="kh-koala" data-k="0"><ellipse class="kh-kshadow" cx="0" cy="2" rx="24" ry="8" fill="#000" opacity=".16"/><g class="kh-kbody"><g class="kh-kflip"><svg x="-27" y="-82" width="54" height="85" viewBox="64 100 553 868" overflow="visible">${imgs}</svg></g></g></g>`;
+    const imgs = wornNames().map((n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; }).join("");
+    const one = (src) => { const b = KBOX.base; return `<image href="${src}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; };
+    const stand = `<svg class="kh-kstand" x="-27" y="-82" width="54" height="85" viewBox="64 100 553 868" overflow="hidden">${imgs}</svg>`;
+    const back = extraImg.back ? `<svg class="kh-kback" x="-27" y="-82" width="54" height="85" viewBox="64 100 553 868" overflow="hidden" display="none">${one(extraImg.back)}</svg>` : "";
+    const sit = `<svg class="kh-ksit" x="-27" y="-76" width="54" height="78" viewBox="64 100 553 790" overflow="hidden" display="none">${extraImg.sit ? one(extraImg.sit) : imgs}</svg>`;
+    return `<g class="kh-koala" data-k="0"><ellipse class="kh-kshadow" cx="0" cy="2" rx="24" ry="8" fill="#000" opacity=".16"/><g class="kh-kbody"><g class="kh-kflip">${stand}${back}${sit}</g></g></g>`;
   }
+  const FLIP = [-1, 1, 1, -1]; // facing 0 (+r, left-down) 1 (+c, right-down) 2 (-r, right-up) 3 (-c, left-up)
   function koalaCellFree(c, r) {
     const room = curRoom(), st = curState();
     if (c < 0 || r < 0 || c >= room.C || r >= room.R) return false;
-    if (room.kind === "yard" && r < 4) return false;
-    return !H.occupancy(st.items)[c + "," + r];
+    return !H.occ(room, st)[c + "," + r];
   }
   function placeKoalaFree() {
     const k = ses.koala, room = curRoom();
+    if (k.pose === "sit" && k.seat && H.seatAt(curState(), Math.round(k.c), Math.round(k.r))) return;
+    standUp(true);
     if (koalaCellFree(Math.round(k.c), Math.round(k.r))) { k.c = Math.round(k.c); k.r = Math.round(k.r); return; }
     const cells = H.freeCells(room, curState());
     if (!cells.length) return;
@@ -211,11 +278,14 @@
   function updateKoala() {
     const g = ses.root.querySelector(".kh-koala");
     if (!g) return;
-    const k = ses.koala, [x, y] = H.proj(k.c + 0.5, k.r + 0.5, 0);
+    const k = ses.koala, [x, y] = H.proj(k.c + 0.5, k.r + 0.5, k.z || 0);
     g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
-    const body = g.querySelector(".kh-kbody"), fl = g.querySelector(".kh-kflip");
-    body.setAttribute("transform", `translate(0 ${(-Math.abs(Math.sin(k.bob)) * 4).toFixed(1)})`);
-    fl.setAttribute("transform", `scale(${k.face} 1)`);
+    const sit = k.pose === "sit", away = k.dir === 2 || k.dir === 3, hasBack = !!g.querySelector(".kh-kback");
+    const show = (sel, on) => { const e = g.querySelector(sel); if (e) e.setAttribute("display", on ? "inline" : "none"); };
+    show(".kh-kstand", !sit && !(away && hasBack)); show(".kh-kback", !sit && away && hasBack); show(".kh-ksit", sit);
+    g.querySelector(".kh-kbody").setAttribute("transform", `translate(0 ${(-Math.abs(Math.sin(k.bob)) * 4).toFixed(1)})`);
+    g.querySelector(".kh-kflip").setAttribute("transform", `scale(${FLIP[k.dir]} 1)`);
+    g.querySelector(".kh-kshadow").setAttribute("opacity", (k.z ? 0 : 0.16));
     const key = k.c + k.r + 2.02;
     g.dataset.k = key;
     const layer = ses.root.querySelector(".kh-items");
@@ -236,46 +306,89 @@
     }
     return null;
   }
+  // sit down: on a seat piece (chair / sofa / bench), or on the floor
+  function sitOn(seatItem, cell, exitCell) {
+    const k = ses.koala;
+    k.pose = "sit"; k.path = []; k.after = null; k.sitT = 4 + Math.random() * 5;
+    if (seatItem) { const d = H.D[seatItem.id]; k.c = cell[0]; k.r = cell[1]; k.z = d.seat; k.seat = seatItem.uid; k.dir = H.seatFacing(seatItem); k.exit = exitCell || null; }
+    else { k.z = 0; k.seat = null; k.exit = null; }
+  }
+  function standUp(quiet) {
+    const k = ses.koala;
+    if (k.pose !== "sit") return;
+    if (k.seat && k.exit && koalaCellFree(k.exit[0], k.exit[1])) { k.c = k.exit[0]; k.r = k.exit[1]; }
+    k.pose = "stand"; k.z = 0; k.seat = null; k.exit = null;
+    if (!quiet) k.wait = 0.8;
+  }
+  const neighbourFree = (c, r) => [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([a, b]) => [c + a, r + b]).filter((p) => koalaCellFree(p[0], p[1]));
+  function koalaThink(dt) {
+    const k = ses.koala, st = curState();
+    if (k.pose === "sit") {
+      if (k.seat && !st.items.some((i) => i.uid === k.seat)) { standUp(); return; }
+      k.sitT -= dt; k.bob = 0;
+      if (k.sitT <= 0) standUp();
+      updateKoala(); return;
+    }
+    if (k.path.length) {
+      const [tc, tr] = k.path[0], dc = tc - k.c, dr = tr - k.r, d = Math.hypot(dc, dr), step = 1.7 * dt;
+      k.bob += dt * 11;
+      if (d <= step) {
+        k.c = tc; k.r = tr; k.path.shift();
+        if (!k.path.length) {
+          if (k.after) { const a = k.after; k.after = null; const seat = st.items.find((i) => i.uid === a.uid); if (seat) sitOn(seat, a.cell, [tc, tr]); }
+          else k.wait = 1.5 + Math.random() * 3;
+        }
+      } else { k.c += (dc / d) * step; k.r += (dr / d) * step; }
+      if (Math.abs(dc) >= Math.abs(dr)) { if (dc) k.dir = dc > 0 ? 1 : 3; } else if (dr) k.dir = dr > 0 ? 0 : 2;
+      updateKoala(); return;
+    }
+    k.wait -= dt; k.bob = 0;
+    if (k.wait <= 0) {
+      const room = curRoom(), cells = H.freeCells(room, st), from = [Math.round(k.c), Math.round(k.r)], roll = Math.random();
+      const seats = st.items.filter((i) => H.D[i.id] && H.D[i.id].seat);
+      if (roll < 0.35 && seats.length) { // go and sit on a seat
+        const s = seats[Math.floor(Math.random() * seats.length)];
+        for (const cell of H.cellsOf(s).map((x) => x.split(",").map(Number))) {
+          const adj = neighbourFree(cell[0], cell[1]).sort((a, b) => Math.hypot(a[0] - from[0], a[1] - from[1]) - Math.hypot(b[0] - from[0], b[1] - from[1]))[0];
+          if (!adj) continue;
+          const p = adj[0] === from[0] && adj[1] === from[1] ? [] : bfs(from, adj);
+          if (p) { if (p.length) { k.path = p; k.after = { uid: s.uid, cell }; } else sitOn(s, cell, adj); break; }
+        }
+      } else if (roll < 0.5) sitOn(null);
+      else for (let i = 0; i < 6 && !k.path.length && cells.length; i++) { const t = cells[Math.floor(Math.random() * cells.length)]; if (t[0] !== from[0] || t[1] !== from[1]) { const p = bfs(from, t); if (p && p.length) k.path = p; } }
+      k.wait = 1;
+    }
+    updateKoala();
+  }
   function loop(ts) {
     if (!ses) return;
+    if (!ses.root.isConnected) { destroy(); return; }
     const dt = Math.min(0.05, (ts - ses.last) / 1000); ses.last = ts;
-    if (ses.screen === "room" && !ses.edit && !ses.drag && !reduced()) {
-      const k = ses.koala;
-      if (k.path.length) {
-        const [tc, tr] = k.path[0], dc = tc - k.c, dr = tr - k.r, d = Math.hypot(dc, dr), step = 1.7 * dt;
-        k.bob += dt * 11;
-        if (d <= step) { k.c = tc; k.r = tr; k.path.shift(); if (!k.path.length) k.wait = 1.5 + Math.random() * 3; }
-        else { k.c += (dc / d) * step; k.r += (dr / d) * step; }
-        if (dc - dr !== 0) k.face = dc - dr > 0 ? 1 : -1;
-        updateKoala();
-      } else {
-        k.wait -= dt; k.bob = 0;
-        if (k.wait <= 0) {
-          const cells = H.freeCells(curRoom(), curState());
-          const from = [Math.round(k.c), Math.round(k.r)];
-          for (let i = 0; i < 6 && !k.path.length && cells.length; i++) { const t = cells[Math.floor(Math.random() * cells.length)]; if (t[0] !== from[0] || t[1] !== from[1]) { const p = bfs(from, t); if (p && p.length) k.path = p; } }
-          k.wait = 1;
-        }
-        updateKoala();
-      }
-    }
+    if (ses.screen === "room" && !ses.edit && !ses.drag && !reduced()) koalaThink(dt);
     ses.raf = requestAnimationFrame(loop);
   }
 
   /* ---- scene drawing ---- */
   function drawScene() {
     const room = curRoom(), st = curState();
-    ses.root.querySelector("#kh-scene").innerHTML = H.roomSvg(room, st, { label: T(room.ko, room.en), extra: '<g class="kh-ghost"></g>' });
+    ses.root.querySelector("#kh-scene").innerHTML = H.roomSvg(room, st, { label: roomLabel(room), extra: '<g class="kh-ghost"></g>' });
     const svg = ses.root.querySelector(".kh-room-svg");
     const layer = svg.querySelector(".kh-items");
     const tmp = document.createElementNS(NS, "svg"); tmp.innerHTML = koalaMarkup();
     layer.appendChild(tmp.firstChild);
     updateKoala();
     applySel();
+    if (ses.zoom > 1) setZoom(ses.zoom);
+  }
+  function selEl() {
+    if (!ses.sel) return null;
+    if (ses.sel === "koala") return ses.root.querySelector(".kh-koala");
+    if (ses.sel === "house") return ses.root.querySelector(".kh-house");
+    return ses.root.querySelector(`.kh-it[data-uid="${ses.sel}"]`);
   }
   function applySel() {
-    ses.root.querySelectorAll(".kh-it.sel").forEach((e) => e.classList.remove("sel"));
-    if (ses.sel) { const e = ses.root.querySelector(`.kh-it[data-uid="${ses.sel}"]`); if (e) e.classList.add("sel"); }
+    ses.root.querySelectorAll(".kh-sel").forEach((e) => e.classList.remove("kh-sel"));
+    const e = selEl(); if (e) e.classList.add("kh-sel");
   }
 
   /* ---- coordinates ---- */
@@ -307,9 +420,10 @@
 
   /* ---- placing / moving ---- */
   function recalcZ(st) {
+    const room = curRoom();
     st.items.forEach((i) => {
       const d = H.D[i.id]; if (!d || !d.stack) return;
-      const occ = H.occupancy(st.items, i.uid)[H.cellsOf(i)[0]] || [];
+      const occ = H.occ(room, st, i.uid)[H.cellsOf(i)[0]] || [];
       const top = occ.find((o) => H.D[o.id].topH && !H.D[o.id].stack);
       i.z = top ? H.D[top.id].topH : 0;
     });
@@ -325,7 +439,8 @@
     }
     const cells = [];
     for (let c = 0; c < room.C; c++) for (let r = 0; r < room.R; r++) cells.push([c, r]);
-    cells.sort((a, b) => Math.hypot(a[0] - room.C / 2, a[1] - room.R / 2) - Math.hypot(b[0] - room.C / 2, b[1] - room.R / 2));
+    const mid = room.kind === "yard" ? [room.C / 2, room.R * 0.7] : [room.C / 2, room.R / 2];
+    cells.sort((a, b) => Math.hypot(a[0] - mid[0], a[1] - mid[1]) - Math.hypot(b[0] - mid[0], b[1] - mid[1]));
     let best = null;
     for (const m of [0, 1]) {
       for (const [c, r] of cells) {
@@ -350,12 +465,24 @@
   function showMenu() {
     const m = ses.root.querySelector("#kh-menu");
     if (!m) return;
-    if (!ses.sel || !ses.edit) { m.hidden = true; return; }
-    const target = ses.root.querySelector(`.kh-it[data-uid="${ses.sel}"]`);
-    const it = curState().items.find((x) => x.uid === ses.sel);
-    if (!target || !it) { m.hidden = true; return; }
-    const d = H.D[it.id];
-    m.innerHTML = `<b class="kh-menu-name">${esc(nm(d))}</b>${d.wall ? "" : `<button type="button" data-act="rot" aria-label="${T("돌리기", "Rotate")}">🔄</button>`}<button type="button" data-act="del" aria-label="${T("치우기", "Remove")}">🗑️</button><button type="button" data-act="x" aria-label="${T("닫기", "Close")}">✕</button>`;
+    const target = selEl();
+    if (!ses.sel || !ses.edit || !target) { m.hidden = true; return; }
+    let name, btns;
+    const b = (act, ic, label) => `<button type="button" data-act="${act}" aria-label="${esc(label)}" title="${esc(label)}">${ic}</button>`;
+    if (ses.sel === "koala") {
+      name = T("코알라", "Koala");
+      btns = b("rotl", "↺", T("왼쪽으로 돌리기", "Turn left")) + b("rot", "↻", T("오른쪽으로 돌리기", "Turn right")) + b("sit", ses.koala.pose === "sit" ? "🧍" : "🪑", ses.koala.pose === "sit" ? T("일어서기", "Stand up") : T("앉기", "Sit"));
+    } else if (ses.sel === "house") {
+      name = T("집", "House");
+      btns = b("hl", "◀", T("왼쪽으로", "Move left")) + b("hr", "▶", T("오른쪽으로", "Move right")) + b("rotl", "↺", T("돌리기", "Turn")) + b("rot", "↻", T("돌리기", "Turn"));
+    } else {
+      const it = curState().items.find((x) => x.uid === ses.sel);
+      if (!it) { m.hidden = true; return; }
+      const d = H.D[it.id];
+      name = nm(d);
+      btns = (d.wall ? "" : b("rotl", "↺", T("왼쪽으로 돌리기", "Turn left")) + b("rot", "↻", T("오른쪽으로 돌리기", "Turn right"))) + (d.subKind && curOpts.subs ? b("subs", "🧺", T("안에 넣기", "What's inside")) : "") + b("del", "🗑️", T("치우기", "Remove"));
+    }
+    m.innerHTML = `<b class="kh-menu-name">${esc(name)}</b>${btns}<button type="button" data-act="x" aria-label="${T("닫기", "Close")}">✕</button>`;
     m.hidden = false;
     const sr = ses.root.querySelector("#kh-stage").getBoundingClientRect(), tr = target.getBoundingClientRect();
     const w = m.offsetWidth, h = m.offsetHeight;
@@ -363,46 +490,113 @@
     if (y < 56) y = tr.bottom - sr.top + 8;
     x = Math.max(6, Math.min(sr.width - w - 6, x)); y = Math.max(56, Math.min(sr.height - h - 6, y));
     m.style.left = x + "px"; m.style.top = y + "px";
-    m.querySelectorAll("[data-act]").forEach((b) => { b.onclick = (e) => { e.stopPropagation(); menuAct(b.dataset.act); }; });
+    m.querySelectorAll("[data-act]").forEach((bt) => { bt.onclick = (e) => { e.stopPropagation(); menuAct(bt.dataset.act); }; });
+  }
+  function yardValid(y) { // does everything standing in the yard still fit after a change?
+    const dm = H.yardDims(y), rc = H.houseRect(y), virt = H.occ(Object.assign({ kind: "yard" }, dm), Object.assign({}, y, { items: [] }));
+    return y.items.every((i) => {
+      const d = H.D[i.id]; if (!d || d.wall) return true;
+      const f = H.footprint(i);
+      if (i.c < 0 || i.r < 0 || i.c + f.w > dm.C || i.r + f.d > dm.R) return false;
+      return H.cellsOf(i).every((k) => { const [c, r] = k.split(",").map(Number); return !(c >= rc.c0 && c < rc.c1 && r >= rc.r0 && r < rc.r1) && (d.flat || !virt[k]); });
+    });
   }
   function menuAct(act) {
-    const st = curState(), it = st.items.find((x) => x.uid === ses.sel);
+    const st = curState();
     if (act === "x") { ses.sel = null; applySel(); hideMenu(); return; }
+    if (ses.sel === "koala") {
+      const k = ses.koala;
+      if (act === "rot" || act === "rotl") { k.dir = (k.dir + (act === "rot" ? 1 : 3)) % 4; updateKoala(); }
+      else if (act === "sit") { if (k.pose === "sit") standUp(true); else { const s = H.seatAt(st, Math.round(k.c), Math.round(k.r)); sitOn(s || null, [Math.round(k.c), Math.round(k.r)]); } updateKoala(); showMenu(); }
+      return;
+    }
+    if (ses.sel === "house") {
+      const y = JSON.parse(JSON.stringify(ses.S.yard)); y.house = y.house || {};
+      if (act === "rot" || act === "rotl") { y.house.rot = y.house.rot ? 0 : 1; y.house.shift = 0; }
+      else if (act === "hl" || act === "hr") y.house.shift = (y.house.shift || 0) + (act === "hr" ? 1 : -1);
+      const before = H.houseRect(ses.S.yard), after = H.houseRect(y);
+      if (before.c0 === after.c0 && before.r0 === after.r0 && before.rot === after.rot) { toast(T("더 못 움직여요", "It can't go further"), true); return; }
+      if (!yardValid(y)) { toast(T("집 자리에 있는 물건을 먼저 치워요", "Move the things in the way first"), true); return; }
+      ses.S.yard = y; save(); drawScene(); placeKoalaFree(); updateKoala(); showMenu(); return;
+    }
+    const it = st.items.find((x) => x.uid === ses.sel);
     if (!it) return;
     if (act === "del") { st.items = st.items.filter((x) => x.uid !== it.uid); ses.sel = null; recalcZ(st); save(); drawScene(); hideMenu(); placeKoalaFree(); updateKoala(); return; }
-    if (act === "rot") {
-      const room = curRoom(), want = Object.assign({}, it, { m: it.m ? 0 : 1 });
+    if (act === "subs") { openSubs(it); return; }
+    if (act === "rot" || act === "rotl") {
+      const room = curRoom(), want = Object.assign({}, it, { m: ((it.m | 0) + (act === "rot" ? 1 : 3)) % 4 });
       let ok = null;
-      for (const [dc, dr] of [[0, 0], [-1, 0], [0, -1], [-1, -1], [1, 0], [0, 1]]) {
+      for (const [dc, dr] of [[0, 0], [-1, 0], [0, -1], [-1, -1], [1, 0], [0, 1], [1, 1], [-2, 0], [0, -2]]) {
         const p = Object.assign({}, want, { c: want.c + dc, r: want.r + dr }), res = H.canPlace(room, st, p, it.uid);
         if (res.ok) { p.z = res.z; ok = p; break; }
       }
       if (!ok) { toast(T("여기선 돌릴 수 없어요", "No space to turn it here"), true); return; }
+      const riders = (H.D[it.id].topH && !H.D[it.id].stack) ? st.items.filter((o) => o.uid !== it.uid && H.D[o.id].stack && H.cellsOf(it).includes(H.cellsOf(o)[0])) : [];
+      riders.forEach((o) => { o.c = ok.c; o.r = ok.r; });
       Object.assign(it, ok); recalcZ(st); save(); drawScene(); showMenu();
     }
   }
 
+  /* ---- what is inside furniture (sub-items): books, desk things, the picture in a frame, toys ---- */
+  function openSubs(it) {
+    const d = H.D[it.id], kind = d.subKind, api = curOpts.subs;
+    if (!api) return;
+    const list = api.list(kind), grp = {}; list.forEach((e) => { grp[e.id] = e.group; });
+    const cur = it.sub || [];
+    const title = { books: T("책장 속 책", "Books on the shelf"), desk: T("책상 위·서랍", "On the desk"), frame: T("액자 그림", "Picture"), toys: T("장난감 상자", "Toys") }[kind] || nm(d);
+    const icon = (e) => { const v = H.subVis(e.id); return v ? `<span class="kh-subic" style="background:${v[1]}" aria-hidden="true">${v[0]}</span>` : `<span class="kh-subic" style="background:${H.bookColor(e.id)}" aria-hidden="true">📖</span>`; };
+    const groups = Array.from(new Set(list.map((e) => e.group)));
+    const gname = { main: "", top: T("책상 위", "On top"), drawer: T("서랍 속", "In the drawer") };
+    modal(`<h2>🧺 ${esc(title)}</h2><p class="kh-buy-note">${kind === "books" && !it.sub ? T("지금은 기본 책이 꽂혀 있어요. 골라 넣으면 바뀌어요.", "Default books for now — pick some to replace them.") : T("눌러서 넣고 빼요. 코인으로 새 물건도 살 수 있어요.", "Tap to put in or take out. New things cost coins.")}</p>
+      <div class="kh-sublist">${groups.map((g) => `${gname[g] ? `<h3>${gname[g]}</h3>` : ""}<div class="kh-subgrid">${list.filter((e) => e.group === g).map((e) => { const on = cur.includes(e.id); return `<button type="button" class="kh-subitem${on ? " on" : ""}${e.owned ? "" : " locked"}" data-sub="${e.id}" aria-pressed="${on}">${icon(e)}<span class="kh-nm">${esc(T(e.name[0], e.name[1]))}</span>${e.owned ? (on ? `<span class="kh-pr">✓</span>` : "") : `<span class="kh-pr">${COIN}${e.cost}</span>`}</button>`; }).join("")}</div>`).join("")}</div>
+      <div class="kh-btns">${it.sub && kind === "books" ? `<button type="button" class="kh-btn alt" data-reset>${T("기본 책으로", "Default books")}</button>` : ""}<button type="button" class="kh-btn" data-primary data-ok>${T("완료", "Done")}</button></div>`, (m) => {
+      m.querySelector("[data-ok]").onclick = closeModal;
+      const rs = m.querySelector("[data-reset]"); if (rs) rs.onclick = () => { delete it.sub; save(); drawScene(); applySel(); showMenu(); openSubs(it); };
+      m.querySelectorAll("[data-sub]").forEach((b) => {
+        b.onclick = () => {
+          const e = list.find((x) => x.id === b.dataset.sub);
+          const toggle = () => {
+            let sub = (it.sub || []).slice();
+            const at = sub.indexOf(e.id);
+            if (at >= 0) sub.splice(at, 1);
+            else {
+              if (kind === "frame") sub = [];
+              const same = sub.filter((x) => grp[x] === e.group), lim = api.limit(kind, e.group) || 99;
+              if (same.length >= lim) sub.splice(sub.indexOf(same[0]), 1);
+              sub.push(e.id);
+            }
+            it.sub = sub; save(); drawScene(); applySel(); showMenu(); openSubs(it);
+          };
+          if (e.owned) toggle();
+          else buy(T(e.name[0], e.name[1]), icon(e), e.cost, "sub:" + e.id, () => { e.owned = true; toggle(); }, () => api.buy(e.id));
+        };
+      });
+    });
+  }
+
   /* ---- dragging ---- */
   function ghostFor(drag) {
-    const room = curRoom(), p = drag.piece, d = H.D[p.id];
-    if (d.wall) return H.wallItemSvg(p);
+    const p = drag.piece, d = H.D[p.id];
+    if (d && d.wall) return H.wallItemSvg(p);
     const f = H.footprint(p), c0 = Math.round(p.c), r0 = Math.round(p.r);
     const quad = [H.proj(c0, r0, 0), H.proj(c0 + f.w, r0, 0), H.proj(c0 + f.w, r0 + f.d, 0), H.proj(c0, r0 + f.d, 0)].map((q) => q.map((v) => v.toFixed(1)).join(",")).join(" ");
+    const poly = `<polygon class="kh-foot ${drag.valid ? "ok" : "bad"}" points="${quad}"/>`;
+    if (drag.koala) return poly;
     const q = Object.assign({}, p, { c: c0, r: r0 });
-    if (drag.koala) return `<polygon class="kh-foot ${drag.valid ? "ok" : "bad"}" points="${quad}"/>`;
-    return `<polygon class="kh-foot ${drag.valid ? "ok" : "bad"}" points="${quad}"/>` + H.floorItemSvg(q) + (drag.riders || []).map((rd) => H.floorItemSvg(Object.assign({}, rd.it, { c: c0 + rd.dc, r: r0 + rd.dr }))).join("");
+    return poly + H.floorItemSvg(q) + (drag.riders || []).map((rd) => H.floorItemSvg(Object.assign({}, rd.it, { c: c0 + rd.dc, r: r0 + rd.dr }))).join("");
   }
   function updateDrag(ev) {
-    const drag = ses.drag, room = curRoom(), st = curState(), d = H.D[drag.piece.id], p = toScene(ev);
-    if (d.wall) {
-      const t = wallTarget(p.x, p.y, d, room);
-      Object.assign(drag.piece, t);
+    const drag = ses.drag, room = curRoom(), st = curState(), p = toScene(ev);
+    if (drag.house) { drag.overStage = true; return; }
+    const d = H.D[drag.piece.id];
+    if (d && d.wall) {
+      Object.assign(drag.piece, wallTarget(p.x, p.y, d, room));
       drag.valid = !wallOverlap(st, drag.piece, drag.uid);
     } else {
       const g = cellOf(p.x, p.y + (drag.fromPanel ? 20 : 0)), f = H.footprint(drag.piece);
       drag.piece.c = Math.round(drag.fromPanel ? g.c - f.w / 2 : g.c - drag.grab.c);
       drag.piece.r = Math.round(drag.fromPanel ? g.r - f.d / 2 : g.r - drag.grab.r);
-      if (drag.koala) drag.valid = koalaCellFree(Math.round(drag.piece.c), Math.round(drag.piece.r));
+      if (drag.koala) { const c = drag.piece.c, r = drag.piece.r; drag.valid = koalaCellFree(c, r) || !!H.seatAt(st, c, r); }
       else { const res = H.canPlace(room, st, drag.piece, drag.uid); drag.valid = res.ok; if (res.ok) drag.piece.z = res.z; }
     }
     const gh = ses.root.querySelector(".kh-ghost");
@@ -421,17 +615,24 @@
     const st = curState();
     if (cancel) { drawScene(); return; }
     if (!drag.moved) { // a tap
-      if (drag.uid) { ses.sel = drag.uid; applySel(); showMenu(); }
-      else if (drag.koala) { const g = ses.root.querySelector(".kh-kbody"); if (g) { g.classList.remove("hop"); void g.getBoundingClientRect(); g.classList.add("hop"); } }
+      if (drag.uid || drag.koala || drag.house) {
+        ses.sel = drag.uid || (drag.koala ? "koala" : "house"); applySel(); showMenu();
+        if (drag.koala) { const g = ses.root.querySelector(".kh-kbody"); if (g) { g.classList.remove("hop"); void g.getBoundingClientRect(); g.classList.add("hop"); } }
+      }
       return;
     }
+    if (drag.house) return;
     if (drag.koala) {
-      const c = Math.round(drag.piece.c), r = Math.round(drag.piece.r);
-      if (drag.overStage && koalaCellFree(c, r)) { ses.koala.c = c; ses.koala.r = r; ses.koala.path = []; }
-      updateKoala(); return;
+      const c = Math.round(drag.piece.c), r = Math.round(drag.piece.r), k = ses.koala;
+      if (drag.overStage) {
+        const seat = H.seatAt(st, c, r);
+        if (seat) sitOn(seat, [c, r], neighbourFree(c, r)[0] || null);
+        else if (koalaCellFree(c, r)) { standUp(true); k.c = c; k.r = r; k.path = []; }
+      }
+      ses.sel = "koala"; drawScene(); showMenu(); return;
     }
     if (drag.uid) { // moving a placed piece
-      if (!drag.overStage) { st.items = st.items.filter((x) => x.uid !== drag.uid); (drag.riders || []).forEach((rd) => { const it = st.items.find((x) => x.uid === rd.it.uid); if (it) it.z = 0; }); ses.sel = null; recalcZ(st); save(); drawScene(); hideMenu(); toast(T("치웠어요", "Put away")); return; }
+      if (!drag.overStage) { st.items = st.items.filter((x) => x.uid !== drag.uid); (drag.riders || []).forEach((rd) => { const it = st.items.find((x) => x.uid === rd.it.uid); if (it) it.z = 0; }); ses.sel = null; recalcZ(st); save(); drawScene(); hideMenu(); placeKoalaFree(); toast(T("치웠어요", "Put away")); return; }
       if (!drag.valid) { toast(T("여기엔 놓을 수 없어요", "Can't go there"), true); drawScene(); showMenu(); return; }
       const it = st.items.find((x) => x.uid === drag.uid);
       const pc = Math.round(drag.piece.c), pr = Math.round(drag.piece.r);
@@ -466,18 +667,25 @@
     const stage = ses.root.querySelector("#kh-stage");
     stage.addEventListener("pointerdown", (ev) => {
       if (!ses.edit || ev.button > 0 || ev.target.closest(".kh-menu,.kh-top")) return;
-      const g = ev.target.closest && ev.target.closest(".kh-it,.kh-koala");
-      if (!g) { if (ses.sel) { ses.sel = null; applySel(); hideMenu(); } return; }
+      const g = ev.target.closest && ev.target.closest(".kh-it:not(.kh-fixed),.kh-koala,.kh-house");
+      if (!g) {
+        if (ses.sel) { ses.sel = null; applySel(); hideMenu(); }
+        if (ses.zoom > 1) { // drag the background to look around
+          const sc = ses.root.querySelector("#kh-scene"), x0 = ev.clientX, y0 = ev.clientY, l0 = sc.scrollLeft, t0 = sc.scrollTop;
+          const mv = (e) => { sc.scrollLeft = l0 - (e.clientX - x0); sc.scrollTop = t0 - (e.clientY - y0); };
+          const up = () => { window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); };
+          window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up);
+        }
+        return;
+      }
       ev.preventDefault();
       const st = curState(), p = toScene(ev);
       if (g.classList.contains("kh-koala")) {
         const k = ses.koala, gc = cellOf(p.x, p.y);
-        beginDrag(ev, { koala: true, piece: { id: "stoolBlue", c: k.c, r: k.r, m: 0 }, grab: { c: gc.c - k.c, r: gc.r - k.r } });
-        // the koala moves like a 1x1 piece: reuse the footprint of a stool for the ghost
-        ses.drag.piece = { id: "stoolBlue", c: k.c, r: k.r, m: 0, z: 0 };
-        ses.drag.koalaPiece = true;
+        beginDrag(ev, { koala: true, piece: { id: "stoolBlue", c: Math.round(k.c), r: Math.round(k.r), m: 0, z: 0 }, grab: { c: gc.c - k.c, r: gc.r - k.r } });
         return;
       }
+      if (g.classList.contains("kh-house")) { beginDrag(ev, { house: true, piece: { id: "stoolBlue", c: 0, r: 0, m: 0 } }); return; }
       const it = st.items.find((x) => x.uid === g.dataset.uid);
       if (!it) return;
       const d = H.D[it.id];
@@ -505,25 +713,47 @@
   function swatch(kind, key, def, own, on) {
     return `<button type="button" class="kh-sw${on ? " on" : ""}${own ? "" : " locked"}" data-sw="${kind}:${key}" aria-label="${esc(T(def.n[0], def.n[1]))}" aria-pressed="${on}"><span class="kh-sw-c" style="background:${def.c};box-shadow:inset 0 0 0 5px ${def.a}"></span><span class="kh-sw-n">${esc(T(def.n[0], def.n[1]))}</span>${own ? "" : `<span class="kh-pr">${COIN}${def.p}</span>`}</button>`;
   }
+  const HOUSE_IC = { cottage: "🏡", villa: "🏘️", twoStory: "🏠", modern: "🏢", cabin: "🛖", castle: "🏰" };
+  const optBtn = (attr, key, on, ic, label, price, own) => `<button type="button" class="kh-sw kh-opt${on ? " on" : ""}${own === false ? " locked" : ""}" ${attr}="${key}" aria-pressed="${on}"><span class="kh-optic" aria-hidden="true">${ic}</span><span class="kh-sw-n">${esc(label)}</span>${own === false ? `<span class="kh-pr">${COIN}${price}</span>` : ""}</button>`;
   function gridHtml(yard) {
     const st = curState(), S = ses.S;
     if (ses.tab === "style") {
-      if (yard) return `<h3>${T("잔디 색", "Lawn")}</h3><div class="kh-sws">${["grass", "lime", "autumn"].map((k) => swatch("floor", k, H.FLOORS[k], k === "grass" || !!S.floors[k], st.floor === k)).join("")}</div>`;
-      return `<h3>${T("벽지", "Wallpaper")}</h3><div class="kh-sws">${Object.keys(H.WALLS).map((k) => swatch("wall", k, H.WALLS[k], H.WALLS[k].p === 0 || !!S.walls[k], st.wall === k)).join("")}</div><h3>${T("바닥", "Floor")}</h3><div class="kh-sws">${Object.keys(H.FLOORS).filter((k) => !["grass", "lime", "autumn"].includes(k)).map((k) => swatch("floor", k, H.FLOORS[k], H.FLOORS[k].p === 0 || !!S.floors[k], st.floor === k)).join("")}</div>`;
+      return `<h3>${T("벽지", "Wallpaper")}</h3><div class="kh-sws">${Object.keys(H.WALLS).map((k) => swatch("wall", k, H.WALLS[k], H.WALLS[k].p === 0 || !!S.walls[k], st.wall === k)).join("")}</div><h3>${T("바닥", "Floor")}</h3><div class="kh-sws">${Object.keys(H.FLOORS).filter((k) => !H.FLOORS[k].yard).map((k) => swatch("floor", k, H.FLOORS[k], H.FLOORS[k].p === 0 || !!S.floors[k], st.floor === k)).join("")}</div>`;
     }
     if (ses.tab === "house") {
       const h = st.house || {};
-      const grp = (title, kind, set, key) => `<h3>${title}</h3><div class="kh-sws">${Object.keys(set).map((k) => `<button type="button" class="kh-sw${h[kind] === k ? " on" : ""}" data-house="${kind}:${k}" aria-pressed="${h[kind] === k}" aria-label="${esc(T(set[k][0], set[k][1]))}"><span class="kh-sw-c" style="background:${set[k][2]}"></span><span class="kh-sw-n">${esc(T(set[k][0], set[k][1]))}</span></button>`).join("")}</div>`;
-      return grp(T("외벽", "Walls"), "wall", H.HOUSE_WALLS) + grp(T("지붕", "Roof"), "roof", H.HOUSE_ROOFS) + grp(T("현관문", "Door"), "door", H.HOUSE_DOORS);
+      const grp = (title, kind, set) => `<h3>${title}</h3><div class="kh-sws">${Object.keys(set).map((k) => `<button type="button" class="kh-sw${h[kind] === k ? " on" : ""}" data-house="${kind}:${k}" aria-pressed="${h[kind] === k}" aria-label="${esc(T(set[k][0], set[k][1]))}"><span class="kh-sw-c" style="background:${set[k][2]}"></span><span class="kh-sw-n">${esc(T(set[k][0], set[k][1]))}</span></button>`).join("")}</div>`;
+      return `<h3>${T("집 모양", "House style")}</h3><div class="kh-sws">${Object.keys(H.HOUSE_STYLES).map((k) => { const d = H.HOUSE_STYLES[k]; return optBtn("data-hstyle", k, h.style === k, HOUSE_IC[k], T(d.n[0], d.n[1]), d.p, d.p === 0 || !!S.houseStyles[k]); }).join("")}</div>
+        <h3>${T("집 돌리기·옮기기", "Turn & move the house")}</h3><div class="kh-sws">${optBtn("data-hctl", "rot", false, "🔄", T("돌리기", "Turn"))}${optBtn("data-hctl", "hl", false, "◀", T("왼쪽", "Left"))}${optBtn("data-hctl", "hr", false, "▶", T("오른쪽", "Right"))}</div>
+        ${grp(T("외벽", "Walls"), "wall", H.HOUSE_WALLS)}${grp(T("지붕", "Roof"), "roof", H.HOUSE_ROOFS)}${grp(T("현관문", "Door"), "door", H.HOUSE_DOORS)}`;
     }
-    if (ses.tab === "koala") {
-      const w = S.worn || {};
-      return Object.keys(KSLOT).map((slot) => `<h3>${{ hat: T("머리", "Head"), face: T("얼굴", "Face"), neck: T("목", "Neck"), body: T("몸", "Body"), back: T("등", "Back") }[slot]}</h3><div class="kh-sws">${KSLOT[slot].map((n) => `<button type="button" class="kh-sw kh-kitem${w[slot] === n ? " on" : ""}" data-wear="${slot}:${n}" aria-pressed="${w[slot] === n}"><img src="${kimg(n)}" alt="" draggable="false"><span class="kh-sw-n">${esc(T(KNAME[n][0], KNAME[n][1]))}</span></button>`).join("")}</div>`).join("");
+    if (ses.tab === "garden") {
+      const own = (kind, key, p) => !p || !!(S[kind] && S[kind][key]);
+      return `<h3>${T("정원 모양 (한 번에 바꾸기)", "Garden looks")}</h3><div class="kh-sws">${Object.keys(H.GARDEN_PRESETS).map((k) => { const g = H.GARDEN_PRESETS[k], fl = H.FLOORS[g.floor]; return `<button type="button" class="kh-sw kh-opt${st.floor === g.floor && st.border === g.border && st.path === g.path && st.size === g.size ? " on" : ""}" data-gpreset="${k}"><span class="kh-sw-c" style="background:${fl.c};box-shadow:inset 0 0 0 5px ${fl.a}"></span><span class="kh-sw-n">${esc(T(g.n[0], g.n[1]))}</span></button>`; }).join("")}</div>
+        <h3>${T("땅", "Ground")}</h3><div class="kh-sws">${Object.keys(H.FLOORS).filter((k) => H.FLOORS[k].yard).map((k) => swatch("floor", k, H.FLOORS[k], H.FLOORS[k].p === 0 || !!S.floors[k], st.floor === k)).join("")}</div>
+        <h3>${T("울타리", "Border")}</h3><div class="kh-sws">${Object.keys(H.BORDERS).map((k) => optBtn("data-gborder", k, (st.border || "none") === k, { none: "∅", fence: "🚧", hedge: "🌿", stone: "🧱" }[k], T(H.BORDERS[k][0], H.BORDERS[k][1]))).join("")}</div>
+        <h3>${T("길", "Path")}</h3><div class="kh-sws">${Object.keys(H.PATHS).map((k) => optBtn("data-gpath", k, (st.path || "none") === k, { none: "∅", stones: "🪨", brick: "🟫", plank: "🪵" }[k], T(H.PATHS[k][0], H.PATHS[k][1]))).join("")}</div>
+        <h3>${T("마당 크기", "Yard size")}</h3><div class="kh-sws">${Object.keys(H.YARD_SIZES).map((k) => { const z = H.YARD_SIZES[k]; return optBtn("data-gsize", k, (st.size || "normal") === k, `${z.C}×${z.R}`, T(z.n[0], z.n[1]), z.p, own("yardSizes", k, z.p)); }).join("")}</div>`;
     }
-    const list = Object.values(H.D).filter((d) => d.cat === ses.tab && (d.where === "both" || d.where === (yard ? "out" : "in"))).sort((a, b) => a.price - b.price);
+    const list = Object.values(H.D).filter((d) => !d.virtual && d.cat === ses.tab && (d.where === "both" || d.where === (yard ? "out" : "in"))).sort((a, b) => a.price - b.price);
     return `<div class="kh-items-grid">${list.map((d) => { const own = ownedItem(d); return `<button type="button" class="kh-item${own ? "" : " locked"}" data-item="${d.id}" aria-label="${esc(nm(d))}${own ? "" : ", " + d.price}">${H.thumbSvg(d.id)}<span class="kh-nm">${esc(nm(d))}</span>${own ? "" : `<span class="kh-pr">${COIN}${d.price}</span>`}</button>`; }).join("")}</div>`;
   }
+  // change the yard; may cost coins (a new size / ground / house style)
+  function planYard(patch, price, why, label) {
+    const y = JSON.parse(JSON.stringify(ses.S.yard));
+    const house = patch.house; const rest = Object.assign({}, patch); delete rest.house;
+    if (house) y.house = Object.assign(y.house || {}, house);
+    Object.assign(y, rest);
+    if (!yardValid(y)) { toast(T("마당 밖·집 자리에 있는 물건을 먼저 치워 주세요", "Move the things that would be in the way first"), true); return null; }
+    return { y, price, why, label };
+  }
+  function runYard(plan, mark) {
+    if (!plan) return;
+    const apply = () => { if (mark) mark(); ses.S.yard = plan.y; save(); drawScene(); drawPanel(); placeKoalaFree(); updateKoala(); };
+    if (plan.price > 0) buy(plan.label, `<span class="kh-buy-thumb">🏡</span>`, plan.price, plan.why, apply); else apply();
+  }
   function wireGrid(grid, yard) {
+    const S = ses.S;
     grid.querySelectorAll("[data-item]").forEach((b) => {
       b.addEventListener("pointerdown", (ev) => {
         if (ev.button > 0) return;
@@ -537,21 +767,58 @@
       b.addEventListener("click", () => {
         if (b._dragged) { b._dragged = false; return; }
         const id = b.dataset.item, d = H.D[id];
-        if (!ownedItem(d)) { buy(nm(d), `<span class="kh-buy-thumb">${H.thumbSvg(id)}</span>`, d.price, "house:" + id, () => { ses.S.owned[id] = 1; save(); drawPanel(); placeNew(id); }); return; }
+        if (!ownedItem(d)) { buy(nm(d), `<span class="kh-buy-thumb">${H.thumbSvg(id)}</span>`, d.price, "house:" + id, () => { S.owned[id] = 1; save(); drawPanel(); placeNew(id); }); return; }
         placeNew(id); placeKoalaFree(); updateKoala();
       });
     });
     grid.querySelectorAll("[data-sw]").forEach((b) => {
       b.onclick = () => {
-        const [kind, key] = b.dataset.sw.split(":"), def = (kind === "wall" ? H.WALLS : H.FLOORS)[key], store = kind === "wall" ? ses.S.walls : ses.S.floors, own = def.p === 0 || !!store[key];
+        const [kind, key] = b.dataset.sw.split(":"), def = (kind === "wall" ? H.WALLS : H.FLOORS)[key], store = kind === "wall" ? S.walls : S.floors, own = def.p === 0 || !!store[key];
+        if (yard && kind === "floor") { runYard(planYard({ floor: key }, own ? 0 : def.p, "floor:" + key, T(def.n[0], def.n[1])), () => { store[key] = 1; }); return; }
         const apply = () => { curState()[kind] = key; save(); drawScene(); drawPanel(); };
         if (own) apply(); else buy(T(def.n[0], def.n[1]), `<span class="kh-sw-c big" style="background:${def.c};box-shadow:inset 0 0 0 8px ${def.a}"></span>`, def.p, kind + ":" + key, () => { store[key] = 1; apply(); });
       };
     });
     grid.querySelectorAll("[data-house]").forEach((b) => { b.onclick = () => { const [kind, key] = b.dataset.house.split(":"); const st = curState(); st.house = st.house || {}; st.house[kind] = key; save(); drawScene(); drawPanel(); }; });
-    grid.querySelectorAll("[data-wear]").forEach((b) => { b.onclick = () => { const [slot, n] = b.dataset.wear.split(":"); const w = ses.S.worn = ses.S.worn || {}; if (w[slot] === n) delete w[slot]; else w[slot] = n; save(); drawScene(); drawPanel(); }; });
+    grid.querySelectorAll("[data-hstyle]").forEach((b) => {
+      b.onclick = () => { const k = b.dataset.hstyle, d = H.HOUSE_STYLES[k], own = d.p === 0 || !!S.houseStyles[k]; runYard(planYard({ house: { style: k, shift: 0 } }, own ? 0 : d.p, "house:" + k, T(d.n[0], d.n[1])), () => { S.houseStyles[k] = 1; }); };
+    });
+    grid.querySelectorAll("[data-hctl]").forEach((b) => { b.onclick = () => { ses.sel = "house"; menuAct(b.dataset.hctl); ses.sel = null; applySel(); hideMenu(); }; });
+    grid.querySelectorAll("[data-gborder]").forEach((b) => { b.onclick = () => runYard(planYard({ border: b.dataset.gborder }, 0, "", ""), null); });
+    grid.querySelectorAll("[data-gpath]").forEach((b) => { b.onclick = () => runYard(planYard({ path: b.dataset.gpath }, 0, "", ""), null); });
+    grid.querySelectorAll("[data-gsize]").forEach((b) => {
+      b.onclick = () => { const k = b.dataset.gsize, z = H.YARD_SIZES[k], own = z.p === 0 || !!S.yardSizes[k]; runYard(planYard({ size: k }, own ? 0 : z.p, "yard:" + k, T(z.n[0], z.n[1])), () => { S.yardSizes[k] = 1; }); };
+    });
+    grid.querySelectorAll("[data-gpreset]").forEach((b) => {
+      b.onclick = () => {
+        const g = H.GARDEN_PRESETS[b.dataset.gpreset], fl = H.FLOORS[g.floor], z = H.YARD_SIZES[g.size];
+        const cost = (fl.p && !S.floors[g.floor] ? fl.p : 0) + (z.p && !S.yardSizes[g.size] ? z.p : 0);
+        runYard(planYard({ floor: g.floor, border: g.border, path: g.path, size: g.size }, cost, "garden:" + b.dataset.gpreset, T(g.n[0], g.n[1])), () => { S.floors[g.floor] = 1; S.yardSizes[g.size] = 1; });
+      };
+    });
   }
 
-  window.KoalaHouse.open = open;
-  window.KoalaHouse.close = close;
+  /* ------------------------------ 3D wardrobe (Character tab) ------------------------------ */
+  function mountWardrobe(root, opts) {
+    if (ses) destroy();
+    curOpts = opts;
+    const S = H.load();
+    S.worn = S.worn || {};
+    const slotName = { hat: T("머리", "Head"), face: T("얼굴", "Face"), neck: T("목", "Neck"), body: T("몸", "Body"), back: T("등", "Back") };
+    const draw = () => {
+      const names = ["base"].concat(KORDER.filter((n) => Object.values(S.worn).includes(n)));
+      const imgs = names.map((n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; }).join("");
+      root.className = "kh-app kh-embed kh-ward";
+      root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage"><svg class="kh-ward-koala" viewBox="64 100 553 868" role="img" aria-label="${T("3D 코알라", "3D Koala")}"><g class="kh-wbody">${imgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
+        <aside class="kh-panel"><div class="kh-grid">${Object.keys(KSLOT).map((slot) => `<h3>${slotName[slot]}</h3><div class="kh-sws">${KSLOT[slot].map((n) => `<button type="button" class="kh-sw kh-kitem${S.worn[slot] === n ? " on" : ""}" data-wear="${slot}:${n}" aria-pressed="${S.worn[slot] === n}"><img src="${kimg(n)}" alt="" draggable="false"><span class="kh-sw-n">${esc(T(KNAME[n][0], KNAME[n][1]))}</span></button>`).join("")}</div>`).join("")}<button type="button" class="kh-btn alt kh-clear" data-clear>${T("모두 벗기기", "Take everything off")}</button></div></aside>`;
+      root.querySelectorAll("[data-wear]").forEach((b) => { b.onclick = () => { const [slot, n] = b.dataset.wear.split(":"); if (S.worn[slot] === n) delete S.worn[slot]; else S.worn[slot] = n; H.persist(S); draw(); }; });
+      root.querySelector("[data-clear]").onclick = () => { S.worn = {}; H.persist(S); draw(); };
+      const kb = root.querySelector(".kh-wbody"); root.querySelector("#kh-wstage").onclick = () => { kb.classList.remove("hop"); void kb.getBoundingClientRect(); kb.classList.add("hop"); };
+    };
+    draw();
+  }
+
+  window.KoalaHouse.mount = mount;
+  window.KoalaHouse.unmount = destroy;
+  window.KoalaHouse.mountWardrobe = mountWardrobe;
 })();

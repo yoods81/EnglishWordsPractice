@@ -15246,6 +15246,7 @@ const KOALA_SLOT_TITLES = () => ({
   toy: rwL("🧸 Toy Boxes", "🧸 장난감 상자"),
 });
 const KOALA_SLOT_EMOJI = { headwear: "🎩", face: "👓", clothing: "👕", jewelry: "💍", shoes: "👟", accessory: "🎒", wallpaper: "🎨", rug: "🟡", poster: "🖼️", desk: "📚", lamp: "💡", shelf: "📖", plant: "🪴", window: "🪟", garland: "🎏", pet: "🐾", toy: "🧸" };
+let koalaDim = "2d"; // "2d" | "3d" (3D needs Premium)
 let koalaTab = "character"; // "character" | "room" | "coins" | "badges"
 let koalaHistoryAll = false; // Coin history: false = latest 10 only, true = everything kept (up to 100)
 // The shop is a 2-split studio: the live preview stays on top, the item grid sits below.
@@ -15608,7 +15609,6 @@ function koalaStudioTopHtml(k, mode) {
   return `<div class="koala-studio-top"><div class="koala-studio-preview">
     <div class="koala-studio-bar">
       <button type="button" class="koala-back${koalaOwnedView ? " on" : ""}" data-koala-owned aria-pressed="${koalaOwnedView}">${koalaOwnedView ? rwL("✓ Back to shop", "✓ 상점으로") : rwL("🎒 My items", "🎒 내 아이템")}</button>
-      <button type="button" class="koala-back kh-enter" data-open-house>${rwL("🏠 My House", "🏠 내 집")}</button>
       <span class="koala-studio-lv">${rwL(`Lv. ${lv.level}`, `Lv. ${lv.level}`)}</span>
       <span class="koala-studio-coins" aria-label="${rwL("Koala Coins", "코알라 코인")}">${COIN_SVG} <b>${serverAdmin ? "∞" : k.coins.toLocaleString()}</b></span>
     </div>
@@ -15818,21 +15818,65 @@ function announceKoalaUnlocks() {
   saveProgress();
 }
 
-function openKoalaHouse() {
-  if (!window.KoalaHouse || !KoalaHouse.open) return;
+// ---- 3D house / wardrobe (premium) ----
+function koalaHouseOpts() {
   const opts = koalaOpts();
-  KoalaHouse.open({
+  const free = !!serverAdmin || !!opts.unlimited;
+  return {
     L: rwL,
     coins: () => KoalaCore.ensureKoala(progress).coins,
-    unlimited: !!serverAdmin || !!opts.unlimited,
+    unlimited: free,
     spend: (n, why) => {
-      if (serverAdmin || opts.unlimited) return true;
+      if (free) return true;
       const ok = KoalaCore.spendCoins(progress, n, "house:" + why, opts);
       if (ok) saveProgress();
       return !!ok;
     },
-    onClose: () => { try { renderKoala(); } catch (e) {} },
-  });
+    subs: {
+      list: (kind) => KoalaCore.SUB_ITEMS.filter((x) => x.kind === kind).map((x) => ({
+        id: x.id, name: [x.name.ko, x.name.en], cost: x.cost || 0, group: x.group,
+        owned: !x.cost || KoalaCore.isSubOwned(progress, x.id),
+      })),
+      limit: (kind, group) => KoalaCore.subLimit(kind, group),
+      buy: (id) => {
+        const sItem = KoalaCore.subById(id);
+        if (!sItem) return false;
+        const k = KoalaCore.ensureKoala(progress);
+        if (!free && !KoalaCore.spendCoins(progress, sItem.cost, "sub:" + id, opts)) return false;
+        k.items.subOwned[id] = Date.now();
+        delete k.items.sold[id];
+        saveProgress();
+        return true;
+      },
+    },
+  };
+}
+
+// 2D / 3D switch above the character and room tabs. 3D is a premium feature.
+function koalaDimBarHtml() {
+  const paid = canUsePaidFeatures();
+  const b = (id, label) => `<button type="button" class="koala-dim-btn${koalaDim === id ? " on" : ""}" role="tab" aria-selected="${koalaDim === id}" data-koala-dim="${id}">${label}</button>`;
+  return `<div class="koala-dim" role="tablist" aria-label="${rwL("2D or 3D", "2D / 3D 보기")}">${b("2d", "2D")}${b("3d", "3D" + (paid ? "" : " 👑"))}</div>`;
+}
+
+function koalaDim3dHtml() {
+  if (!canUsePaidFeatures()) {
+    const what = koalaTab === "room" ? rwL("3D room decorating, a floor plan with more rooms, and a big garden", "3D 방 꾸미기, 방을 늘려 가는 평면도, 넓은 마당") : rwL("a 3D Koala you can dress up", "옷을 입혀 볼 수 있는 3D 코알라");
+    return `<div class="rw-lock koala-dim-lock"><div class="rw-lock-icon">👑</div>
+      <div class="rw-lock-title">${rwL("3D is for Premium", "3D는 프리미엄 기능이에요")}</div>
+      <p>${rwL("Premium unlocks " + what + ". 2D is free for everyone.", "프리미엄에서는 " + what + "을(를) 즐길 수 있어요. 2D는 모두에게 무료예요.")}</p>
+      <button type="button" class="pill accent small" data-koala-upgrade>${rwL("See Premium", "프리미엄 보기")}</button></div>`;
+  }
+  return `<div class="koala-dim3d"><div id="kh-host" class="kh-app kh-embed"></div></div>`;
+}
+
+function koalaMountDim3d() {
+  const host = document.getElementById("kh-host");
+  if (!host || !window.KoalaHouse || !KoalaHouse.mount) return;
+  try {
+    if (koalaTab === "room") KoalaHouse.mount(host, koalaHouseOpts());
+    else KoalaHouse.mountWardrobe(host, koalaHouseOpts());
+  } catch (err) { host.textContent = ""; console.error(err); }
 }
 
 function renderKoala() {
@@ -15903,14 +15947,16 @@ function renderKoala() {
   // Shop tabs (Character / Room): tabs, then the studio (live preview on top, items below), level + streak last.
   // Coins / Badges: tabs, panel, then the level + streak card at the very bottom.
   const page = studio
-    ? `${tabs}${koalaStudioHtml(k, koalaTab)}${koalaTab === "room" ? "" : hero}`
+    ? `${tabs}${koalaDimBarHtml()}${koalaDim === "3d" ? koalaDim3dHtml() : koalaStudioHtml(k, koalaTab)}${koalaTab === "room" ? "" : hero}`
     : `${tabs}<div class="koala-panel">${koalaTab === "badges" ? badgesPanel : koalaCoinsHtml(k)}</div>${hero}`;
 
   // Re-rendering must not make the page or the category strip jump.
   const prevCats = box.querySelector(".koala-cats");
   const catsLeft = prevCats ? prevCats.scrollLeft : 0;
   const scrollY = window.scrollY;
+  if (window.KoalaHouse && KoalaHouse.unmount) KoalaHouse.unmount();
   box.innerHTML = `<div class="koala-view${studio ? " is-studio" : ""}">${page}</div>`;
+  if (studio && koalaDim === "3d" && canUsePaidFeatures()) koalaMountDim3d();
   const cats = box.querySelector(".koala-cats");
   if (cats) {
     cats.scrollLeft = catsLeft;
@@ -16280,7 +16326,9 @@ document.addEventListener("click", (e) => {
   const buy = e.target.closest("[data-koala-buy]");
   if (buy) { handleKoalaItem(buy.dataset.koalaBuy); return; }
   if (e.target.closest("[data-koala-try-clear]")) { koalaTry = null; renderKoala(); return; }
-  if (e.target.closest("[data-open-house]")) { openKoalaHouse(); return; }
+  const dimBtn = e.target.closest("[data-koala-dim]");
+  if (dimBtn) { koalaDim = dimBtn.dataset.koalaDim === "3d" ? "3d" : "2d"; koalaTry = null; koalaPick = null; renderKoala(); return; }
+  if (e.target.closest("[data-koala-upgrade]")) { promptUpgradeForFeature(); return; }
   const zoom = e.target.closest("[data-koala-zoom]");
   if (zoom) { openKoalaZoom(zoom.dataset.koalaZoom); return; }
   const card = e.target.closest("[data-koala-item]");

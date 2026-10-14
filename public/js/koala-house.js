@@ -60,6 +60,7 @@
       const rf = [proj(x + w, y + d, z), proj(x + w, y, z), apex];
       return `<polygon points="${pstr(lf)}" fill="${f.left}"/><polygon points="${pstr(rf)}" fill="${f.right}"/>`;
     }
+    if (p.t === "e") { const [cx, cy] = proj(p.x, p.y, p.z); return `<text x="${cx.toFixed(1)}" y="${cy.toFixed(1)}" font-size="${p.s}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${p.ch}</text>`; }
     return "";
   }
   function partPoints(p) { // a few screen points per part, for bounding boxes
@@ -72,14 +73,44 @@
       const [cx, cy] = proj(p.x, p.y, p.z), rx = p.r * HW * Math.SQRT2, ry = p.r * HH * Math.SQRT2;
       return [[cx - rx, cy - p.h - ry], [cx + rx, cy - p.h - ry], [cx - rx, cy + ry], [cx + rx, cy + ry]];
     }
+    if (p.t === "e") { const [cx, cy] = proj(p.x, p.y, p.z); return [[cx - p.s / 2, cy - p.s], [cx + p.s / 2, cy]]; }
     const [cx, cy] = proj(p.x, p.y, p.z);
     return [[cx - p.r, cy - p.r], [cx + p.r, cy + p.r]];
   }
 
-  /* mirror = turn the piece so its front faces the other way (swap the two floor axes) */
-  function mirrorPart(p) {
-    if (p.t === "b" || p.t === "py") return Object.assign({}, p, { x: p.y, y: p.x, w: p.d, d: p.w });
-    return Object.assign({}, p, { x: p.y, y: p.x });
+  /* quarter turns: front (+y) -> +x -> -y -> -x. A part sits in a W x D footprint (tiles). */
+  function rotPart(p, W) {
+    if (p.t === "b" || p.t === "py") return Object.assign({}, p, { x: p.y, y: W - (p.x + p.w), w: p.d, d: p.w });
+    return Object.assign({}, p, { x: p.y, y: W - p.x });
+  }
+  const bbox = (p) => {
+    if (p.t === "b" || p.t === "py") return { x: p.x, y: p.y, z: p.z, w: p.w, d: p.d, h: p.h };
+    if (p.t === "c") return { x: p.x - p.r, y: p.y - p.r, z: p.z, w: 2 * p.r, d: 2 * p.r, h: p.h };
+    if (p.t === "s") { const r = p.r / 46; return { x: p.x - r, y: p.y - r, z: p.z - p.r, w: 2 * r, d: 2 * r, h: 2 * p.r }; }
+    return { x: p.x - 0.05, y: p.y - 0.05, z: p.z, w: 0.1, d: 0.1, h: p.s || 10 };
+  };
+  // painter's order for the parts of a turned piece: A goes before B when A lies wholly behind it on some axis
+  function sortParts(parts) {
+    const n = parts.length, bb = parts.map(bbox), E = 0.02, before = [];
+    const behind = (a, b) => a.x + a.w <= b.x + E || a.y + a.d <= b.y + E || a.z + a.h <= b.z + E;
+    const out = Array.from({ length: n }, () => []), indeg = new Array(n).fill(0);
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+      const ij = behind(bb[i], bb[j]), ji = behind(bb[j], bb[i]);
+      if (ij && !ji) { out[i].push(j); indeg[j]++; } else if (ji && !ij) { out[j].push(i); indeg[i]++; }
+    }
+    const res = [], ready = [];
+    for (let i = 0; i < n; i++) if (!indeg[i]) ready.push(i);
+    while (ready.length) { ready.sort((a, b) => a - b); const i = ready.shift(); res.push(i); out[i].forEach((j) => { if (!--indeg[j]) ready.push(j); }); }
+    if (res.length < n) for (let i = 0; i < n; i++) if (!res.includes(i)) res.push(i); // a cycle: keep the rest in input order
+    return res.map((i) => parts[i]);
+  }
+  function turnParts(parts, w, d, m) {
+    m = ((m | 0) % 4 + 4) % 4;
+    if (!m) return { w, d, parts };
+    let o = { w, d, parts };
+    for (let i = 0; i < m; i++) { const W = o.w; o = { w: o.d, d: o.w, parts: o.parts.map((p) => rotPart(p, W)) }; }
+    o.parts = sortParts(o.parts);
+    return o;
   }
 
   /* ============================== catalog ============================== */
@@ -102,14 +133,14 @@
   function sofa(id, name, col, price) {
     add(id, "furniture", name, 3, 1, price, [
       B(0, 0, 0, 3, 1, 16, col), B(0, 0, 16, 3, 0.3, 32, shade(col, -0.06)), B(0, 0, 16, 0.28, 1, 16, shade(col, -0.1)), B(2.72, 0, 16, 0.28, 1, 16, shade(col, -0.1)),
-      B(0.28, 0.3, 16, 1.22, 0.7, 8, shade(col, 0.1)), B(1.5, 0.3, 16, 1.22, 0.7, 8, shade(col, 0.1))]);
+      B(0.28, 0.3, 16, 1.22, 0.7, 8, shade(col, 0.1)), B(1.5, 0.3, 16, 1.22, 0.7, 8, shade(col, 0.1))], { seat: 24 });
   }
   sofa("sofaRed", ["빨강 소파", "Red Sofa"], "#d9604f", 0);
   sofa("sofaBlue", ["파랑 소파", "Blue Sofa"], "#5b8fd0", 70);
   sofa("sofaGreen", ["초록 소파", "Green Sofa"], "#68b57c", 70);
 
   function armchair(id, name, col, price) {
-    add(id, "furniture", name, 1, 1, price, [B(0, 0, 0, 1, 1, 14, col), B(0, 0, 14, 1, 0.28, 30, shade(col, -0.06)), B(0, 0, 14, 0.24, 1, 12, shade(col, -0.1)), B(0.76, 0, 14, 0.24, 1, 12, shade(col, -0.1)), B(0.24, 0.28, 14, 0.52, 0.72, 7, shade(col, 0.12))]);
+    add(id, "furniture", name, 1, 1, price, [B(0, 0, 0, 1, 1, 14, col), B(0, 0, 14, 1, 0.28, 30, shade(col, -0.06)), B(0, 0, 14, 0.24, 1, 12, shade(col, -0.1)), B(0.76, 0, 14, 0.24, 1, 12, shade(col, -0.1)), B(0.24, 0.28, 14, 0.52, 0.72, 7, shade(col, 0.12))], { seat: 21 });
   }
   armchair("chairPurple", ["보라 안락의자", "Purple Armchair"], "#9a7be0", 40);
   armchair("chairYellow", ["노랑 안락의자", "Yellow Armchair"], "#f2c94c", 40);
@@ -118,14 +149,14 @@
   add("tableSquare", "furniture", ["네모 식탁", "Square Table"], 2, 2, 50, [B(0.1, 0.1, 0, 0.18, 0.18, 28, WOOD_D), B(1.72, 0.1, 0, 0.18, 0.18, 28, WOOD_D), B(0.1, 1.72, 0, 0.18, 0.18, 28, WOOD_D), B(1.72, 1.72, 0, 0.18, 0.18, 28, WOOD_D), B(0, 0, 28, 2, 2, 5, "#f0b4b4")], { topH: 33 });
   function desk(id, name, col, price) {
     add(id, "furniture", name, 2, 1, price, [B(0.05, 0.08, 0, 0.14, 0.14, 30, shade(col, -0.2)), B(0.05, 0.78, 0, 0.14, 0.14, 30, shade(col, -0.2)), B(1.0, 0.08, 0, 0.14, 0.14, 30, shade(col, -0.2)), B(1.0, 0.78, 0, 0.14, 0.14, 30, shade(col, -0.2)),
-      B(1.35, 0.04, 0, 0.62, 0.92, 30, shade(col, -0.08)), B(1.4, 0.0, 14, 0.5, 0.04, 2, shade(col, -0.35)), B(1.4, 0.0, 22, 0.5, 0.04, 2, shade(col, -0.35)), B(0, 0, 30, 2, 1, 4, col)], { topH: 34 });
+      B(1.35, 0.04, 0, 0.62, 0.92, 30, shade(col, -0.08)), B(1.4, 0.0, 14, 0.5, 0.04, 2, shade(col, -0.35)), B(1.4, 0.0, 22, 0.5, 0.04, 2, shade(col, -0.35)), B(0, 0, 30, 2, 1, 4, col)], { topH: 34, subKind: "desk" });
   }
   desk("deskWood", ["나무 책상", "Wood Desk"], WOOD, 0);
   desk("deskWhite", ["하얀 책상", "White Desk"], WHITE, 60);
   desk("deskBlue", ["과학 책상", "Science Desk"], "#6aa6d9", 90);
   function chair(id, name, col, price) {
     add(id, "furniture", name, 1, 1, price, [B(0.14, 0.14, 0, 0.1, 0.1, 18, shade(col, -0.25)), B(0.76, 0.14, 0, 0.1, 0.1, 18, shade(col, -0.25)), B(0.14, 0.76, 0, 0.1, 0.1, 18, shade(col, -0.25)), B(0.76, 0.76, 0, 0.1, 0.1, 18, shade(col, -0.25)),
-      B(0.1, 0.1, 18, 0.8, 0.8, 5, col), B(0.1, 0.1, 23, 0.8, 0.1, 28, shade(col, -0.08))]);
+      B(0.1, 0.1, 18, 0.8, 0.8, 5, col), B(0.1, 0.1, 23, 0.8, 0.1, 28, shade(col, -0.08))], { seat: 23 });
   }
   chair("stoolBlue", ["파랑 의자", "Blue Chair"], "#5b8fd0", 0);
   chair("stoolRed", ["빨강 의자", "Red Chair"], "#e66a5a", 20);
@@ -137,8 +168,8 @@
     return o;
   }
   function bookshelf(id, name, col, price) {
-    add(id, "furniture", name, 2, 1, price, [B(0, 0, 0, 2, 0.1, 88, shade(col, -0.18)), B(0, 0, 0, 0.1, 0.75, 88, col), B(1.9, 0, 0, 0.1, 0.75, 88, col),
-      B(0.1, 0.1, 0, 1.8, 0.65, 4, col)].concat(books(0.14, 0.18, 4, 1.72, 11), [B(0.1, 0.1, 28, 1.8, 0.65, 4, col)], books(0.14, 0.18, 32, 1.72, 9), [B(0.1, 0.1, 56, 1.8, 0.65, 4, col)], books(0.14, 0.18, 60, 1.72, 10), [B(0, 0, 84, 2, 0.75, 4, col)]));
+    const struct = [B(0, 0, 0, 2, 0.1, 88, shade(col, -0.18)), B(0, 0, 0, 0.1, 0.75, 88, col), B(1.9, 0, 0, 0.1, 0.75, 88, col), B(0.1, 0.1, 0, 1.8, 0.65, 4, col), B(0.1, 0.1, 28, 1.8, 0.65, 4, col), B(0.1, 0.1, 56, 1.8, 0.65, 4, col), B(0, 0, 84, 2, 0.75, 4, col)];
+    add(id, "furniture", name, 2, 1, price, [struct[0], struct[1], struct[2], struct[3]].concat(books(0.14, 0.18, 4, 1.72, 11), [struct[4]], books(0.14, 0.18, 32, 1.72, 9), [struct[5]], books(0.14, 0.18, 60, 1.72, 10), [struct[6]]), { subKind: "books", subBase: struct });
   }
   bookshelf("shelfWood", ["나무 책장", "Wood Bookshelf"], WOOD, 0);
   bookshelf("shelfWhite", ["하얀 책장", "White Bookshelf"], WHITE, 80);
@@ -157,7 +188,7 @@
   add("bathtub", "furniture", ["욕조", "Bathtub"], 2, 1, 100, [B(0, 0, 0, 2, 1, 26, "#f2f6f8"), B(0.1, 0.1, 22, 1.8, 0.8, 5, "#9ed7ee"), B(1.82, 0.4, 26, 0.1, 0.1, 14, "#b9c4ca"), S(0.5, 0.5, 30, 6, "#ffffff"), S(0.9, 0.6, 29, 5, "#ffffff")]);
   add("toilet", "furniture", ["변기", "Toilet"], 1, 1, 60, [B(0.2, 0.05, 0, 0.6, 0.3, 40, "#f2f6f8"), B(0.2, 0.3, 0, 0.6, 0.65, 18, "#f2f6f8"), B(0.25, 0.35, 18, 0.5, 0.55, 3, "#dcebf0")]);
   add("vanity", "furniture", ["세면대", "Sink"], 1, 1, 70, [B(0.1, 0.1, 0, 0.8, 0.8, 30, "#f2f6f8"), B(0.1, 0.1, 30, 0.8, 0.8, 4, "#ffffff"), B(0.25, 0.25, 34, 0.5, 0.5, 2, "#cfe6f0"), B(0.45, 0.14, 34, 0.08, 0.08, 14, "#aab4bb")], { topH: 34 });
-  add("toybox", "furniture", ["장난감 상자", "Toy Box"], 1, 1, 0, [B(0.05, 0.1, 0, 0.9, 0.8, 24, "#e66a5a"), B(0.05, 0.1, 24, 0.9, 0.8, 4, "#ffd166"), B(0.38, 0.98, 12, 0.26, 0.03, 8, "#ffd166"), S(0.3, 0.5, 32, 6, "#5b8fd0"), B(0.55, 0.3, 28, 0.2, 0.2, 10, "#68b57c")]);
+  add("toybox", "furniture", ["장난감 상자", "Toy Box"], 1, 1, 0, [B(0.05, 0.1, 0, 0.9, 0.8, 24, "#e66a5a"), B(0.05, 0.1, 24, 0.9, 0.8, 4, "#ffd166"), B(0.38, 0.98, 12, 0.26, 0.03, 8, "#ffd166"), S(0.3, 0.5, 32, 6, "#5b8fd0"), B(0.55, 0.3, 28, 0.2, 0.2, 10, "#68b57c")], { subKind: "toys" });
   add("piano", "furniture", ["피아노", "Piano"], 2, 1, 200, [B(0, 0, 0, 2, 0.9, 52, "#2f2a36"), B(0.05, 0.92, 30, 1.9, 0.18, 4, "#f4f1ea"), B(0.05, 1.0, 34, 1.9, 0.04, 2, "#2f2a36"), B(0, 0.1, 52, 2, 0.8, 6, "#3a3342")]);
 
   function rug(id, name, kind, col, price) {
@@ -207,7 +238,7 @@
   out("bush", ["덤불", "Bush"], 1, 1, 0, [S(0.5, 0.5, 14, 17, "#4aa36a"), S(0.28, 0.6, 10, 12, "#3e9560"), S(0.74, 0.46, 12, 13, "#68b57c")]);
   out("flowerBed", ["꽃밭", "Flower Bed"], 2, 1, 0, [B(0, 0.05, 0, 2, 0.9, 8, "#8a5a3a"), B(0.06, 0.1, 8, 1.88, 0.8, 2, "#5a3d27"), S(0.3, 0.4, 16, 7, "#ef6f8e"), S(0.7, 0.55, 16, 7, "#f2c230"), S(1.1, 0.4, 16, 7, "#9a7be0"), S(1.5, 0.55, 16, 7, "#ef6f8e"), S(1.8, 0.4, 16, 7, "#ffffff")]);
   out("pond", ["연못", "Pond"], 3, 3, 100, [C(1.5, 1.5, 0, 1.4, 4, "#b8bfc6"), C(1.5, 1.5, 4, 1.18, 1, "#7ec9ea"), C(1.1, 1.2, 5, 0.3, 1, "#a8e4f5"), S(1.9, 1.7, 9, 7, "#68b57c"), S(1.2, 2.0, 9, 6, "#ef8fb0")], { flat: true });
-  out("bench", ["벤치", "Bench"], 2, 1, 60, [B(0.1, 0.15, 0, 0.12, 0.7, 14, "#6e4a2a"), B(1.78, 0.15, 0, 0.12, 0.7, 14, "#6e4a2a"), B(0, 0.1, 14, 2, 0.8, 4, WOOD), B(0, 0.08, 18, 2, 0.12, 22, WOOD)]);
+  out("bench", ["벤치", "Bench"], 2, 1, 60, [B(0.1, 0.15, 0, 0.12, 0.7, 14, "#6e4a2a"), B(1.78, 0.15, 0, 0.12, 0.7, 14, "#6e4a2a"), B(0, 0.1, 14, 2, 0.8, 4, WOOD), B(0, 0.08, 18, 2, 0.12, 22, WOOD)], { seat: 18 });
   out("swing", ["그네", "Swing"], 2, 1, 100, [B(0, 0.4, 0, 0.1, 0.1, 78, "#e66a5a"), B(1.9, 0.4, 0, 0.1, 0.1, 78, "#e66a5a"), B(0, 0.4, 76, 2, 0.1, 5, "#e66a5a"), B(0.45, 0.42, 14, 0.04, 0.04, 62, "#555"), B(1.5, 0.42, 14, 0.04, 0.04, 62, "#555"), B(0.35, 0.3, 10, 1.3, 0.3, 5, "#5b8fd0")]);
   out("fence", ["울타리", "Fence"], 1, 1, 0, [B(0.04, 0.4, 0, 0.14, 0.14, 26, "#fafafa"), B(0.82, 0.4, 0, 0.14, 0.14, 26, "#fafafa"), B(0, 0.44, 8, 1, 0.06, 5, "#ececec"), B(0, 0.44, 18, 1, 0.06, 5, "#ececec")]);
   out("gardenLamp", ["정원등", "Garden Lamp"], 1, 1, 50, [C(0.5, 0.5, 0, 0.12, 52, "#555a63"), C(0.5, 0.5, 52, 0.22, 16, "#fff2b0"), C(0.5, 0.5, 68, 0.28, 4, "#555a63")]);
@@ -219,6 +250,15 @@
   out("hedge", ["생울타리", "Hedge"], 2, 1, 40, [B(0, 0.1, 0, 2, 0.8, 30, "#3e9560"), B(0.06, 0.16, 30, 1.88, 0.68, 4, "#4aa36a")]);
   out("snowman", ["눈사람", "Snowman"], 1, 1, 50, [S(0.5, 0.5, 14, 15, "#ffffff"), S(0.5, 0.5, 38, 11, "#ffffff"), B(0.4, 0.4, 46, 0.2, 0.2, 8, "#333"), S(0.5, 0.62, 38, 2, "#e0793a")]);
   out("car", ["자동차", "Car"], 3, 2, 200, [B(0.1, 0.2, 6, 2.8, 1.6, 18, "#e04b4b"), B(0.7, 0.3, 24, 1.5, 1.4, 16, "#cfe2ff"), B(0.7, 0.3, 24, 1.5, 1.4, 3, "#e04b4b"), C(0.6, 0.15, 8, 0.28, 6, "#333"), C(2.4, 0.15, 8, 0.28, 6, "#333"), C(0.6, 1.85, 8, 0.28, 6, "#333"), C(2.4, 1.85, 8, 0.28, 6, "#333")], { where: "both" });
+
+  out("treePine", ["소나무", "Pine Tree"], 2, 2, 70, [C(1, 1, 0, 0.14, 30, "#8a5a3a"), PY(0.1, 0.1, 22, 1.8, 1.8, 44, "#2f7d5a"), PY(0.3, 0.3, 52, 1.4, 1.4, 40, "#3a8f68"), PY(0.5, 0.5, 80, 1.0, 1.0, 36, "#4aa37a")]);
+  out("rock", ["바위", "Rock"], 1, 1, 20, [S(0.5, 0.55, 10, 15, "#a9b0b8"), S(0.3, 0.45, 8, 10, "#b9c0c8")]);
+  out("tulips", ["튤립 화단", "Tulip Bed"], 2, 1, 40, [B(0, 0.05, 0, 2, 0.9, 8, "#8a5a3a"), B(0.06, 0.1, 8, 1.88, 0.8, 2, "#5a3d27"), S(0.3, 0.4, 18, 6, "#e63946"), S(0.7, 0.55, 20, 6, "#ffd166"), S(1.1, 0.4, 18, 6, "#ef8fb0"), S(1.5, 0.55, 20, 6, "#e63946"), S(1.8, 0.4, 18, 6, "#ffffff")]);
+  out("gate", ["대문", "Gate"], 2, 1, 40, [B(0, 0.45, 0, 0.14, 0.14, 50, "#fafafa"), B(1.86, 0.45, 0, 0.14, 0.14, 50, "#fafafa"), B(0.14, 0.48, 12, 0.85, 0.06, 4, "#ececec"), B(0.14, 0.48, 30, 0.85, 0.06, 4, "#ececec"), B(1.01, 0.48, 12, 0.85, 0.06, 4, "#ececec"), B(1.01, 0.48, 30, 0.85, 0.06, 4, "#ececec")]);
+  // pieces used by the automatic garden border (not for sale)
+  out("hedge1", ["울타리 나무", "Border Hedge"], 1, 1, 0, [B(0, 0.1, 0, 1, 0.8, 26, "#3e9560"), B(0.06, 0.16, 26, 0.88, 0.68, 4, "#4aa36a")], { virtual: true });
+  out("stoneWall1", ["돌담", "Stone Wall"], 1, 1, 0, [B(0, 0.2, 0, 1, 0.6, 22, "#aeb4ba"), B(0, 0.16, 22, 1, 0.68, 4, "#c9cfd4")], { virtual: true });
+  D.fence.seat = 0;
 
   /* ---- wall decorations: art is drawn in px on the wall plane (64 px = 1 tile along the wall) ---- */
   const wd = (id, name, uw, vh, price, art, extra) => { D[id] = Object.assign({ id, cat: "wall", name, wall: true, uw, vh, pw: uw * 64, price, where: "in", art, defH: 60 }, extra || {}); };
@@ -234,9 +274,9 @@
   wd("winSunset", ["노을 창문", "Sunset Window"], 1.6, 62, 50, windowArt("#ffc99b", "#8fb8e8", false), { defH: 50 });
   wd("winNight", ["별밤 창문", "Night Window"], 1.6, 62, 70, windowArt("#2f3b6e", "#f2d46b", true), { defH: 50 });
   const frame = (inner) => (pw, vh) => rect(0, 0, pw, vh, "#c99a63", 3) + rect(5, 5, pw - 10, vh - 10, "#fffaf0") + inner(pw, vh);
-  wd("frameSun", ["해님 그림", "Sun Picture"], 0.9, 48, 0, frame((pw, vh) => `<circle cx="${pw / 2}" cy="${vh / 2 - 3}" r="9" fill="#f2c230"/><path d="M10 ${vh - 8}q${(pw - 20) / 2} -20 ${pw - 20} 0z" fill="#68b57c"/>`), { defH: 70 });
-  wd("frameCat", ["고양이 그림", "Cat Picture"], 0.8, 50, 30, frame((pw, vh) => `<circle cx="${pw / 2}" cy="${vh / 2 + 3}" r="12" fill="#e8b887"/><path d="M${pw / 2 - 11} ${vh / 2 - 4}l3 -11 7 6zM${pw / 2 + 11} ${vh / 2 - 4}l-3 -11 -7 6z" fill="#e8b887"/><circle cx="${pw / 2 - 4.5}" cy="${vh / 2 + 1}" r="1.8" fill="#333"/><circle cx="${pw / 2 + 4.5}" cy="${vh / 2 + 1}" r="1.8" fill="#333"/>`), { defH: 70 });
-  wd("frameRainbow", ["무지개 그림", "Rainbow"], 1.1, 44, 40, frame((pw, vh) => ["#ef6f8e", "#f2c230", "#68b57c", "#5b8fd0"].map((c, i) => `<path d="M${14 + i * 4} ${vh - 9}a${(pw - 28) / 2 - i * 4} ${(pw - 28) / 2 - i * 4} 0 0 1 ${pw - 28 - i * 8} 0" stroke="${c}" stroke-width="4" fill="none"/>`).join("")), { defH: 70 });
+  wd("frameSun", ["해님 그림", "Sun Picture"], 0.9, 48, 0, frame((pw, vh) => `<circle cx="${pw / 2}" cy="${vh / 2 - 3}" r="9" fill="#f2c230"/><path d="M10 ${vh - 8}q${(pw - 20) / 2} -20 ${pw - 20} 0z" fill="#68b57c"/>`), { defH: 70, subKind: "frame" });
+  wd("frameCat", ["고양이 그림", "Cat Picture"], 0.8, 50, 30, frame((pw, vh) => `<circle cx="${pw / 2}" cy="${vh / 2 + 3}" r="12" fill="#e8b887"/><path d="M${pw / 2 - 11} ${vh / 2 - 4}l3 -11 7 6zM${pw / 2 + 11} ${vh / 2 - 4}l-3 -11 -7 6z" fill="#e8b887"/><circle cx="${pw / 2 - 4.5}" cy="${vh / 2 + 1}" r="1.8" fill="#333"/><circle cx="${pw / 2 + 4.5}" cy="${vh / 2 + 1}" r="1.8" fill="#333"/>`), { defH: 70, subKind: "frame" });
+  wd("frameRainbow", ["무지개 그림", "Rainbow"], 1.1, 44, 40, frame((pw, vh) => ["#ef6f8e", "#f2c230", "#68b57c", "#5b8fd0"].map((c, i) => `<path d="M${14 + i * 4} ${vh - 9}a${(pw - 28) / 2 - i * 4} ${(pw - 28) / 2 - i * 4} 0 0 1 ${pw - 28 - i * 8} 0" stroke="${c}" stroke-width="4" fill="none"/>`).join("")), { defH: 70, subKind: "frame" });
   wd("posterRocket", ["로켓 포스터", "Rocket Poster"], 0.9, 58, 50, (pw, vh) => rect(0, 0, pw, vh, "#dfe9ff", 3) + `<path d="M${pw / 2} 8q11 15 0 34q-11 -19 0 -34z" fill="#e66a5a"/><circle cx="${pw / 2}" cy="23" r="3.4" fill="#cfe2ff"/><path d="M${pw / 2 - 6} 40l-7 9 7 -3zM${pw / 2 + 6} 40l7 9 -7 -3z" fill="#5b8fd0"/>`, { defH: 60 });
   wd("posterMap", ["세계 지도", "World Map"], 1.6, 50, 60, (pw, vh) => rect(0, 0, pw, vh, "#bfe3ff", 3) + `<path d="M12 22q10 -10 20 0t18 10l-8 12q-14 4 -24 -4z M${pw * 0.55} 14q12 -8 22 2t5 18l-15 5q-10 -8 -12 -25z" fill="#68b57c"/>`, { defH: 70 });
   wd("clockWall", ["벽시계", "Wall Clock"], 0.7, 40, 20, (pw, vh) => `<circle cx="${pw / 2}" cy="${vh / 2}" r="${vh / 2 - 2}" fill="#fff" stroke="#c99a63" stroke-width="4"/><path d="M${pw / 2} ${vh / 2}V${vh / 2 - 12}M${pw / 2} ${vh / 2}l9 5" stroke="#333" stroke-width="2.4" stroke-linecap="round"/>`, { defH: 90 });
@@ -266,14 +306,19 @@
     grass: { n: ["잔디", "Grass"], c: "#8fd08a", a: "#7fc27a", k: "checker", p: 0 },
     lime: { n: ["연두 잔디", "Light Grass"], c: "#b6e07a", a: "#a4d068", k: "checker", p: 30 },
     autumn: { n: ["가을 잔디", "Autumn Grass"], c: "#d9c27a", a: "#c9b068", k: "checker", p: 30 },
+    meadow: { n: ["꽃 들판", "Flower Meadow"], c: "#a6dc8c", a: "#96cf7c", k: "flowers", p: 40 },
+    paved: { n: ["돌 포장", "Paving"], c: "#d9d5cc", a: "#bdb8ac", k: "bricks", p: 40 },
+    sand: { n: ["모래 정원", "Zen Sand"], c: "#efe2c2", a: "#d9c9a0", k: "rake", p: 50 },
+    snow: { n: ["눈 덮인 마당", "Snow"], c: "#f3f8fb", a: "#e1ecf4", k: "checker", p: 50 },
   };
+  ["grass", "lime", "autumn", "meadow", "paved", "sand", "snow"].forEach((k) => { FLOORS[k].yard = true; });
 
   /* ============================== rendering ============================== */
   function orient(def, m) {
+    m = ((m | 0) % 4 + 4) % 4;
     if (!m) return { w: def.w, d: def.d, parts: def.parts };
-    if (def._m) return def._m;
-    def._m = { w: def.d, d: def.w, parts: def.parts.map(mirrorPart) };
-    return def._m;
+    def._o = def._o || {};
+    return def._o[m] || (def._o[m] = turnParts(def.parts, def.w, def.d, m));
   }
 
   // Optional pictures (see public/img/house/README.md). { id: { src, wpx, ax, ay } }
@@ -285,10 +330,40 @@
     if (!e || !e.src) return "";
     const w = e.wpx || 120, h = w * (e.ratio || 1), ax = e.ax != null ? e.ax : 0.5, ay = e.ay != null ? e.ay : 0.85;
     const [cx, cy] = proj(o.w / 2, o.d / 2, 0);
-    return `<image href="${e.src}" x="${cx - w * ax}" y="${cy - h * ay}" width="${w}" height="${h}"${m ? ` transform="translate(${cx * 2} 0) scale(-1 1)"` : ""} preserveAspectRatio="xMidYMid meet"/>`;
+    return `<image href="${e.src}" x="${cx - w * ax}" y="${cy - h * ay}" width="${w}" height="${h}"${m & 1 ? ` transform="translate(${cx * 2} 0) scale(-1 1)"` : ""} preserveAspectRatio="xMidYMid meet"/>`;
   }
-  function itemInner(def, m) {
-    const o = orient(def, m);
+  /* ---- things inside furniture (sub-items) ---- */
+  const BOOKCOL = ["#e66a5a", "#5b8fd0", "#68b57c", "#f2c94c", "#9a7be0", "#ef8fb0", "#4fb3b3", "#e0793a"];
+  const SUBV = {
+    pencilCup: ["✏️", "#fff"], miniGlobe: ["🌍", "#fff"], alarmClock: ["⏰", "#fff"], miniCactus: ["🌵", "#fff"], notebooks: ["📒", "#fff"], cocoaMug: ["☕", "#fff"], crayonBox: ["🖍️", "#fff"], stickerBook: ["⭐", "#fff"], secretDiary: ["📔", "#fff"], marbleBag: ["🔮", "#fff"],
+    picMeadow: ["🌻", "#d5f0c4"], picSea: ["⛵", "#bfe3ff"], picRainbow: ["🌈", "#e4f2ff"], picSpace: ["🪐", "#34417a"], picFlowers: ["🌸", "#ffe6ee"], picKoala: ["🐨", "#dff0d8"], picNight: ["🌙", "#34417a"], picBeach: ["🏖️", "#ffe9b8"], picCastle: ["🏰", "#e6ddff"], picButterfly: ["🦋", "#ffeef8"],
+    picPuppy: ["🐶", "#ffe9d0"], picKitten: ["🐱", "#fff0d8"], picMountain: ["🏔️", "#dfeeff"], picDinoPic: ["🦖", "#dff5d2"], picBalloons: ["🎈", "#fff0f0"], picRocketPic: ["🚀", "#dfe9ff"], picFish: ["🐠", "#cfeeff"], picCake: ["🎂", "#fff0f4"], picForest: ["🌲", "#d8f0d0"], picSnow: ["⛄", "#eaf6ff"],
+    toyTeddy: ["🧸", "#fff"], toyBall: ["🏐", "#fff"], toyCar: ["🚗", "#fff"], toyRobot: ["🤖", "#fff"], toyDino: ["🦖", "#fff"], toyBlocks: ["🧱", "#fff"], toyDuck: ["🦆", "#fff"], toyRocket: ["🚀", "#fff"], toyBunny: ["🐰", "#fff"], toyDrum: ["🥁", "#fff"],
+  };
+  const subVis = (id) => SUBV[id] || null;
+  const bookColor = (id) => { let h = 0; for (const ch of String(id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return BOOKCOL[h % BOOKCOL.length]; };
+  function subParts(def, it) {
+    const sub = it.sub || [];
+    if (def.subKind === "books") {
+      const o = def.subBase.slice();
+      sub.slice(0, 18).forEach((id, k) => { const row = Math.floor(k / 6) % 3, col = k % 6; o.push(B(0.16 + col * 0.28, 0.18, 4 + row * 28, 0.22, 0.5, 17 + (k * 5) % 8, bookColor(id))); });
+      return o;
+    }
+    if (def.subKind === "desk") {
+      const o = def.parts.slice();
+      sub.slice(0, 5).forEach((id, k) => { const v = subVis(id); if (v) o.push({ t: "e", x: 0.25 + k * 0.38, y: 0.55, z: 36, s: 15, ch: v[0] }); });
+      return o;
+    }
+    if (def.subKind === "toys") {
+      const o = def.parts.slice(0, 3);
+      sub.slice(0, 4).forEach((id, k) => { const v = subVis(id); if (v) o.push({ t: "e", x: 0.22 + (k % 2) * 0.45, y: 0.3 + Math.floor(k / 2) * 0.4, z: 30 + (k % 2) * 4, s: 17, ch: v[0] }); });
+      return o;
+    }
+    return null;
+  }
+  function itemInner(def, m, it) {
+    const sp = it && it.sub && def.subKind ? subParts(def, it) : null;
+    const o = sp ? turnParts(sp, def.w, def.d, m) : orient(def, m);
     return pictureSvg(def.id, o, m) || o.parts.map(partSvg).join("");
   }
   function itemBox(def, m) { // screen bounding box of a floor piece (origin at tile 0,0)
@@ -344,99 +419,263 @@
     } else if (fl.k === "planks") {
       for (let r = 1; r < R_; r++) o.push(`<polyline points="${pstr([proj(0, r, 0), proj(C_, r, 0)])}" stroke="${fl.a}" stroke-width="1.6" fill="none"/>`);
       for (let r = 0; r < R_; r++) for (let c = (r % 2) + 1; c < C_; c += 3) o.push(`<polyline points="${pstr([proj(c, r, 0), proj(c, r + 1, 0)])}" stroke="${fl.a}" stroke-width="1.2" fill="none"/>`);
+    } else if (fl.k === "flowers") {
+      for (let c = 0; c < C_; c++) for (let r = 0; r < R_; r++) { if ((c + r) % 2) o.push(`<polygon points="${pstr([proj(c, r, 0), proj(c + 1, r, 0), proj(c + 1, r + 1, 0), proj(c, r + 1, 0)])}" fill="${fl.a}"/>`); if ((c * 7 + r * 13) % 5 === 0) { const q = proj(c + 0.3 + ((c * 3 + r) % 3) * 0.2, r + 0.5, 0); o.push(`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="2.6" fill="${["#ef6f8e", "#f2c230", "#ffffff", "#9a7be0"][(c + r) % 4]}"/>`); } }
+    } else if (fl.k === "bricks") {
+      for (let r = 1; r < R_; r++) o.push(`<polyline points="${pstr([proj(0, r, 0), proj(C_, r, 0)])}" stroke="${fl.a}" stroke-width="1.4" fill="none"/>`);
+      for (let c = 1; c < C_; c++) o.push(`<polyline points="${pstr([proj(c, 0, 0), proj(c, R_, 0)])}" stroke="${fl.a}" stroke-width="1.4" fill="none"/>`);
+    } else if (fl.k === "rake") {
+      for (let r = 0; r < R_; r++) for (let q = 0.25; q < 1; q += 0.25) o.push(`<polyline points="${pstr([proj(0, r + q, 0), proj(C_, r + q, 0)])}" stroke="${fl.a}" stroke-width="1" fill="none"/>`);
+      for (const [c, r] of [[3, 6], [9, 8]]) if (c + 1 < C_ && r + 1 < R_) o.push(`<ellipse cx="${proj(c + 0.5, r + 0.5, 0)[0]}" cy="${proj(c + 0.5, r + 0.5, 0)[1] - 3}" rx="14" ry="8" fill="#b9b2a4"/>`);
     } else for (let c = 1; c < C_; c += 1) for (let r = (c % 2); r < R_; r += 2) o.push(`<circle cx="${proj(c + 0.5, r + 0.5, 0)[0]}" cy="${proj(c + 0.5, r + 0.5, 0)[1]}" r="1.6" fill="${fl.a}"/>`);
+    if (kind === "yard") o.push(pathSvg(st));
     return { svg: o.join(""), clips: `<clipPath id="khL${room.uid}"><rect x="0" y="${-WALL_H}" width="${R_ * 64}" height="${WALL_H}"/></clipPath><clipPath id="khR${room.uid}"><rect x="0" y="${-WALL_H}" width="${C_ * 64}" height="${WALL_H}"/></clipPath>` };
   }
 
-  /* ---- yard backdrop: the house front (colours are customisable) ---- */
-  const HOUSE_WALLS = { cream: ["크림", "Cream", "#f6e7c9"], sky: ["하늘", "Sky", "#cfe3f7"], pink: ["분홍", "Pink", "#f7d3dc"], mint: ["민트", "Mint", "#cdeedf"], lemon: ["레몬", "Lemon", "#fdf0b8"] };
-  const HOUSE_ROOFS = { red: ["빨강", "Red", "#c9503f"], blue: ["파랑", "Blue", "#4f78c0"], green: ["초록", "Green", "#4f9a63"], plum: ["보라", "Plum", "#8a5ab0"], orange: ["주황", "Orange", "#e0793a"] };
-  const HOUSE_DOORS = { wood: ["나무", "Wood", "#a4713a"], red: ["빨강", "Red", "#d95d4f"], blue: ["파랑", "Blue", "#4f78c0"], yellow: ["노랑", "Yellow", "#f2c230"] };
+  /* ---- yard: house exteriors + garden ---- */
+  const HOUSE_WALLS = { cream: ["크림", "Cream", "#f6e7c9"], sky: ["하늘", "Sky", "#cfe3f7"], pink: ["분홍", "Pink", "#f7d3dc"], mint: ["민트", "Mint", "#cdeedf"], lemon: ["레몬", "Lemon", "#fdf0b8"], white: ["하양", "White", "#f7f7f4"], brick: ["벽돌", "Brick", "#d9a08a"] };
+  const HOUSE_ROOFS = { red: ["빨강", "Red", "#c9503f"], blue: ["파랑", "Blue", "#4f78c0"], green: ["초록", "Green", "#4f9a63"], plum: ["보라", "Plum", "#8a5ab0"], orange: ["주황", "Orange", "#e0793a"], gray: ["회색", "Gray", "#7d858f"], brown: ["갈색", "Brown", "#8a5a3a"] };
+  const HOUSE_DOORS = { wood: ["나무", "Wood", "#a4713a"], red: ["빨강", "Red", "#d95d4f"], blue: ["파랑", "Blue", "#4f78c0"], yellow: ["노랑", "Yellow", "#f2c230"], green: ["초록", "Green", "#4f9a63"] };
+  const HOUSE_STYLES = {
+    cottage: { n: ["아담한 집", "Cottage"], w: 6, d: 4, p: 0 },
+    villa: { n: ["넓은 집", "Wide House"], w: 10, d: 4, p: 150 },
+    twoStory: { n: ["2층집", "Two-storey"], w: 6, d: 4, p: 200 },
+    modern: { n: ["모던 하우스", "Modern House"], w: 8, d: 4, p: 250 },
+    cabin: { n: ["통나무집", "Log Cabin"], w: 6, d: 4, p: 120 },
+    castle: { n: ["동화 성", "Fairy Castle"], w: 8, d: 5, p: 400 },
+  };
+  const YARD_SIZES = { normal: { n: ["보통 마당", "Normal"], C: 14, R: 12, p: 0 }, wide: { n: ["넓은 마당", "Wide"], C: 18, R: 12, p: 120 }, large: { n: ["아주 넓은 마당", "Large"], C: 18, R: 16, p: 250 } };
+  const BORDERS = { none: ["없음", "None"], fence: ["하얀 울타리", "White Fence"], hedge: ["생울타리", "Hedge"], stone: ["돌담", "Stone Wall"] };
+  const PATHS = { none: ["없음", "None"], stones: ["징검다리", "Stepping Stones"], brick: ["벽돌길", "Brick Path"], plank: ["나무길", "Plank Path"] };
+  const GARDEN_PRESETS = {
+    lawn: { n: ["푸른 잔디 정원", "Green Lawn"], floor: "grass", border: "fence", path: "stones", size: "normal" },
+    flower: { n: ["꽃 정원", "Flower Garden"], floor: "meadow", border: "hedge", path: "brick", size: "normal" },
+    wide: { n: ["넓은 앞마당", "Big Front Yard"], floor: "grass", border: "none", path: "stones", size: "wide" },
+    zen: { n: ["모래 정원", "Zen Garden"], floor: "sand", border: "stone", path: "plank", size: "normal" },
+    winter: { n: ["겨울 정원", "Winter Garden"], floor: "snow", border: "fence", path: "stones", size: "normal" },
+    autumn: { n: ["가을 정원", "Autumn Garden"], floor: "autumn", border: "hedge", path: "brick", size: "normal" },
+  };
+  const YARD = { ko: "마당", en: "Yard", label: ["마당", "Yard"], kind: "yard", C: 14, R: 12, wall: "cream", floor: "grass", id: "yard" };
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  function yardDims(y) { const z = YARD_SIZES[(y && y.size)] || YARD_SIZES.normal; return { C: z.C, R: z.R }; }
+  function yardRoom(y) { return Object.assign({}, YARD, yardDims(y), { uid: "yard" + ((y && y.size) || "normal") }); }
+  function houseRect(y) {
+    const h = (y && y.house) || {}, sty = HOUSE_STYLES[h.style] || HOUSE_STYLES.cottage, dm = yardDims(y), rot = h.rot ? 1 : 0, sh = h.shift || 0;
+    if (!rot) { const c0 = clamp(Math.floor((dm.C - sty.w) / 2) + sh, 0, dm.C - sty.w); return { c0, r0: 0, c1: c0 + sty.w, r1: sty.d, w: sty.w, d: sty.d, rot }; }
+    const r0 = clamp(Math.floor((dm.R - sty.w) / 2) + sh, 0, dm.R - sty.w);
+    return { c0: 0, r0, c1: sty.d, r1: r0 + sty.w, w: sty.w, d: sty.d, rot };
+  }
+  const mirrorPart = (p) => ((p.t === "b" || p.t === "py") ? Object.assign({}, p, { x: p.y, y: p.x, w: p.d, d: p.w }) : Object.assign({}, p, { x: p.y, y: p.x }));
+
+  function houseLocal(h, w, d) { // the building in its own tiles: width along x, front face at y = d - 0.3
+    const W = (HOUSE_WALLS[h.wall] || HOUSE_WALLS.cream)[2], R = (HOUSE_ROOFS[h.roof] || HOUSE_ROOFS.red)[2], Dr = (HOUSE_DOORS[h.door] || HOUSE_DOORS.wood)[2];
+    const m = 0.3, yF = d - 0.3, o = [], st = h.style || "cottage", glass = "#b7d8f2";
+    const win = (x, z, ww, hh) => o.push(B(x, yF, z, ww, 0.05, hh, glass), B(x - 0.04, yF - 0.02, z + hh, ww + 0.08, 0.08, 4, "#fff"), B(x - 0.04, yF - 0.02, z - 3, ww + 0.08, 0.08, 4, "#fff"), B(x + ww / 2 - 0.03, yF, z, 0.06, 0.06, hh, "#fff"));
+    const door = (cx, hh) => o.push(B(cx - 0.7, yF - 0.02, 0, 1.4, 0.06, hh, Dr), B(cx - 0.7, yF - 0.02, hh - 4, 1.4, 0.08, 4, shade(Dr, -0.3)), S(cx + 0.45, yF + 0.04, hh / 2, 2.4, "#f2c94c"), B(cx - 0.9, yF, 0, 1.8, 0.4, 4, "#d8d2c4"));
+    const cx = w / 2;
+    if (st === "cottage") {
+      o.push(B(m, 0.3, 0, w - 2 * m, d - 0.6, 88, W), PY(0, 0, 88, w, d, 56, R), B(w - 1.4, 0.8, 88, 0.6, 0.6, 46, shade(R, -0.1)));
+      win(1.0, 20, 1.5, 46); win(w - 2.5, 20, 1.5, 46); door(cx, 64);
+    } else if (st === "villa") {
+      o.push(B(m, 0.3, 0, w - 2 * m, d - 0.6, 80, W), PY(0, 0, 80, w, d, 42, R), B(1.2, 0.8, 80, 0.6, 0.6, 40, shade(R, -0.1)), B(w - 1.8, 0.8, 80, 0.6, 0.6, 40, shade(R, -0.1)));
+      win(0.9, 20, 1.4, 44); win(2.7, 20, 1.4, 44); win(w - 2.3, 20, 1.4, 44); win(w - 4.1, 20, 1.4, 44); door(cx, 62);
+      o.push(B(cx - 1.3, yF + 0.2, 62, 2.6, 0.9, 5, shade(R, -0.05)), B(cx - 1.3, yF + 0.95, 0, 0.14, 0.14, 62, "#fff"), B(cx + 1.16, yF + 0.95, 0, 0.14, 0.14, 62, "#fff"));
+    } else if (st === "twoStory") {
+      o.push(B(m, 0.3, 0, w - 2 * m, d - 0.6, 150, W), B(m - 0.04, 0.26, 70, w - 2 * m + 0.08, d - 0.5, 5, shade(W, -0.18)), PY(0, 0, 150, w, d, 58, R), B(w - 1.4, 0.8, 150, 0.6, 0.6, 44, shade(R, -0.1)));
+      win(0.9, 20, 1.3, 38); win(w - 2.2, 20, 1.3, 38); door(cx, 60);
+      win(0.9, 92, 1.3, 38); win(w - 2.2, 92, 1.3, 38); win(cx - 0.65, 92, 1.3, 38);
+      o.push(B(cx - 1.2, yF + 0.1, 80, 2.4, 0.6, 4, "#fff"), B(cx - 1.2, yF + 0.6, 80, 2.4, 0.05, 14, "#ececec"));
+    } else if (st === "modern") {
+      o.push(B(m, 0.3, 0, w - 2 * m, d - 0.6, 96, W), B(0, 0.2, 96, w, d - 0.4, 6, shade(R, -0.15)), B(1.2, 0.8, 102, w - 3.4, d - 1.6, 46, shade(W, -0.06)), B(0.9, 0.5, 148, w - 2.8, d - 1.0, 5, shade(R, -0.15)));
+      o.push(B(m + 0.5, yF, 16, 2.8, 0.05, 58, "#9cc9ea"), B(w - 3.6, yF, 16, 2.8, 0.05, 58, "#9cc9ea"), B(1.6, 3.35 + (d - 4), 112, w - 4.2, 0.05, 26, "#9cc9ea")); door(cx, 66);
+    } else if (st === "cabin") {
+      const body = shade(W, -0.3);
+      o.push(B(m, 0.3, 0, w - 2 * m, d - 0.6, 80, body));
+      for (let z = 10; z < 80; z += 14) o.push(B(m - 0.02, yF, z, w - 2 * m + 0.04, 0.05, 2, shade(body, -0.28)), B(w - m, 0.3, z, 0.05, d - 0.6, 2, shade(body, -0.34)));
+      o.push(PY(0, 0, 80, w, d, 74, R), B(w - 1.5, 0.8, 80, 0.7, 0.7, 62, "#aeb4ba")); win(0.9, 24, 1.3, 38); win(w - 2.2, 24, 1.3, 38); door(cx, 62);
+    } else { // castle
+      const stone = shade(W, -0.14);
+      o.push(B(m, 0.4, 0, w - 2 * m, d - 0.8, 110, stone));
+      for (let i = 0; i < Math.floor((w - 2 * m) / 0.7); i++) o.push(B(m + 0.1 + i * 0.7, yF - 0.18, 110, 0.4, 0.2, 10, stone));
+      [0.0, w - 1.6].forEach((tx) => o.push(B(tx, d - 2.0, 0, 1.6, 1.6, 150, shade(stone, -0.05)), PY(tx - 0.1, d - 2.1, 150, 1.8, 1.8, 54, R), B(tx + 0.5, d - 0.42, 90, 0.5, 0.05, 30, glass)));
+      o.push(B(cx - 1.0, yF - 0.02, 0, 2.0, 0.06, 80, Dr), B(cx - 1.0, yF - 0.02, 76, 2.0, 0.08, 4, shade(Dr, -0.3)), S(cx + 0.7, yF + 0.04, 38, 2.6, "#f2c94c"), B(cx - 1.2, yF, 0, 2.4, 0.4, 4, "#d8d2c4"));
+      win(1.6, 50, 0.9, 34); win(w - 2.5, 50, 0.9, 34);
+    }
+    return o;
+  }
+  // the house in yard tiles (turned to face +x when rot is set)
   function houseParts(y) {
-    const w = (HOUSE_WALLS[y.wall] || HOUSE_WALLS.cream)[2], r = (HOUSE_ROOFS[y.roof] || HOUSE_ROOFS.red)[2], d = (HOUSE_DOORS[y.door] || HOUSE_DOORS.wood)[2];
-    return [B(0.6, 0.5, 0, 6.8, 2.6, 92, w), PY(0.3, 0.2, 92, 7.4, 3.2, 62, r), B(5.7, 0.9, 92, 0.6, 0.6, 52, shade(r, -0.1)),
-      B(1.1, 3.1, 0, 1.5, 0.05, 54, "#b7d8f2"), B(1.1, 3.08, 54, 1.5, 0.08, 5, "#fff"), B(1.1, 3.08, 0, 1.5, 0.08, 4, "#fff"), B(1.82, 3.1, 4, 0.06, 0.05, 50, "#fff"),
-      B(5.2, 3.1, 0, 1.5, 0.05, 54, "#b7d8f2"), B(5.2, 3.08, 54, 1.5, 0.08, 5, "#fff"), B(5.2, 3.08, 0, 1.5, 0.08, 4, "#fff"), B(5.92, 3.1, 4, 0.06, 0.05, 50, "#fff"),
-      B(3.3, 3.08, 0, 1.4, 0.06, 66, d), B(3.3, 3.08, 62, 1.4, 0.08, 4, shade(d, -0.3)), S(4.45, 3.12, 30, 2.4, "#f2c94c"), B(3.1, 3.1, 0, 1.8, 0.4, 4, "#d8d2c4")];
+    const h = (y && y.house) || {}, rc = houseRect(y), loc = houseLocal(h, rc.w, rc.d);
+    return loc.map((p) => {
+      const q = rc.rot ? mirrorPart(p) : p;
+      return Object.assign({}, q, { x: q.x + (rc.rot ? rc.c0 : rc.c0), y: q.y + (rc.rot ? rc.r0 : 0) });
+    });
+  }
+  const houseDepth = (y) => { const rc = houseRect(y); return rc.c1 + rc.r1 - 0.4; };
+  function doorSpan(y) { // the two tiles in front of the door, along the front wall
+    const rc = houseRect(y);
+    return rc.rot ? { rot: 1, a: Math.floor(rc.r0 + rc.w / 2) - 1 } : { rot: 0, a: Math.floor(rc.c0 + rc.w / 2) - 1 };
+  }
+  // automatic border pieces + path tiles
+  function yardExtras(y) {
+    const dm = yardDims(y), rc = houseRect(y), ds = doorSpan(y), virt = [], path = [];
+    const inHouse = (c, r) => c >= rc.c0 && c < rc.c1 && r >= rc.r0 && r < rc.r1;
+    const id = { fence: "fence", hedge: "hedge1", stone: "stoneWall1" }[y && y.border];
+    if (id) {
+      const add = (c, r, m) => { if (!inHouse(c, r)) virt.push({ uid: "", id, c, r, m, z: 0, fixed: true }); };
+      for (let r = 0; r < dm.R; r++) { add(0, r, 1); add(dm.C - 1, r, 1); }
+      for (let c = 1; c < dm.C - 1; c++) { add(c, 0, 0); add(c, dm.R - 1, 0); }
+      // leave a gate in front of the door
+      for (let i = virt.length - 1; i >= 0; i--) { const v = virt[i]; if (ds.rot ? (v.c === dm.C - 1 && (v.r === ds.a || v.r === ds.a + 1)) : (v.r === dm.R - 1 && (v.c === ds.a || v.c === ds.a + 1))) virt.splice(i, 1); }
+    }
+    if (y && y.path && y.path !== "none") {
+      if (ds.rot) for (let c = rc.c1; c < dm.C; c++) { path.push([c, ds.a]); path.push([c, ds.a + 1]); }
+      else for (let r = rc.r1; r < dm.R; r++) { path.push([ds.a, r]); path.push([ds.a + 1, r]); }
+    }
+    return { virt, path };
+  }
+  function pathSvg(y) {
+    const kind = y.path, o = [];
+    if (!kind || kind === "none") return "";
+    yardExtras(y).path.forEach(([c, r], i) => {
+      const quad = (a, b, w, d) => pstr([proj(a, b, 0), proj(a + w, b, 0), proj(a + w, b + d, 0), proj(a, b + d, 0)]);
+      if (kind === "stones") { const q = proj(c + 0.5, r + 0.5 + (i % 2 ? 0.1 : -0.1), 0); o.push(`<ellipse cx="${q[0].toFixed(1)}" cy="${(q[1] - 1).toFixed(1)}" rx="19" ry="9" fill="#aeb4ba"/><ellipse cx="${q[0].toFixed(1)}" cy="${(q[1] - 3).toFixed(1)}" rx="19" ry="9" fill="#cfd4d8"/>`); }
+      else if (kind === "brick") o.push(`<polygon points="${quad(c, r, 1, 1)}" fill="${(c + r) % 2 ? "#d99a7d" : "#cc8b6f"}" stroke="#b97a60" stroke-width="1"/>`);
+      else o.push(`<polygon points="${quad(c + 0.04, r, 0.92, 1)}" fill="${i % 2 ? "#c99a63" : "#b98a55"}" stroke="#8f6a3e" stroke-width="1"/>`);
+    });
+    return o.join("");
   }
 
   /* ---- scene: everything as one SVG ---- */
   let uidSeq = 0;
   function sceneBox(room, kind) {
-    const C_ = room.C, R_ = room.R;
-    return { x: -R_ * HW - 24, y: -(kind === "yard" ? 180 : WALL_H) - 28, w: (C_ + R_) * HW + 48, h: (C_ + R_) * HH + (kind === "yard" ? 180 : WALL_H) + 28 + 56 };
-  }
-  // Render one room (state: {wall, floor, items:[...]}) into an SVG string. opts: {koala, showGrid, mini}
-  function roomSvg(room, st, opts) {
-    const o = opts || {}, kind = room.kind || "room";
-    room.uid = room.uid || ++uidSeq;
-    const box = sceneBox(room, kind), sh = shellSvg(room, st, kind), parts = [];
-    if (kind === "yard") parts.push(`<g class="kh-house" transform="translate(0 0)">${houseParts(st.house || {}).map(partSvg).join("")}</g>`);
-    const items = (st.items || []).slice();
-    const flats = items.filter((i) => !D[i.id] || D[i.id].flat), rest = items.filter((i) => D[i.id] && !D[i.id].flat && !D[i.id].wall), wall = items.filter((i) => D[i.id] && D[i.id].wall);
-    wall.forEach((i) => parts.push(wallItemSvg(i)));
-    flats.filter((i) => D[i.id]).forEach((i) => parts.push(floorItemSvg(i)));
-    rest.sort(depthCmp).forEach((i) => parts.push(floorItemSvg(i)));
-    const view = `${box.x} ${box.y} ${box.w} ${box.h}`;
-    return `<svg class="kh-room-svg" viewBox="${view}" xmlns="http://www.w3.org/2000/svg" ${o.label ? `role="img" aria-label="${o.label}"` : 'aria-hidden="true"'}><defs>${sh.clips}</defs><g class="kh-shell">${sh.svg}</g><g class="kh-items">${parts.join("")}</g>${o.extra || ""}</svg>`;
+    const C_ = room.C, R_ = room.R, top = kind === "yard" ? 300 : WALL_H;
+    return { x: -R_ * HW - 24, y: -top - 28, w: (C_ + R_) * HW + 48, h: (C_ + R_) * HH + top + 28 + 56 };
   }
   function depthKey(i) { const o = orient(D[i.id], i.m); return (i.c + o.w) + (i.r + o.d) + (i.z || 0) / 200; }
   function depthCmp(a, b) { return depthKey(a) - depthKey(b); }
   function floorItemSvg(i) {
     const def = D[i.id], [x, y] = proj(i.c, i.r, i.z || 0);
-    return `<g class="kh-it" data-uid="${i.uid || ""}" data-id="${i.id}" data-k="${def.flat ? -1 : depthKey(i).toFixed(3)}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})">${itemInner(def, i.m)}</g>`;
+    return `<g class="kh-it${i.fixed ? " kh-fixed" : ""}" data-uid="${i.uid || ""}" data-id="${i.id}" data-k="${def.flat ? -1 : depthKey(i).toFixed(3)}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})">${itemInner(def, i.m, i)}</g>`;
   }
   function wallMatrix(side) { return side === "L" ? "matrix(-0.5 0.25 0 1 0 0)" : "matrix(0.5 0.25 0 1 0 0)"; }
   function wallItemSvg(i) {
     const def = D[i.id], v = -(i.h || def.defH) - def.vh;
-    return `<g class="kh-it kh-wall" data-uid="${i.uid || ""}" data-id="${i.id}" data-k="-2"><g transform="${wallMatrix(i.side)}"><g transform="translate(${i.u * 64} ${v})">${def.art(def.pw, def.vh)}</g></g></g>`;
+    let art = def.art(def.pw, def.vh);
+    const sv = def.subKind === "frame" && i.sub && i.sub[0] ? subVis(i.sub[0]) : null;
+    if (sv) { const fs = Math.min(def.pw, def.vh) * 0.55; art += `<rect x="5" y="5" width="${def.pw - 10}" height="${def.vh - 10}" fill="${sv[1]}"/><text x="${def.pw / 2}" y="${def.vh / 2 + fs * 0.34}" font-size="${fs.toFixed(0)}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${sv[0]}</text>`; }
+    return `<g class="kh-it kh-wall" data-uid="${i.uid || ""}" data-id="${i.id}" data-k="-2"><g transform="${wallMatrix(i.side)}"><g transform="translate(${i.u * 64} ${v})">${art}</g></g></g>`;
+  }
+  // Render one room (state: {wall, floor, items:[...]}) into an SVG string. opts: {label, extra}
+  function roomSvg(room, st, opts) {
+    const o = opts || {}, kind = room.kind || "room";
+    room.uid = room.uid || ++uidSeq;
+    const box = sceneBox(room, kind), sh = shellSvg(room, st, kind), keyed = [], flatSvg = [], wallSvg = [];
+    let items = (st.items || []).slice();
+    if (kind === "yard") {
+      keyed.push({ k: houseDepth(st), svg: `<g class="kh-house" data-k="${houseDepth(st).toFixed(3)}">${houseParts(st).map(partSvg).join("")}</g>` });
+      items = items.concat(yardExtras(st).virt);
+    }
+    items.forEach((i) => {
+      const d = D[i.id]; if (!d) return;
+      if (d.wall) wallSvg.push(wallItemSvg(i));
+      else if (d.flat) flatSvg.push(floorItemSvg(i));
+      else keyed.push({ k: depthKey(i), svg: floorItemSvg(i) });
+    });
+    keyed.sort((a, b) => a.k - b.k);
+    const view = `${box.x} ${box.y} ${box.w} ${box.h}`;
+    return `<svg class="kh-room-svg" viewBox="${view}" xmlns="http://www.w3.org/2000/svg" ${o.label ? `role="img" aria-label="${o.label}"` : 'aria-hidden="true"'}><defs>${sh.clips}</defs><g class="kh-shell">${sh.svg}</g><g class="kh-items">${wallSvg.join("")}${flatSvg.join("")}${keyed.map((x) => x.svg).join("")}${""}</g>${o.extra || ""}</svg>`;
   }
 
   /* ============================== rooms & state ============================== */
+  // The kinds of room sold in the shop. Each one built on the floor plan becomes its own room.
   const ROOMS = {
-    study: { ko: "공부방", en: "Study", C: 6, R: 6, price: 0, wall: "mint", floor: "wood" },
-    bedroom: { ko: "침실", en: "Bedroom", C: 6, R: 6, price: 150, wall: "sky", floor: "lightWood" },
-    master: { ko: "마스터룸", en: "Master Room", C: 8, R: 8, price: 500, wall: "pink", floor: "plum" },
-    living: { ko: "거실", en: "Living Room", C: 8, R: 7, price: 250, wall: "cream", floor: "wood" },
-    kitchen: { ko: "주방", en: "Kitchen", C: 6, R: 6, price: 250, wall: "yellow", floor: "pinkTile" },
-    playroom: { ko: "놀이방", en: "Playroom", C: 7, R: 6, price: 200, wall: "sky", floor: "lime" },
-    cinema: { ko: "시네마룸", en: "Cinema", C: 7, R: 7, price: 400, wall: "purple", floor: "plum" },
-    bath: { ko: "화장실", en: "Bathroom", C: 5, R: 5, price: 180, wall: "sky", floor: "blueTile" },
-    garage: { ko: "차고", en: "Garage", C: 7, R: 6, price: 200, wall: "cream", floor: "stone" },
+    study: { ko: "공부방", en: "Study", C: 6, R: 6, price: 0, wall: "mint", floor: "wood", ic: "📚" },
+    bedroom: { ko: "침실", en: "Bedroom", C: 6, R: 6, price: 150, wall: "sky", floor: "lightWood", ic: "🛏️" },
+    master: { ko: "마스터룸", en: "Master Room", C: 8, R: 8, price: 500, wall: "pink", floor: "plum", ic: "👑" },
+    living: { ko: "거실", en: "Living Room", C: 8, R: 7, price: 250, wall: "cream", floor: "wood", ic: "🛋️" },
+    kitchen: { ko: "주방", en: "Kitchen", C: 6, R: 6, price: 250, wall: "yellow", floor: "pinkTile", ic: "🍳" },
+    playroom: { ko: "놀이방", en: "Playroom", C: 7, R: 6, price: 200, wall: "sky", floor: "lime", ic: "🧸" },
+    cinema: { ko: "시네마룸", en: "Cinema", C: 7, R: 7, price: 400, wall: "purple", floor: "plum", ic: "🎬" },
+    bath: { ko: "화장실", en: "Bathroom", C: 5, R: 5, price: 180, wall: "sky", floor: "blueTile", ic: "🛁" },
+    garage: { ko: "차고", en: "Garage", C: 7, R: 6, price: 200, wall: "cream", floor: "stone", ic: "🚗" },
   };
   const ROOM_ORDER = ["study", "bedroom", "master", "living", "kitchen", "playroom", "cinema", "bath", "garage"];
-  const YARD = { ko: "마당", en: "Yard", C: 8, R: 8, kind: "yard", wall: "cream", floor: "grass" };
   Object.keys(ROOMS).forEach((k) => { ROOMS[k].id = k; });
-  YARD.id = "yard";
+  // the floor plan: a 3 x 3 grid of room plots; the entrance (and the yard) is below the bottom row
+  const PLAN = { cols: 3, rows: 3 };
+  const SLOTS = []; for (let r = 0; r < PLAN.rows; r++) for (let c = 0; c < PLAN.cols; c++) SLOTS.push("s" + (r * PLAN.cols + c));
+  const START_SLOT = "s7";
 
-  const STORE_KEY = "koalaHouse:v1";
+  const STORE_KEY = "koalaHouse:v2", OLD_KEY = "koalaHouse:v1";
   let seq = 0;
   const newUid = () => Date.now().toString(36) + (++seq).toString(36) + Math.random().toString(36).slice(2, 4);
 
   function starter() {
     const it = (id, c, r, m) => ({ uid: newUid(), id, c, r, m: m || 0, z: 0 });
     return {
-      v: 1, cur: "study", owned: { bedBlue: 1, sofaRed: 1, deskWood: 1, stoolBlue: 1, shelfWood: 1, wardrobeWood: 1, tableRound: 1, rugBlue: 1, lampDesk: 1, vase: 1, bookStack: 1, plantBig: 1, dresser: 1, toybox: 1, tvStand: 1, fridge: 1, counter: 1, stove: 1, bathtub: 1, toilet: 1, vanity: 1, treeApple: 1, bush: 1, flowerBed: 1, bench: 1, fence: 1, stones: 1, pottedSmall: 1, winDay: 1, frameSun: 1, bedPink: 0 },
-      worn: {}, walls: { cream: 1, mint: 1 }, floors: { wood: 1, grass: 1 }, owned_rooms: { study: 1 },
-      rooms: {
-        study: { wall: "mint", floor: "wood", items: [it("rugBlue", 1, 2), it("deskWood", 3, 0), it("stoolBlue", 3, 1), it("shelfWood", 0, 1, 1), it("plantBig", 5, 5), Object.assign(it("lampDesk", 4, 0), { z: 34 }), Object.assign(it("bookStack", 3, 0), { z: 34 }), { uid: newUid(), id: "winDay", side: "R", u: 1.5, h: 56 }, { uid: newUid(), id: "frameSun", side: "L", u: 3.5, h: 70 }] },
+      v: 2, cur: START_SLOT,
+      owned: { bedBlue: 1, sofaRed: 1, deskWood: 1, stoolBlue: 1, shelfWood: 1, wardrobeWood: 1, tableRound: 1, rugBlue: 1, lampDesk: 1, vase: 1, bookStack: 1, plantBig: 1, dresser: 1, toybox: 1, tvStand: 1, fridge: 1, counter: 1, stove: 1, bathtub: 1, toilet: 1, vanity: 1, treeApple: 1, bush: 1, flowerBed: 1, bench: 1, fence: 1, stones: 1, pottedSmall: 1, winDay: 1, frameSun: 1 },
+      worn: {}, walls: { cream: 1, mint: 1 }, floors: { wood: 1, grass: 1 }, houseStyles: { cottage: 1 }, yardSizes: { normal: 1 },
+      slots: {
+        [START_SLOT]: { type: "study", wall: "mint", floor: "wood", items: [it("rugBlue", 1, 2), it("deskWood", 3, 0), Object.assign(it("stoolBlue", 3, 1), { m: 0 }), it("shelfWood", 0, 1, 1), it("plantBig", 5, 5), Object.assign(it("lampDesk", 4, 0), { z: 34 }), Object.assign(it("bookStack", 3, 0), { z: 34 }), { uid: newUid(), id: "winDay", side: "R", u: 1.5, h: 56 }, { uid: newUid(), id: "frameSun", side: "L", u: 3.5, h: 70 }] },
       },
-      yard: { wall: "cream", floor: "grass", house: { wall: "cream", roof: "red", door: "wood" }, items: [{ uid: newUid(), id: "treeApple", c: 0, r: 4, m: 0, z: 0 }, { uid: newUid(), id: "flowerBed", c: 5, r: 6, m: 0, z: 0 }, { uid: newUid(), id: "bench", c: 2, r: 7, m: 0, z: 0 }, { uid: newUid(), id: "stones", c: 3, r: 4, m: 0, z: 0 }, { uid: newUid(), id: "stones", c: 3, r: 5, m: 0, z: 0 }] },
+      yard: { size: "normal", floor: "grass", border: "fence", path: "stones", house: { style: "cottage", wall: "cream", roof: "red", door: "wood", rot: 0, shift: 0 }, items: [it("treeApple", 1, 5), it("flowerBed", 9, 6), it("bench", 3, 9), it("bush", 0, 8)] },
     };
   }
+  function migrate(o) { // v1 kept one room per kind; v2 keeps rooms on plots of the floor plan
+    const S = starter();
+    Object.assign(S, { owned: Object.assign(S.owned, o.owned || {}), worn: o.worn || {}, walls: o.walls || S.walls, floors: o.floors || S.floors });
+    S.slots = {};
+    const own = Object.keys(o.owned_rooms || { study: 1 }).filter((k) => ROOMS[k] && o.rooms && o.rooms[k]);
+    let n = 0;
+    own.forEach((k) => {
+      const slot = k === "study" ? START_SLOT : SLOTS.filter((x) => x !== START_SLOT)[n++];
+      if (!slot) return;
+      const r = o.rooms[k];
+      S.slots[slot] = { type: k, wall: r.wall, floor: r.floor, items: (r.items || []).map((i) => (i.m ? Object.assign({}, i, { m: 1 }) : i)) };
+    });
+    if (!S.slots[START_SLOT]) S.slots[START_SLOT] = starter().slots[START_SLOT];
+    if (o.yard) S.yard = Object.assign(starter().yard, { floor: o.yard.floor || "grass", items: (o.yard.items || []).filter((i) => D[i.id]) });
+    return S;
+  }
   function load() {
-    try { const s = JSON.parse(localStorage.getItem(STORE_KEY)); if (s && s.v === 1 && s.rooms) return s; } catch (e) { /* fall through */ }
+    try { const s = JSON.parse(localStorage.getItem(STORE_KEY)); if (s && s.v === 2 && s.slots && s.yard) return s; } catch (e) { /* fall through */ }
+    try { const o = JSON.parse(localStorage.getItem(OLD_KEY)); if (o && o.rooms) return migrate(o); } catch (e) { /* fall through */ }
     return starter();
   }
   function persist(S) { try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch (e) { /* storage may be blocked */ } }
 
+  // a plot of the plan (or the yard) as a room definition
+  function roomOf(S, id) {
+    if (id === "yard") return yardRoom(S.yard);
+    const st = S.slots[id];
+    if (!st) return null;
+    const t = ROOMS[st.type];
+    let n = 0, idx = 0;
+    SLOTS.forEach((sl) => { const o = S.slots[sl]; if (o && o.type === st.type) { n++; if (sl === id) idx = n; } });
+    return Object.assign({}, t, { id, uid: "slot" + id + st.type, label: [t.ko + (n > 1 ? " " + idx : ""), t.en + (n > 1 ? " " + idx : "")] });
+  }
+  const stateOf = (S, id) => (id === "yard" ? S.yard : S.slots[id]);
+
   /* ---- placement rules ---- */
   function footprint(i) { const o = orient(D[i.id], i.m); return { w: o.w, d: o.d }; }
   function cellsOf(i) { const f = footprint(i), a = []; for (let c = 0; c < f.w; c++) for (let r = 0; r < f.d; r++) a.push((Math.floor(i.c + 1e-6) + c) + "," + (Math.floor(i.r + 1e-6) + r)); return a; }
+  D._house = { id: "_house", cat: "sys", name: ["집", "House"], w: 1, d: 1, price: 0, parts: [], virtual: true, where: "none" };
   // occupant map for non-flat floor pieces
   function occupancy(items, skipUid) {
     const m = {};
     items.forEach((i) => { const d = D[i.id]; if (!d || d.wall || d.flat || i.uid === skipUid) return; cellsOf(i).forEach((k) => { (m[k] = m[k] || []).push(i); }); });
+    return m;
+  }
+  // everything that blocks a floor cell in this room (the yard adds the house and the border)
+  function occ(room, st, skipUid) {
+    const m = occupancy(st.items, skipUid);
+    if (room.kind === "yard") {
+      yardExtras(st).virt.forEach((v) => cellsOf(v).forEach((k) => { (m[k] = m[k] || []).push(v); }));
+      const rc = houseRect(st);
+      for (let c = rc.c0; c < rc.c1; c++) for (let r = rc.r0; r < rc.r1; r++) (m[c + "," + r] = m[c + "," + r] || []).push({ id: "_house", uid: "_house", c, r, m: 0 });
+    }
     return m;
   }
   // can the piece sit at (c, r)? returns {ok, z}
@@ -444,30 +683,35 @@
     const def = D[piece.id], f = footprint(piece);
     const c0 = Math.round(piece.c), r0 = Math.round(piece.r);
     if (c0 < 0 || r0 < 0 || c0 + f.w > room.C || r0 + f.d > room.R) return { ok: false, z: 0 };
-    if (def.flat) return { ok: true, z: 0 };
-    if (room.kind === "yard" && r0 < 4) return { ok: false, z: 0 };
-    const occ = occupancy(st.items, skipUid);
+    const o = occ(room, st, skipUid);
+    if (def.flat) {
+      for (let c = 0; c < f.w; c++) for (let r = 0; r < f.d; r++) { const l = o[(c0 + c) + "," + (r0 + r)]; if (l && l.some((x) => x.id === "_house")) return { ok: false, z: 0 }; }
+      return { ok: true, z: 0 };
+    }
     let z = 0, ok = true;
     for (let c = 0; c < f.w; c++) for (let r = 0; r < f.d; r++) {
-      const list = occ[(c0 + c) + "," + (r0 + r)];
+      const list = o[(c0 + c) + "," + (r0 + r)];
       if (!list || !list.length) continue;
-      const top = list.find((o) => D[o.id].topH && !D[o.id].stack);
+      const top = list.find((x) => D[x.id].topH && !D[x.id].stack);
       if (def.stack && top && list.length === 1) z = Math.max(z, D[top.id].topH); else ok = false;
     }
     return { ok, z };
   }
   function freeCells(room, st) {
-    const occ = occupancy(st.items), a = [];
-    for (let c = 0; c < room.C; c++) for (let r = 0; r < room.R; r++) {
-      if (room.kind === "yard" && r < 4) continue; // the house stands on the first rows
-      if (!occ[c + "," + r]) a.push([c, r]);
-    }
+    const o = occ(room, st), a = [];
+    for (let c = 0; c < room.C; c++) for (let r = 0; r < room.R; r++) if (!o[c + "," + r]) a.push([c, r]);
     return a;
   }
+  // what is the koala allowed to sit on? the seat item whose cell is (c, r)
+  function seatAt(st, c, r) {
+    return (st.items || []).find((i) => { const d = D[i.id]; return d && d.seat && cellsOf(i).includes(c + "," + r); }) || null;
+  }
+  // the direction a seat faces (the way the koala looks when sitting on it): 0 +y, 1 +x, 2 -y, 3 -x
+  const seatFacing = (i) => ((i.m | 0) % 4 + 4) % 4;
 
   return {
-    TW, TH, WALL_H, D, WALLS, FLOORS, ROOMS, ROOM_ORDER, YARD, HOUSE_WALLS, HOUSE_ROOFS, HOUSE_DOORS,
-    proj, shade, orient, itemBox, itemInner, thumbSvg, roomSvg, wallItemSvg, floorItemSvg, sceneBox, depthCmp,
-    canPlace, freeCells, occupancy, depthKey, footprint, cellsOf, load, persist, starter, newUid, setManifest, wallMatrix, houseParts,
+    TW, TH, WALL_H, D, WALLS, FLOORS, ROOMS, ROOM_ORDER, PLAN, SLOTS, START_SLOT, YARD, HOUSE_WALLS, HOUSE_ROOFS, HOUSE_DOORS, HOUSE_STYLES, YARD_SIZES, BORDERS, PATHS, GARDEN_PRESETS,
+    proj, shade, orient, itemBox, itemInner, thumbSvg, roomSvg, wallItemSvg, floorItemSvg, sceneBox, depthCmp, roomOf, stateOf, yardDims, houseRect, subVis, bookColor,
+    canPlace, freeCells, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts,
   };
 });

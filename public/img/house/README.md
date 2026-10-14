@@ -13,3 +13,8 @@
 - `ratio`: 세로/가로 비율
 - `ax`, `ay`: 이미지에서 바닥 앵커 위치(0~1) — 보통 가로 중앙, 아래쪽
 manifest에 없는 아이템은 기본 SVG로 그려집니다.
+
+## Extra keys (koala + rotation)
+- `koala:back` — koala seen from behind (used when the koala faces away). Until supplied, the front picture is mirrored.
+- `koala:sit` — koala sitting pose (on a chair or on the floor). Until supplied, the standing picture is lowered.
+- Items rotate in 4 directions (0/90/180/270). One picture per item is fine; supply `id:1`, `id:2`, `id:3` keys for rotated views if you want hand-drawn angles.
