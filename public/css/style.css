@@ -13433,3 +13433,14 @@ html[data-theme="dark"] .muted.ocr-already-note {
 .admin-pw-card .admin-pw-who { text-align: center; margin: 4px 0 6px; font-size: 0.9rem; overflow-wrap: anywhere; }
 .admin-pw-card .auth-success { text-align: center; margin: 10px 0 4px; }
 .admin-pw-card .kid-modal-actions { margin-top: 14px; }
+
+/* Role dropdowns: the chosen value sits vertically centred in the box
+   (base-select picker lays its content out as a flex row, top-aligned by default) */
+select.admin-role-select { align-items: center; }
+
+/* Photo/file word extraction: breathing room between the Select All row,
+   the word list, the "Save selected words as" row and the Add button */
+#ocr-review .ocr-review-header { margin-bottom: 14px; }
+#ocr-review #ocr-candidates { margin-bottom: 18px; padding-bottom: 2px; }
+#ocr-review .setting-row { row-gap: 14px; column-gap: 10px; margin-bottom: 14px; }
+#ocr-review .setting-row #ocr-add-btn { margin-top: 2px; }
