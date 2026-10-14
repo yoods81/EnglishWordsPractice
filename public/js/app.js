@@ -15602,6 +15602,7 @@ function koalaStudioTopHtml(k, mode) {
     shadow: true,
     view: mode === "room" ? undefined : "60 78 200 137.5",
     sub: k.items.sub || {},
+    layout: mode === "room" ? roomLayout() : undefined,
     pick: mode === "room" ? koalaPick : null,
   });
   return `<div class="koala-studio-top"><div class="koala-studio-preview">
@@ -16021,27 +16022,77 @@ function koalaZoomScene(view) {
   });
 }
 
-/* ---- Room edit mode: drag / rotate / resize / reorder items; layout saved in LocalStorage ---- */
-const ROOM_LAYOUT_KEY = "koalaRoomLayout:v1";
+/* ---- Room edit mode: a free-form decorating game ----
+   Inventory cards (everything you own) can be dragged or tapped into the room, as many copies as you like.
+   Tap a placed item to get its menu (rotate, flip, resize, front/back, delete). Saved in LocalStorage:
+   { over: { itemId: {dx,dy,rot,s,f,z,hide} }, extra: [ {uid,id,dx,dy,rot,s,f,z} ] } */
+const ROOM_LAYOUT_KEY = "koalaRoomLayout:v2";
 let roomEdit = false;
-let roomSel = null;
+let roomSel = null; // "koala" | itemId (equipped item) | "x:<uid>" (extra copy)
 let roomLayoutCache = null;
 function roomLayout() {
   if (!roomLayoutCache) {
-    try { roomLayoutCache = JSON.parse(localStorage.getItem(ROOM_LAYOUT_KEY)) || {}; } catch (e) { roomLayoutCache = {}; }
+    try {
+      const v2 = JSON.parse(localStorage.getItem(ROOM_LAYOUT_KEY));
+      const v1 = !v2 && JSON.parse(localStorage.getItem("koalaRoomLayout:v1"));
+      roomLayoutCache = v2 || { over: v1 || {}, extra: [] };
+    } catch (e) { roomLayoutCache = null; }
+    if (!roomLayoutCache || typeof roomLayoutCache !== "object") roomLayoutCache = {};
+    roomLayoutCache.over = roomLayoutCache.over || {};
+    roomLayoutCache.extra = Array.isArray(roomLayoutCache.extra) ? roomLayoutCache.extra : [];
   }
   return roomLayoutCache;
 }
 function saveRoomLayout() {
   try { localStorage.setItem(ROOM_LAYOUT_KEY, JSON.stringify(roomLayout())); } catch (e) { console.warn("Could not save room layout", e); }
 }
-function roomEntry(id) { const L = roomLayout(); return (L[id] = L[id] || { dx: 0, dy: 0, rot: 0, s: 1, z: 0 }); }
+// The state object behind a selection key (created on demand for equipped items / the koala).
+function roomState(key) {
+  const L = roomLayout();
+  if (key && key.startsWith("x:")) return L.extra.find((x) => "x:" + x.uid === key) || null;
+  return (L.over[key] = L.over[key] || { dx: 0, dy: 0, rot: 0, s: 1, f: 0, z: 0 });
+}
+function roomItemId(key) { return key && key.startsWith("x:") ? (roomState(key) || {}).id : key; }
+function roomPlaceable() {
+  const k = KoalaCore.ensureKoala(progress);
+  const rank = (id) => KoalaCore.ROOM_SLOTS.indexOf((KoalaCore.itemById(id) || {}).slot);
+  return Object.keys(k.items.owned || {}).filter((id) => { const i = KoalaArt.roomArtInfo(id); return i && i.layer !== "wall"; }).sort((a, b) => rank(a) - rank(b));
+}
+// Drop an inventory item into the room; (x, y) is where its centre should land (scene units), or null for the default spot.
+function roomPlaceItem(id, x, y) {
+  const info = KoalaArt.roomArtInfo(id);
+  if (!info) return;
+  const v = info.view.split(" ").map(Number);
+  const pos = x == null ? null : { dx: Math.round(Math.max(-200, Math.min(200, x - (v[0] + v[2] / 2)))), dy: Math.round(Math.max(-140, Math.min(140, y - (v[1] + v[3] / 2)))) };
+  const L = roomLayout();
+  const equipped = Object.values(KoalaCore.ensureKoala(progress).items.equipped || {}).includes(id);
+  const st = L.over[id];
+  if (equipped && (!st || st.hide)) { // the equipped copy was taken out of the room: put it back
+    L.over[id] = Object.assign({ dx: 0, dy: 0, rot: 0, s: 1, f: 0, z: 0 }, pos || {}, { hide: false });
+    roomSel = id;
+  } else {
+    const n = L.extra.filter((e) => e.id === id).length;
+    const uid = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+    L.extra.push(Object.assign({ uid, id, dx: 14 * n, dy: 8 * n, rot: 0, s: 1, f: 0, z: 0 }, pos || {}));
+    roomSel = "x:" + uid;
+  }
+  saveRoomLayout();
+}
 function roomEditBarHtml() {
-  const name = roomSel === "koala" ? rwL("Koala", "코알라") : roomSel ? escapeHtml(koalaItemName(KoalaCore.itemById(roomSel) || { id: roomSel, name: { en: roomSel, ko: roomSel } })) : "";
-  const b = (act, label) => `<button type="button" class="koala-cat" data-room-act="${act}"${roomSel || act === "resetAll" ? "" : " disabled"}>${label}</button>`;
-  return `<div class="koala-zoom-caption">${roomSel ? `✋ ${name}` : rwL("Drag an item to move it · tap to select", "아이템을 끌어서 옮기고, 눌러서 선택해요")}</div>
-    <div class="koala-zoom-views" style="justify-content:center;margin-top:8px">
-      ${b("rotL", "↺")}${b("rotR", "↻")}${b("bigger", "＋")}${b("smaller", "－")}${b("front", rwL("Front", "앞으로"))}${b("back", rwL("Back", "뒤로"))}${b("reset", rwL("Reset item", "제자리"))}${b("resetAll", rwL("Reset all", "전체 초기화"))}</div>`;
+  const id = roomItemId(roomSel);
+  const it = id && id !== "koala" ? KoalaCore.itemById(id) : null;
+  const name = roomSel === "koala" ? rwL("Koala", "코알라") : it ? escapeHtml(koalaItemName(it)) : "";
+  const b = (act, label, title) => `<button type="button" class="koala-cat" data-room-act="${act}" title="${title}" aria-label="${title}">${label}</button>`;
+  const menu = roomSel
+    ? `<div class="room-menu"><b>✋ ${name}</b>${b("rotL", "↺", rwL("Rotate left", "왼쪽으로 회전"))}${b("rotR", "↻", rwL("Rotate right", "오른쪽으로 회전"))}${b("flip", "⇋", rwL("Flip", "좌우 반전"))}${b("bigger", "＋", rwL("Bigger", "크게"))}${b("smaller", "－", rwL("Smaller", "작게"))}${b("front", "⬆", rwL("Bring forward", "앞으로"))}${b("back", "⬇", rwL("Send back", "뒤로"))}${roomSel === "koala" ? b("reset", "↩", rwL("Reset", "제자리")) : b("del", "🗑", rwL("Remove from room", "방에서 치우기"))}</div>`
+    : `<div class="koala-zoom-caption">${rwL("Drag items from your inventory into the room · tap an item in the room to edit it", "아래 인벤토리에서 아이템을 끌어다 놓고, 방 안의 아이템을 눌러 꾸며요")}</div>`;
+  const inv = roomPlaceable().map((i) => {
+    const t = KoalaCore.itemById(i);
+    const nm = t ? escapeHtml(koalaItemName(t)) : i;
+    return `<button type="button" class="room-inv-card" data-room-inv="${i}" title="${nm}" aria-label="${nm}">${KoalaArt.itemIcon(i)}<span>${nm}</span></button>`;
+  }).join("");
+  return `${menu}<div class="room-inv">${inv || `<span class="koala-zoom-caption">${rwL("Buy items in the shop to decorate!", "상점에서 아이템을 사서 꾸며 봐요!")}</span>`}</div>
+    <div class="koala-zoom-views" style="justify-content:center;margin-top:6px"><button type="button" class="koala-cat" data-room-act="resetAll">${rwL("Reset room", "방 초기화")}</button></div>`;
 }
 function refreshRoomEditor() {
   const el = document.getElementById("koala-zoom");
@@ -16051,51 +16102,84 @@ function refreshRoomEditor() {
   if (bar) bar.innerHTML = roomEdit ? roomEditBarHtml() : "";
 }
 function roomEditorAct(act) {
-  if (act === "resetAll") { roomLayoutCache = {}; roomSel = null; saveRoomLayout(); refreshRoomEditor(); return; }
+  const L = roomLayout();
+  if (act === "resetAll") { roomLayoutCache = { over: {}, extra: [] }; roomSel = null; saveRoomLayout(); refreshRoomEditor(); return; }
   if (!roomSel) return;
-  const e = roomEntry(roomSel);
+  const e = roomState(roomSel);
+  if (!e) return;
   if (act === "rotL") e.rot = (e.rot || 0) - 15;
   else if (act === "rotR") e.rot = (e.rot || 0) + 15;
-  else if (act === "bigger") e.s = Math.min(2, +((e.s || 1) + 0.1).toFixed(2));
+  else if (act === "flip") e.f = e.f ? 0 : 1;
+  else if (act === "bigger") e.s = Math.min(2.5, +((e.s || 1) + 0.1).toFixed(2));
   else if (act === "smaller") e.s = Math.max(0.4, +((e.s || 1) - 0.1).toFixed(2));
   else if (act === "front") e.z = (e.z || 0) + 1;
   else if (act === "back") e.z = (e.z || 0) - 1;
-  else if (act === "reset") delete roomLayout()[roomSel];
+  else if (act === "reset") delete L.over[roomSel];
+  else if (act === "del") {
+    if (roomSel.startsWith("x:")) L.extra = L.extra.filter((x) => "x:" + x.uid !== roomSel);
+    else e.hide = true;
+    roomSel = null;
+  }
   saveRoomLayout();
   refreshRoomEditor();
 }
-// Pointer dragging on the zoom stage (mouse + touch). The stage element persists across
-// re-renders, so pointer capture stays valid while the SVG inside is rebuilt.
-function attachRoomDrag(stage) {
-  let drag = null;
+// Pointer handling (mouse + touch). Window-level move/up listeners keep a drag alive while the DOM is re-rendered.
+function attachRoomDrag(el) {
+  const stage = el.querySelector(".koala-zoom-stage");
   const toScene = (ev) => {
     const svg = stage.querySelector("svg");
     const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
     const m = svg.getScreenCTM();
     return m ? pt.matrixTransform(m.inverse()) : { x: 0, y: 0 };
   };
-  stage.addEventListener("pointerdown", (ev) => {
-    if (!roomEdit) return;
-    const g = ev.target.closest && ev.target.closest("g[data-item]");
-    const id = g && g.dataset.item;
-    if (!id || id === (KoalaCore.ensureKoala(progress).items.equipped || {}).wallpaper) { roomSel = null; refreshRoomEditor(); return; }
+  const overStage = (ev) => { const r = stage.getBoundingClientRect(); return ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom; };
+  let drag = null;
+  const run = (onMove, onEnd) => {
+    const mv = (ev) => onMove(ev);
+    const up = (ev) => { window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", up); onEnd(ev); };
+    window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", up);
+  };
+  el.addEventListener("pointerdown", (ev) => {
+    if (!roomEdit || ev.button > 0) return;
+    // 1) dragging a card out of the inventory
+    const card = ev.target.closest && ev.target.closest("[data-room-inv]");
+    if (card) {
+      ev.preventDefault();
+      const id = card.dataset.roomInv, x0 = ev.clientX, y0 = ev.clientY;
+      const ghost = document.createElement("div");
+      ghost.className = "room-ghost"; ghost.innerHTML = KoalaArt.itemIcon(id);
+      ghost.style.cssText = `left:${ev.clientX}px;top:${ev.clientY}px`;
+      document.body.appendChild(ghost);
+      run((m) => { ghost.style.left = m.clientX + "px"; ghost.style.top = m.clientY + "px"; }, (u) => {
+        ghost.remove();
+        const moved = Math.hypot(u.clientX - x0, u.clientY - y0) > 6;
+        if (moved && !overStage(u)) return; // dropped outside the room: cancel
+        if (moved) { const p = toScene(u); roomPlaceItem(id, p.x, p.y); } else roomPlaceItem(id, null, null); // a tap drops it at its usual spot
+        refreshRoomEditor();
+      });
+      return;
+    }
+    // 2) grabbing something already in the room
+    const g = ev.target.closest && ev.target.closest("#koala-zoom .koala-zoom-stage g[data-key]");
+    const key = g && g.dataset.key;
+    const wall = (KoalaCore.ensureKoala(progress).items.equipped || {}).wallpaper;
+    if (!key || key === wall || (ev.target.closest(".koala-zoom-stage") == null)) {
+      if (ev.target.closest(".koala-zoom-stage")) { roomSel = null; refreshRoomEditor(); }
+      return;
+    }
     ev.preventDefault();
-    roomSel = id;
-    const p = toScene(ev), e = roomEntry(id);
-    drag = { id, x: p.x, y: p.y, dx: e.dx || 0, dy: e.dy || 0 };
-    stage.setPointerCapture(ev.pointerId);
+    roomSel = key;
+    const p0 = toScene(ev), e0 = roomState(key);
+    drag = { key, x: p0.x, y: p0.y, dx: e0.dx || 0, dy: e0.dy || 0, moved: false };
     refreshRoomEditor();
+    run((m) => {
+      const p = toScene(m), e = roomState(drag.key);
+      if (Math.hypot(p.x - drag.x, p.y - drag.y) > 1.5) drag.moved = true;
+      e.dx = Math.round(Math.max(-200, Math.min(200, drag.dx + p.x - drag.x)));
+      e.dy = Math.round(Math.max(-140, Math.min(140, drag.dy + p.y - drag.y)));
+      stage.querySelector("svg").outerHTML = koalaZoomScene("room");
+    }, () => { drag = null; saveRoomLayout(); refreshRoomEditor(); });
   });
-  stage.addEventListener("pointermove", (ev) => {
-    if (!drag) return;
-    const p = toScene(ev), e = roomEntry(drag.id);
-    e.dx = Math.round(Math.max(-200, Math.min(200, drag.dx + p.x - drag.x)));
-    e.dy = Math.round(Math.max(-140, Math.min(140, drag.dy + p.y - drag.y)));
-    stage.querySelector("svg").outerHTML = koalaZoomScene("room");
-  });
-  const end = () => { if (drag) { drag = null; saveRoomLayout(); refreshRoomEditor(); } };
-  stage.addEventListener("pointerup", end);
-  stage.addEventListener("pointercancel", end);
 }
 function closeKoalaZoom() {
   roomEdit = false; roomSel = null;
@@ -16127,7 +16211,7 @@ function openKoalaZoom(view) {
     const v = e.target.closest("[data-koala-zoom-view]");
     if (v) { roomEdit = false; roomSel = null; openKoalaZoom(v.dataset.koalaZoomView); }
   });
-  attachRoomDrag(el.querySelector(".koala-zoom-stage"));
+  attachRoomDrag(el);
   document.body.appendChild(el);
   document.addEventListener("keydown", koalaZoomKey);
   const close = el.querySelector("[data-koala-zoom-close]");

@@ -618,13 +618,15 @@
     return a.build ? a.build((sub && sub[id]) || []) : a.svg;
   }
 
-  // Transform for a saved placement; rotate/scale pivot on (cx, cy) or the item's view-box centre.
-  function layoutTransform(layout, id, cx, cy) {
-    const l = layout && layout[id];
-    if (!l || !(l.dx || l.dy || l.rot || (l.s && l.s !== 1))) return "";
+  // Transform for a saved placement. Pass the placement itself, or a map + id (koala uses (map,"koala",cx,cy)).
+  // Rotate / scale / flip pivot on (cx, cy) or the item's view-box centre.
+  function layoutTransform(st, id, cx, cy) {
+    const l = (st && st[id] && typeof st[id] === "object") ? st[id] : st;
+    if (!l || !(l.dx || l.dy || l.rot || l.f || (l.s && l.s !== 1))) return "";
     let px = cx, py = cy;
     if (px == null) { const a = ROOM_ART[id]; const v = a && a.view ? a.view.split(" ").map(Number) : [0, 0, 320, 220]; px = v[0] + v[2] / 2; py = v[1] + v[3] / 2; }
-    return ` transform="translate(${+l.dx || 0} ${+l.dy || 0}) translate(${px} ${py}) rotate(${+l.rot || 0}) scale(${+l.s || 1}) translate(${-px} ${-py})"`;
+    const sc = +l.s || 1;
+    return ` transform="translate(${+l.dx || 0} ${+l.dy || 0}) translate(${px} ${py}) rotate(${+l.rot || 0}) scale(${l.f ? -sc : sc} ${sc}) translate(${-px} ${-py})"`;
   }
 
   // The whole scene. roomEq: { slot: itemId } for the room; koalaEq: what the
@@ -639,23 +641,32 @@
     });
     if (!byLayer.wall) byLayer.wall = "creamWall";
     // Items that hold sub-items get a class so the studio can make them tappable / highlight the picked one.
-    const grp = (id) => {
-      const hit = ROOM_ART[id].build ? ` class="koala-hit${o.pick === id ? " koala-picked" : ""}"` : "";
-      return `<g data-item="${id}"${hit}${layoutTransform(o.layout, id)}>${roomItem(id, o.sub)}</g>`;
+    // Free placement. o.layout = { over: { itemId: {dx,dy,rot,s,f,z,hide} }, extra: [{uid,id,dx,dy,rot,s,f,z}] }.
+    // Equipped items sit at their default spot plus an optional override; "extra" are additional
+    // copies the player dropped from the inventory. Back-to-front order = layer rank, then z, then y.
+    const L = o.layout || {};
+    const over = L.over || {};
+    const RANK = { garland: 1, window: 2, poster: 3, shelf: 4, lamp: 5, rug: 6, desk: 7, toy: 8, koala: 10, pet: 11, plant: 12 };
+    const grp = (id, key, st) => {
+      const hit = (ROOM_ART[id].build || o.pick === key) ? ` class="${ROOM_ART[id].build ? "koala-hit" : ""}${o.pick === key ? " koala-picked" : ""}"` : "";
+      return `<g data-item="${id}" data-key="${key}"${hit}${layoutTransform(st, id)}>${roomItem(id, o.sub)}</g>`;
     };
-    // Free placement: each item sits at its default spot plus a saved {dx, dy, rot, s, z}.
-    // Draw order = layer order (back to front), nudged by z for forward/back inside a layer.
-    const z = (id) => ((o.layout && o.layout[id] && o.layout[id].z) || 0);
+    const entry = (id, key, st) => {
+      const a = ROOM_ART[id];
+      const v = a.view.split(" ").map(Number);
+      const cy = v[1] + v[3] / 2 + ((st && st.dy) || 0);
+      return { order: (RANK[a.layer] || 5) * 1000 + ((st && st.z) || 0) * 100 + Math.max(0, Math.min(99, cy / 2.2)), svg: grp(id, key, st) };
+    };
     const stack = [];
-    ROOM_ORDER.slice(1).forEach((l, i) => { if (byLayer[l]) stack.push({ order: (i + 1) * 10 + z(byLayer[l]), svg: grp(byLayer[l]) }); });
+    Object.keys(byLayer).forEach((l) => { const id = byLayer[l]; if (l !== "wall" && l !== "pet" && l !== "plant" && !(over[id] && over[id].hide)) stack.push(entry(id, id, over[id])); });
+    ["pet", "plant"].forEach((l) => { const id = byLayer[l]; if (id && !(over[id] && over[id].hide)) stack.push(entry(id, id, over[id])); });
+    (L.extra || []).forEach((x) => { if (ROOM_ART[x.id] && ROOM_ART[x.id].layer !== "wall") stack.push(entry(x.id, "x:" + x.uid, x)); });
     const koala = avatar(koalaEq, { view: "full" }).replace('class="koala-avatar-svg" ', "").replace("<svg ", '<svg x="106" y="84" width="108" height="111" ');
-    const koalaG = `<g data-item="koala"${layoutTransform(o.layout, "koala", 160, 140)}>${koala}</g>`;
+    const kst = over.koala;
     const shadow = o.shadow ? '<ellipse cx="160" cy="182" rx="42" ry="5.5" fill="#000" opacity=".16"/>' : "";
-    stack.push({ order: 100 + z("koala"), svg: shadow + koalaG });
-    if (byLayer.pet) stack.push({ order: 110 + z(byLayer.pet), svg: grp(byLayer.pet) });
-    if (byLayer.plant) stack.push({ order: 120 + z(byLayer.plant), svg: grp(byLayer.plant) });
+    stack.push({ order: 10000 + ((kst && kst.z) || 0) * 100 + 50, svg: `<g data-item="koala" data-key="koala"${o.pick === "koala" ? ' class="koala-picked"' : ""}${layoutTransform(over, "koala", 160, 140)}>${shadow}${koala}</g>` });
     stack.sort((a, b) => a.order - b.order);
-    const parts = [grp(byLayer.wall), ROOM_BASE_FLOOR].concat(stack.map((x) => x.svg));
+    const parts = [grp(byLayer.wall, byLayer.wall, null), ROOM_BASE_FLOOR].concat(stack.map((x) => x.svg));
     const label = o.label ? ` role="img" aria-label="${String(o.label).replace(/"/g, "&quot;")}"` : ` aria-hidden="true"`;
     // opts.view crops the scene (e.g. zoom in on the koala); default: the whole room.
     return `<svg class="koala-room-svg" viewBox="${o.view || ROOM_VIEW}" xmlns="http://www.w3.org/2000/svg"${label} focusable="false">${parts.join("")}</svg>`;
@@ -769,5 +780,5 @@
     return avatar(Object.assign({}, equipped || {}, { [SLOT_OF[id]]: id }), { view: art.view === "head" ? "head" : "full" });
   }
 
-  return { avatar, room, itemPicture, itemIcon, previewFor, subIcon, artIds: () => Object.keys(ART), hasArt: (id) => !!ART[id] || !!ROOM_ART[id] };
+  return { roomArtInfo: (id) => (ROOM_ART[id] ? { layer: ROOM_ART[id].layer, view: ROOM_ART[id].view } : null), avatar, room, itemPicture, itemIcon, previewFor, subIcon, artIds: () => Object.keys(ART), hasArt: (id) => !!ART[id] || !!ROOM_ART[id] };
 });

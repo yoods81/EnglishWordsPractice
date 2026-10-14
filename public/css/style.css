@@ -13451,3 +13451,13 @@ select.admin-role-select { align-items: center; }
 .koala-zoom-stage.is-editing svg g.koala-picked, .koala-zoom-stage.is-editing svg g[data-item]:hover { filter: drop-shadow(0 0 3px #ff9f1c); }
 .koala-zoom-stage.is-editing .koala-eyes { animation: none; }
 [data-room-bar] .koala-cat[disabled] { opacity: .45; }
+
+.room-menu { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; margin: 8px 0 4px; }
+.room-menu b { flex-basis: 100%; text-align: center; color: var(--accent-dark); }
+.room-menu .koala-cat { min-width: 44px; min-height: 44px; padding: 0 10px; font-size: 1.1rem; }
+.room-inv { display: flex; gap: 8px; overflow-x: auto; padding: 8px 2px; margin-top: 6px; border-top: 2px dashed #e6e9e7; touch-action: pan-x; -webkit-overflow-scrolling: touch; }
+.room-inv-card { flex: 0 0 74px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px; border: 2px solid var(--accent); border-radius: 14px; background: var(--card-bg); font: inherit; font-size: .68rem; cursor: grab; touch-action: none; user-select: none; }
+.room-inv-card .koala-icon-svg { width: 52px; height: 44px; pointer-events: none; }
+.room-inv-card span { max-width: 68px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
+.room-ghost { position: fixed; z-index: 10000; width: 72px; height: 60px; transform: translate(-50%, -50%); pointer-events: none; opacity: .85; filter: drop-shadow(0 4px 6px rgba(0,0,0,.3)); }
+.room-ghost .koala-icon-svg { width: 100%; height: 100%; }
