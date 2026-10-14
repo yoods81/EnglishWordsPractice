@@ -117,7 +117,7 @@ env.EMAIL = { send: async (m) => { sentMail.push(m); } };
 const tokenFrom = (m, key) => (m.text.match(new RegExp(`[?]${key}=([0-9a-f]{64})`)) || [])[1];
 
 test("password policy: 8+ chars with uppercase, digit and special character", async () => {
-  const base = { username: "policykid", email: "p@example.com" };
+  const base = { email: "p@example.com", agreedTerms: true, isGuardian: true };
   for (const password of ["Ab1!", "alllowercase1!", "NoDigits!!", "NoSpecial123", "abc12345!"]) {
     const res = await call(null, "POST", "/auth/signup", { ...base, password });
     assert.equal(res.status, 400, password);
@@ -128,11 +128,11 @@ test("password policy: 8+ chars with uppercase, digit and special character", as
 
 test("signup requires a valid email and sends a verification mail", async () => {
   for (const email of [undefined, "", "nope", "a@b", "a b@c.com"]) {
-    const res = await call(null, "POST", "/auth/signup", { username: "mailkid", password: "Good1pass!", email });
+    const res = await call(null, "POST", "/auth/signup", { password: "Good1pass!", email, agreedTerms: true, isGuardian: true });
     assert.equal(res.data.error, "invalid_email", String(email));
   }
   sentMail.length = 0;
-  const res = await call(null, "POST", "/auth/signup", { username: "mailkid", password: "Good1pass!", email: "  Parent@Example.COM " });
+  const res = await call(null, "POST", "/auth/signup", { password: "Good1pass!", email: "  Parent@Example.COM ", agreedTerms: true, isGuardian: true });
   assert.equal(res.status, 200);
   assert.equal(res.data.user.email, "parent@example.com");
   assert.equal(res.data.user.emailVerified, false);
@@ -150,11 +150,11 @@ test("signup requires a valid email and sends a verification mail", async () => 
 });
 
 test("verify link works once; forgot-password only emails verified addresses", async () => {
-  const user = db.prepare("SELECT id FROM users WHERE username = 'mailkid'").get();
+  const user = db.prepare("SELECT id FROM users WHERE username = 'parent@example.com'").get();
   sentMail.length = 0;
   // Unverified: always the same answer, nothing sent.
-  assert.equal((await call(null, "POST", "/auth/forgot-password", { username: "mailkid" })).data.ok, true);
-  assert.equal((await call(null, "POST", "/auth/forgot-password", { username: "ghost" })).data.ok, true);
+  assert.equal((await call(null, "POST", "/auth/forgot-password", { email: "parent@example.com" })).data.ok, true);
+  assert.equal((await call(null, "POST", "/auth/forgot-password", { email: "ghost@example.com" })).data.ok, true);
   assert.equal(sentMail.length, 0);
 
   const me = { id: user.id, role: "free" };
@@ -170,7 +170,7 @@ test("verify link works once; forgot-password only emails verified addresses", a
   assert.equal((await call(me, "GET", "/auth/me")).data.user.emailVerified, true);
 
   sentMail.length = 0;
-  await call(null, "POST", "/auth/forgot-password", { username: "mailkid" });
+  await call(null, "POST", "/auth/forgot-password", { email: "parent@example.com" });
   assert.equal(sentMail.length, 1);
   assert.equal(sentMail[0].to, "parent@example.com");
   const resetToken = tokenFrom(sentMail[0], "reset");
@@ -180,20 +180,20 @@ test("verify link works once; forgot-password only emails verified addresses", a
   assert.equal((await call(null, "POST", "/auth/reset-password", { token: resetToken, newPassword: "weak" })).status, 400);
   const reset = await call(null, "POST", "/auth/reset-password", { token: resetToken, newPassword: "Newer2pass#" });
   assert.equal(reset.status, 200);
-  assert.equal(reset.data.username, "mailkid");
+  assert.equal(reset.data.username, "parent@example.com");
   assert.equal((await call(null, "POST", "/auth/reset-password", { token: resetToken, newPassword: "Another3pass#" })).status, 400);
-  assert.equal((await call(null, "POST", "/auth/login", { username: "mailkid", password: "Good1pass!" })).status, 401);
-  assert.equal((await call(null, "POST", "/auth/login", { username: "mailkid", password: "Newer2pass#" })).status, 200);
+  assert.equal((await call(null, "POST", "/auth/login", { email: "parent@example.com", password: "Good1pass!" })).status, 401);
+  assert.equal((await call(null, "POST", "/auth/login", { email: "Parent@Example.com", password: "Newer2pass#" })).status, 200);
 });
 
 test("forgot-username emails every verified account on that address, with a cooldown", async () => {
   // A second child sharing the parent's address.
-  const second = await call(null, "POST", "/auth/signup", { username: "sibling2", password: "Good1pass!", email: "parent@example.com" });
-  db.prepare("UPDATE users SET email_verified_at = ? WHERE id = ?").run(Date.now(), second.data.user.id);
+  db.prepare("INSERT INTO users (id,username,password_hash,password_salt,role,created_at,email,email_verified_at) VALUES (?,?,?,?,?,?,?,?)")
+    .run("legacy2", "sibling2", "h", "s", "free", 5, "parent@example.com", Date.now());
   sentMail.length = 0;
   assert.equal((await call(null, "POST", "/auth/forgot-username", { email: "PARENT@example.com" })).data.ok, true);
   assert.equal(sentMail.length, 1);
-  assert.match(sentMail[0].text, /mailkid/);
+  assert.match(sentMail[0].text, /parent@example.com/);
   assert.match(sentMail[0].text, /sibling2/);
   await call(null, "POST", "/auth/forgot-username", { email: "parent@example.com" });
   assert.equal(sentMail.length, 1); // cooldown
@@ -209,13 +209,60 @@ test("existing accounts can add or change their email (password required)", asyn
   assert.equal((await call(me, "POST", "/auth/set-email", { email: "bad", password: "x" })).data.error, "invalid_email");
   const { hash, salt } = { hash: null, salt: null };
   // Give kid1 a real password so the check can pass.
-  const signup = await call(null, "POST", "/auth/signup", { username: "addmail", password: "Good1pass!", email: "old@example.com" });
+  const signup = await call(null, "POST", "/auth/signup", { password: "Good1pass!", email: "old@example.com", agreedTerms: true, isGuardian: true });
   const u = { id: signup.data.user.id, role: "free" };
   const res = await call(u, "POST", "/auth/set-email", { email: "New@Example.com", password: "Good1pass!" });
   assert.equal(res.status, 200);
   assert.equal(res.data.email, "new@example.com");
   assert.equal((await call(u, "GET", "/auth/me")).data.user.emailVerified, false);
+  // The login ID follows the email.
+  assert.equal((await call(u, "GET", "/auth/me")).data.user.username, "new@example.com");
+  // An address that already belongs to another account can't be taken.
+  const clash = await call(u, "POST", "/auth/set-email", { email: "parent@example.com", password: "Good1pass!" });
+  assert.equal(clash.status, 409);
+  assert.equal(clash.data.error, "email_taken");
   assert.equal(sentMail.at(-1).to, "new@example.com");
+});
+
+test("email is the login ID: consent required, duplicates refused, non-email IDs explained", async () => {
+  const body = { password: "Good1pass!", email: "login@example.com" };
+  assert.equal((await call(null, "POST", "/auth/signup", body)).data.error, "consent_required");
+  assert.equal((await call(null, "POST", "/auth/signup", { ...body, agreedTerms: true })).data.error, "consent_required");
+  assert.equal((await call(null, "POST", "/auth/signup", { ...body, isGuardian: true })).data.error, "consent_required");
+  const ok = await call(null, "POST", "/auth/signup", { ...body, agreedTerms: true, isGuardian: true });
+  assert.equal(ok.status, 200);
+  assert.equal(ok.data.user.username, "login@example.com");
+  const dup = await call(null, "POST", "/auth/signup", { ...body, email: "LOGIN@example.com", agreedTerms: true, isGuardian: true });
+  assert.equal(dup.status, 409);
+  assert.equal(dup.data.error, "email_taken");
+  // Login: email in any case works; a plain old-style ID gets the explanation; wrong password stays generic.
+  assert.equal((await call(null, "POST", "/auth/login", { email: " Login@Example.com ", password: "Good1pass!" })).status, 200);
+  const old = await call(null, "POST", "/auth/login", { email: "kid1", password: "Good1pass!" });
+  assert.equal(old.status, 401);
+  assert.equal(old.data.error, "login_use_email");
+  const wrong = await call(null, "POST", "/auth/login", { email: "login@example.com", password: "Nope1pass!" });
+  assert.equal(wrong.status, 401);
+  assert.equal(wrong.data.error, "invalid_credentials");
+});
+
+test("migration 0012 turns existing accounts' emails into login IDs and skips the risky ones", async () => {
+  const mig = new DatabaseSync(":memory:");
+  mig.exec(fs.readFileSync(new URL("../schema.sql", import.meta.url), "utf8"));
+  const ins = mig.prepare("INSERT INTO users (id,username,password_hash,password_salt,role,created_at,email) VALUES (?,?,?,?,?,?,?)");
+  ins.run("m1", "friend1", "h", "s", "free", 1, "Friend1@Example.com ");
+  ins.run("m2", "noemail", "h", "s", "free", 2, null);
+  ins.run("m3", "kidA", "h", "s", "free", 3, "shared@example.com");
+  ins.run("m4", "kidB", "h", "s", "free", 4, "shared@example.com");
+  ins.run("m5", "admin", "h", "s", "admin", 5, "admin@koalastudymate.com");
+  ins.run("m6", "done@example.com", "h", "s", "free", 6, "done@example.com");
+  mig.exec(fs.readFileSync(new URL("../migrations/0012_email_as_login_id.sql", import.meta.url), "utf8"));
+  const name = (id) => mig.prepare("SELECT username FROM users WHERE id = ?").get(id).username;
+  assert.equal(name("m1"), "friend1@example.com");
+  assert.equal(name("m2"), "noemail");
+  assert.equal(name("m3"), "kidA");
+  assert.equal(name("m4"), "kidB");
+  assert.equal(name("m5"), "admin");
+  assert.equal(name("m6"), "done@example.com");
 });
 
 test("admin email panel: status, test send, log; others are refused", async () => {
@@ -241,7 +288,7 @@ test("admin email panel: status, test send, log; others are refused", async () =
   // Not configured at all (binding missing): signup still works.
   delete env.EMAIL;
   assert.equal((await call(admin, "GET", "/admin/email/status")).data.configured, false);
-  const noMail = await call(null, "POST", "/auth/signup", { username: "nomailsrv", password: "Good1pass!", email: "z@example.com" });
+  const noMail = await call(null, "POST", "/auth/signup", { password: "Good1pass!", email: "z@example.com", agreedTerms: true, isGuardian: true });
   assert.equal(noMail.status, 200);
   assert.equal(noMail.data.verificationSent, false);
   env.EMAIL = { send: async (m) => { sentMail.push(m); } };
@@ -249,7 +296,7 @@ test("admin email panel: status, test send, log; others are refused", async () =
 
 test("an unconfirmed email blocks every non-auth route until the link is used; admins and no-email accounts are not blocked", async () => {
   sentMail.length = 0;
-  const signup = await call(null, "POST", "/auth/signup", { username: "gatekid", password: "Good1pass!", email: "gate@example.com" });
+  const signup = await call(null, "POST", "/auth/signup", { password: "Good1pass!", email: "gate@example.com", agreedTerms: true, isGuardian: true });
   const u = { id: signup.data.user.id, role: "free" };
   // Blocked: ordinary routes
   assert.equal((await call(u, "GET", "/words")).status, 403);

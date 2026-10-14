@@ -13177,7 +13177,6 @@ html[data-theme] body #quiz-start-screen .fs-settings-body .qz-pick-note { backg
   html body #view-addword #addword-manual-card,
   html body #view-addword #my-added-words-card { border: 0 !important; }
 }
-=======
 /* Quiz result: two big actions (retry missed / new questions) stacked, plus a small note. */
 .qz-result-actions .qz-result-primary { width: 100%; }
 .qz-result-actions .qz-result-retry { background: linear-gradient(180deg, #7be3c8, #1fb893); color: #05382d; box-shadow: 0 5px 0 #0e7a60, 0 9px 18px rgba(14, 122, 96, 0.3); }
@@ -13408,3 +13407,7 @@ html[data-theme="dark"] #ocr-status.spelling-tip:not(:empty) {
 html[data-theme="dark"] .muted.ocr-already-note {
   color: #9be8cf;
 }
+/* Sign-up consent checkboxes (guardian + terms) */
+.auth-consent { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0 0; font-size: 0.9rem; line-height: 1.4; cursor: pointer; }
+.auth-consent input[type="checkbox"] { flex: 0 0 auto; width: 20px; height: 20px; margin: 1px 0 0; accent-color: #0e9c7d; }
+.auth-consent span { flex: 1; text-align: left; }

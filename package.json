@@ -20,6 +20,8 @@
     "db:migrate:email:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0008_email_system.sql",
     "db:migrate:support": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0009_support.sql",
     "db:migrate:support:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0009_support.sql",
+    "db:migrate:email-id": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0012_email_as_login_id.sql",
+    "db:migrate:email-id:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0012_email_as_login_id.sql",
     "db:migrate:users:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0001_users_and_word_ownership.sql"
   },
   "devDependencies": {

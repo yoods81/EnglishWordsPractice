@@ -21,7 +21,9 @@ CREATE TABLE IF NOT EXISTS shared_words (
 CREATE INDEX IF NOT EXISTS idx_shared_words_word ON shared_words (word);
 CREATE INDEX IF NOT EXISTS idx_shared_words_owner ON shared_words (owner_id);
 
--- User accounts. Passwords are stored as a PBKDF2-SHA256 hash with a random
+-- User accounts. username is the login ID and holds the account's email
+-- address (lower-cased); the one exception is the admin account, which keeps
+-- the ID "admin". Passwords are stored as a PBKDF2-SHA256 hash with a random
 -- per-user salt — never in plaintext, never reversible. role is one of
 -- 'admin' | 'paid' | 'free'. upgraded_at is set whenever role transitions to
 -- 'paid' (signup with a code, self-serve upgrade, or an admin setting the
