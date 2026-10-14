@@ -289,7 +289,15 @@
     const back = extraImg.back ? `<svg class="kh-kback" x="-27" y="-89.8" width="54" height="92.8" viewBox="64 20 553 948" overflow="hidden" display="none">${one(extraImg.back)}</svg>` : "";
     // sitting / reading koalas are pictures of their own (img/koala/*.webp; "koala:sit", "koala:sitback", "koala:read" in the manifest override them)
     const own = (cls, src, w, h, bottom) => `<image class="${cls}" href="${src}" x="${-w / 2}" y="${(bottom - h).toFixed(1)}" width="${w}" height="${h}" preserveAspectRatio="xMidYMax meet" display="none"/>`;
-    const sit = own("kh-ksit", extraImg.sit || kimg("sit"), 40, 49.1, 0) + own("kh-ksitback", extraImg.sitback || kimg("sitback"), 38, 45.5, 0);
+    // worn items on the sitting pictures: the sitting koala is the standing one at 1.281x (front) / 1.29x (from behind), so the same layers can be placed by a transform
+    const worn = ses.S.worn, tr = (t) => `<g transform="${t}">`, cv = (n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; };
+    const isHat = (n) => KSLOT.hat.includes(n);
+    const sitSvg = (cls, src, w, h, iw, ih, T, pick, allFront) => {
+      const names = kordered(worn).filter((n) => n === "base" ? false : pick(n)), behind = allFront ? [] : names.filter((n) => KBEHIND.includes(n)), front = allFront ? names : names.filter((n) => !KBEHIND.includes(n));
+      return `<svg class="${cls}" x="${-w / 2}" y="${-h}" width="${w}" height="${h}" viewBox="0 0 ${iw} ${ih}" overflow="visible" display="none">${tr(T)}${behind.map(cv).join("")}</g><image href="${src}" x="0" y="0" width="${iw}" height="${ih}"/>${tr(T)}${front.map(cv).join("")}</g></svg>`;
+    };
+    const sit = sitSvg("kh-ksit", extraImg.sit || kimg("sit"), 40, 49.1, 720, 883, "translate(5.5 9.2) scale(1.281) translate(-64 -222)", () => true)
+      + sitSvg("kh-ksitback", extraImg.sitback || kimg("sitback"), 38, 45.5, 720, 862, "translate(-1 -1) scale(1.29) translate(-64 -222)", (n) => isHat(n) || KBEHIND.includes(n), true);
     const readImg = own("kh-kreadimg", extraImg.read || kimg("read"), 50, 78.1, 3);
     const pose = (cls, src) => (src ? `<svg class="${cls}" x="-27" y="-89.8" width="54" height="92.8" viewBox="64 20 553 948" overflow="hidden" display="none">${one(src)}</svg>` : "");
     const book = `<g class="kh-kread" display="none"><path d="M-13 -35 0 -31.5 13 -35 13 -21 0 -17.5 -13 -21Z" fill="#e0674f" stroke="#b44a37" stroke-width="1.2" stroke-linejoin="round"/><path d="M-11 -33.6 0 -30.4V-19.4L-11 -22.6Z" fill="#fffaf0"/><path d="M11 -33.6 0 -30.4V-19.4L11 -22.6Z" fill="#f6efe0"/><path d="M-8.5 -29.5 -3 -27.9M-8.5 -26 -3 -24.4M8.5 -29.5 3 -27.9M8.5 -26 3 -24.4" stroke="#cdbb9a" stroke-width="1" stroke-linecap="round"/><path d="M0 -30.4V-19.4" stroke="#b44a37" stroke-width="1.2"/>
@@ -319,7 +327,7 @@
   function updateKoala() {
     const g = ses.root.querySelector(".kh-koala");
     if (!g) return;
-    const k = ses.koala, [x, y] = H.proj(k.c + 0.5, k.r + 0.5, k.z || 0);
+    const k = ses.koala, stoolSit = k.pose === "sit" && k.seat && /^stool/.test((curState().items.find((i) => i.uid === k.seat) || {}).id || ""), [x, y] = H.proj(k.c + 0.5, k.r + 0.5, (k.z || 0) - (stoolSit ? 3 : 0));
     g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
     const sit = k.pose === "sit", rd = k.pose === "read", wt = k.pose === "water", away = k.dir === 2 || k.dir === 3, hasBack = !!g.querySelector(".kh-kback");
     const hasRd = true, hasWt = !!g.querySelector(".kh-kwaterimg");
@@ -335,6 +343,23 @@
     let before = null;
     for (const ch of layer.children) { if (ch === g) continue; if (parseFloat(ch.dataset.k) > key) { before = ch; break; } }
     if (g.nextSibling !== before || g.parentNode !== layer) layer.insertBefore(g, before);
+    // seen from behind, a chair's backrest is between us and the koala: draw the backrest again over it (cloned, clipped to the backrest) so it sits IN the chair
+    layer.querySelectorAll(".kh-kfront").forEach((e) => e.remove());
+    const chairIt = stoolSit && away && curState().items.find((i) => i.uid === k.seat), src = chairIt && layer.querySelector(`.kh-it[data-uid="${chairIt.uid}"]`);
+    if (src) {
+      const bx = k.dir === 3 ? [0.8, 0.9, 0.1, 0.9] : [0.1, 0.9, 0.8, 0.9], pts = [];
+      for (const x of [bx[0], bx[1]]) for (const y of [bx[2], bx[3]]) for (const z of [23, 52]) pts.push(H.proj(k.c + x, k.r + y, z));
+      pts.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+      const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]), lo = [], up = [];
+      for (const q of pts) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+      for (const q of pts.slice().reverse()) { while (up.length > 1 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+      const hull = lo.slice(0, -1).concat(up.slice(0, -1)).map((q) => q.map((v) => v.toFixed(1)).join(",")).join(" ");
+      const cl = src.cloneNode(true); cl.classList.remove("kh-sel"); cl.classList.add("kh-kfront"); cl.removeAttribute("data-uid"); cl.dataset.k = String(key + 0.001); cl.style.pointerEvents = "none";
+      const wrap = document.createElementNS("http://www.w3.org/2000/svg", "g"), cp = document.createElementNS("http://www.w3.org/2000/svg", "clipPath");
+      cp.id = "khfrontclip"; cp.innerHTML = `<polygon points="${hull}"/>`;
+      wrap.setAttribute("class", "kh-kfront"); wrap.dataset.k = String(key + 0.001); wrap.setAttribute("clip-path", "url(#khfrontclip)"); wrap.style.pointerEvents = "none";
+      cl.classList.remove("kh-kfront"); wrap.appendChild(cp); wrap.appendChild(cl); g.after(wrap);
+    }
   }
   function bfs(from, to) {
     const room = curRoom(), key = (c, r) => c + "," + r, seen = { [key(from[0], from[1])]: null }, q = [from];
@@ -362,7 +387,7 @@
   function sitOn(seatItem, cell, exitCell) {
     const k = ses.koala;
     k.pose = "sit"; k.path = []; k.after = null; k.sitT = 4 + Math.random() * 5;
-    if (seatItem) { const d = H.D[seatItem.id]; k.c = cell[0]; k.r = cell[1]; k.z = d.seat; k.seat = seatItem.uid; k.dir = H.seatFacing(seatItem); if (!(seatItem.m | 0)) { const dk = deskDir(cell); if (dk != null) k.dir = dk; } k.exit = exitCell || null; }
+    if (seatItem) { const d = H.D[seatItem.id]; k.c = cell[0]; k.r = cell[1]; k.z = d.seat; k.seat = seatItem.uid; k.dir = H.seatFacing(seatItem); if (!(seatItem.m | 0)) { const dk = deskDir(cell); if (dk != null) { k.dir = dk; if (/^stool/.test(seatItem.id)) { seatItem.m = dk; H.persist(ses.S); drawScene(); } } } k.exit = exitCell || null; }
     else { k.z = 0; k.seat = null; k.exit = null; }
   }
   function standUp(quiet) {
