@@ -88,7 +88,7 @@
     fetch("/img/house/manifest.json").then((r) => (r.ok ? r.json() : {})).then((m) => {
       if (!ses || !m || !Object.keys(m).length) return;
       H.setManifest(m);
-      extraImg = { back: m["koala:back"] && m["koala:back"].src, sit: m["koala:sit"] && m["koala:sit"].src };
+      extraImg = { back: m["koala:back"] && m["koala:back"].src, sit: m["koala:sit"] && m["koala:sit"].src, sitback: m["koala:sitback"] && m["koala:sitback"].src, read: m["koala:read"] && m["koala:read"].src };
       if (ses.screen === "room") drawScene(); else renderPlan();
     }).catch(() => {});
   }
@@ -285,16 +285,17 @@
     const one = (src) => { const b = KBOX.base; return `<image href="${src}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; };
     const stand = `<svg class="kh-kstand" x="-27" y="-82" width="54" height="85" viewBox="64 100 553 868" overflow="hidden">${imgs}</svg>`;
     const back = extraImg.back ? `<svg class="kh-kback" x="-27" y="-82" width="54" height="85" viewBox="64 100 553 868" overflow="hidden" display="none">${one(extraImg.back)}</svg>` : "";
-    // the sitting koala is its own picture (img/koala/sit.webp, or "koala:sit" in the manifest)
-    const sit = `<image class="kh-ksit" href="${extraImg.sit || kimg("sit")}" x="-26" y="-56" width="52" height="${(52 * 512 / 488).toFixed(1)}" preserveAspectRatio="xMidYMax meet" display="none"/>`;
-    // reading / watering: a picture of its own when the manifest has one ("koala:read", "koala:water"), else the standing koala holding a prop
+    // sitting / reading koalas are pictures of their own (img/koala/*.webp; "koala:sit", "koala:sitback", "koala:read" in the manifest override them)
+    const own = (cls, src, w, h, bottom) => `<image class="${cls}" href="${src}" x="${-w / 2}" y="${(bottom - h).toFixed(1)}" width="${w}" height="${h}" preserveAspectRatio="xMidYMax meet" display="none"/>`;
+    const sit = own("kh-ksit", extraImg.sit || kimg("sit"), 40, 49, 0) + own("kh-ksitback", extraImg.sitback || kimg("sitback"), 38, 45.5, 0);
+    const readImg = own("kh-kreadimg", extraImg.read || kimg("read"), 44, 68, 3);
     const pose = (cls, src) => (src ? `<svg class="${cls}" x="-27" y="-82" width="54" height="85" viewBox="64 100 553 868" overflow="hidden" display="none">${one(src)}</svg>` : "");
     const book = `<g class="kh-kread" display="none"><path d="M-13 -35 0 -31.5 13 -35 13 -21 0 -17.5 -13 -21Z" fill="#e0674f" stroke="#b44a37" stroke-width="1.2" stroke-linejoin="round"/><path d="M-11 -33.6 0 -30.4V-19.4L-11 -22.6Z" fill="#fffaf0"/><path d="M11 -33.6 0 -30.4V-19.4L11 -22.6Z" fill="#f6efe0"/><path d="M-8.5 -29.5 -3 -27.9M-8.5 -26 -3 -24.4M8.5 -29.5 3 -27.9M8.5 -26 3 -24.4" stroke="#cdbb9a" stroke-width="1" stroke-linecap="round"/><path d="M0 -30.4V-19.4" stroke="#b44a37" stroke-width="1.2"/>
       <path d="M4 -31 9 -33.2 9 -22 4 -19.8Z" fill="#fffaf0" opacity="0"><animate attributeName="opacity" values="0;0.95;0" dur="3.2s" repeatCount="indefinite"/></path></g>`;
     const can = `<g class="kh-kwater" display="none"><g><animateTransform attributeName="transform" type="rotate" values="0 17 -30;-20 17 -30;-20 17 -30;0 17 -30" keyTimes="0;.3;.8;1" dur="2.6s" repeatCount="indefinite"/>
       <path d="M10 -37q-8 1-7 9" fill="none" stroke="#3b86b8" stroke-width="2.2" stroke-linecap="round"/><rect x="9" y="-38" width="16" height="12" rx="3" fill="#7cc4ee" stroke="#3b86b8" stroke-width="1.3"/><path d="M24 -32 33 -40" stroke="#3b86b8" stroke-width="2.6" stroke-linecap="round"/><path d="M31 -44 37 -40.5 32 -37Z" fill="#3b86b8"/><rect x="11" y="-36" width="4" height="8" rx="1.5" fill="#fff" opacity=".45"/></g>
       <g fill="#8fd3f5"><circle cx="38" cy="-32" r="1.6"><animate attributeName="cy" values="-36;-14" dur=".9s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0" dur=".9s" repeatCount="indefinite"/></circle><circle cx="34" cy="-33" r="1.4"><animate attributeName="cy" values="-36;-14" dur=".9s" begin=".3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0" dur=".9s" begin=".3s" repeatCount="indefinite"/></circle><circle cx="41" cy="-33" r="1.4"><animate attributeName="cy" values="-36;-14" dur=".9s" begin=".6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0" dur=".9s" begin=".6s" repeatCount="indefinite"/></circle></g></g>`;
-    return `<g class="kh-koala" data-k="0"><ellipse class="kh-kshadow" cx="0" cy="2" rx="24" ry="8" fill="#000" opacity=".16"/><g class="kh-kbody"><g class="kh-kflip">${stand}${back}${sit}${pose("kh-kreadimg", extraImg.read)}${pose("kh-kwaterimg", extraImg.water)}${book}${can}</g></g></g>`;
+    return `<g class="kh-koala" data-k="0"><ellipse class="kh-kshadow" cx="0" cy="2" rx="24" ry="8" fill="#000" opacity=".16"/><g class="kh-kbody"><g class="kh-kflip">${stand}${back}${sit}${readImg}${pose("kh-kwaterimg", extraImg.water)}${book}${can}</g></g></g>`;
   }
   const FLIP = [-1, 1, 1, -1]; // facing 0 (+r, left-down) 1 (+c, right-down) 2 (-r, right-up) 3 (-c, left-up)
   function koalaCellFree(c, r) {
@@ -319,10 +320,10 @@
     const k = ses.koala, [x, y] = H.proj(k.c + 0.5, k.r + 0.5, k.z || 0);
     g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
     const sit = k.pose === "sit", rd = k.pose === "read", wt = k.pose === "water", away = k.dir === 2 || k.dir === 3, hasBack = !!g.querySelector(".kh-kback");
-    const hasRd = !!g.querySelector(".kh-kreadimg"), hasWt = !!g.querySelector(".kh-kwaterimg");
+    const hasRd = true, hasWt = !!g.querySelector(".kh-kwaterimg");
     const show = (sel, on) => { const e = g.querySelector(sel); if (e) e.setAttribute("display", on ? "inline" : "none"); };
-    show(".kh-kstand", !sit && !(rd && hasRd) && !(wt && hasWt) && !(k.pose === "stand" && away && hasBack)); show(".kh-kback", k.pose === "stand" && away && hasBack); show(".kh-ksit", sit);
-    show(".kh-kreadimg", rd); show(".kh-kwaterimg", wt); show(".kh-kread", rd && !hasRd); show(".kh-kwater", wt && !hasWt);
+    show(".kh-kstand", !sit && !(rd && hasRd) && !(wt && hasWt) && !(k.pose === "stand" && away && hasBack)); show(".kh-kback", k.pose === "stand" && away && hasBack); show(".kh-ksit", sit && !away); show(".kh-ksitback", sit && away);
+    show(".kh-kreadimg", rd); show(".kh-kwaterimg", wt); show(".kh-kread", false); show(".kh-kwater", wt && !hasWt);
     g.querySelector(".kh-kbody").setAttribute("transform", `translate(0 ${(-Math.abs(Math.sin(k.bob)) * (k.pose === "stand" ? 4 : 1.2)).toFixed(1)})`);
     g.querySelector(".kh-kflip").setAttribute("transform", `scale(${FLIP[k.dir]} 1)`);
     g.querySelector(".kh-kshadow").setAttribute("opacity", (k.z ? 0 : 0.16));
@@ -347,10 +348,19 @@
     return null;
   }
   // sit down: on a seat piece (chair / sofa / bench), or on the floor
+  // a chair with a desk or table right beside it: the koala sits facing it (so you see its back)
+  function deskDir(cell) {
+    const st = curState();
+    for (const [dc, dr, dir] of [[0, -1, 2], [-1, 0, 3], [1, 0, 1], [0, 1, 0]]) {
+      const hit = (st.items || []).find((i) => /desk|table/i.test(i.id) && H.cellsOf(i).includes((cell[0] + dc) + "," + (cell[1] + dr)));
+      if (hit) return dir;
+    }
+    return null;
+  }
   function sitOn(seatItem, cell, exitCell) {
     const k = ses.koala;
     k.pose = "sit"; k.path = []; k.after = null; k.sitT = 4 + Math.random() * 5;
-    if (seatItem) { const d = H.D[seatItem.id]; k.c = cell[0]; k.r = cell[1]; k.z = d.seat; k.seat = seatItem.uid; k.dir = H.seatFacing(seatItem); k.exit = exitCell || null; }
+    if (seatItem) { const d = H.D[seatItem.id]; k.c = cell[0]; k.r = cell[1]; k.z = d.seat; k.seat = seatItem.uid; k.dir = H.seatFacing(seatItem); if (!(seatItem.m | 0)) { const dk = deskDir(cell); if (dk != null) k.dir = dk; } k.exit = exitCell || null; }
     else { k.z = 0; k.seat = null; k.exit = null; }
   }
   function standUp(quiet) {
