@@ -10,6 +10,12 @@
 	// source, schema.sql, README) stays private because it simply isn't part
 	// of the assets directory. Requests that don't match a file fall through
 	// to the Worker, which is what serves /api/*.
+		"workers_dev": true,
+	"preview_urls": true,
+	"routes": [
+		{ "pattern": "koalastudymate.com", "custom_domain": true },
+		{ "pattern": "www.koalastudymate.com", "custom_domain": true }
+	],
 	"assets": {
 		"directory": "./public",
 		"binding": "ASSETS"

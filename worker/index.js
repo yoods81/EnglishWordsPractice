@@ -1411,7 +1411,131 @@ async function handleApi(request, env, url) {
       .run();
     return json({ ok: true, updatedAt: now });
   }
+  // Photo -> vocabulary words using a vision model. Paid/admin only (same gate
+  // as the other premium routes), with a per-user daily cap to bound API cost.
+  if (route === "/extract-words" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || (session.role !== "admin" && session.role !== "paid")) {
+      return json({ error: "unauthorized" }, 401);
+    }
+    if (!env.ANTHROPIC_API_KEY) return json({ error: "server_not_configured" }, 500);
 
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const image = typeof body?.image === "string" ? body.image : "";
+    const mediaType = ["image/jpeg", "image/png", "image/webp"].includes(body?.mediaType) ? body.mediaType : "";
+    if (!image || !mediaType || image.length > 5000000) return json({ error: "bad_image" }, 400);
+
+    const DAILY_LIMIT = 30;
+    const day = new Date().toISOString().slice(0, 10);
+    const refund = () =>
+      env.DB.prepare("UPDATE extract_usage SET count = MAX(count - 1, 0) WHERE user_id = ? AND day = ?")
+        .bind(session.id, day)
+        .run()
+        .catch(() => {});
+
+    if (session.role !== "admin") {
+      const row = await env.DB.prepare(
+        "INSERT INTO extract_usage (user_id, day, count) VALUES (?, ?, 1) ON CONFLICT(user_id, day) DO UPDATE SET count = count + 1 RETURNING count"
+      )
+        .bind(session.id, day)
+        .first();
+      if ((row?.count || 1) > DAILY_LIMIT) return json({ error: "daily_limit" }, 429);
+    }
+
+    try {
+      console.log("extract-words calling anthropic, imageChars", image.length, "keyLen", env.ANTHROPIC_API_KEY.length);
+      const resp = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": env.ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-5-5",
+          max_tokens: 4000,
+          thinking: { type: "disabled" },
+          system:
+            "You extract vocabulary words from a photo of a school worksheet for a primary-school English learner. " +
+            "Words the student underlined, circled, highlighted or wrote a note next to are the learning targets: always include them first. " +
+            "Then add other useful, moderately difficult words from the main text. " +
+            "Convert every word to its base form (buried -> bury, devastated -> devastate). " +
+            "Ignore people's names, background objects, toys, page furniture (headers, footers, page numbers, logos), " +
+            "show-through from the other side of the paper, and partly cut-off text. " +
+            "Return at most 20 lowercase English words that are real dictionary words. " +
+            'Reply with JSON only, exactly like {"words":["bury","firebreak"]}.',
+          messages: [
+            {
+              role: "user",
+              content: [
+                { type: "image", source: { type: "base64", media_type: mediaType, data: image } },
+                { type: "text", text: "Extract the vocabulary words from this page." },
+              ],
+            },
+          ],
+        }),
+      });
+      if (!resp.ok) {
+        await refund();
+        // 크레딧 부족, 키 오류, 모델 이름 오류는 관리자가 직접 고쳐야 하니 메일로 알린다 (24시간에 1번).
+        const errText = await resp.text().catch(() => "");
+        console.error("extract-words upstream error", resp.status, errText.slice(0, 500));
+        let reason = "";
+        if (/credit balance/i.test(errText)) reason = "크레딧 부족 / Credit balance too low";
+        else if (resp.status === 401 || resp.status === 403) reason = "API 키 오류 / API key rejected";
+        else if (resp.status === 404) reason = "모델 이름 오류 / Model not found";
+        if (reason) {
+          try {
+            const recent = await env.DB.prepare(
+              "SELECT created_at FROM email_log WHERE kind = 'api_credit_alert' ORDER BY created_at DESC LIMIT 1"
+            ).first();
+            if (!recent || Date.now() - recent.created_at > 24 * 60 * 60 * 1000) {
+              const subject = `[Koala Study Mate] 사진 단어 추출 API 문제: ${reason}`;
+              const text =
+                `사진 단어 추출(Anthropic API) 호출이 실패했습니다.\n\n원인: ${reason}\nHTTP 상태: ${resp.status}\n\n` +
+                `console.anthropic.com 의 Billing 에서 크레딧과 키를 확인하세요.\n` +
+                `그동안 앱은 자동으로 기존 방식(Tesseract)으로 동작합니다.`;
+              await sendEmail(env, {
+                to: env.MAIL_REPLY_TO,
+                kind: "api_credit_alert",
+                subject,
+                text,
+                html: `<div style="font-family:system-ui,sans-serif;font-size:15px;white-space:pre-wrap">${text
+                  .replace(/&/g, "&amp;")
+                  .replace(/</g, "&lt;")}</div>`,
+              });
+            }
+          } catch (mailErr) {
+            console.warn("credit alert mail failed", mailErr);
+          }
+        }
+        return json({ error: "extract_failed" }, 502);
+      }
+      const data = await resp.json();
+      console.log("extract-words response", JSON.stringify((data.content || []).map((x) => x.type)), data.stop_reason, JSON.stringify(data.usage));
+      const text = (data?.content || []).map((c) => c.text || "").join("");
+      const match = text.match(/\{[\s\S]*\}/);
+      const parsed = match ? JSON.parse(match[0]) : { words: [] };
+      const words = Array.from(
+        new Set(
+          (Array.isArray(parsed.words) ? parsed.words : [])
+            .map((w) => String(w).toLowerCase().trim())
+            .filter((w) => /^[a-z][a-z'-]{2,24}$/.test(w))
+        )
+      ).slice(0, 25);
+      console.log("extract-words raw", text.slice(0, 300), "final", JSON.stringify(words));
+      return json({ words });
+    } catch (e) {
+      console.error("extract-words exception", String(e), String(e && e.stack).slice(0, 400));
+      await refund();
+      return json({ error: "extract_failed" }, 502);
+    }
+  }
   // Child profiles (premium: up to 4 learners per account). Profile 0 is the
   // account's own progress row; profiles 1-3 are extra rows keyed "<id>:p<n>"
   // in the same user_progress table, and the list of names/avatars is one more

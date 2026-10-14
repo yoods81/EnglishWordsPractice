@@ -13348,3 +13348,63 @@ html[lang="ko"] .datanote-txt span { word-break: keep-all; }
   .datanote-row { grid-template-columns: 34px minmax(0, 1fr); gap: 10px; padding: 10px; }
   .datanote-ico { width: 34px; height: 34px; font-size: 1.15rem; }
 }
+
+/* ---- 사진 단어 추출 화면: 선택된 단어와 진행 문구를 또렷하게 ---- */
+.wordlist-item.candidate-chip {
+  position: relative;
+}
+.wordlist-item.candidate-chip.selected {
+  background: #0d8f6e !important;
+  border-color: #0d8f6e !important;
+  color: #fff !important;
+  font-weight: 700;
+}
+.wordlist-item.candidate-chip.selected::after {
+  content: "\2713";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2em;
+  font-weight: 800;
+  color: #fff;
+}
+html[data-theme="dark"] .wordlist-item.candidate-chip.selected {
+  background: #0d8f6e !important;
+  color: #fff !important;
+}
+#ocr-status.spelling-tip:not(:empty) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0b5d4b;
+  text-align: center;
+}
+html[data-theme="dark"] #ocr-status.spelling-tip:not(:empty) {
+  color: #9be8cf;
+}
+#ocr-review:has(#ocr-add-btn:disabled) #ocr-status.spelling-tip:not(:empty)::before {
+  content: "";
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 3px solid #0d8f6e;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: ocr-spin 0.8s linear infinite;
+}
+@keyframes ocr-spin {
+  to { transform: rotate(360deg); }
+}
+.muted.ocr-already-note {
+  color: #0b5d4b;
+  font-weight: 600;
+  margin-top: 6px;
+}
+html[data-theme="dark"] .muted.ocr-already-note {
+  color: #9be8cf;
+}

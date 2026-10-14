@@ -609,6 +609,9 @@ const TRANSLATIONS = {
     ocrFailReadFile: "Sorry, we couldn't read text from that file — it may be corrupted, empty, or password-protected.",
     ocrUnsupportedFile: "That file type isn't supported. Please choose a photo, or a .txt, .pdf, .docx or .xlsx file.",
     ocrNoCandidates: "We couldn't find any new candidate words in that image (they may already be in your word list).",
+    ocrAlreadyHave: (n, list) => `Already in your list (${n}): ${list}`,
+    ocrAllAlreadyHave: (n, list) => `All ${n} words from this photo are already in your list: ${list}`,
+    ocrDailyLimit: "You've reached today's limit for reading photos. Please try again tomorrow, or add words by typing them in.",
     ocrFoundCandidates: (n) => `Found ${n} candidate words — tap the ones you want to add:`,
     ocrSelectAtLeastOne: "Please select at least one word first.",
     ocrAddingStatus: (n) => `Adding ${n} word(s) — looking up meanings...`,
@@ -1492,6 +1495,9 @@ const TRANSLATIONS = {
     ocrFailReadFile: "그 파일에서 텍스트를 읽지 못했어요 — 파일이 손상되었거나, 비어 있거나, 암호로 보호되어 있을 수 있어요.",
     ocrUnsupportedFile: "지원하지 않는 파일 형식이에요. 사진 또는 .txt, .pdf, .docx, .xlsx 파일을 선택해주세요.",
     ocrNoCandidates: "이 이미지에서 새로운 후보 단어를 찾지 못했어요 (이미 단어장에 있는 단어일 수 있어요).",
+    ocrAlreadyHave: (n, list) => `이미 단어 목록에 있는 단어 (${n}개): ${list}`,
+    ocrAllAlreadyHave: (n, list) => `사진에서 찾은 ${n}개 단어가 모두 이미 단어 목록에 있어요: ${list}`,
+    ocrDailyLimit: "오늘 사진 읽기 한도에 도달했어요. 내일 다시 시도하거나 단어를 직접 입력해서 추가해 주세요.",
     ocrFoundCandidates: (n) => `${n}개의 후보 단어를 찾았어요 — 추가하고 싶은 단어를 탭하세요:`,
     ocrSelectAtLeastOne: "먼저 단어를 하나 이상 선택해주세요.",
     ocrAddingStatus: (n) => `${n}개의 단어를 추가하는 중 — 의미를 찾고 있어요...`,
@@ -14089,7 +14095,35 @@ ocrDropzone.addEventListener("drop", (e) => {
   if (!file) return;
   handleOcrFileChosen(file);
 });
+// 사진을 긴 변 1600px JPEG로 줄여서 base64로 만든다 (전송량과 비용 절감).
+async function resizeImageToJpegBase64(file, maxSide) {
+  const bmp = await createImageBitmap(file, { imageOrientation: "from-image" });
+  const scale = Math.min(1, maxSide / Math.max(bmp.width, bmp.height));
+  const w = Math.round(bmp.width * scale);
+  const h = Math.round(bmp.height * scale);
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  canvas.getContext("2d").drawImage(bmp, 0, 0, w, h);
+  if (bmp.close) bmp.close();
+  return canvas.toDataURL("image/jpeg", 0.85).split(",")[1];
+}
 
+async function extractWordsWithVision(file) {
+  const image = await resizeImageToJpegBase64(file, 1600);
+  const res = await fetch("/api/extract-words", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ image, mediaType: "image/jpeg" }),
+  });
+  if (!res.ok) {
+    const httpErr = new Error("extract_failed_" + res.status);
+    httpErr.status = res.status;
+    throw httpErr;
+  }
+  const data = await res.json();
+  return Array.isArray(data.words) ? data.words : [];
+}
 ocrExtractBtn.addEventListener("click", async () => {
   const file = ocrPendingFile;
   const kind = ocrPendingKind;
@@ -14131,7 +14165,26 @@ ocrExtractBtn.addEventListener("click", async () => {
     ocrProgressLabel.textContent = t("ocrProgressDefault");
 
     try {
-      const result = await Tesseract.recognize(file, "eng", {
+           // 프리미엄/관리자는 비전 모델로 추출하고, 실패하면 아래 Tesseract로 넘어간다.
+      if (canUsePaidFeatures()) {
+        try {
+          ocrProgressFill.style.width = "50%";
+          ocrProgressLabel.textContent = t("ocrProgressReadingFile");
+          const visionWords = await extractWordsWithVision(file);
+          ocrProgress.hidden = true;
+          processOcrText(visionWords.join(" "), { fromVision: true });
+          return;
+        } catch (visionErr) {
+          if (visionErr && visionErr.status === 429) {
+            ocrProgress.hidden = true;
+            ocrStatus.textContent = t("ocrDailyLimit");
+            ocrReview.hidden = false;
+            return;
+          }
+          console.warn("Vision extraction failed, falling back to Tesseract", visionErr);
+        }
+      }
+	 const result = await Tesseract.recognize(file, "eng", {
         logger: (m) => {
           if (m.progress != null) {
             const pct = Math.round(m.progress * 100);
@@ -14141,7 +14194,7 @@ ocrExtractBtn.addEventListener("click", async () => {
         },
       });
       ocrProgress.hidden = true;
-      processOcrText(result.data.text || "");
+            processOcrText(result.data.text || "");
     } catch (err) {
       console.error(err);
       ocrProgress.hidden = true;
@@ -14173,26 +14226,53 @@ ocrExtractBtn.addEventListener("click", async () => {
   }
 });
 
-function processOcrText(text) {
+function processOcrText(text, opts) {
+  // 비전 모델이 읽은 경우(fromVision)는 이미 정리된 학습 단어라서
+  // 3글자 단어(pub 등)도 허용하고, 모델이 준 순서(밑줄 친 단어 먼저)를 유지한다.
+  const fromVision = !!(opts && opts.fromVision);
+  const minLen = fromVision ? 3 : 4;
   const rawWords = text.match(/[A-Za-z']+/g) || [];
   const known = allKnownWordsLowercase();
   const candidates = new Set();
+  const alreadyHave = new Set();
   rawWords.forEach((raw) => {
     const w = raw.toLowerCase().replace(/'s$/, "");
-    if (w.length < 4) return;
-    if (STOPWORDS.has(w)) return;
-    if (known.has(w)) return;
+    if (w.length < minLen) return;
+    if (!fromVision && STOPWORDS.has(w)) return;
+    if (known.has(w)) {
+      if (fromVision) alreadyHave.add(w);
+      return;
+    }
     candidates.add(w);
   });
 
-  const list = Array.from(candidates).sort().slice(0, 60);
+  const found = Array.from(candidates);
+  const list = (fromVision ? found : found.sort()).slice(0, 60);
   ocrCandidateWords = list;
   ocrCandidateChips = new Map();
   ocrReview.hidden = false;
   updateSelectAllLabel();
 
+  // 사진에는 있었지만 이미 단어 목록에 있는 단어를 알려준다.
+  let noteEl = document.getElementById("ocr-already-note");
+  if (!noteEl) {
+    noteEl = document.createElement("p");
+    noteEl.id = "ocr-already-note";
+    noteEl.className = "muted ocr-already-note";
+    ocrReviewHintEl.insertAdjacentElement("afterend", noteEl);
+  }
+  const have = Array.from(alreadyHave);
+  if (have.length) {
+    const preview = have.slice(0, 12).join(", ") + (have.length > 12 ? "…" : "");
+    noteEl.textContent = t(list.length ? "ocrAlreadyHave" : "ocrAllAlreadyHave", have.length, preview);
+    noteEl.hidden = false;
+  } else {
+    noteEl.textContent = "";
+    noteEl.hidden = true;
+  }
+
   if (list.length === 0) {
-    ocrReviewHintEl.textContent = t("ocrNoCandidates");
+    ocrReviewHintEl.textContent = have.length ? "" : t("ocrNoCandidates");
     ocrCandidatesEl.innerHTML = "";
     ocrSelectAllBtn.hidden = true;
     return;
