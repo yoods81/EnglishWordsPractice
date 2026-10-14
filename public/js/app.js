@@ -15608,6 +15608,7 @@ function koalaStudioTopHtml(k, mode) {
   return `<div class="koala-studio-top"><div class="koala-studio-preview">
     <div class="koala-studio-bar">
       <button type="button" class="koala-back${koalaOwnedView ? " on" : ""}" data-koala-owned aria-pressed="${koalaOwnedView}">${koalaOwnedView ? rwL("✓ Back to shop", "✓ 상점으로") : rwL("🎒 My items", "🎒 내 아이템")}</button>
+      <button type="button" class="koala-back kh-enter" data-open-house>${rwL("🏠 My House", "🏠 내 집")}</button>
       <span class="koala-studio-lv">${rwL(`Lv. ${lv.level}`, `Lv. ${lv.level}`)}</span>
       <span class="koala-studio-coins" aria-label="${rwL("Koala Coins", "코알라 코인")}">${COIN_SVG} <b>${serverAdmin ? "∞" : k.coins.toLocaleString()}</b></span>
     </div>
@@ -15815,6 +15816,23 @@ function announceKoalaUnlocks() {
   });
   showNextBadgeToast();
   saveProgress();
+}
+
+function openKoalaHouse() {
+  if (!window.KoalaHouse || !KoalaHouse.open) return;
+  const opts = koalaOpts();
+  KoalaHouse.open({
+    L: rwL,
+    coins: () => KoalaCore.ensureKoala(progress).coins,
+    unlimited: !!serverAdmin || !!opts.unlimited,
+    spend: (n, why) => {
+      if (serverAdmin || opts.unlimited) return true;
+      const ok = KoalaCore.spendCoins(progress, n, "house:" + why, opts);
+      if (ok) saveProgress();
+      return !!ok;
+    },
+    onClose: () => { try { renderKoala(); } catch (e) {} },
+  });
 }
 
 function renderKoala() {
@@ -16262,6 +16280,7 @@ document.addEventListener("click", (e) => {
   const buy = e.target.closest("[data-koala-buy]");
   if (buy) { handleKoalaItem(buy.dataset.koalaBuy); return; }
   if (e.target.closest("[data-koala-try-clear]")) { koalaTry = null; renderKoala(); return; }
+  if (e.target.closest("[data-open-house]")) { openKoalaHouse(); return; }
   const zoom = e.target.closest("[data-koala-zoom]");
   if (zoom) { openKoalaZoom(zoom.dataset.koalaZoom); return; }
   const card = e.target.closest("[data-koala-item]");
