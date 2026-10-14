@@ -1858,12 +1858,21 @@ to Flip!</span></div>
              accounts added (who / when, with edit + delete). -->
         <div class="mw-tabs" id="mw-tabs" role="tablist" hidden>
           <button type="button" class="mw-tab active" id="mw-tab-mine" role="tab" aria-selected="true" data-i18n="mwTabMine">My words</button>
-          <button type="button" class="mw-tab" id="mw-tab-paid" role="tab" aria-selected="false" data-i18n="mwTabPaid">Paid members' words</button>
+          <button type="button" class="mw-tab" id="mw-tab-paid" role="tab" aria-selected="false" data-i18n="mwTabPaid">Premium members</button>
         </div>
         <div id="paid-words-panel" class="paid-words-panel" hidden>
           <div class="custom-controls-row">
             <select id="paid-words-user-select" class="level-bulk-select"></select>
             <input type="text" class="wordlist-search custom-search-half" id="paid-words-search" data-i18n-placeholder="paidWordsSearch" placeholder="🔍 Search word, meaning or member..." />
+          </div>
+          <div class="cw-select-row pw-select-row" id="paid-words-select-row">
+            <label class="select-all-toggle" for="paid-select-all-checkbox">
+              <input type="checkbox" id="paid-select-all-checkbox" />
+              <span data-i18n="selectAllLabel">Select All</span>
+            </label>
+            <button type="button" class="pill neutral small" id="paid-delete-selected-btn" data-i18n="deleteSelectedBtn" disabled>🗑️ Delete</button>
+            <button type="button" class="pill neutral small" id="paid-add-selected-btn" data-i18n="paidWordsAddBtn" disabled>➕ Add</button>
+            <span class="cw-select-count" id="paid-select-count"></span>
           </div>
           <p class="muted wordlist-count" id="paid-words-count"></p>
           <div id="paid-words-status" class="spelling-tip"></div>

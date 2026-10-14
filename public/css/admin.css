@@ -1364,3 +1364,19 @@ html:root[lang="ko"] body :is(p, h1, h2, h3, h4, li, label, summary, span, butto
 html:root:root:root:root:not([data-theme="dark"]) body #view-landing .landing-tile { border: 2px solid #a9dccb !important; }
 html:root:root:root:root:not([data-theme="dark"]) body #view-landing .landing-tile:hover { border-color: #6cc9ad !important; }
 html:root:root:root:root[data-theme="dark"] body #view-landing .landing-tile { border: 2px solid rgba(110, 224, 168, 0.28) !important; }
+
+/* Premium members tab: selection toolbar (Select All / Delete / Add) + card checkbox */
+html:root body #my-added-words-card .pw-select-row { flex-wrap: wrap; margin: 12px 0 8px; }
+html:root body #my-added-words-card .pw-select-row :is(#paid-delete-selected-btn, #paid-add-selected-btn) {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; min-height: 36px; padding: 0 14px; margin: 0;
+  border: 0 !important; border-radius: 999px; box-shadow: none !important; font-family: inherit; font-size: .88rem; font-weight: 800; line-height: 1; width: auto; white-space: nowrap;
+}
+html:root body #my-added-words-card .pw-select-row #paid-delete-selected-btn { background: #ffd9d9; color: #b84b4b; }
+html:root body #my-added-words-card .pw-select-row #paid-add-selected-btn { background: #d9e8ff; color: #2f5fb3; }
+html:root body #my-added-words-card .pw-select-row :is(#paid-delete-selected-btn, #paid-add-selected-btn):disabled { opacity: .55; }
+html:root body #my-added-words-card .pw-select-row #paid-delete-selected-btn.error:not(:disabled) { background: #ff8f8f; color: #fff; }
+html:root body #my-added-words-card .pw-select-row #paid-add-selected-btn.accent:not(:disabled) { background: #3f7be0; color: #fff; }
+.pw-row .pw-select { width: 20px; height: 20px; flex: 0 0 auto; margin: 0; cursor: pointer; accent-color: var(--accent-dark); }
+@media (max-width: 520px) {
+  html:root body #my-added-words-card .pw-select-row .cw-select-count { flex-basis: 100%; margin-left: 0; }
+}

@@ -108,3 +108,20 @@ test("admin can list, edit and delete paid members' words (with owner + date); n
   assert.equal(db.prepare("SELECT COUNT(*) c FROM shared_words WHERE id='m6'").get().c, 0);
   assert.equal(db.prepare("SELECT COUNT(*) c FROM shared_words WHERE id='s1'").get().c, 1, "shared words are untouched");
 });
+
+test("admin can promote premium members' words into the shared pool (copy, dedupe, admin only)", async () => {
+  await call(p1, "PUT", "/words", { words: [w("pr1", "glacier"), w("pr2", "Shared"), w("pr3", "canyon")] });
+  assert.equal((await call(p1, "POST", "/admin/user-words/promote", { ids: ["pr1"] })).status, 401);
+  assert.equal((await call(admin, "POST", "/admin/user-words/promote", { ids: [] })).status, 400);
+  const r = await call(admin, "POST", "/admin/user-words/promote", { ids: ["pr1", "pr2", "pr3", "s1", "nope"] });
+  assert.equal(r.status, 200);
+  // pr2 duplicates the admin's existing "shared"; s1 is already an admin word (not a member word) so it is "missing"
+  assert.equal(r.data.added, 2);
+  assert.equal(r.data.skipped, 1);
+  assert.equal(r.data.missing, 2);
+  assert.ok((await wordsOf(free)).includes("glacier"), "everyone now sees the promoted word");
+  assert.equal(db.prepare("SELECT COUNT(*) c FROM shared_words WHERE id='pr1' AND owner_id='p1'").get().c, 1, "member's original is kept");
+  // promoting again adds nothing
+  const again = await call(admin, "POST", "/admin/user-words/promote", { ids: ["pr1"] });
+  assert.equal(again.data.added, 0);
+});

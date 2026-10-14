@@ -997,6 +997,56 @@ async function handleApi(request, env, url) {
     return json({ deleted: ids.length });
   }
 
+  // Copy chosen premium-member words into the admin's shared pool (owner_id
+  // NULL => everyone sees them). The member's original stays untouched. Words
+  // already in the shared pool (same spelling, case-insensitive) are skipped.
+  if (route === "/admin/user-words/promote" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const ids = Array.isArray(body && body.ids) ? [...new Set(body.ids.filter((id) => typeof id === "string"))] : [];
+    if (ids.length === 0) return json({ error: "bad_request" }, 400);
+    if (ids.length > MAX_WORDS_PER_REQUEST) return json({ error: "too_many" }, 413);
+
+    const { results: sources } = await env.DB.prepare(
+      `SELECT * FROM shared_words WHERE owner_id IS NOT NULL AND id IN (${ids.map(() => "?").join(",")})`
+    )
+      .bind(...ids)
+      .all();
+    const { results: existing } = await env.DB.prepare("SELECT word FROM shared_words WHERE owner_id IS NULL").all();
+    const taken = new Set((existing || []).map((r) => String(r.word).trim().toLowerCase()));
+
+    const now = Date.now();
+    const stmts = [];
+    let skipped = 0;
+    for (const r of sources || []) {
+      const key = String(r.word).trim().toLowerCase();
+      if (taken.has(key)) {
+        skipped++;
+        continue;
+      }
+      taken.add(key);
+      stmts.push(
+        env.DB.prepare(
+          `INSERT INTO shared_words
+             (id, word, definition_en, definition_ko, level_en, level_ko, pos, example,
+              no_definition_en, no_definition_ko, source, owner_id, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)`
+        ).bind(
+          genId(), r.word, r.definition_en, r.definition_ko, r.level_en, r.level_ko, r.pos ?? null, r.example,
+          r.no_definition_en, r.no_definition_ko, r.source ?? null, now, now
+        )
+      );
+    }
+    if (stmts.length) await env.DB.batch(stmts);
+    return json({ added: stmts.length, skipped, missing: ids.length - (sources || []).length });
+  }
+
   if (route === "/admin/users" && request.method === "GET") {
     const session = await getSessionUser(request, env);
     if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);

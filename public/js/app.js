@@ -638,12 +638,20 @@ const TRANSLATIONS = {
     paidWordsFieldPos: "POS",
     paidWordsDetailLevel: "Level",
     mwTabMine: "My words",
-    mwTabPaid: "Paid members' words",
+    mwTabPaid: "Premium members",
+    paidWordsAddBtn: "➕ Add",
+    paidWordsSelected: (n) => `${n} selected`,
+    paidWordsAddConfirm: (n) => `Add ${n} selected word${n === 1 ? "" : "s"} to My words? They will be shared with all users.`,
+    paidWordsAddOk: "Add",
+    paidWordsAddDone: (added, skipped) => `Added ${added} to My words (shared with everyone).` + (skipped ? ` ${skipped} already in My words, skipped.` : ""),
+    paidWordsAddNone: (skipped) => `Nothing added — ${skipped} already in My words.`,
+    paidWordsDeleteManyConfirm: (n) => `Delete ${n} selected word${n === 1 ? "" : "s"} from members' private lists?`,
+    paidWordsDeletedMany: (n) => `Deleted ${n}.`,
     paidWordsSearch: "🔍 Search word, meaning or member...",
     paidWordsAllMembers: "All members",
     paidWordsCount: (shown, total) => (shown === total ? `${total} word${total === 1 ? "" : "s"}` : `${shown} of ${total} words`),
-    paidWordsEmpty: "No paid member has added any words yet.",
-    paidWordsLoadFail: "Couldn't load paid members' words.",
+    paidWordsEmpty: "No premium member has added any words yet.",
+    paidWordsLoadFail: "Couldn't load premium members' words.",
     paidWordsBy: "Added by",
     paidWordsOn: "Added on",
     paidWordsSaved: "Saved.",
@@ -1533,12 +1541,20 @@ const TRANSLATIONS = {
     paidWordsFieldPos: "품사",
     paidWordsDetailLevel: "레벨",
     mwTabMine: "내 단어",
-    mwTabPaid: "유료사용자 단어",
+    mwTabPaid: "프리미엄 회원",
+    paidWordsAddBtn: "➕ 추가",
+    paidWordsSelected: (n) => `${n}개 선택됨`,
+    paidWordsAddConfirm: (n) => `선택한 단어 ${n}개를 내 단어(My words)에 추가할까요? 모든 사용자에게 공유돼요.`,
+    paidWordsAddOk: "추가",
+    paidWordsAddDone: (added, skipped) => `${added}개를 내 단어에 추가했어요 (모든 사용자에게 공유).` + (skipped ? ` 이미 있는 ${skipped}개는 건너뛰었어요.` : ""),
+    paidWordsAddNone: (skipped) => `추가된 단어가 없어요 — ${skipped}개는 이미 내 단어에 있어요.`,
+    paidWordsDeleteManyConfirm: (n) => `선택한 단어 ${n}개를 회원 개인 단어장에서 삭제할까요?`,
+    paidWordsDeletedMany: (n) => `${n}개를 삭제했어요.`,
     paidWordsSearch: "🔍 단어, 뜻, 회원 검색...",
     paidWordsAllMembers: "전체 회원",
     paidWordsCount: (shown, total) => (shown === total ? `${total.toLocaleString("ko")}개 단어` : `${total.toLocaleString("ko")}개 중 ${shown.toLocaleString("ko")}개`),
-    paidWordsEmpty: "아직 유료사용자가 추가한 단어가 없어요.",
-    paidWordsLoadFail: "유료사용자 단어를 불러오지 못했어요.",
+    paidWordsEmpty: "아직 프리미엄 회원이 추가한 단어가 없어요.",
+    paidWordsLoadFail: "프리미엄 회원 단어를 불러오지 못했어요.",
     paidWordsBy: "추가한 회원",
     paidWordsOn: "추가한 날짜",
     paidWordsSaved: "저장했어요.",
@@ -13671,6 +13687,35 @@ const paidWordsUserSelect = document.getElementById("paid-words-user-select");
 let paidWords = [];
 let paidWordsEditingId = null;
 let paidWordsTabActive = false;
+const selectedPaidIds = new Set();
+const paidSelectAll = document.getElementById("paid-select-all-checkbox");
+const paidDeleteBtn = document.getElementById("paid-delete-selected-btn");
+const paidAddBtn = document.getElementById("paid-add-selected-btn");
+const paidSelectCount = document.getElementById("paid-select-count");
+
+function filteredPaidWords() {
+  const q = paidWordsSearch.value.trim().toLowerCase();
+  const who = paidWordsUserSelect.value;
+  return paidWords.filter((w) => {
+    if (who && w.ownerUsername !== who) return false;
+    if (!q) return true;
+    return [w.word, w.definitionKo, w.definitionEn, w.ownerUsername].some((v) => (v || "").toLowerCase().includes(q));
+  });
+}
+
+function updatePaidSelectionUI() {
+  const n = selectedPaidIds.size;
+  paidDeleteBtn.disabled = n === 0;
+  paidAddBtn.disabled = n === 0;
+  paidDeleteBtn.classList.toggle("error", n > 0);
+  paidDeleteBtn.classList.toggle("neutral", n === 0);
+  paidAddBtn.classList.toggle("accent", n > 0);
+  paidAddBtn.classList.toggle("neutral", n === 0);
+  paidSelectCount.textContent = n ? t("paidWordsSelected", n) : "";
+  const visible = filteredPaidWords().slice(0, 200);
+  paidSelectAll.checked = visible.length > 0 && visible.every((w) => selectedPaidIds.has(w.id));
+  paidSelectAll.indeterminate = !paidSelectAll.checked && visible.some((w) => selectedPaidIds.has(w.id));
+}
 
 function setMyWordsTab(which) {
   paidWordsTabActive = which === "paid" && serverAdmin;
@@ -13735,21 +13780,19 @@ function paidWordMeaning(w) {
 }
 
 function renderPaidWords() {
-  const q = paidWordsSearch.value.trim().toLowerCase();
-  const who = paidWordsUserSelect.value;
-  const shown = paidWords.filter((w) => {
-    if (who && w.ownerUsername !== who) return false;
-    if (!q) return true;
-    return [w.word, w.definitionKo, w.definitionEn, w.ownerUsername].some((v) => (v || "").toLowerCase().includes(q));
-  });
+  const shown = filteredPaidWords();
+  const alive = new Set(paidWords.map((w) => w.id));
+  [...selectedPaidIds].forEach((id) => !alive.has(id) && selectedPaidIds.delete(id));
   paidWordsCount.textContent = paidWords.length ? t("paidWordsCount", shown.length, paidWords.length) : "";
   paidWordsGrid.innerHTML = "";
   if (paidWords.length === 0) {
     if (!paidWordsStatus.textContent) paidWordsStatus.textContent = t("paidWordsEmpty");
+    updatePaidSelectionUI();
     return;
   }
   paidWordsStatus.textContent = "";
   shown.slice(0, 200).forEach((w) => paidWordsGrid.appendChild(w.id === paidWordsEditingId ? buildPaidWordEditor(w) : buildPaidWordRow(w)));
+  updatePaidSelectionUI();
 }
 
 function buildPaidWordRow(w) {
@@ -13759,6 +13802,18 @@ function buildPaidWordRow(w) {
   row.setAttribute("role", "button");
   const top = document.createElement("div");
   top.className = "pw-row-top";
+  const cb = document.createElement("input");
+  cb.type = "checkbox";
+  cb.className = "pw-select";
+  cb.checked = selectedPaidIds.has(w.id);
+  cb.setAttribute("aria-label", w.word);
+  cb.addEventListener("click", (e) => e.stopPropagation());
+  cb.addEventListener("change", () => {
+    if (cb.checked) selectedPaidIds.add(w.id);
+    else selectedPaidIds.delete(w.id);
+    updatePaidSelectionUI();
+  });
+  top.appendChild(cb);
   const word = document.createElement("span");
   word.className = "pw-word";
   word.textContent = w.word;
@@ -13780,15 +13835,7 @@ function buildPaidWordRow(w) {
     paidWordsEditingId = w.id;
     renderPaidWords();
   });
-  const del = document.createElement("button");
-  del.type = "button";
-  del.className = "pill error small";
-  del.textContent = t("paidWordsDeleteBtn");
-  del.addEventListener("click", (e) => {
-    e.stopPropagation();
-    deletePaidWord(w);
-  });
-  actions.append(edit, del);
+  actions.append(edit);
   top.appendChild(actions);
   row.appendChild(top);
   const meaning = document.createElement("div");
@@ -13945,20 +13992,60 @@ function buildPaidWordEditor(w) {
   return row;
 }
 
-async function deletePaidWord(w) {
-  // Styled in-app dialog (not the browser popup) — matches the rest of the app.
-  const ok = await kidConfirm(t("paidWordsDeleteConfirm", w.word, w.ownerUsername), t("paidWordsDeleteBtn"), t("paidWordsCancelBtn"), { danger: true });
+async function deleteSelectedPaidWords() {
+  const ids = [...selectedPaidIds];
+  if (!ids.length) return;
+  const ok = await kidConfirm(t("paidWordsDeleteManyConfirm", ids.length), t("paidWordsDeleteBtn"), t("paidWordsCancelBtn"), { danger: true });
   if (!ok) return;
+  paidDeleteBtn.disabled = paidAddBtn.disabled = true;
   try {
-    await api("/admin/user-words/delete", { method: "POST", body: JSON.stringify({ ids: [w.id] }) });
-    paidWords = paidWords.filter((x) => x.id !== w.id);
+    for (let i = 0; i < ids.length; i += 200) {
+      await api("/admin/user-words/delete", { method: "POST", body: JSON.stringify({ ids: ids.slice(i, i + 200) }) });
+    }
+    const gone = new Set(ids);
+    paidWords = paidWords.filter((x) => !gone.has(x.id));
+    ids.forEach((id) => selectedPaidIds.delete(id));
     renderPaidWords();
-    paidWordsStatus.textContent = t("paidWordsDeleted");
+    paidWordsStatus.textContent = t("paidWordsDeletedMany", ids.length);
   } catch (e) {
-    console.warn("Could not delete paid member's word", e);
+    console.warn("Could not delete premium members' words", e);
     paidWordsStatus.textContent = t("paidWordsSaveFail");
+    updatePaidSelectionUI();
   }
 }
+
+async function addSelectedPaidWordsToShared() {
+  const ids = [...selectedPaidIds];
+  if (!ids.length) return;
+  const ok = await kidConfirm(t("paidWordsAddConfirm", ids.length), t("paidWordsAddOk"), t("paidWordsCancelBtn"));
+  if (!ok) return;
+  paidDeleteBtn.disabled = paidAddBtn.disabled = true;
+  try {
+    let added = 0;
+    let skipped = 0;
+    for (let i = 0; i < ids.length; i += 200) {
+      const r = await api("/admin/user-words/promote", { method: "POST", body: JSON.stringify({ ids: ids.slice(i, i + 200) }) });
+      added += r.added || 0;
+      skipped += r.skipped || 0;
+    }
+    selectedPaidIds.clear();
+    renderPaidWords();
+    paidWordsStatus.textContent = added ? t("paidWordsAddDone", added, skipped) : t("paidWordsAddNone", skipped);
+    if (added) refreshSharedWords();
+  } catch (e) {
+    console.warn("Could not add premium members' words to My words", e);
+    paidWordsStatus.textContent = t("paidWordsSaveFail");
+    updatePaidSelectionUI();
+  }
+}
+
+paidSelectAll.addEventListener("change", () => {
+  const visible = filteredPaidWords().slice(0, 200);
+  visible.forEach((w) => (paidSelectAll.checked ? selectedPaidIds.add(w.id) : selectedPaidIds.delete(w.id)));
+  renderPaidWords();
+});
+paidDeleteBtn.addEventListener("click", deleteSelectedPaidWords);
+paidAddBtn.addEventListener("click", addSelectedPaidWordsToShared);
 
 mwTabMine.addEventListener("click", () => setMyWordsTab("mine"));
 mwTabPaid.addEventListener("click", () => setMyWordsTab("paid"));
