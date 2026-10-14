@@ -10,10 +10,10 @@
   const NS = "http://www.w3.org/2000/svg";
 
   // The 3D-style koala is a stack of pictures sharing one 680x1024 canvas.
-  const KBOX = { base: [64, 222, 617, 968], hoodie: [122, 528, 562, 819], backpack: [131, 545, 560, 832], scarf: [185, 531, 497, 780], glasses: [162, 362, 520, 500], bushhat: [108, 188, 574, 441], partyhat: [259, 100, 422, 290], crown: [249, 190, 433, 295] };
-  const KORDER = ["backpack", "hoodie", "scarf", "glasses", "bushhat", "partyhat", "crown"];
-  const KSLOT = { hat: ["bushhat", "partyhat", "crown"], face: ["glasses"], neck: ["scarf"], body: ["hoodie"], back: ["backpack"] };
-  const KNAME = { bushhat: ["부시햇", "Bush Hat"], partyhat: ["파티 모자", "Party Hat"], crown: ["왕관", "Crown"], glasses: ["안경", "Glasses"], scarf: ["목도리", "Scarf"], hoodie: ["후드티", "Hoodie"], backpack: ["배낭", "Backpack"] };
+  const KBOX = Object.assign({ base: [64, 222, 617, 968], hoodie: [122, 528, 562, 819], backpack: [131, 545, 560, 832], scarf: [185, 531, 497, 780], glasses: [162, 362, 520, 500], bushhat: [108, 188, 574, 441], partyhat: [259, 100, 422, 290], crown: [249, 190, 433, 295] }, {"bluecap": [190, 103, 490, 335], "gradhat": [180, 86, 500, 342], "flowercrown": [145, 106, 535, 340], "wizardhat": [189, 22, 492, 345], "santahat": [170, 59, 510, 320], "beanie": [222, 22, 459, 335], "cowboyhat": [150, 77, 530, 330], "chefhat": [210, 78, 470, 312], "bunnyears": [214, 22, 467, 355]});
+  const KORDER = ["backpack", "hoodie", "scarf", "glasses", "bushhat", "partyhat", "crown", "bluecap", "gradhat", "flowercrown", "wizardhat", "santahat", "beanie", "cowboyhat", "chefhat", "bunnyears"];
+  const KSLOT = { hat: ["bushhat", "partyhat", "crown", "bluecap", "gradhat", "flowercrown", "wizardhat", "santahat", "beanie", "cowboyhat", "chefhat", "bunnyears"], face: ["glasses"], neck: ["scarf"], body: ["hoodie"], back: ["backpack"] };
+  const KNAME = { bushhat: ["부시햇", "Bush Hat"], partyhat: ["파티 모자", "Party Hat"], crown: ["왕관", "Crown"], bluecap: ["파란 모자", "Blue Cap"], gradhat: ["졸업 모자", "Graduation Hat"], flowercrown: ["꽃 왕관", "Flower Crown"], wizardhat: ["마법사 모자", "Wizard Hat"], santahat: ["산타 모자", "Santa Hat"], beanie: ["털모자", "Winter Beanie"], cowboyhat: ["카우보이 모자", "Cowboy Hat"], chefhat: ["요리사 모자", "Chef Hat"], bunnyears: ["토끼 귀", "Bunny Ears"], glasses: ["안경", "Glasses"], scarf: ["목도리", "Scarf"], hoodie: ["후드티", "Hoodie"], backpack: ["배낭", "Backpack"] };
   const kimg = (n) => `/img/koala/${n}.webp`;
 
   let ses = null;           // the house session
@@ -283,13 +283,13 @@
   function koalaMarkup() {
     const imgs = wornNames().map((n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; }).join("");
     const one = (src) => { const b = KBOX.base; return `<image href="${src}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; };
-    const stand = `<svg class="kh-kstand" x="-27" y="-82" width="54" height="85" viewBox="64 100 553 868" overflow="hidden">${imgs}</svg>`;
-    const back = extraImg.back ? `<svg class="kh-kback" x="-27" y="-82" width="54" height="85" viewBox="64 100 553 868" overflow="hidden" display="none">${one(extraImg.back)}</svg>` : "";
+    const stand = `<svg class="kh-kstand" x="-27" y="-89.8" width="54" height="92.8" viewBox="64 20 553 948" overflow="hidden">${imgs}</svg>`;
+    const back = extraImg.back ? `<svg class="kh-kback" x="-27" y="-89.8" width="54" height="92.8" viewBox="64 20 553 948" overflow="hidden" display="none">${one(extraImg.back)}</svg>` : "";
     // sitting / reading koalas are pictures of their own (img/koala/*.webp; "koala:sit", "koala:sitback", "koala:read" in the manifest override them)
     const own = (cls, src, w, h, bottom) => `<image class="${cls}" href="${src}" x="${-w / 2}" y="${(bottom - h).toFixed(1)}" width="${w}" height="${h}" preserveAspectRatio="xMidYMax meet" display="none"/>`;
     const sit = own("kh-ksit", extraImg.sit || kimg("sit"), 40, 49, 0) + own("kh-ksitback", extraImg.sitback || kimg("sitback"), 38, 45.5, 0);
     const readImg = own("kh-kreadimg", extraImg.read || kimg("read"), 44, 68, 3);
-    const pose = (cls, src) => (src ? `<svg class="${cls}" x="-27" y="-82" width="54" height="85" viewBox="64 100 553 868" overflow="hidden" display="none">${one(src)}</svg>` : "");
+    const pose = (cls, src) => (src ? `<svg class="${cls}" x="-27" y="-89.8" width="54" height="92.8" viewBox="64 20 553 948" overflow="hidden" display="none">${one(src)}</svg>` : "");
     const book = `<g class="kh-kread" display="none"><path d="M-13 -35 0 -31.5 13 -35 13 -21 0 -17.5 -13 -21Z" fill="#e0674f" stroke="#b44a37" stroke-width="1.2" stroke-linejoin="round"/><path d="M-11 -33.6 0 -30.4V-19.4L-11 -22.6Z" fill="#fffaf0"/><path d="M11 -33.6 0 -30.4V-19.4L11 -22.6Z" fill="#f6efe0"/><path d="M-8.5 -29.5 -3 -27.9M-8.5 -26 -3 -24.4M8.5 -29.5 3 -27.9M8.5 -26 3 -24.4" stroke="#cdbb9a" stroke-width="1" stroke-linecap="round"/><path d="M0 -30.4V-19.4" stroke="#b44a37" stroke-width="1.2"/>
       <path d="M4 -31 9 -33.2 9 -22 4 -19.8Z" fill="#fffaf0" opacity="0"><animate attributeName="opacity" values="0;0.95;0" dur="3.2s" repeatCount="indefinite"/></path></g>`;
     const can = `<g class="kh-kwater" display="none"><g><animateTransform attributeName="transform" type="rotate" values="0 17 -30;-20 17 -30;-20 17 -30;0 17 -30" keyTimes="0;.3;.8;1" dur="2.6s" repeatCount="indefinite"/>
@@ -912,7 +912,7 @@
       const wornN = slots.filter((sl) => S.worn[sl]).length;
       root.className = "kh-app kh-embed kh-ward";
       fit(root);
-      root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage">${wardBackdrop()}<svg class="kh-ward-koala" viewBox="64 100 553 890" role="img" aria-label="${T("3D 코알라", "3D Koala")}"><ellipse cx="340" cy="962" rx="205" ry="22" fill="#000" opacity=".16"/><g class="kh-wbody">${imgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
+      root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage">${wardBackdrop()}<svg class="kh-ward-koala" viewBox="64 20 553 970" role="img" aria-label="${T("3D 코알라", "3D Koala")}"><ellipse cx="340" cy="962" rx="205" ry="22" fill="#000" opacity=".16"/><g class="kh-wbody">${imgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
         <aside class="kh-panel">${chipsHtml(slots.map((sl) => [sl, "", slotName[sl]]), wardSlot)}
         <div class="kh-grid">${shelfHead(slotName[wardSlot], `${S.worn[wardSlot] ? 1 : 0}/${KSLOT[wardSlot].length}`)}<div class="kh-items-grid">${KSLOT[wardSlot].map((n) => `<button type="button" class="kh-item kh-kitem${S.worn[wardSlot] === n ? " on" : ""}" data-wear="${wardSlot}:${n}" aria-pressed="${S.worn[wardSlot] === n}"><img src="${kimg(n)}" alt="" draggable="false"><span class="kh-nm">${esc(T(KNAME[n][0], KNAME[n][1]))}</span><span class="kh-pr kh-state">${S.worn[wardSlot] === n ? T("입는 중", "Wearing") : T("입기", "Wear")}</span></button>`).join("")}</div>
         ${wornN ? `<button type="button" class="kh-btn alt kh-clear" data-clear>${T("모두 벗기기", "Take everything off")}</button>` : ""}</div></aside>`;
