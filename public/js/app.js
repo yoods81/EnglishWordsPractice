@@ -16016,31 +16016,118 @@ function koalaZoomScene(view) {
     shadow: true,
     view: view === "room" ? undefined : "60 78 200 137.5",
     sub: k.items.sub || {},
+    layout: roomLayout(),
+    pick: roomEdit ? roomSel : undefined,
   });
 }
+
+/* ---- Room edit mode: drag / rotate / resize / reorder items; layout saved in LocalStorage ---- */
+const ROOM_LAYOUT_KEY = "koalaRoomLayout:v1";
+let roomEdit = false;
+let roomSel = null;
+let roomLayoutCache = null;
+function roomLayout() {
+  if (!roomLayoutCache) {
+    try { roomLayoutCache = JSON.parse(localStorage.getItem(ROOM_LAYOUT_KEY)) || {}; } catch (e) { roomLayoutCache = {}; }
+  }
+  return roomLayoutCache;
+}
+function saveRoomLayout() {
+  try { localStorage.setItem(ROOM_LAYOUT_KEY, JSON.stringify(roomLayout())); } catch (e) { console.warn("Could not save room layout", e); }
+}
+function roomEntry(id) { const L = roomLayout(); return (L[id] = L[id] || { dx: 0, dy: 0, rot: 0, s: 1, z: 0 }); }
+function roomEditBarHtml() {
+  const name = roomSel === "koala" ? rwL("Koala", "코알라") : roomSel ? escapeHtml(koalaItemName(KoalaCore.itemById(roomSel) || { id: roomSel, name: { en: roomSel, ko: roomSel } })) : "";
+  const b = (act, label) => `<button type="button" class="koala-cat" data-room-act="${act}"${roomSel || act === "resetAll" ? "" : " disabled"}>${label}</button>`;
+  return `<div class="koala-zoom-caption">${roomSel ? `✋ ${name}` : rwL("Drag an item to move it · tap to select", "아이템을 끌어서 옮기고, 눌러서 선택해요")}</div>
+    <div class="koala-zoom-views" style="justify-content:center;margin-top:8px">
+      ${b("rotL", "↺")}${b("rotR", "↻")}${b("bigger", "＋")}${b("smaller", "－")}${b("front", rwL("Front", "앞으로"))}${b("back", rwL("Back", "뒤로"))}${b("reset", rwL("Reset item", "제자리"))}${b("resetAll", rwL("Reset all", "전체 초기화"))}</div>`;
+}
+function refreshRoomEditor() {
+  const el = document.getElementById("koala-zoom");
+  if (!el) return;
+  el.querySelector(".koala-zoom-stage").innerHTML = koalaZoomScene("room");
+  const bar = el.querySelector("[data-room-bar]");
+  if (bar) bar.innerHTML = roomEdit ? roomEditBarHtml() : "";
+}
+function roomEditorAct(act) {
+  if (act === "resetAll") { roomLayoutCache = {}; roomSel = null; saveRoomLayout(); refreshRoomEditor(); return; }
+  if (!roomSel) return;
+  const e = roomEntry(roomSel);
+  if (act === "rotL") e.rot = (e.rot || 0) - 15;
+  else if (act === "rotR") e.rot = (e.rot || 0) + 15;
+  else if (act === "bigger") e.s = Math.min(2, +((e.s || 1) + 0.1).toFixed(2));
+  else if (act === "smaller") e.s = Math.max(0.4, +((e.s || 1) - 0.1).toFixed(2));
+  else if (act === "front") e.z = (e.z || 0) + 1;
+  else if (act === "back") e.z = (e.z || 0) - 1;
+  else if (act === "reset") delete roomLayout()[roomSel];
+  saveRoomLayout();
+  refreshRoomEditor();
+}
+// Pointer dragging on the zoom stage (mouse + touch). The stage element persists across
+// re-renders, so pointer capture stays valid while the SVG inside is rebuilt.
+function attachRoomDrag(stage) {
+  let drag = null;
+  const toScene = (ev) => {
+    const svg = stage.querySelector("svg");
+    const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+    const m = svg.getScreenCTM();
+    return m ? pt.matrixTransform(m.inverse()) : { x: 0, y: 0 };
+  };
+  stage.addEventListener("pointerdown", (ev) => {
+    if (!roomEdit) return;
+    const g = ev.target.closest && ev.target.closest("g[data-item]");
+    const id = g && g.dataset.item;
+    if (!id || id === (KoalaCore.ensureKoala(progress).items.equipped || {}).wallpaper) { roomSel = null; refreshRoomEditor(); return; }
+    ev.preventDefault();
+    roomSel = id;
+    const p = toScene(ev), e = roomEntry(id);
+    drag = { id, x: p.x, y: p.y, dx: e.dx || 0, dy: e.dy || 0 };
+    stage.setPointerCapture(ev.pointerId);
+    refreshRoomEditor();
+  });
+  stage.addEventListener("pointermove", (ev) => {
+    if (!drag) return;
+    const p = toScene(ev), e = roomEntry(drag.id);
+    e.dx = Math.round(Math.max(-200, Math.min(200, drag.dx + p.x - drag.x)));
+    e.dy = Math.round(Math.max(-140, Math.min(140, drag.dy + p.y - drag.y)));
+    stage.querySelector("svg").outerHTML = koalaZoomScene("room");
+  });
+  const end = () => { if (drag) { drag = null; saveRoomLayout(); refreshRoomEditor(); } };
+  stage.addEventListener("pointerup", end);
+  stage.addEventListener("pointercancel", end);
+}
 function closeKoalaZoom() {
+  roomEdit = false; roomSel = null;
   const z = document.getElementById("koala-zoom");
   if (z) z.remove();
   document.removeEventListener("keydown", koalaZoomKey);
 }
 function koalaZoomKey(e) { if (e.key === "Escape") closeKoalaZoom(); }
 function openKoalaZoom(view) {
+  const keepEdit = roomEdit && view === "room", keepSel = roomSel;
   closeKoalaZoom();
+  roomEdit = keepEdit; roomSel = keepEdit ? keepSel : null;
   const tryIt = koalaTry ? KoalaCore.itemById(koalaTry) : null;
   const el = document.createElement("div");
   el.id = "koala-zoom";
   el.className = "koala-zoom-overlay";
   const viewBtn = (id, label) => `<button type="button" class="koala-cat${view === id ? " on" : ""}" data-koala-zoom-view="${id}" aria-pressed="${view === id}">${label}</button>`;
   el.innerHTML = `<div class="koala-zoom-card" role="dialog" aria-modal="true" aria-label="${rwL("Big preview", "크게 보기")}">
-    <div class="koala-zoom-head"><div class="koala-zoom-views">${viewBtn("koala", rwL('<span class="kface" aria-hidden="true"></span> Koala', '<span class="kface" aria-hidden="true"></span> 코알라'))}${viewBtn("room", rwL("🏠 Whole room", "🏠 방 전체"))}</div>
+    <div class="koala-zoom-head"><div class="koala-zoom-views">${viewBtn("koala", rwL('<span class="kface" aria-hidden="true"></span> Koala', '<span class="kface" aria-hidden="true"></span> 코알라'))}${viewBtn("room", rwL("🏠 Whole room", "🏠 방 전체"))}${view === "room" ? `<button type="button" class="koala-cat${roomEdit ? " on" : ""}" data-room-edit aria-pressed="${roomEdit}">${rwL("✏️ Edit", "✏️ 꾸미기")}</button>` : ""}</div>
       <button type="button" class="koala-zoom-close" data-koala-zoom-close>${rwL("✕ Close", "✕ 닫기")}</button></div>
-    <div class="koala-zoom-stage">${koalaZoomScene(view)}</div>
+    <div class="koala-zoom-stage${roomEdit && view === "room" ? " is-editing" : ""}">${koalaZoomScene(view)}</div>
+    <div data-room-bar>${roomEdit && view === "room" ? roomEditBarHtml() : ""}</div>
     ${tryIt ? `<div class="koala-zoom-caption">${rwL(`👀 Trying on: ${escapeHtml(koalaItemName(tryIt))}`, `👀 입어 보는 중: ${escapeHtml(koalaItemName(tryIt))}`)}</div>` : ""}</div>`;
   el.addEventListener("click", (e) => {
     if (e.target === el || e.target.closest("[data-koala-zoom-close]")) { closeKoalaZoom(); return; }
+    if (e.target.closest("[data-room-edit]")) { roomEdit = !roomEdit; roomSel = null; openKoalaZoom("room"); return; }
+    const ra = e.target.closest("[data-room-act]");
+    if (ra) { roomEditorAct(ra.dataset.roomAct); return; }
     const v = e.target.closest("[data-koala-zoom-view]");
-    if (v) { openKoalaZoom(v.dataset.koalaZoomView); }
+    if (v) { roomEdit = false; roomSel = null; openKoalaZoom(v.dataset.koalaZoomView); }
   });
+  attachRoomDrag(el.querySelector(".koala-zoom-stage"));
   document.body.appendChild(el);
   document.addEventListener("keydown", koalaZoomKey);
   const close = el.querySelector("[data-koala-zoom-close]");

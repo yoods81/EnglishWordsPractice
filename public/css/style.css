@@ -13444,3 +13444,10 @@ select.admin-role-select { align-items: center; }
 #ocr-review #ocr-candidates { margin-bottom: 18px; padding-bottom: 2px; }
 #ocr-review .setting-row { row-gap: 14px; column-gap: 10px; margin-bottom: 14px; }
 #ocr-review .setting-row #ocr-add-btn { margin-top: 2px; }
+
+/* Room edit mode (drag & drop decorating) */
+.koala-zoom-stage.is-editing { touch-action: none; cursor: grab; outline: 3px dashed var(--accent); outline-offset: -3px; }
+.koala-zoom-stage.is-editing svg g[data-item]:not(:first-child) { cursor: move; }
+.koala-zoom-stage.is-editing svg g.koala-picked, .koala-zoom-stage.is-editing svg g[data-item]:hover { filter: drop-shadow(0 0 3px #ff9f1c); }
+.koala-zoom-stage.is-editing .koala-eyes { animation: none; }
+[data-room-bar] .koala-cat[disabled] { opacity: .45; }

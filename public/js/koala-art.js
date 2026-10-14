@@ -618,6 +618,15 @@
     return a.build ? a.build((sub && sub[id]) || []) : a.svg;
   }
 
+  // Transform for a saved placement; rotate/scale pivot on (cx, cy) or the item's view-box centre.
+  function layoutTransform(layout, id, cx, cy) {
+    const l = layout && layout[id];
+    if (!l || !(l.dx || l.dy || l.rot || (l.s && l.s !== 1))) return "";
+    let px = cx, py = cy;
+    if (px == null) { const a = ROOM_ART[id]; const v = a && a.view ? a.view.split(" ").map(Number) : [0, 0, 320, 220]; px = v[0] + v[2] / 2; py = v[1] + v[3] / 2; }
+    return ` transform="translate(${+l.dx || 0} ${+l.dy || 0}) translate(${px} ${py}) rotate(${+l.rot || 0}) scale(${+l.s || 1}) translate(${-px} ${-py})"`;
+  }
+
   // The whole scene. roomEq: { slot: itemId } for the room; koalaEq: what the
   // koala wears. Without a wallpaper the Cream Wall shows.
   function room(roomEq, koalaEq, opts) {
@@ -630,16 +639,23 @@
     });
     if (!byLayer.wall) byLayer.wall = "creamWall";
     // Items that hold sub-items get a class so the studio can make them tappable / highlight the picked one.
-    const grp = (id) => `<g data-item="${id}"${ROOM_ART[id].build ? ` class="koala-hit${o.pick === id ? " koala-picked" : ""}"` : ""}>${roomItem(id, o.sub)}</g>`;
-    const parts = [grp(byLayer.wall), ROOM_BASE_FLOOR];
-    ROOM_ORDER.slice(1).forEach((l) => { if (byLayer[l]) parts.push(grp(byLayer[l])); });
+    const grp = (id) => {
+      const hit = ROOM_ART[id].build ? ` class="koala-hit${o.pick === id ? " koala-picked" : ""}"` : "";
+      return `<g data-item="${id}"${hit}${layoutTransform(o.layout, id)}>${roomItem(id, o.sub)}</g>`;
+    };
+    // Free placement: each item sits at its default spot plus a saved {dx, dy, rot, s, z}.
+    // Draw order = layer order (back to front), nudged by z for forward/back inside a layer.
+    const z = (id) => ((o.layout && o.layout[id] && o.layout[id].z) || 0);
+    const stack = [];
+    ROOM_ORDER.slice(1).forEach((l, i) => { if (byLayer[l]) stack.push({ order: (i + 1) * 10 + z(byLayer[l]), svg: grp(byLayer[l]) }); });
     const koala = avatar(koalaEq, { view: "full" }).replace('class="koala-avatar-svg" ', "").replace("<svg ", '<svg x="106" y="84" width="108" height="111" ');
-    // Studio preview: a soft shadow on the floor so the koala stands on the
-    // ground instead of hovering in front of the wall.
-    if (o.shadow) parts.push('<ellipse cx="160" cy="182" rx="42" ry="5.5" fill="#000" opacity=".16"/>');
-    parts.push(koala);
-    if (byLayer.pet) parts.push(grp(byLayer.pet));
-    if (byLayer.plant) parts.push(grp(byLayer.plant));
+    const koalaG = `<g data-item="koala"${layoutTransform(o.layout, "koala", 160, 140)}>${koala}</g>`;
+    const shadow = o.shadow ? '<ellipse cx="160" cy="182" rx="42" ry="5.5" fill="#000" opacity=".16"/>' : "";
+    stack.push({ order: 100 + z("koala"), svg: shadow + koalaG });
+    if (byLayer.pet) stack.push({ order: 110 + z(byLayer.pet), svg: grp(byLayer.pet) });
+    if (byLayer.plant) stack.push({ order: 120 + z(byLayer.plant), svg: grp(byLayer.plant) });
+    stack.sort((a, b) => a.order - b.order);
+    const parts = [grp(byLayer.wall), ROOM_BASE_FLOOR].concat(stack.map((x) => x.svg));
     const label = o.label ? ` role="img" aria-label="${String(o.label).replace(/"/g, "&quot;")}"` : ` aria-hidden="true"`;
     // opts.view crops the scene (e.g. zoom in on the koala); default: the whole room.
     return `<svg class="koala-room-svg" viewBox="${o.view || ROOM_VIEW}" xmlns="http://www.w3.org/2000/svg"${label} focusable="false">${parts.join("")}</svg>`;
