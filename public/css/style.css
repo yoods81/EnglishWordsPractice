@@ -13490,3 +13490,41 @@ select.admin-role-select { align-items: center; }
 .kh-ward .kh-cat { flex: 0 0 auto; min-height: 40px; border: 0; background: #fff; color: var(--accent-dark, #16a085); font-weight: 700; font-size: .95rem; box-shadow: 0 1px 3px rgba(10, 60, 50, .22); }
 .kh-ward .kh-cat.on { background: var(--accent, #2ec7a0); color: #fff; box-shadow: 0 2px 6px rgba(20, 160, 130, .35); }
 .kh-ward .kh-ward-tip { font-size: 1.15rem; color: #2b3f39; bottom: 10px; }
+
+/* ---- Character page, round 3 ---- */
+.koala-dimrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 10px 0 8px; }
+.koala-dimrow .koala-dim { margin: 0; }
+html body #view-koala .koala-dimrow .koala-own-btn { min-height: 40px; background: #fff; color: var(--accent-dark); border: 0 !important; box-shadow: 0 1px 3px rgba(10, 60, 50, .22) !important; }
+html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent); color: #fff; }
+/* Sticker card = Pop-out card: no white frame, the scene fills the card, level + coins float on top */
+.koala-studio-top.is-char { background: none; border: 0; box-shadow: none; padding: 0; margin: 0 0 10px; }
+.koala-studio-top.is-char .koala-studio-preview { position: relative; }
+.koala-studio-top.is-char .koala-studio-bar { position: absolute; top: 10px; left: 10px; right: 10px; z-index: 3; padding: 0; pointer-events: none; }
+.koala-studio-top.is-char .koala-studio-lv { background: rgba(255, 255, 255, .92); border-radius: 999px; padding: 2px 12px; margin-left: 0; }
+.koala-studio-top.is-char .koala-studio-coins { margin-left: auto; }
+.koala-stage.is-character { width: 100%; height: 46vh; min-height: 330px; aspect-ratio: auto; border: 0; border-radius: 18px; }
+.koala-stage.is-character > svg { width: 100%; height: 100%; }
+@media (min-width: 720px) {
+  .koala-stage.is-character { width: 100%; height: min(70vh, 640px); }
+  .koala-studio:has(.koala-stage.is-character) { grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); }
+}
+/* Pop-out panel: wider so the categories are not cut off, arrows like the Sticker row, no scrollbar */
+.kh-ward .kh-panel { width: min(400px, 46vw); }
+.kh-narrow.kh-ward .kh-panel, .kh-ward .kh-panel.kh-pn { width: 100%; }
+@media (max-width: 760px), (orientation: portrait) { .kh-ward .kh-panel { width: 100%; } }
+.kh-ward .kh-grid { scrollbar-width: none; -ms-overflow-style: none; }
+.kh-ward .kh-grid::-webkit-scrollbar { display: none; }
+.kh-ward .kh-panel { scrollbar-width: none; }
+.kh-ward .kh-panel::-webkit-scrollbar { display: none; }
+.kh-cats-wrap { position: relative; flex: 0 0 auto; }
+.kh-cats-wrap.can-right .kh-cats { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 34px), transparent); }
+.kh-cats-wrap.can-left .kh-cats { -webkit-mask-image: linear-gradient(90deg, transparent, #000 34px); mask-image: linear-gradient(90deg, transparent, #000 34px); }
+.kh-cats-wrap.can-left.can-right .kh-cats { -webkit-mask-image: linear-gradient(90deg, transparent, #000 34px, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(90deg, transparent, #000 34px, #000 calc(100% - 34px), transparent); }
+.kh-cats-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 3; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 50%; background: #fff; color: var(--accent-dark, #16a085); font-size: 1.4rem; font-weight: 800; line-height: 1; cursor: pointer; box-shadow: 0 1px 5px rgba(10, 60, 50, .35); }
+.kh-cats-nav[hidden] { display: none; }
+.kh-cats-nav.prev { left: 2px; } .kh-cats-nav.next { right: 2px; }
+.kh-ward .kh-clear.kh-btn { background: linear-gradient(180deg, #3fd3a6, #22b98c); color: #fff; box-shadow: 0 2px 0 #178f6d; font-size: .95rem; padding: 10px 20px; }
+.kh-empty { margin: 14px 4px; color: #4e6b63; font-weight: 600; }
+.auth-koala-pic.is-3d { background: #fbf1dc; }
+.auth-koala-pic .kh-k3d { display: block; width: 100%; height: 100%; }
+.koala-studio-top.is-char .koala-studio-preview { background: none; border: 0; box-shadow: none; padding: 0; }

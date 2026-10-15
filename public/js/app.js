@@ -4668,11 +4668,12 @@ function renderAuthMenuKoala() {
   ensureRewardData();
   const k = KoalaCore.ensureKoala(progress);
   const lv = KoalaCore.levelInfo(k.earned);
+  const pop = !!(window.KoalaHouse && KoalaHouse.koala3d && canUsePaidFeatures());
   const st = currentStreakStatus();
   const cat = buildBadgeCatalog();
   const badges = cat.filter((b) => progress.badges[b.id]).length;
   authMenuKoalaEl.innerHTML = `<button type="button" class="auth-koala-avatar" data-koala-go="koala" aria-label="${rwL("Open My Koala", "나의 코알라 열기")}">
-      <span class="auth-koala-pic" aria-hidden="true">${KoalaArt.avatar(k.items.equipped, { view: "head" })}</span>
+      <span class="auth-koala-pic${pop ? " is-3d" : ""}" aria-hidden="true">${pop ? KoalaHouse.koala3d(undefined, "kh-k3d", "150 190 400 340") : KoalaArt.avatar(k.items.equipped, { view: "head" })}</span>
       <span class="auth-koala-lv">${rwL(`Lv. ${lv.level}`, `Lv. ${lv.level}`)}</span>
       <span class="koala-level-bar" aria-hidden="true"><span style="width:${lv.pct}%"></span></span></button>
     <div class="auth-koala-chips">
@@ -15602,20 +15603,20 @@ function koalaStudioTopHtml(k, mode) {
   const scene = KoalaArt.room(eq, eq, {
     label: mode === "room" ? rwL("Your Koala's Study Room", "나의 코알라 공부방") : rwL("Your Koala", "나의 코알라"),
     shadow: true,
-    view: mode === "room" ? undefined : "88 48 144 172",
+    view: mode === "room" ? undefined : "80 48 160 172",
     sub: k.items.sub || {},
     layout: mode === "room" ? roomLayout() : undefined,
     pick: mode === "room" ? koalaPick : null,
   });
+  const sceneFit = mode === "room" ? scene : scene.replace('class="koala-room-svg"', 'class="koala-room-svg" preserveAspectRatio="xMidYMax slice"');
   return `<div class="koala-studio-top${mode === "room" ? "" : " is-char"}"><div class="koala-studio-preview">
     <div class="koala-studio-bar">
-      <button type="button" class="koala-back${koalaOwnedView ? " on" : ""}" data-koala-owned aria-pressed="${koalaOwnedView}">${koalaOwnedView ? rwL("✓ Back to shop", "✓ 상점으로") : rwL("🎒 My items", "🎒 내 아이템")}</button>
       <span class="koala-studio-lv">${rwL(`Lv. ${lv.level}`, `Lv. ${lv.level}`)}</span>
       <span class="koala-studio-coins" aria-label="${rwL("Koala Coins", "코알라 코인")}">${COIN_SVG} <b>${serverAdmin ? "∞" : k.coins.toLocaleString()}</b></span>
     </div>
     ${mode === "room"
       ? `<div class="koala-stage is-room" id="koala-stage">${scene}<button type="button" class="koala-zoom-tag" data-koala-zoom="room" aria-label="${rwL("See the room bigger", "방 크게 보기")}">${rwL("🔍 Bigger", "🔍 크게 보기")}</button></div>`
-      : `<div class="koala-stage is-${mode}${koalaSit ? " is-sit" : ""}" id="koala-stage" role="button" tabindex="0" data-koala-sit aria-pressed="${koalaSit}" aria-label="${rwL("Tap the koala to make it sit", "코알라를 눌러 앉혀 보세요")}">${scene}<p class="koala-stage-tip">${rwL("Tap the koala!", "코알라를 눌러 보세요!")}</p></div>`}
+      : `<div class="koala-stage is-${mode}${koalaSit ? " is-sit" : ""}" id="koala-stage" role="button" tabindex="0" data-koala-sit aria-pressed="${koalaSit}" aria-label="${rwL("Tap the koala to make it sit", "코알라를 눌러 앉혀 보세요")}">${sceneFit}<p class="koala-stage-tip">${rwL("Tap the koala!", "코알라를 눌러 보세요!")}</p></div>`}
     ${koalaTryBarHtml()}${mode === "room" ? koalaSubBoxHtml(k, "is-in-preview") : ""}</div>
   </div>`;
 }
@@ -15861,7 +15862,9 @@ function koalaHeroAvatarHtml(k) {
   return `<div class="koala-hero-avatar">${KoalaArt.avatar(k.items.equipped, { label: rwL("Your Koala", "나의 코알라") })}</div>`;
 }
 // Dressing the 3D Koala (in the 3D house wardrobe) changes the picture on the status card at once.
+window.addEventListener("kh-owned-off", () => { if (koalaOwnedView) { koalaOwnedView = false; renderKoala(); } });
 window.addEventListener("kh-worn", () => {
+  if (typeof renderAuthMenuKoala === "function") renderAuthMenuKoala();
   const box = document.querySelector(".koala-hero-avatar.is-3d");
   if (box && window.KoalaHouse && KoalaHouse.koala3d) box.innerHTML = KoalaHouse.koala3d(canUsePaidFeatures() ? undefined : {}).trim();
 });
@@ -15869,7 +15872,9 @@ window.addEventListener("kh-worn", () => {
 function koalaDimBarHtml() {
   const paid = canUsePaidFeatures();
   const b = (id, label) => `<button type="button" class="koala-dim-btn${koalaDim === id ? " on" : ""}" role="tab" aria-selected="${koalaDim === id}" data-koala-dim="${id}">${label}</button>`;
-  return `<div class="koala-dim" role="tablist" aria-label="${rwL("Sticker or Pop-out Koala", "평면 / 입체 코알라 보기")}">${b("2d", rwL("Sticker", "평면"))}${b("3d", rwL("Pop-out", "입체") + (paid ? "" : " 👑"))}</div>`;
+  const bar = `<div class="koala-dim" role="tablist" aria-label="${rwL("Sticker or Pop-out Koala", "평면 / 입체 코알라 보기")}">${b("2d", rwL("Sticker", "평면"))}${b("3d", rwL("Pop-out", "입체") + (paid ? "" : " 👑"))}</div>`;
+  const own = (koalaDim === "3d" && (koalaTab === "room" || !paid)) ? "" : `<button type="button" class="koala-back koala-own-btn${koalaOwnedView ? " on" : ""}" data-koala-owned aria-pressed="${koalaOwnedView}">${koalaOwnedView ? rwL("✓ Back to shop", "✓ 상점으로") : rwL("🎒 My items", "🎒 내 아이템")}</button>`;
+  return `<div class="koala-dimrow">${bar}${own}</div>`;
 }
 
 function koalaDim3dHtml() {
@@ -15888,7 +15893,7 @@ function koalaMountDim3d() {
   if (!host || !window.KoalaHouse || !KoalaHouse.mount) return;
   try {
     if (koalaTab === "room") KoalaHouse.mount(host, koalaHouseOpts());
-    else KoalaHouse.mountWardrobe(host, koalaHouseOpts());
+    else { if (KoalaHouse.setWardOwned) KoalaHouse.setWardOwned(koalaOwnedView); KoalaHouse.mountWardrobe(host, koalaHouseOpts()); }
   } catch (err) { host.textContent = ""; console.error(err); }
 }
 
@@ -16343,7 +16348,7 @@ document.addEventListener("click", (e) => {
   if (buy) { handleKoalaItem(buy.dataset.koalaBuy); return; }
   if (e.target.closest("[data-koala-try-clear]")) { koalaTry = null; renderKoala(); return; }
   const dimBtn = e.target.closest("[data-koala-dim]");
-  if (dimBtn) { koalaDim = dimBtn.dataset.koalaDim === "3d" ? "3d" : "2d"; koalaTry = null; koalaPick = null; renderKoala(); return; }
+  if (dimBtn) { koalaDim = dimBtn.dataset.koalaDim === "3d" ? "3d" : "2d"; koalaOwnedView = false; koalaTry = null; koalaPick = null; renderKoala(); return; }
   if (e.target.closest("[data-koala-upgrade]")) { promptUpgradeForFeature(); return; }
   const zoom = e.target.closest("[data-koala-zoom]");
   if (zoom) { openKoalaZoom(zoom.dataset.koalaZoom); return; }

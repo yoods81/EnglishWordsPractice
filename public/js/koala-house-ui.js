@@ -920,11 +920,11 @@
 
   /* ------------------------------ 3D wardrobe (Character tab) ------------------------------ */
   // The 3D koala as a small picture (the Character tab's status card uses it). worn: { slot: name } (default: what is saved).
-  function koala3d(worn, cls) {
+  function koala3d(worn, cls, view) {
     const w = worn || (H.load().worn || {});
     const names = kordered(w);
     const imgs = names.map((n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; }).join("");
-    return `<svg class="${cls || "kh-k3d"}" viewBox="64 130 553 910" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="3D Koala" focusable="false">${imgs}</svg>`;
+    return `<svg class="${cls || "kh-k3d"}" viewBox="${view || "64 130 553 910"}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="3D Koala" focusable="false">${imgs}</svg>`;
   }
   // wall + floor behind the 3D koala: the same room backdrop the 2D koala stands in
   function wardBackdrop() {
@@ -932,6 +932,8 @@
     return KoalaArt.room({}, {}, { bare: true }).replace('class="koala-room-svg"', 'class="kh-ward-bg" preserveAspectRatio="xMidYMax slice"');
   }
   let wardSlot = "hat";
+  let wardOwned = false;
+  window.KoalaHouse.setWardOwned = (v) => { wardOwned = !!v; };
   function mountWardrobe(root, opts) {
     if (ses) destroy();
     curOpts = opts;
@@ -942,6 +944,12 @@
     const chipName = (sl) => `${slotIcon[sl] || ""} ${slotName[sl]}`;
     const slots = Object.keys(KSLOT);
     if (!KSLOT[wardSlot]) wardSlot = slots[0];
+    const itemBtn = (sl, n) => `<button type="button" class="kh-item kh-kitem${S.worn[sl] === n ? " on" : ""}" data-wear="${sl}:${n}" aria-pressed="${S.worn[sl] === n}"><img src="${kimg(n)}" alt="" draggable="false"><span class="kh-nm">${esc(T(KNAME[n][0], KNAME[n][1]))}</span><span class="kh-pr kh-state">${S.worn[sl] === n ? T("입는 중", "Wearing") : T("입기", "Wear")}</span></button>`;
+    const clearBtn = `<button type="button" class="kh-btn alt kh-clear" data-clear>${T("모두 벗기기", "Take Off All")}</button>`;
+    const ownedHtml = () => {
+      const on = slots.filter((sl) => S.worn[sl]);
+      return `<div class="kh-grid">${shelfHead(T("내 아이템", "My items"), `${on.length}`)}${on.length ? `<div class="kh-items-grid">${on.map((sl) => itemBtn(sl, S.worn[sl])).join("")}</div>${clearBtn}` : `<p class="kh-empty">${T("아직 입고 있는 아이템이 없어요.", "You are not wearing anything yet.")}</p>`}</div>`;
+    };
     const draw = () => {
       const names = kordered(S.worn);
       const imgs = names.map((n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; }).join("");
@@ -949,10 +957,18 @@
       root.className = "kh-app kh-embed kh-ward";
       fit(root);
       root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage">${wardBackdrop()}<svg class="kh-ward-koala" viewBox="64 20 553 1020" role="img" aria-label="${T("3D 코알라", "3D Koala")}"><ellipse cx="340" cy="962" rx="205" ry="22" fill="#000" opacity=".16"/><g class="kh-wbody">${imgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
-        <aside class="kh-panel">${chipsHtml(slots.map((sl) => [sl, "", chipName(sl)]), wardSlot)}
-        <div class="kh-grid">${shelfHead(slotName[wardSlot], `${S.worn[wardSlot] ? 1 : 0}/${KSLOT[wardSlot].length}`)}<div class="kh-items-grid">${KSLOT[wardSlot].map((n) => `<button type="button" class="kh-item kh-kitem${S.worn[wardSlot] === n ? " on" : ""}" data-wear="${wardSlot}:${n}" aria-pressed="${S.worn[wardSlot] === n}"><img src="${kimg(n)}" alt="" draggable="false"><span class="kh-nm">${esc(T(KNAME[n][0], KNAME[n][1]))}</span><span class="kh-pr kh-state">${S.worn[wardSlot] === n ? T("입는 중", "Wearing") : T("입기", "Wear")}</span></button>`).join("")}</div>
-        ${wornN ? `<button type="button" class="kh-btn alt kh-clear" data-clear>${T("모두 벗기기", "Take everything off")}</button>` : ""}</div></aside>`;
-      root.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { wardSlot = b.dataset.tab; draw(); }; });
+        <aside class="kh-panel"><div class="kh-cats-wrap"><button type="button" class="kh-cats-nav prev" data-cnav="-1" aria-label="${T("왼쪽으로", "Scroll left")}" hidden>‹</button>${chipsHtml(slots.map((sl) => [sl, "", chipName(sl)]), wardOwned ? "" : wardSlot)}<button type="button" class="kh-cats-nav next" data-cnav="1" aria-label="${T("오른쪽으로", "Scroll right")}" hidden>›</button></div>
+        ${wardOwned ? ownedHtml() : `<div class="kh-grid">${shelfHead(slotName[wardSlot], `${S.worn[wardSlot] ? 1 : 0}/${KSLOT[wardSlot].length}`)}<div class="kh-items-grid">${KSLOT[wardSlot].map((n) => itemBtn(wardSlot, n)).join("")}</div>
+        ${wornN ? clearBtn : ""}</div>`}</aside>`;
+      root.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { wardSlot = b.dataset.tab; if (wardOwned) { wardOwned = false; window.dispatchEvent(new CustomEvent("kh-owned-off")); } draw(); }; });
+      const strip = root.querySelector(".kh-cats"), pv = root.querySelector(".kh-cats-nav.prev"), nx = root.querySelector(".kh-cats-nav.next"), wrapC = root.querySelector(".kh-cats-wrap");
+      if (strip) {
+        const upd = () => { const mx = strip.scrollWidth - strip.clientWidth, l = strip.scrollLeft > 2, r = strip.scrollLeft < mx - 2; pv.hidden = !l; nx.hidden = !r; wrapC.classList.toggle("can-left", l); wrapC.classList.toggle("can-right", r); };
+        strip.addEventListener("scroll", upd, { passive: true });
+        root.querySelectorAll("[data-cnav]").forEach((b) => { b.onclick = () => strip.scrollBy({ left: Number(b.dataset.cnav) * Math.max(120, strip.clientWidth * 0.7), behavior: "smooth" }); });
+        const cur = strip.querySelector(".kh-cat.on"); if (cur) strip.scrollLeft = cur.offsetLeft - (strip.clientWidth - cur.offsetWidth) / 2;
+        upd(); requestAnimationFrame(upd);
+      }
       root.querySelectorAll("[data-wear]").forEach((b) => { b.onclick = () => { const [slot, n] = b.dataset.wear.split(":"); if (S.worn[slot] === n) delete S.worn[slot]; else S.worn[slot] = n; H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); }; });
       const clr = root.querySelector("[data-clear]"); if (clr) clr.onclick = () => { S.worn = {}; H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); };
       const kb = root.querySelector(".kh-wbody"); root.querySelector("#kh-wstage").onclick = () => { kb.classList.remove("hop"); void kb.getBoundingClientRect(); kb.classList.add("hop"); };
