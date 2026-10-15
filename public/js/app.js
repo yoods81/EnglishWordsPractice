@@ -15889,19 +15889,23 @@ function koalaDim3dHtml() {
   if (!canUsePaidFeatures()) {
     // Locked preview: shows what Premium looks like (pictures only, nothing interactive).
     const room = koalaTab === "room";
+    const im = (n) => `<img src="img/koala/${n}.webp" alt="" loading="lazy">`;
+    const rm = (n) => `<img src="img/rooms/${n}.webp" alt="" loading="lazy">`;
+    const crown = `<svg class="kt-crown" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z" fill="currentColor"/></svg>`;
     const visual = room
-      ? `<div class="kt-rooms"><img src="img/rooms/living.webp" alt=""><img src="img/rooms/bedroom.webp" alt=""><img src="img/rooms/playroom.webp" alt=""><img src="img/rooms/kitchen.webp" alt=""></div>`
-      : `<img class="kt-koala" src="img/koala-premium-teaser.webp" alt="">`;
+      ? `<div class="kt-rooms">${rm("living")}${rm("bedroom")}${rm("playroom")}${rm("kitchen")}</div>`
+      : `<span class="kt-glow"></span><img class="kt-koala" src="img/koala-premium-teaser.webp" alt="">
+         <span class="kt-chip c1">${im("wizardhat")}</span><span class="kt-chip c2">${im("heartglasses")}</span><span class="kt-chip c3">${im("rainboots")}</span><span class="kt-chip c4">${im("butterflywings")}</span>`;
     const perks = room
-      ? [rwL("🏠 Decorate rooms in 3D — drag furniture around", "🏠 3D로 가구를 끌어 방 꾸미기"), rwL("🗺️ Grow a floor plan with up to 9 rooms", "🗺️ 방을 최대 9개까지 늘리는 평면도"), rwL("🌳 A big garden to design too", "🌳 넓은 마당도 꾸밀 수 있어요")]
-      : [rwL("🧸 A fluffy 3D Koala that hops when you tap", "🧸 탭하면 폴짝 뛰는 복슬복슬 3D 코알라"), rwL("👖 Dress it up: jeans, sneakers, wings & more", "👖 청바지·운동화·날개까지 입혀 보세요"), rwL("🪙 Items you buy in Sticker work here too", "🪙 스티커에서 산 아이템도 그대로 입어요")];
-    return `<div class="rw-lock koala-dim-lock kt-teaser">
-      <div class="kt-visual"><span class="kt-ribbon">👑 ${rwL("Premium", "프리미엄")}</span>${visual}</div>
+      ? [[rm("living"), rwL("Decorate in 3D", "3D로 방 꾸미기"), rwL("Drag furniture anywhere in your room", "가구를 원하는 곳에 놓아요")], [rm("master"), rwL("Build a floor plan", "나만의 평면도"), rwL("Grow your home up to 9 rooms", "방을 최대 9개까지 늘려요")], [rm("playroom"), rwL("A garden too", "마당도 꾸며요"), rwL("Trees, benches and flower beds", "나무, 벤치, 꽃밭까지")]]
+      : [[im("crown"), rwL("Fluffy 3D Koala", "복슬복슬 3D 코알라"), rwL("Hops and wiggles when you tap", "탭하면 폴짝 뛰어요")], [im("hoodie"), rwL("Dress up for real", "진짜처럼 입히기"), rwL("Jeans, sneakers, wings and more", "청바지, 운동화, 날개까지")], [`<span class="kt-coin">${COIN_SVG}</span>`, rwL("One purchase, both looks", "한 번 사면 둘 다"), rwL("Items bought in Sticker work here", "스티커에서 산 아이템도 OK")]];
+    return `<div class="rw-lock koala-dim-lock kt-teaser${room ? " is-room" : ""}">
+      <div class="kt-visual"><span class="kt-ribbon">${crown}${rwL("Premium", "프리미엄")}</span>${visual}</div>
       <div class="kt-body">
-        <div class="rw-lock-title">${room ? rwL("Build your dream home in 3D!", "3D로 나만의 집을 만들어요!") : rwL("See your Koala in 3D!", "내 코알라를 3D로 만나요!")}</div>
-        <ul class="kt-perks">${perks.map((x) => `<li>${x}</li>`).join("")}</ul>
-        <button type="button" class="pill accent small kt-cta" data-koala-upgrade>${rwL("Unlock Pop-out with Premium", "프리미엄으로 팝아웃 열기")}</button>
-        <p class="kt-note">${rwL("Sticker (2D) stays free for everyone.", "스티커(2D)는 모두에게 무료예요.")}</p>
+        <div class="kt-title">${room ? rwL("Build your dream home in 3D", "3D로 나만의 집을 만들어요") : rwL("Meet your Koala in 3D", "내 코알라를 3D로 만나요")}</div>
+        <ul class="kt-perks">${perks.map(([ic, t, d]) => `<li><span class="kt-ic">${ic}</span><span class="kt-tx"><b>${t}</b><small>${d}</small></span></li>`).join("")}</ul>
+        <button type="button" class="kt-cta" data-koala-upgrade>${crown}<span>${rwL("Unlock Pop-out", "팝아웃 열기")}</span></button>
+        <p class="kt-note">${rwL("Sticker (2D) stays free for everyone", "스티커(2D)는 모두에게 무료예요")}</p>
       </div></div>`;
   }
   return `<div class="koala-dim3d"><div id="kh-host" class="kh-app kh-embed"></div></div>`;

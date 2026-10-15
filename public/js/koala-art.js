@@ -192,7 +192,7 @@
   // 3D/2D parity: flat-vector twins of the Pop-out items that had no Sticker version yet.
   const pantsPath = (c, d) => `<path d="M62 152 Q100 160 138 152 L142 187 Q124 191 104 187 L100 171 L96 187 Q76 191 58 187Z" fill="${c}"/><path d="M62 152 Q100 160 138 152 L138 158 Q100 166 62 158Z" fill="${d}"/><path d="M100 171 V160" stroke="${d}" stroke-width="2"/>`;
   const shortsPath = (c, d) => `<path d="M62 152 Q100 160 138 152 L141 176 Q122 180 104 177 L100 169 L96 177 Q78 180 59 176Z" fill="${c}"/><path d="M62 152 Q100 160 138 152 L138 158 Q100 166 62 158Z" fill="${d}"/>`;
-  const skirtPath = (c, d, w) => `<path d="M64 152 Q100 160 136 152 L${136 + w} 182 Q100 190 ${64 - w} 182Z" fill="${c}"/><path d="M64 152 Q100 160 136 152 L136 158 Q100 166 64 158Z" fill="${d}"/>`;
+  const skirtPath = (c, d, w, hem = 182) => `<path d="M64 152 Q100 160 136 152 L${136 + w} ${hem} Q100 ${hem + 8} ${64 - w} ${hem}Z" fill="${c}"/><path d="M64 152 Q100 160 136 152 L136 158 Q100 166 64 158Z" fill="${d}"/>`;
   const wing = (c, d) => `<path d="M62 118 C34 96 14 108 18 132 C20 148 40 158 60 150Z" fill="${c}" stroke="${d}" stroke-width="2"/><path d="M138 118 C166 96 186 108 182 132 C180 148 160 158 140 150Z" fill="${c}" stroke="${d}" stroke-width="2"/>`;
   Object.assign(ART, {
     bushHat: { view: "head", front: `<path d="M66 58 C64 34 82 26 100 26 C118 26 136 34 134 58Z" fill="#c8a96a"/><path d="M40 62 Q100 78 160 62 Q150 54 134 56 Q100 66 66 56 Q50 54 40 62Z" fill="#b08d4f"/><path d="M66 56 Q100 66 134 56 L134 49 Q100 59 66 49Z" fill="#6b4f2a"/>` },
@@ -255,15 +255,21 @@
   ["angelWings", "butterflyWings"].forEach((i) => { SLOT_OF[i] = "accessory"; });
   ["cowboyBoots", "sandals"].forEach((i) => { SLOT_OF[i] = "shoes"; });
 
-  // Standing pose: same head and torso as BASE, but with real legs and feet below. Shoes shift down with the feet.
-  const STAND_DY = 54;
+  // Standing pose: same head, arms and torso as BASE, plus short chubby legs and feet below.
+  // Shoes shift down with the feet; pants, shorts and skirts have their own standing shapes.
+  const STAND_DY = 26;
   const STAND_BASE = BASE
-    .replace(/<ellipse class="kp-footL"[^>]*\/><ellipse class="kp-footR"[^>]*\/>/, `<ellipse cx="72" cy="${182 + STAND_DY}" rx="20" ry="9" fill="#8d9c97"/><ellipse cx="128" cy="${182 + STAND_DY}" rx="20" ry="9" fill="#8d9c97"/><rect x="58" y="166" width="28" height="68" rx="14" fill="#a9b7b2"/><rect x="114" y="166" width="28" height="68" rx="14" fill="#a9b7b2"/>`)
+    .replace(/<ellipse class="kp-footL"[^>]*\/><ellipse class="kp-footR"[^>]*\/>/, `<ellipse cx="72" cy="${182 + STAND_DY}" rx="21" ry="9.5" fill="#8d9c97"/><ellipse cx="128" cy="${182 + STAND_DY}" rx="21" ry="9.5" fill="#8d9c97"/><rect x="57" y="164" width="32" height="42" rx="16" fill="#a9b7b2"/><rect x="111" y="164" width="32" height="42" rx="16" fill="#a9b7b2"/>`)
     .replace(/<ellipse class="kp-thighL"[^>]*\/><ellipse class="kp-thighR"[^>]*\/>/, "");
-  const standPants = (c, d, cuff) => `<path d="M60 154 Q100 164 140 154 L147 ${230} Q130 234 112 231 L100 186 L88 231 Q70 234 53 ${230}Z" fill="${c}"/><path d="M60 154 Q100 164 140 154 L140 160 Q100 170 60 160Z" fill="${d}"/><path d="M100 186 V164" stroke="${d}" stroke-width="2"/>${cuff ? `<path d="M54 226 Q71 231 88 227 M112 227 Q129 231 146 226" stroke="${cuff}" stroke-width="4" fill="none" stroke-linecap="round"/>` : ""}`;
+  const standPants = (c, d, cuff) => `<path d="M58 150 Q100 162 142 150 L146 206 Q127 211 110 207 L100 178 L90 207 Q73 211 54 206Z" fill="${c}"/><path d="M58 150 Q100 162 142 150 L141 158 Q100 170 59 158Z" fill="${d}"/><path d="M100 178 V164" stroke="${d}" stroke-width="2"/>${cuff ? `<path d="M55 202 Q72 207 90 203 M110 203 Q128 207 145 202" stroke="${cuff}" stroke-width="4" fill="none" stroke-linecap="round"/>` : ""}`;
   ART.jeans.stand = standPants("#4f7fd1", "#3a63ad");
-  ART.cargoPants.stand = standPants("#7a8a4a", "#5e6c36") + `<rect x="60" y="180" width="15" height="12" rx="2" fill="#66753a"/><rect x="125" y="180" width="15" height="12" rx="2" fill="#66753a"/>`;
+  ART.cargoPants.stand = standPants("#7a8a4a", "#5e6c36") + `<rect x="60" y="176" width="16" height="12" rx="2" fill="#66753a"/><rect x="124" y="176" width="16" height="12" rx="2" fill="#66753a"/>`;
   ART.sweatpants.stand = standPants("#30406f", "#222f55", "#8a99c8");
+  ART.khakiShorts.stand = `<path d="M58 150 Q100 162 142 150 L146 201 Q127 206 110 202 L100 180 L90 202 Q73 206 54 201Z" fill="#c9b27a"/><path d="M58 150 Q100 162 142 150 L141 158 Q100 170 59 158Z" fill="#a8905a"/>`;
+  ART.plaidSkirt.stand = skirtPath("#d9506a", "#a93049", 10, 200) + `<path d="M70 162 L62 198 M88 165 L84 202 M104 166 L104 203 M120 165 L124 202 M136 162 L142 198" stroke="#fde68a" stroke-width="2"/>`;
+  ART.denimSkirt.stand = skirtPath("#5b8fd8", "#3f6fb5", 6, 199) + `<path d="M100 164 V199" stroke="#93b7ec" stroke-width="2" stroke-dasharray="3 3"/>`;
+  ART.flowerSkirt.stand = skirtPath("#f9a8d4", "#ec7fb4", 12, 202) + `<g fill="#fff"><circle cx="76" cy="190" r="3.4"/><circle cx="104" cy="196" r="3.4"/><circle cx="128" cy="189" r="3.4"/></g><g fill="#fde047"><circle cx="76" cy="190" r="1.3"/><circle cx="104" cy="196" r="1.3"/><circle cx="128" cy="189" r="1.3"/></g>`;
+  ART.tutu.stand = skirtPath("#f9c2e3", "#e879b9", 18, 200) + `<path d="M48 196 Q76 206 100 199 Q124 206 152 196" stroke="#fff" stroke-width="2.4" fill="none"/>`;
 
   function layer(equipped, order, side, stand) {
     return order.map((slot) => {
@@ -703,9 +709,9 @@
     ["pet", "plant"].forEach((l) => { const id = byLayer[l]; if (id && !(over[id] && over[id].hide)) stack.push(entry(id, id, over[id])); });
     (L.extra || []).forEach((x) => { if (ROOM_ART[x.id] && ROOM_ART[x.id].layer !== "wall") stack.push(entry(x.id, "x:" + x.uid, x)); });
     const standing = o.pose === "stand";
-    const koala = avatar(koalaEq, { view: "full", pose: o.pose }).replace('class="koala-avatar-svg" ', "").replace("<svg ", standing ? '<svg x="106" y="68" width="108" height="' + (111 * (259 / 205)).toFixed(1) + '" ' : '<svg x="106" y="84" width="108" height="111" ');
+    const koala = avatar(koalaEq, { view: "full", pose: o.pose }).replace('class="koala-avatar-svg" ', "").replace("<svg ", standing ? '<svg x="106" y="74" width="108" height="124.7" ' : '<svg x="106" y="84" width="108" height="111" ');
     const kst = over.koala;
-    const shadow = o.shadow ? `<ellipse cx="160" cy="${standing ? 206 : 182}" rx="${standing ? 36 : 42}" ry="5.5" fill="#000" opacity=".16"/>` : "";
+    const shadow = o.shadow ? `<ellipse cx="160" cy="${standing ? 195 : 182}" rx="${standing ? 38 : 42}" ry="5.5" fill="#000" opacity=".16"/>` : "";
     // opts.bare: just the wall and floor (the 3D koala page draws its own koala on top of this backdrop)
     if (!o.bare) stack.push({ order: 10000 + ((kst && kst.z) || 0) * 100 + 50, svg: `<g data-item="koala" data-key="koala"${o.pick === "koala" ? ' class="koala-picked"' : ""}${layoutTransform(over, "koala", 160, 140)}>${shadow}${koala}</g>` });
     stack.sort((a, b) => a.order - b.order);
