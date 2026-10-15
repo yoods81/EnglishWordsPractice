@@ -13700,3 +13700,13 @@ html:root body #view-koala .koala-cats-wrap .koala-cat { flex: 0 0 auto; white-s
 .koala-cat { display: inline-flex; align-items: center; gap: 6px; }
 .koala-cat .koala-cat-ic { width: 26px; height: 26px; object-fit: contain; flex: none; margin-left: -4px; filter: drop-shadow(0 1px 1px rgba(0, 60, 50, .25)); }
 html body #view-koala .koala-cats-wrap .koala-cat { display: inline-flex; }
+
+/* "My items" button: cloud bubble (design J) */
+html:root body #view-koala .koala-dimrow .koala-own-btn { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; height: 44px; padding: 0 20px 0 12px; margin: 0 0 6px; border: 0 !important; border-radius: 24px 24px 24px 8px; background: linear-gradient(135deg, #ffd9ec, #d9e6ff); color: #5a2a6e; font-weight: 900; box-shadow: 0 4px 12px rgba(150, 110, 220, .3); transition: transform .12s; }
+html:root body #view-koala .koala-dimrow .koala-own-btn::after { content: "\2726"; position: absolute; top: -2px; right: 2px; color: #ffb830; font-size: 1.1rem; animation: koalaTw 1.8s ease-in-out infinite; pointer-events: none; }
+html:root body #view-koala .koala-dimrow .koala-own-btn:active { transform: scale(.96); }
+html:root body #view-koala .koala-dimrow .koala-own-btn.on { background: linear-gradient(135deg, #b98cf0, #7aa7ff); color: #fff; box-shadow: 0 4px 12px rgba(122, 100, 220, .45); }
+html:root body #view-koala .koala-dimrow .koala-own-btn .koala-own-ic { width: 26px; height: 26px; }
+html:root[data-theme="dark"] body #view-koala .koala-dimrow .koala-own-btn:not(.on) { background: linear-gradient(135deg, #5a3a6e, #35508a); color: #fff; }
+@keyframes koalaTw { 50% { transform: scale(1.35) rotate(20deg); opacity: .7; } }
+@media (prefers-reduced-motion: reduce) { html:root body #view-koala .koala-dimrow .koala-own-btn::after { animation: none; } }
