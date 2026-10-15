@@ -13671,3 +13671,11 @@ html body #view-koala .koala-dimrow.ctx-3d-char.is-paid .koala-dim-btn.on, html 
 html body #view-koala .koala-dimrow .koala-own-btn { margin: 0 0 6px; border: 0 !important; border-radius: 10px; background: #fff; color: var(--accent-dark, #16906d); box-shadow: 0 1px 3px rgba(10, 60, 50, .18) !important; padding: 0 14px; min-height: 36px; }
 html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent); color: #fff; }
 .koala-dimrow.ctx-2d-char + .koala-studio { margin-top: -5px; }
+
+/* Tabs flush with the card below (3D contexts, free teaser + paid wardrobe/room) */
+html body #view-koala .koala-dimrow + .koala-dim3d { margin-top: -3px; position: relative; z-index: 1; }
+html body #view-koala .koala-dimrow + .koala-dim3d > .kt-teaser,
+html body #view-koala .koala-dimrow + .koala-dim3d > #kh-host { border-top-left-radius: 0; }
+html body #view-koala .koala-dimrow.ctx-3d-char.is-paid + .koala-dim3d #kh-host,
+html body #view-koala .koala-dimrow.ctx-3d-room.is-paid + .koala-dim3d #kh-host { border-top-left-radius: 0; }
+html body #view-koala .koala-dimrow + .kt-teaser { margin-top: -3px; border-top-left-radius: 0; position: relative; z-index: 1; }
