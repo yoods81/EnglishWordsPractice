@@ -15593,6 +15593,7 @@ function koalaSaleToast(name, res) {
 }
 
 // Top half of the studio: coin bar, the live stage and the category tabs.
+let koalaSit = false;
 function koalaStudioTopHtml(k, mode) {
   const lv = KoalaCore.levelInfo(k.earned);
   const eq = koalaPreviewEq(k);
@@ -15601,12 +15602,12 @@ function koalaStudioTopHtml(k, mode) {
   const scene = KoalaArt.room(eq, eq, {
     label: mode === "room" ? rwL("Your Koala's Study Room", "나의 코알라 공부방") : rwL("Your Koala", "나의 코알라"),
     shadow: true,
-    view: mode === "room" ? undefined : "60 78 200 137.5",
+    view: mode === "room" ? undefined : "88 48 144 172",
     sub: k.items.sub || {},
     layout: mode === "room" ? roomLayout() : undefined,
     pick: mode === "room" ? koalaPick : null,
   });
-  return `<div class="koala-studio-top"><div class="koala-studio-preview">
+  return `<div class="koala-studio-top${mode === "room" ? "" : " is-char"}"><div class="koala-studio-preview">
     <div class="koala-studio-bar">
       <button type="button" class="koala-back${koalaOwnedView ? " on" : ""}" data-koala-owned aria-pressed="${koalaOwnedView}">${koalaOwnedView ? rwL("✓ Back to shop", "✓ 상점으로") : rwL("🎒 My items", "🎒 내 아이템")}</button>
       <span class="koala-studio-lv">${rwL(`Lv. ${lv.level}`, `Lv. ${lv.level}`)}</span>
@@ -15614,7 +15615,7 @@ function koalaStudioTopHtml(k, mode) {
     </div>
     ${mode === "room"
       ? `<div class="koala-stage is-room" id="koala-stage">${scene}<button type="button" class="koala-zoom-tag" data-koala-zoom="room" aria-label="${rwL("See the room bigger", "방 크게 보기")}">${rwL("🔍 Bigger", "🔍 크게 보기")}</button></div>`
-      : `<div class="koala-stage is-${mode}" id="koala-stage" role="button" tabindex="0" data-koala-zoom="koala" aria-label="${rwL("Tap to see it bigger", "눌러서 크게 보기")}">${scene}<span class="koala-zoom-tag" aria-hidden="true">${rwL("🔍 Bigger", "🔍 크게 보기")}</span></div>`}
+      : `<div class="koala-stage is-${mode}${koalaSit ? " is-sit" : ""}" id="koala-stage" role="button" tabindex="0" data-koala-sit aria-pressed="${koalaSit}" aria-label="${rwL("Tap the koala to make it sit", "코알라를 눌러 앉혀 보세요")}">${scene}<p class="koala-stage-tip">${rwL("Tap the koala!", "코알라를 눌러 보세요!")}</p></div>`}
     ${koalaTryBarHtml()}${mode === "room" ? koalaSubBoxHtml(k, "is-in-preview") : ""}</div>
   </div>`;
 }
@@ -16328,6 +16329,8 @@ document.addEventListener("click", (e) => {
   if (e.target.closest("[data-koala-pick-clear]")) { koalaPick = null; renderKoala(); return; }
   const subCard = e.target.closest("[data-koala-sub]");
   if (subCard) { const [p, s] = subCard.dataset.koalaSub.split("|"); openKoalaSubDetail(p, s); return; }
+  const sitStage = e.target.closest && e.target.closest("[data-koala-sit]");
+  if (sitStage) { koalaSit = !koalaSit; sitStage.classList.toggle("is-sit", koalaSit); sitStage.setAttribute("aria-pressed", String(koalaSit)); return; }
   const sceneItem = e.target.closest && e.target.closest("#koala-stage g[data-item]");
   if (sceneItem && !e.target.closest("[data-koala-zoom]")) {
     const id = sceneItem.dataset.item;
@@ -16349,6 +16352,7 @@ document.addEventListener("click", (e) => {
 });
 document.addEventListener("keydown", (e) => {
   if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("[data-koala-zoom]")) { e.preventDefault(); openKoalaZoom(e.target.dataset.koalaZoom); }
+  else if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("[data-koala-sit]")) { e.preventDefault(); e.target.click(); }
 });
 
 /* ---- Admin: Koala Coins ---- */

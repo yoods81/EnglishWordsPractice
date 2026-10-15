@@ -938,6 +938,8 @@
     const S = H.load();
     S.worn = S.worn || {};
     const slotName = { hat: T("머리", "Head"), face: T("얼굴", "Face"), neck: T("목", "Neck"), body: T("상의", "Tops"), legs: T("하의", "Bottoms"), back: T("등", "Back"), feet: T("신발", "Shoes") };
+    const slotIcon = { hat: "🎩", face: "👓", neck: "🧣", body: "👕", legs: "👖", back: "🎒", feet: "👟" };
+    const chipName = (sl) => `${slotIcon[sl] || ""} ${slotName[sl]}`;
     const slots = Object.keys(KSLOT);
     if (!KSLOT[wardSlot]) wardSlot = slots[0];
     const draw = () => {
@@ -947,7 +949,7 @@
       root.className = "kh-app kh-embed kh-ward";
       fit(root);
       root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage">${wardBackdrop()}<svg class="kh-ward-koala" viewBox="64 20 553 1020" role="img" aria-label="${T("3D 코알라", "3D Koala")}"><ellipse cx="340" cy="962" rx="205" ry="22" fill="#000" opacity=".16"/><g class="kh-wbody">${imgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
-        <aside class="kh-panel">${chipsHtml(slots.map((sl) => [sl, "", slotName[sl]]), wardSlot)}
+        <aside class="kh-panel">${chipsHtml(slots.map((sl) => [sl, "", chipName(sl)]), wardSlot)}
         <div class="kh-grid">${shelfHead(slotName[wardSlot], `${S.worn[wardSlot] ? 1 : 0}/${KSLOT[wardSlot].length}`)}<div class="kh-items-grid">${KSLOT[wardSlot].map((n) => `<button type="button" class="kh-item kh-kitem${S.worn[wardSlot] === n ? " on" : ""}" data-wear="${wardSlot}:${n}" aria-pressed="${S.worn[wardSlot] === n}"><img src="${kimg(n)}" alt="" draggable="false"><span class="kh-nm">${esc(T(KNAME[n][0], KNAME[n][1]))}</span><span class="kh-pr kh-state">${S.worn[wardSlot] === n ? T("입는 중", "Wearing") : T("입기", "Wear")}</span></button>`).join("")}</div>
         ${wornN ? `<button type="button" class="kh-btn alt kh-clear" data-clear>${T("모두 벗기기", "Take everything off")}</button>` : ""}</div></aside>`;
       root.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { wardSlot = b.dataset.tab; draw(); }; });

@@ -195,12 +195,12 @@
   const BACK_ORDER = ["clothing", "accessory"];
 
   const BASE = `
-    <ellipse cx="72" cy="182" rx="20" ry="9" fill="#8d9c97"/><ellipse cx="128" cy="182" rx="20" ry="9" fill="#8d9c97"/>
+    <ellipse class="kp-footL" cx="72" cy="182" rx="20" ry="9" fill="#8d9c97"/><ellipse class="kp-footR" cx="128" cy="182" rx="20" ry="9" fill="#8d9c97"/>
     <ellipse cx="100" cy="146" rx="46" ry="40" fill="#a9b7b2"/>
     <ellipse cx="100" cy="152" rx="28" ry="28" fill="#e3ebe8"/>
-    <ellipse cx="66" cy="168" rx="20" ry="15" fill="#a9b7b2"/><ellipse cx="134" cy="168" rx="20" ry="15" fill="#a9b7b2"/>
-    <line x1="64" y1="124" x2="46" y2="152" stroke="#a9b7b2" stroke-width="14" stroke-linecap="round"/><circle cx="45" cy="154" r="8" fill="#8d9c97"/>
-    <line x1="136" y1="124" x2="154" y2="152" stroke="#a9b7b2" stroke-width="14" stroke-linecap="round"/><circle cx="155" cy="154" r="8" fill="#8d9c97"/>
+    <ellipse class="kp-thighL" cx="66" cy="168" rx="20" ry="15" fill="#a9b7b2"/><ellipse class="kp-thighR" cx="134" cy="168" rx="20" ry="15" fill="#a9b7b2"/>
+    <g class="kp-armL"><line x1="64" y1="124" x2="46" y2="152" stroke="#a9b7b2" stroke-width="14" stroke-linecap="round"/><circle cx="45" cy="154" r="8" fill="#8d9c97"/></g>
+    <g class="kp-armR"><line x1="136" y1="124" x2="154" y2="152" stroke="#a9b7b2" stroke-width="14" stroke-linecap="round"/><circle cx="155" cy="154" r="8" fill="#8d9c97"/></g>
     <circle cx="50" cy="66" r="24" fill="#a9b7b2"/><circle cx="50" cy="66" r="15" fill="#eef2f0"/>
     <path d="M42 62 q6 -6 12 0 M40 70 q8 -5 14 1" stroke="#c9d3cf" stroke-width="2" fill="none" stroke-linecap="round"/>
     <circle cx="150" cy="66" r="24" fill="#a9b7b2"/><circle cx="150" cy="66" r="15" fill="#eef2f0"/>
@@ -232,7 +232,7 @@
     return order.map((slot) => {
       const id = equipped && equipped[slot];
       const art = id && ART[id];
-      return art && art[side] && SLOT_OF[id] === slot ? `<g data-item="${id}" data-layer="${side}">${art[side]}</g>` : "";
+      return art && art[side] && SLOT_OF[id] === slot ? `<g data-item="${id}" data-layer="${side}" data-slot="${slot}">${art[side]}</g>` : "";
     }).join("");
   }
 

@@ -13461,3 +13461,32 @@ select.admin-role-select { align-items: center; }
 .room-inv-card span { max-width: 68px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
 .room-ghost { position: fixed; z-index: 10000; width: 72px; height: 60px; transform: translate(-50%, -50%); pointer-events: none; opacity: .85; filter: drop-shadow(0 4px 6px rgba(0,0,0,.3)); }
 .room-ghost .koala-icon-svg { width: 100%; height: 100%; }
+
+/* ---- My Koala > Character: big card like the Pop-out one, item panel in the same 3-column layout ---- */
+.koala-studio-top.is-char { position: static; }
+.koala-stage.is-character { width: min(100%, calc(46vh * 144 / 172)); aspect-ratio: 144 / 172; cursor: pointer; }
+.koala-stage.is-character:focus-visible { outline: 3px solid var(--accent-dark); outline-offset: 2px; }
+.koala-stage-tip { position: absolute; left: 0; right: 0; bottom: 8px; margin: 0; text-align: center; z-index: 2; pointer-events: none; }
+.koala-stage-tip, .kh-ward-tip { font-family: var(--font-heading, inherit); font-weight: 800; font-size: 1.15rem; color: #2b3f39; text-shadow: 0 0 4px #fff, 0 0 8px #fff, 0 1px 0 #fff; }
+.koala-studio:has(.koala-stage.is-character) .koala-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.koala-studio:has(.koala-stage.is-character) .koala-grid .koala-item .koala-item-pic { height: 78px; }
+.koala-studio:has(.koala-stage.is-character) .koala-grid .koala-item-name { font-size: .88rem; }
+@media (min-width: 720px) {
+  .koala-studio:has(.koala-stage.is-character) { grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); }
+  .koala-stage.is-character { width: min(100%, calc(62vh * 144 / 172)); }
+}
+/* sitting pose (tap the koala) */
+.koala-stage .kp-footL, .koala-stage .kp-footR, .koala-stage .kp-thighL, .koala-stage .kp-thighR, .koala-stage .kp-armL, .koala-stage .kp-armR { transform-box: fill-box; transform-origin: center; transition: transform .35s cubic-bezier(.3, 1.5, .5, 1); }
+.koala-stage.is-sit .kp-footL { transform: translate(-16px, -6px) rotate(-18deg) scale(1.08); }
+.koala-stage.is-sit .kp-footR { transform: translate(16px, -6px) rotate(18deg) scale(1.08); }
+.koala-stage.is-sit .kp-thighL { transform: translate(-12px, 4px) scale(1.12, 1.05); }
+.koala-stage.is-sit .kp-thighR { transform: translate(12px, 4px) scale(1.12, 1.05); }
+.koala-stage.is-sit .kp-armL { transform: translate(8px, 10px) rotate(8deg); }
+.koala-stage.is-sit .kp-armR { transform: translate(-8px, 10px) rotate(-8deg); }
+.koala-stage.is-sit g[data-slot="shoes"] { opacity: 0; }
+/* Pop-out: category buttons look like the Sticker ones (one swipeable row of white chips) */
+.kh-ward .kh-cats { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 8px 10px 8px; }
+.kh-ward .kh-cats::-webkit-scrollbar { display: none; }
+.kh-ward .kh-cat { flex: 0 0 auto; min-height: 40px; border: 0; background: #fff; color: var(--accent-dark, #16a085); font-weight: 700; font-size: .95rem; box-shadow: 0 1px 3px rgba(10, 60, 50, .22); }
+.kh-ward .kh-cat.on { background: var(--accent, #2ec7a0); color: #fff; box-shadow: 0 2px 6px rgba(20, 160, 130, .35); }
+.kh-ward .kh-ward-tip { font-size: 1.15rem; color: #2b3f39; bottom: 10px; }
