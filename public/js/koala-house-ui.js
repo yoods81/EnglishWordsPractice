@@ -836,8 +836,8 @@
     const subIt = ses.subOf && curState().items.find((i) => i.uid === ses.subOf);
     if (ses.subOf && !(subIt && H.D[subIt.id] && H.D[subIt.id].subKind && curOpts.subs)) ses.subOf = null;
     if (ses.subOf) { subsPanel(panel, subIt); return; }
-    panel.innerHTML = `${chipsHtml(tabs, ses.tab)}<div class="kh-grid" id="kh-grid">${gridHtml(yard)}</div>`;
-    panel.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { ses.tab = b.dataset.tab; drawPanel(); }; });
+    panel.innerHTML = `${chipsHtml(tabs, roomOwned ? "" : ses.tab)}<div class="kh-grid" id="kh-grid">${gridHtml(yard)}</div>`;
+    panel.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { ses.tab = b.dataset.tab; if (roomOwned) { roomOwned = false; window.dispatchEvent(new CustomEvent("kh-owned-off")); } drawPanel(); }; });
     initCats(panel);
     wireGrid(panel.querySelector("#kh-grid"), yard);
   }
@@ -846,8 +846,14 @@
   }
   const HOUSE_IC = { cottage: "🏡", villa: "🏘️", twoStory: "🏠", modern: "🏢", cabin: "🛖", castle: "🏰" };
   const optBtn = (attr, key, on, ic, label, price, own) => `<button type="button" class="kh-sw kh-opt${on ? " on" : ""}${own === false ? " locked" : ""}" ${attr}="${key}" aria-pressed="${on}"><span class="kh-optic" aria-hidden="true">${ic}</span><span class="kh-sw-n">${esc(label)}</span>${own === false ? `<span class="kh-pr">${COIN}${price}</span>` : ""}</button>`;
+  let roomOwned = false;
+  window.KoalaHouse.setRoomOwned = (v) => { roomOwned = !!v; try { if (ses && ses.root && ses.root.querySelector("#kh-panel")) drawPanel(); } catch (e) { /* not mounted yet */ } };
   function gridHtml(yard) {
     const st = curState(), S = ses.S;
+    if (roomOwned) { // "My items": only what you own that fits here
+      const mine = Object.values(H.D).filter((d) => !d.virtual && (d.where === "both" || d.where === (yard ? "out" : "in")) && ownedItem(d) && d.price > 0).sort((a, b) => a.price - b.price);
+      return `${shelfHead(T("내 아이템", "My items"), `${mine.length}`)}${mine.length ? `<div class="kh-items-grid">${mine.map((d) => `<button type="button" class="kh-item" data-item="${d.id}" aria-label="${esc(nm(d))}">${H.thumbSvg(d.id)}<span class="kh-nm">${esc(nm(d))}</span></button>`).join("")}</div>` : `<p class="kh-empty">${T("아직 산 아이템이 없어요.", "You have not bought any items yet.")}</p>`}`;
+    }
     if (ses.tab === "style") {
       return `<h3>${T("벽지", "Wallpaper")}</h3><div class="kh-sws">${Object.keys(H.WALLS).map((k) => swatch("wall", k, H.WALLS[k], H.WALLS[k].p === 0 || !!S.walls[k], st.wall === k)).join("")}</div><h3>${T("바닥", "Floor")}</h3><div class="kh-sws">${Object.keys(H.FLOORS).filter((k) => !H.FLOORS[k].yard).map((k) => swatch("floor", k, H.FLOORS[k], H.FLOORS[k].p === 0 || !!S.floors[k], st.floor === k)).join("")}</div>`;
     }
