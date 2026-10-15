@@ -151,8 +151,19 @@
 
   // The shop panel is built like the 2D one: a row of category chips on top, the items of the chosen category below.
   function chipsHtml(tabs, cur) { // tabs: [id, icon, label]
-    return `<div class="kh-cats" role="tablist">${tabs.map((t) => `<button type="button" role="tab" class="kh-cat${t[0] === cur ? " on" : ""}" data-tab="${t[0]}" aria-selected="${t[0] === cur}">${esc(t[2])}</button>`).join("")}</div>`;
+    return `<div class="kh-cats-wrap"><button type="button" class="kh-cats-nav prev" data-cnav="-1" aria-label="${T("왼쪽으로", "Scroll left")}" hidden>‹</button><div class="kh-cats" role="tablist">${tabs.map((t) => `<button type="button" role="tab" class="kh-cat${t[0] === cur ? " on" : ""}" data-tab="${t[0]}" aria-selected="${t[0] === cur}">${esc(t[2])}</button>`).join("")}</div><button type="button" class="kh-cats-nav next" data-cnav="1" aria-label="${T("오른쪽으로", "Scroll right")}" hidden>›</button></div>`;
   }
+  // arrows + edge fade on the category row; centres the chosen chip
+  function initCats(root) {
+    const wrap = root.querySelector(".kh-cats-wrap"); if (!wrap) return;
+    const strip = wrap.querySelector(".kh-cats"), pv = wrap.querySelector(".kh-cats-nav.prev"), nx = wrap.querySelector(".kh-cats-nav.next");
+    const upd = () => { const mx = strip.scrollWidth - strip.clientWidth, l = strip.scrollLeft > 2, r = strip.scrollLeft < mx - 2; pv.hidden = !l; nx.hidden = !r; wrap.classList.toggle("can-left", l); wrap.classList.toggle("can-right", r); };
+    strip.addEventListener("scroll", upd, { passive: true });
+    wrap.querySelectorAll("[data-cnav]").forEach((b) => { b.onclick = () => strip.scrollBy({ left: Number(b.dataset.cnav) * Math.max(120, strip.clientWidth * 0.7), behavior: "smooth" }); });
+    const cur = strip.querySelector(".kh-cat.on"); if (cur) strip.scrollLeft = cur.offsetLeft - (strip.clientWidth - cur.offsetWidth) / 2;
+    upd(); requestAnimationFrame(upd);
+  }
+
   const shelfHead = (title, count) => `<div class="kh-shelf-head"><span class="kh-shelf-title">${esc(title)}${count ? ` <small>${count}</small>` : ""}</span></div>`;
   const press = (node, fn) => { node.onclick = fn; node.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fn(); } }; };
 
@@ -827,6 +838,7 @@
     if (ses.subOf) { subsPanel(panel, subIt); return; }
     panel.innerHTML = `${chipsHtml(tabs, ses.tab)}<div class="kh-grid" id="kh-grid">${gridHtml(yard)}</div>`;
     panel.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { ses.tab = b.dataset.tab; drawPanel(); }; });
+    initCats(panel);
     wireGrid(panel.querySelector("#kh-grid"), yard);
   }
   function swatch(kind, key, def, own, on) {
@@ -957,18 +969,11 @@
       root.className = "kh-app kh-embed kh-ward";
       fit(root);
       root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage">${wardBackdrop()}<svg class="kh-ward-koala" viewBox="64 20 553 1020" role="img" aria-label="${T("3D 코알라", "3D Koala")}"><ellipse cx="340" cy="962" rx="205" ry="22" fill="#000" opacity=".16"/><g class="kh-wbody">${imgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
-        <aside class="kh-panel"><div class="kh-cats-wrap"><button type="button" class="kh-cats-nav prev" data-cnav="-1" aria-label="${T("왼쪽으로", "Scroll left")}" hidden>‹</button>${chipsHtml(slots.map((sl) => [sl, "", chipName(sl)]), wardOwned ? "" : wardSlot)}<button type="button" class="kh-cats-nav next" data-cnav="1" aria-label="${T("오른쪽으로", "Scroll right")}" hidden>›</button></div>
+        <aside class="kh-panel">${chipsHtml(slots.map((sl) => [sl, "", chipName(sl)]), wardOwned ? "" : wardSlot)}
         ${wardOwned ? ownedHtml() : `<div class="kh-grid">${shelfHead(slotName[wardSlot], `${S.worn[wardSlot] ? 1 : 0}/${KSLOT[wardSlot].length}`)}<div class="kh-items-grid">${KSLOT[wardSlot].map((n) => itemBtn(wardSlot, n)).join("")}</div>
         ${wornN ? clearBtn : ""}</div>`}</aside>`;
       root.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { wardSlot = b.dataset.tab; if (wardOwned) { wardOwned = false; window.dispatchEvent(new CustomEvent("kh-owned-off")); } draw(); }; });
-      const strip = root.querySelector(".kh-cats"), pv = root.querySelector(".kh-cats-nav.prev"), nx = root.querySelector(".kh-cats-nav.next"), wrapC = root.querySelector(".kh-cats-wrap");
-      if (strip) {
-        const upd = () => { const mx = strip.scrollWidth - strip.clientWidth, l = strip.scrollLeft > 2, r = strip.scrollLeft < mx - 2; pv.hidden = !l; nx.hidden = !r; wrapC.classList.toggle("can-left", l); wrapC.classList.toggle("can-right", r); };
-        strip.addEventListener("scroll", upd, { passive: true });
-        root.querySelectorAll("[data-cnav]").forEach((b) => { b.onclick = () => strip.scrollBy({ left: Number(b.dataset.cnav) * Math.max(120, strip.clientWidth * 0.7), behavior: "smooth" }); });
-        const cur = strip.querySelector(".kh-cat.on"); if (cur) strip.scrollLeft = cur.offsetLeft - (strip.clientWidth - cur.offsetWidth) / 2;
-        upd(); requestAnimationFrame(upd);
-      }
+      initCats(root);
       root.querySelectorAll("[data-wear]").forEach((b) => { b.onclick = () => { const [slot, n] = b.dataset.wear.split(":"); if (S.worn[slot] === n) delete S.worn[slot]; else S.worn[slot] = n; H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); }; });
       const clr = root.querySelector("[data-clear]"); if (clr) clr.onclick = () => { S.worn = {}; H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); };
       const kb = root.querySelector(".kh-wbody"); root.querySelector("#kh-wstage").onclick = () => { kb.classList.remove("hop"); void kb.getBoundingClientRect(); kb.classList.add("hop"); };

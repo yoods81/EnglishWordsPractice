@@ -4673,7 +4673,7 @@ function renderAuthMenuKoala() {
   const cat = buildBadgeCatalog();
   const badges = cat.filter((b) => progress.badges[b.id]).length;
   authMenuKoalaEl.innerHTML = `<button type="button" class="auth-koala-avatar" data-koala-go="koala" aria-label="${rwL("Open My Koala", "나의 코알라 열기")}">
-      <span class="auth-koala-pic${pop ? " is-3d" : ""}" aria-hidden="true">${pop ? KoalaHouse.koala3d(undefined, "kh-k3d", "150 190 400 340") : KoalaArt.avatar(k.items.equipped, { view: "head" })}</span>
+      <span class="auth-koala-pic${pop ? " is-3d" : ""}" aria-hidden="true">${pop ? KoalaHouse.koala3d(undefined, "kh-k3d", "64 70 553 975") : KoalaArt.avatar(k.items.equipped, { view: "head" })}</span>
       <span class="auth-koala-lv">${rwL(`Lv. ${lv.level}`, `Lv. ${lv.level}`)}</span>
       <span class="koala-level-bar" aria-hidden="true"><span style="width:${lv.pct}%"></span></span></button>
     <div class="auth-koala-chips">
