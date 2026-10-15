@@ -255,10 +255,10 @@
         <div class="kh-scene" id="kh-scene"></div>
         <div class="kh-top over"><button type="button" class="kh-pillbtn" data-back aria-label="${T("집 전체 보기", "Back to the floor plan")}">${ic("left")}${ic("home")}<span>${T("평면도", "Floor plan")}</span></button>
           <h2 class="kh-title pill">${esc(roomLabel(curRoom()))}</h2><span class="kh-sp"></span>
-          <span class="kh-coins">${COIN}<b data-kh-coins>${coinsText()}</b></span>
+          <span class="kh-coins">${COIN}<b data-kh-coins>${coinsText()}</b></span><i class="kh-vr" aria-hidden="true"></i>
           <button type="button" class="kh-ibtn" data-zoom="out" aria-label="${T("작게", "Zoom out")}">${ic("minus")}</button><button type="button" class="kh-ibtn" data-zoom="in" aria-label="${T("크게", "Zoom in")}">${ic("plus")}</button>
           <button type="button" class="kh-ibtn" data-full aria-label="${T("크게 보기", "Full screen")}">${ic("maximize")}</button>
-          <button type="button" class="kh-pillbtn done" data-edit aria-pressed="true" aria-label="${T("꾸미기 끝내기", "Finish decorating")}">${ic("check")}<span>${T("완료", "Done")}</span></button></div>
+          <i class="kh-vr" aria-hidden="true"></i><button type="button" class="kh-pillbtn done" data-edit aria-pressed="true" aria-label="${T("꾸미기 끝내기", "Finish decorating")}">${ic("check")}<span>${T("완료", "Done")}</span></button></div>
         <div class="kh-menu" id="kh-menu" hidden></div><p class="kh-toast" role="status"></p></div>
       <aside class="kh-panel" id="kh-panel" aria-label="${T("아이템", "Items")}"></aside></div>`;
     const q = (s) => ses.root.querySelector(s);

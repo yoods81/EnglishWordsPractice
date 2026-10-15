@@ -15872,7 +15872,7 @@ window.addEventListener("kh-worn", () => {
 function koalaDimBarHtml() {
   const paid = canUsePaidFeatures();
   const b = (id, label) => `<button type="button" class="koala-dim-btn${koalaDim === id ? " on" : ""}" role="tab" aria-selected="${koalaDim === id}" data-koala-dim="${id}">${label}</button>`;
-  const bar = `<div class="koala-dim" role="tablist" aria-label="${rwL("Sticker or Pop-out Koala", "평면 / 입체 코알라 보기")}">${b("2d", rwL("Sticker", "평면"))}${b("3d", rwL("Pop-out", "입체") + (paid ? "" : " 👑"))}</div>`;
+  const bar = `<div class="koala-dim${koalaDim === "3d" ? " r" : ""}" role="tablist" aria-label="${rwL("Sticker or Pop-out Koala", "평면 / 입체 코알라 보기")}">${b("2d", rwL("Sticker", "평면"))}${b("3d", rwL("Pop-out", "입체") + (paid ? "" : " 👑"))}</div>`;
   const own = (koalaDim === "3d" && (koalaTab === "room" || !paid)) ? "" : `<button type="button" class="koala-back koala-own-btn${koalaOwnedView ? " on" : ""}" data-koala-owned aria-pressed="${koalaOwnedView}">${koalaOwnedView ? rwL("✓ Back to shop", "✓ 상점으로") : rwL("🎒 My items", "🎒 내 아이템")}</button>`;
   return `<div class="koala-dimrow">${bar}${own}</div>`;
 }

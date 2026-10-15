@@ -13538,3 +13538,27 @@ html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent
 .auth-menu .auth-koala-pic.is-3d { width: 112px; height: 168px; border-radius: 18px; }
 .auth-koala-pic.is-3d .kh-k3d { width: 100%; height: 100%; }
 .auth-menu .auth-koala-avatar .koala-level-bar { width: 112px; }
+
+/* ---- Design 3: sliding switch + one white dock ---- */
+.koala-dim { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 14px; background: #cfe9df; gap: 0; }
+.koala-dim::before { content: ""; position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 11px; background: #fff; box-shadow: 0 1px 4px rgba(20, 90, 70, .3); transition: transform .25s cubic-bezier(.3, 1.3, .5, 1); }
+.koala-dim.r::before { transform: translateX(100%); }
+.koala-dim-btn { position: relative; z-index: 1; border-radius: 11px; padding: 8px 22px; white-space: nowrap; }
+.koala-dim-btn.on { background: transparent; box-shadow: none; color: #1f3a33; }
+@media (prefers-reduced-motion: reduce) { .koala-dim::before { transition: none; } }
+html body #view-koala .koala-dimrow .koala-own-btn { background: transparent; color: var(--accent-dark); border: 1.5px solid var(--accent-dark) !important; box-shadow: none !important; border-radius: 14px; }
+html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent); color: #fff; border-color: var(--accent) !important; }
+.kh-top.over { left: 10px; right: 10px; top: 10px; width: auto; padding: 6px; gap: 0; background: #fff; border-radius: 16px; box-shadow: 0 6px 18px rgba(20, 90, 70, .16); }
+.kh-top.over .kh-ibtn, .kh-top.over .kh-pillbtn { height: 40px; border: 0; background: none; box-shadow: none; backdrop-filter: none; border-radius: 11px; color: #27403a; }
+.kh-top.over .kh-ibtn { width: 40px; }
+.kh-top.over .kh-ibtn:hover, .kh-top.over .kh-pillbtn:hover { background: #eaf6f1; box-shadow: none; }
+.kh-top.over .kh-title.pill { background: none; border: 0; box-shadow: none; backdrop-filter: none; padding: 0 12px; font-size: 1rem; height: 40px; display: inline-flex; align-items: center; }
+.kh-top.over .kh-coins { background: none; border: 0; box-shadow: none; padding: 0 10px; height: 40px; }
+.kh-top.over .kh-pillbtn.done { background: var(--accent, #22b98c); color: #fff; margin-left: 6px; }
+.kh-top.over .kh-pillbtn.done:hover { background: var(--accent-dark, #16a085); }
+.kh-vr { width: 1px; height: 22px; background: #d3e6de; margin: 0 6px; flex: 0 0 auto; }
+.kh-narrow .kh-top.over { padding: 4px; gap: 0; top: 8px; left: 8px; right: 8px; }
+.kh-narrow .kh-top.over .kh-ibtn, .kh-narrow .kh-top.over .kh-pillbtn, .kh-narrow .kh-top.over .kh-coins { height: 36px; }
+.kh-narrow .kh-top.over .kh-ibtn { width: 34px; }
+.kh-narrow .kh-top.over .kh-title.pill { padding: 0 8px; font-size: .9rem; }
+.kh-narrow .kh-vr { margin: 0 3px; }
