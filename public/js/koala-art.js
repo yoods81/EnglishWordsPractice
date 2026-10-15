@@ -210,6 +210,7 @@
     sandals: { view: "full", front: pair(`<path d="M52 186 Q72 194 92 186 L92 190 Q72 198 52 190Z" fill="#c8915a"/><path d="M60 184 L72 174 L84 184 M72 174 V184" stroke="#8a5a2b" stroke-width="3" fill="none" stroke-linecap="round"/>`) },
   });
 
+
   // Front layers are drawn in this slot order, so e.g. headwear always sits
   // on top of headphones, and glasses on top of the face.
   const FRONT_ORDER = ["bottoms", "clothing", "shoes", "jewelry", "accessory", "face", "headwear"];
@@ -254,11 +255,24 @@
   ["angelWings", "butterflyWings"].forEach((i) => { SLOT_OF[i] = "accessory"; });
   ["cowboyBoots", "sandals"].forEach((i) => { SLOT_OF[i] = "shoes"; });
 
-  function layer(equipped, order, side) {
+  // Standing pose: same head and torso as BASE, but with real legs and feet below. Shoes shift down with the feet.
+  const STAND_DY = 54;
+  const STAND_BASE = BASE
+    .replace(/<ellipse class="kp-footL"[^>]*\/><ellipse class="kp-footR"[^>]*\/>/, `<ellipse cx="72" cy="${182 + STAND_DY}" rx="20" ry="9" fill="#8d9c97"/><ellipse cx="128" cy="${182 + STAND_DY}" rx="20" ry="9" fill="#8d9c97"/><rect x="58" y="166" width="28" height="68" rx="14" fill="#a9b7b2"/><rect x="114" y="166" width="28" height="68" rx="14" fill="#a9b7b2"/>`)
+    .replace(/<ellipse class="kp-thighL"[^>]*\/><ellipse class="kp-thighR"[^>]*\/>/, "");
+  const standPants = (c, d, cuff) => `<path d="M60 154 Q100 164 140 154 L147 ${230} Q130 234 112 231 L100 186 L88 231 Q70 234 53 ${230}Z" fill="${c}"/><path d="M60 154 Q100 164 140 154 L140 160 Q100 170 60 160Z" fill="${d}"/><path d="M100 186 V164" stroke="${d}" stroke-width="2"/>${cuff ? `<path d="M54 226 Q71 231 88 227 M112 227 Q129 231 146 226" stroke="${cuff}" stroke-width="4" fill="none" stroke-linecap="round"/>` : ""}`;
+  ART.jeans.stand = standPants("#4f7fd1", "#3a63ad");
+  ART.cargoPants.stand = standPants("#7a8a4a", "#5e6c36") + `<rect x="60" y="180" width="15" height="12" rx="2" fill="#66753a"/><rect x="125" y="180" width="15" height="12" rx="2" fill="#66753a"/>`;
+  ART.sweatpants.stand = standPants("#30406f", "#222f55", "#8a99c8");
+
+  function layer(equipped, order, side, stand) {
     return order.map((slot) => {
       const id = equipped && equipped[slot];
       const art = id && ART[id];
-      return art && art[side] && SLOT_OF[id] === slot ? `<g data-item="${id}" data-layer="${side}" data-slot="${slot}">${art[side]}</g>` : "";
+      if (!(art && art[side] && SLOT_OF[id] === slot)) return "";
+      let body = stand && side === "front" && art.stand ? art.stand : art[side];
+      if (stand && side === "front" && slot === "shoes") body = `<g transform="translate(0 ${STAND_DY})">${body}</g>`;
+      return `<g data-item="${id}" data-layer="${side}" data-slot="${slot}">${body}</g>`;
     }).join("");
   }
 
@@ -266,10 +280,11 @@
   function avatar(equipped, opts) {
     const o = opts || {};
     const eq = equipped || {};
-    const viewBox = o.view === "head" ? HEAD_VIEW : FULL_VIEW;
+    const stand = o.pose === "stand";
+    const viewBox = o.view === "head" ? HEAD_VIEW : stand ? "0 0 200 " + (205 + STAND_DY) : FULL_VIEW;
     const label = o.label ? ` role="img" aria-label="${String(o.label).replace(/"/g, "&quot;")}"` : ` aria-hidden="true"`;
     return `<svg class="koala-avatar-svg" viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg"${label} focusable="false">` +
-      layer(eq, BACK_ORDER, "back") + BASE + layer(eq, FRONT_ORDER, "front") + `</svg>`;
+      layer(eq, BACK_ORDER, "back") + (stand ? STAND_BASE : BASE) + layer(eq, FRONT_ORDER, "front", stand) + `</svg>`;
   }
 
 
@@ -687,9 +702,10 @@
     Object.keys(byLayer).forEach((l) => { const id = byLayer[l]; if (l !== "wall" && l !== "pet" && l !== "plant" && !(over[id] && over[id].hide)) stack.push(entry(id, id, over[id])); });
     ["pet", "plant"].forEach((l) => { const id = byLayer[l]; if (id && !(over[id] && over[id].hide)) stack.push(entry(id, id, over[id])); });
     (L.extra || []).forEach((x) => { if (ROOM_ART[x.id] && ROOM_ART[x.id].layer !== "wall") stack.push(entry(x.id, "x:" + x.uid, x)); });
-    const koala = avatar(koalaEq, { view: "full" }).replace('class="koala-avatar-svg" ', "").replace("<svg ", '<svg x="106" y="84" width="108" height="111" ');
+    const standing = o.pose === "stand";
+    const koala = avatar(koalaEq, { view: "full", pose: o.pose }).replace('class="koala-avatar-svg" ', "").replace("<svg ", standing ? '<svg x="106" y="68" width="108" height="' + (111 * (259 / 205)).toFixed(1) + '" ' : '<svg x="106" y="84" width="108" height="111" ');
     const kst = over.koala;
-    const shadow = o.shadow ? '<ellipse cx="160" cy="182" rx="42" ry="5.5" fill="#000" opacity=".16"/>' : "";
+    const shadow = o.shadow ? `<ellipse cx="160" cy="${standing ? 206 : 182}" rx="${standing ? 36 : 42}" ry="5.5" fill="#000" opacity=".16"/>` : "";
     // opts.bare: just the wall and floor (the 3D koala page draws its own koala on top of this backdrop)
     if (!o.bare) stack.push({ order: 10000 + ((kst && kst.z) || 0) * 100 + 50, svg: `<g data-item="koala" data-key="koala"${o.pick === "koala" ? ' class="koala-picked"' : ""}${layoutTransform(over, "koala", 160, 140)}>${shadow}${koala}</g>` });
     stack.sort((a, b) => a.order - b.order);

@@ -15605,6 +15605,7 @@ function koalaStudioTopHtml(k, mode) {
     label: mode === "room" ? rwL("Your Koala's Study Room", "나의 코알라 공부방") : rwL("Your Koala", "나의 코알라"),
     shadow: true,
     view: mode === "room" ? undefined : "80 48 160 172",
+    pose: mode === "room" || koalaSit ? undefined : "stand", // Character page: standing until tapped, then sits
     sub: k.items.sub || {},
     layout: mode === "room" ? roomLayout() : undefined,
     pick: mode === "room" ? koalaPick : null,
@@ -15886,11 +15887,22 @@ function koalaDimBarHtml() {
 
 function koalaDim3dHtml() {
   if (!canUsePaidFeatures()) {
-    const what = koalaTab === "room" ? rwL("3D room decorating, a floor plan with more rooms, and a big garden", "3D 방 꾸미기, 방을 늘려 가는 평면도, 넓은 마당") : rwL("a 3D Koala you can dress up", "옷을 입혀 볼 수 있는 3D 코알라");
-    return `<div class="rw-lock koala-dim-lock"><div class="rw-lock-icon">👑</div>
-      <div class="rw-lock-title">${rwL("3D is for Premium", "3D는 프리미엄 기능이에요")}</div>
-      <p>${rwL("Premium unlocks " + what + ". 2D is free for everyone.", "프리미엄에서는 " + what + "을(를) 즐길 수 있어요. 2D는 모두에게 무료예요.")}</p>
-      <button type="button" class="pill accent small" data-koala-upgrade>${rwL("See Premium", "프리미엄 보기")}</button></div>`;
+    // Locked preview: shows what Premium looks like (pictures only, nothing interactive).
+    const room = koalaTab === "room";
+    const visual = room
+      ? `<div class="kt-rooms"><img src="img/rooms/living.webp" alt=""><img src="img/rooms/bedroom.webp" alt=""><img src="img/rooms/playroom.webp" alt=""><img src="img/rooms/kitchen.webp" alt=""></div>`
+      : `<img class="kt-koala" src="img/koala-premium-teaser.webp" alt="">`;
+    const perks = room
+      ? [rwL("🏠 Decorate rooms in 3D — drag furniture around", "🏠 3D로 가구를 끌어 방 꾸미기"), rwL("🗺️ Grow a floor plan with up to 9 rooms", "🗺️ 방을 최대 9개까지 늘리는 평면도"), rwL("🌳 A big garden to design too", "🌳 넓은 마당도 꾸밀 수 있어요")]
+      : [rwL("🧸 A fluffy 3D Koala that hops when you tap", "🧸 탭하면 폴짝 뛰는 복슬복슬 3D 코알라"), rwL("👖 Dress it up: jeans, sneakers, wings & more", "👖 청바지·운동화·날개까지 입혀 보세요"), rwL("🪙 Items you buy in Sticker work here too", "🪙 스티커에서 산 아이템도 그대로 입어요")];
+    return `<div class="rw-lock koala-dim-lock kt-teaser">
+      <div class="kt-visual"><span class="kt-ribbon">👑 ${rwL("Premium", "프리미엄")}</span>${visual}</div>
+      <div class="kt-body">
+        <div class="rw-lock-title">${room ? rwL("Build your dream home in 3D!", "3D로 나만의 집을 만들어요!") : rwL("See your Koala in 3D!", "내 코알라를 3D로 만나요!")}</div>
+        <ul class="kt-perks">${perks.map((x) => `<li>${x}</li>`).join("")}</ul>
+        <button type="button" class="pill accent small kt-cta" data-koala-upgrade>${rwL("Unlock Pop-out with Premium", "프리미엄으로 팝아웃 열기")}</button>
+        <p class="kt-note">${rwL("Sticker (2D) stays free for everyone.", "스티커(2D)는 모두에게 무료예요.")}</p>
+      </div></div>`;
   }
   return `<div class="koala-dim3d"><div id="kh-host" class="kh-app kh-embed"></div></div>`;
 }
@@ -16379,7 +16391,16 @@ document.addEventListener("click", (e) => {
   const subCard = e.target.closest("[data-koala-sub]");
   if (subCard) { const [p, s] = subCard.dataset.koalaSub.split("|"); openKoalaSubDetail(p, s); return; }
   const sitStage = e.target.closest && e.target.closest("[data-koala-sit]");
-  if (sitStage) { koalaSit = !koalaSit; sitStage.classList.toggle("is-sit", koalaSit); sitStage.setAttribute("aria-pressed", String(koalaSit)); return; }
+  if (sitStage) {
+    koalaSit = !koalaSit; sitStage.classList.toggle("is-sit", koalaSit); sitStage.setAttribute("aria-pressed", String(koalaSit));
+    const old = sitStage.querySelector(":scope > svg"), k = KoalaCore.ensureKoala(progress);
+    if (old) { // swap the standing and sitting drawings
+      const eq = koalaPreviewEq(k);
+      const sc = KoalaArt.room(eq, eq, { label: rwL("Your Koala", "나의 코알라"), shadow: true, view: "80 48 160 172", pose: koalaSit ? undefined : "stand", sub: k.items.sub || {} }).replace('class="koala-room-svg"', 'class="koala-room-svg" preserveAspectRatio="xMidYMax slice"');
+      old.outerHTML = sc;
+    }
+    return;
+  }
   const sceneItem = e.target.closest && e.target.closest("#koala-stage g[data-item]");
   if (sceneItem && !e.target.closest("[data-koala-zoom]")) {
     const id = sceneItem.dataset.item;

@@ -13586,3 +13586,24 @@ html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent
 .kh-app .kh-cats::-webkit-scrollbar { display: none; }
 .kh-app .kh-cat { flex: 0 0 auto; border: 0; background: #fff; color: var(--accent-dark, #16a085); box-shadow: 0 1px 3px rgba(10, 60, 50, .22); min-height: 40px; }
 .kh-app .kh-cat.on { background: var(--accent, #2ec7a0); color: #fff; box-shadow: 0 2px 6px rgba(20, 160, 130, .35); }
+
+/* ---- Pop-out locked preview (free members): shows what Premium looks like ---- */
+.kt-teaser { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; align-items: center; text-align: left; padding: 18px; background: linear-gradient(135deg, #fff7e0 0%, #e8fbf3 100%); border: 2px solid #f4d27a; border-radius: 22px; }
+.kt-visual { position: relative; display: grid; place-items: center; min-height: 240px; border-radius: 18px; background: radial-gradient(circle at 50% 40%, #fff 0%, #e6f7ef 70%); box-shadow: inset 0 0 0 2px #fff, 0 4px 14px rgba(20, 110, 85, .15); overflow: hidden; padding: 12px; }
+.kt-koala { max-height: 290px; width: auto; max-width: 100%; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .18)); animation: kt-float 3.2s ease-in-out infinite; }
+@keyframes kt-float { 50% { transform: translateY(-6px); } }
+.kt-rooms { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+.kt-rooms img { width: 100%; aspect-ratio: 1; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .15)); }
+.kt-ribbon { position: absolute; top: 10px; left: 10px; z-index: 1; background: linear-gradient(180deg, #ffd45a, #f5a623); color: #5a3a00; font-weight: 800; font-size: .8rem; padding: 4px 12px; border-radius: 999px; box-shadow: 0 2px 6px rgba(150, 90, 0, .35); }
+.kt-body .rw-lock-title { margin: 0 0 8px; font-size: 1.25rem; }
+.kt-perks { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; }
+.kt-perks li { background: rgba(255, 255, 255, .85); border-radius: 12px; padding: 9px 12px; font-weight: 700; font-size: .92rem; color: #27403a; box-shadow: 0 1px 3px rgba(10, 60, 50, .12); }
+.kt-cta { width: 100%; font-size: 1rem; padding: 12px 16px; }
+.kt-note { margin: 8px 0 0; text-align: center; font-size: .8rem; color: #5b7068; }
+@media (max-width: 620px) { .kt-teaser { grid-template-columns: 1fr; } .kt-koala { max-height: 230px; } .kt-visual { min-height: 200px; } }
+
+/* Character-page buttons use the same type size as the top navigation menu */
+html body #view-koala .koala-dim-btn,
+html body #view-koala .koala-dimrow .koala-own-btn,
+html body #view-koala .koala-cat,
+html body #view-koala .kh-app .kh-cat { font-size: 0.72rem; font-weight: 600; font-family: var(--font-heading); }
