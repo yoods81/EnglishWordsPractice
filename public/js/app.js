@@ -15868,7 +15868,7 @@ window.addEventListener("kh-worn", () => {
 function koalaDimBarHtml() {
   const paid = canUsePaidFeatures();
   const b = (id, label) => `<button type="button" class="koala-dim-btn${koalaDim === id ? " on" : ""}" role="tab" aria-selected="${koalaDim === id}" data-koala-dim="${id}">${label}</button>`;
-  return `<div class="koala-dim" role="tablist" aria-label="${rwL("Cartoon or Real Koala", "만화 / 리얼 코알라 보기")}">${b("2d", rwL("Cartoon", "만화"))}${b("3d", rwL("Real", "리얼") + (paid ? "" : " 👑"))}</div>`;
+  return `<div class="koala-dim" role="tablist" aria-label="${rwL("Sticker or Pop-out Koala", "평면 / 입체 코알라 보기")}">${b("2d", rwL("Sticker", "평면"))}${b("3d", rwL("Pop-out", "입체") + (paid ? "" : " 👑"))}</div>`;
 }
 
 function koalaDim3dHtml() {
