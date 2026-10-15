@@ -951,7 +951,10 @@
     return KoalaArt.room({}, {}, { bare: true }).replace('class="koala-room-svg"', 'class="kh-ward-bg" preserveAspectRatio="xMidYMax slice"');
   }
   let wardSlot = "hat";
-  let wardOwned = false;
+  let wardOwned = false, wardApi = null, wardMsg = "";
+  const ID2D_OVR = { glasses: "roundGlasses", scarf: "redScarf", bunnyslippers: "slippers", soccercleats: "soccerBoots" };
+  const id2d = (n) => ID2D_OVR[n] || (window.KoalaCore ? (KoalaCore.ITEMS.find((i) => i.id.toLowerCase() === n) || {}).id : n) || n;
+  window.KoalaHouse.setWardApi = (a) => { wardApi = a || null; };
   window.KoalaHouse.setWardOwned = (v) => { wardOwned = !!v; };
   function mountWardrobe(root, opts) {
     if (ses) destroy();
@@ -963,11 +966,17 @@
     const chipName = (sl) => `${slotIcon[sl] || ""} ${slotName[sl]}`;
     const slots = Object.keys(KSLOT);
     if (!KSLOT[wardSlot]) wardSlot = slots[0];
-    const itemBtn = (sl, n) => `<button type="button" class="kh-item kh-kitem${S.worn[sl] === n ? " on" : ""}" data-wear="${sl}:${n}" aria-pressed="${S.worn[sl] === n}"><img src="${kimg(n)}" alt="" draggable="false"><span class="kh-nm">${esc(T(KNAME[n][0], KNAME[n][1]))}</span><span class="kh-pr kh-state">${S.worn[sl] === n ? T("입는 중", "Wearing") : T("입기", "Wear")}</span></button>`;
+    const stOf = (n) => { const st = wardApi ? wardApi.status(id2d(n)) : { state: "owned" }; return st || { state: "owned" }; };
+    const hasIt = (n) => stOf(n).state === "owned";
+    const itemBtn = (sl, n) => {
+      const st = stOf(n), on = S.worn[sl] === n, own = st.state === "owned";
+      const tag = own ? (on ? T("입는 중", "Wearing") : T("입기", "Wear")) : st.state === "buyable" ? `💰 ${st.cost}` : (st.cost ? `💰 ${st.cost}` : `🔒 ${st.hint || ""}`);
+      return `<button type="button" class="kh-item kh-kitem${on ? " on" : ""}${own ? "" : st.state === "buyable" ? " kh-buy" : " kh-locked"}" data-wear="${sl}:${n}" aria-pressed="${on}"><img src="${kimg(n)}" alt="" draggable="false"><span class="kh-nm">${esc(T(KNAME[n][0], KNAME[n][1]))}</span><span class="kh-pr kh-state">${tag}</span></button>`;
+    };
     const clearBtn = `<button type="button" class="kh-btn alt kh-clear" data-clear>${T("모두 벗기기", "Take Off All")}</button>`;
     const ownedHtml = () => {
-      const on = slots.filter((sl) => S.worn[sl]);
-      return `<div class="kh-grid">${shelfHead(T("내 아이템", "My items"), `${on.length}`)}${on.length ? `<div class="kh-items-grid">${on.map((sl) => itemBtn(sl, S.worn[sl])).join("")}</div>${clearBtn}` : `<p class="kh-empty">${T("아직 입고 있는 아이템이 없어요.", "You are not wearing anything yet.")}</p>`}</div>`;
+      const all = []; slots.forEach((sl) => KSLOT[sl].forEach((n) => { if (hasIt(n)) all.push([sl, n]); }));
+      return `<div class="kh-grid">${shelfHead(T("내 아이템", "My items"), `${all.length}`)}${all.length ? `<div class="kh-items-grid">${all.map(([sl, n]) => itemBtn(sl, n)).join("")}</div>${slots.some((sl) => S.worn[sl]) ? clearBtn : ""}` : `<p class="kh-empty">${T("아직 구매한 아이템이 없어요.", "You haven't bought any items yet.")}</p>`}</div>`;
     };
     const draw = () => {
       const names = kordered(S.worn);
@@ -978,13 +987,21 @@
       root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage">${wardBackdrop()}<svg class="kh-ward-koala" viewBox="64 20 553 1020" role="img" aria-label="${T("3D 코알라", "3D Koala")}"><ellipse cx="340" cy="962" rx="205" ry="22" fill="#000" opacity=".16"/><g class="kh-wbody">${imgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
         <aside class="kh-panel">${chipsHtml(slots.map((sl) => [sl, "", chipName(sl)]), wardOwned ? "" : wardSlot)}
         ${wardOwned ? ownedHtml() : `<div class="kh-grid">${shelfHead(slotName[wardSlot], `${S.worn[wardSlot] ? 1 : 0}/${KSLOT[wardSlot].length}`)}<div class="kh-items-grid">${KSLOT[wardSlot].map((n) => itemBtn(wardSlot, n)).join("")}</div>
-        ${wornN ? clearBtn : ""}</div>`}</aside>`;
+        ${wornN ? clearBtn : ""}${wardMsg ? `<p class="kh-empty">${esc(wardMsg)}</p>` : ""}</div>`}</aside>`;
       root.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { wardSlot = b.dataset.tab; if (wardOwned) { wardOwned = false; window.dispatchEvent(new CustomEvent("kh-owned-off")); } draw(); }; });
       initCats(root);
-      root.querySelectorAll("[data-wear]").forEach((b) => { b.onclick = () => { const [slot, n] = b.dataset.wear.split(":"); if (S.worn[slot] === n) delete S.worn[slot]; else S.worn[slot] = n; H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); }; });
+      root.querySelectorAll("[data-wear]").forEach((b) => { b.onclick = () => {
+        const [slot, n] = b.dataset.wear.split(":"); const st = stOf(n);
+        if (st.state === "buyable") { if (!wardApi.buy(id2d(n))) { draw(); return; } }
+        else if (st.state !== "owned") { wardMsg = st.cost ? T("코인이 모자라요: ", "Not enough coins: ") + st.cost : st.hint ? T("잠겨 있어요: ", "Locked: ") + st.hint : T("아직 열 수 없어요.", "Not available yet."); draw(); return; }
+        wardMsg = "";
+        if (S.worn[slot] === n && st.state === "owned") delete S.worn[slot]; else S.worn[slot] = n;
+        H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw();
+      }; });
       const clr = root.querySelector("[data-clear]"); if (clr) clr.onclick = () => { S.worn = {}; H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); };
       const kb = root.querySelector(".kh-wbody"); root.querySelector("#kh-wstage").onclick = () => { kb.classList.remove("hop"); void kb.getBoundingClientRect(); kb.classList.add("hop"); };
     };
+    if (wardApi) { let ch = false; slots.forEach((sl) => { if (S.worn[sl] && !hasIt(S.worn[sl])) { delete S.worn[sl]; ch = true; } }); if (ch) H.persist(S); }
     draw();
   }
 

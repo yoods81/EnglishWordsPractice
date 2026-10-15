@@ -188,9 +188,31 @@
     snowBoots: { view: "full", front: pair(`<path d="M55 168 H89 V184 Q90 192 74 192 H58 Q52 192 52 186 V172 Q52 168 55 168Z" fill="#3b82f6"/><g fill="#fff"><circle cx="56" cy="166" r="5"/><circle cx="64" cy="164" r="5"/><circle cx="72" cy="163" r="5"/><circle cx="80" cy="164" r="5"/><circle cx="88" cy="166" r="5"/></g><path d="M52 190 H92" stroke="#e5e7eb" stroke-width="4" stroke-linecap="round"/><path d="M60 176 H84 M60 182 H84" stroke="#93c5fd" stroke-width="1.8"/>`) },
   });
 
+
+  // 3D/2D parity: flat-vector twins of the Pop-out items that had no Sticker version yet.
+  const pantsPath = (c, d) => `<path d="M62 152 Q100 160 138 152 L142 187 Q124 191 104 187 L100 171 L96 187 Q76 191 58 187Z" fill="${c}"/><path d="M62 152 Q100 160 138 152 L138 158 Q100 166 62 158Z" fill="${d}"/><path d="M100 171 V160" stroke="${d}" stroke-width="2"/>`;
+  const shortsPath = (c, d) => `<path d="M62 152 Q100 160 138 152 L141 176 Q122 180 104 177 L100 169 L96 177 Q78 180 59 176Z" fill="${c}"/><path d="M62 152 Q100 160 138 152 L138 158 Q100 166 62 158Z" fill="${d}"/>`;
+  const skirtPath = (c, d, w) => `<path d="M64 152 Q100 160 136 152 L${136 + w} 182 Q100 190 ${64 - w} 182Z" fill="${c}"/><path d="M64 152 Q100 160 136 152 L136 158 Q100 166 64 158Z" fill="${d}"/>`;
+  const wing = (c, d) => `<path d="M62 118 C34 96 14 108 18 132 C20 148 40 158 60 150Z" fill="${c}" stroke="${d}" stroke-width="2"/><path d="M138 118 C166 96 186 108 182 132 C180 148 160 158 140 150Z" fill="${c}" stroke="${d}" stroke-width="2"/>`;
+  Object.assign(ART, {
+    bushHat: { view: "head", front: `<path d="M66 58 C64 34 82 26 100 26 C118 26 136 34 134 58Z" fill="#c8a96a"/><path d="M40 62 Q100 78 160 62 Q150 54 134 56 Q100 66 66 56 Q50 54 40 62Z" fill="#b08d4f"/><path d="M66 56 Q100 66 134 56 L134 49 Q100 59 66 49Z" fill="#6b4f2a"/>` },
+    jeans: { view: "full", front: pantsPath("#4f7fd1", "#3a63ad") },
+    khakiShorts: { view: "full", front: shortsPath("#c9b27a", "#a8905a") },
+    cargoPants: { view: "full", front: pantsPath("#7a8a4a", "#5e6c36") + `<rect x="64" y="166" width="14" height="10" rx="2" fill="#66753a"/><rect x="122" y="166" width="14" height="10" rx="2" fill="#66753a"/>` },
+    sweatpants: { view: "full", front: pantsPath("#30406f", "#222f55") + `<path d="M62 187 Q76 191 96 187 M104 187 Q124 191 142 187" stroke="#8a99c8" stroke-width="3" fill="none"/>` },
+    plaidSkirt: { view: "full", front: skirtPath("#d9506a", "#a93049", 8) + `<path d="M72 160 L66 186 M88 162 L84 188 M104 162 L104 188 M120 162 L124 188 M134 160 L140 186" stroke="#fde68a" stroke-width="2"/>` },
+    denimSkirt: { view: "full", front: skirtPath("#5b8fd8", "#3f6fb5", 4) + `<path d="M100 160 V186" stroke="#93b7ec" stroke-width="2" stroke-dasharray="3 3"/>` },
+    flowerSkirt: { view: "full", front: skirtPath("#f9a8d4", "#ec7fb4", 10) + `<g fill="#fff"><circle cx="78" cy="172" r="3.2"/><circle cx="104" cy="178" r="3.2"/><circle cx="126" cy="170" r="3.2"/></g><g fill="#fde047"><circle cx="78" cy="172" r="1.2"/><circle cx="104" cy="178" r="1.2"/><circle cx="126" cy="170" r="1.2"/></g>` },
+    tutu: { view: "full", front: skirtPath("#f9c2e3", "#e879b9", 16) + `<path d="M52 180 Q76 190 100 184 Q124 190 148 180" stroke="#fff" stroke-width="2.4" fill="none"/>` },
+    angelWings: { view: "full", back: wing("#ffffff", "#cbd5e1"), front: "" },
+    butterflyWings: { view: "full", back: wing("#c4b5fd", "#7c3aed") + `<circle cx="34" cy="128" r="6" fill="#f9a8d4"/><circle cx="166" cy="128" r="6" fill="#f9a8d4"/>`, front: "" },
+    cowboyBoots: { view: "full", front: pair(`<path d="M55 162 H89 V184 Q90 192 74 192 H58 Q52 192 52 186 V168 Q52 162 55 162Z" fill="#a8693a" stroke="#7a4a22" stroke-width="2"/><path d="M56 170 Q72 178 88 170" stroke="#f3d6a4" stroke-width="2.4" fill="none"/><path d="M52 190 H92" stroke="#5b3a1a" stroke-width="4" stroke-linecap="round"/>`) },
+    sandals: { view: "full", front: pair(`<path d="M52 186 Q72 194 92 186 L92 190 Q72 198 52 190Z" fill="#c8915a"/><path d="M60 184 L72 174 L84 184 M72 174 V184" stroke="#8a5a2b" stroke-width="3" fill="none" stroke-linecap="round"/>`) },
+  });
+
   // Front layers are drawn in this slot order, so e.g. headwear always sits
   // on top of headphones, and glasses on top of the face.
-  const FRONT_ORDER = ["clothing", "shoes", "jewelry", "accessory", "face", "headwear"];
+  const FRONT_ORDER = ["bottoms", "clothing", "shoes", "jewelry", "accessory", "face", "headwear"];
   // Back layers sit behind the body (cape first, backpack in front of it).
   const BACK_ORDER = ["clothing", "accessory"];
 
@@ -227,6 +249,10 @@
   ["balloon", "magicWand", "umbrella", "guitar", "storyBook", "camera", "soccerBall"].forEach((i) => { SLOT_OF[i] = "accessory"; });
   ["pearlNecklace", "goldChain", "heartPendant", "starPendant", "diamondPendant", "goldEarrings", "hoopEarrings", "friendshipBracelet", "rubyBrooch", "hairClip"].forEach((i) => { SLOT_OF[i] = "jewelry"; });
   ["sneakers", "boots", "rainBoots", "flipFlops", "slippers", "balletShoes", "soccerBoots", "rollerSkates", "sparkleShoes", "snowBoots"].forEach((i) => { SLOT_OF[i] = "shoes"; });
+  ["bushHat"].forEach((i) => { SLOT_OF[i] = "headwear"; });
+  ["jeans", "khakiShorts", "cargoPants", "sweatpants", "plaidSkirt", "denimSkirt", "flowerSkirt", "tutu"].forEach((i) => { SLOT_OF[i] = "bottoms"; });
+  ["angelWings", "butterflyWings"].forEach((i) => { SLOT_OF[i] = "accessory"; });
+  ["cowboyBoots", "sandals"].forEach((i) => { SLOT_OF[i] = "shoes"; });
 
   function layer(equipped, order, side) {
     return order.map((slot) => {
@@ -755,6 +781,11 @@
     rollerSkates: "49 165 103 38",
     sparkleShoes: "49 167 103 28",
     snowBoots: "48 155 104 40",
+    bushHat: "36 20 128 62",
+    jeans: "50 148 100 46", khakiShorts: "50 148 100 36", cargoPants: "50 148 100 46", sweatpants: "50 148 100 46",
+    plaidSkirt: "40 148 120 44", denimSkirt: "46 148 108 40", flowerSkirt: "38 148 124 44", tutu: "34 148 132 46",
+    angelWings: "8 90 184 74", butterflyWings: "8 90 184 74",
+    cowboyBoots: "49 157 103 38", sandals: "48 168 104 32",
   };
 
   // Item-only picture for small shop cards: no koala, just the thing.

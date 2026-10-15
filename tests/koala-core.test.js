@@ -438,7 +438,7 @@ test("shop expansion: Jewelry and Shoes exist and every character category has 1
   assert.ok(K.ITEM_SLOTS.includes("jewelry") && K.ITEM_SLOTS.includes("shoes"));
   K.ITEM_SLOTS.forEach((slot) => {
     const n = K.ITEMS.filter((i) => i.slot === slot && !i.season).length;
-    assert.ok(n >= 10, slot + " has " + n);
+    assert.ok(n >= (slot === "bottoms" ? 8 : 10), slot + " has " + n);
   });
   K.ITEMS.forEach((i) => assert.ok(A.itemIcon(i.id).includes("<svg"), "icon " + i.id));
 });

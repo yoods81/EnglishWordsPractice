@@ -80,7 +80,7 @@
        { coins: N }        bought once with Koala Coins
        { streak: N }       unlocked automatically once the best streak >= N days
      Every requirement is shown to the child — nothing is hidden. */
-  const ITEM_SLOTS = ["headwear", "face", "clothing", "jewelry", "shoes", "accessory"];
+  const ITEM_SLOTS = ["headwear", "face", "clothing", "bottoms", "jewelry", "shoes", "accessory"];
   const ITEMS = [
     { id: "blueCap",    slot: "headwear",  name: { en: "Blue Cap",        ko: "파란 모자" },     unlock: { coins: 50 } },
     { id: "gradHat",    slot: "headwear",  name: { en: "Graduation Hat",  ko: "졸업 모자" },     unlock: { coins: 120 } },
@@ -148,6 +148,20 @@
     { id: "rollerSkates", slot: "shoes", name: { en: "Roller Skates", ko: "롤러스케이트" }, unlock: { coins: 130 } },
     { id: "sparkleShoes", slot: "shoes", name: { en: "Sparkle Shoes", ko: "반짝 신발" }, unlock: { coins: 120 } },
     { id: "snowBoots", slot: "shoes", name: { en: "Snow Boots", ko: "눈 부츠" }, unlock: { coins: 110 } },
+    // Parity with the Pop-out wardrobe: every Pop-out item has a flat Sticker twin.
+    { id: "bushHat", slot: "headwear", name: { en: "Bush Hat", ko: "부시햇" }, unlock: { coins: 80 } },
+    { id: "jeans", slot: "bottoms", name: { en: "Jeans", ko: "청바지" }, unlock: { coins: 90 } },
+    { id: "khakiShorts", slot: "bottoms", name: { en: "Khaki Shorts", ko: "카키 반바지" }, unlock: { coins: 70 } },
+    { id: "cargoPants", slot: "bottoms", name: { en: "Cargo Pants", ko: "카고 바지" }, unlock: { coins: 100 } },
+    { id: "sweatpants", slot: "bottoms", name: { en: "Jogger Pants", ko: "남색 조거팬츠" }, unlock: { coins: 80 } },
+    { id: "plaidSkirt", slot: "bottoms", name: { en: "Plaid Skirt", ko: "체크 치마" }, unlock: { coins: 90 } },
+    { id: "denimSkirt", slot: "bottoms", name: { en: "Denim Skirt", ko: "청치마" }, unlock: { coins: 90 } },
+    { id: "flowerSkirt", slot: "bottoms", name: { en: "Flower Skirt", ko: "꽃무늬 치마" }, unlock: { coins: 100 } },
+    { id: "tutu", slot: "bottoms", name: { en: "Tutu", ko: "튀튀 치마" }, unlock: { coins: 110 } },
+    { id: "angelWings", slot: "accessory", name: { en: "Angel Wings", ko: "천사 날개" }, unlock: { coins: 180 } },
+    { id: "butterflyWings", slot: "accessory", name: { en: "Butterfly Wings", ko: "나비 날개" }, unlock: { coins: 170 } },
+    { id: "cowboyBoots", slot: "shoes", name: { en: "Cowboy Boots", ko: "카우보이 부츠" }, unlock: { coins: 120 } },
+    { id: "sandals", slot: "shoes", name: { en: "Sandals", ko: "샌들" }, unlock: { coins: 60 } },
     // Study Room (Phase 4): same unlock rules, kind "room". One item per slot.
     { id: "creamWall",  kind: "room", slot: "wallpaper", name: { en: "Cream Wall",     ko: "크림색 벽지" },   unlock: { free: true } },
     { id: "mintWall",   kind: "room", slot: "wallpaper", name: { en: "Mint Wall",      ko: "민트색 벽지" },   unlock: { coins: 60 } },

@@ -15231,6 +15231,7 @@ const KOALA_SLOT_TITLES = () => ({
   headwear: rwL("🎩 Headwear", "🎩 머리"),
   face: rwL("👓 Face", "👓 얼굴"),
   clothing: rwL("👕 Clothing", "👕 옷"),
+  bottoms: rwL("👖 Bottoms", "👖 하의"),
   jewelry: rwL("💍 Jewelry", "💍 쥬얼리"),
   shoes: rwL("👟 Shoes", "👟 신발"),
   accessory: rwL("🎒 Accessories", "🎒 소품"),
@@ -15246,7 +15247,7 @@ const KOALA_SLOT_TITLES = () => ({
   pet: rwL("🐾 Pets", "🐾 반려동물"),
   toy: rwL("🧸 Toy Boxes", "🧸 장난감 상자"),
 });
-const KOALA_SLOT_EMOJI = { headwear: "🎩", face: "👓", clothing: "👕", jewelry: "💍", shoes: "👟", accessory: "🎒", wallpaper: "🎨", rug: "🟡", poster: "🖼️", desk: "📚", lamp: "💡", shelf: "📖", plant: "🪴", window: "🪟", garland: "🎏", pet: "🐾", toy: "🧸" };
+const KOALA_SLOT_EMOJI = { headwear: "🎩", face: "👓", clothing: "👕", bottoms: "👖", jewelry: "💍", shoes: "👟", accessory: "🎒", wallpaper: "🎨", rug: "🟡", poster: "🖼️", desk: "📚", lamp: "💡", shelf: "📖", plant: "🪴", window: "🪟", garland: "🎏", pet: "🐾", toy: "🧸" };
 let koalaDim = "2d"; // "2d" | "3d" (3D needs Premium)
 let koalaTab = "character"; // "character" | "room" | "coins" | "badges"
 let koalaHistoryAll = false; // Coin history: false = latest 10 only, true = everything kept (up to 100)
@@ -15894,12 +15895,39 @@ function koalaDim3dHtml() {
   return `<div class="koala-dim3d"><div id="kh-host" class="kh-app kh-embed"></div></div>`;
 }
 
+// Pop-out wardrobe items share the Sticker shop: one coin purchase (admin: free) opens both looks.
+function koalaSetWardApi() {
+  if (!KoalaHouse.setWardApi) return;
+  KoalaHouse.setWardApi({
+    status: (id) => {
+      const it = KoalaCore.itemById(id);
+      if (!it) return { state: "locked", hint: "?" };
+      const st = KoalaCore.itemStatus(progress, it, koalaOpts());
+      if (st.state === "equipped" || st.state === "owned") return { state: "owned" };
+      if (st.state === "buyable") return { state: "buyable", cost: it.unlock.coins };
+      const hint = st.need === "badge" ? rwL("Badge", "배지") : st.need === "streak" ? rwL(`${st.days}-day streak`, `${st.days}일 연속`) : st.need === "season" ? rwL("Seasonal", "시즌 한정") : `💰 ${st.cost}`;
+      return { state: "locked", hint, cost: st.cost };
+    },
+    buy: (id) => {
+      const it = KoalaCore.itemById(id);
+      if (!it) return false;
+      const prev = KoalaCore.ensureKoala(progress).items.equipped[it.slot];
+      const res = KoalaCore.buyItem(progress, id, koalaOpts());
+      if (!res.ok) return false;
+      const eq = KoalaCore.ensureKoala(progress).items.equipped;
+      if (prev) eq[it.slot] = prev; else delete eq[it.slot]; // the Sticker look stays as it was
+      checkBadges(); saveProgress();
+      return true;
+    },
+  });
+}
+
 function koalaMountDim3d() {
   const host = document.getElementById("kh-host");
   if (!host || !window.KoalaHouse || !KoalaHouse.mount) return;
   try {
     if (koalaTab === "room") { if (KoalaHouse.setRoomOwned) KoalaHouse.setRoomOwned(koalaOwnedView); KoalaHouse.mount(host, koalaHouseOpts()); }
-    else { if (KoalaHouse.setWardOwned) KoalaHouse.setWardOwned(koalaOwnedView); KoalaHouse.mountWardrobe(host, koalaHouseOpts()); }
+    else { koalaSetWardApi(); if (KoalaHouse.setWardOwned) KoalaHouse.setWardOwned(koalaOwnedView); KoalaHouse.mountWardrobe(host, koalaHouseOpts()); }
   } catch (err) { host.textContent = ""; console.error(err); }
 }
 
