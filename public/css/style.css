@@ -13653,15 +13653,21 @@ html body #view-koala .kh-app .kh-cat { font-size: 0.72rem; font-weight: 600; fo
 #koala-zoom .koala-zoom-card { width: 100vw; max-width: none; height: 100vh; height: 100dvh; max-height: none; border: 0; border-radius: 0; box-shadow: none; background: transparent; padding: 14px 16px 18px; display: flex; flex-direction: column; overflow: auto; }
 #koala-zoom .koala-zoom-stage { width: min(100%, calc((100vh - 240px) * 320 / 220), 1100px); width: min(100%, calc((100dvh - 240px) * 320 / 220), 1100px); min-width: min(100%, 300px); box-shadow: 0 6px 22px rgba(20, 110, 85, .2); border: 3px solid #fff; border-radius: 20px; flex: none; }
 
-/* ---- Sticker / Pop-out toggle: folder tabs joined to a white bar (option 5) ---- */
-html body #view-koala .koala-dimrow { display: flex; align-items: flex-end; margin: 10px 0 0; padding: 0 8px; border: 0; }
+/* ---- Sticker / Pop-out toggle: folder tabs growing out of the card below (option 5) ---- */
+html body #view-koala .koala-dimrow { --tabc: #fff; display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin: 10px 0 0; padding: 0 8px; border: 0; position: relative; z-index: 3; }
 html body #view-koala .koala-dimrow .koala-dim { display: inline-flex; align-items: flex-end; gap: 4px; padding: 0; margin: 0; background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; border-radius: 0; }
 html body #view-koala .koala-dim-btn { display: inline-flex; align-items: center; gap: 7px; border: 0; border-radius: 14px 14px 0 0; padding: 9px 20px 8px; background: rgba(255, 255, 255, .5); color: #4d6a61; box-shadow: none; margin: 0; position: relative; }
-html body #view-koala .koala-dim-btn.on { background: #fff; color: var(--accent-dark, #16906d); padding-bottom: 12px; margin-bottom: -2px; z-index: 2; box-shadow: 0 -2px 6px rgba(20, 90, 70, .1); }
+html body #view-koala .koala-dim-btn.on { background: var(--tabc); color: var(--accent-dark, #16906d); padding-bottom: 12px; margin-bottom: -2px; z-index: 2; }
+html body #view-koala .koala-dimrow.ctx-2d-char { --tabc: #fbf1dc; }
+html body #view-koala .koala-dimrow.ctx-3d-char, html body #view-koala .koala-dimrow.ctx-3d-room { --tabc: #2d7373; }
+html body #view-koala .koala-dimrow.ctx-3d-char .koala-dim-btn.on, html body #view-koala .koala-dimrow.ctx-3d-room .koala-dim-btn.on { color: #fff; }
+html body #view-koala .koala-dimrow.ctx-3d-char.is-paid { --tabc: #fbf1dc; }
+html body #view-koala .koala-dimrow.ctx-3d-room.is-paid { --tabc: #eaf6f1; }
+html body #view-koala .koala-dimrow.ctx-3d-char.is-paid .koala-dim-btn.on, html body #view-koala .koala-dimrow.ctx-3d-room.is-paid .koala-dim-btn.on { color: var(--accent-dark, #16906d); }
+/* the card under the Sticker tab squares its top-left corner so the tab grows out of it */
+.koala-dimrow.ctx-2d-char + .koala-studio .koala-stage.is-character, .koala-dimrow.ctx-2d-room + .koala-studio .koala-plan-card { border-top-left-radius: 0; }
 .koala-dim-btn .kd-ic { width: 15px; height: 15px; flex: none; }
 .koala-dim-btn .kd-crown { color: #d9a238; }
-.koala-dimbar { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; min-height: 52px; margin: 0 0 12px; padding: 8px 14px; background: #fff; border-radius: 16px; box-shadow: 0 2px 8px rgba(20, 90, 70, .12); color: #27403a; font-size: .8rem; font-weight: 600; }
-.koala-dimbar.is-first { border-top-left-radius: 0; }
-html body #view-koala .koala-dimbar .koala-own-btn { margin: 0; border: 0 !important; border-radius: 10px; background: #e3f6ee; color: var(--accent-dark, #16906d); box-shadow: none !important; padding: 0 14px; min-height: 36px; }
-html body #view-koala .koala-dimbar .koala-own-btn.on { background: var(--accent); color: #fff; }
-@media (max-width: 420px) { .koala-dimbar .kdb-tx { flex: 1 1 100%; } }
+html body #view-koala .koala-dimrow .koala-own-btn { margin: 0 0 6px; border: 0 !important; border-radius: 10px; background: #fff; color: var(--accent-dark, #16906d); box-shadow: 0 1px 3px rgba(10, 60, 50, .18) !important; padding: 0 14px; min-height: 36px; }
+html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent); color: #fff; }
+.koala-dimrow.ctx-2d-char + .koala-studio { margin-top: -5px; }
