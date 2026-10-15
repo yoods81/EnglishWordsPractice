@@ -15919,7 +15919,8 @@ function koalaDimBarHtml() {
   const b = (id, label) => `<button type="button" class="koala-dim-btn${koalaDim === id ? " on" : ""}" role="tab" aria-selected="${koalaDim === id}" data-koala-dim="${id}">${id === "2d" ? star : cube}<span>${label}</span>${id === "3d" && !paid ? crown : ""}</button>`;
   const bar = `<div class="koala-dim${koalaDim === "3d" ? " r" : ""}" role="tablist" aria-label="${rwL("Sticker or Pop-out Koala", "평면 / 입체 코알라 보기")}">${b("2d", rwL("Sticker", "평면"))}${b("3d", rwL("Pop-out", "입체"))}</div>`;
   const own = (koalaDim === "3d" && !paid) ? "" : `<button type="button" class="koala-back koala-own-btn${koalaOwnedView ? " on" : ""}" data-koala-owned aria-pressed="${koalaOwnedView}">${koalaOwnedView ? rwL("✓ Back to shop", "✓ 상점으로") : rwL("🎒 My items", "🎒 내 아이템")}</button>`;
-  return `<div class="koala-dimrow">${bar}${own}</div>`;
+  const note = koalaDim === "2d" ? rwL("Flat items you buy with Koala Coins", "코알라 코인으로 사는 평면 아이템") : paid ? rwL("The same items, in fluffy 3D", "같은 아이템을 폭신한 3D로") : rwL("A fluffy 3D look, with Premium", "프리미엄에서 만나는 폭신한 3D");
+  return `<div class="koala-dimrow">${bar}</div><div class="koala-dimbar${koalaDim === "2d" ? " is-first" : ""}"><span class="kdb-tx">${note}</span>${own}</div>`;
 }
 
 function koalaDim3dHtml() {
