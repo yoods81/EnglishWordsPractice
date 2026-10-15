@@ -667,6 +667,12 @@
      Every plot of the 3 x 3 plan is a cell of the grid; built rooms sit in the back-left corner of their cell
      (any spare floor is a hall). Walls on the outside of the house are full height, walls between rooms are low,
      so every room stays visible. Rooms carry data-room, empty plots data-empty. opts: { name(room) -> text, empty: text, fresh: slot } */
+  // The room's name lies on the floor along its front-left edge (skewed like the tiles), under the furniture.
+  const FL_LEN = Math.hypot(HW, HH);
+  function floorLabel(name, room) {
+    const [ox, oy] = proj(room.C / 2, room.R - 0.16, 0), k = [HW / FL_LEN, HH / FL_LEN, -HW / FL_LEN, HH / FL_LEN, ox, oy].map((v) => v.toFixed(3)).join(" ");
+    return `<text class="kh-flabel" transform="matrix(${k})" x="0" y="0" text-anchor="middle" font-size="22" font-weight="800" fill="#27403a" stroke="#fff" stroke-width="4" stroke-opacity=".85" paint-order="stroke" stroke-linejoin="round" letter-spacing=".5" pointer-events="none">${esc(name)}</text>`;
+  }
   const PLAN_PART = 34;
   function planSvg(S, opts) {
     const o = opts || {}, nC = PLAN.cols, nR = PLAN.rows, colW = new Array(nC).fill(0), rowD = new Array(nR).fill(0);
@@ -697,8 +703,7 @@
       keyed.sort((a, b) => a.k - b.k);
       const name = String(o.name ? o.name(room) : room.en), lw = Math.round(Math.max(70, name.length * 21 + 34)), [lx, ly] = proj(room.C - 1, room.R - 1, 0);
       const floor = pstr([proj(0, 0, 0), proj(room.C, 0, 0), proj(room.C, room.R, 0), proj(0, room.R, 0)]);
-      out.push(`<g class="kh-proom${o.fresh === sl ? " pop" : ""}" data-room="${sl}" role="button" tabindex="0" aria-label="${esc(name)}" transform="translate(${px.toFixed(1)} ${py.toFixed(1)})"><defs>${sh.clips}</defs><g class="kh-shell">${sh.svg}</g><polygon class="kh-hit" points="${floor}" fill="transparent"/><g class="kh-items">${walls.join("")}${flat.join("")}${keyed.map((x) => x.svg).join("")}</g></g>`);
-      labels.push(`<g class="kh-plabel" transform="translate(${(px + lx).toFixed(1)} ${(py + ly - 4).toFixed(1)})"><rect x="${-lw / 2}" y="-19" width="${lw}" height="36" rx="18" fill="#fff" opacity=".94"/><text x="0" y="7" text-anchor="middle" font-size="22" font-weight="800" fill="#27403a">${esc(name)}</text></g>`);
+      out.push(`<g class="kh-proom${o.fresh === sl ? " pop" : ""}" data-room="${sl}" role="button" tabindex="0" aria-label="${esc(name)}" transform="translate(${px.toFixed(1)} ${py.toFixed(1)})"><defs>${sh.clips}</defs><g class="kh-shell">${sh.svg}</g><polygon class="kh-hit" points="${floor}" fill="transparent"/>${floorLabel(name, room)}<g class="kh-items">${walls.join("")}${flat.join("")}${keyed.map((x) => x.svg).join("")}</g></g>`);
     });
     const box = sceneBox({ C: totC, R: totR }, "room");
     return `<svg class="kh-plan-svg" viewBox="${box.x} ${box.y} ${box.w} ${box.h}" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="${esc(o.title || "")}">${out.join("")}${labels.join("")}</svg>`;

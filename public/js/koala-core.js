@@ -529,7 +529,7 @@
   function sellItem(progress, id, opts) {
     const k = ensureKoala(progress);
     const it = itemById(id);
-    if (!it || !it.unlock.coins) return { ok: false, reason: "notForSale" };
+    if (!it || (!it.unlock.coins && !(opts && opts.unlimited))) return { ok: false, reason: "notForSale" };
     if (!k.items.owned[id]) return { ok: false, reason: "notOwned" };
     const unlimited = !!(opts && opts.unlimited);
     const refund = unlimited ? 0 : sellValue(it.unlock.coins);
@@ -680,6 +680,7 @@
     const unlimited = !!(opts && opts.unlimited);
     if (k.items.equipped[item.slot] === item.id) return { state: "equipped" };
     if (k.items.owned[item.id]) return { state: "owned" };
+    if (unlimited) return { state: "buyable", cost: item.unlock.coins || 0 }; // admin: no badge / streak / season locks, nothing is ever spent
     if (item.unlock.coins && !unlimited && !isSeasonActive(item, opts && opts.date)) return { state: "locked", need: "season" };
     if (item.unlock.badge) return { state: "locked", need: "badge", badge: item.unlock.badge };
     if (item.unlock.coins) {
@@ -698,7 +699,7 @@
     if (!it || !it.unlock.coins) return { ok: false, reason: "notForSale" };
     if (k.items.owned[id]) return { ok: false, reason: "owned" };
     if (!(opts && opts.unlimited) && !isSeasonActive(it, opts && opts.date)) return { ok: false, reason: "outOfSeason" };
-    if (!(opts && opts.unlimited) && !spendCoins(progress, it.unlock.coins, "item:" + id, opts)) return { ok: false, reason: "notEnoughCoins" };
+    if (!(opts && opts.unlimited) && (it.unlock.coins ? !spendCoins(progress, it.unlock.coins, "item:" + id, opts) : false)) return { ok: false, reason: "notEnoughCoins" };
     k.items.owned[id] = (opts && opts.now) || Date.now();
     k.items.equipped[it.slot] = id; // wear it straight away
     return { ok: true, item: it };

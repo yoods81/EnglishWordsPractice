@@ -176,12 +176,12 @@
     ses.screen = "plan"; ses.sel = null; ses.koala.pose = "stand"; ses.koala.z = 0;
     ses.root.classList.add("kh-planmode"); fit(ses.root);
     const S = ses.S, built = Object.keys(S.slots).length;
-    const house = H.planSvg(S, { name: (r) => (r.ic ? r.ic + " " : "") + roomLabel(r), empty: T("방 짓기", "Build a room"), fresh: ses.justBuilt, title: T("우리 집 평면도", "Our house floor plan") });
+    const house = H.planSvg(S, { name: (r) => roomLabel(r), empty: T("방 짓기", "Build a room"), fresh: ses.justBuilt, title: T("우리 집 평면도", "Our house floor plan") });
     ses.root.innerHTML = `<div class="kh-plan-screen">
       <div class="kh-planmain">${topBar("🏠 " + T("내 집", "My House"))}
         <p class="kh-hint">${T("방을 누르면 코알라가 들어가요. 빈 칸에는 상점에서 방을 사서 지어요.", "Tap a room to walk in. Buy rooms in the shop and build them on the empty plots.")}</p>
         <div class="kh-plan" id="kh-plan">${house}
-          <button type="button" class="kh-entrance" data-room="yard" aria-label="${T("입구: 마당", "Entrance: the yard")}"><span class="kh-door" aria-hidden="true">🚪</span><span class="kh-card-name">${T("입구 · 마당과 집 외관 꾸미기", "Entrance · yard & house front")}</span></button>
+          <button type="button" class="kh-entrance" data-room="yard" aria-label="${T("집 외관 및 정원 꾸미기", "House & Garden Decor")}"><img class="kh-door-ic" src="/img/cat/house.webp" alt="" draggable="false"><span class="kh-card-name">${T("집 외관 및 정원 꾸미기", "House & Garden Decor")}</span><svg class="kh-door-go" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m9 18 6-6-6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <img class="kh-marker" id="kh-marker" src="${kimg("base")}" alt="${T("코알라", "Koala")}" draggable="false"></div></div>
       <aside class="kh-panel" id="kh-panel" aria-label="${T("방 상점", "Room shop")}">
         ${chipsHtml([["rooms", "🏠", T("방", "Rooms")]], "rooms")}
@@ -971,7 +971,7 @@
     const hasIt = (n) => stOf(n).state === "owned";
     const itemBtn = (sl, n) => {
       const st = stOf(n), on = S.worn[sl] === n, own = st.state === "owned";
-      const tag = own ? (on ? T("입는 중", "Wearing") : T("입기", "Wear")) : st.state === "buyable" ? `💰 ${st.cost}` : (st.cost ? `💰 ${st.cost}` : `🔒 ${st.hint || ""}`);
+      const tag = own ? (on ? T("입는 중", "Wearing") : T("입기", "Wear")) : st.state === "buyable" ? (st.cost ? `💰 ${st.cost}` : T("받기", "Get")) : (st.cost ? `💰 ${st.cost}` : `🔒 ${st.hint || ""}`);
       return `<button type="button" class="kh-item kh-kitem${on ? " on" : ""}${own ? "" : st.state === "buyable" || st.cost ? " kh-buy" : " kh-locked"}" data-wear="${sl}:${n}" aria-pressed="${on}"><img src="${kthumb(n)}" alt="" draggable="false"><span class="kh-nm">${esc(T(KNAME[n][0], KNAME[n][1]))}</span><span class="kh-pr kh-state">${tag}</span></button>`;
     };
     const clearBtn = `<button type="button" class="kh-btn alt kh-clear" data-clear>${T("모두 벗기기", "Take Off All")}</button>`;

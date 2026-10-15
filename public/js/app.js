@@ -15267,7 +15267,7 @@ const koalaItemName = (it) => it.name[currentLang === "ko" ? "ko" : "en"];
 function koalaItemStatusText(st) {
   if (st.state === "equipped") return rwL("✓ Wearing — tap to take off", "✓ 입는 중 — 눌러서 벗기");
   if (st.state === "owned") return rwL("Tap to wear", "눌러서 입기");
-  if (st.state === "buyable") return `${COIN_SVG} ${rwL(`${st.cost} Coins — tap to unlock`, `${st.cost}코인 — 눌러서 열기`)}`;
+  if (st.state === "buyable") return st.cost ? `${COIN_SVG} ${rwL(`${st.cost} Coins — tap to unlock`, `${st.cost}코인 — 눌러서 열기`)}` : rwL("Admin — tap to unlock", "관리자 — 눌러서 열기");
   if (st.need === "season") return rwL("🎄 Back next season", "🎄 다음 시즌에 만나요");
   if (st.need === "badge") {
     const b = buildBadgeCatalog().find((x) => x.id === st.badge);
@@ -15281,7 +15281,7 @@ function koalaItemStatusText(st) {
 function koalaItemShortStatus(st) {
   if (st.state === "equipped") return `<span class="koala-item-status on">${rwL("✓ Wearing", "✓ 착용중")}</span>`;
   if (st.state === "owned") return `<span class="koala-item-status own">${rwL("Mine", "보유")}</span>`;
-  if (st.state === "buyable") return `<span class="koala-item-status cost">${COIN_SVG} ${st.cost}</span>`;
+  if (st.state === "buyable") return `<span class="koala-item-status cost">${st.cost ? `${COIN_SVG} ${st.cost}` : rwL("Free", "무료")}</span>`;
   if (st.need === "season") return `<span class="koala-item-status">${rwL("⏳ Seasonal", "⏳ 시즌")}</span>`;
   if (st.need === "badge") return `<span class="koala-item-status">${rwL("🔒 Badge", "🔒 배지")}</span>`;
   if (st.need === "coins") return `<span class="koala-item-status">${COIN_SVG} ${st.cost}</span>`;
@@ -15625,7 +15625,7 @@ function koalaHousePlanHtml(k, scene) {
       <button type="button" class="kp-expand" data-koala-zoom="room" aria-label="${rwL("Full screen", "크게 보기")}">${expandIc}</button></div>
     <p class="kp-hint">${paid ? rwL("Tap the expand button to decorate your Study. Build more rooms in Pop-out.", "확장 버튼을 눌러 공부방을 꾸며 보세요. 더 많은 방은 팝아웃에서 만들어요.") : rwL("Tap the expand button to decorate your Study. More rooms come with Premium.", "확장 버튼을 눌러 공부방을 꾸며 보세요. 더 많은 방은 프리미엄에서 열려요.")}</p>
     ${svg}
-    <button type="button" class="kp-door" ${act}>${doorIc}<span>${rwL("Entrance · yard & house front", "현관 · 마당과 집 앞")}</span><span class="kp-door-tag">${paid ? rwL("Pop-out", "팝아웃") : rwL("Premium", "프리미엄")}</span></button>
+    <button type="button" class="kp-door" ${act}><img class="kp-door-ic" src="img/cat/house.webp" alt="" draggable="false"><span>${rwL("House & Garden Decor", "집 외관 및 정원 꾸미기")}</span><span class="kp-door-tag">${paid ? rwL("Pop-out", "팝아웃") : rwL("Premium", "프리미엄")}</span></button>
   </div>`;
 }
 
@@ -15697,7 +15697,7 @@ function koalaOwnedListHtml(mode) {
     return section(koalaSubKindTitle(kind), list.length, `<div class="koala-subgrid koala-subgrid-shop">${cards}</div>`);
   }).join("") : "";
   const empty = !total ? `<p class="koala-sell-hint">${rwL("You don't own anything yet — unlock something in the shop!", "아직 가진 아이템이 없어요. 상점에서 열어 보세요!")}</p>` : "";
-  return `<div class="koala-shelf-head"><span class="koala-shelf-title">🎒 ${rwL("My items", "내 아이템")} <small>${total}</small></span></div>
+  return `<div class="koala-shelf-head"><span class="koala-shelf-title"><img class="koala-own-ic" src="img/cat/items.webp" alt="" draggable="false"> ${rwL("My items", "내 아이템")} <small>${total}</small></span></div>
     <p class="koala-sell-hint">${rwL("Tap an item to see more — you can sell it back for 80% of its price.", "아이템을 누르면 되팔 수 있어요. 가격의 80%가 코인으로 돌아와요.")}</p>${empty}${groups}${subGroups}`;
 }
 
@@ -15902,7 +15902,7 @@ window.addEventListener("kh-owned-off", () => {
   if (!koalaOwnedView) return;
   koalaOwnedView = false;
   const btn = document.querySelector("[data-koala-owned]");
-  if (koalaTab === "room" && btn) { btn.classList.remove("on"); btn.setAttribute("aria-pressed", "false"); btn.textContent = rwL("🎒 My items", "🎒 내 아이템"); return; }
+  if (koalaTab === "room" && btn) { btn.classList.remove("on"); btn.setAttribute("aria-pressed", "false"); btn.innerHTML = `<img class="koala-own-ic" src="img/cat/items.webp" alt="" draggable="false">${rwL("My items", "내 아이템")}`; return; }
   renderKoala();
 });
 window.addEventListener("kh-worn", () => {
@@ -15918,7 +15918,7 @@ function koalaDimBarHtml() {
   const crown = '<svg class="kd-ic kd-crown" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z" fill="currentColor"/></svg>';
   const b = (id, label) => `<button type="button" class="koala-dim-btn${koalaDim === id ? " on" : ""}" role="tab" aria-selected="${koalaDim === id}" data-koala-dim="${id}">${id === "2d" ? star : cube}<span>${label}</span>${id === "3d" && !paid ? crown : ""}</button>`;
   const bar = `<div class="koala-dim${koalaDim === "3d" ? " r" : ""}" role="tablist" aria-label="${rwL("Sticker or Pop-out Koala", "평면 / 입체 코알라 보기")}">${b("2d", rwL("Sticker", "평면"))}${b("3d", rwL("Pop-out", "입체"))}</div>`;
-  const own = (koalaDim === "3d" && !paid) ? "" : `<button type="button" class="koala-back koala-own-btn${koalaOwnedView ? " on" : ""}" data-koala-owned aria-pressed="${koalaOwnedView}">${koalaOwnedView ? rwL("✓ Back to shop", "✓ 상점으로") : rwL("🎒 My items", "🎒 내 아이템")}</button>`;
+  const own = (koalaDim === "3d" && !paid) ? "" : `<button type="button" class="koala-back koala-own-btn${koalaOwnedView ? " on" : ""}" data-koala-owned aria-pressed="${koalaOwnedView}">${koalaOwnedView ? rwL("✓ Back to shop", "✓ 상점으로") : `<img class="koala-own-ic" src="img/cat/items.webp" alt="" draggable="false">${rwL("My items", "내 아이템")}`}</button>`;
   return `<div class="koala-dimrow ctx-${koalaDim}-${koalaTab === "room" ? "room" : "char"}${paid ? " is-paid" : ""}">${bar}${own}</div>`;
 }
 
@@ -15957,7 +15957,7 @@ function koalaSetWardApi() {
       if (!it) return { state: "locked", hint: "?" };
       const st = KoalaCore.itemStatus(progress, it, koalaOpts());
       if (st.state === "equipped" || st.state === "owned") return { state: "owned" };
-      if (st.state === "buyable") return { state: "buyable", cost: it.unlock.coins };
+      if (st.state === "buyable") return { state: "buyable", cost: st.cost || 0 };
       const hint = st.need === "badge" ? rwL("Badge", "배지") : st.need === "streak" ? rwL(`${st.days}-day streak`, `${st.days}일 연속`) : st.need === "season" ? rwL("Seasonal", "시즌 한정") : `💰 ${st.cost}`;
       return { state: "locked", hint, cost: st.cost };
     },
@@ -16419,7 +16419,7 @@ document.addEventListener("click", (e) => {
     if (koalaDim === "3d" && koalaTab === "room" && window.KoalaHouse && KoalaHouse.setRoomOwned) { // stay inside the room: only the panel changes
       KoalaHouse.setRoomOwned(koalaOwnedView);
       ownBtn.classList.toggle("on", koalaOwnedView); ownBtn.setAttribute("aria-pressed", String(koalaOwnedView));
-      ownBtn.textContent = koalaOwnedView ? rwL("✓ Back to shop", "✓ 상점으로") : rwL("🎒 My items", "🎒 내 아이템");
+      ownBtn.innerHTML = koalaOwnedView ? rwL("✓ Back to shop", "✓ 상점으로") : `<img class="koala-own-ic" src="img/cat/items.webp" alt="" draggable="false">${rwL("My items", "내 아이템")}`;
       return;
     }
     renderKoala(); return;
