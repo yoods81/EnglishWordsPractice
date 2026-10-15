@@ -13562,3 +13562,27 @@ html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent
 .kh-narrow .kh-top.over .kh-ibtn { width: 34px; }
 .kh-narrow .kh-top.over .kh-title.pill { padding: 0 8px; font-size: .9rem; }
 .kh-narrow .kh-vr { margin: 0 3px; }
+
+/* ---- Design 1: frosted glass (replaces design 3) ---- */
+.koala-dim { display: inline-flex; padding: 4px; border-radius: 999px; background: rgba(255, 255, 255, .55); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .8); }
+.koala-dim::before { display: none; }
+.koala-dim-btn { border-radius: 999px; padding: 8px 20px; color: #4d6a61; }
+.koala-dim-btn.on { background: #fff; color: var(--accent-dark, #16906d); box-shadow: 0 2px 8px rgba(20, 90, 70, .18); }
+html body #view-koala .koala-dimrow .koala-own-btn { background: rgba(255, 255, 255, .85); color: var(--accent-dark, #16906d); border: 0 !important; border-radius: 999px; padding: 0 16px; box-shadow: 0 2px 8px rgba(20, 90, 70, .14) !important; }
+html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent); color: #fff; }
+.kh-top.over { left: 10px; right: 10px; top: 10px; padding: 8px; gap: 8px; background: rgba(255, 255, 255, .6); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-radius: 20px; box-shadow: 0 4px 16px rgba(20, 90, 70, .14), inset 0 0 0 1px rgba(255, 255, 255, .9); }
+.kh-top.over .kh-ibtn, .kh-top.over .kh-pillbtn { background: rgba(255, 255, 255, .9); border: 0; border-radius: 999px; height: 38px; }
+.kh-top.over .kh-ibtn { width: 38px; }
+.kh-top.over .kh-ibtn:hover, .kh-top.over .kh-pillbtn:hover { background: #fff; box-shadow: 0 2px 8px rgba(20, 90, 70, .18); }
+.kh-top.over .kh-title.pill, .kh-top.over .kh-coins { background: rgba(255, 255, 255, .9); border-radius: 999px; height: 38px; padding: 0 14px; box-shadow: none; }
+.kh-top.over .kh-pillbtn.done { background: linear-gradient(180deg, #3fd3a6, #22b98c); color: #fff; margin-left: 0; box-shadow: 0 3px 10px rgba(34, 185, 140, .4); }
+.kh-top.over .kh-pillbtn.done:hover { background: linear-gradient(180deg, #46dbae, #25c294); }
+.kh-vr { display: none; }
+.kh-narrow .kh-top.over { padding: 6px; gap: 6px; top: 8px; left: 8px; right: 8px; }
+.kh-narrow .kh-top.over .kh-ibtn, .kh-narrow .kh-top.over .kh-pillbtn, .kh-narrow .kh-top.over .kh-coins { height: 34px; }
+.kh-narrow .kh-top.over .kh-ibtn { width: 34px; }
+/* Category rows (room panel included) never wrap: koala-house.css loads after this file, so out-rank it */
+.kh-app .kh-cats { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 8px 10px; }
+.kh-app .kh-cats::-webkit-scrollbar { display: none; }
+.kh-app .kh-cat { flex: 0 0 auto; border: 0; background: #fff; color: var(--accent-dark, #16a085); box-shadow: 0 1px 3px rgba(10, 60, 50, .22); min-height: 40px; }
+.kh-app .kh-cat.on { background: var(--accent, #2ec7a0); color: #fff; box-shadow: 0 2px 6px rgba(20, 160, 130, .35); }
