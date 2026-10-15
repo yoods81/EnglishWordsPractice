@@ -13691,3 +13691,10 @@ html body #view-koala .kp-door .kp-door-ic { width: 48px; height: 48px; object-f
 html body #view-koala .kp-door span:nth-of-type(1) { flex: 1; text-align: left; }
 html body #view-koala .kp-door-tag { background: #f3e2b0; color: #6a4600; border-radius: 999px; padding: 2px 10px; font-size: .7rem; }
 .koala-shelf-title .koala-own-ic { width: 26px; height: 26px; object-fit: contain; vertical-align: -6px; }
+
+/* No sideways / inner scrolling in My Koala (2D): category chips wrap, the "inside your furniture" box grows */
+html body #view-koala .koala-cats { flex-wrap: wrap; overflow: visible; }
+html body #view-koala .koala-subbox { aspect-ratio: auto; min-height: 96px; overflow: visible; }
+html:root body #view-koala .koala-cats-wrap .koala-cats { flex-wrap: wrap !important; overflow: visible !important; -webkit-mask-image: none !important; mask-image: none !important; }
+html:root body #view-koala .koala-cats-wrap .koala-cat { flex: 0 1 auto; white-space: normal; }
+html:root body #view-koala .koala-cats-nav { display: none !important; }

@@ -15610,7 +15610,7 @@ function koalaHousePlanHtml(k, scene) {
   const kz = Math.max(sw / 320, sh / 220); // the 320x220 room scene, scaled to fill the Study cell
   const room = `<g transform="translate(${(sx + (sw - 320 * kz) / 2).toFixed(1)} ${(sy + (sh - 220 * kz) / 2).toFixed(1)}) scale(${kz.toFixed(4)})">${scene.replace(/^<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "")}</g>`;
   const study = `<g clip-path="url(#kpStudyClip)" id="koala-stage">${room}</g><rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="16" fill="none" stroke="#e0b46a" stroke-width="4"/>
-    <g><rect x="${sx + 12}" y="${sy + sh - 40}" width="${rwL("Study", "공부방").length * 12 + 34}" height="28" rx="14" fill="#fff" opacity=".94"/><text x="${sx + 29}" y="${sy + sh - 21}" font-size="15" font-weight="800" fill="#27403a">${rwL("Study", "공부방")}</text></g>`;
+    <g><rect x="${sx + 12}" y="${sy + sh - 40}" width="${rwL("Study", "공부방").length * 12 + 34}" height="28" rx="14" fill="#fff" opacity=".5"/><text x="${sx + 29}" y="${sy + sh - 21}" font-size="15" font-weight="800" fill="#27403a">${rwL("Study", "공부방")}</text></g>`;
   const svg = `<svg class="kp-plan-svg" viewBox="0 0 ${W} ${H}" role="group" aria-label="${rwL("Floor plan", "방 평면도")}" xmlns="http://www.w3.org/2000/svg">
     <defs><clipPath id="kpStudyClip"><rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="16"/></clipPath></defs>
     <rect x="4" y="4" width="${W - 8}" height="${H - 8}" rx="26" fill="#f6ecd8" stroke="#c9a06a" stroke-width="7"/>

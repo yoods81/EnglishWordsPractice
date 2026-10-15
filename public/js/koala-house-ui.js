@@ -111,6 +111,7 @@
     ses.full = !ses.full;
     ses.root.classList.toggle("kh-full", ses.full);
     document.body.classList.toggle("kh-open", ses.full);
+    fit(ses.root); // the full-screen box is as wide as the window: side-by-side again on a big screen
     const b = ses.root.querySelector("[data-full]"); if (b) { b.innerHTML = ic(ses.full ? "minimize" : "maximize"); b.setAttribute("aria-label", ses.full ? T("작게 보기", "Exit full screen") : T("크게 보기", "Full screen")); }
     if (ses.screen === "plan") placeMarker(false); else showMenu();
   }

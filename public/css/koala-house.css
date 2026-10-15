@@ -312,3 +312,27 @@ button.kh-crumb:hover{background:#fff;color:#27403a}
 .kh-app .kh-entrance .kh-door-ic{width:52px;height:52px;object-fit:contain;flex:none;filter:drop-shadow(0 2px 2px rgba(0,60,40,.22))}
 .kh-app .kh-entrance .kh-card-name{margin:0;font-size:1rem;flex:1;text-align:left}
 .kh-app .kh-entrance .kh-door-go{flex:none;color:#2ec7a0}
+
+/* ---- Inside a room: the item panel grows with its list and the page scrolls (no inner scrollbar) ---- */
+.kh-app:not(.kh-ward):not(.kh-planmode) { height: auto; min-height: 0; overflow: clip; }
+.kh-app.kh-full:not(.kh-ward) { overflow-x: hidden; overflow-y: auto; }
+.kh-app .kh-room-screen { height: auto !important; align-items: flex-start; }
+.kh-app .kh-room-screen .kh-stage { flex: 1; align-self: flex-start; position: sticky; top: 0; height: min(88vh, 820px); }
+.kh-app.kh-full .kh-room-screen .kh-stage { height: 100vh; height: 100dvh; }
+.kh-app .kh-room-screen .kh-panel { max-height: none !important; flex: none; }
+.kh-app .kh-room-screen .kh-grid { overflow: visible; flex: none; }
+@media (max-width: 760px), (orientation: portrait) { .kh-app .kh-room-screen { flex-direction: column; align-items: stretch; } .kh-app .kh-room-screen .kh-stage { flex: none; width: 100%; height: min(58vh, 520px); } .kh-app.kh-full .kh-room-screen .kh-stage { height: min(58vh, 520px); } .kh-app .kh-room-screen .kh-panel { width: 100%; border-left: 0; border-top: 3px solid #cfe6dd; } }
+.kh-app.kh-narrow .kh-room-screen { flex-direction: column; align-items: stretch; }
+.kh-app.kh-narrow .kh-room-screen .kh-stage { flex: none; width: 100%; height: min(58vh, 520px); }
+.kh-app.kh-narrow .kh-room-screen .kh-panel { width: 100%; border-left: 0; border-top: 3px solid #cfe6dd; }
+
+/* Category chips wrap instead of scrolling sideways; no arrow buttons, no scrollbars anywhere in My Koala */
+.kh-cats-wrap .kh-cats { flex-wrap: wrap; overflow: visible; }
+.kh-cats-wrap .kh-cats-nav { display: none !important; }
+.kh-sublist { max-height: none; overflow: visible; }
+/* Dialogs cover the window (the page can now be very tall) and lift above the tab row while open */
+.kh-app .kh-modal { position: fixed; inset: 0; overflow-y: auto; align-items: safe center; z-index: 9600; }
+html body #view-koala .koala-dim3d:has(.kh-modal), html body #view-koala .koala-dim3d:has(.kh-full) { position: relative; z-index: 9500; }
+.kh-app:has(.kh-modal) { z-index: 9500; }
+.kh-app.kh-full { scrollbar-width: none; }
+.kh-app.kh-full::-webkit-scrollbar { display: none; }
