@@ -1,0 +1,457 @@
+{
+ "bedBlue": {
+  "src": "/img/house/bedBlue.webp",
+  "wpx": 179,
+  "ratio": 0.96,
+  "ax": 0.5,
+  "ay": 0.767
+ },
+ "sofaRed": {
+  "src": "/img/house/sofaRed.webp",
+  "wpx": 143,
+  "ratio": 0.72,
+  "ax": 0.5,
+  "ay": 0.689
+ },
+ "treeApple": {
+  "src": "/img/house/treeApple.webp",
+  "wpx": 143,
+  "ratio": 1.283,
+  "ax": 0.5,
+  "ay": 0.826
+ },
+ "lampDesk": {
+  "src": "/img/house/lampDesk.webp",
+  "wpx": 57,
+  "ratio": 1.393,
+  "ax": 0.5,
+  "ay": 0.798
+ },
+ "bedPink": {
+  "src": "/img/house/bedPink.webp",
+  "wpx": 179,
+  "ratio": 0.97,
+  "ax": 0.5,
+  "ay": 0.77
+ },
+ "bedMint": {
+  "src": "/img/house/bedMint.webp",
+  "wpx": 179,
+  "ratio": 1.007,
+  "ax": 0.5,
+  "ay": 0.778
+ },
+ "sofaBlue": {
+  "src": "/img/house/sofaBlue.webp",
+  "wpx": 143,
+  "ratio": 0.743,
+  "ax": 0.5,
+  "ay": 0.699
+ },
+ "sofaGreen": {
+  "src": "/img/house/sofaGreen.webp",
+  "wpx": 143,
+  "ratio": 0.76,
+  "ax": 0.5,
+  "ay": 0.706
+ },
+ "chairPurple": {
+  "src": "/img/house/chairPurple.webp",
+  "wpx": 72,
+  "ratio": 1.09,
+  "ax": 0.5,
+  "ay": 0.796
+ },
+ "chairYellow": {
+  "src": "/img/house/chairYellow.webp",
+  "wpx": 72,
+  "ratio": 1.107,
+  "ax": 0.5,
+  "ay": 0.799
+ },
+ "tableSquare": {
+  "src": "/img/house/tableSquare.webp",
+  "wpx": 143,
+  "ratio": 0.87,
+  "ax": 0.5,
+  "ay": 0.743
+ },
+ "dresser": {
+  "src": "/img/house/dresser.webp",
+  "wpx": 108,
+  "ratio": 1.28,
+  "ax": 0.5,
+  "ay": 0.826
+ },
+ "shelfWood": {
+  "src": "/img/house/shelfWood.webp",
+  "wpx": 108,
+  "ratio": 1.89,
+  "ax": 0.5,
+  "ay": 0.882
+ },
+ "shelfWhite": {
+  "src": "/img/house/shelfWhite.webp",
+  "wpx": 108,
+  "ratio": 2.01,
+  "ax": 0.5,
+  "ay": 0.889
+ },
+ "wardrobeWood": {
+  "src": "/img/house/wardrobeWood.webp",
+  "wpx": 108,
+  "ratio": 1.627,
+  "ax": 0.5,
+  "ay": 0.863
+ },
+ "wardrobeMint": {
+  "src": "/img/house/wardrobeMint.webp",
+  "wpx": 108,
+  "ratio": 1.73,
+  "ax": 0.5,
+  "ay": 0.872
+ },
+ "stoolBlue": {
+  "src": "/img/house/stoolBlue.webp",
+  "wpx": 72,
+  "ratio": 1.607,
+  "ax": 0.5,
+  "ay": 0.862
+ },
+ "deskWood": {
+  "src": "/img/house/deskWood.webp",
+  "wpx": 108,
+  "ratio": 0.927,
+  "ax": 0.5,
+  "ay": 0.76
+ },
+ "deskWhite": {
+  "src": "/img/house/deskWhite.webp",
+  "wpx": 108,
+  "ratio": 0.953,
+  "ax": 0.5,
+  "ay": 0.767
+ },
+ "deskBlue": {
+  "src": "/img/house/deskBlue.webp",
+  "wpx": 108,
+  "ratio": 0.753,
+  "ax": 0.5,
+  "ay": 0.705
+ },
+ "stoolRed": {
+  "src": "/img/house/stoolRed.webp",
+  "wpx": 72,
+  "ratio": 1.45,
+  "ax": 0.5,
+  "ay": 0.847
+ },
+ "tableRound": {
+  "src": "/img/house/tableRound.webp",
+  "wpx": 143,
+  "ratio": 0.963,
+  "ax": 0.5,
+  "ay": 0.768
+ },
+ "tvStand": {
+  "src": "/img/house/tvStand.webp",
+  "wpx": 108,
+  "ratio": 1.073,
+  "ax": 0.5,
+  "ay": 0.793
+ },
+ "fridge": {
+  "src": "/img/house/fridge.webp",
+  "wpx": 72,
+  "ratio": 1.63,
+  "ax": 0.5,
+  "ay": 0.864
+ },
+ "counter": {
+  "src": "/img/house/counter.webp",
+  "wpx": 108,
+  "ratio": 1.043,
+  "ax": 0.5,
+  "ay": 0.787
+ },
+ "stove": {
+  "src": "/img/house/stove.webp",
+  "wpx": 72,
+  "ratio": 1.31,
+  "ax": 0.5,
+  "ay": 0.83
+ },
+ "bathtub": {
+  "src": "/img/house/bathtub.webp",
+  "wpx": 108,
+  "ratio": 0.923,
+  "ax": 0.5,
+  "ay": 0.759
+ },
+ "toilet": {
+  "src": "/img/house/toilet.webp",
+  "wpx": 72,
+  "ratio": 1.413,
+  "ax": 0.5,
+  "ay": 0.843
+ },
+ "vanity": {
+  "src": "/img/house/vanity.webp",
+  "wpx": 72,
+  "ratio": 1.233,
+  "ax": 0.5,
+  "ay": 0.82
+ },
+ "toybox": {
+  "src": "/img/house/toybox.webp",
+  "wpx": 72,
+  "ratio": 0.95,
+  "ax": 0.5,
+  "ay": 0.766
+ },
+ "piano": {
+  "src": "/img/house/piano.webp",
+  "wpx": 108,
+  "ratio": 1.233,
+  "ax": 0.5,
+  "ay": 0.82
+ },
+ "lampFloor": {
+  "src": "/img/house/lampFloor.webp",
+  "wpx": 72,
+  "ratio": 2.473,
+  "ax": 0.5,
+  "ay": 0.91
+ },
+ "lampPink": {
+  "src": "/img/house/lampPink.webp",
+  "wpx": 57,
+  "ratio": 1.497,
+  "ax": 0.5,
+  "ay": 0.812
+ },
+ "vase": {
+  "src": "/img/house/vase.webp",
+  "wpx": 50,
+  "ratio": 1.707,
+  "ax": 0.5,
+  "ay": 0.813
+ },
+ "bookStack": {
+  "src": "/img/house/bookStack.webp",
+  "wpx": 54,
+  "ratio": 1.027,
+  "ax": 0.5,
+  "ay": 0.711
+ },
+ "laptop": {
+  "src": "/img/house/laptop.webp",
+  "wpx": 57,
+  "ratio": 1.113,
+  "ax": 0.5,
+  "ay": 0.748
+ },
+ "teddy": {
+  "src": "/img/house/teddy.webp",
+  "wpx": 57,
+  "ratio": 1.353,
+  "ax": 0.5,
+  "ay": 0.793
+ },
+ "cake": {
+  "src": "/img/house/cake.webp",
+  "wpx": 54,
+  "ratio": 1.17,
+  "ax": 0.5,
+  "ay": 0.747
+ },
+ "fruitBowl": {
+  "src": "/img/house/fruitBowl.webp",
+  "wpx": 54,
+  "ratio": 1.03,
+  "ax": 0.5,
+  "ay": 0.712
+ },
+ "blocks": {
+  "src": "/img/house/blocks.webp",
+  "wpx": 57,
+  "ratio": 0.953,
+  "ax": 0.5,
+  "ay": 0.705
+ },
+ "ball": {
+  "src": "/img/house/ball.webp",
+  "wpx": 47,
+  "ratio": 1.043,
+  "ax": 0.5,
+  "ay": 0.674
+ },
+ "clockDesk": {
+  "src": "/img/house/clockDesk.webp",
+  "wpx": 50,
+  "ratio": 1.397,
+  "ax": 0.5,
+  "ay": 0.771
+ },
+ "pottedSmall": {
+  "src": "/img/house/pottedSmall.webp",
+  "wpx": 61,
+  "ratio": 1.247,
+  "ax": 0.5,
+  "ay": 0.79
+ },
+ "plantBig": {
+  "src": "/img/house/plantBig.webp",
+  "wpx": 68,
+  "ratio": 1.263,
+  "ax": 0.5,
+  "ay": 0.814
+ },
+ "cactus": {
+  "src": "/img/house/cactus.webp",
+  "wpx": 57,
+  "ratio": 1.283,
+  "ax": 0.5,
+  "ay": 0.781
+ },
+ "palm": {
+  "src": "/img/house/palm.webp",
+  "wpx": 65,
+  "ratio": 1.423,
+  "ax": 0.5,
+  "ay": 0.827
+ },
+ "treeCherry": {
+  "src": "/img/house/treeCherry.webp",
+  "wpx": 143,
+  "ratio": 1.267,
+  "ax": 0.5,
+  "ay": 0.823
+ },
+ "treeMaple": {
+  "src": "/img/house/treeMaple.webp",
+  "wpx": 143,
+  "ratio": 1.2,
+  "ax": 0.5,
+  "ay": 0.814
+ },
+ "bush": {
+  "src": "/img/house/bush.webp",
+  "wpx": 72,
+  "ratio": 1.02,
+  "ax": 0.5,
+  "ay": 0.782
+ },
+ "flowerBed": {
+  "src": "/img/house/flowerBed.webp",
+  "wpx": 108,
+  "ratio": 0.867,
+  "ax": 0.5,
+  "ay": 0.744
+ },
+ "bench": {
+  "src": "/img/house/bench.webp",
+  "wpx": 108,
+  "ratio": 1.007,
+  "ax": 0.5,
+  "ay": 0.779
+ },
+ "swing": {
+  "src": "/img/house/swing.webp",
+  "wpx": 108,
+  "ratio": 0.867,
+  "ax": 0.5,
+  "ay": 0.744
+ },
+ "fence": {
+  "src": "/img/house/fence.webp",
+  "wpx": 72,
+  "ratio": 0.88,
+  "ax": 0.5,
+  "ay": 0.747
+ },
+ "gardenLamp": {
+  "src": "/img/house/gardenLamp.webp",
+  "wpx": 65,
+  "ratio": 3.357,
+  "ax": 0.5,
+  "ay": 0.927
+ },
+ "mailbox": {
+  "src": "/img/house/mailbox.webp",
+  "wpx": 65,
+  "ratio": 1.897,
+  "ax": 0.5,
+  "ay": 0.87
+ },
+ "sandbox": {
+  "src": "/img/house/sandbox.webp",
+  "wpx": 143,
+  "ratio": 0.787,
+  "ax": 0.5,
+  "ay": 0.716
+ },
+ "doghouse": {
+  "src": "/img/house/doghouse.webp",
+  "wpx": 143,
+  "ratio": 1.01,
+  "ax": 0.5,
+  "ay": 0.778
+ },
+ "fountain": {
+  "src": "/img/house/fountain.webp",
+  "wpx": 143,
+  "ratio": 0.983,
+  "ax": 0.5,
+  "ay": 0.772
+ },
+ "hedge": {
+  "src": "/img/house/hedge.webp",
+  "wpx": 108,
+  "ratio": 0.933,
+  "ax": 0.5,
+  "ay": 0.762
+ },
+ "snowman": {
+  "src": "/img/house/snowman.webp",
+  "wpx": 65,
+  "ratio": 1.317,
+  "ax": 0.5,
+  "ay": 0.813
+ },
+ "car": {
+  "src": "/img/house/car.webp",
+  "wpx": 179,
+  "ratio": 0.883,
+  "ax": 0.5,
+  "ay": 0.747
+ },
+ "treePine": {
+  "src": "/img/house/treePine.webp",
+  "wpx": 143,
+  "ratio": 1.487,
+  "ax": 0.5,
+  "ay": 0.85
+ },
+ "rock": {
+  "src": "/img/house/rock.webp",
+  "wpx": 61,
+  "ratio": 1.007,
+  "ax": 0.5,
+  "ay": 0.74
+ },
+ "tulips": {
+  "src": "/img/house/tulips.webp",
+  "wpx": 86,
+  "ratio": 1.22,
+  "ax": 0.5,
+  "ay": 0.771
+ },
+ "gate": {
+  "src": "/img/house/gate.webp",
+  "wpx": 108,
+  "ratio": 0.9,
+  "ax": 0.5,
+  "ay": 0.753
+ }
+}

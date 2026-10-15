@@ -381,6 +381,8 @@
     if (def.wall) {
       return `<svg class="kh-thumb" viewBox="-16 -20 ${def.pw + 32} ${def.vh + 40}" aria-hidden="true">${def.art(def.pw, def.vh)}</svg>`;
     }
+    const pe = MANIFEST[def.id];
+    if (pe && pe.src) return `<svg class="kh-thumb" viewBox="0 0 100 ${Math.round(100 * (pe.ratio || 1))}" aria-hidden="true"><image href="${pe.src}" x="0" y="0" width="100" height="${Math.round(100 * (pe.ratio || 1))}" preserveAspectRatio="xMidYMid meet"/></svg>`;
     const b = itemBox(def, 0), pad = 6;
     return `<svg class="kh-thumb" viewBox="${b.x - pad} ${b.y - pad} ${b.w + pad * 2} ${b.h + pad * 2}" aria-hidden="true">${itemInner(def, 0)}</svg>`;
   }
