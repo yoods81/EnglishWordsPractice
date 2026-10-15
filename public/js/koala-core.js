@@ -696,7 +696,7 @@
   function buyItem(progress, id, opts) {
     const it = itemById(id);
     const k = ensureKoala(progress);
-    if (!it || !it.unlock.coins) return { ok: false, reason: "notForSale" };
+    if (!it || (!it.unlock.coins && !(opts && opts.unlimited))) return { ok: false, reason: "notForSale" }; // admin can take badge / streak items too
     if (k.items.owned[id]) return { ok: false, reason: "owned" };
     if (!(opts && opts.unlimited) && !isSeasonActive(it, opts && opts.date)) return { ok: false, reason: "outOfSeason" };
     if (!(opts && opts.unlimited) && (it.unlock.coins ? !spendCoins(progress, it.unlock.coins, "item:" + id, opts) : false)) return { ok: false, reason: "notEnoughCoins" };

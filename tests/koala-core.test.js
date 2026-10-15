@@ -572,3 +572,14 @@ test("awardLearning scales a game round by opts.mult (rounded down, never 0) and
   assert.deepEqual(K.awardLearning(p, "typing", 50, "2026-10-02", { mult: 0.5 }), [], "same round never paid twice");
   assert.deepEqual(K.awardLearning(p, "tt", 100, "2026-10-02", { mult: 0.01 }), [{ why: "timesTable", n: 1 }, { why: "timesTable", n: 1 }]);
 });
+
+test("unlimited (admin): badge / streak locked items can be taken too, and spend nothing", () => {
+  const p = {};
+  const it = K.itemById("goldMedal"); // unlocked only by a badge for normal users
+  assert.equal(K.itemStatus(p, it, {}).state, "locked");
+  assert.equal(K.itemStatus(p, it, { unlimited: true }).state, "buyable");
+  const r = K.buyItem(p, it.id, { unlimited: true });
+  assert.equal(r.ok, true);
+  assert.equal(K.ensureKoala(p).coins, 0);
+  assert.equal(K.buyItem({}, it.id, {}).reason, "notForSale");
+});
