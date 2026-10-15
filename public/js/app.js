@@ -17463,6 +17463,25 @@ renderCustomWords();
   window.addEventListener("offline", updateOnline);
   updateOnline();
 
+  // Version badge next to the title: the running service worker's cache version (vNNN),
+  // plus the newest version on the server when it differs (means: reload once more).
+  (function appVersionBadge() {
+    const el = document.getElementById("app-ver");
+    if (!el || !("serviceWorker" in navigator) || location.protocol === "file:") return;
+    const num = (s) => { const m = /koala-study-v(\d+)/.exec(s || ""); return m ? Number(m[1]) : null; };
+    let running = null, latest = null;
+    const paint = () => {
+      const r = running != null ? running : latest;
+      if (r == null) return;
+      el.textContent = "v" + r + (latest != null && running != null && latest !== running ? " \u2192 v" + latest : "");
+    };
+    navigator.serviceWorker.addEventListener("message", (e) => { if (e.data && e.data.type === "version") { running = num(e.data.cache); paint(); } });
+    const ask = () => { const c = navigator.serviceWorker.controller; if (c) c.postMessage("version"); };
+    navigator.serviceWorker.addEventListener("controllerchange", ask);
+    navigator.serviceWorker.ready.then(ask).catch(() => {});
+    ask();
+    fetch("/sw.js", { cache: "no-store" }).then((r) => r.text()).then((t) => { latest = num(t); paint(); }).catch(() => {});
+  })();
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
     window.addEventListener("load", () => {
       navigator.serviceWorker.register("/sw.js").catch((e) => console.warn("Service worker failed", e));
