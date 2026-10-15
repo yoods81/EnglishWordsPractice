@@ -285,3 +285,5 @@ button.kh-crumb:hover{background:#fff;color:#27403a}
 .kh-ok{color:#1f9e6e}
 .kh-ok .kh-i{width:16px;height:16px}
 .kh-subgrid{margin-bottom:10px}
+.kh-roomic{display:flex;justify-content:center;font-size:2rem;line-height:1.1}
+.kh-roomimg{width:60px;height:60px;object-fit:contain;display:block;filter:drop-shadow(0 2px 3px rgba(40,70,60,.22))}

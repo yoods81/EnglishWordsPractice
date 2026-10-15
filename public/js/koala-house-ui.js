@@ -195,7 +195,7 @@
   }
   function roomShopCard(t) {
     const r = H.ROOMS[t], have = Object.values(ses.S.slots).filter((x) => x.type === t).length;
-    return `<button type="button" class="kh-item kh-roomitem" data-buyroom="${t}" aria-label="${esc(T(r.ko, r.en))}, ${r.price}"><span class="kh-roomic" aria-hidden="true">${r.ic}</span><span class="kh-nm">${esc(T(r.ko, r.en))}</span><span class="kh-subtxt">${r.C}×${r.R}${have ? " · " + T(`${have}개`, `${have} built`) : ""}</span>${r.price ? `<span class="kh-pr">${COIN}${r.price}</span>` : `<span class="kh-pr">${T("무료", "Free")}</span>`}</button>`;
+    return `<button type="button" class="kh-item kh-roomitem" data-buyroom="${t}" aria-label="${esc(T(r.ko, r.en))}, ${r.price}"><span class="kh-roomic" aria-hidden="true">${roomImg(r)}</span><span class="kh-nm">${esc(T(r.ko, r.en))}</span><span class="kh-subtxt">${r.C}×${r.R}${have ? " · " + T(`${have}개`, `${have} built`) : ""}</span>${r.price ? `<span class="kh-pr">${COIN}${r.price}</span>` : `<span class="kh-pr">${T("무료", "Free")}</span>`}</button>`;
   }
   function placeMarker(animate, toId) {
     if (!ses) return;
@@ -217,6 +217,7 @@
   function backToPlan() { renderPlan(); }
 
   /* ---- buying rooms: the shop sells kinds of rooms, and you choose the plot ---- */
+  const roomImg = (r) => (r.id ? `<img class="kh-roomimg" src="img/rooms/${r.id}.webp" alt="" draggable="false">` : esc(r.ic || ""));
   function roomPic(t) { const r = H.ROOMS[t]; return `<span class="kh-card-pic">${H.roomSvg(Object.assign({}, r, { uid: "shop" + t }), { wall: r.wall, floor: r.floor, items: [] }, {})}</span>`; }
   function chooseRoomType(slot) {
     modal(`<h2>${T("어떤 방을 지을까요?", "Which room?")}</h2><div class="kh-items-grid kh-rooms">${H.ROOM_ORDER.map((t) => roomShopCard(t)).join("")}</div><div class="kh-btns"><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button></div>`, (m) => {
