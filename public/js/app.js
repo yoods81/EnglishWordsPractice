@@ -15913,8 +15913,11 @@ window.addEventListener("kh-worn", () => {
 
 function koalaDimBarHtml() {
   const paid = canUsePaidFeatures();
-  const b = (id, label) => `<button type="button" class="koala-dim-btn${koalaDim === id ? " on" : ""}" role="tab" aria-selected="${koalaDim === id}" data-koala-dim="${id}">${label}</button>`;
-  const bar = `<div class="koala-dim${koalaDim === "3d" ? " r" : ""}" role="tablist" aria-label="${rwL("Sticker or Pop-out Koala", "평면 / 입체 코알라 보기")}">${b("2d", rwL("Sticker", "평면"))}${b("3d", rwL("Pop-out", "입체") + (paid ? "" : " 👑"))}</div>`;
+  const star = '<svg class="kd-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 16.6 6.7 19.6l1.1-6L3.4 9.4l6-.8z" fill="currentColor"/></svg>';
+  const cube = '<svg class="kd-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8.5 4.7v9.6L12 21.5l-8.5-4.7V7.2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3.5 7.2L12 12l8.5-4.8M12 12v9.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
+  const crown = '<svg class="kd-ic kd-crown" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z" fill="currentColor"/></svg>';
+  const b = (id, label) => `<button type="button" class="koala-dim-btn${koalaDim === id ? " on" : ""}" role="tab" aria-selected="${koalaDim === id}" data-koala-dim="${id}">${id === "2d" ? star : cube}<span>${label}</span>${id === "3d" && !paid ? crown : ""}</button>`;
+  const bar = `<div class="koala-dim${koalaDim === "3d" ? " r" : ""}" role="tablist" aria-label="${rwL("Sticker or Pop-out Koala", "평면 / 입체 코알라 보기")}">${b("2d", rwL("Sticker", "평면"))}${b("3d", rwL("Pop-out", "입체"))}</div>`;
   const own = (koalaDim === "3d" && !paid) ? "" : `<button type="button" class="koala-back koala-own-btn${koalaOwnedView ? " on" : ""}" data-koala-owned aria-pressed="${koalaOwnedView}">${koalaOwnedView ? rwL("✓ Back to shop", "✓ 상점으로") : rwL("🎒 My items", "🎒 내 아이템")}</button>`;
   return `<div class="koala-dimrow">${bar}${own}</div>`;
 }

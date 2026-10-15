@@ -13649,3 +13649,13 @@ html body #view-koala .kh-app .kh-cat { font-size: 0.72rem; font-weight: 600; fo
 #koala-zoom.koala-zoom-overlay { padding: 0; background: linear-gradient(180deg, #e3f6ee 0%, #fdf4dc 100%); align-items: stretch; }
 #koala-zoom .koala-zoom-card { width: 100vw; max-width: none; height: 100vh; height: 100dvh; max-height: none; border: 0; border-radius: 0; box-shadow: none; background: transparent; padding: 14px 16px 18px; display: flex; flex-direction: column; overflow: auto; }
 #koala-zoom .koala-zoom-stage { width: min(100%, calc((100vh - 240px) * 320 / 220), 1100px); width: min(100%, calc((100dvh - 240px) * 320 / 220), 1100px); min-width: min(100%, 300px); box-shadow: 0 6px 22px rgba(20, 110, 85, .2); border: 3px solid #fff; border-radius: 20px; flex: none; }
+
+/* ---- Sticker / Pop-out toggle: folder tabs sitting on the content (option 5) ---- */
+html body #view-koala .koala-dimrow { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin: 10px 0 0; padding: 0 6px; border-bottom: 3px solid #fff; }
+html body #view-koala .koala-dimrow .koala-dim { display: inline-flex; align-items: flex-end; gap: 4px; padding: 0; margin: 0; background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; border-radius: 0; }
+html body #view-koala .koala-dim-btn { display: inline-flex; align-items: center; gap: 7px; border: 0; border-radius: 14px 14px 0 0; padding: 9px 20px 8px; background: rgba(255, 255, 255, .45); color: #4d6a61; box-shadow: none; margin-bottom: -3px; }
+html body #view-koala .koala-dim-btn.on { background: #fff; color: var(--accent-dark, #16906d); padding-bottom: 11px; box-shadow: 0 -2px 6px rgba(20, 90, 70, .12); }
+.koala-dim-btn .kd-ic { width: 15px; height: 15px; flex: none; }
+.koala-dim-btn .kd-crown { color: #d9a238; }
+html body #view-koala .koala-dimrow .koala-own-btn { margin-bottom: 5px; border-radius: 10px; background: #fff; color: var(--accent-dark, #16906d); box-shadow: 0 1px 3px rgba(10, 60, 50, .18) !important; padding: 0 14px; min-height: 36px; }
+html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent); color: #fff; }
