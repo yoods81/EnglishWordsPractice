@@ -13600,7 +13600,10 @@ html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent
 .kt-chip.c1 { top: 30%; left: 0; } .kt-chip.c2 { top: 14%; right: 0; animation-delay: -.8s; } .kt-chip.c3 { bottom: 8%; left: 0; animation-delay: -1.6s; } .kt-chip.c4 { bottom: 16%; right: 1%; animation-delay: -2.2s; }
 .kt-rooms { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
 .kt-rooms img { width: 100%; aspect-ratio: 1; object-fit: contain; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, .35)); }
-.kt-ribbon { position: absolute; top: 0; left: 10px; z-index: 2; display: inline-flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 9px 16px; min-width: 46px; background: linear-gradient(180deg, #f7d676 0%, #d9a238 100%); color: #4a3205; font-weight: 800; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 9px), 0 100%); filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .3)); }
+.kt-eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; max-width: 280px; color: #f7d676; font-weight: 700; font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; }
+.kt-eyebrow::before, .kt-eyebrow::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #f7d676); }
+.kt-eyebrow::after { transform: scaleX(-1); }
+.kt-eyebrow .kt-crown { width: 14px; height: 14px; }
 .kt-crown { width: 18px; height: 18px; flex: none; }
 .kt-body { position: relative; }
 .kt-title { font-family: var(--font-heading, inherit); font-size: 1.45rem; font-weight: 800; line-height: 1.2; margin: 0 0 18px; color: #fff; text-shadow: 0 2px 6px rgba(0, 0, 0, .25); }

@@ -15938,8 +15938,9 @@ function koalaDim3dHtml() {
       ? [[rm("living"), rwL("Decorate in 3D", "3D로 방 꾸미기"), rwL("Drag furniture anywhere in your room", "가구를 원하는 곳에 놓아요")], [rm("master"), rwL("Build a floor plan", "나만의 평면도"), rwL("Grow your home up to 9 rooms", "방을 최대 9개까지 늘려요")], [rm("cinema"), rwL("9 room themes", "9가지 방 테마"), rwL("Study, cinema, kitchen and more", "공부방, 시네마룸, 주방까지")], [rm("playroom"), rwL("A garden too", "마당도 꾸며요"), rwL("Trees, benches and flower beds", "나무, 벤치, 꽃밭까지")]]
       : [[im("crown"), rwL("Fluffy 3D Koala", "복슬복슬 3D 코알라"), rwL("A soft, furry look you can almost touch", "만져질 듯 폭신한 질감")], [im("hoodie"), rwL("59 outfit pieces", "59가지 아이템"), rwL("Hats, jeans, sneakers, wings and more", "모자, 청바지, 운동화, 날개까지")], [im("partyhat"), rwL("Tap to play", "탭하면 폴짝"), rwL("Your Koala hops and wiggles", "코알라가 폴짝 뛰어요")], [`<span class="kt-coin">${COIN_SVG}</span>`, rwL("One purchase, both looks", "한 번 사면 둘 다"), rwL("Items bought in Sticker work here", "스티커에서 산 아이템도 OK")]];
     return `<div class="rw-lock koala-dim-lock kt-teaser${room ? " is-room" : ""}">
-      <div class="kt-visual"><span class="kt-ribbon">${crown}${rwL("Premium", "프리미엄")}</span>${visual}</div>
+      <div class="kt-visual">${visual}</div>
       <div class="kt-body">
+        <div class="kt-eyebrow">${crown}<span>${rwL("Premium", "프리미엄")}</span></div>
         <div class="kt-title">${room ? rwL("Build your dream home in 3D", "3D로 나만의 집을 만들어요") : rwL("Meet your Koala in 3D", "내 코알라를 3D로 만나요")}</div>
         <ul class="kt-perks">${perks.map(([ic, t, d]) => `<li><span class="kt-ic">${ic}</span><span class="kt-tx"><b>${t}</b><small>${d}</small></span></li>`).join("")}</ul>
         <button type="button" class="kt-cta" data-koala-upgrade>${crown}<span>${rwL("Unlock Pop-out", "팝아웃 열기")}</span></button>
