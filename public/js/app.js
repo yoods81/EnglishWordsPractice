@@ -15596,6 +15596,39 @@ function koalaSaleToast(name, res) {
 
 // Top half of the studio: coin bar, the live stage and the category tabs.
 let koalaSit = false;
+// Sticker "My House": a flat-vector floor plan. The Study is the free room (live, with tap-to-try items);
+// the other plots are Premium rooms, shown locked so free members can see what Premium adds.
+function koalaHousePlanHtml(k, scene) {
+  const W = 680, H = 452, PAD = 22, GAP = 12, cw = 204, ch = 126;
+  const cx = (c) => PAD + c * (cw + GAP), cy = (r) => PAD + r * (ch + GAP);
+  const paid = canUsePaidFeatures(); // Premium members build more rooms in Pop-out; free members see an upgrade prompt
+  const act = paid ? 'data-koala-dim="3d"' : "data-koala-upgrade";
+  const lockLabel = paid ? rwL("Build in Pop-out", "팝아웃에서 만들기") : rwL("Premium room", "프리미엄 방");
+  const lockIc = (x, y) => `<g transform="translate(${x - 9} ${y - 12})"><rect x="2" y="9" width="14" height="11" rx="3" fill="#8fc4b0"/><path d="M5 9V6.5a4 4 0 0 1 8 0V9" fill="none" stroke="#8fc4b0" stroke-width="2.4" stroke-linecap="round"/></g>`;
+  const locked = (c, r) => `<g class="kp-locked" ${act} role="button" tabindex="0" aria-label="${lockLabel}"><rect x="${cx(c)}" y="${cy(r)}" width="${cw}" height="${ch}" rx="16" fill="#eef8f3" stroke="#a6d6c4" stroke-width="2.5" stroke-dasharray="7 6"/>${lockIc(cx(c) + cw / 2, cy(r) + ch / 2 - 8)}<text x="${cx(c) + cw / 2}" y="${cy(r) + ch / 2 + 28}" text-anchor="middle" font-size="15" font-weight="700" fill="#5b8a79">${lockLabel}</text></g>`;
+  const sx = cx(0), sy = cy(1), sw = cw * 2 + GAP, sh = ch * 2 + GAP;
+  const kz = Math.max(sw / 320, sh / 220); // the 320x220 room scene, scaled to fill the Study cell
+  const room = `<g transform="translate(${(sx + (sw - 320 * kz) / 2).toFixed(1)} ${(sy + (sh - 220 * kz) / 2).toFixed(1)}) scale(${kz.toFixed(4)})">${scene.replace(/^<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "")}</g>`;
+  const study = `<g clip-path="url(#kpStudyClip)" id="koala-stage">${room}</g><rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="16" fill="none" stroke="#e0b46a" stroke-width="4"/>
+    <g><rect x="${sx + 12}" y="${sy + sh - 40}" width="${rwL("Study", "공부방").length * 12 + 34}" height="28" rx="14" fill="#fff" opacity=".94"/><text x="${sx + 29}" y="${sy + sh - 21}" font-size="15" font-weight="800" fill="#27403a">${rwL("Study", "공부방")}</text></g>`;
+  const svg = `<svg class="kp-plan-svg" viewBox="0 0 ${W} ${H}" role="group" aria-label="${rwL("Floor plan", "방 평면도")}" xmlns="http://www.w3.org/2000/svg">
+    <defs><clipPath id="kpStudyClip"><rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="16"/></clipPath></defs>
+    <rect x="4" y="4" width="${W - 8}" height="${H - 8}" rx="26" fill="#f6ecd8" stroke="#c9a06a" stroke-width="7"/>
+    ${locked(0, 0)}${locked(1, 0)}${locked(2, 0)}${study}${locked(2, 1)}${locked(2, 2)}
+    <rect x="${sx + 150}" y="${H - 11}" width="64" height="9" rx="3" fill="#a9703a"/></svg>`;
+  const houseIc = `<svg class="kp-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10.5V20h13v-9.5" fill="#fff3d6" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><rect x="10" y="13.5" width="4" height="6.5" rx="1" fill="currentColor"/></svg>`;
+  const expandIc = `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const doorIc = `<svg class="kp-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" fill="#c98a52" stroke="#8a5a2b" stroke-width="1.6"/><circle cx="15.5" cy="12.5" r="1.3" fill="#fff3d6"/></svg>`;
+  return `<div class="koala-plan-card">
+    <div class="kp-head"><h3 class="kp-title">${houseIc}${rwL("My House", "나의 집")}</h3><span class="kp-sp"></span>
+      <span class="koala-studio-coins" aria-label="${rwL("Koala Coins", "코알라 코인")}">${COIN_SVG} <b>${serverAdmin ? "∞" : k.coins.toLocaleString()}</b></span>
+      <button type="button" class="kp-expand" data-koala-zoom="room" aria-label="${rwL("Full screen", "크게 보기")}">${expandIc}</button></div>
+    <p class="kp-hint">${paid ? rwL("Tap the expand button to decorate your Study. Build more rooms in Pop-out.", "확장 버튼을 눌러 공부방을 꾸며 보세요. 더 많은 방은 팝아웃에서 만들어요.") : rwL("Tap the expand button to decorate your Study. More rooms come with Premium.", "확장 버튼을 눌러 공부방을 꾸며 보세요. 더 많은 방은 프리미엄에서 열려요.")}</p>
+    ${svg}
+    <button type="button" class="kp-door" ${act}>${doorIc}<span>${rwL("Entrance · yard & house front", "현관 · 마당과 집 앞")}</span><span class="kp-door-tag">${paid ? rwL("Pop-out", "팝아웃") : rwL("Premium", "프리미엄")}</span></button>
+  </div>`;
+}
+
 function koalaStudioTopHtml(k, mode) {
   const lv = KoalaCore.levelInfo(k.earned);
   const eq = koalaPreviewEq(k);
@@ -15611,6 +15644,7 @@ function koalaStudioTopHtml(k, mode) {
     pick: mode === "room" ? koalaPick : null,
   });
   const sceneFit = mode === "room" ? scene : scene.replace('class="koala-room-svg"', 'class="koala-room-svg" preserveAspectRatio="xMidYMax slice"');
+  if (mode === "room") return `<div class="koala-studio-top is-plan"><div class="koala-studio-preview">${koalaHousePlanHtml(k, scene)}${koalaTryBarHtml()}${koalaSubBoxHtml(k, "is-in-preview")}</div></div>`;
   return `<div class="koala-studio-top${mode === "room" ? "" : " is-char"}"><div class="koala-studio-preview">
     <div class="koala-studio-bar">
       <span class="koala-studio-lv">${rwL(`Lv. ${lv.level}`, `Lv. ${lv.level}`)}</span>
@@ -15897,15 +15931,14 @@ function koalaDim3dHtml() {
       : `<span class="kt-glow"></span><img class="kt-koala" src="img/koala-premium-teaser.webp" alt="">
          <span class="kt-chip c1">${im("wizardhat")}</span><span class="kt-chip c2">${im("heartglasses")}</span><span class="kt-chip c3">${im("rainboots")}</span><span class="kt-chip c4">${im("butterflywings")}</span>`;
     const perks = room
-      ? [[rm("living"), rwL("Decorate in 3D", "3D로 방 꾸미기"), rwL("Drag furniture anywhere in your room", "가구를 원하는 곳에 놓아요")], [rm("master"), rwL("Build a floor plan", "나만의 평면도"), rwL("Grow your home up to 9 rooms", "방을 최대 9개까지 늘려요")], [rm("playroom"), rwL("A garden too", "마당도 꾸며요"), rwL("Trees, benches and flower beds", "나무, 벤치, 꽃밭까지")]]
-      : [[im("crown"), rwL("Fluffy 3D Koala", "복슬복슬 3D 코알라"), rwL("Hops and wiggles when you tap", "탭하면 폴짝 뛰어요")], [im("hoodie"), rwL("Dress up for real", "진짜처럼 입히기"), rwL("Jeans, sneakers, wings and more", "청바지, 운동화, 날개까지")], [`<span class="kt-coin">${COIN_SVG}</span>`, rwL("One purchase, both looks", "한 번 사면 둘 다"), rwL("Items bought in Sticker work here", "스티커에서 산 아이템도 OK")]];
+      ? [[rm("living"), rwL("Decorate in 3D", "3D로 방 꾸미기"), rwL("Drag furniture anywhere in your room", "가구를 원하는 곳에 놓아요")], [rm("master"), rwL("Build a floor plan", "나만의 평면도"), rwL("Grow your home up to 9 rooms", "방을 최대 9개까지 늘려요")], [rm("cinema"), rwL("9 room themes", "9가지 방 테마"), rwL("Study, cinema, kitchen and more", "공부방, 시네마룸, 주방까지")], [rm("playroom"), rwL("A garden too", "마당도 꾸며요"), rwL("Trees, benches and flower beds", "나무, 벤치, 꽃밭까지")]]
+      : [[im("crown"), rwL("Fluffy 3D Koala", "복슬복슬 3D 코알라"), rwL("A soft, furry look you can almost touch", "만져질 듯 폭신한 질감")], [im("hoodie"), rwL("59 outfit pieces", "59가지 아이템"), rwL("Hats, jeans, sneakers, wings and more", "모자, 청바지, 운동화, 날개까지")], [im("partyhat"), rwL("Tap to play", "탭하면 폴짝"), rwL("Your Koala hops and wiggles", "코알라가 폴짝 뛰어요")], [`<span class="kt-coin">${COIN_SVG}</span>`, rwL("One purchase, both looks", "한 번 사면 둘 다"), rwL("Items bought in Sticker work here", "스티커에서 산 아이템도 OK")]];
     return `<div class="rw-lock koala-dim-lock kt-teaser${room ? " is-room" : ""}">
       <div class="kt-visual"><span class="kt-ribbon">${crown}${rwL("Premium", "프리미엄")}</span>${visual}</div>
       <div class="kt-body">
         <div class="kt-title">${room ? rwL("Build your dream home in 3D", "3D로 나만의 집을 만들어요") : rwL("Meet your Koala in 3D", "내 코알라를 3D로 만나요")}</div>
         <ul class="kt-perks">${perks.map(([ic, t, d]) => `<li><span class="kt-ic">${ic}</span><span class="kt-tx"><b>${t}</b><small>${d}</small></span></li>`).join("")}</ul>
         <button type="button" class="kt-cta" data-koala-upgrade>${crown}<span>${rwL("Unlock Pop-out", "팝아웃 열기")}</span></button>
-        <p class="kt-note">${rwL("Sticker (2D) stays free for everyone", "스티커(2D)는 모두에게 무료예요")}</p>
       </div></div>`;
   }
   return `<div class="koala-dim3d"><div id="kh-host" class="kh-app kh-embed"></div></div>`;
