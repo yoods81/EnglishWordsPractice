@@ -261,7 +261,7 @@
     ses.root.innerHTML = `<div class="kh-room-screen">
       <div class="kh-stage" id="kh-stage">
         <div class="kh-scene" id="kh-scene"></div>
-        <div class="kh-top over"><button type="button" class="kh-ibtn kh-planbtn" data-back aria-label="${T("평면도", "Floor plan")}" title="${T("평면도", "Floor plan")}"><img src="/img/cat/floorplan.webp" alt="" draggable="false"></button>
+        <div class="kh-top over"><button type="button" class="kh-ibtn kh-planbtn" data-back aria-label="${T("평면도", "Floor plan")}" title="${T("평면도", "Floor plan")}">${ic("left")}<img src="/img/cat/floorplan.webp" alt="" draggable="false"></button>
           <span class="kh-sp"></span><h2 class="kh-title kh-roomtitle"><img class="kh-roomtitle-ic" src="${ses.roomId !== "yard" && ses.S.slots[ses.roomId] ? "/img/rooms/" + ses.S.slots[ses.roomId].type + ".webp" : "/img/cat/outdoor.webp"}" alt="" draggable="false"><span>${esc(roomLabel(curRoom()))}</span></h2><span class="kh-sp"></span>
           <span class="kh-coins">${COIN}<b data-kh-coins>${coinsText()}</b></span><i class="kh-vr" aria-hidden="true"></i>
           <button type="button" class="kh-ibtn" data-zoom="out" aria-label="${T("작게", "Zoom out")}">${ic("minus")}</button><button type="button" class="kh-ibtn" data-zoom="in" aria-label="${T("크게", "Zoom in")}">${ic("plus")}</button>

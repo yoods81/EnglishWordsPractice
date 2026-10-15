@@ -13710,3 +13710,8 @@ html:root body #view-koala .koala-dimrow .koala-own-btn .koala-own-ic { width: 2
 html:root[data-theme="dark"] body #view-koala .koala-dimrow .koala-own-btn:not(.on) { background: linear-gradient(135deg, #5a3a6e, #35508a); color: #fff; }
 @keyframes koalaTw { 50% { transform: scale(1.35) rotate(20deg); opacity: .7; } }
 @media (prefers-reduced-motion: reduce) { html:root body #view-koala .koala-dimrow .koala-own-btn::after { animation: none; } }
+
+/* Compact 2D category chips */
+html:root body #view-koala .koala-cats-wrap .koala-cat { min-height: 34px; padding: 0 10px; gap: 4px; font-size: .8rem; }
+html:root body #view-koala .koala-cats-wrap .koala-cat .koala-cat-ic { width: 18px; height: 18px; margin-left: -2px; }
+html:root body #view-koala .koala-cats-wrap .koala-cats { gap: 5px; }

@@ -338,12 +338,20 @@ html body #view-koala .koala-dim3d:has(.kh-modal), html body #view-koala .koala-
 .kh-app.kh-full::-webkit-scrollbar { display: none; }
 
 /* Room editor top bar: Canva floor-plan icon button (no label) + room thumbnail and name centred without a pill */
-.kh-planbtn{width:48px;padding:0}
-.kh-planbtn img{width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 1px 1px rgba(0,60,50,.3))}
-.kh-narrow .kh-planbtn{width:42px}
+.kh-planbtn{width:auto;padding:0 12px 0 8px;gap:2px}
+.kh-planbtn img{width:28px;height:28px;object-fit:contain;filter:drop-shadow(0 1px 1px rgba(0,60,50,.3))}
+.kh-narrow .kh-planbtn{padding:0 9px 0 6px}
 .kh-title.kh-roomtitle{display:inline-flex;align-items:center;gap:8px;background:none;border:0;box-shadow:none;backdrop-filter:none;padding:0;text-shadow:0 1px 0 #fff,0 0 6px #fff,0 0 12px rgba(255,255,255,.9)}
 .kh-roomtitle-ic{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,60,50,.3))}
 .kh-narrow .kh-roomtitle-ic{width:28px;height:28px}
 .kh-narrow .kh-title.kh-roomtitle{font-size:.92rem}
 /* embedded editor sits under the 2D/3D tabs: give its floating bar breathing room so it doesn't touch the tab edge */
 .koala-dim3d .kh-room-screen .kh-top.over{top:8px;padding:10px 14px 8px}
+
+/* Compact category chips (smaller icon, tighter button) so more of the row shows; wider side panel in the room editor */
+.kh-app .kh-cats-wrap .kh-cat { min-height: 32px; padding: 0 10px; gap: 4px; font-size: .8rem; }
+.kh-app .kh-cats-wrap .kh-cat .kh-cat-ic { width: 18px; height: 18px; margin-left: -2px; }
+.kh-app .kh-cats-wrap .kh-cats { gap: 5px; padding: 8px 8px 6px; }
+.kh-app:not(.kh-narrow) .kh-room-screen .kh-panel { width: min(540px, 44vw); }
+.kh-planbtn{background:#e6f6f0;border-color:#b9e3d5}
+html body .kh-app .kh-top .kh-planbtn{background:#dff3ec!important;border-color:#b3dfd0!important}
