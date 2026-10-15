@@ -326,9 +326,9 @@ button.kh-crumb:hover{background:#fff;color:#27403a}
 .kh-app.kh-narrow .kh-room-screen .kh-stage { flex: none; width: 100%; height: min(58vh, 520px); }
 .kh-app.kh-narrow .kh-room-screen .kh-panel { width: 100%; border-left: 0; border-top: 3px solid #cfe6dd; }
 
-/* Category chips wrap instead of scrolling sideways; no arrow buttons, no scrollbars anywhere in My Koala */
-.kh-cats-wrap .kh-cats { flex-wrap: wrap; overflow: visible; }
-.kh-cats-wrap .kh-cats-nav { display: none !important; }
+/* Category rows: always ONE line, scroll sideways with arrow buttons */
+.kh-cats-wrap .kh-cats { flex-wrap: nowrap; overflow-x: auto; }
+.kh-cats-wrap .kh-cat { flex: 0 0 auto; white-space: nowrap; }
 .kh-sublist { max-height: none; overflow: visible; }
 /* Dialogs cover the window (the page can now be very tall) and lift above the tab row while open */
 .kh-app .kh-modal { position: fixed; inset: 0; overflow-y: auto; align-items: safe center; z-index: 9600; }
@@ -336,3 +336,14 @@ html body #view-koala .koala-dim3d:has(.kh-modal), html body #view-koala .koala-
 .kh-app:has(.kh-modal) { z-index: 9500; }
 .kh-app.kh-full { scrollbar-width: none; }
 .kh-app.kh-full::-webkit-scrollbar { display: none; }
+
+/* Room editor top bar: Canva floor-plan icon button (no label) + room thumbnail and name centred without a pill */
+.kh-planbtn{width:48px;padding:0}
+.kh-planbtn img{width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 1px 1px rgba(0,60,50,.3))}
+.kh-narrow .kh-planbtn{width:42px}
+.kh-title.kh-roomtitle{display:inline-flex;align-items:center;gap:8px;background:none;border:0;box-shadow:none;backdrop-filter:none;padding:0;text-shadow:0 1px 0 #fff,0 0 6px #fff,0 0 12px rgba(255,255,255,.9)}
+.kh-roomtitle-ic{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,60,50,.3))}
+.kh-narrow .kh-roomtitle-ic{width:28px;height:28px}
+.kh-narrow .kh-title.kh-roomtitle{font-size:.92rem}
+/* embedded editor sits under the 2D/3D tabs: give its floating bar breathing room so it doesn't touch the tab edge */
+.koala-dim3d .kh-room-screen .kh-top.over{top:8px;padding:10px 14px 8px}

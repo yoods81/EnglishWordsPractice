@@ -13693,8 +13693,10 @@ html body #view-koala .kp-door-tag { background: #f3e2b0; color: #6a4600; border
 .koala-shelf-title .koala-own-ic { width: 26px; height: 26px; object-fit: contain; vertical-align: -6px; }
 
 /* No sideways / inner scrolling in My Koala (2D): category chips wrap, the "inside your furniture" box grows */
-html body #view-koala .koala-cats { flex-wrap: wrap; overflow: visible; }
 html body #view-koala .koala-subbox { aspect-ratio: auto; min-height: 96px; overflow: visible; }
-html:root body #view-koala .koala-cats-wrap .koala-cats { flex-wrap: wrap !important; overflow: visible !important; -webkit-mask-image: none !important; mask-image: none !important; }
-html:root body #view-koala .koala-cats-wrap .koala-cat { flex: 0 1 auto; white-space: normal; }
-html:root body #view-koala .koala-cats-nav { display: none !important; }
+html:root body #view-koala .koala-cats-wrap .koala-cat { flex: 0 0 auto; white-space: nowrap; }
+
+/* Category chips (2D): Canva toy icon + label, always one line */
+.koala-cat { display: inline-flex; align-items: center; gap: 6px; }
+.koala-cat .koala-cat-ic { width: 26px; height: 26px; object-fit: contain; flex: none; margin-left: -4px; filter: drop-shadow(0 1px 1px rgba(0, 60, 50, .25)); }
+html body #view-koala .koala-cats-wrap .koala-cat { display: inline-flex; }

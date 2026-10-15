@@ -185,7 +185,7 @@
           <button type="button" class="kh-entrance" data-room="yard" aria-label="${T("집 외관 및 정원 꾸미기", "House & Garden Decor")}"><img class="kh-door-ic" src="/img/cat/house.webp" alt="" draggable="false"><span class="kh-card-name">${T("집 외관 및 정원 꾸미기", "House & Garden Decor")}</span><svg class="kh-door-go" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m9 18 6-6-6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <img class="kh-marker" id="kh-marker" src="${kimg("base")}" alt="${T("코알라", "Koala")}" draggable="false"></div></div>
       <aside class="kh-panel" id="kh-panel" aria-label="${T("방 상점", "Room shop")}">
-        ${chipsHtml([["rooms", "🏠", T("방", "Rooms")]], "rooms")}
+        ${chipsHtml([["rooms", "/img/cat/home.webp", T("방", "Rooms")]], "rooms")}
         <div class="kh-grid">${shelfHead(T("방 상점", "Room shop"), `${built}/${H.SLOTS.length}`)}<div class="kh-items-grid kh-rooms">${H.ROOM_ORDER.map((t) => roomShopCard(t)).join("")}</div></div></aside></div><div class="kh-toast" role="status"></div>`;
     ses.justBuilt = null;
     ses.root.querySelector("[data-full]").onclick = toggleFull;
@@ -214,9 +214,14 @@
   }
   function pickRoom(id) {
     placeMarker(true, id);
-    setTimeout(() => { if (ses && ses.screen === "plan") openRoom(id); }, reduced() ? 0 : 760);
+    // a room opens straight into the full-screen editor (one step less than before)
+    setTimeout(() => { if (ses && ses.screen === "plan") { openRoom(id); if (ses.screen === "room" && !ses.full) toggleFull(); } }, reduced() ? 0 : 760);
   }
-  function backToPlan() { renderPlan(); }
+  // the floor-plan button goes straight back to the inline plan card (leaves full screen on the way)
+  function backToPlan() {
+    if (ses.full) { ses.full = false; ses.root.classList.remove("kh-full"); document.body.classList.remove("kh-open"); }
+    renderPlan();
+  }
 
   /* ---- buying rooms: the shop sells kinds of rooms, and you choose the plot ---- */
   const roomImg = (r) => (r.id ? `<img class="kh-roomimg" src="img/rooms/${r.id}.webp" alt="" draggable="false">` : esc(r.ic || ""));
@@ -243,8 +248,8 @@
   /* ------------------------------ room screen ------------------------------ */
   function tabsFor(yard) {
     return yard
-      ? [["outdoor", "🌳", T("정원 물건", "Garden")], ["plant", "🪴", T("식물", "Plants")], ["house", "🏠", T("집 외관", "House")], ["garden", "🌷", T("정원 형태", "Layout")]]
-      : [["furniture", "🛋️", T("가구", "Furniture")], ["rug", "🟦", T("러그", "Rugs")], ["plant", "🪴", T("식물", "Plants")], ["small", "🧸", T("소품", "Props")], ["wall", "🖼️", T("벽장식", "Wall")], ["style", "🎨", T("벽·바닥", "Style")]];
+      ? [["outdoor", "/img/cat/outdoor.webp", T("정원 물건", "Garden")], ["plant", "/img/cat/plant.webp", T("식물", "Plants")], ["house", "/img/cat/home.webp", T("집 외관", "House")], ["garden", "/img/cat/garden.webp", T("정원 형태", "Layout")]]
+      : [["furniture", "/img/cat/furniture.webp", T("가구", "Furniture")], ["rug", "/img/cat/rug.webp", T("러그", "Rugs")], ["plant", "/img/cat/plant.webp", T("식물", "Plants")], ["small", "/img/cat/small.webp", T("소품", "Props")], ["wall", "/img/cat/poster.webp", T("벽장식", "Wall")], ["style", "/img/cat/wallpaper.webp", T("벽·바닥", "Style")]];
   }
   function openRoom(id) {
     if (!roomDef(id)) { renderPlan(); return; }
@@ -256,8 +261,8 @@
     ses.root.innerHTML = `<div class="kh-room-screen">
       <div class="kh-stage" id="kh-stage">
         <div class="kh-scene" id="kh-scene"></div>
-        <div class="kh-top over"><button type="button" class="kh-pillbtn" data-back aria-label="${T("집 전체 보기", "Back to the floor plan")}">${ic("left")}${ic("home")}<span>${T("평면도", "Floor plan")}</span></button>
-          <h2 class="kh-title pill">${esc(roomLabel(curRoom()))}</h2><span class="kh-sp"></span>
+        <div class="kh-top over"><button type="button" class="kh-ibtn kh-planbtn" data-back aria-label="${T("평면도", "Floor plan")}" title="${T("평면도", "Floor plan")}"><img src="/img/cat/floorplan.webp" alt="" draggable="false"></button>
+          <span class="kh-sp"></span><h2 class="kh-title kh-roomtitle"><img class="kh-roomtitle-ic" src="${ses.roomId !== "yard" && ses.S.slots[ses.roomId] ? "/img/rooms/" + ses.S.slots[ses.roomId].type + ".webp" : "/img/cat/outdoor.webp"}" alt="" draggable="false"><span>${esc(roomLabel(curRoom()))}</span></h2><span class="kh-sp"></span>
           <span class="kh-coins">${COIN}<b data-kh-coins>${coinsText()}</b></span><i class="kh-vr" aria-hidden="true"></i>
           <button type="button" class="kh-ibtn" data-zoom="out" aria-label="${T("작게", "Zoom out")}">${ic("minus")}</button><button type="button" class="kh-ibtn" data-zoom="in" aria-label="${T("크게", "Zoom in")}">${ic("plus")}</button>
           <button type="button" class="kh-ibtn" data-full aria-label="${T("크게 보기", "Full screen")}">${ic("maximize")}</button>

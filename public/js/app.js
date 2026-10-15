@@ -15662,7 +15662,9 @@ function koalaCatsHtml(mode) {
   const slots = mode === "room" ? KoalaCore.ROOM_SLOTS.concat(KOALA_SUB_KINDS.map((x) => "sub:" + x)) : KoalaCore.ITEM_SLOTS;
   const titles = KOALA_SLOT_TITLES();
   const catTitle = (s) => (koalaIsSubCat(s) ? koalaSubKindTitle(s.slice(4)) : titles[s]);
-  const cats = slots.map((s) => `<button type="button" class="koala-cat${koalaIsSubCat(s) ? " koala-cat-sub" : ""}${koalaSlotPick[mode] === s ? " on" : ""}" role="tab" aria-selected="${koalaSlotPick[mode] === s}" data-koala-cat="${s}">${catTitle(s)}</button>`).join("");
+  const CAT_IC = { headwear: "hat", face: "face", clothing: "body", bottoms: "legs", jewelry: "neck", shoes: "feet", accessory: "back", wallpaper: "wallpaper", rug: "rug", poster: "poster", desk: "desk", lamp: "lamp", shelf: "shelf", plant: "plant", window: "window", garland: "garland", pet: "pet", toy: "toy", "sub:books": "books", "sub:desk": "stationery", "sub:toys": "toy", "sub:frame": "poster", "sub:collage": "collage", "sub:petwear": "petwear" };
+  const catLabel = (s) => `${CAT_IC[s] ? `<img class="koala-cat-ic" src="img/cat/${CAT_IC[s]}.webp" alt="" draggable="false">` : ""}<span>${String(catTitle(s)).replace(/^\S+\s/, "")}</span>`;
+  const cats = slots.map((s) => `<button type="button" class="koala-cat${koalaIsSubCat(s) ? " koala-cat-sub" : ""}${koalaSlotPick[mode] === s ? " on" : ""}" role="tab" aria-selected="${koalaSlotPick[mode] === s}" data-koala-cat="${s}">${catLabel(s)}</button>`).join("");
   return `<div class="koala-cats-wrap"><button type="button" class="koala-cats-nav prev" data-koala-cats-nav="-1" aria-label="${rwL("Scroll left", "왼쪽으로")}" hidden>‹</button>
     <div class="koala-cats" role="tablist" aria-label="${rwL("Item categories", "아이템 종류")}">${cats}</div>
     <button type="button" class="koala-cats-nav next" data-koala-cats-nav="1" aria-label="${rwL("Scroll right", "오른쪽으로")}" hidden>›</button></div>`;
