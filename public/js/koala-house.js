@@ -270,13 +270,15 @@
     return (pw, vh) => rect(-4, -4, pw + 8, vh + 8, "#a4713a", 3) + rect(3, 3, pw - 6, vh - 6, sky)
       + (night ? `<circle cx="${pw * 0.72}" cy="${vh * 0.3}" r="8" fill="#ffd166"/><circle cx="${pw * 0.22}" cy="${vh * 0.25}" r="2" fill="#fff"/><circle cx="${pw * 0.4}" cy="${vh * 0.6}" r="1.6" fill="#fff"/><circle cx="${pw * 0.55}" cy="${vh * 0.78}" r="1.8" fill="#fff"/>`
         : `<ellipse cx="${pw * 0.3}" cy="${vh * 0.35}" rx="14" ry="6" fill="#fff" opacity=".92"/><ellipse cx="${pw * 0.7}" cy="${vh * 0.62}" rx="12" ry="5" fill="#fff" opacity=".92"/>`)
-      + rect(pw / 2 - 2, 3, 4, vh - 6, "#a4713a") + rect(3, vh / 2 - 2, pw - 6, 4, "#a4713a")
+      + `<path d="M3 3h${pw - 6}v8h-${pw - 6}zM3 3h8v${vh - 6}h-8z" fill="#000" opacity=".16"/><path d="M${pw * 0.58} 3h14l-${vh * 0.5} ${vh - 6}h-14z" fill="#fff" opacity=".22"/>`
+      + rect(pw / 2 - 2, 3, 4, vh - 6, "#a4713a") + rect(3, vh / 2 - 2, pw - 6, 4, "#a4713a") + rect(pw / 2 - 2, 3, 1.5, vh - 6, "#d9a566") + rect(3, vh / 2 - 2, pw - 6, 1.5, "#d9a566")
+      + rect(-9, vh + 3, pw + 18, 6, "#e2b678", 2) + rect(-9, vh + 7, pw + 18, 2.5, "#b98544", 1)
       + rect(-10, -10, 20, vh + 20, curtain, 4) + rect(pw - 10, -10, 20, vh + 20, curtain, 4) + rect(-12, -14, pw + 24, 7, shade(curtain, -0.28), 3);
   }
   wd("winDay", ["파란 하늘 창문", "Day Window"], 1.6, 62, 0, windowArt("#bfe0ff", "#f4a6a6", false), { defH: 50 });
   wd("winSunset", ["노을 창문", "Sunset Window"], 1.6, 62, 50, windowArt("#ffc99b", "#8fb8e8", false), { defH: 50 });
   wd("winNight", ["별밤 창문", "Night Window"], 1.6, 62, 70, windowArt("#2f3b6e", "#f2d46b", true), { defH: 50 });
-  const frame = (inner) => (pw, vh) => rect(0, 0, pw, vh, "#c99a63", 3) + rect(5, 5, pw - 10, vh - 10, "#fffaf0") + inner(pw, vh);
+  const frame = (inner) => (pw, vh) => rect(0, 0, pw, vh, "#c99a63", 3) + rect(0, 0, pw, 2, "#e2b678") + rect(0, vh - 2, pw, 2, "#a77a45") + rect(5, 5, pw - 10, vh - 10, "#fffaf0") + inner(pw, vh) + `<path d="M5 5h${pw - 10}v5h-${pw - 10}zM5 5h5v${vh - 10}h-5z" fill="#000" opacity=".14"/>`;
   wd("frameSun", ["해님 그림", "Sun Picture"], 0.9, 48, 0, frame((pw, vh) => `<circle cx="${pw / 2}" cy="${vh / 2 - 3}" r="9" fill="#f2c230"/><path d="M10 ${vh - 8}q${(pw - 20) / 2} -20 ${pw - 20} 0z" fill="#68b57c"/>`), { defH: 70, subKind: "frame" });
   wd("frameCat", ["고양이 그림", "Cat Picture"], 0.8, 50, 30, frame((pw, vh) => `<circle cx="${pw / 2}" cy="${vh / 2 + 3}" r="12" fill="#e8b887"/><path d="M${pw / 2 - 11} ${vh / 2 - 4}l3 -11 7 6zM${pw / 2 + 11} ${vh / 2 - 4}l-3 -11 -7 6z" fill="#e8b887"/><circle cx="${pw / 2 - 4.5}" cy="${vh / 2 + 1}" r="1.8" fill="#333"/><circle cx="${pw / 2 + 4.5}" cy="${vh / 2 + 1}" r="1.8" fill="#333"/>`), { defH: 70, subKind: "frame" });
   wd("frameRainbow", ["무지개 그림", "Rainbow"], 1.1, 44, 40, frame((pw, vh) => ["#ef6f8e", "#f2c230", "#68b57c", "#5b8fd0"].map((c, i) => `<path d="M${14 + i * 4} ${vh - 9}a${(pw - 28) / 2 - i * 4} ${(pw - 28) / 2 - i * 4} 0 0 1 ${pw - 28 - i * 8} 0" stroke="${c}" stroke-width="4" fill="none"/>`).join("")), { defH: 70, subKind: "frame" });
@@ -328,12 +330,14 @@
   let MANIFEST = {};
   function setManifest(m) { MANIFEST = m && typeof m === "object" ? m : {}; }
 
-  function pictureSvg(id, o, m) {
+  function pictureSvg(id, o, m, noSh) {
     const e = MANIFEST[id];
     if (!e || !e.src) return "";
     const w = e.wpx || 120, h = w * (e.ratio || 1), ax = e.ax != null ? e.ax : 0.5, ay = e.ay != null ? e.ay : 0.85;
     const [cx, cy] = proj(o.w / 2, o.d / 2, 0);
-    return `<image href="${e.src}" x="${cx - w * ax}" y="${cy - h * ay}" width="${w}" height="${h}"${m & 1 ? ` transform="translate(${cx * 2} 0) scale(-1 1)"` : ""} preserveAspectRatio="xMidYMid meet"/>`;
+    const rx = (o.w + o.d) * 32 * 0.33;
+    const sh = noSh ? "" : `<ellipse cx="${cx}" cy="${cy + (o.w + o.d) * 2}" rx="${rx}" ry="${rx * 0.5}" fill="#3b2a1a" opacity=".10"/><ellipse cx="${cx}" cy="${cy + (o.w + o.d) * 2}" rx="${rx * 0.7}" ry="${rx * 0.35}" fill="#3b2a1a" opacity=".12"/>`;
+    return sh + `<image href="${e.src}" x="${cx - w * ax}" y="${cy - h * ay}" width="${w}" height="${h}"${m & 1 ? ` transform="translate(${cx * 2} 0) scale(-1 1)"` : ""} preserveAspectRatio="xMidYMid meet"/>`;
   }
   /* ---- things inside furniture (sub-items) ---- */
   const BOOKCOL = ["#e66a5a", "#5b8fd0", "#68b57c", "#f2c94c", "#9a7be0", "#ef8fb0", "#4fb3b3", "#e0793a"];
@@ -367,7 +371,7 @@
   function itemInner(def, m, it) {
     const sp = it && it.sub && def.subKind ? subParts(def, it) : null;
     const o = sp ? turnParts(sp, def.w, def.d, m) : orient(def, m);
-    return pictureSvg(def.id, o, m) || o.parts.map(partSvg).join("");
+    return pictureSvg(def.id, o, m, !!(it && it.z)) || o.parts.map(partSvg).join("");
   }
   function itemBox(def, m) { // screen bounding box of a floor piece (origin at tile 0,0)
     const o = orient(def, m);
@@ -571,7 +575,14 @@
     let art = def.art(def.pw, def.vh);
     const sv = def.subKind === "frame" && i.sub && i.sub[0] ? subVis(i.sub[0]) : null;
     if (sv) { const fs = Math.min(def.pw, def.vh) * 0.55; art += `<rect x="5" y="5" width="${def.pw - 10}" height="${def.vh - 10}" fill="${sv[1]}"/><text x="${def.pw / 2}" y="${def.vh / 2 + fs * 0.34}" font-size="${fs.toFixed(0)}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${sv[0]}</text>`; }
-    return `<g class="kh-it kh-wall" data-uid="${i.uid || ""}" data-id="${i.id}" data-k="-2"><g transform="${wallMatrix(i.side)}"><g transform="translate(${i.u * 64} ${v})">${art}</g></g></g>`;
+    // depth: thickness extruded toward the room + soft shadow on the wall so it reads as 3D
+    const isWin = /^win/.test(i.id), isFr = /^frame|^poster|^mirror/.test(i.id);
+    const K = isWin ? 7 : isFr ? 5 : 3, nx = i.side === "L" ? 0.5 : -0.5, ob = isWin ? [-4, -4, def.pw + 8, def.vh + 8] : [0, 0, def.pw, def.vh];
+    let ext = "";
+    if (isWin || isFr) for (let k = K; k >= 1; k--) ext += `<g transform="translate(${(nx * k).toFixed(2)} ${(0.25 * k).toFixed(2)})"><rect x="${ob[0]}" y="${ob[1]}" width="${ob[2]}" height="${ob[3]}" rx="3" fill="${k > K - 1 ? "#8a5d30" : "#a4713a"}"/></g>`;
+    const shadow = !(isWin || isFr || i.id === "tvWall") ? "" : `<g transform="translate(${(-nx * 5).toFixed(1)} 5)" opacity=".2"><rect x="${ob[0]}" y="${ob[1]}" width="${ob[2]}" height="${ob[3]}" rx="4" fill="#2a1a0a"/></g>`;
+    const lift = (isWin || isFr) ? `translate(${(nx * K).toFixed(2)} ${(0.25 * K).toFixed(2)})` : "";
+    return `<g class="kh-it kh-wall" data-uid="${i.uid || ""}" data-id="${i.id}" data-k="-2"><g transform="${wallMatrix(i.side)}"><g transform="translate(${i.u * 64} ${v})">${shadow}</g></g><g transform="${wallMatrix(i.side)}"><g transform="translate(${i.u * 64} ${v})">${ext}</g></g><g transform="${lift ? "translate(0 0)" : ""}"><g transform="${wallMatrix(i.side)}"><g transform="translate(${i.u * 64} ${v})"><g transform="${lift}">${art}</g></g></g></g></g>`;
   }
   // Render one room (state: {wall, floor, items:[...]}) into an SVG string. opts: {label, extra}
   function roomSvg(room, st, opts) {

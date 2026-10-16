@@ -46,6 +46,7 @@
     pencil: '<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>',
     home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/>',
     left: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+    chevL: '<path d="m14.5 5.5-6.5 6.5 6.5 6.5" stroke-width="3"/>',
     right: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
     chev: '<path d="m9 18 6-6-6-6"/>',
     up: '<path d="M14 9 9 4 4 9"/><path d="M20 20h-7a4 4 0 0 1-4-4V4"/>',
@@ -261,7 +262,7 @@
     ses.root.innerHTML = `<div class="kh-room-screen">
       <div class="kh-stage" id="kh-stage">
         <div class="kh-scene" id="kh-scene"></div>
-        <div class="kh-top over"><button type="button" class="kh-ibtn kh-planbtn" data-back aria-label="${T("평면도", "Floor plan")}" title="${T("평면도", "Floor plan")}">${ic("left")}<img src="/img/cat/floorplan.webp" alt="" draggable="false"></button>
+        <div class="kh-top over"><button type="button" class="kh-ibtn kh-planbtn" data-back aria-label="${T("평면도", "Floor plan")}" title="${T("평면도", "Floor plan")}">${ic("chevL")}<span class="kh-planic"><img src="/img/cat/floorplan.webp" alt="" draggable="false"></span></button>
           <span class="kh-sp"></span><h2 class="kh-title kh-roomtitle"><img class="kh-roomtitle-ic" src="${ses.roomId !== "yard" && ses.S.slots[ses.roomId] ? "/img/rooms/" + ses.S.slots[ses.roomId].type + ".webp" : "/img/cat/outdoor.webp"}" alt="" draggable="false"><span>${esc(roomLabel(curRoom()))}</span></h2><span class="kh-sp"></span>
           <span class="kh-coins">${COIN}<b data-kh-coins>${coinsText()}</b></span><i class="kh-vr" aria-hidden="true"></i>
           <button type="button" class="kh-ibtn" data-zoom="out" aria-label="${T("작게", "Zoom out")}">${ic("minus")}</button><button type="button" class="kh-ibtn" data-zoom="in" aria-label="${T("크게", "Zoom in")}">${ic("plus")}</button>
