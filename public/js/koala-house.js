@@ -178,6 +178,7 @@
   }
   wardrobe("wardrobeWood", ["나무 옷장", "Wood Wardrobe"], "#b9814a", 0);
   wardrobe("wardrobeMint", ["민트 옷장", "Mint Wardrobe"], "#8fd1bd", 90);
+  ["wardrobeWood", "wardrobeMint"].forEach((id) => { D[id].subKind = "clothes"; });   // the Koala's clothes live in here (see KoalaHouse UI: "Inside")
   add("dresser", "furniture", ["서랍장", "Dresser"], 2, 1, 0, [B(0, 0, 0, 2, 1, 40, "#d9a066"), B(0.1, 1.0, 5, 0.86, 0.03, 14, "#e8b887"), B(1.04, 1.0, 5, 0.86, 0.03, 14, "#e8b887"), B(0.1, 1.0, 22, 0.86, 0.03, 14, "#e8b887"), B(1.04, 1.0, 22, 0.86, 0.03, 14, "#e8b887"),
     B(0.45, 1.03, 10, 0.16, 0.03, 3, "#8a5a3a"), B(1.4, 1.03, 10, 0.16, 0.03, 3, "#8a5a3a"), B(0.45, 1.03, 27, 0.16, 0.03, 3, "#8a5a3a"), B(1.4, 1.03, 27, 0.16, 0.03, 3, "#8a5a3a")], { topH: 40 });
   add("tvStand", "furniture", ["TV와 장", "TV Stand"], 2, 1, 100, [B(0, 0.1, 0, 2, 0.8, 18, "#2f343c"), B(0.08, 0.98, 4, 0.8, 0.03, 10, "#4a5260"), B(1.12, 0.98, 4, 0.8, 0.03, 10, "#4a5260"), B(0.8, 0.4, 18, 0.4, 0.2, 5, "#1e2228"),
@@ -330,11 +331,24 @@
   let MANIFEST = {};
   function setManifest(m) { MANIFEST = m && typeof m === "object" ? m : {}; }
 
-  function pictureSvg(id, o, m, noSh) {
-    const e = MANIFEST[id];
+  // a chair facing away from the viewer (m = 2: faces -y, m = 3: faces -x) is pushed a little towards what it faces, so it tucks under a desk / table
+  let OPENUID = null;                       // the piece whose "inside" is being edited is drawn open (doors / lid open)
+  const setOpen = (uid) => { OPENUID = uid || null; };
+  let lastGeom = null;                      // { cx, cy, w, h, x, y } of the picture drawn last (the things inside are placed by it)
+  const TUCK = 0.3;
+  function tuckOf(id, m) {
+    const d = D[id];
+    if (!d || !d.seat || !/^(stool|chair)/.test(id)) return [0, 0];
+    m = ((m | 0) % 4 + 4) % 4;
+    return m === 2 ? [0, -TUCK] : m === 3 ? [-TUCK, 0] : [0, 0];
+  }
+  function pictureSvg(id, o, m, noSh, open) {
+    const e = open && !(m & 2) && MANIFEST[id + "@o"] || (m & 2) && MANIFEST[id + "@b"] || MANIFEST[id];   // turned to face away (m = 2, 3): the picture from behind, when there is one
     if (!e || !e.src) return "";
     const w = e.wpx || 120, h = w * (e.ratio || 1), ax = e.ax != null ? e.ax : 0.5, ay = e.ay != null ? e.ay : 0.85;
-    const [cx, cy] = proj(o.w / 2, o.d / 2, 0);
+    const tk = tuckOf(id, m);
+    const [cx, cy] = proj(o.w / 2 + tk[0], o.d / 2 + tk[1], 0);
+    lastGeom = { cx, cy, w, h, x: cx - w * ax, y: cy - h * ay, mir: !!(m & 1) };
     const rx = (o.w + o.d) * 32 * 0.33;
     const sh = noSh ? "" : `<ellipse cx="${cx}" cy="${cy + (o.w + o.d) * 2}" rx="${rx}" ry="${rx * 0.5}" fill="#3b2a1a" opacity=".10"/><ellipse cx="${cx}" cy="${cy + (o.w + o.d) * 2}" rx="${rx * 0.7}" ry="${rx * 0.35}" fill="#3b2a1a" opacity=".12"/>`;
     return sh + `<image href="${e.src}" x="${cx - w * ax}" y="${cy - h * ay}" width="${w}" height="${h}"${m & 1 ? ` transform="translate(${cx * 2} 0) scale(-1 1)"` : ""} preserveAspectRatio="xMidYMid meet"/>`;
@@ -368,10 +382,28 @@
     }
     return null;
   }
+  // the things inside / on a piece that is drawn as a picture: clothes in an open wardrobe, toys out of an open box, things on a desk
+  function subOverlay(def, it, g, open) {
+    if (!g || !it || !it.sub || !it.sub.length) return "";
+    const sub = it.sub, at = (fx, fy) => [g.x + g.w * (g.mir ? 1 - fx : fx), g.y + g.h * fy];
+    if (def.subKind === "clothes" && open) {
+      const n = Math.min(sub.length, 8);
+      return sub.slice(0, n).map((id, k) => { const [x, y] = at(0.34 + (k % 4) * 0.105, k < 4 ? 0.34 : 0.6), sz = g.w * 0.21; return `<image href="/img/koala/th/${id}.webp" x="${(x - sz / 2).toFixed(1)}" y="${(y - sz / 2).toFixed(1)}" width="${sz.toFixed(1)}" height="${sz.toFixed(1)}"/>`; }).join("");
+    }
+    if (def.subKind === "toys" && open) {
+      return sub.slice(0, 4).map((id, k) => { const v = subVis(id); if (!v) return ""; const [x, y] = at(0.3 + k * 0.14, 0.3 - (k % 2) * 0.1); return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${(g.w * 0.2).toFixed(1)}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${v[0]}</text>`; }).join("");
+    }
+    if (def.subKind === "desk") {
+      return sub.slice(0, 5).map((id, k) => { const v = subVis(id); if (!v) return ""; const [x, y] = at(0.3 + k * 0.1, 0.34 + (k % 2) * 0.06); return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${(g.w * 0.13).toFixed(1)}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${v[0]}</text>`; }).join("");
+    }
+    return "";
+  }
   function itemInner(def, m, it) {
     const sp = it && it.sub && def.subKind ? subParts(def, it) : null;
     const o = sp ? turnParts(sp, def.w, def.d, m) : orient(def, m);
-    return pictureSvg(def.id, o, m, !!(it && it.z)) || o.parts.map(partSvg).join("");
+    const open = !!(it && it.uid && it.uid === OPENUID && def.subKind);
+    const pic = pictureSvg(def.id, o, m, !!(it && it.z), open);
+    return pic ? pic + subOverlay(def, it, lastGeom, open) : o.parts.map(partSvg).join("");
   }
   function itemBox(def, m) { // screen bounding box of a floor piece (origin at tile 0,0)
     const o = orient(def, m);
@@ -636,7 +668,7 @@
       owned: { bedBlue: 1, sofaRed: 1, deskWood: 1, stoolBlue: 1, shelfWood: 1, wardrobeWood: 1, tableRound: 1, rugBlue: 1, lampDesk: 1, vase: 1, bookStack: 1, plantBig: 1, dresser: 1, toybox: 1, tvStand: 1, fridge: 1, counter: 1, stove: 1, bathtub: 1, toilet: 1, vanity: 1, treeApple: 1, bush: 1, flowerBed: 1, bench: 1, fence: 1, stones: 1, pottedSmall: 1, winDay: 1, frameSun: 1 },
       worn: {}, walls: { cream: 1, mint: 1 }, floors: { wood: 1, grass: 1 }, houseStyles: { cottage: 1 }, yardSizes: { normal: 1 },
       slots: {
-        [START_SLOT]: { type: "study", wall: "mint", floor: "wood", items: [it("rugBlue", 1, 2), it("deskWood", 3, 0), Object.assign(it("stoolBlue", 3, 1), { m: 0 }), it("shelfWood", 0, 1, 1), it("plantBig", 5, 5), Object.assign(it("lampDesk", 4, 0), { z: 34 }), Object.assign(it("bookStack", 3, 0), { z: 34 }), { uid: newUid(), id: "winDay", side: "R", u: 1.5, h: 56 }, { uid: newUid(), id: "frameSun", side: "L", u: 3.5, h: 70 }] },
+        [START_SLOT]: { type: "study", wall: "mint", floor: "wood", items: [it("rugBlue", 1, 2), it("deskWood", 3, 0), Object.assign(it("stoolBlue", 3, 1), { m: 2 }), it("shelfWood", 0, 1, 1), it("plantBig", 5, 5), Object.assign(it("lampDesk", 4, 0), { z: 34 }), Object.assign(it("bookStack", 3, 0), { z: 34 }), { uid: newUid(), id: "winDay", side: "R", u: 1.5, h: 56 }, { uid: newUid(), id: "frameSun", side: "L", u: 3.5, h: 70 }] },
       },
       yard: { size: "normal", floor: "grass", border: "fence", path: "stones", house: { style: "cottage", wall: "cream", roof: "red", door: "wood", rot: 0, shift: 0 }, items: [it("treeApple", 1, 5), it("flowerBed", 9, 6), it("bench", 3, 9), it("bush", 0, 8)] },
     };
@@ -776,6 +808,6 @@
   return {
     TW, TH, WALL_H, D, WALLS, FLOORS, ROOMS, ROOM_ORDER, PLAN, SLOTS, START_SLOT, YARD, HOUSE_WALLS, HOUSE_ROOFS, HOUSE_DOORS, HOUSE_STYLES, YARD_SIZES, BORDERS, PATHS, GARDEN_PRESETS,
     proj, shade, orient, itemBox, itemInner, thumbSvg, roomSvg, planSvg, wallItemSvg, floorItemSvg, sceneBox, depthCmp, roomOf, stateOf, yardDims, houseRect, subVis, bookColor,
-    canPlace, freeCells, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts,
+    canPlace, freeCells, tuckOf, setOpen, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts,
   };
 });

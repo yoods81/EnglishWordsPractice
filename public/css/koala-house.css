@@ -84,6 +84,11 @@ body.kh-open{overflow:hidden}
 .kh-sheet h2{margin:0 0 8px;font-size:1.2rem}
 .kh-buy-pic{display:grid;place-items:center;max-height:180px;overflow:hidden}
 .kh-buy-pic svg{max-height:160px;width:auto;max-width:100%}
+.kh-detail-pic{max-height:none;overflow:visible;padding:6px 0}
+.kh-detail-pic svg{width:min(260px,70vw);height:auto;max-height:260px}
+.kh-detail-pic img{width:min(240px,64vw);height:auto;max-height:260px;object-fit:contain}
+.kh-detail-pic.is-locked{filter:grayscale(.5);opacity:.85}
+.kh-detail-pic .kh-sw-c.big{width:120px;height:120px}
 .kh-buy-thumb svg{width:120px;height:110px}
 .kh-buy-price{font-size:1.2rem;margin:8px 0}
 .kh-buy-note{margin:0 0 12px;color:#4e6b63}
@@ -358,3 +363,8 @@ html body #view-koala .koala-dim3d:has(.kh-modal), html body #view-koala .koala-
 .kh-app:not(.kh-narrow) .kh-room-screen .kh-panel { width: min(540px, 44vw); }
 .kh-planbtn{background:#e6f6f0;border-color:#b9e3d5}
 html body .kh-app .kh-top .kh-planbtn{background:#cdeee2!important;border-color:#9fd6c3!important}
+
+.kh-subitem .kh-clth{width:44px;height:44px;object-fit:contain}
+.kh-subitem.locked .kh-clth{opacity:.45;filter:grayscale(.7)}
+.kh-subitem.locked{opacity:.85}
+.kh-detail-pic .kh-subic{width:128px;height:128px;font-size:3.8rem;border-radius:24px}

@@ -66,7 +66,9 @@
 
   const coinsText = () => (curOpts.unlimited ? "∞" : Number(curOpts.coins()).toLocaleString());
   function refreshCoins() { if (ses) ses.root.querySelectorAll("[data-kh-coins]").forEach((e) => { e.textContent = coinsText(); }); }
+  let wardHost = null, modalEl = null;   // the 3D wardrobe has no room session: its popups hang off its own root
   function toast(msg, bad) {
+    if (!ses) { if (wardHost) { wardMsg = bad ? msg : ""; } return; }
     const t = ses.root.querySelector(".kh-toast");
     if (!t) return;
     t.textContent = msg; t.className = "kh-toast on" + (bad ? " bad" : "");
@@ -127,15 +129,38 @@
   function onResize() { if (!ses) return; fit(ses.root); if (ses.screen === "plan") placeMarker(false); }
 
   /* ------------------------------ modal ------------------------------ */
-  function closeModal() { if (ses && ses.modal) { ses.modal.remove(); ses.modal = null; } }
+  function closeModal() { if (modalEl) { modalEl.remove(); modalEl = null; } if (ses) ses.modal = null; }
   function modal(html, wire) {
     closeModal();
     const m = el("div", "kh-modal", `<div class="kh-sheet" role="alertdialog" aria-modal="true">${html}</div>`);
     m.addEventListener("click", (e) => { if (e.target === m) closeModal(); });
-    ses.root.appendChild(m);
-    ses.modal = m;
+    const host = (ses && ses.root) || wardHost;
+    if (!host) return;
+    host.appendChild(m);
+    modalEl = m; if (ses) ses.modal = m;
     if (wire) wire(m);
     const b = m.querySelector("[data-primary]"); if (b) b.focus();
+  }
+  // Detail popup for a shop card: a big picture, then Place / Wear + Cancel for what you own, or Buy + Close for what you don't.
+  // Buying only unlocks the thing (the card stops being faded); it is placed / worn the next time you tap it.
+  //   o: { title, pic, price, own, go: "Place" label, onGo(), spendWhy, onBuy(): runs after the coins were taken, spendFn, note }
+  function detail(o) {
+    const coinsNow = () => (curOpts && curOpts.coins ? curOpts.coins() : Infinity), afford = o.afford != null ? o.afford : o.price === 0 || (curOpts && curOpts.unlimited) || coinsNow() >= o.price;
+    const priceHtml = o.own ? "" : `<p class="kh-buy-price">${COIN} <b>${o.price}</b></p><p class="kh-buy-note">${afford ? T("코인으로 살까요? 사도 바로 놓이지 않아요.", "Buy it with your coins? It won't be placed yet.") : T(`코인이 ${o.price - coinsNow()}개 모자라요. 공부하고 코인을 모아 봐요!`, `You need ${o.price - coinsNow()} more coins. Keep studying to earn them!`)}</p>`;
+    const note = o.own && o.note ? `<p class="kh-buy-note">${esc(o.note)}</p>` : "";
+    const btns = o.own
+      ? `<button type="button" class="kh-btn" data-primary data-go>${esc(o.go)}</button><button type="button" class="kh-btn alt" data-no>${T("취소", "Cancel")}</button>`
+      : `<button type="button" class="kh-btn" data-primary data-yes ${afford ? "" : "disabled"}>${T("살래요", "Buy")}</button><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button>`;
+    modal(`<h2>${esc(o.title)}</h2><div class="kh-buy-pic kh-detail-pic${o.own ? "" : " is-locked"}">${o.pic}</div>${priceHtml}${note}<div class="kh-btns">${btns}</div>`, (m) => {
+      m.querySelector("[data-no]").onclick = closeModal;
+      const go = m.querySelector("[data-go]"); if (go) go.onclick = () => { closeModal(); o.onGo(); };
+      const yes = m.querySelector("[data-yes]");
+      if (yes) yes.onclick = () => {
+        const ok = o.spendFn ? o.spendFn(o.price, o.spendWhy) : curOpts.spend(o.price, o.spendWhy);
+        if (!ok) { toast(T("코인이 모자라요", "Not enough coins"), true); closeModal(); return; }
+        closeModal(); refreshCoins(); o.onBuy();
+      };
+    });
   }
   // buy something: cb() runs after the coins were taken. spendFn(price, why) overrides the default spending.
   function buy(title, picHtml, price, why, cb, spendFn) {
@@ -354,7 +379,7 @@
   function updateKoala() {
     const g = ses.root.querySelector(".kh-koala");
     if (!g) return;
-    const k = ses.koala, stoolSit = k.pose === "sit" && k.seat && /^stool/.test((curState().items.find((i) => i.uid === k.seat) || {}).id || ""), [x, y] = H.proj(k.c + 0.5, k.r + 0.5, (k.z || 0) - (stoolSit ? 3 : 0));
+    const k = ses.koala, stoolSit = k.pose === "sit" && k.seat && /^stool/.test((curState().items.find((i) => i.uid === k.seat) || {}).id || ""), seatIt = k.pose === "sit" && k.seat && curState().items.find((i) => i.uid === k.seat), tk = seatIt ? H.tuckOf(seatIt.id, seatIt.m).map((v, i) => v + (/^stool/.test(seatIt.id) ? { 2: [0.5, 0.2], 3: [0.2, 0.5] }[((seatIt.m | 0) % 4 + 4) % 4] || [0, 0] : [0, 0])[i]) : [0, 0], [x, y] = H.proj(k.c + 0.5 + tk[0], k.r + 0.5 + tk[1], (k.z || 0) - (stoolSit ? 3 : 0));
     g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
     const sit = k.pose === "sit", rd = k.pose === "read", wt = k.pose === "water", away = k.dir === 2 || k.dir === 3, hasBack = !!g.querySelector(".kh-kback");
     const hasRd = true, hasWt = !!g.querySelector(".kh-kwaterimg");
@@ -375,7 +400,7 @@
     const chairIt = stoolSit && away && curState().items.find((i) => i.uid === k.seat), src = chairIt && layer.querySelector(`.kh-it[data-uid="${chairIt.uid}"]`);
     if (src) {
       const bx = k.dir === 3 ? [0.8, 0.9, 0.1, 0.9] : [0.1, 0.9, 0.8, 0.9], pts = [];
-      for (const x of [bx[0], bx[1]]) for (const y of [bx[2], bx[3]]) for (const z of [23, 52]) pts.push(H.proj(k.c + x, k.r + y, z));
+      for (const x of [bx[0], bx[1]]) for (const y of [bx[2], bx[3]]) for (const z of [23, 52]) pts.push(H.proj(k.c + x + tk[0], k.r + y + tk[1], z));
       pts.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
       const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]), lo = [], up = [];
       for (const q of pts) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
@@ -497,6 +522,7 @@
 
   /* ---- scene drawing ---- */
   function drawScene() {
+    H.setOpen(ses.subOf);
     const room = curRoom(), st = curState();
     ses.root.querySelector("#kh-scene").innerHTML = H.roomSvg(room, st, { label: roomLabel(room), extra: '<g class="kh-ghost"></g>' });
     const svg = ses.root.querySelector(".kh-room-svg");
@@ -514,6 +540,7 @@
     return ses.root.querySelector(`.kh-it[data-uid="${ses.sel}"]`);
   }
   function applySel() {
+    if (ses.subOf && ses.sel !== ses.subOf) { ses.subOf = null; drawScene(); drawPanel(); }   // looking at something else: close it again
     ses.root.querySelectorAll(".kh-sel").forEach((e) => e.classList.remove("kh-sel"));
     const e = selEl(); if (e) e.classList.add("kh-sel");
   }
@@ -651,7 +678,7 @@
     const it = st.items.find((x) => x.uid === ses.sel);
     if (!it) return;
     if (act === "del") { leaveSubs(); st.items = st.items.filter((x) => x.uid !== it.uid); ses.sel = null; recalcZ(st); save(); drawScene(); hideMenu(); placeKoalaFree(); updateKoala(); return; }
-    if (act === "subs") { ses.subOf = it.uid; hideMenu(); drawPanel(); return; }
+    if (act === "subs") { ses.subOf = it.uid; hideMenu(); drawScene(); applySel(); drawPanel(); return; }
     if (act === "rot" || act === "rotl") {
       const room = curRoom(), want = Object.assign({}, it, { m: ((it.m | 0) + (act === "rot" ? 1 : 3)) % 4 });
       let ok = null;
@@ -667,8 +694,38 @@
   }
 
   /* ---- what is inside furniture (sub-items): shown in the right-hand / lower panel, like opening a folder ---- */
-  function leaveSubs() { if (ses.subOf) { ses.subOf = null; drawPanel(); } }
+  function leaveSubs() { if (ses.subOf) { ses.subOf = null; drawScene(); drawPanel(); } }
+  // the wardrobe: every piece of Koala clothing in the shop; what you own can be put in (it shows inside the open wardrobe), the rest stays faded until bought
+  const CLOTH_SLOTS = ["body", "legs", "feet", "hat", "neck", "face", "back"];
+  function clothesPanel(panel, it) {
+    const d = H.D[it.id], cat = (tabsFor(ses.roomId === "yard").find((t) => t[0] === d.cat) || [0, 0, T("가구", "Furniture")])[2];
+    const slotName = { hat: T("머리", "Head"), face: T("얼굴", "Face"), neck: T("목", "Neck"), body: T("상의", "Tops"), legs: T("하의", "Bottoms"), back: T("등", "Back"), feet: T("신발", "Shoes") };
+    const stOf = (n) => { const st = wardApi ? wardApi.status(id2d(n)) : { state: "owned" }; return st || { state: "owned" }; };
+    const cur = it.sub || [];
+    const grp = CLOTH_SLOTS.filter((sl) => KSLOT[sl]).map((sl) => `<h3>${slotName[sl]}</h3><div class="kh-subgrid">${KSLOT[sl].map((n) => {
+      const st = stOf(n), own = st.state === "owned", on = cur.includes(n);
+      return `<button type="button" class="kh-subitem${on ? " on" : ""}${own ? "" : " locked"}" data-cl="${n}" aria-pressed="${on}"><img class="kh-clth" src="${kthumb(n)}" alt="" draggable="false"><span class="kh-nm">${esc(T(KNAME[n][0], KNAME[n][1]))}</span>${own ? (on ? `<span class="kh-pr kh-ok">${ic("check")}</span>` : "") : `<span class="kh-pr">${st.state === "buyable" ? COIN + (st.cost || 0) : "🔒"}</span>`}</button>`;
+    }).join("")}</div>`).join("");
+    panel.innerHTML = `<nav class="kh-crumbs" aria-label="${T("현재 위치", "You are here")}"><button type="button" class="kh-up" data-up aria-label="${T("상위로", "Up one level")}">${ic("up")}</button>
+      <button type="button" class="kh-crumb" data-up>${esc(cat)}</button><span class="kh-sep">${ic("chev")}</span><span class="kh-crumb cur">${esc(nm(d))}</span></nav>
+      <div class="kh-grid" id="kh-grid">${shelfHead(T("옷장 속 옷", "Clothes inside"), `${cur.length}/12`)}<p class="kh-subnote">${T("산 옷을 눌러 옷장에 넣고 빼요. 못 산 옷은 흐리게 보여요.", "Tap clothes you own to put them in or take them out. Clothes you haven't bought are faded.")}</p>${grp}</div>`;
+    panel.querySelectorAll("[data-up]").forEach((x) => { x.onclick = () => { ses.subOf = null; drawScene(); applySel(); drawPanel(); }; });
+    panel.querySelectorAll("[data-cl]").forEach((bt) => {
+      bt.onclick = () => {
+        const n = bt.dataset.cl, st = stOf(n), nmN = T(KNAME[n][0], KNAME[n][1]), pic = `<img src="${kthumb(n)}" alt="" draggable="false">`;
+        const toggle = () => {
+          const sub = (it.sub || []).slice(), at = sub.indexOf(n);
+          if (at >= 0) sub.splice(at, 1); else { if (sub.length >= 12) { toast(T("옷장이 가득 찼어요", "The wardrobe is full"), true); return; } sub.push(n); }
+          it.sub = sub; save(); drawScene(); applySel(); drawPanel();
+        };
+        if (st.state === "owned") { detail({ title: nmN, pic, price: 0, own: true, go: (it.sub || []).includes(n) ? T("옷장에서 빼기", "Take out") : T("옷장에 넣기", "Put in"), onGo: toggle }); return; }
+        if (st.state === "buyable") { detail({ title: nmN, pic, price: st.cost || 0, own: false, afford: true, spendFn: () => true, spendWhy: "", onBuy: () => { if (!wardApi.buy(id2d(n))) { toast(T("코인이 모자라요", "Not enough coins"), true); return; } refreshCoins(); drawPanel(); toast(T("샀어요! 다시 눌러서 넣어 봐요.", "Bought! Tap it again to put it in.")); } }); return; }
+        toast(st.cost ? T("코인이 모자라요: ", "Not enough coins: ") + st.cost : st.hint ? T("잠겨 있어요: ", "Locked: ") + st.hint : T("아직 열 수 없어요.", "Not available yet."), true);
+      };
+    });
+  }
   function subsPanel(panel, it) {
+    if (H.D[it.id].subKind === "clothes") { clothesPanel(panel, it); return; }
     const d = H.D[it.id], kind = d.subKind, api = curOpts.subs, list = api.list(kind), grp = {}; list.forEach((e) => { grp[e.id] = e.group; });
     const cur = it.sub || [], tabs = tabsFor(ses.roomId === "yard"), cat = (tabs.find((t) => t[0] === d.cat) || [0, 0, T("가구", "Furniture")])[2];
     const icon = (e) => { const v = H.subVis(e.id); return v ? `<span class="kh-subic" style="background:${v[1]}" aria-hidden="true">${v[0]}</span>` : `<span class="kh-subic" style="background:${H.bookColor(e.id)}" aria-hidden="true">📖</span>`; };
@@ -679,11 +736,11 @@
       <button type="button" class="kh-crumb" data-up>${esc(cat)}</button><span class="kh-sep">${ic("chev")}</span><span class="kh-crumb cur">${esc(nm(d))}</span></nav>
       <div class="kh-grid" id="kh-grid">${shelfHead(title)}<p class="kh-subnote">${note}</p>${groups.map((g) => `${gname[g] ? `<h3>${gname[g]}</h3>` : ""}<div class="kh-subgrid">${list.filter((e) => e.group === g).map((e) => { const on = cur.includes(e.id); return `<button type="button" class="kh-subitem${on ? " on" : ""}${e.owned ? "" : " locked"}" data-sub="${e.id}" aria-pressed="${on}">${icon(e)}<span class="kh-nm">${esc(T(e.name[0], e.name[1]))}</span>${e.owned ? (on ? `<span class="kh-pr kh-ok">${ic("check")}</span>` : "") : `<span class="kh-pr">${COIN}${e.cost}</span>`}</button>`; }).join("")}</div>`).join("")}
       ${it.sub && kind === "books" ? `<button type="button" class="kh-btn alt kh-clear" data-reset>${T("기본 책으로", "Default books")}</button>` : ""}</div>`;
-    panel.querySelectorAll("[data-up]").forEach((x) => { x.onclick = () => { ses.subOf = null; drawPanel(); }; });
+    panel.querySelectorAll("[data-up]").forEach((x) => { x.onclick = () => { ses.subOf = null; drawScene(); applySel(); drawPanel(); }; });
     const rs = panel.querySelector("[data-reset]"); if (rs) rs.onclick = () => { delete it.sub; save(); drawScene(); drawPanel(); };
     panel.querySelectorAll("[data-sub]").forEach((bt) => {
       bt.onclick = () => {
-        const e = list.find((x) => x.id === bt.dataset.sub);
+        const e = list.find((x) => x.id === bt.dataset.sub), on = (it.sub || []).includes(e.id);
         const toggle = () => {
           let sub = (it.sub || []).slice();
           const at = sub.indexOf(e.id);
@@ -696,8 +753,8 @@
           }
           it.sub = sub; save(); drawScene(); drawPanel();
         };
-        if (e.owned) toggle();
-        else buy(T(e.name[0], e.name[1]), icon(e), e.cost, "sub:" + e.id, () => { e.owned = true; toggle(); }, () => api.buy(e.id));
+        detail({ title: T(e.name[0], e.name[1]), pic: icon(e), price: e.cost, own: e.owned, go: on ? T("빼기", "Take out") : kind === "frame" ? T("걸기", "Hang it") : T("넣기", "Put in"), spendWhy: "sub:" + e.id, spendFn: () => api.buy(e.id), onGo: toggle,
+          onBuy: () => { e.owned = true; drawPanel(); toast(T("샀어요! 다시 눌러서 넣어 봐요.", "Bought! Tap it again to put it in.")); } });
       };
     });
   }
@@ -751,6 +808,8 @@
     if (!drag.moved) { // a tap
       if (drag.uid || drag.koala || drag.house) {
         ses.sel = drag.uid || (drag.koala ? "koala" : "house"); applySel(); showMenu();
+        const tp = drag.uid && curState().items.find((x) => x.uid === drag.uid);
+        if (tp && H.D[tp.id].subKind && curOpts.subs && ses.subOf !== tp.uid) { ses.subOf = tp.uid; drawScene(); applySel(); drawPanel(); } // tapping a wardrobe / toy box / desk opens it
         if (drag.koala) { const g = ses.root.querySelector(".kh-kbody"); if (g) { g.classList.remove("hop"); void g.getBoundingClientRect(); g.classList.add("hop"); } }
       }
       return;
@@ -914,8 +973,9 @@
       b.addEventListener("click", () => {
         if (b._dragged) { b._dragged = false; return; }
         const id = b.dataset.item, d = H.D[id];
-        if (!ownedItem(d)) { buy(nm(d), `<span class="kh-buy-thumb">${H.thumbSvg(id)}</span>`, d.price, "house:" + id, () => { S.owned[id] = 1; save(); drawPanel(); placeNew(id); }); return; }
-        placeNew(id); placeKoalaFree(); updateKoala();
+        detail({ title: nm(d), pic: H.thumbSvg(id), price: d.price, own: ownedItem(d), go: T("배치하기", "Place"), spendWhy: "house:" + id,
+          onGo: () => { placeNew(id); placeKoalaFree(); updateKoala(); },
+          onBuy: () => { S.owned[id] = 1; save(); drawPanel(); toast(T("샀어요! 다시 눌러서 놓아 봐요.", "Bought! Tap it again to place it.")); } });
       });
     });
     grid.querySelectorAll("[data-sw]").forEach((b) => {
@@ -923,7 +983,8 @@
         const [kind, key] = b.dataset.sw.split(":"), def = (kind === "wall" ? H.WALLS : H.FLOORS)[key], store = kind === "wall" ? S.walls : S.floors, own = def.p === 0 || !!store[key];
         if (yard && kind === "floor") { runYard(planYard({ floor: key }, own ? 0 : def.p, "floor:" + key, T(def.n[0], def.n[1])), () => { store[key] = 1; }); return; }
         const apply = () => { curState()[kind] = key; save(); drawScene(); drawPanel(); };
-        if (own) apply(); else buy(T(def.n[0], def.n[1]), `<span class="kh-sw-c big" style="background:${def.c};box-shadow:inset 0 0 0 8px ${def.a}"></span>`, def.p, kind + ":" + key, () => { store[key] = 1; apply(); });
+        detail({ title: T(def.n[0], def.n[1]), pic: `<span class="kh-sw-c big" style="background:${def.c};box-shadow:inset 0 0 0 8px ${def.a}"></span>`, price: def.p, own, go: T("바꾸기", "Apply"), spendWhy: kind + ":" + key,
+          onGo: apply, onBuy: () => { store[key] = 1; save(); drawPanel(); toast(T("샀어요! 다시 눌러서 써 봐요.", "Bought! Tap it again to use it.")); } });
       };
     });
     grid.querySelectorAll("[data-house]").forEach((b) => { b.onclick = () => { const [kind, key] = b.dataset.house.split(":"); const st = curState(); st.house = st.house || {}; st.house[kind] = key; save(); drawScene(); drawPanel(); }; });
@@ -967,6 +1028,7 @@
   function mountWardrobe(root, opts) {
     if (ses) destroy();
     curOpts = opts;
+    wardHost = root;
     const S = H.load();
     S.worn = S.worn || {};
     const slotName = { hat: T("머리", "Head"), face: T("얼굴", "Face"), neck: T("목", "Neck"), body: T("상의", "Tops"), legs: T("하의", "Bottoms"), back: T("등", "Back"), feet: T("신발", "Shoes") };
@@ -999,12 +1061,11 @@
       root.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { wardSlot = b.dataset.tab; if (wardOwned) { wardOwned = false; window.dispatchEvent(new CustomEvent("kh-owned-off")); } draw(); }; });
       initCats(root);
       root.querySelectorAll("[data-wear]").forEach((b) => { b.onclick = () => {
-        const [slot, n] = b.dataset.wear.split(":"); const st = stOf(n);
-        if (st.state === "buyable") { if (!wardApi.buy(id2d(n))) { draw(); return; } }
-        else if (st.state !== "owned") { wardMsg = st.cost ? T("코인이 모자라요: ", "Not enough coins: ") + st.cost : st.hint ? T("잠겨 있어요: ", "Locked: ") + st.hint : T("아직 열 수 없어요.", "Not available yet."); draw(); return; }
-        wardMsg = "";
-        if (S.worn[slot] === n && st.state === "owned") delete S.worn[slot]; else S.worn[slot] = n;
-        H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw();
+        const [slot, n] = b.dataset.wear.split(":"); const st = stOf(n), nmN = T(KNAME[n][0], KNAME[n][1]), pic = `<img src="${kthumb(n)}" alt="" draggable="false">`;
+        const wearIt = () => { if (S.worn[slot] === n) delete S.worn[slot]; else S.worn[slot] = n; H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); };
+        if (st.state === "owned") { detail({ title: nmN, pic, price: 0, own: true, go: S.worn[slot] === n ? T("벗기", "Take off") : T("입기", "Wear"), onGo: wearIt }); return; }
+        if (st.state === "buyable") { detail({ title: nmN, pic, price: st.cost || 0, own: false, afford: true, spendFn: () => true, spendWhy: "", onBuy: () => { if (!wardApi.buy(id2d(n))) { toast(T("코인이 모자라요", "Not enough coins"), true); draw(); return; } wardMsg = ""; draw(); toast(T("샀어요! 다시 눌러서 입어 봐요.", "Bought! Tap it again to wear it.")); } }); return; }
+        wardMsg = st.cost ? T("코인이 모자라요: ", "Not enough coins: ") + st.cost : st.hint ? T("잠겨 있어요: ", "Locked: ") + st.hint : T("아직 열 수 없어요.", "Not available yet."); draw();
       }; });
       const clr = root.querySelector("[data-clear]"); if (clr) clr.onclick = () => { S.worn = {}; H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); };
       const kb = root.querySelector(".kh-wbody"); root.querySelector("#kh-wstage").onclick = () => { kb.classList.remove("hop"); void kb.getBoundingClientRect(); kb.classList.add("hop"); };

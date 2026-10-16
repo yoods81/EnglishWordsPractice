@@ -9220,6 +9220,10 @@ button.koala-zoom-tag:focus-visible { outline: 3px solid var(--accent-dark); out
 .koala-subd-stage { width: min(70%, 240px); aspect-ratio: 1; margin: 6px auto; border-radius: 18px; background: radial-gradient(circle at 50% 40%, #fffdf3, #ffeec2); border: 2px solid #f0d28a; padding: 12px; box-sizing: border-box; }
 .koala-subd-stage.is-wide { width: min(92%, 340px); aspect-ratio: 56 / 40; }
 .koala-subd-stage > svg { width: 100%; height: 100%; display: block; }
+.koala-itemd-stage > svg, .koala-itemd-stage > img { width: 100%; height: 100%; display: block; object-fit: contain; }
+.koala-itemd-stage.is-locked { filter: grayscale(.55); opacity: .8; }
+.koala-itemd-price { font-weight: 800; color: #8a5a00; display: flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 6px; }
+.koala-itemd-act { gap: 10px; flex-wrap: wrap; }
 .koala-subd-name { font-family: var(--font-heading); font-weight: 700; font-size: 1.3rem; margin-top: 6px; }
 .koala-subd-desc { margin: 4px 8px 10px; color: var(--text); font-size: 1rem; line-height: 1.4; }
 .koala-subd-act { display: flex; justify-content: center; min-height: 44px; }

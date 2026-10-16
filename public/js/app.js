@@ -15981,7 +15981,7 @@ function koalaMountDim3d() {
   const host = document.getElementById("kh-host");
   if (!host || !window.KoalaHouse || !KoalaHouse.mount) return;
   try {
-    if (koalaTab === "room") { if (KoalaHouse.setRoomOwned) KoalaHouse.setRoomOwned(koalaOwnedView); KoalaHouse.mount(host, koalaHouseOpts()); }
+    if (koalaTab === "room") { koalaSetWardApi(); if (KoalaHouse.setRoomOwned) KoalaHouse.setRoomOwned(koalaOwnedView); KoalaHouse.mount(host, koalaHouseOpts()); }
     else { koalaSetWardApi(); if (KoalaHouse.setWardOwned) KoalaHouse.setWardOwned(koalaOwnedView); KoalaHouse.mountWardrobe(host, koalaHouseOpts()); }
   } catch (err) { host.textContent = ""; console.error(err); }
 }
@@ -16326,8 +16326,7 @@ function attachRoomDrag(el) {
         ghost.remove();
         const moved = Math.hypot(u.clientX - x0, u.clientY - y0) > 6;
         if (moved && !overStage(u)) return; // dropped outside the room: cancel
-        if (moved) { const p = toScene(u); roomPlaceItem(id, p.x, p.y); } else roomPlaceItem(id, null, null); // a tap drops it at its usual spot
-        refreshRoomEditor();
+        if (moved) { const p = toScene(u); roomPlaceItem(id, p.x, p.y); refreshRoomEditor(); } else openKoalaItemDetail(id, { onPlace: () => { roomPlaceItem(id, null, null); refreshRoomEditor(); } }); // a tap opens the detail: Place puts it at its usual spot
       });
       return;
     }
@@ -16393,17 +16392,86 @@ function openKoalaZoom(view) {
 // Tapping a shop card changes the preview straight away:
 //   worn item      -> taken off          owned item     -> put on
 //   locked / buyable item -> tried on in the preview only (nothing is spent until "Unlock")
+// Tapping an item card opens a big detail popup: Place / Wear + Cancel for what you own,
+// Buy (just unlocks it, nothing is worn or placed) + Close for what you don't.
+function closeKoalaItemDetail() {
+  const z = document.getElementById("koala-itemdetail");
+  if (z) z.remove();
+  document.removeEventListener("keydown", koalaItemDetailKey);
+}
+function koalaItemDetailKey(e) { if (e.key === "Escape") closeKoalaItemDetail(); }
+// opts.onPlace: run when "Place" is pressed (room inventory cards); default wears / places the item through handleKoalaItem.
+function openKoalaItemDetail(id, opts) {
+  const it = KoalaCore.itemById(id);
+  if (!it) return;
+  closeKoalaItemDetail();
+  opts = opts || {};
+  const isRoom = KoalaCore.ROOM_SLOTS.includes(it.slot);
+  const el = document.createElement("div");
+  el.id = "koala-itemdetail";
+  el.className = "koala-zoom-overlay";
+  const card = document.createElement("div");
+  card.className = "koala-zoom-card koala-subd-card koala-itemd-card";
+  card.setAttribute("role", "dialog");
+  card.setAttribute("aria-modal", "true");
+  card.setAttribute("aria-label", koalaItemName(it));
+  const body = (msg) => {
+    const st = KoalaCore.itemStatus(progress, it, koalaOpts());
+    const k = KoalaCore.ensureKoala(progress);
+    const own = st.state === "owned" || st.state === "equipped";
+    let price = "", act = "";
+    const cancel = `<button type="button" class="pill" data-koala-zoom-close>${rwL("Cancel", "취소")}</button>`;
+    if (own) {
+      const on = st.state === "equipped";
+      const looks = /wall|floor/i.test(it.slot);
+      const go = opts.onPlace ? rwL("Place", "배치하기") : looks ? (on ? rwL("Take it off", "빼기") : rwL("Apply", "적용하기")) : isRoom ? (on ? rwL("Take it out", "빼기") : rwL("Place", "배치하기")) : (on ? rwL("Take it off", "벗기") : rwL("Wear", "입기"));
+      act = `<button type="button" class="pill accent" data-koala-detail-go>${go}</button>${cancel}`;
+    } else if (st.state === "buyable") {
+      const short = serverAdmin ? 0 : st.cost - k.coins;
+      price = `<div class="koala-itemd-price">${COIN_SVG} ${serverAdmin ? rwL("Free for Admin", "관리자는 무료") : st.cost}</div>`;
+      act = short > 0 ? `<span class="koala-subd-state">${rwL(`${short} more Coins to unlock`, `${short}코인 더 모으면 살 수 있어요`)}</span><button type="button" class="pill" data-koala-zoom-close>${rwL("Close", "닫기")}</button>`
+        : `<button type="button" class="pill accent" data-koala-detail-buy>${rwL("Buy", "살래요")}</button><button type="button" class="pill" data-koala-zoom-close>${rwL("Close", "닫기")}</button>`;
+    } else {
+      price = `<div class="koala-itemd-price">${koalaItemStatusText(st).replace(/<[^>]*>/g, "")}</div>`;
+      act = `<button type="button" class="pill" data-koala-zoom-close>${rwL("Close", "닫기")}</button>`;
+    }
+    card.innerHTML = `<div class="koala-zoom-head"><span class="koala-subd-from">${rwL(isRoom ? "Room item" : "Koala item", isRoom ? "방 아이템" : "코알라 아이템")}</span><button type="button" class="koala-zoom-close" data-koala-zoom-close>${rwL("✕ Close", "✕ 닫기")}</button></div>
+      <div class="koala-subd-stage koala-itemd-stage${own ? "" : " is-locked"}">${KoalaArt.itemIcon(id)}</div>
+      <div class="koala-subd-name">${escapeHtml(koalaItemName(it))}</div>${price}
+      <div class="koala-subd-act koala-itemd-act">${act}</div><div class="koala-subd-msg" role="status">${msg ? escapeHtml(msg) : ""}</div>`;
+    const b = card.querySelector("[data-koala-detail-go],[data-koala-detail-buy]") || card.querySelector("[data-koala-zoom-close]");
+    if (b) b.focus();
+  };
+  body("");
+  el.appendChild(card);
+  el.addEventListener("click", (e) => {
+    if (e.target === el || e.target.closest("[data-koala-zoom-close]")) { closeKoalaItemDetail(); return; }
+    if (e.target.closest("[data-koala-detail-go]")) {
+      closeKoalaItemDetail();
+      if (opts.onPlace) opts.onPlace(); else handleKoalaItem(id);
+      return;
+    }
+    if (e.target.closest("[data-koala-detail-buy]")) {
+      const k = KoalaCore.ensureKoala(progress), prev = k.items.equipped[it.slot];
+      const res = KoalaCore.buyItem(progress, id, koalaOpts());
+      if (!res.ok) { body(rwL("Not enough Coins yet.", "코인이 아직 모자라요.")); return; }
+      // buying only unlocks it: whatever was worn / placed before stays as it was
+      if (prev) k.items.equipped[it.slot] = prev; else delete k.items.equipped[it.slot];
+      checkBadges(); saveProgress(); closeKoalaItemDetail(); renderKoala(); koalaSparkle();
+    }
+  });
+  document.body.appendChild(el);
+  document.addEventListener("keydown", koalaItemDetailKey);
+}
 function koalaTap(id) {
   if (!canUseAccountFeatures()) return;
   const it = KoalaCore.itemById(id);
   if (!it) return;
-  const st = KoalaCore.itemStatus(progress, it, koalaOpts());
-  if (st.state === "equipped" || st.state === "owned") { handleKoalaItem(id); return; }
+  koalaTry = null;
   const tab = KoalaCore.ROOM_SLOTS.includes(it.slot) ? "room" : "character";
   koalaTab = tab;
   koalaSlotPick[tab] = it.slot;
-  koalaTry = koalaTry === id ? null : id; // tap again to stop trying it on
-  renderKoala();
+  openKoalaItemDetail(id);
 }
 
 document.addEventListener("click", (e) => {
