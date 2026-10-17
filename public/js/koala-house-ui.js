@@ -214,6 +214,7 @@
     const sl = o.sell, free = !!(curOpts && curOpts.unlimited), back = free ? 0 : sl.back, fee = free ? 0 : sl.paid - sl.back;
     modal(`<h2>${T("되팔까요?", "Sell back?")}</h2><div class="kh-buy-pic kh-detail-pic">${o.pic}</div><p class="kh-buy-name"><b>${esc(o.title)}</b></p>
       <div class="kh-sellmath"><div><span>${T("산 가격", "Price you paid")}</span><b>${COIN} ${sl.paid}</b></div><div><span>${T("수수료 (20%)", "Fee (20%)")}</span><b>− ${fee}</b></div><div class="total"><span>${T("지갑으로 돌아와요", "Back to your wallet")}</span><b>${COIN} +${back}</b></div></div>
+      ${sl.note ? `<p class="kh-buy-note">${esc(sl.note)}</p>` : ""}
       ${free ? `<p class="kh-buy-note">${T("관리자는 코인이 무제한이라 환불은 없어요.", "Admin has unlimited coins, so nothing comes back.")}</p>` : ""}
       <div class="kh-btns"><button type="button" class="kh-btn alt" data-primary data-no>${T("그대로 두기", "Keep it")}</button><button type="button" class="kh-btn sell" data-yes>${T("되팔기", "Sell")}</button></div>`, (m) => {
       m.querySelector("[data-no]").onclick = closeModal;
@@ -268,7 +269,8 @@
     const house = H.planSvg(S, { name: (r) => roomLabel(r), empty: T("방 짓기", "Build a room"), fresh: ses.justBuilt, title: T("우리 집 평면도", "Our house floor plan") });
     ses.root.innerHTML = `<div class="kh-plan-screen">
       <div class="kh-planmain">${topBar("🏠 " + T("내 집", "My House"))}
-        <p class="kh-hint">${T("방을 누르면 코알라가 들어가요. 빈 칸에는 상점에서 방을 사서 지어요.", "Tap a room to walk in. Buy rooms in the shop and build them on the empty plots.")}</p>
+        <p class="kh-hint">${ses.manage ? T("방을 끌어서 다른 칸으로 옮기거나, 방을 눌러서 되팔 수 있어요.", "Drag a room to another plot, or tap a room to sell it.") : T("방을 누르면 코알라가 들어가요. 방을 꾹 누른 채 끌면 위치를 바꿀 수 있어요.", "Tap a room to walk in. Press and drag a room to move it.")}
+          <button type="button" class="kh-managebtn${ses.manage ? " on" : ""}" data-manage aria-pressed="${!!ses.manage}">${ses.manage ? T("✔ 끝내기", "✔ Done") : T("🏠 방 옮기기·되팔기", "🏠 Move / sell rooms")}</button></p>
         <div class="kh-plan" id="kh-plan">${house}
           <button type="button" class="kh-entrance" data-room="yard" aria-label="${T("집 외관 및 정원 꾸미기", "House & Garden Decor")}"><img class="kh-door-ic" src="/img/cat/house.webp" alt="" draggable="false"><span class="kh-card-name">${T("집 외관 및 정원 꾸미기", "House & Garden Decor")}</span><svg class="kh-door-go" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m9 18 6-6-6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <img class="kh-marker" id="kh-marker" src="${kimg("base")}" alt="${T("코알라", "Koala")}" draggable="false"></div></div>
@@ -277,11 +279,85 @@
         <div class="kh-grid">${shelfHead(T("방 상점", "Room shop"), `${built}/${H.SLOTS.length}`)}<div class="kh-items-grid kh-rooms">${H.ROOM_ORDER.map((t) => roomShopCard(t)).join("")}</div></div></aside></div><div class="kh-toast" role="status"></div>`;
     ses.justBuilt = null;
     ses.root.querySelector("[data-full]").onclick = toggleFull;
-    ses.root.querySelectorAll("[data-room]").forEach((b) => { press(b, () => pickRoom(b.dataset.room)); });
+    ses.root.querySelectorAll("[data-room]").forEach((b) => { press(b, () => { if (performance.now() < (ses.noTapUntil || 0)) return; if (ses.manage && b.dataset.room !== "yard") sellRoom(b.dataset.room); else pickRoom(b.dataset.room); }); });
+    const mg = ses.root.querySelector("[data-manage]"); if (mg) mg.onclick = () => { ses.manage = !ses.manage; renderPlan(); };
+    wirePlanDrag();
     ses.root.querySelectorAll("[data-empty]").forEach((b) => { press(b, () => chooseRoomType(b.dataset.empty)); });
     ses.root.querySelectorAll("[data-buyroom]").forEach((b) => { b.onclick = () => buildRoom(b.dataset.buyroom); });
     requestAnimationFrame(() => placeMarker(false));
     ses.root.querySelector("#kh-marker").addEventListener("load", () => placeMarker(false));
+  }
+  /* ---- moving and selling rooms on the floor plan ---- */
+  // Press and drag a room (a mouse drags at once, a finger after a short hold) onto an empty plot to move it, or onto another room to swap the two.
+  function wirePlanDrag() {
+    const svg = ses.root.querySelector(".kh-plan-svg");
+    if (!svg) return;
+    let d = null;
+    const findTarget = (x, y, skip) => {
+      for (const e of document.elementsFromPoint(x, y)) { const g = e.closest && e.closest("[data-room],[data-empty]"); if (g && g !== skip && g.dataset.room !== "yard" && svg.contains(g)) return g; }
+      return null;
+    };
+    const slotOf = (g) => g.dataset.room || g.dataset.empty;
+    const offset = (ev) => { const m = svg.getScreenCTM(); return m ? [(ev.clientX - d.x0) / m.a, (ev.clientY - d.y0) / m.d] : [0, 0]; };
+    const begin = () => { d.on = true; d.g.classList.add("dragging"); svg.classList.add("kh-dragging"); const a = /translate\(([-\d.]+)[ ,]+([-\d.]+)\)/.exec(d.base || ""); d.bx = a ? +a[1] : 0; d.by = a ? +a[2] : 0; };
+    const end = (commit) => {
+      if (!d) return;
+      clearTimeout(d.timer);
+      const cur = d; d = null;
+      svg.querySelectorAll(".drop").forEach((x) => x.classList.remove("drop"));
+      svg.classList.remove("kh-dragging");
+      if (!cur.on) return;
+      ses.noTapUntil = performance.now() + 400;   // the click that ends a drag must not open the room
+      cur.g.classList.remove("dragging");
+      if (cur.base != null) cur.g.setAttribute("transform", cur.base);
+      const tg = commit ? cur.tgt : null;
+      if (!tg) return;
+      const a = cur.sl, b = slotOf(tg), S = ses.S;
+      if (a === b) return;
+      const mine = S.slots[a];
+      if (S.slots[b]) S.slots[a] = S.slots[b]; else delete S.slots[a];
+      S.slots[b] = mine;
+      if (S.cur === a) S.cur = b; else if (S.cur === b) S.cur = a;
+      ses.justBuilt = b; save(); renderPlan(); toast(T("방을 옮겼어요!", "Room moved!"));
+    };
+    svg.querySelectorAll("[data-room]").forEach((g) => {
+      g.addEventListener("pointerdown", (ev) => {
+        if (ev.button > 0 || d) return;
+        d = { g, sl: g.dataset.room, x0: ev.clientX, y0: ev.clientY, on: false, base: g.getAttribute("transform"), tgt: null, timer: 0 };
+        try { g.setPointerCapture(ev.pointerId); } catch (e) { /* not capturable */ }
+        if (ev.pointerType === "touch") d.timer = setTimeout(() => { if (d && !d.on) begin(); }, 380);
+      });
+      g.addEventListener("pointermove", (ev) => {
+        if (!d || d.g !== g) return;
+        const dist = Math.hypot(ev.clientX - d.x0, ev.clientY - d.y0);
+        if (!d.on) {
+          if (ev.pointerType === "touch") { if (dist > 10) { clearTimeout(d.timer); d = null; } return; }   // a finger that moves before the hold is scrolling
+          if (dist < 7) return;
+          begin();
+        }
+        const [ux, uy] = offset(ev);
+        g.setAttribute("transform", `translate(${(d.bx + ux).toFixed(1)} ${(d.by + uy).toFixed(1)})`);
+        const tg = findTarget(ev.clientX, ev.clientY, g);
+        if (tg !== d.tgt) { svg.querySelectorAll(".drop").forEach((x) => x.classList.remove("drop")); if (tg) tg.classList.add("drop"); d.tgt = tg; }
+      });
+      g.addEventListener("pointerup", () => end(true));
+      g.addEventListener("pointercancel", () => end(false));
+    });
+    svg.addEventListener("touchmove", (e) => { if (d && d.on) e.preventDefault(); }, { passive: false });
+  }
+  // sell a room back (80% of its price); what stood in it stays in your things, only the placed copies are put away
+  function sellRoom(sl) {
+    const S = ses.S, st = S.slots[sl];
+    if (!st) return;
+    const t = H.ROOMS[st.type], n = (st.items || []).length, give = t.price > 0;
+    sellConfirm({ title: T(t.ko, t.en), pic: roomPic(st.type), sell: { paid: t.price, back: Math.floor(t.price * 0.8),
+      note: (give ? "" : T("처음부터 있던(무료) 방이라 돌려받는 코인은 없어요. ", "This room was free, so no coins come back. ")) + (n ? T(`방 안에 놓인 아이템 ${n}개는 치워져요. (아이템은 내 것으로 남아요)`, `The ${n} item(s) placed inside are put away (you keep them).`) : ""),
+      onSell: () => {
+        delete S.slots[sl];
+        if (S.cur === sl) S.cur = H.SLOTS.find((x) => S.slots[x]) || "yard";
+        if (give && curOpts.refund) curOpts.refund(Math.floor(t.price * 0.8), "roomsell:" + st.type);
+        save(); renderPlan(); return true;
+      } } });
   }
   function roomShopCard(t) {
     const r = H.ROOMS[t], have = Object.values(ses.S.slots).filter((x) => x.type === t).length;
@@ -1047,6 +1123,8 @@
     const apply = () => { if (mark) mark(); ses.S.yard = plan.y; save(); drawScene(); drawPanel(); placeKoalaFree(); updateKoala(); };
     if (plan.price > 0) buy(plan.label, `<span class="kh-buy-thumb">🏡</span>`, plan.price, plan.why, apply); else apply();
   }
+  // Anything can be sold back. Things that cost coins return 80%; the free ones (price 0, or the starter furniture the house came with) return nothing.
+  const houseRefundable = (id) => !!H.D[id] && H.D[id].price > 0 && !H.STARTER_OWNED.includes(id);
   // sell a piece of furniture: every copy placed in any room / the yard goes with it
   function sellHouseItem(id) {
     const S = ses.S, d = H.D[id];
@@ -1054,7 +1132,8 @@
     delete S.owned[id];
     Object.keys(S.slots).forEach((k) => { S.slots[k].items = (S.slots[k].items || []).filter((i) => i.id !== id); });
     if (S.yard) S.yard.items = (S.yard.items || []).filter((i) => i.id !== id);
-    if (curOpts.refund) curOpts.refund(Math.floor(d.price * 0.8), "housesell:" + id);
+    const give = houseRefundable(id);
+    if (give && curOpts.refund) curOpts.refund(Math.floor(d.price * 0.8), "housesell:" + id);
     ses.sel = null; save(); recalcZ(curState()); drawScene(); drawPanel(); hideMenu();
     return true;
   }
@@ -1073,9 +1152,9 @@
       b.addEventListener("click", () => {
         if (b._dragged) { b._dragged = false; return; }
         const id = b.dataset.item, d = H.D[id];
-        const sellable = ownedItem(d) && d.price > 0 && !H.STARTER_OWNED.includes(id);
+        const give = houseRefundable(id), paid = give ? d.price : 0;
         detail({ title: nm(d), pic: H.thumbSvg(id), price: d.price, own: ownedItem(d), go: T("배치하기", "Place"), keep: true, spendWhy: "house:" + id,
-          sell: sellable ? { paid: d.price, back: Math.floor(d.price * 0.8), onSell: () => sellHouseItem(id) } : null,
+          sell: ownedItem(d) ? { paid, back: Math.floor(paid * 0.8), note: (give ? "" : T("무료로 받은 아이템이라 돌려받는 코인은 없어요. ", "This one was free, so no coins come back. ")) + T("방에 놓아 둔 것도 모두 치워져요.", "Every copy placed in your rooms is removed too."), onSell: () => sellHouseItem(id) } : null,
           onGo: () => { placeNew(id); placeKoalaFree(); updateKoala(); },
           onBuy: () => { S.owned[id] = 1; save(); drawPanel(); toast(T("샀어요! 다시 눌러서 놓아 봐요.", "Bought! Tap it again to place it.")); } });
       });
@@ -1085,7 +1164,14 @@
         const [kind, key] = b.dataset.sw.split(":"), def = (kind === "wall" ? H.WALLS : H.FLOORS)[key], store = kind === "wall" ? S.walls : S.floors, own = def.p === 0 || !!store[key];
         if (yard && kind === "floor") { runYard(planYard({ floor: key }, own ? 0 : def.p, "floor:" + key, T(def.n[0], def.n[1])), () => { store[key] = 1; }); return; }
         const apply = () => { curState()[kind] = key; save(); drawScene(); drawPanel(); };
-        detail({ title: T(def.n[0], def.n[1]), pic: `<span class="kh-sw-c big" style="background:${def.c};box-shadow:inset 0 0 0 8px ${def.a}"></span>`, price: def.p, own, go: T("바꾸기", "Apply"), spendWhy: kind + ":" + key,
+        const sellSw = own && def.p > 0 && store[key] ? { paid: def.p, back: Math.floor(def.p * 0.8), note: T("지금 쓰고 있는 방은 기본 색으로 바뀌어요.", "Rooms using it switch back to a plain default."), onSell: () => {
+          delete store[key];
+          const tbl = kind === "wall" ? H.WALLS : H.FLOORS, base = Object.keys(tbl).find((k) => tbl[k].p === 0 && !tbl[k].yard);
+          Object.keys(S.slots).forEach((sl) => { if (S.slots[sl][kind] === key) S.slots[sl][kind] = base; });
+          if (curOpts.refund) curOpts.refund(Math.floor(def.p * 0.8), "housesell:" + kind + ":" + key);
+          save(); drawScene(); drawPanel(); return true;
+        } } : null;
+        detail({ title: T(def.n[0], def.n[1]), pic: `<span class="kh-sw-c big" style="background:${def.c};box-shadow:inset 0 0 0 8px ${def.a}"></span>`, price: def.p, own, sell: sellSw, go: T("바꾸기", "Apply"), spendWhy: kind + ":" + key,
           onGo: apply, onBuy: () => { store[key] = 1; save(); drawPanel(); toast(T("샀어요! 다시 눌러서 써 봐요.", "Bought! Tap it again to use it.")); } });
       };
     });

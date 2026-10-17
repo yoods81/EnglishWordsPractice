@@ -435,3 +435,13 @@ html body .kh-app .kh-top .kh-planbtn{background:#cdeee2!important;border-color:
 .kh-detail-pic.is-playing .kh-subic { animation: kh-asmr-wob .5s ease-in-out infinite alternate; }
 @keyframes kh-asmr-wob { from { transform: scale(1) rotate(-2deg); } to { transform: scale(1.1, .92) rotate(2deg); } }
 @media (prefers-reduced-motion: reduce) { .kh-detail-pic.is-playing .kh-subic { animation: none; } }
+
+/* moving / selling rooms on the floor plan */
+.kh-managebtn { display: inline-block; margin-left: 8px; padding: 4px 12px; border-radius: 999px; border: 1.5px solid #bfe2d4; background: #fff; color: #27594a; font-weight: 800; font-size: .85rem; cursor: pointer; }
+.kh-managebtn.on { background: #3ec28f; color: #fff; border-color: #3ec28f; }
+.kh-proom { touch-action: manipulation; }
+.kh-proom.dragging { opacity: .88; pointer-events: none; filter: drop-shadow(0 10px 10px rgba(0, 0, 0, .28)); }
+.kh-plan-svg.kh-dragging { cursor: grabbing; }
+.kh-pempty.drop polygon { fill: #bff0d9; stroke: #2fa77f; }
+.kh-proom.drop .kh-shell { filter: brightness(1.18) saturate(1.2); }
+.kh-proom.drop .kh-hit { fill: rgba(62, 194, 143, .28); }

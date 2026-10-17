@@ -344,7 +344,7 @@
     const L = ensure();
     if (!L) return false;
     stop();
-    const len = schedule(L.ctx, L.master, id, 0);
+    const len = schedule(L.ctx, L.master, id, L.ctx.currentTime + 0.06);   // not at 0: the clock keeps running, so a later play would otherwise be scheduled in the past (silent)
     L.playing = id;
     L.timer = setTimeout(() => { if (live && live.playing === id) { live.playing = null; emit(); } }, Math.ceil(len * 1000) + 150);
     emit();
