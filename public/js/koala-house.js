@@ -372,6 +372,14 @@
     toyTeddy: ["🧸", "#fff"], toyBall: ["🏐", "#fff"], toyCar: ["🚗", "#fff"], toyRobot: ["🤖", "#fff"], toyDino: ["🦖", "#fff"], toyBlocks: ["🧱", "#fff"], toyDuck: ["🦆", "#fff"], toyRocket: ["🚀", "#fff"], toyBunny: ["🐰", "#fff"], toyDrum: ["🥁", "#fff"],
   };
   const subVis = (id) => SUBV[id] || null;
+  const subImg = (id) => { const e = MANIFEST["@sub:" + id]; return e && e.src || null; };
+  // one small thing drawn at (x, y): its picture when there is one, otherwise the emoji
+  function subMark(id, x, y, sz) {
+    const src = subImg(id);
+    if (src) return `<image href="${src}" x="${(x - sz / 2).toFixed(1)}" y="${(y - sz / 2).toFixed(1)}" width="${sz.toFixed(1)}" height="${sz.toFixed(1)}" preserveAspectRatio="xMidYMid meet"/>`;
+    const v = subVis(id); if (!v) return "";
+    return `<text x="${x.toFixed(1)}" y="${(y + sz * 0.34).toFixed(1)}" font-size="${(sz * 0.8).toFixed(1)}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${v[0]}</text>`;
+  }
   const bookColor = (id) => { let h = 0; for (const ch of String(id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return BOOKCOL[h % BOOKCOL.length]; };
   function subParts(def, it) {
     const sub = it.sub || [];
@@ -401,16 +409,16 @@
       return sub.slice(0, n).map((id, k) => { const [x, y] = at(0.34 + (k % 4) * 0.105, k < 4 ? 0.34 : 0.6), sz = g.w * 0.21; return `<image href="/img/koala/th/${id}.webp" x="${(x - sz / 2).toFixed(1)}" y="${(y - sz / 2).toFixed(1)}" width="${sz.toFixed(1)}" height="${sz.toFixed(1)}"/>`; }).join("");
     }
     if (def.subKind === "toys" && open) {
-      return sub.slice(0, 4).map((id, k) => { const v = subVis(id); if (!v) return ""; const [x, y] = at(0.3 + k * 0.14, 0.3 - (k % 2) * 0.1); return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${(g.w * 0.2).toFixed(1)}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${v[0]}</text>`; }).join("");
+      return sub.slice(0, 4).map((id, k) => { const [x, y] = at(0.3 + k * 0.14, 0.3 - (k % 2) * 0.1); return subMark(id, x, y, g.w * 0.26); }).join("");
     }
     if (def.subKind === "sink") {
-      return sub.slice(0, 6).map((id, k) => { const v = subVis(id); if (!v) return ""; const [x, y] = at(0.22 + k * 0.1, 0.3 + (k % 2) * 0.05); return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${(g.w * 0.15).toFixed(1)}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${v[0]}</text>`; }).join("");
+      return sub.slice(0, 6).map((id, k) => { const [x, y] = at(0.22 + k * 0.1, 0.3 + (k % 2) * 0.05); return subMark(id, x, y, g.w * 0.2); }).join("");
     }
     if (def.subKind === "fridge") {   // little food stickers on the door (there is no open-door picture)
-      return sub.slice(0, 12).map((id, k) => { const v = subVis(id); if (!v) return ""; const [x, y] = at(0.3 + (k % 3) * 0.17, 0.2 + Math.floor(k / 3) * 0.13); return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${(g.w * 0.15).toFixed(1)}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${v[0]}</text>`; }).join("");
+      return sub.slice(0, 12).map((id, k) => { const [x, y] = at(0.3 + (k % 3) * 0.17, 0.2 + Math.floor(k / 3) * 0.13); return subMark(id, x, y, g.w * 0.2); }).join("");
     }
     if (def.subKind === "desk") {
-      return sub.slice(0, 5).map((id, k) => { const v = subVis(id); if (!v) return ""; const [x, y] = at(0.3 + k * 0.1, 0.34 + (k % 2) * 0.06); return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${(g.w * 0.13).toFixed(1)}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${v[0]}</text>`; }).join("");
+      return sub.slice(0, 5).map((id, k) => { const [x, y] = at(0.3 + k * 0.1, 0.34 + (k % 2) * 0.06); return subMark(id, x, y, g.w * 0.18); }).join("");
     }
     return "";
   }
@@ -621,8 +629,9 @@
   function wallItemSvg(i) {
     const def = D[i.id], v = -(i.h || def.defH) - def.vh;
     let art = def.art(def.pw, def.vh);
-    const sv = def.subKind === "frame" && i.sub && i.sub[0] ? subVis(i.sub[0]) : null;
-    if (sv) { const fs = Math.min(def.pw, def.vh) * 0.55; art += `<rect x="5" y="5" width="${def.pw - 10}" height="${def.vh - 10}" fill="${sv[1]}"/><text x="${def.pw / 2}" y="${def.vh / 2 + fs * 0.34}" font-size="${fs.toFixed(0)}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${sv[0]}</text>`; }
+    const sv = def.subKind === "frame" && i.sub && i.sub[0] ? subVis(i.sub[0]) : null, simg = sv ? subImg(i.sub[0]) : null;
+    if (simg) art += `<image href="${simg}" x="5" y="5" width="${def.pw - 10}" height="${def.vh - 10}" preserveAspectRatio="xMidYMid slice"/>`;
+    else if (sv) { const fs = Math.min(def.pw, def.vh) * 0.55; art += `<rect x="5" y="5" width="${def.pw - 10}" height="${def.vh - 10}" fill="${sv[1]}"/><text x="${def.pw / 2}" y="${def.vh / 2 + fs * 0.34}" font-size="${fs.toFixed(0)}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${sv[0]}</text>`; }
     // depth: thickness extruded toward the room + soft shadow on the wall so it reads as 3D
     const isWin = /^win/.test(i.id), isFr = /^frame|^poster|^mirror/.test(i.id);
     const K = isWin ? 7 : isFr ? 5 : 3, nx = i.side === "L" ? 0.5 : -0.5, ob = isWin ? [-4, -4, def.pw + 8, def.vh + 8] : [0, 0, def.pw, def.vh];
@@ -824,6 +833,6 @@
   return {
     TW, TH, WALL_H, D, WALLS, FLOORS, ROOMS, ROOM_ORDER, PLAN, SLOTS, START_SLOT, YARD, HOUSE_WALLS, HOUSE_ROOFS, HOUSE_DOORS, HOUSE_STYLES, YARD_SIZES, BORDERS, PATHS, GARDEN_PRESETS,
     proj, shade, orient, itemBox, itemInner, thumbSvg, roomSvg, planSvg, wallItemSvg, floorItemSvg, sceneBox, depthCmp, roomOf, stateOf, yardDims, houseRect, subVis, bookColor,
-    canPlace, freeCells, STARTER_OWNED: Object.keys(starter().owned), tuckOf, setOpen, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts,
+    subImg, canPlace, freeCells, STARTER_OWNED: Object.keys(starter().owned), tuckOf, setOpen, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts,
   };
 });

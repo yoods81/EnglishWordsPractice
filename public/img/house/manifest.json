@@ -505,5 +505,197 @@
   "ratio": 1.154,
   "ax": 0.5,
   "ay": 0.604
+ },
+ "@sub:alarmClock": {
+  "src": "/img/house/sub/alarmClock.webp"
+ },
+ "@sub:bread": {
+  "src": "/img/house/sub/bread.webp"
+ },
+ "@sub:cake": {
+  "src": "/img/house/sub/cake.webp"
+ },
+ "@sub:cheese": {
+  "src": "/img/house/sub/cheese.webp"
+ },
+ "@sub:chocolate": {
+  "src": "/img/house/sub/chocolate.webp"
+ },
+ "@sub:cocoaMug": {
+  "src": "/img/house/sub/cocoaMug.webp"
+ },
+ "@sub:cola": {
+  "src": "/img/house/sub/cola.webp"
+ },
+ "@sub:conditioner": {
+  "src": "/img/house/sub/conditioner.webp"
+ },
+ "@sub:crayonBox": {
+  "src": "/img/house/sub/crayonBox.webp"
+ },
+ "@sub:cupBrush": {
+  "src": "/img/house/sub/cupBrush.webp"
+ },
+ "@sub:eggs": {
+  "src": "/img/house/sub/eggs.webp"
+ },
+ "@sub:fruit": {
+  "src": "/img/house/sub/fruit.webp"
+ },
+ "@sub:handwash": {
+  "src": "/img/house/sub/handwash.webp"
+ },
+ "@sub:iceCream": {
+  "src": "/img/house/sub/iceCream.webp"
+ },
+ "@sub:juice": {
+  "src": "/img/house/sub/juice.webp"
+ },
+ "@sub:kimchi": {
+  "src": "/img/house/sub/kimchi.webp"
+ },
+ "@sub:marbleBag": {
+  "src": "/img/house/sub/marbleBag.webp"
+ },
+ "@sub:meat": {
+  "src": "/img/house/sub/meat.webp"
+ },
+ "@sub:milk": {
+  "src": "/img/house/sub/milk.webp"
+ },
+ "@sub:miniCactus": {
+  "src": "/img/house/sub/miniCactus.webp"
+ },
+ "@sub:miniGlobe": {
+  "src": "/img/house/sub/miniGlobe.webp"
+ },
+ "@sub:mirror": {
+  "src": "/img/house/sub/mirror.webp"
+ },
+ "@sub:notebooks": {
+  "src": "/img/house/sub/notebooks.webp"
+ },
+ "@sub:pasta": {
+  "src": "/img/house/sub/pasta.webp"
+ },
+ "@sub:pencilCup": {
+  "src": "/img/house/sub/pencilCup.webp"
+ },
+ "@sub:picBalloons": {
+  "src": "/img/house/sub/picBalloons.webp"
+ },
+ "@sub:picBeach": {
+  "src": "/img/house/sub/picBeach.webp"
+ },
+ "@sub:picButterfly": {
+  "src": "/img/house/sub/picButterfly.webp"
+ },
+ "@sub:picCake": {
+  "src": "/img/house/sub/picCake.webp"
+ },
+ "@sub:picCastle": {
+  "src": "/img/house/sub/picCastle.webp"
+ },
+ "@sub:picDinoPic": {
+  "src": "/img/house/sub/picDinoPic.webp"
+ },
+ "@sub:picFish": {
+  "src": "/img/house/sub/picFish.webp"
+ },
+ "@sub:picFlowers": {
+  "src": "/img/house/sub/picFlowers.webp"
+ },
+ "@sub:picForest": {
+  "src": "/img/house/sub/picForest.webp"
+ },
+ "@sub:picKitten": {
+  "src": "/img/house/sub/picKitten.webp"
+ },
+ "@sub:picKoala": {
+  "src": "/img/house/sub/picKoala.webp"
+ },
+ "@sub:picMeadow": {
+  "src": "/img/house/sub/picMeadow.webp"
+ },
+ "@sub:picMountain": {
+  "src": "/img/house/sub/picMountain.webp"
+ },
+ "@sub:picNight": {
+  "src": "/img/house/sub/picNight.webp"
+ },
+ "@sub:picPuppy": {
+  "src": "/img/house/sub/picPuppy.webp"
+ },
+ "@sub:picRainbow": {
+  "src": "/img/house/sub/picRainbow.webp"
+ },
+ "@sub:picRocketPic": {
+  "src": "/img/house/sub/picRocketPic.webp"
+ },
+ "@sub:picSea": {
+  "src": "/img/house/sub/picSea.webp"
+ },
+ "@sub:picSnow": {
+  "src": "/img/house/sub/picSnow.webp"
+ },
+ "@sub:picSpace": {
+  "src": "/img/house/sub/picSpace.webp"
+ },
+ "@sub:pizza": {
+  "src": "/img/house/sub/pizza.webp"
+ },
+ "@sub:secretDiary": {
+  "src": "/img/house/sub/secretDiary.webp"
+ },
+ "@sub:shampoo": {
+  "src": "/img/house/sub/shampoo.webp"
+ },
+ "@sub:soap": {
+  "src": "/img/house/sub/soap.webp"
+ },
+ "@sub:stickerBook": {
+  "src": "/img/house/sub/stickerBook.webp"
+ },
+ "@sub:toothbrush": {
+  "src": "/img/house/sub/toothbrush.webp"
+ },
+ "@sub:toothpaste": {
+  "src": "/img/house/sub/toothpaste.webp"
+ },
+ "@sub:toyBall": {
+  "src": "/img/house/sub/toyBall.webp"
+ },
+ "@sub:toyBlocks": {
+  "src": "/img/house/sub/toyBlocks.webp"
+ },
+ "@sub:toyBunny": {
+  "src": "/img/house/sub/toyBunny.webp"
+ },
+ "@sub:toyCar": {
+  "src": "/img/house/sub/toyCar.webp"
+ },
+ "@sub:toyDino": {
+  "src": "/img/house/sub/toyDino.webp"
+ },
+ "@sub:toyDrum": {
+  "src": "/img/house/sub/toyDrum.webp"
+ },
+ "@sub:toyDuck": {
+  "src": "/img/house/sub/toyDuck.webp"
+ },
+ "@sub:toyRobot": {
+  "src": "/img/house/sub/toyRobot.webp"
+ },
+ "@sub:toyRocket": {
+  "src": "/img/house/sub/toyRocket.webp"
+ },
+ "@sub:toyTeddy": {
+  "src": "/img/house/sub/toyTeddy.webp"
+ },
+ "@sub:veggies": {
+  "src": "/img/house/sub/veggies.webp"
+ },
+ "@sub:water": {
+  "src": "/img/house/sub/water.webp"
  }
 }
