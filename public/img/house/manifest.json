@@ -1170,5 +1170,8 @@
  },
  "@sub:koalaBook": {
   "src": "/img/house/sub/koalaBook.webp"
+ },
+ "@sub:mathBook": {
+  "src": "/img/house/sub/mathBook.webp"
  }
 }
