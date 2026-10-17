@@ -324,7 +324,10 @@
   }
 
   /* ------------------------------ room screen ------------------------------ */
+  const roomType = () => (ses.roomId === "yard" ? "yard" : (ses.S.slots[ses.roomId] || {}).type);
+  const fitsHere = (d, yard) => (d.where === "both" || d.where === (yard ? "out" : "in")) && (!d.only || d.only === roomType());
   function tabsFor(yard) {
+    if (!yard && roomType() === "garage") return [["garage", "/img/house/carCompactRed.webp", T("차고", "Garage")], ["furniture", "/img/cat/furniture.webp", T("가구", "Furniture")], ["plant", "/img/cat/plant.webp", T("식물", "Plants")], ["small", "/img/cat/small.webp", T("소품", "Props")], ["wall", "/img/cat/poster.webp", T("벽장식", "Wall")], ["style", "/img/cat/wallpaper.webp", T("벽·바닥", "Style")]];
     return yard
       ? [["outdoor", "/img/cat/outdoor.webp", T("정원 물건", "Garden")], ["plant", "/img/cat/plant.webp", T("식물", "Plants")], ["house", "/img/cat/home.webp", T("집 외관", "House")], ["garden", "/img/cat/garden.webp", T("정원 형태", "Layout")]]
       : [["furniture", "/img/cat/furniture.webp", T("가구", "Furniture")], ["rug", "/img/cat/rug.webp", T("러그", "Rugs")], ["plant", "/img/cat/plant.webp", T("식물", "Plants")], ["small", "/img/cat/small.webp", T("소품", "Props")], ["wall", "/img/cat/poster.webp", T("벽장식", "Wall")], ["style", "/img/cat/wallpaper.webp", T("벽·바닥", "Style")]];
@@ -334,7 +337,7 @@
     ses.screen = "room"; ses.roomId = id; ses.S.cur = id; ses.sel = null; ses.edit = true; ses.zoom = 1;
     ses.root.classList.remove("kh-planmode"); fit(ses.root); ses.subOf = null;
     const yard = id === "yard";
-    ses.tab = yard ? "outdoor" : "furniture";
+    ses.tab = yard ? "outdoor" : roomType() === "garage" ? "garage" : "furniture";
     save();
     ses.root.innerHTML = `<div class="kh-room-screen">
       <div class="kh-stage" id="kh-stage">
@@ -789,7 +792,7 @@
     const cur = it.sub || [], tabs = tabsFor(ses.roomId === "yard"), cat = (tabs.find((t) => t[0] === d.cat) || [0, 0, T("가구", "Furniture")])[2];
     const icon = (e) => { const v = H.subVis(e.id), im = H.subImg(e.id); if (im) return `<span class="kh-subic kh-subimg" aria-hidden="true"><img src="${im}" alt=""></span>`; return v ? `<span class="kh-subic" style="background:${v[1]}" aria-hidden="true">${v[0]}</span>` : `<span class="kh-subic" style="background:${H.bookColor(e.id)}" aria-hidden="true">📖</span>`; };
     const groups = Array.from(new Set(list.map((e) => e.group))), gname = { main: "", top: T("책상 위", "On top"), drawer: T("서랍 속", "In the drawer"), food: T("음식", "Food"), drink: T("음료", "Drinks") };
-    const title = { books: T("책장 속 책", "Books on the shelf"), desk: T("책상 위·서랍", "On the desk"), frame: T("액자 그림", "Picture"), toys: T("장난감 상자", "Toys"), sink: T("세면대 위 물건", "On the sink"), fridge: T("냉장고 속 음식", "In the fridge") }[kind] || nm(d);
+    const title = { tools: T("공구함 속 공구", "Tools in the box"), shoes: T("신발장 위 신발", "Shoes on the cabinet"), books: T("책장 속 책", "Books on the shelf"), desk: T("책상 위·서랍", "On the desk"), frame: T("액자 그림", "Picture"), toys: T("장난감 상자", "Toys"), sink: T("세면대 위 물건", "On the sink"), fridge: T("냉장고 속 음식", "In the fridge") }[kind] || nm(d);
     const note = kind === "books" && !it.sub ? T("지금은 기본 책이 꽂혀 있어요. 골라 넣으면 바뀌어요.", "Default books for now — pick some to replace them.") : T("눌러서 넣고 빼요. 코인으로 새 물건도 살 수 있어요.", "Tap to put in or take out. New things cost coins.");
     panel.innerHTML = `<nav class="kh-crumbs" aria-label="${T("현재 위치", "You are here")}"><button type="button" class="kh-up" data-up aria-label="${T("상위로", "Up one level")}">${ic("up")}</button>
       <button type="button" class="kh-crumb" data-up>${esc(cat)}</button><span class="kh-sep">${ic("chev")}</span><span class="kh-crumb cur">${esc(nm(d))}</span></nav>
@@ -979,7 +982,7 @@
   function gridHtml(yard) {
     const st = curState(), S = ses.S;
     if (roomOwned) { // "My items": only what you own that fits here
-      const mine = Object.values(H.D).filter((d) => !d.virtual && (d.where === "both" || d.where === (yard ? "out" : "in")) && ownedItem(d) && d.price > 0).sort((a, b) => a.price - b.price);
+      const mine = Object.values(H.D).filter((d) => !d.virtual && fitsHere(d, yard) && ownedItem(d) && d.price > 0).sort((a, b) => a.price - b.price);
       return `${shelfHead(T("내 아이템", "My items"), `${mine.length}`)}${mine.length ? `<div class="kh-items-grid">${mine.map((d) => `<button type="button" class="kh-item" data-item="${d.id}" aria-label="${esc(nm(d))}">${H.thumbSvg(d.id)}<span class="kh-nm">${esc(nm(d))}</span></button>`).join("")}</div>` : `<p class="kh-empty">${T("아직 산 아이템이 없어요.", "You have not bought any items yet.")}</p>`}`;
     }
     if (ses.tab === "style") {
@@ -1000,7 +1003,7 @@
         <h3>${T("길", "Path")}</h3><div class="kh-sws">${Object.keys(H.PATHS).map((k) => optBtn("data-gpath", k, (st.path || "none") === k, uiIc("p_" + k, { none: "∅", stones: "🪨", brick: "🟫", plank: "🪵" }[k]), T(H.PATHS[k][0], H.PATHS[k][1]))).join("")}</div>
         <h3>${T("마당 크기", "Yard size")}</h3><div class="kh-sws">${Object.keys(H.YARD_SIZES).map((k) => { const z = H.YARD_SIZES[k]; return optBtn("data-gsize", k, (st.size || "normal") === k, `${z.C}×${z.R}`, T(z.n[0], z.n[1]), z.p, own("yardSizes", k, z.p)); }).join("")}</div>`;
     }
-    const list = Object.values(H.D).filter((d) => !d.virtual && d.cat === ses.tab && (d.where === "both" || d.where === (yard ? "out" : "in"))).sort((a, b) => a.price - b.price);
+    const list = Object.values(H.D).filter((d) => !d.virtual && d.cat === ses.tab && fitsHere(d, yard)).sort((a, b) => a.price - b.price);
     const haveN = list.filter(ownedItem).length, tabName = (tabsFor(yard).find((t) => t[0] === ses.tab) || [0, 0, ""])[2];
     return `${shelfHead(tabName, `${haveN}/${list.length}`)}<div class="kh-items-grid">${list.map((d) => { const own = ownedItem(d); return `<button type="button" class="kh-item${own ? "" : " locked"}" data-item="${d.id}" aria-label="${esc(nm(d))}${own ? "" : ", " + d.price}">${H.thumbSvg(d.id)}<span class="kh-nm">${esc(nm(d))}</span>${own ? "" : `<span class="kh-pr">${COIN}${d.price}</span>`}</button>`; }).join("")}</div>`;
   }

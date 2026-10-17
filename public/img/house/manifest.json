@@ -832,5 +832,109 @@
  },
  "@ui:b_stone": {
   "src": "/img/house/ui/b_stone.webp"
+ },
+ "carCompactRed": {
+  "src": "/img/house/carCompactRed.webp",
+  "wpx": 128,
+  "ratio": 0.7,
+  "ax": 0.5,
+  "ay": 0.74
+ },
+ "carCompactYellow": {
+  "src": "/img/house/carCompactYellow.webp",
+  "wpx": 128,
+  "ratio": 0.7,
+  "ax": 0.5,
+  "ay": 0.74
+ },
+ "carSedanBlue": {
+  "src": "/img/house/carSedanBlue.webp",
+  "wpx": 168,
+  "ratio": 0.585,
+  "ax": 0.5,
+  "ay": 0.72
+ },
+ "carSedanSilver": {
+  "src": "/img/house/carSedanSilver.webp",
+  "wpx": 168,
+  "ratio": 0.615,
+  "ax": 0.5,
+  "ay": 0.72
+ },
+ "carSuvGreen": {
+  "src": "/img/house/carSuvGreen.webp",
+  "wpx": 168,
+  "ratio": 0.68,
+  "ax": 0.5,
+  "ay": 0.74
+ },
+ "carSuvWhite": {
+  "src": "/img/house/carSuvWhite.webp",
+  "wpx": 168,
+  "ratio": 0.645,
+  "ax": 0.5,
+  "ay": 0.74
+ },
+ "carUteOrange": {
+  "src": "/img/house/carUteOrange.webp",
+  "wpx": 170,
+  "ratio": 0.6,
+  "ax": 0.5,
+  "ay": 0.72
+ },
+ "carUteGrey": {
+  "src": "/img/house/carUteGrey.webp",
+  "wpx": 170,
+  "ratio": 0.59,
+  "ax": 0.5,
+  "ay": 0.72
+ },
+ "garageShelf": {
+  "src": "/img/house/garageShelf.webp",
+  "wpx": 84,
+  "ratio": 1.29,
+  "ax": 0.5,
+  "ay": 0.8
+ },
+ "toolbox": {
+  "src": "/img/house/toolbox.webp",
+  "wpx": 40,
+  "ratio": 0.865,
+  "ax": 0.5,
+  "ay": 0.72
+ },
+ "contL": {
+  "src": "/img/house/contL.webp",
+  "wpx": 46,
+  "ratio": 0.85,
+  "ax": 0.5,
+  "ay": 0.74
+ },
+ "contM": {
+  "src": "/img/house/contM.webp",
+  "wpx": 38,
+  "ratio": 0.805,
+  "ax": 0.5,
+  "ay": 0.74
+ },
+ "contS": {
+  "src": "/img/house/contS.webp",
+  "wpx": 30,
+  "ratio": 0.845,
+  "ax": 0.5,
+  "ay": 0.74
+ },
+ "shoeCabinet": {
+  "src": "/img/house/shoeCabinet.webp",
+  "wpx": 52,
+  "ratio": 1.399,
+  "ax": 0.5,
+  "ay": 0.83
+ },
+ "@sub:toolDrill": {
+  "src": "/img/house/sub/drill.webp"
+ },
+ "@sub:toolScrewdriver": {
+  "src": "/img/house/sub/screwdriver.webp"
  }
 }

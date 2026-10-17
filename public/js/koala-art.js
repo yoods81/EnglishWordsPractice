@@ -644,7 +644,7 @@
   });
   // Small picture of one sub-item for cards and the detail popup.
   // things for the 3D house's sink and fridge (no flat drawing; an emoji stands in)
-  const HOUSE_SUB_EMOJI = { shampoo: "🧴", conditioner: "🧴", soap: "🧼", toothbrush: "🪥", toothpaste: "🦷", handwash: "🫧", mirror: "🪞", cupBrush: "🥛", chocolate: "🍫", cake: "🍰", bread: "🍞", pizza: "🍕", pasta: "🍝", meat: "🥩", veggies: "🥦", kimchi: "🥬", eggs: "🥚", cheese: "🧀", fruit: "🍎", iceCream: "🍦", water: "💧", cola: "🥤", milk: "🥛", juice: "🧃" };
+  const HOUSE_SUB_EMOJI = { shampoo: "🧴", conditioner: "🧴", soap: "🧼", toothbrush: "🪥", toothpaste: "🦷", handwash: "🫧", mirror: "🪞", cupBrush: "🥛", chocolate: "🍫", cake: "🍰", bread: "🍞", pizza: "🍕", pasta: "🍝", meat: "🥩", veggies: "🥦", kimchi: "🥬", eggs: "🥚", cheese: "🧀", fruit: "🍎", iceCream: "🍦", water: "💧", cola: "🥤", milk: "🥛", juice: "🧃", toolDrill: "🔧", toolScrewdriver: "🪛", toolSaw: "🪚", toolHammer: "🔨", toolWrench: "🔧", toolPliers: "🗜️", toolTape: "📏", toolPaint: "🎨", shoeSneakers: "👟", shoeBoots: "🥾", shoeSandals: "🩴", shoeSlippers: "🩴", shoeSchool: "👞", shoeRain: "🥾" };
   function subIcon(id) {
     const head = `<svg class="koala-icon-svg koala-sub-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" `;
     if (BOOK_DEF[id]) return `${head}viewBox="0 0 40 40">${bigBook(id)}</svg>`;

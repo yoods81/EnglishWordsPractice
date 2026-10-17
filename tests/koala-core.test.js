@@ -458,7 +458,7 @@ const bag = (coins) => ({ koala: { coins, earned: coins, ledger: [], items: { ow
 test("sub-items: every one costs coins, and less than the cheapest parent it goes with", () => {
   K.SUB_ITEMS.forEach((sub) => {
     const parents = Object.keys(K.SUB_PARENTS).filter((p) => K.SUB_PARENTS[p] === sub.kind);
-    if (!parents.length) { assert.ok(["sink", "fridge"].includes(sub.kind), sub.id); return; }   // the sink / fridge of the 3D house have no Sticker parent
+    if (!parents.length) { assert.ok(["sink", "fridge", "tools", "shoes"].includes(sub.kind), sub.id); return; }   // the sink / fridge of the 3D house have no Sticker parent
     const cheapest = Math.min(...parents.map((p) => K.itemById(p).unlock.coins));
     assert.ok(sub.cost < cheapest, sub.id + " " + sub.cost + " vs " + cheapest);
     if (!sub.cost) assert.equal(sub.id, "picMeadow");

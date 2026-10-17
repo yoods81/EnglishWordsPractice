@@ -267,6 +267,23 @@
   const TOPS = { bedBlue: 41, bedPink: 41, bedMint: 41, deskWood: 38, deskWhite: 38, deskBlue: 38, counter: 42, vanity: 65, tvStand: 36, shelfWood: 69, shelfWhite: 69, wardrobeWood: 82, wardrobeMint: 81, fridge: 80, piano: 56, toybox: 20 };
   Object.keys(TOPS).forEach((id) => { if (D[id]) D[id].topH = TOPS[id]; });
   if (D.cactus) D.cactus.stack = true;
+  /* ---- garage things (only offered in a garage room): cars, a shelf to put boxes on, a tool box, storage boxes, a shoe cabinet ---- */
+  const gar = (id, name, w, d, price, parts, extra) => add(id, "garage", name, w, d, price, parts, Object.assign({ only: "garage" }, extra || {}));
+  const carParts = (w, d, body, roofH) => [B(0.1, 0.2, 6, w - 0.2, d - 0.4, 16, body), B(w * 0.25, 0.3, 22, w * 0.45, d - 0.6, roofH, "#cfe2ff"), B(w * 0.25, 0.3, 22 + roofH, w * 0.45, d - 0.6, 3, body), C(0.7, 0.2, 8, 0.28, 6, "#333"), C(w - 0.7, 0.2, 8, 0.28, 6, "#333"), C(0.7, d - 0.2, 8, 0.28, 6, "#333"), C(w - 0.7, d - 0.2, 8, 0.28, 6, "#333")];
+  gar("carCompactRed", ["빨간 소형차", "Red Compact Car"], 3, 2, 150, carParts(3, 2, "#e04b4b", 12));
+  gar("carCompactYellow", ["노란 소형차", "Yellow Compact Car"], 3, 2, 150, carParts(3, 2, "#f2c230", 12));
+  gar("carSedanBlue", ["파란 중형 세단", "Blue Sedan"], 4, 2, 240, carParts(4, 2, "#4f86d6", 13));
+  gar("carSedanSilver", ["은색 중형 세단", "Silver Sedan"], 4, 2, 240, carParts(4, 2, "#b9c0c8", 13));
+  gar("carSuvGreen", ["초록 SUV", "Green SUV"], 4, 2, 340, carParts(4, 2, "#4f9a5a", 20));
+  gar("carSuvWhite", ["하얀 SUV", "White SUV"], 4, 2, 340, carParts(4, 2, "#f4f1ea", 20));
+  gar("carUteOrange", ["주황 유트", "Orange Ute"], 4, 2, 320, carParts(4, 2, "#e8873a", 14));
+  gar("carUteGrey", ["회색 유트", "Grey Ute"], 4, 2, 320, carParts(4, 2, "#6d747c", 14));
+  gar("garageShelf", ["차고 선반", "Garage Shelf"], 2, 1, 80, [B(0, 0.1, 0, 0.1, 0.8, 90, "#4a5560"), B(1.9, 0.1, 0, 0.1, 0.8, 90, "#4a5560"), B(0, 0.1, 20, 2, 0.8, 4, "#c99a63"), B(0, 0.1, 44, 2, 0.8, 4, "#c99a63"), B(0, 0.1, 68, 2, 0.8, 4, "#c99a63"), B(0, 0.1, 86, 2, 0.8, 4, "#c99a63")], { topH: 90 });
+  gar("toolbox", ["공구함", "Tool Box"], 1, 1, 45, [B(0.1, 0.25, 0, 0.8, 0.5, 20, "#d94a3d"), B(0.1, 0.25, 20, 0.8, 0.5, 4, "#b83a30"), B(0.3, 0.4, 24, 0.4, 0.06, 6, "#999")], { stack: true, subKind: "tools" });
+  gar("contL", ["큰 수납함", "Large Container"], 1, 1, 30, [B(0.05, 0.1, 0, 0.9, 0.8, 22, "#4f86d6"), B(0, 0.05, 22, 1, 0.9, 4, "#3f6fb8")], { stack: true });
+  gar("contM", ["중간 수납함", "Medium Container"], 1, 1, 22, [B(0.15, 0.2, 0, 0.7, 0.6, 16, "#4f9a5a"), B(0.1, 0.15, 16, 0.8, 0.7, 3, "#3f8248")], { stack: true });
+  gar("contS", ["작은 수납함", "Small Container"], 1, 1, 15, [B(0.25, 0.3, 0, 0.5, 0.4, 12, "#f2c230"), B(0.2, 0.25, 12, 0.6, 0.5, 3, "#d9ac1c")], { stack: true });
+  gar("shoeCabinet", ["신발장", "Shoe Cabinet"], 1, 1, 55, [B(0.05, 0.15, 0, 0.9, 0.7, 54, "#f4f1ea"), B(0.05, 0.15, 54, 0.9, 0.7, 4, "#d8d3c8")], { topH: 58, subKind: "shoes" });
   D.dresser.subKind = "desk"; D.vanity.subKind = "sink"; D.fridge.subKind = "fridge";   // things on / in them (see KoalaCore.SUB_ITEMS)
 
 
@@ -368,6 +385,8 @@
     picPuppy: ["🐶", "#ffe9d0"], picKitten: ["🐱", "#fff0d8"], picMountain: ["🏔️", "#dfeeff"], picDinoPic: ["🦖", "#dff5d2"], picBalloons: ["🎈", "#fff0f0"], picRocketPic: ["🚀", "#dfe9ff"], picFish: ["🐠", "#cfeeff"], picCake: ["🎂", "#fff0f4"], picForest: ["🌲", "#d8f0d0"], picSnow: ["⛄", "#eaf6ff"],
     shampoo: ["🧴", "#e6f0ff"], conditioner: ["🧴", "#ffe6f0"], soap: ["🧼", "#eaf8ff"], toothbrush: ["🪥", "#e6fff2"], toothpaste: ["🦷", "#f0f7ff"], handwash: ["🫧", "#e8f6ff"], mirror: ["🪞", "#eef4ff"], cupBrush: ["🥛", "#f4fbff"],
     chocolate: ["🍫", "#f1e3da"], cake: ["🍰", "#fff0f4"], bread: ["🍞", "#fff1d8"], pizza: ["🍕", "#fff0d0"], pasta: ["🍝", "#fff4d6"], meat: ["🥩", "#ffe3e0"], veggies: ["🥦", "#e2f5d8"], kimchi: ["🥬", "#ffe0dc"], eggs: ["🥚", "#fff8e6"], cheese: ["🧀", "#fff3c4"], fruit: ["🍎", "#ffe6e6"], iceCream: ["🍦", "#fff0f8"],
+    toolDrill: ["🔧", "#fff"], toolScrewdriver: ["🪛", "#fff"], toolSaw: ["🪚", "#fff"], toolHammer: ["🔨", "#fff"], toolWrench: ["🔧", "#fff"], toolPliers: ["🗜️", "#fff"], toolTape: ["📏", "#fff"], toolPaint: ["🎨", "#fff"],
+    shoeSneakers: ["👟", "#fff"], shoeBoots: ["🥾", "#fff"], shoeSandals: ["🩴", "#fff"], shoeSlippers: ["🩴", "#fff"], shoeSchool: ["👞", "#fff"], shoeRain: ["🥾", "#fff"],
     water: ["💧", "#e2f2ff"], cola: ["🥤", "#ffe9e0"], milk: ["🥛", "#f4f9ff"], juice: ["🧃", "#fff0d0"],
     toyTeddy: ["🧸", "#fff"], toyBall: ["🏐", "#fff"], toyCar: ["🚗", "#fff"], toyRobot: ["🤖", "#fff"], toyDino: ["🦖", "#fff"], toyBlocks: ["🧱", "#fff"], toyDuck: ["🦆", "#fff"], toyRocket: ["🚀", "#fff"], toyBunny: ["🐰", "#fff"], toyDrum: ["🥁", "#fff"],
   };
@@ -417,6 +436,12 @@
     }
     if (def.subKind === "fridge") {   // little food stickers on the door (there is no open-door picture)
       return sub.slice(0, 12).map((id, k) => { const [x, y] = at(0.3 + (k % 3) * 0.17, 0.2 + Math.floor(k / 3) * 0.13); return subMark(id, x, y, g.w * 0.2); }).join("");
+    }
+    if (def.subKind === "tools") {   // tools lying on the lid of the box
+      return sub.slice(0, 6).map((id, k) => { const [x, y] = at(0.22 + (k % 3) * 0.28, 0.08 - Math.floor(k / 3) * 0.22); return subMark(id, x, y, g.w * 0.3); }).join("");
+    }
+    if (def.subKind === "shoes") {   // shoes standing on top of the cabinet
+      return sub.slice(0, 5).map((id, k) => { const [x, y] = at(0.2 + k * 0.15, 0.06 - (k % 2) * 0.07); return subMark(id, x, y, g.w * 0.3); }).join("");
     }
     if (def.subKind === "desk") {
       return sub.slice(0, 5).map((id, k) => { const [x, y] = at(0.3 + k * 0.1, 0.34 + (k % 2) * 0.06); return subMark(id, x, y, g.w * 0.18); }).join("");

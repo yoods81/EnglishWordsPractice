@@ -339,6 +339,8 @@
     collage: { mode: "multi", groups: { main: 3 } },
     sink: { mode: "multi", groups: { main: 6 } },
     fridge: { mode: "multi", groups: { food: 8, drink: 4 } },
+    tools: { mode: "multi", groups: { main: 6 } },
+    shoes: { mode: "multi", groups: { main: 5 } },
     petwear: { mode: "multi", swap: true, groups: { head: 1, neck: 1, body: 1, feet: 1 } },
   };
   const SUB_PARENTS = {
@@ -445,6 +447,20 @@
     sb("pwScarf", "petwear", "neck", "Warm Scarf", "따뜻한 목도리", "Cosy for chilly days.", "쌀쌀한 날도 포근해요."),
     sb("pwBowTie", "petwear", "neck", "Bow Tie", "나비넥타이", "Looking sharp!", "멋쟁이 나비넥타이예요!"),
     sb("pwSweater", "petwear", "body", "Knit Sweater", "털 스웨터", "Soft stripes, warm and snug.", "줄무늬가 예쁜 포근한 스웨터!"),
+    sb("toolDrill", "tools", "main", "Drill", "전동 드릴", "Zzzip! Makes holes fast.", "윙~ 구멍을 뚝딱 뚫어요!"),
+    sb("toolScrewdriver", "tools", "main", "Screwdriver", "드라이버", "Turn, turn, tight!", "빙글빙글 나사를 꽉!"),
+    sb("toolSaw", "tools", "main", "Hand Saw", "톱", "Saw, saw, cut the wood.", "슥삭슥삭 나무를 잘라요."),
+    sb("toolHammer", "tools", "main", "Hammer", "망치", "Tap tap tap on the nail!", "똑똑똑 못을 박아요!"),
+    sb("toolWrench", "tools", "main", "Wrench", "스패너", "Tightens big bolts.", "큰 볼트를 꽉 조여요."),
+    sb("toolPliers", "tools", "main", "Pliers", "펜치", "Grip and snip.", "꽉 잡고 싹둑!"),
+    sb("toolTape", "tools", "main", "Measuring Tape", "줄자", "Measure twice, cut once.", "두 번 재고 한 번 잘라요."),
+    sb("toolPaint", "tools", "main", "Paint Can", "페인트", "Paint the garage any colour!", "차고를 멋진 색으로!"),
+    sb("shoeSneakers", "shoes", "main", "Sneakers", "운동화", "Ready to run!", "달릴 준비 완료!"),
+    sb("shoeBoots", "shoes", "main", "Boots", "부츠", "Warm and sturdy.", "따뜻하고 튼튼해요."),
+    sb("shoeSandals", "shoes", "main", "Sandals", "샌들", "Cool summer feet.", "시원한 여름 발!"),
+    sb("shoeSlippers", "shoes", "main", "Slippers", "슬리퍼", "Cosy at home.", "집에서 포근하게."),
+    sb("shoeSchool", "shoes", "main", "School Shoes", "학교 신발", "Neat for school.", "학교 갈 때 단정하게."),
+    sb("shoeRain", "shoes", "main", "Rain Boots", "장화", "Splash splash!", "첨벙첨벙!"),
     sb("pwRaincoat", "petwear", "body", "Raincoat", "노란 우비", "Splash in the puddles!", "물웅덩이에서 첨벙첨벙!"),
     sb("pwCape", "petwear", "body", "Hero Cape", "영웅 망토", "Up, up and away!", "슈웅~ 날아라 영웅!"),
     sb("pwBoots", "petwear", "feet", "Rain Boots", "장화", "Stomp stomp stomp!", "쿵쿵쿵 걸어요!"),
@@ -462,6 +478,7 @@
     shampoo: 10, conditioner: 10, soap: 0, toothbrush: 8, toothpaste: 8, handwash: 12, mirror: 20, cupBrush: 8,
     chocolate: 12, cake: 20, bread: 10, pizza: 18, pasta: 15, meat: 18, veggies: 10, kimchi: 12, eggs: 8, cheese: 10, fruit: 10, iceCream: 15,
     water: 0, cola: 8, milk: 8, juice: 10,
+    toolDrill: 25, toolScrewdriver: 10, toolSaw: 15, toolHammer: 15, toolWrench: 15, toolPliers: 12, toolTape: 10, toolPaint: 20, shoeSneakers: 20, shoeBoots: 25, shoeSandals: 15, shoeSlippers: 12, shoeSchool: 18, shoeRain: 20,
     pwPartyHat: 15, pwBow: 15, pwTopHat: 30, pwFlowers: 25, pwCollar: 15, pwBell: 20, pwScarf: 25, pwBowTie: 20, pwSweater: 40, pwRaincoat: 40, pwCape: 45, pwBoots: 30, pwSneakers: 30,
   };
   SUB_ITEMS.forEach((x) => { x.cost = SUB_COST[x.id] || 0; });
