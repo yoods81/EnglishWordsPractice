@@ -881,5 +881,50 @@
  "@floor:grass": {
   "src": "/img/house/floorGrass.webp",
   "n": 4
+ },
+ "@house:villa": {
+  "src": "/img/house/houseVilla.webp",
+  "wpx": 386,
+  "ratio": 1,
+  "ax": 0.6172,
+  "ay": 0.8125,
+  "w": 6,
+  "d": 4
+ },
+ "@house:twoStory": {
+  "src": "/img/house/houseTwoStory.webp",
+  "wpx": 445,
+  "ratio": 1,
+  "ax": 0.6172,
+  "ay": 0.875,
+  "w": 6,
+  "d": 4
+ },
+ "@house:modern": {
+  "src": "/img/house/houseModern.webp",
+  "wpx": 366,
+  "ratio": 1,
+  "ax": 0.6094,
+  "ay": 0.8,
+  "w": 6,
+  "d": 4
+ },
+ "@house:cabin": {
+  "src": "/img/house/houseCabin.webp",
+  "wpx": 354,
+  "ratio": 1,
+  "ax": 0.5469,
+  "ay": 0.8359,
+  "w": 5,
+  "d": 4
+ },
+ "@house:castle": {
+  "src": "/img/house/houseCastle.webp",
+  "wpx": 348,
+  "ratio": 1,
+  "ax": 0.4922,
+  "ay": 0.875,
+  "w": 5,
+  "d": 3
  }
 }
