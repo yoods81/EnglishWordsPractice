@@ -286,8 +286,9 @@
     if (!c) return;
     const pr = plan.getBoundingClientRect(), cr = c.getBoundingClientRect(), onFloor = c.classList.contains("kh-hit");
     m.style.transition = animate && !reduced() ? "left .7s ease-in-out, top .7s ease-in-out" : "none";
-    m.style.left = (cr.left - pr.left + cr.width * 0.5) + "px";
-    m.style.top = (cr.top - pr.top + cr.height * (onFloor ? 0.5 : 0.8)) + "px";
+    // on a room the koala stands in the middle; at the yard button he stands on its top edge so the label stays readable
+    m.style.left = (cr.left - pr.left + (onFloor ? cr.width * 0.5 : Math.min(36, cr.width * 0.2))) + "px";
+    m.style.top = (cr.top - pr.top + (onFloor ? cr.height * 0.5 : 4)) + "px";
     m.classList.toggle("walk", !!animate && !reduced());
   }
   function pickRoom(id) {
@@ -993,7 +994,7 @@
       const h = st.house || {};
       const grp = (title, kind, set) => `<h3>${title}</h3><div class="kh-sws">${Object.keys(set).map((k) => `<button type="button" class="kh-sw${h[kind] === k ? " on" : ""}" data-house="${kind}:${k}" aria-pressed="${h[kind] === k}" aria-label="${esc(T(set[k][0], set[k][1]))}"><span class="kh-sw-c" style="background:${set[k][2]}"></span><span class="kh-sw-n">${esc(T(set[k][0], set[k][1]))}</span></button>`).join("")}</div>`;
       return `<h3>${T("집 모양", "House style")}</h3><div class="kh-sws">${Object.keys(H.HOUSE_STYLES).map((k) => { const d = H.HOUSE_STYLES[k]; return optBtn("data-hstyle", k, h.style === k, H.houseThumb(k, st), T(d.n[0], d.n[1]), d.p, d.p === 0 || !!S.houseStyles[k]); }).join("")}</div>
-        <h3>${T("집 돌리기·옮기기", "Turn & move the house")}</h3><div class="kh-sws">${optBtn("data-hctl", "rot", false, "🔄", T("돌리기", "Turn"))}${optBtn("data-hctl", "hl", false, "◀", T("왼쪽", "Left"))}${optBtn("data-hctl", "hr", false, "▶", T("오른쪽", "Right"))}</div>
+        <p class="kh-subnote">${T("집을 옮기거나 돌리려면 왼쪽 그림에서 집을 눌러요.", "To move or turn the house, tap it in the picture.")}</p>
         ${grp(T("외벽", "Walls"), "wall", H.HOUSE_WALLS)}${grp(T("지붕", "Roof"), "roof", H.HOUSE_ROOFS)}${grp(T("현관문", "Door"), "door", H.HOUSE_DOORS)}`;
     }
     if (ses.tab === "garden") {

@@ -400,3 +400,27 @@ html body .kh-app .kh-top .kh-planbtn{background:#cdeee2!important;border-color:
 .kh-hthumb { width: 100%; height: 100%; display: block; }
 .kh-optic:has(.kh-hthumb) { width: 3rem; height: 2.6rem; }
 .kh-opt .kh-optic { font-size: 1.1rem; }
+
+/* ===== item popup (detail sheet): calm card, fixed picture frame so nothing covers the price ===== */
+.kh-app .kh-sheet { width: min(340px, 100%); padding: 22px 20px 20px; border-radius: 28px; background: #fff; box-shadow: 0 24px 60px rgba(20, 60, 50, .28), 0 0 0 1px rgba(60, 140, 115, .10); }
+.kh-app .kh-sheet h2 { margin: 0 0 12px; font-size: 1.15rem; font-weight: 800; letter-spacing: -.01em; color: #1f3f37; }
+.kh-app .kh-buy-pic, .kh-app .kh-detail-pic { display: grid; place-items: center; height: 196px; max-height: 196px; overflow: hidden; padding: 12px; margin: 0 auto 14px; border-radius: 22px; background: linear-gradient(160deg, #eefaf5, #fdf6e6); box-shadow: inset 0 0 0 1px rgba(60, 140, 115, .10); }
+.kh-app .kh-detail-pic > svg, .kh-app .kh-detail-pic > img, .kh-app .kh-buy-pic > svg { width: auto; height: auto; max-width: 100%; max-height: 100%; }
+.kh-app .kh-detail-pic .kh-subic { width: 100%; height: 100%; max-width: 168px; max-height: 168px; font-size: 4rem; border-radius: 20px; }
+.kh-app .kh-detail-pic .kh-subic.kh-subimg { background: transparent !important; }
+.kh-app .kh-detail-pic .kh-sw-c.big { width: 112px; height: 112px; }
+.kh-app .kh-detail-pic .kh-card-pic { width: 100%; max-height: 100%; }
+.kh-app .kh-buy-price { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 6px; padding: 5px 16px; border-radius: 999px; background: #fff6dd; color: #8a5a08; font-size: 1.1rem; }
+.kh-app .kh-buy-note { margin: 0 0 14px; font-size: .84rem; line-height: 1.4; color: #5a7770; }
+.kh-app .kh-btns { gap: 8px; }
+.kh-app .kh-btns .kh-btn { padding: 11px 24px; border-radius: 14px; font-size: .95rem; background: linear-gradient(180deg, #46cc98, #2fb084); box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 4px 10px rgba(40, 160, 120, .28); }
+.kh-app .kh-btns .kh-btn.alt { background: #fff; color: #35544c; box-shadow: 0 0 0 1.5px #cfe3dc; }
+.kh-app .kh-btns .kh-btn.sell { background: #fff; color: #b4543a; box-shadow: 0 0 0 1.5px #f0cfc4; }
+.kh-app .kh-btns .kh-btn:active { transform: translateY(1px); }
+/* previous / next arrows: flat, no shadow */
+.kh-app .kh-navbtn { top: 50%; width: 40px; height: 40px; margin-top: -20px; border: 1.5px solid #cfe3dc; background: #fff; color: #2c9a73; box-shadow: none; }
+.kh-app .kh-navbtn.prev { left: -20px; } .kh-app .kh-navbtn.next { right: -20px; }
+.kh-app .kh-navbtn:hover { background: #f1faf6; filter: none; }
+.kh-app .kh-navbtn:active { transform: none; box-shadow: none; background: #e3f5ed; }
+.kh-app .kh-navbtn svg { width: 20px; height: 20px; stroke-width: 3; filter: none; }
+@media (max-width: 440px) { .kh-app .kh-navbtn { width: 36px; height: 36px; margin-top: -18px; } .kh-app .kh-navbtn.prev { left: -10px; } .kh-app .kh-navbtn.next { right: -10px; } }

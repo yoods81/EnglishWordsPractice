@@ -1,17 +1,17 @@
 {
  "bedBlue": {
   "src": "/img/house/bedBlue.webp",
-  "wpx": 147,
+  "wpx": 160.0,
   "ratio": 0.931,
   "ax": 0.5,
-  "ay": 0.359
+  "ay": 0.739
  },
  "sofaRed": {
   "src": "/img/house/sofaRed.webp",
-  "wpx": 118,
+  "wpx": 127.7,
   "ratio": 0.84,
   "ax": 0.5,
-  "ay": 0.485
+  "ay": 0.709
  },
  "treeApple": {
   "src": "/img/house/treeApple.webp",
@@ -29,31 +29,31 @@
  },
  "bedPink": {
   "src": "/img/house/bedPink.webp",
-  "wpx": 147,
+  "wpx": 159.7,
   "ratio": 0.935,
   "ax": 0.5,
-  "ay": 0.352
+  "ay": 0.74
  },
  "bedMint": {
   "src": "/img/house/bedMint.webp",
-  "wpx": 147,
+  "wpx": 159.7,
   "ratio": 0.906,
   "ax": 0.5,
-  "ay": 0.351
+  "ay": 0.729
  },
  "sofaBlue": {
   "src": "/img/house/sofaBlue.webp",
-  "wpx": 118,
+  "wpx": 127.7,
   "ratio": 0.808,
   "ax": 0.5,
-  "ay": 0.486
+  "ay": 0.697
  },
  "sofaGreen": {
   "src": "/img/house/sofaGreen.webp",
-  "wpx": 118,
+  "wpx": 127.7,
   "ratio": 0.781,
   "ax": 0.5,
-  "ay": 0.482
+  "ay": 0.686
  },
  "chairPurple": {
   "src": "/img/house/chairPurple.webp",
@@ -99,10 +99,10 @@
  },
  "wardrobeWood": {
   "src": "/img/house/wardrobeWood.webp",
-  "wpx": 81,
+  "wpx": 96.5,
   "ratio": 1.49,
   "ax": 0.5,
-  "ay": 0.801
+  "ay": 0.841
  },
  "wardrobeMint": {
   "src": "/img/house/wardrobeMint.webp",
@@ -120,25 +120,25 @@
  },
  "deskWood": {
   "src": "/img/house/deskWood.webp",
-  "wpx": 88,
+  "wpx": 95.8,
   "ratio": 0.975,
   "ax": 0.5,
-  "ay": 0.615
+  "ay": 0.749
  },
  "deskWhite": {
   "src": "/img/house/deskWhite.webp",
-  "wpx": 88,
+  "wpx": 96.2,
   "ratio": 0.921,
   "ax": 0.5,
-  "ay": 0.611,
+  "ay": 0.734,
   "flip": true
  },
  "deskBlue": {
   "src": "/img/house/deskBlue.webp",
-  "wpx": 88,
+  "wpx": 95.8,
   "ratio": 0.831,
   "ax": 0.5,
-  "ay": 0.615,
+  "ay": 0.703,
   "flip": true
  },
  "stoolRed": {
@@ -157,10 +157,10 @@
  },
  "tvStand": {
   "src": "/img/house/tvStand.webp",
-  "wpx": 118,
+  "wpx": 128.3,
   "ratio": 1.069,
   "ax": 0.5,
-  "ay": 0.599
+  "ay": 0.773
  },
  "fridge": {
   "src": "/img/house/fridge.webp",
@@ -171,10 +171,10 @@
  },
  "counter": {
   "src": "/img/house/counter.webp",
-  "wpx": 88,
+  "wpx": 96.2,
   "ratio": 0.906,
   "ax": 0.5,
-  "ay": 0.611,
+  "ay": 0.728,
   "flip": true
  },
  "stove": {
@@ -186,10 +186,10 @@
  },
  "bathtub": {
   "src": "/img/house/bathtub.webp",
-  "wpx": 118,
+  "wpx": 127.7,
   "ratio": 0.981,
   "ax": 0.5,
-  "ay": 0.52
+  "ay": 0.753
  },
  "toilet": {
   "src": "/img/house/toilet.webp",
@@ -200,10 +200,10 @@
  },
  "vanity": {
   "src": "/img/house/vanity.webp",
-  "wpx": 88,
+  "wpx": 96.2,
   "ratio": 1.185,
   "ax": 0.5,
-  "ay": 0.74
+  "ay": 0.794
  },
  "toybox": {
   "src": "/img/house/toybox.webp",
@@ -326,17 +326,17 @@
  },
  "treeCherry": {
   "src": "/img/house/treeCherry.webp",
-  "wpx": 112,
+  "wpx": 128.3,
   "ratio": 1.16,
   "ax": 0.5,
-  "ay": 0.754
+  "ay": 0.792
  },
  "treeMaple": {
   "src": "/img/house/treeMaple.webp",
-  "wpx": 110,
+  "wpx": 128.3,
   "ratio": 1.177,
   "ax": 0.5,
-  "ay": 0.753
+  "ay": 0.795
  },
  "bush": {
   "src": "/img/house/bush.webp",
@@ -361,10 +361,10 @@
  },
  "swing": {
   "src": "/img/house/swing.webp",
-  "wpx": 87,
+  "wpx": 95.8,
   "ratio": 0.921,
   "ax": 0.5,
-  "ay": 0.7
+  "ay": 0.735
  },
  "fence": {
   "src": "/img/house/fence.webp",
@@ -424,10 +424,10 @@
  },
  "car": {
   "src": "/img/house/car.webp",
-  "wpx": 64,
+  "wpx": 193.3,
   "ratio": 0.783,
   "ax": 0.5,
-  "ay": 0.202
+  "ay": 0.688
  },
  "treePine": {
   "src": "/img/house/treePine.webp",
@@ -835,101 +835,101 @@
  },
  "carCompactRed": {
   "src": "/img/house/carCompactRed.webp",
-  "wpx": 128,
-  "ratio": 0.7,
+  "wpx": 160.8,
+  "ratio": 0.685,
   "ax": 0.5,
-  "ay": 0.74
+  "ay": 0.627
  },
  "carCompactYellow": {
   "src": "/img/house/carCompactYellow.webp",
-  "wpx": 128,
-  "ratio": 0.7,
+  "wpx": 160.8,
+  "ratio": 0.693,
   "ax": 0.5,
-  "ay": 0.74
+  "ay": 0.631
  },
  "carSedanBlue": {
   "src": "/img/house/carSedanBlue.webp",
-  "wpx": 168,
-  "ratio": 0.585,
+  "wpx": 193.0,
+  "ratio": 0.583,
   "ax": 0.5,
-  "ay": 0.72
+  "ay": 0.555
  },
  "carSedanSilver": {
   "src": "/img/house/carSedanSilver.webp",
-  "wpx": 168,
-  "ratio": 0.615,
+  "wpx": 193.0,
+  "ratio": 0.603,
   "ax": 0.5,
-  "ay": 0.72
+  "ay": 0.578
  },
  "carSuvGreen": {
   "src": "/img/house/carSuvGreen.webp",
-  "wpx": 168,
-  "ratio": 0.68,
+  "wpx": 192.0,
+  "ratio": 0.682,
   "ax": 0.5,
-  "ay": 0.74
+  "ay": 0.635
  },
  "carSuvWhite": {
   "src": "/img/house/carSuvWhite.webp",
-  "wpx": 168,
-  "ratio": 0.645,
-  "ax": 0.5,
-  "ay": 0.74
+  "wpx": 193.5,
+  "ratio": 0.642,
+  "ax": 0.499,
+  "ay": 0.614
  },
  "carUteOrange": {
   "src": "/img/house/carUteOrange.webp",
-  "wpx": 170,
-  "ratio": 0.6,
+  "wpx": 192.0,
+  "ratio": 0.593,
   "ax": 0.5,
-  "ay": 0.72
+  "ay": 0.561
  },
  "carUteGrey": {
   "src": "/img/house/carUteGrey.webp",
-  "wpx": 170,
-  "ratio": 0.59,
+  "wpx": 192.0,
+  "ratio": 0.585,
   "ax": 0.5,
-  "ay": 0.72
+  "ay": 0.572
  },
  "garageShelf": {
   "src": "/img/house/garageShelf.webp",
-  "wpx": 84,
-  "ratio": 1.29,
-  "ax": 0.5,
-  "ay": 0.8
+  "wpx": 129.6,
+  "ratio": 1.286,
+  "ax": 0.498,
+  "ay": 0.814
  },
  "toolbox": {
   "src": "/img/house/toolbox.webp",
-  "wpx": 40,
-  "ratio": 0.865,
+  "wpx": 40.3,
+  "ratio": 0.863,
   "ax": 0.5,
-  "ay": 0.72
+  "ay": 0.721
  },
  "contL": {
   "src": "/img/house/contL.webp",
-  "wpx": 46,
+  "wpx": 48.7,
   "ratio": 0.85,
   "ax": 0.5,
-  "ay": 0.74
+  "ay": 0.713
  },
  "contM": {
   "src": "/img/house/contM.webp",
-  "wpx": 38,
-  "ratio": 0.805,
+  "wpx": 40.1,
+  "ratio": 0.807,
   "ax": 0.5,
-  "ay": 0.74
+  "ay": 0.696
  },
  "contS": {
   "src": "/img/house/contS.webp",
-  "wpx": 30,
-  "ratio": 0.845,
-  "ax": 0.5,
-  "ay": 0.74
+  "wpx": 32.4,
+  "ratio": 0.843,
+  "ax": 0.501,
+  "ay": 0.71
  },
  "shoeCabinet": {
   "src": "/img/house/shoeCabinet.webp",
-  "wpx": 52,
-  "ratio": 1.399,
+  "wpx": 58.0,
+  "ratio": 1.408,
   "ax": 0.5,
-  "ay": 0.83
+  "ay": 0.833
  },
  "@sub:toolDrill": {
   "src": "/img/house/sub/drill.webp"

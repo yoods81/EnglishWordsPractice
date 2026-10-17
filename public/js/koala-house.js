@@ -159,7 +159,7 @@
       B(0.1, 0.1, 18, 0.8, 0.8, 5, col), B(0.1, 0.1, 23, 0.8, 0.1, 28, shade(col, -0.08))], { seat: 23 });
   }
   chair("stoolBlue", ["파랑 의자", "Blue Chair"], "#5b8fd0", 0);
-  chair("stoolRed", ["빨강 의자", "Red Chair"], "#e66a5a", 20);
+  chair("stoolRed", ["분홍 의자", "Pink Chair"], "#e66a5a", 20);
 
   function books(x, y, z, w, n) { // a row of colourful books standing on a shelf board
     const cols = ["#e66a5a", "#5b8fd0", "#68b57c", "#f2c94c", "#9a7be0", "#ef8fb0"], o = [];
@@ -278,7 +278,7 @@
   gar("carSuvWhite", ["하얀 SUV", "White SUV"], 4, 2, 340, carParts(4, 2, "#f4f1ea", 20));
   gar("carUteOrange", ["주황 유트", "Orange Ute"], 4, 2, 320, carParts(4, 2, "#e8873a", 14));
   gar("carUteGrey", ["회색 유트", "Grey Ute"], 4, 2, 320, carParts(4, 2, "#6d747c", 14));
-  gar("garageShelf", ["차고 선반", "Garage Shelf"], 2, 1, 80, [B(0, 0.1, 0, 0.1, 0.8, 90, "#4a5560"), B(1.9, 0.1, 0, 0.1, 0.8, 90, "#4a5560"), B(0, 0.1, 20, 2, 0.8, 4, "#c99a63"), B(0, 0.1, 44, 2, 0.8, 4, "#c99a63"), B(0, 0.1, 68, 2, 0.8, 4, "#c99a63"), B(0, 0.1, 86, 2, 0.8, 4, "#c99a63")], { topH: 90 });
+  gar("garageShelf", ["차고 선반", "Garage Shelf"], 2, 2, 80, [[0, 0], [1.9, 0], [0, 1.9], [1.9, 1.9]].map((p) => B(p[0], p[1], 0, 0.1, 0.1, 90, "#4a5560")).concat([20, 44, 68, 86].map((z) => B(0, 0, z, 2, 2, 4, "#c99a63"))), { topH: 90, tiers: [90, 66, 42, 18] });
   gar("toolbox", ["공구함", "Tool Box"], 1, 1, 45, [B(0.1, 0.25, 0, 0.8, 0.5, 20, "#d94a3d"), B(0.1, 0.25, 20, 0.8, 0.5, 4, "#b83a30"), B(0.3, 0.4, 24, 0.4, 0.06, 6, "#999")], { stack: true, subKind: "tools" });
   gar("contL", ["큰 수납함", "Large Container"], 1, 1, 30, [B(0.05, 0.1, 0, 0.9, 0.8, 22, "#4f86d6"), B(0, 0.05, 22, 1, 0.9, 4, "#3f6fb8")], { stack: true });
   gar("contM", ["중간 수납함", "Medium Container"], 1, 1, 22, [B(0.15, 0.2, 0, 0.7, 0.6, 16, "#4f9a5a"), B(0.1, 0.15, 16, 0.8, 0.7, 3, "#3f8248")], { stack: true });
@@ -410,7 +410,7 @@
     }
     if (def.subKind === "desk") {
       const o = def.parts.slice();
-      sub.slice(0, 5).forEach((id, k) => { const v = subVis(id); if (v) o.push({ t: "e", x: 0.25 + k * 0.38, y: 0.55, z: 36, s: 15, ch: v[0] }); });
+      sub.slice(0, 3).forEach((id, k) => { const v = subVis(id); if (v) o.push({ t: "e", x: def.w === 1 ? 0.5 + (k - 1) * 0.27 : 0.42 + k * 0.58, y: 0.5, z: def.w === 1 ? 54 : 36, s: def.w === 1 ? 11 : 15, ch: v[0] }); });
       return o;
     }
     if (def.subKind === "toys") {
@@ -440,11 +440,13 @@
     if (def.subKind === "tools") {   // tools lying on the lid of the box
       return sub.slice(0, 6).map((id, k) => { const [x, y] = at(0.22 + (k % 3) * 0.28, 0.08 - Math.floor(k / 3) * 0.22); return subMark(id, x, y, g.w * 0.3); }).join("");
     }
-    if (def.subKind === "shoes") {   // shoes standing on top of the cabinet
-      return sub.slice(0, 5).map((id, k) => { const [x, y] = at(0.2 + k * 0.15, 0.06 - (k % 2) * 0.07); return subMark(id, x, y, g.w * 0.3); }).join("");
+    if (def.subKind === "shoes") {   // shoes standing in the three cubbies of the cabinet
+      const SL = [[0.44, 0.31], [0.7, 0.28], [0.44, 0.54], [0.7, 0.51], [0.44, 0.76]];
+      return sub.slice(0, 5).map((id, k) => { const [x, y] = at(SL[k][0], SL[k][1]); return subMark(id, x, y, g.w * 0.27); }).join("");
     }
     if (def.subKind === "desk") {
-      return sub.slice(0, 5).map((id, k) => { const [x, y] = at(0.3 + k * 0.1, 0.34 + (k % 2) * 0.06); return subMark(id, x, y, g.w * 0.18); }).join("");
+      const dr = def === D.dresser;   // the dresser's top is smaller and higher than a desk's
+      return sub.slice(0, 3).map((id, k) => { const [x, y] = dr ? at(0.38 + k * 0.1, 0.17 + k * 0.03) : at(0.38 + k * 0.12, 0.36 + (k % 2) * 0.04); return subMark(id, x, y, g.w * (dr ? 0.15 : 0.18)); }).join("");
     }
     return "";
   }
@@ -652,7 +654,13 @@
     const C_ = room.C, R_ = room.R, top = kind === "yard" ? 300 : WALL_H;
     return { x: -R_ * HW - 24, y: -top - 28, w: (C_ + R_) * HW + 48, h: (C_ + R_) * HH + top + 28 + 56 };
   }
-  function depthKey(i) { const o = orient(D[i.id], i.m); return (i.c + o.w) + (i.r + o.d) + (i.z || 0) / 200; }
+  let CTX = [];   // items of the room being drawn (so a prop on a table sorts just above that table)
+  function depthKey(i) {
+    const o = orient(D[i.id], i.m), own = (i.c + o.w) + (i.r + o.d) + (i.z || 0) / 200;
+    if (!(D[i.id].stack && i.z > 0)) return own;
+    const cell = Math.round(i.c) + "," + Math.round(i.r), host = CTX.find((x) => x !== i && D[x.id] && D[x.id].topH && !D[x.id].stack && cellsOf(x).includes(cell));
+    return host ? Math.max(own, depthKey(host) + 0.02 + (i.z || 0) / 5000) : own;
+  }
   function depthCmp(a, b) { return depthKey(a) - depthKey(b); }
   function floorItemSvg(i) {
     const def = D[i.id], [x, y] = proj(i.c, i.r, i.z || 0);
@@ -688,6 +696,7 @@
     room.uid = room.uid || ++uidSeq;
     const box = sceneBox(room, kind), sh = shellSvg(room, st, kind), keyed = [], flatSvg = [], wallSvg = [];
     let items = (st.items || []).slice();
+    CTX = items;
     if (kind === "yard") {
       keyed.push({ k: houseDepth(st), svg: `<g class="kh-house" data-k="${houseDepth(st).toFixed(3)}">${houseParts(st).map(partSvg).join("")}</g>` });
       items = items.concat(yardExtras(st).virt);
@@ -805,6 +814,7 @@
       const room = roomOf(S, sl), tallL = c === 0, tallR = r === 0, [px, py] = proj(ox, oy, 0);
       const sh = shellSvg(room, st, "room", { hl: tallL ? WALL_H : PLAN_PART, hr: tallR ? WALL_H : PLAN_PART, noSlab: true });
       const keyed = [], flat = [], walls = [];
+      CTX = st.items || [];
       (st.items || []).forEach((i) => {
         const d = D[i.id]; if (!d) return;
         if (d.wall) { if (i.side === "L" ? tallL : tallR) walls.push(wallItemSvg(i)); }
@@ -855,7 +865,9 @@
       const list = o[(c0 + c) + "," + (r0 + r)];
       if (!list || !list.length) continue;
       const top = list.find((x) => D[x.id].topH && !D[x.id].stack);
-      if (def.stack && top && list.length === 1) z = Math.max(z, D[top.id].topH); else ok = false;
+      const tiers = top && D[top.id].tiers;   // an open shelf: each cell holds one thing per board, filled from the top board down
+      if (def.stack && top && tiers && list.length <= tiers.length && list.every((x) => x === top || D[x.id].stack)) z = Math.max(z, tiers[list.length - 1]);
+      else if (def.stack && top && list.length === 1) z = Math.max(z, D[top.id].topH); else ok = false;
     }
     return { ok, z };
   }

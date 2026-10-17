@@ -333,7 +333,7 @@
    parent item is in the room. What is picked is saved in koala.items.sub[parentId]. */
   const SUB_RULES = {
     books: { mode: "multi", groups: { main: 18 } },
-    desk: { mode: "multi", groups: { top: 5, drawer: 2 } },
+    desk: { mode: "multi", groups: { top: 3, drawer: 2 } },
     frame: { mode: "single", groups: { main: 1 }, fallback: "picMeadow" },
     toys: { mode: "multi", groups: { main: 4 } },
     collage: { mode: "multi", groups: { main: 3 } },
