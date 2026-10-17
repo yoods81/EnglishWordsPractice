@@ -190,6 +190,7 @@
   add("toilet", "furniture", ["변기", "Toilet"], 1, 1, 60, [B(0.2, 0.05, 0, 0.6, 0.3, 40, "#f2f6f8"), B(0.2, 0.3, 0, 0.6, 0.65, 18, "#f2f6f8"), B(0.25, 0.35, 18, 0.5, 0.55, 3, "#dcebf0")]);
   add("vanity", "furniture", ["세면대", "Sink"], 2, 1, 70, [B(0.1, 0.1, 0, 1.8, 0.8, 30, "#f2f6f8"), B(0.1, 0.1, 30, 1.8, 0.8, 4, "#ffffff"), B(0.55, 0.25, 34, 0.9, 0.5, 2, "#cfe6f0"), B(0.95, 0.14, 34, 0.08, 0.08, 14, "#aab4bb")], { topH: 34 });
   add("toybox", "furniture", ["장난감 상자", "Toy Box"], 1, 1, 0, [B(0.05, 0.1, 0, 0.9, 0.8, 24, "#e66a5a"), B(0.05, 0.1, 24, 0.9, 0.8, 4, "#ffd166"), B(0.38, 0.98, 12, 0.26, 0.03, 8, "#ffd166"), S(0.3, 0.5, 32, 6, "#5b8fd0"), B(0.55, 0.3, 28, 0.2, 0.2, 10, "#68b57c")], { subKind: "toys" });
+  add("asmrBox", "furniture", ["ASMR 상자", "ASMR Box"], 1, 1, 60, [B(0.05, 0.1, 0, 0.9, 0.8, 24, "#8f7be0"), B(0.05, 0.1, 24, 0.9, 0.8, 4, "#ff9ecb"), B(0.38, 0.98, 12, 0.26, 0.03, 8, "#ff9ecb"), S(0.3, 0.5, 32, 6, "#7be08a"), B(0.55, 0.3, 28, 0.2, 0.2, 10, "#ffd166")], { subKind: "asmr" });
   add("piano", "furniture", ["피아노", "Piano"], 2, 1, 200, [B(0, 0, 0, 2, 0.9, 52, "#2f2a36"), B(0.05, 0.92, 30, 1.9, 0.18, 4, "#f4f1ea"), B(0.05, 1.0, 34, 1.9, 0.04, 2, "#2f2a36"), B(0, 0.1, 52, 2, 0.8, 6, "#3a3342")]);
 
   function rug(id, name, kind, col, price) {
@@ -408,6 +409,7 @@
     toolDrill: ["🔧", "#fff"], toolScrewdriver: ["🪛", "#fff"], toolSaw: ["🪚", "#fff"], toolHammer: ["🔨", "#fff"], toolWrench: ["🔧", "#fff"], toolPliers: ["🗜️", "#fff"], toolTape: ["📏", "#fff"], toolPaint: ["🎨", "#fff"],
     shoeSneakers: ["👟", "#fff"], shoeBoots: ["🥾", "#fff"], shoeSandals: ["🩴", "#fff"], shoeSlippers: ["🩴", "#fff"], shoeSchool: ["👞", "#fff"], shoeRain: ["🥾", "#fff"],
     water: ["💧", "#e2f2ff"], cola: ["🥤", "#ffe9e0"], milk: ["🥛", "#f4f9ff"], juice: ["🧃", "#fff0d0"],
+    mochiSquish: ["🍡", "#ffe3ee"], slimeSquish: ["🟢", "#e0f8e4"], tofuSquish: ["⬜", "#fff6e0"], jellySquish: ["🧊", "#e0f1ff"], clickPen: ["🖊️", "#e4eeff"], keySwitch: ["⌨️", "#e8eaff"], fidgetCube: ["🎲", "#ffeccf"], clickerBtn: ["🔴", "#ffe3e5"], bubbleWrap: ["🫧", "#e0f3ff"], pushPop: ["🌈", "#ffe3f0"], popBoba: ["🧋", "#fff0e0"], waterBeads: ["🔮", "#efe6ff"], kineticSand: ["🏖️", "#fff0cf"], soapCut: ["🧼", "#ffe6f0"], iceCrunch: ["🧊", "#e4f6ff"], scratchPad: ["🎨", "#e8e6f5"],
     toyTeddy: ["🧸", "#fff"], toyBall: ["🏐", "#fff"], toyCar: ["🚗", "#fff"], toyRobot: ["🤖", "#fff"], toyDino: ["🦖", "#fff"], toyBlocks: ["🧱", "#fff"], toyDuck: ["🦆", "#fff"], toyRocket: ["🚀", "#fff"], toyBunny: ["🐰", "#fff"], toyDrum: ["🥁", "#fff"],
   };
   const subVis = (id) => SUBV[id] || null;
@@ -439,7 +441,7 @@
       sub.slice(0, 6).forEach((id, k) => o.push({ t: "i", id, x: 0.28 + (k % 3) * 0.22, y: 0.4 + Math.floor(k / 3) * 0.2, z: 23, s: 15 }));
       return o;
     }
-    if (def.subKind === "toys") {
+    if (def.subKind === "toys" || def.subKind === "asmr") {
       const o = def.parts.slice(0, 3);
       sub.slice(0, 4).forEach((id, k) => { const v = subVis(id); if (v) o.push({ t: "e", x: 0.22 + (k % 2) * 0.45, y: 0.3 + Math.floor(k / 2) * 0.4, z: 30 + (k % 2) * 4, s: 17, ch: v[0] }); });
       return o;
@@ -454,7 +456,7 @@
       const n = Math.min(sub.length, 8);
       return sub.slice(0, n).map((id, k) => { const [x, y] = at(0.34 + (k % 4) * 0.105, k < 4 ? 0.34 : 0.6), sz = g.w * 0.21; return `<image href="/img/koala/th/${id}.webp" x="${(x - sz / 2).toFixed(1)}" y="${(y - sz / 2).toFixed(1)}" width="${sz.toFixed(1)}" height="${sz.toFixed(1)}"/>`; }).join("");
     }
-    if (def.subKind === "toys" && open) {
+    if ((def.subKind === "toys" || def.subKind === "asmr") && open) {
       return sub.slice(0, 4).map((id, k) => { const [x, y] = at(0.3 + k * 0.14, 0.3 - (k % 2) * 0.1); return subMark(id, x, y, g.w * 0.26); }).join("");
     }
     if (def.subKind === "sink") {

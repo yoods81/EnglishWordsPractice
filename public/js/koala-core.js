@@ -340,6 +340,7 @@
     sink: { mode: "multi", groups: { main: 6 } },
     fridge: { mode: "multi", groups: { food: 8, drink: 4 } },
     tools: { mode: "multi", groups: { main: 6 } },
+    asmr: { mode: "multi", groups: { squishy: 3, clicky: 3, popit: 3, crunch: 3 } },
     shoes: { mode: "multi", groups: { main: 5 } },
     petwear: { mode: "multi", swap: true, groups: { head: 1, neck: 1, body: 1, feet: 1 } },
   };
@@ -465,6 +466,22 @@
     sb("pwCape", "petwear", "body", "Hero Cape", "영웅 망토", "Up, up and away!", "슈웅~ 날아라 영웅!"),
     sb("pwBoots", "petwear", "feet", "Rain Boots", "장화", "Stomp stomp stomp!", "쿵쿵쿵 걸어요!"),
     sb("pwSneakers", "petwear", "feet", "Sneakers", "운동화", "Ready to run fast.", "씽씽 달릴 준비 완료!"),
+    sb("mochiSquish", "asmr", "squishy", "Mochi Squishy", "모찌 말랑이", "Squeeze it — soft and chewy!", "꾹 누르면 말랑말랑 쫀득!"),
+    sb("slimeSquish", "asmr", "squishy", "Glitter Slime", "반짝 슬라임", "Stretchy, sticky, bloop!", "쭈우욱 늘어나고 뽀글뽀글!"),
+    sb("tofuSquish", "asmr", "squishy", "Tofu Squishy", "두부 말랑이", "Pat pat — a wobbly little block.", "토닥토닥, 흔들흔들 말랑한 두부예요."),
+    sb("jellySquish", "asmr", "squishy", "Jelly Cube", "젤리 큐브", "Jiggle jiggle!", "탱글탱글 흔들흔들!"),
+    sb("clickPen", "asmr", "clicky", "Click Pen", "딸깍 펜", "Click, click — over and over.", "딸깍딸깍, 자꾸 누르고 싶어요."),
+    sb("keySwitch", "asmr", "clicky", "Keyboard Switch", "키보드 스위치", "A deep, cosy typing sound.", "또각또각 포근한 타자 소리!"),
+    sb("fidgetCube", "asmr", "clicky", "Fidget Cube", "피젯 큐브", "Gears, buttons and a roller.", "기어, 버튼, 롤러가 한가득!"),
+    sb("clickerBtn", "asmr", "clicky", "Click Button", "딸깍 버튼", "One crisp click each time.", "누를 때마다 깔끔한 딸깍!"),
+    sb("bubbleWrap", "asmr", "popit", "Bubble Wrap", "뽁뽁이", "Pop every bubble!", "뽁뽁 터뜨려요!"),
+    sb("pushPop", "asmr", "popit", "Push Pop", "푸시팝", "Push in, flip, push again.", "꾹 누르고 뒤집고 또 꾹!"),
+    sb("popBoba", "asmr", "popit", "Popping Boba", "팝핑 보바", "Little juicy bursts.", "톡톡 터지는 과즙 구슬!"),
+    sb("waterBeads", "asmr", "popit", "Water Beads", "물구슬", "Soft plip-plop beads.", "말랑 퐁당 물구슬!"),
+    sb("kineticSand", "asmr", "crunch", "Kinetic Sand", "움직이는 모래", "Slice it and it crumbles.", "슥 자르면 사르르 부서져요."),
+    sb("soapCut", "asmr", "crunch", "Soap Carving", "비누 깎기", "Crunchy little slices.", "사각사각 비누를 깎아요."),
+    sb("iceCrunch", "asmr", "crunch", "Crunchy Ice", "얼음 아삭", "Crack and crunch!", "아삭! 와작! 얼음 깨기!"),
+    sb("scratchPad", "asmr", "crunch", "Scratch Pad", "스크래치 패드", "Scritch-scratch rainbows.", "사각사각 무지개를 긁어요."),
   ];
   // Every sub-item is bought with Koala Coins, and always costs LESS than the cheapest item it goes with.
   // Cost 0 = comes with the parent (a frame's first picture).
@@ -480,6 +497,7 @@
     water: 0, cola: 8, milk: 8, juice: 10,
     toolDrill: 25, toolScrewdriver: 10, toolSaw: 15, toolHammer: 15, toolWrench: 15, toolPliers: 12, toolTape: 10, toolPaint: 20, shoeSneakers: 20, shoeBoots: 25, shoeSandals: 15, shoeSlippers: 12, shoeSchool: 18, shoeRain: 20,
     pwPartyHat: 15, pwBow: 15, pwTopHat: 30, pwFlowers: 25, pwCollar: 15, pwBell: 20, pwScarf: 25, pwBowTie: 20, pwSweater: 40, pwRaincoat: 40, pwCape: 45, pwBoots: 30, pwSneakers: 30,
+    mochiSquish: 15, slimeSquish: 20, tofuSquish: 15, jellySquish: 20, clickPen: 10, keySwitch: 20, fidgetCube: 25, clickerBtn: 15, bubbleWrap: 10, pushPop: 15, popBoba: 20, waterBeads: 20, kineticSand: 25, soapCut: 20, iceCrunch: 20, scratchPad: 15,
   };
   SUB_ITEMS.forEach((x) => { x.cost = SUB_COST[x.id] || 0; });
   // The toys that used to stand on the floor by themselves now live in toy boxes.

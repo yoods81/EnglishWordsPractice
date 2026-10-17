@@ -129,7 +129,7 @@
   function onResize() { if (!ses) return; fit(ses.root); if (ses.screen === "plan") placeMarker(false); }
 
   /* ------------------------------ modal ------------------------------ */
-  function closeModal() { if (modalEl) { modalEl.remove(); modalEl = null; } if (ses) ses.modal = null; document.removeEventListener("keydown", modalKey, true); }
+  function closeModal() { if (modalEl) { if (modalEl._asmrOff) { modalEl._asmrOff(); if (window.ASMR) ASMR.stop(); } modalEl.remove(); modalEl = null; } if (ses) ses.modal = null; document.removeEventListener("keydown", modalKey, true); }
   // Esc closes any popup; Left / Right arrows step to the neighbouring card when the popup has arrow buttons
   function modalKey(e) {
     if (!modalEl) return;
@@ -172,7 +172,16 @@
       ? `<button type="button" class="kh-btn" data-primary data-go>${esc(o.go)}</button><button type="button" class="kh-btn alt" data-no>${T("취소", "Cancel")}</button>${sellBtn}`
       : `<button type="button" class="kh-btn" data-primary data-yes ${afford ? "" : "disabled"}>${T("살래요", "Buy")}</button><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button>`;
     const nb = cardNeighbours();
-    modal(`<h2>${esc(o.title)}</h2><div class="kh-buy-pic kh-detail-pic${o.own ? "" : " is-locked"}">${o.pic}</div>${priceHtml}${note}<div class="kh-btns">${btns}</div>`, (m) => {
+    const playBtn = o.sound && window.ASMR && ASMR.has(o.sound) ? `<button type="button" class="kh-btn kh-play" data-play aria-pressed="false"><span class="kh-play-ic" aria-hidden="true">▶</span> <span class="kh-play-tx">${T("소리 듣기", "Listen")}</span></button>` : "";
+    modal(`<h2>${esc(o.title)}</h2><div class="kh-buy-pic kh-detail-pic${o.own ? "" : " is-locked"}">${o.pic}</div>${playBtn}${priceHtml}${note}<div class="kh-btns">${btns}</div>`, (m) => {
+      const pb = m.querySelector("[data-play]");
+      if (pb) {   // a ▶ button: plays the toy's ASMR sound, tap again to stop. The picture wiggles while it plays.
+        const pic = m.querySelector(".kh-detail-pic");
+        const sync = (id) => { const on = id === o.sound; pb.setAttribute("aria-pressed", on); pb.classList.toggle("is-on", on); pic.classList.toggle("is-playing", on); pb.querySelector(".kh-play-ic").textContent = on ? "■" : "▶"; pb.querySelector(".kh-play-tx").textContent = on ? T("멈추기", "Stop") : T("소리 듣기", "Listen"); };
+        const off = ASMR.onChange(sync);
+        m._asmrOff = off;
+        pb.onclick = () => { if (!ASMR.toggle(o.sound)) sync(null); };
+      }
       if (nb) { // arrow buttons: open the previous / next card of the same list (cards that only show a message are skipped)
         const step = (dir) => {
           for (let k = 1; k < nb.list.length; k++) {
@@ -793,10 +802,10 @@
     const d = H.D[it.id], kind = d.subKind, api = curOpts.subs, list = api.list(kind), grp = {}; list.forEach((e) => { grp[e.id] = e.group; });
     const cur = it.sub || [], tabs = tabsFor(ses.roomId === "yard"), cat = (tabs.find((t) => t[0] === d.cat) || [0, 0, T("가구", "Furniture")])[2];
     const BOOKIC = { koalaBook: "🐨", abcBook: "🔤", spaceBook: "🪐", dinoBook: "🦖", fairyBook: "🧚", mathBook: "➕", oceanBook: "🐳", jokeBook: "😄", atlasBook: "🗺️", artBook: "🎨", animalBook: "🦘", songBook: "🎵" };
-    const icon = (e) => { const v = H.subVis(e.id), im = H.subImg(e.id); if (!im && !v && BOOKIC[e.id]) return `<span class="kh-subic kh-bookic" style="background:${H.bookColor(e.id)}" aria-hidden="true">${BOOKIC[e.id]}</span>`; if (im) return `<span class="kh-subic kh-subimg" aria-hidden="true"><img src="${im}" alt=""></span>`; return v ? `<span class="kh-subic" style="background:${v[1]}" aria-hidden="true">${v[0]}</span>` : `<span class="kh-subic" style="background:${H.bookColor(e.id)}" aria-hidden="true">📖</span>`; };
-    const groups = Array.from(new Set(list.map((e) => e.group))), gname = { main: "", top: T("책상 위", "On top"), drawer: T("서랍 속", "In the drawer"), food: T("음식", "Food"), drink: T("음료", "Drinks") };
-    const title = { tools: T("공구함 속 공구", "Tools in the box"), shoes: T("신발장 위 신발", "Shoes on the cabinet"), books: T("책장 속 책", "Books on the shelf"), desk: T("책상 위·서랍", "On the desk"), frame: T("액자 그림", "Picture"), toys: T("장난감 상자", "Toys"), sink: T("세면대 위 물건", "On the sink"), fridge: T("냉장고 속 음식", "In the fridge") }[kind] || nm(d);
-    const note = kind === "books" && !it.sub ? T("지금은 기본 책이 꽂혀 있어요. 골라 넣으면 바뀌어요.", "Default books for now — pick some to replace them.") : T("눌러서 넣고 빼요. 코인으로 새 물건도 살 수 있어요.", "Tap to put in or take out. New things cost coins.");
+    const icon = (e) => { const v = H.subVis(e.id), im = H.subImg(e.id); if (kind === "asmr" && window.KoalaArt) return `<span class="kh-subic kh-subimg kh-asmric" aria-hidden="true">${window.KoalaArt.subIcon(e.id)}</span>`; if (!im && !v && BOOKIC[e.id]) return `<span class="kh-subic kh-bookic" style="background:${H.bookColor(e.id)}" aria-hidden="true">${BOOKIC[e.id]}</span>`; if (im) return `<span class="kh-subic kh-subimg" aria-hidden="true"><img src="${im}" alt=""></span>`; return v ? `<span class="kh-subic" style="background:${v[1]}" aria-hidden="true">${v[0]}</span>` : `<span class="kh-subic" style="background:${H.bookColor(e.id)}" aria-hidden="true">📖</span>`; };
+    const groups = Array.from(new Set(list.map((e) => e.group))), gname = { main: "", top: T("책상 위", "On top"), drawer: T("서랍 속", "In the drawer"), food: T("음식", "Food"), drink: T("음료", "Drinks"), squishy: T("🫧 말랑이", "🫧 Squishies"), clicky: T("🖱️ 딸깍이", "🖱️ Clickers"), popit: T("💥 뽁뽁이", "💥 Poppers"), crunch: T("🧂 사각사각", "🧂 Crunchy") };
+    const title = { tools: T("공구함 속 공구", "Tools in the box"), shoes: T("신발장 위 신발", "Shoes on the cabinet"), books: T("책장 속 책", "Books on the shelf"), desk: T("책상 위·서랍", "On the desk"), frame: T("액자 그림", "Picture"), toys: T("장난감 상자", "Toys"), sink: T("세면대 위 물건", "On the sink"), fridge: T("냉장고 속 음식", "In the fridge"), asmr: T("ASMR 장난감", "ASMR toys") }[kind] || nm(d);
+    const note = kind === "books" && !it.sub ? T("지금은 기본 책이 꽂혀 있어요. 골라 넣으면 바뀌어요.", "Default books for now — pick some to replace them.") : kind === "asmr" ? T("카드를 누르면 ▶ 버튼이 나와요. 눌러서 소리를 들어 봐요! (이어폰으로 들으면 더 좋아요)", "Tap a card to get a ▶ button and listen! (Earphones sound best.)") : T("눌러서 넣고 빼요. 코인으로 새 물건도 살 수 있어요.", "Tap to put in or take out. New things cost coins.");
     panel.innerHTML = `<nav class="kh-crumbs" aria-label="${T("현재 위치", "You are here")}"><button type="button" class="kh-up" data-up aria-label="${T("상위로", "Up one level")}">${ic("up")}</button>
       <button type="button" class="kh-crumb" data-up>${esc(cat)}</button><span class="kh-sep">${ic("chev")}</span><span class="kh-crumb cur">${esc(nm(d))}</span></nav>
       <div class="kh-grid" id="kh-grid">${shelfHead(title)}<p class="kh-subnote">${note}</p>${groups.map((g) => `${gname[g] ? `<h3>${gname[g]}</h3>` : ""}<div class="kh-subgrid">${list.filter((e) => e.group === g).map((e) => { const on = cur.includes(e.id); return `<button type="button" class="kh-subitem${on ? " on" : ""}${e.owned ? "" : " locked"}" data-sub="${e.id}" aria-pressed="${on}">${icon(e)}<span class="kh-nm">${esc(T(e.name[0], e.name[1]))}</span>${e.owned ? (on ? `<span class="kh-pr kh-ok">${ic("check")}</span>` : "") : `<span class="kh-pr">${COIN}${e.cost}</span>`}</button>`; }).join("")}</div>`).join("")}
@@ -818,7 +827,7 @@
           }
           it.sub = sub; save(); drawScene(); drawPanel();
         };
-        detail({ title: T(e.name[0], e.name[1]), pic: icon(e), price: e.cost, own: e.owned, sell: e.owned && e.cost > 0 && api.sell ? { paid: e.cost, back: Math.floor(e.cost * 0.8), onSell: () => { const ok = api.sell(e.id); if (ok) { e.owned = false; Object.keys(ses.S.slots).forEach((k) => (ses.S.slots[k].items || []).forEach((i) => { if (i.sub) { i.sub = i.sub.filter((x) => x !== e.id); if (!i.sub.length) delete i.sub; } })); (ses.S.yard.items || []).forEach((i) => { if (i.sub) i.sub = i.sub.filter((x) => x !== e.id); }); save(); drawScene(); drawPanel(); } return ok; } } : null, go: on ? T("빼기", "Take out") : kind === "frame" ? T("걸기", "Hang it") : T("넣기", "Put in"), spendWhy: "sub:" + e.id, spendFn: () => api.buy(e.id), onGo: toggle,
+        detail({ sound: kind === "asmr" ? e.id : null, title: T(e.name[0], e.name[1]), pic: icon(e), price: e.cost, own: e.owned, sell: e.owned && e.cost > 0 && api.sell ? { paid: e.cost, back: Math.floor(e.cost * 0.8), onSell: () => { const ok = api.sell(e.id); if (ok) { e.owned = false; Object.keys(ses.S.slots).forEach((k) => (ses.S.slots[k].items || []).forEach((i) => { if (i.sub) { i.sub = i.sub.filter((x) => x !== e.id); if (!i.sub.length) delete i.sub; } })); (ses.S.yard.items || []).forEach((i) => { if (i.sub) i.sub = i.sub.filter((x) => x !== e.id); }); save(); drawScene(); drawPanel(); } return ok; } } : null, go: on ? T("빼기", "Take out") : kind === "frame" ? T("걸기", "Hang it") : T("넣기", "Put in"), spendWhy: "sub:" + e.id, spendFn: () => api.buy(e.id), onGo: toggle,
           onBuy: () => { e.owned = true; drawPanel(); toast(T("샀어요! 다시 눌러서 넣어 봐요.", "Bought! Tap it again to put it in.")); } });
       };
     });

@@ -458,7 +458,7 @@ const bag = (coins) => ({ koala: { coins, earned: coins, ledger: [], items: { ow
 test("sub-items: every one costs coins, and less than the cheapest parent it goes with", () => {
   K.SUB_ITEMS.forEach((sub) => {
     const parents = Object.keys(K.SUB_PARENTS).filter((p) => K.SUB_PARENTS[p] === sub.kind);
-    if (!parents.length) { assert.ok(["sink", "fridge", "tools", "shoes"].includes(sub.kind), sub.id); return; }   // the sink / fridge of the 3D house have no Sticker parent
+    if (!parents.length) { assert.ok(["sink", "fridge", "tools", "shoes", "asmr"].includes(sub.kind), sub.id); return; }   // the sink / fridge of the 3D house have no Sticker parent
     const cheapest = Math.min(...parents.map((p) => K.itemById(p).unlock.coins));
     assert.ok(sub.cost < cheapest, sub.id + " " + sub.cost + " vs " + cheapest);
     if (!sub.cost) assert.equal(sub.id, "picMeadow");
@@ -583,4 +583,19 @@ test("unlimited (admin): badge / streak locked items can be taken too, and spend
   assert.equal(r.ok, true);
   assert.equal(K.ensureKoala(p).coins, 0);
   assert.equal(K.buyItem({}, it.id, {}).reason, "notForSale");
+});
+
+test("asmr toys: every ASMR sub-item has a sound recipe and a drawn picture, and the groups match", () => {
+  const A = require("../public/js/asmr-sound.js");
+  const Art = require("../public/js/koala-art.js");
+  const list = K.SUB_ITEMS.filter((x) => x.kind === "asmr");
+  assert.equal(list.length, Object.keys(A.TOYS).length);
+  list.forEach((x) => {
+    assert.ok(A.TOYS[x.id], "sound for " + x.id);
+    assert.equal(A.TOYS[x.id].group, x.group, x.id);
+    assert.ok(A.GROUPS[x.group], x.group);
+    assert.equal(typeof A.RECIPES[A.TOYS[x.id].recipe], "function", x.id);
+    assert.ok(Art.subIcon(x.id).includes("<svg"), "picture for " + x.id);
+    assert.ok(K.subLimit("asmr", x.group) > 0, x.group);
+  });
 });
