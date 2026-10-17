@@ -130,14 +130,16 @@
   "wpx": 88,
   "ratio": 0.921,
   "ax": 0.5,
-  "ay": 0.611
+  "ay": 0.611,
+  "flip": true
  },
  "deskBlue": {
   "src": "/img/house/deskBlue.webp",
   "wpx": 88,
   "ratio": 0.831,
   "ax": 0.5,
-  "ay": 0.615
+  "ay": 0.615,
+  "flip": true
  },
  "stoolRed": {
   "src": "/img/house/stoolRed.webp",
@@ -172,7 +174,8 @@
   "wpx": 88,
   "ratio": 0.906,
   "ax": 0.5,
-  "ay": 0.611
+  "ay": 0.611,
+  "flip": true
  },
  "stove": {
   "src": "/img/house/stove.webp",

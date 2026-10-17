@@ -353,11 +353,12 @@
     if (!e || !e.src) return "";
     const w = e.wpx || 120, h = w * (e.ratio || 1), ax = e.ax != null ? e.ax : 0.5, ay = e.ay != null ? e.ay : 0.85;
     const tk = tuckOf(id, m);
+    const mir = !!(m & 1) !== !!e.flip;   // flip: the picture was drawn along the other floor axis, so it is mirrored the other way round
     const [cx, cy] = proj(o.w / 2 + tk[0], o.d / 2 + tk[1], 0);
-    lastGeom = { cx, cy, w, h, x: cx - w * ax, y: cy - h * ay, mir: !!(m & 1) };
+    lastGeom = { cx, cy, w, h, x: cx - w * ax, y: cy - h * ay, mir };
     const rx = (o.w + o.d) * 32 * 0.33;
     const sh = noSh ? "" : `<ellipse cx="${cx}" cy="${cy + (o.w + o.d) * 2}" rx="${rx}" ry="${rx * 0.5}" fill="#3b2a1a" opacity=".10"/><ellipse cx="${cx}" cy="${cy + (o.w + o.d) * 2}" rx="${rx * 0.7}" ry="${rx * 0.35}" fill="#3b2a1a" opacity=".12"/>`;
-    return sh + `<image href="${e.src}" x="${cx - w * ax}" y="${cy - h * ay}" width="${w}" height="${h}"${m & 1 ? ` transform="translate(${cx * 2} 0) scale(-1 1)"` : ""} preserveAspectRatio="xMidYMid meet"/>`;
+    return sh + `<image href="${e.src}" x="${cx - w * ax}" y="${cy - h * ay}" width="${w}" height="${h}"${mir ? ` transform="translate(${cx * 2} 0) scale(-1 1)"` : ""} preserveAspectRatio="xMidYMid meet"/>`;
   }
   /* ---- things inside furniture (sub-items) ---- */
   const BOOKCOL = ["#e66a5a", "#5b8fd0", "#68b57c", "#f2c94c", "#9a7be0", "#ef8fb0", "#4fb3b3", "#e0793a"];
