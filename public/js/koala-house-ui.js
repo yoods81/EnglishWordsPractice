@@ -1009,7 +1009,7 @@
       const grp = (title, kind, set) => `<h3>${title}</h3><div class="kh-sws">${Object.keys(set).map((k) => `<button type="button" class="kh-sw${h[kind] === k ? " on" : ""}" data-house="${kind}:${k}" aria-pressed="${h[kind] === k}" aria-label="${esc(T(set[k][0], set[k][1]))}"><span class="kh-sw-c" style="background:${set[k][2]}"></span><span class="kh-sw-n">${esc(T(set[k][0], set[k][1]))}</span></button>`).join("")}</div>`;
       return `<h3>${T("집 모양", "House style")}</h3><div class="kh-sws">${Object.keys(H.HOUSE_STYLES).map((k) => { const d = H.HOUSE_STYLES[k]; return optBtn("data-hstyle", k, h.style === k, H.houseThumb(k, st), T(d.n[0], d.n[1]), d.p, d.p === 0 || !!S.houseStyles[k]); }).join("")}</div>
         <p class="kh-subnote">${T("집을 옮기거나 돌리려면 왼쪽 그림에서 집을 눌러요.", "To move or turn the house, tap it in the picture.")}</p>
-        ${grp(T("외벽", "Walls"), "wall", H.HOUSE_WALLS)}${grp(T("지붕", "Roof"), "roof", H.HOUSE_ROOFS)}${grp(T("현관문", "Door"), "door", H.HOUSE_DOORS)}`;
+        ${H.housePic(h.style) ? "" : grp(T("외벽", "Walls"), "wall", H.HOUSE_WALLS) + grp(T("지붕", "Roof"), "roof", H.HOUSE_ROOFS) + grp(T("현관문", "Door"), "door", H.HOUSE_DOORS)}`;
     }
     if (ses.tab === "garden") {
       const own = (kind, key, p) => !p || !!(S[kind] && S[kind][key]);

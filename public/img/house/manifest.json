@@ -368,11 +368,13 @@
   "ay": 0.735
  },
  "fence": {
-  "src": "/img/house/fence.webp",
-  "wpx": 49,
-  "ratio": 0.904,
+  "src": "/img/house/bd_fence.webp",
+  "wpx": 38,
+  "ratio": 0.863,
   "ax": 0.5,
-  "ay": 0.639
+  "ay": 0.817,
+  "flip": true,
+  "shear": -0.17
  },
  "gardenLamp": {
   "src": "/img/house/gardenLamp.webp",
@@ -872,11 +874,14 @@
  "@house:cottage": {
   "src": "/img/house/houseCottage.webp",
   "wpx": 366,
-  "ratio": 0.9766,
+  "ratio": 0.9781,
   "ax": 0.5,
   "ay": 0.936,
   "w": 5,
-  "d": 5
+  "d": 5,
+  "m1": 0.5,
+  "m2": -0.5,
+  "door": 0.65
  },
  "@floor:grass": {
   "src": "/img/house/floorGrass.webp",
@@ -889,7 +894,10 @@
   "ax": 0.6172,
   "ay": 0.8125,
   "w": 6,
-  "d": 4
+  "d": 4,
+  "m1": 0.22,
+  "m2": -0.38,
+  "door": 0.67
  },
  "@house:twoStory": {
   "src": "/img/house/houseTwoStory.webp",
@@ -898,7 +906,10 @@
   "ax": 0.6172,
   "ay": 0.875,
   "w": 6,
-  "d": 4
+  "d": 4,
+  "m1": 0.19,
+  "m2": -0.26,
+  "door": 0.56
  },
  "@house:modern": {
   "src": "/img/house/houseModern.webp",
@@ -907,7 +918,10 @@
   "ax": 0.6094,
   "ay": 0.8,
   "w": 6,
-  "d": 4
+  "d": 4,
+  "m1": 0.3,
+  "m2": -0.47,
+  "door": 0.48
  },
  "@house:cabin": {
   "src": "/img/house/houseCabin.webp",
@@ -916,7 +930,10 @@
   "ax": 0.5469,
   "ay": 0.8359,
   "w": 5,
-  "d": 4
+  "d": 4,
+  "m1": 0.12,
+  "m2": -0.23,
+  "door": 0.55
  },
  "@house:castle": {
   "src": "/img/house/houseCastle.webp",
@@ -924,7 +941,28 @@
   "ratio": 1,
   "ax": 0.4922,
   "ay": 0.875,
-  "w": 5,
-  "d": 3
+  "w": 4,
+  "d": 4,
+  "m1": 0.0,
+  "m2": -1.0,
+  "door": 0.9
+ },
+ "hedge1": {
+  "src": "/img/house/bd_hedge1.webp",
+  "wpx": 58,
+  "ratio": 0.783,
+  "ax": 0.5,
+  "ay": 0.692,
+  "flip": true,
+  "shear": -0.36
+ },
+ "stoneWall1": {
+  "src": "/img/house/bd_stoneWall1.webp",
+  "wpx": 52,
+  "ratio": 0.74,
+  "ax": 0.5,
+  "ay": 0.688,
+  "flip": true,
+  "shear": -0.31
  }
 }

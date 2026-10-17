@@ -527,7 +527,13 @@
     // floor slab (thickness) + top
     const frontL = [proj(0, R_, 0), proj(C_, R_, 0), proj(C_, R_, -12), proj(0, R_, -12)];
     const frontR = [proj(C_, 0, 0), proj(C_, R_, 0), proj(C_, R_, -12), proj(C_, 0, -12)];
-    if (!(opt && opt.noSlab)) o.push(`<polygon points="${pstr(frontL)}" fill="${shade(fl.c, -0.38)}"/><polygon points="${pstr(frontR)}" fill="${shade(fl.c, -0.5)}"/>`);
+    if (!(opt && opt.noSlab)) {
+      const soil = kind === "yard" && fl.yard && (st.floor === "grass" || st.floor === "lime" || st.floor === "meadow");   // a slab of earth under the turf
+      if (soil) {
+        const lip = (a, b, z) => [proj(a[0], a[1], 0), proj(b[0], b[1], 0), proj(b[0], b[1], -z), proj(a[0], a[1], -z)];
+        o.push(`<polygon points="${pstr(frontL)}" fill="#8a5a34"/><polygon points="${pstr(frontR)}" fill="#6e4528"/><polygon points="${pstr(lip([0, R_], [C_, R_], 3.5))}" fill="#5f9f3a"/><polygon points="${pstr(lip([C_, 0], [C_, R_], 3.5))}" fill="#4d8530"/>`);
+      } else o.push(`<polygon points="${pstr(frontL)}" fill="${shade(fl.c, -0.38)}"/><polygon points="${pstr(frontR)}" fill="${shade(fl.c, -0.5)}"/>`);
+    }
     o.push(`<polygon points="${pstr(floorTop)}" fill="${fl.c}"/>`);
     const ft = MANIFEST["@floor:" + (st.floor || "")];   // a seamless picture of the ground (manifest "@floor:<key>"), repeated every `n` tiles
     if (ft && ft.src) {
@@ -626,10 +632,31 @@
     return o;
   }
   // the house in yard tiles (turned to face +x when rot is set)
+  // A generated picture is seldom a true 2:1 isometric view: its left wall may run down-right at 0.2 and its right wall up-right at 0.3,
+  // so the house looks twisted against the yard's grid. m1 / m2 are the slopes (dy/dx) of the picture's two base edges (the left one runs
+  // down-right, the right one up-right, so m2 is negative). Each half of the picture, split at the front corner (ax), is sheared
+  // vertically so that its base edge gets the slope 0.5 of the grid; vertical lines stay vertical and nothing is stretched.
   function housePicSvg(y, e) {   // the picture stands on the front corner of the house's footprint (turned: mirrored)
-    const rc = houseRect(y), [cx, cy] = proj(rc.c1, rc.r1, 0), wp = e.wpx, hp = wp * e.ratio, mir = rc.rot ? 1 : 0;
-    const x = cx - (mir ? 1 - (e.ax == null ? 0.5 : e.ax) : (e.ax == null ? 0.5 : e.ax)) * wp, yy = cy - (e.ay == null ? 0.93 : e.ay) * hp;
-    return `<image href="${e.src}" x="${x.toFixed(1)}" y="${yy.toFixed(1)}" width="${wp.toFixed(1)}" height="${hp.toFixed(1)}"${mir ? ` transform="translate(${(2 * x + wp).toFixed(1)} 0) scale(-1 1)"` : ""}/>`;
+    const rc = houseRect(y), [cx, cy] = proj(rc.c1, rc.r1, 0), wp = e.wpx, hp = wp * e.ratio, mir = rc.rot ? -1 : 1;
+    const ax = (e.ax == null ? 0.5 : e.ax) * wp, ay = (e.ay == null ? 0.93 : e.ay) * hp;
+    const kL = 0.5 - (e.m1 == null ? 0.5 : e.m1), kR = -0.5 - (e.m2 == null ? -0.5 : e.m2), id = "khH" + (e.src || "").replace(/\W/g, "");
+    const bw = wp * 0.02, N = 6, k = (x) => { const t = Math.max(0, Math.min(1, (x - (ax - bw)) / (2 * bw))); return kL + (kR - kL) * t * t * (3 - 2 * t); };   // the bend is spread over a band round the corner
+    const cuts = [0]; for (let i = 0; i <= N; i++) cuts.push(ax - bw + (2 * bw * i) / N); cuts.push(wp);
+    let Y = 0, Ys = [];   // Y(x): the vertical offset at each cut, 0 at the corner
+    const at = []; for (let i = 0; i < cuts.length; i++) at.push(cuts[i]);
+    const iz = at.findIndex((x) => x >= ax - 1e-6); let acc = 0; Ys[iz] = 0;
+    for (let i = iz + 1; i < at.length; i++) { acc += k((at[i - 1] + at[i]) / 2) * (at[i] - at[i - 1]); Ys[i] = acc; }
+    acc = 0; for (let i = iz - 1; i >= 0; i--) { acc -= k((at[i] + at[i + 1]) / 2) * (at[i + 1] - at[i]); Ys[i] = acc; }
+    let defs = "", imgs = "";
+    for (let i = 0; i < at.length - 1; i++) {
+      const x0 = at[i], x1 = at[i + 1], km = k((x0 + x1) / 2);
+      if (x1 - x0 < 0.01) continue;
+      defs += `<clipPath id="${id}${i}"><rect x="${(x0 - 0.5).toFixed(2)}" y="-5" width="${(x1 - x0 + 1).toFixed(2)}" height="${(hp + 10).toFixed(1)}"/></clipPath>`;
+      imgs += `<image href="${e.src}" x="0" y="0" width="${wp.toFixed(1)}" height="${hp.toFixed(1)}" clip-path="url(#${id}${i})" transform="matrix(${mir} ${km.toFixed(4)} 0 1 ${(cx - mir * ax).toFixed(2)} ${(cy - ay + Ys[i] - km * x0).toFixed(2)})"/>`;
+    }
+    const P = (c, r) => proj(c, r, 0).map((v) => v.toFixed(1)).join(","), g = 0.25;   // a soft shadow under the house, so it sits on the grass
+    const sh = `<filter id="khHsh" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur stdDeviation="5"/></filter><polygon points="${P(rc.c0 - g, rc.r0 - g)} ${P(rc.c1 + g, rc.r0 - g)} ${P(rc.c1 + g, rc.r1 + g)} ${P(rc.c0 - g, rc.r1 + g)}" fill="#1c3b14" opacity="0.28" filter="url(#khHsh)"/>`;
+    return `<defs>${defs}</defs>${sh}${imgs}`;
   }
   function houseParts(y) {
     const h = (y && y.house) || {}, rc = houseRect(y), loc = houseLocal(h, rc.w, rc.d);
@@ -645,9 +672,9 @@
     return `<svg class="kh-hthumb" viewBox="0 0 200 200" aria-hidden="true"><g>${sortParts(houseParts(q)).map(partSvg).join("")}</g></svg>`;
   }
   const houseDepth = (y) => { const rc = houseRect(y); return rc.c1 + rc.r1 - 0.4; };
-  function doorSpan(y) { // the two tiles in front of the door, along the front wall
-    const rc = houseRect(y);
-    return rc.rot ? { rot: 1, a: Math.floor(rc.r0 + rc.w / 2) - 1 } : { rot: 0, a: Math.floor(rc.c0 + rc.w / 2) - 1 };
+  function doorSpan(y) { // the two tiles in front of the door, along the front wall (a picture says where its door is: "door" = 0..1 along the front wall)
+    const rc = houseRect(y), hp = housePic(((y && y.house) || {}).style), f = hp && hp.door != null ? hp.door : 0.5, max = (rc.rot ? rc.r1 : rc.c1) - 2;
+    return rc.rot ? { rot: 1, a: Math.max(rc.r0, Math.min(max, Math.round(rc.r0 + rc.w * f - 1))) } : { rot: 0, a: Math.max(rc.c0, Math.min(max, Math.round(rc.c0 + rc.w * f - 1))) };
   }
   // automatic border pieces + path tiles
   function yardExtras(y) {
@@ -672,8 +699,8 @@
     if (!kind || kind === "none") return "";
     yardExtras(y).path.forEach(([c, r], i) => {
       const quad = (a, b, w, d) => pstr([proj(a, b, 0), proj(a + w, b, 0), proj(a + w, b + d, 0), proj(a, b + d, 0)]);
-      if (kind === "stones") { const q = proj(c + 0.5, r + 0.5 + (i % 2 ? 0.1 : -0.1), 0); o.push(`<ellipse cx="${q[0].toFixed(1)}" cy="${(q[1] - 1).toFixed(1)}" rx="19" ry="9" fill="#aeb4ba"/><ellipse cx="${q[0].toFixed(1)}" cy="${(q[1] - 3).toFixed(1)}" rx="19" ry="9" fill="#cfd4d8"/>`); }
-      else if (kind === "brick") o.push(`<polygon points="${quad(c, r, 1, 1)}" fill="${(c + r) % 2 ? "#d99a7d" : "#cc8b6f"}" stroke="#b97a60" stroke-width="1"/>`);
+      if (kind === "stones") { const q = proj(c + 0.5, r + 0.5 + (i % 2 ? 0.1 : -0.1), 0), x = q[0].toFixed(1), yy = q[1]; o.push(`<ellipse cx="${x}" cy="${(yy + 1).toFixed(1)}" rx="19.5" ry="9.5" fill="#2f5a1c" opacity="0.28"/><ellipse cx="${x}" cy="${(yy - 1).toFixed(1)}" rx="19" ry="9" fill="#a9a493"/><ellipse cx="${x}" cy="${(yy - 3.5).toFixed(1)}" rx="19" ry="9" fill="#d9d4c3"/><ellipse cx="${(q[0] - 4).toFixed(1)}" cy="${(yy - 5).toFixed(1)}" rx="9" ry="3.5" fill="#efebdd" opacity="0.8"/>`); }
+      else if (kind === "brick") o.push(`<polygon points="${quad(c, r, 1, 1)}" fill="${(c + r) % 2 ? "#cf7f5e" : "#c1704f"}" stroke="#8f4f38" stroke-width="1.2" stroke-linejoin="round"/>`);
       else o.push(`<polygon points="${quad(c + 0.04, r, 0.92, 1)}" fill="${i % 2 ? "#c99a63" : "#b98a55"}" stroke="#8f6a3e" stroke-width="1"/>`);
     });
     return o.join("");
@@ -920,6 +947,6 @@
   return {
     TW, TH, WALL_H, D, WALLS, FLOORS, ROOMS, ROOM_ORDER, PLAN, SLOTS, START_SLOT, YARD, HOUSE_WALLS, HOUSE_ROOFS, HOUSE_DOORS, HOUSE_STYLES, YARD_SIZES, BORDERS, PATHS, GARDEN_PRESETS,
     proj, shade, orient, itemBox, itemInner, thumbSvg, roomSvg, planSvg, wallItemSvg, floorItemSvg, sceneBox, depthCmp, roomOf, stateOf, yardDims, houseRect, subVis, bookColor,
-    subImg, uiImg, canPlace, freeCells, STARTER_OWNED: Object.keys(starter().owned), tuckOf, setOpen, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts, houseThumb,
+    subImg, uiImg, canPlace, freeCells, STARTER_OWNED: Object.keys(starter().owned), tuckOf, setOpen, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts, houseThumb, housePic,
   };
 });
