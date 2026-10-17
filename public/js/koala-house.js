@@ -635,26 +635,14 @@
   // the house in yard tiles (turned to face +x when rot is set)
   // A generated picture is seldom a true 2:1 isometric view: its left wall may run down-right at 0.2 and its right wall up-right at 0.3,
   // so the house looks twisted against the yard's grid. m1 / m2 are the slopes (dy/dx) of the picture's two base edges (the left one runs
-  // down-right, the right one up-right, so m2 is negative). Each half of the picture, split at the front corner (ax), is sheared
-  // vertically so that its base edge gets the slope 0.5 of the grid; vertical lines stay vertical and nothing is stretched.
+  // down-right, the right one up-right, so m2 is negative). One affine map for the whole picture (so every straight line, roofs included,
+  // stays straight): vertical lines stay vertical, y is stretched by `vs` (the picture's camera is lower than the grid's) and the rest is
+  // a shear that gives both base edges the same error, as small as it can be.
   function housePicSvg(y, e) {   // the picture stands on the front corner of the house's footprint (turned: mirrored)
     const rc = houseRect(y), [cx, cy] = proj(rc.c1, rc.r1, 0), wp = e.wpx, hp = wp * e.ratio, mir = rc.rot ? -1 : 1;
-    const ax = (e.ax == null ? 0.5 : e.ax) * wp, ay = (e.ay == null ? 0.93 : e.ay) * hp;
-    const kL = 0.5 - (e.m1 == null ? 0.5 : e.m1), kR = -0.5 - (e.m2 == null ? -0.5 : e.m2), id = "khH" + (e.src || "").replace(/\W/g, "");
-    const bw = wp * 0.02, N = 6, k = (x) => { const t = Math.max(0, Math.min(1, (x - (ax - bw)) / (2 * bw))); return kL + (kR - kL) * t * t * (3 - 2 * t); };   // the bend is spread over a band round the corner
-    const cuts = [0]; for (let i = 0; i <= N; i++) cuts.push(ax - bw + (2 * bw * i) / N); cuts.push(wp);
-    let Y = 0, Ys = [];   // Y(x): the vertical offset at each cut, 0 at the corner
-    const at = []; for (let i = 0; i < cuts.length; i++) at.push(cuts[i]);
-    const iz = at.findIndex((x) => x >= ax - 1e-6); let acc = 0; Ys[iz] = 0;
-    for (let i = iz + 1; i < at.length; i++) { acc += k((at[i - 1] + at[i]) / 2) * (at[i] - at[i - 1]); Ys[i] = acc; }
-    acc = 0; for (let i = iz - 1; i >= 0; i--) { acc -= k((at[i] + at[i + 1]) / 2) * (at[i + 1] - at[i]); Ys[i] = acc; }
-    let defs = "", imgs = "";
-    for (let i = 0; i < at.length - 1; i++) {
-      const x0 = at[i], x1 = at[i + 1], km = k((x0 + x1) / 2);
-      if (x1 - x0 < 0.01) continue;
-      defs += `<clipPath id="${id}${i}"><rect x="${(x0 - 0.5).toFixed(2)}" y="-5" width="${(x1 - x0 + 1).toFixed(2)}" height="${(hp + 10).toFixed(1)}"/></clipPath>`;
-      imgs += `<image href="${e.src}" x="0" y="0" width="${wp.toFixed(1)}" height="${hp.toFixed(1)}" clip-path="url(#${id}${i})" transform="matrix(${mir} ${km.toFixed(4)} 0 1 ${(cx - mir * ax).toFixed(2)} ${(cy - ay + Ys[i] - km * x0).toFixed(2)})"/>`;
-    }
+    const ax = (e.ax == null ? 0.5 : e.ax) * wp, ay = (e.ay == null ? 0.93 : e.ay) * hp, m1 = e.m1 == null ? 0.5 : e.m1, m2 = e.m2 == null ? -0.5 : e.m2;
+    const vs = e.vs || Math.max(1, Math.min(1.25, 1 / (m1 - m2))), k = -vs * (m1 + m2) / 2;
+    const imgs = `<image href="${e.src}" x="0" y="0" width="${wp.toFixed(1)}" height="${hp.toFixed(1)}" transform="matrix(${mir} ${k.toFixed(4)} 0 ${vs.toFixed(4)} ${(cx - mir * ax).toFixed(2)} ${(cy - k * ax - vs * ay).toFixed(2)})"/>`, defs = "";
     const P = (c, r) => proj(c, r, 0).map((v) => v.toFixed(1)).join(","), g = 0.25;   // a soft shadow under the house, so it sits on the grass
     const sh = `<filter id="khHsh" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur stdDeviation="5"/></filter><polygon points="${P(rc.c0 - g, rc.r0 - g)} ${P(rc.c1 + g, rc.r0 - g)} ${P(rc.c1 + g, rc.r1 + g)} ${P(rc.c0 - g, rc.r1 + g)}" fill="#1c3b14" opacity="0.28" filter="url(#khHsh)"/>`;
     return `<defs>${defs}</defs>${sh}${imgs}`;
@@ -683,9 +671,9 @@
     const inHouse = (c, r) => c >= rc.c0 && c < rc.c1 && r >= rc.r0 && r < rc.r1;
     const id = { fence: "fence", hedge: "hedge1", stone: "stoneWall1" }[y && y.border];
     if (id) {
-      const E = 0.4, add = (c, r, m, eo) => { if (!inHouse(c, r)) virt.push({ uid: "", id, c, r, m, z: 0, fixed: true, eo }); };   // eo: the piece is moved out to the edge of the ground
+      const E = 0.32, add = (c, r, m, eo) => { if (!inHouse(c, r)) virt.push({ uid: "", id, c, r, m, z: 0, fixed: true, eo }); };   // eo: the piece is moved out to the edge of the ground
       for (let r = 0; r < dm.R; r++) { add(0, r, 1, [-E, 0]); add(dm.C - 1, r, 1, [E, 0]); }
-      for (let c = 1; c < dm.C - 1; c++) { add(c, 0, 0, [0, -E]); add(c, dm.R - 1, 0, [0, E]); }
+      for (let c = 0; c < dm.C; c++) { add(c, 0, 0, [0, -E]); add(c, dm.R - 1, 0, [0, E]); }   // the rows run into the corners, so the corners close
       // leave a gate in front of the door
       for (let i = virt.length - 1; i >= 0; i--) { const v = virt[i]; if (ds.rot ? (v.c === dm.C - 1 && (v.r === ds.a || v.r === ds.a + 1)) : (v.r === dm.R - 1 && (v.c === ds.a || v.c === ds.a + 1))) virt.splice(i, 1); }
     }

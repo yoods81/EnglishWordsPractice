@@ -50,3 +50,16 @@
 31. contL (큰 수납함) — `A large blue plastic storage container with a lid and a small handle slot.`
 32. contM (중간 수납함) — `A medium green plastic storage container with a lid and a small handle slot.`
 33. contS (작은 수납함) — `A small yellow plastic storage container with a lid and a small handle slot.`
+
+## 집 · 성 다시 받기 (카메라 고정용 참고 그림)
+집 그림이 마당 격자와 어긋나 보이는 이유는 Gemini가 카메라 각도를 매번 다르게 잡기 때문이에요. 아래 참고 그림(회색 블록)을 **같이 올리고** 아래 문구를 쓰면 각도가 고정돼요.
+- 집 5종(villa, twoStory, modern, cabin, cottage): `docs/ref/refHouseBlock6x4.png` (6x4칸)
+- 동화 성(castle): `docs/ref/refCastleBlock4x4.png` (4x4칸)
+
+**카메라 고정 문구(참고 그림과 함께, 스타일 문구 뒤에 붙이기):**
+`Use the attached grey block ONLY as a camera and footprint guide. Redraw the building so that it stands exactly on that block's footprint, with the identical camera: true 2:1 isometric (dimetric) view, orthographic with no perspective, the ground edges run at exactly 26.6 degrees, the front-bottom corner of the building is at the same bottom-centre point as the block, the building is NOT rotated or tilted compared with the block, left wall and right wall both clearly visible. Do not draw the block's ground grid. Plain pure white background.`
+
+**성(castle)만 따로 추가:**
+`A complete storybook castle keep seen as a full 3D building, not a flat front gate: it fills the whole square footprint with four round corner towers with pointed pink cone roofs and small flags, grey stone curtain walls on both visible sides (the left wall and the right wall) with battlements, a wooden arched gate on the left wall, a central taller tower with a pink roof behind, visible roof surfaces and wall thickness on both sides.`
+
+받은 그림은 배경 그대로(흰색) 보내주시면 돼요. 이미 마당에서 쓰는 크기에 맞춰 제가 넣어요.
