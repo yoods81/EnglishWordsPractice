@@ -964,5 +964,29 @@
   "ay": 0.688,
   "flip": true,
   "shear": -0.31
+ },
+ "@floor:lime": {
+  "src": "/img/house/floorLime.webp",
+  "n": 4
+ },
+ "@floor:autumn": {
+  "src": "/img/house/floorAutumn.webp",
+  "n": 4
+ },
+ "@floor:meadow": {
+  "src": "/img/house/floorMeadow.webp",
+  "n": 4
+ },
+ "@floor:sand": {
+  "src": "/img/house/floorSand.webp",
+  "n": 4
+ },
+ "@floor:snow": {
+  "src": "/img/house/floorSnow.webp",
+  "n": 4
+ },
+ "@floor:paved": {
+  "src": "/img/house/floorPaved.webp",
+  "n": 4
  }
 }

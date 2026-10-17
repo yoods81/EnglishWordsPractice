@@ -409,6 +409,7 @@
     toyTeddy: ["🧸", "#fff"], toyBall: ["🏐", "#fff"], toyCar: ["🚗", "#fff"], toyRobot: ["🤖", "#fff"], toyDino: ["🦖", "#fff"], toyBlocks: ["🧱", "#fff"], toyDuck: ["🦆", "#fff"], toyRocket: ["🚀", "#fff"], toyBunny: ["🐰", "#fff"], toyDrum: ["🥁", "#fff"],
   };
   const subVis = (id) => SUBV[id] || null;
+  const floorImg = (k) => { const e = MANIFEST["@floor:" + k]; return e && e.src || null; };
   const uiImg = (k) => { const e = MANIFEST["@ui:" + k]; return e && e.src || null; };
   const subImg = (id) => { const e = MANIFEST["@sub:" + id]; return e && e.src || null; };
   // one small thing drawn at (x, y): its picture when there is one, otherwise the emoji
@@ -528,7 +529,7 @@
     const frontL = [proj(0, R_, 0), proj(C_, R_, 0), proj(C_, R_, -12), proj(0, R_, -12)];
     const frontR = [proj(C_, 0, 0), proj(C_, R_, 0), proj(C_, R_, -12), proj(C_, 0, -12)];
     if (!(opt && opt.noSlab)) {
-      const soil = kind === "yard" && fl.yard && (st.floor === "grass" || st.floor === "lime" || st.floor === "meadow");   // a slab of earth under the turf
+      const soil = kind === "yard" && fl.yard && (st.floor === "grass" || st.floor === "lime" || st.floor === "meadow" || st.floor === "autumn");   // a slab of earth under the turf
       if (soil) {
         const lip = (a, b, z) => [proj(a[0], a[1], 0), proj(b[0], b[1], 0), proj(b[0], b[1], -z), proj(a[0], a[1], -z)];
         o.push(`<polygon points="${pstr(frontL)}" fill="#8a5a34"/><polygon points="${pstr(frontR)}" fill="#6e4528"/><polygon points="${pstr(lip([0, R_], [C_, R_], 3.5))}" fill="#5f9f3a"/><polygon points="${pstr(lip([C_, 0], [C_, R_], 3.5))}" fill="#4d8530"/>`);
@@ -682,9 +683,9 @@
     const inHouse = (c, r) => c >= rc.c0 && c < rc.c1 && r >= rc.r0 && r < rc.r1;
     const id = { fence: "fence", hedge: "hedge1", stone: "stoneWall1" }[y && y.border];
     if (id) {
-      const add = (c, r, m) => { if (!inHouse(c, r)) virt.push({ uid: "", id, c, r, m, z: 0, fixed: true }); };
-      for (let r = 0; r < dm.R; r++) { add(0, r, 1); add(dm.C - 1, r, 1); }
-      for (let c = 1; c < dm.C - 1; c++) { add(c, 0, 0); add(c, dm.R - 1, 0); }
+      const E = 0.4, add = (c, r, m, eo) => { if (!inHouse(c, r)) virt.push({ uid: "", id, c, r, m, z: 0, fixed: true, eo }); };   // eo: the piece is moved out to the edge of the ground
+      for (let r = 0; r < dm.R; r++) { add(0, r, 1, [-E, 0]); add(dm.C - 1, r, 1, [E, 0]); }
+      for (let c = 1; c < dm.C - 1; c++) { add(c, 0, 0, [0, -E]); add(c, dm.R - 1, 0, [0, E]); }
       // leave a gate in front of the door
       for (let i = virt.length - 1; i >= 0; i--) { const v = virt[i]; if (ds.rot ? (v.c === dm.C - 1 && (v.r === ds.a || v.r === ds.a + 1)) : (v.r === dm.R - 1 && (v.c === ds.a || v.c === ds.a + 1))) virt.splice(i, 1); }
     }
@@ -700,8 +701,24 @@
     yardExtras(y).path.forEach(([c, r], i) => {
       const quad = (a, b, w, d) => pstr([proj(a, b, 0), proj(a + w, b, 0), proj(a + w, b + d, 0), proj(a, b + d, 0)]);
       if (kind === "stones") { const q = proj(c + 0.5, r + 0.5 + (i % 2 ? 0.1 : -0.1), 0), x = q[0].toFixed(1), yy = q[1]; o.push(`<ellipse cx="${x}" cy="${(yy + 1).toFixed(1)}" rx="19.5" ry="9.5" fill="#2f5a1c" opacity="0.28"/><ellipse cx="${x}" cy="${(yy - 1).toFixed(1)}" rx="19" ry="9" fill="#a9a493"/><ellipse cx="${x}" cy="${(yy - 3.5).toFixed(1)}" rx="19" ry="9" fill="#d9d4c3"/><ellipse cx="${(q[0] - 4).toFixed(1)}" cy="${(yy - 5).toFixed(1)}" rx="9" ry="3.5" fill="#efebdd" opacity="0.8"/>`); }
-      else if (kind === "brick") o.push(`<polygon points="${quad(c, r, 1, 1)}" fill="${(c + r) % 2 ? "#cf7f5e" : "#c1704f"}" stroke="#8f4f38" stroke-width="1.2" stroke-linejoin="round"/>`);
-      else o.push(`<polygon points="${quad(c + 0.04, r, 0.92, 1)}" fill="${i % 2 ? "#c99a63" : "#b98a55"}" stroke="#8f6a3e" stroke-width="1"/>`);
+      else if (kind === "brick") {
+        const P = (c0, r0, w, d) => pstr([proj(c0, r0, 0), proj(c0 + w, r0, 0), proj(c0 + w, r0 + d, 0), proj(c0, r0 + d, 0)]), cols = ["#c9694a", "#bf6042", "#d27655", "#b95a3f", "#cc7050"], g = 0.035;
+        o.push(`<polygon points="${quad(c, r, 1, 1)}" fill="#a9988a"/>`);
+        [[0, 0.5], [0.5, 1]].forEach(([r0, r1], row) => {
+          const cuts = row ? [0, 0.25, 0.75, 1] : [0, 0.5, 1];
+          for (let j = 0; j < cuts.length - 1; j++) o.push(`<polygon points="${P(c + cuts[j] + g, r + r0 + g, cuts[j + 1] - cuts[j] - 2 * g, r1 - r0 - 2 * g)}" fill="${cols[(c * 3 + r * 5 + row * 2 + j) % 5]}"/>`);
+        });
+      } else {   // planks laid across the way
+        const rot = doorSpan(y).rot, cols = ["#c99a63", "#b98a55", "#d2a56f", "#bf8f5a"];
+        o.push(`<polygon points="${quad(c, r, 1, 1)}" fill="#7d5a35"/>`);
+        for (let k = 0; k < 2; k++) {
+          const a0 = rot ? c + k * 0.5 + 0.03 : c + 0.03, b0 = rot ? r + 0.03 : r + k * 0.5 + 0.03, w = rot ? 0.44 : 0.94, d = rot ? 0.94 : 0.44, col = cols[(c * 2 + r * 3 + k + i) % 4];
+          o.push(`<polygon points="${pstr([proj(a0, b0, 0), proj(a0 + w, b0, 0), proj(a0 + w, b0 + d, 0), proj(a0, b0 + d, 0)])}" fill="${col}"/>`);
+          const m1 = rot ? [a0 + w / 2, b0 + 0.08] : [a0 + 0.08, b0 + d / 2], m2 = rot ? [a0 + w / 2, b0 + d - 0.08] : [a0 + w - 0.08, b0 + d / 2];
+          o.push(`<polyline points="${pstr([proj(m1[0], m1[1], 0), proj(m2[0], m2[1], 0)])}" stroke="#8f6a3e" stroke-width="1" opacity=".55" fill="none"/>`);
+          o.push(`<polyline points="${pstr([proj(a0, b0 + d, 0), proj(a0 + w, b0 + d, 0), proj(a0 + w, b0, 0)].slice(rot ? 1 : 0, rot ? 3 : 3))}" stroke="#a97d49" stroke-width="1.2" opacity=".6" fill="none"/>`);
+        }
+      }
     });
     return o.join("");
   }
@@ -721,7 +738,7 @@
   }
   function depthCmp(a, b) { return depthKey(a) - depthKey(b); }
   function floorItemSvg(i) {
-    const def = D[i.id], [x, y] = proj(i.c, i.r, i.z || 0);
+    const def = D[i.id], [x, y] = proj(i.c + (i.eo ? i.eo[0] : 0), i.r + (i.eo ? i.eo[1] : 0), i.z || 0);
     return `<g class="kh-it${i.fixed ? " kh-fixed" : ""}" data-uid="${i.uid || ""}" data-id="${i.id}" data-k="${def.flat ? -1 : depthKey(i).toFixed(3)}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})">${itemInner(def, i.m, i)}</g>`;
   }
   function wallMatrix(side) { return side === "L" ? "matrix(-0.5 0.25 0 1 0 0)" : "matrix(0.5 0.25 0 1 0 0)"; }
@@ -947,6 +964,6 @@
   return {
     TW, TH, WALL_H, D, WALLS, FLOORS, ROOMS, ROOM_ORDER, PLAN, SLOTS, START_SLOT, YARD, HOUSE_WALLS, HOUSE_ROOFS, HOUSE_DOORS, HOUSE_STYLES, YARD_SIZES, BORDERS, PATHS, GARDEN_PRESETS,
     proj, shade, orient, itemBox, itemInner, thumbSvg, roomSvg, planSvg, wallItemSvg, floorItemSvg, sceneBox, depthCmp, roomOf, stateOf, yardDims, houseRect, subVis, bookColor,
-    subImg, uiImg, canPlace, freeCells, STARTER_OWNED: Object.keys(starter().owned), tuckOf, setOpen, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts, houseThumb, housePic,
+    subImg, uiImg, floorImg, canPlace, freeCells, STARTER_OWNED: Object.keys(starter().owned), tuckOf, setOpen, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts, houseThumb, housePic,
   };
 });

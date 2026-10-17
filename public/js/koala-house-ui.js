@@ -988,7 +988,7 @@
     wireGrid(panel.querySelector("#kh-grid"), yard);
   }
   function swatch(kind, key, def, own, on) {
-    return `<button type="button" class="kh-sw${on ? " on" : ""}${own ? "" : " locked"}" data-sw="${kind}:${key}" aria-label="${esc(T(def.n[0], def.n[1]))}" aria-pressed="${on}"><span class="kh-sw-c" style="background:${def.c};box-shadow:inset 0 0 0 5px ${def.a}"></span><span class="kh-sw-n">${esc(T(def.n[0], def.n[1]))}</span>${own ? "" : `<span class="kh-pr">${COIN}${def.p}</span>`}</button>`;
+    return `<button type="button" class="kh-sw${on ? " on" : ""}${own ? "" : " locked"}" data-sw="${kind}:${key}" aria-label="${esc(T(def.n[0], def.n[1]))}" aria-pressed="${on}"><span class="kh-sw-c" style="${kind === "floor" && H.floorImg(key) ? `background:url(${H.floorImg(key)}) center/cover;box-shadow:inset 0 0 0 2px rgba(255,255,255,.7)` : `background:${def.c};box-shadow:inset 0 0 0 5px ${def.a}`}"></span><span class="kh-sw-n">${esc(T(def.n[0], def.n[1]))}</span>${own ? "" : `<span class="kh-pr">${COIN}${def.p}</span>`}</button>`;
   }
   const HOUSE_IC = { cottage: "🏡", villa: "🏘️", twoStory: "🏠", modern: "🏢", cabin: "🛖", castle: "🏰" };
   const uiIc = (k, fb) => { const u = H.uiImg(k); return u ? `<img src="${u}" alt="">` : fb; };
