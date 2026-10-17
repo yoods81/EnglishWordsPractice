@@ -439,6 +439,8 @@
     const def = D[id];
     if (!def) return "";
     if (def.wall) {
+      const we = MANIFEST[def.id];
+      if (we && we.wall && we.src) { const hh = Math.round(100 * (we.ratio || 1)); return `<svg class="kh-thumb" viewBox="0 0 100 ${hh}" aria-hidden="true"><image href="${we.src}" x="0" y="0" width="100" height="${hh}" preserveAspectRatio="xMidYMid meet"/></svg>`; }
       return `<svg class="kh-thumb" viewBox="-16 -20 ${def.pw + 32} ${def.vh + 40}" aria-hidden="true">${def.art(def.pw, def.vh)}</svg>`;
     }
     const pe = MANIFEST[def.id];
@@ -627,7 +629,15 @@
   }
   function wallMatrix(side) { return side === "L" ? "matrix(-0.5 0.25 0 1 0 0)" : "matrix(0.5 0.25 0 1 0 0)"; }
   function wallItemSvg(i) {
-    const def = D[i.id], v = -(i.h || def.defH) - def.vh;
+    const def = D[i.id], v = -(i.h || def.defH) - def.vh, pe = MANIFEST[i.id];
+    if (pe && pe.wall && pe.src) {   // a picture of the thing, drawn flat on the wall plane
+      const w = pe.wpx, h = w * (pe.ratio || 1), x0 = def.pw / 2 - w / 2, y0 = def.vh / 2 - h / 2, nx0 = i.side === "L" ? 0.5 : -0.5;
+      let g = `<image href="${pe.src}" x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${w}" height="${h.toFixed(1)}" preserveAspectRatio="xMidYMid meet"/>`;
+      const sim = def.subKind === "frame" && i.sub && i.sub[0] ? subImg(i.sub[0]) : null;
+      if (sim) { const ins = pe.inset || 0.12, iw = w * (1 - 2 * ins), ih = h * (1 - 2 * ins); g += `<image href="${sim}" x="${(x0 + w * ins).toFixed(1)}" y="${(y0 + h * ins).toFixed(1)}" width="${iw.toFixed(1)}" height="${ih.toFixed(1)}" preserveAspectRatio="xMidYMid slice"/>`; }
+      const sh = /^(win|frame|poster|mirror|tvWall)/.test(i.id) ? `<g transform="translate(${(-nx0 * 5).toFixed(1)} 5)" opacity=".16"><rect x="${(x0 + 4).toFixed(1)}" y="${(y0 + 4).toFixed(1)}" width="${(w - 8).toFixed(1)}" height="${(h - 8).toFixed(1)}" rx="5" fill="#2a1a0a"/></g>` : "";
+      return `<g class="kh-it kh-wall" data-uid="${i.uid || ""}" data-id="${i.id}" data-k="-2"><g transform="${wallMatrix(i.side)}"><g transform="translate(${i.u * 64} ${v})">${sh}${g}</g></g></g>`;
+    }
     let art = def.art(def.pw, def.vh);
     const sv = def.subKind === "frame" && i.sub && i.sub[0] ? subVis(i.sub[0]) : null, simg = sv ? subImg(i.sub[0]) : null;
     if (simg) art += `<image href="${simg}" x="5" y="5" width="${def.pw - 10}" height="${def.vh - 10}" preserveAspectRatio="xMidYMid slice"/>`;

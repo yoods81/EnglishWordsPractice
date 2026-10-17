@@ -697,5 +697,86 @@
  },
  "@sub:water": {
   "src": "/img/house/sub/water.webp"
+ },
+ "winDay": {
+  "src": "/img/house/wall/winDay.webp",
+  "wpx": 124,
+  "ratio": 0.887,
+  "wall": true
+ },
+ "winSunset": {
+  "src": "/img/house/wall/winSunset.webp",
+  "wpx": 124,
+  "ratio": 0.867,
+  "wall": true
+ },
+ "winNight": {
+  "src": "/img/house/wall/winNight.webp",
+  "wpx": 124,
+  "ratio": 0.96,
+  "wall": true
+ },
+ "frameSun": {
+  "src": "/img/house/wall/frameSun.webp",
+  "wpx": 62,
+  "ratio": 1.06,
+  "wall": true,
+  "inset": 0.13
+ },
+ "frameCat": {
+  "src": "/img/house/wall/frameCat.webp",
+  "wpx": 56,
+  "ratio": 1.027,
+  "wall": true,
+  "inset": 0.13
+ },
+ "frameRainbow": {
+  "src": "/img/house/wall/frameRainbow.webp",
+  "wpx": 76,
+  "ratio": 0.75,
+  "wall": true,
+  "inset": 0.09
+ },
+ "posterRocket": {
+  "src": "/img/house/wall/posterRocket.webp",
+  "wpx": 44,
+  "ratio": 1.408,
+  "wall": true
+ },
+ "posterMap": {
+  "src": "/img/house/wall/posterMap.webp",
+  "wpx": 90,
+  "ratio": 0.7,
+  "wall": true
+ },
+ "clockWall": {
+  "src": "/img/house/wall/clockWall.webp",
+  "wpx": 46,
+  "ratio": 1.014,
+  "wall": true
+ },
+ "wallShelf": {
+  "src": "/img/house/wall/wallShelf.webp",
+  "wpx": 92,
+  "ratio": 0.537,
+  "wall": true
+ },
+ "garland": {
+  "src": "/img/house/wall/garland.webp",
+  "wpx": 141,
+  "ratio": 0.27,
+  "wall": true
+ },
+ "tvWall": {
+  "src": "/img/house/wall/tvWall.webp",
+  "wpx": 100,
+  "ratio": 0.563,
+  "wall": true
+ },
+ "mirror": {
+  "src": "/img/house/wall/mirror.webp",
+  "wpx": 48,
+  "ratio": 1.818,
+  "wall": true
  }
 }
