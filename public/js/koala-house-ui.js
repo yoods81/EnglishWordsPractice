@@ -283,7 +283,7 @@
     const mg = ses.root.querySelector("[data-manage]"); if (mg) mg.onclick = () => { ses.manage = !ses.manage; renderPlan(); };
     wirePlanDrag();
     ses.root.querySelectorAll("[data-empty]").forEach((b) => { press(b, () => chooseRoomType(b.dataset.empty)); });
-    ses.root.querySelectorAll(".kh-panel [data-buyroom]").forEach((b) => { b.onclick = () => { if (performance.now() < (ses.noTapUntil || 0)) return; if (ownedRooms(b.dataset.buyroom).length) sellRoomPicker(b.dataset.buyroom); else buildRoom(b.dataset.buyroom); }; });
+    ses.root.querySelectorAll(".kh-panel [data-buyroom]").forEach((b) => { b.onclick = () => { if (performance.now() < (ses.noTapUntil || 0)) return; roomPopup(b.dataset.buyroom); }; });
     wireShopDrag();
     requestAnimationFrame(() => placeMarker(false));
     ses.root.querySelector("#kh-marker").addEventListener("load", () => placeMarker(false));
@@ -347,35 +347,29 @@
     svg.addEventListener("touchmove", (e) => { if (d && d.on) e.preventDefault(); }, { passive: false });
   }
   const ownedRooms = (type) => H.SLOTS.filter((sl) => ses.S.slots[sl] && ses.S.slots[sl].type === type);
-  // a card of a room you already own: which one to sell (when there is more than one of that kind)
-  function sellRoomPicker(type) {
-    const list = ownedRooms(type);
-    if (list.length === 1) { sellRoom(list[0]); return; }
-    const t = H.ROOMS[type];
-    modal(`<h2>${T("어느 방을 팔까요?", "Which room to sell?")}</h2><div class="kh-slotpick">${H.SLOTS.map((sl) => { const o = ses.S.slots[sl]; return o && o.type === type ? `<button type="button" class="kh-slotcell" data-sell="${sl}" aria-label="${esc(roomLabel(H.roomOf(ses.S, sl)))}">${roomImg(t)}</button>` : `<span class="kh-slotcell taken" aria-hidden="true">${o ? roomImg(H.ROOMS[o.type]) : ""}</span>`; }).join("")}</div>
-      <div class="kh-btns"><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button></div>`, (m) => {
-      m.querySelector("[data-no]").onclick = closeModal;
-      m.querySelectorAll("[data-sell]").forEach((x) => { x.onclick = () => sellRoom(x.dataset.sell); });
-    });
+  // put a room back on the market (the popup already told its refund): 80% of the price returns, what stood in it stays in your things
+  function doSellRoom(sl) {
+    const S = ses.S, st = S.slots[sl];
+    if (!st) return;
+    const t = H.ROOMS[st.type], give = t.price > 0, free = !!(curOpts && curOpts.unlimited), back = free ? 0 : Math.floor(t.price * 0.8);
+    delete S.slots[sl];
+    if (S.cur === sl) S.cur = H.SLOTS.find((x) => S.slots[x]) || "yard";
+    if (give && curOpts.refund) curOpts.refund(back, "roomsell:" + st.type);
+    save(); renderPlan(); refreshCoins(); toast(free || !give ? T("방을 팔았어요", "Room sold") : T(`방을 팔았어요! +${back}코인`, `Room sold! +${back} coins`));
   }
-  // sell a room back (80% of its price); what stood in it stays in your things, only the placed copies are put away
+  // tapping a built room while "Move / sell rooms" is on: confirm, then sell
   function sellRoom(sl) {
     const S = ses.S, st = S.slots[sl];
     if (!st) return;
     const t = H.ROOMS[st.type], n = (st.items || []).length, give = t.price > 0, free = !!(curOpts && curOpts.unlimited);
     const back = free ? 0 : Math.floor(t.price * 0.8), fee = free ? 0 : t.price - back;
     const note = (give ? "" : T("처음부터 있던(무료) 방이라 돌려받는 코인은 없어요. ", "This room was free, so no coins come back. ")) + (n ? T(`방 안에 놓인 아이템 ${n}개는 치워져요. (아이템은 내 것으로 남아요)`, `The ${n} item(s) placed inside are put away (you keep them).`) : "");
-    modal(`<h2>${esc(T(t.ko, t.en))}</h2><div class="kh-buy-pic">${roomPic(st.type)}</div>
+    modal(`<h2>${esc(roomLabel(H.roomOf(S, sl)))}</h2><div class="kh-buy-pic">${roomPic(st.type)}</div>
       <div class="kh-sellmath"><div><span>${T("산 가격", "Price you paid")}</span><b>${COIN} ${t.price}</b></div><div><span>${T("수수료 (20%)", "Fee (20%)")}</span><b>− ${fee}</b></div><div class="total"><span>${T("지갑으로 돌아와요", "Back to your wallet")}</span><b>${COIN} +${back}</b></div></div>
       ${note ? `<p class="kh-buy-note">${esc(note)}</p>` : ""}
       <div class="kh-btns"><button type="button" class="kh-btn sell" data-primary data-yes>${T("팔래요", "Sell")}</button><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button></div>`, (m) => {
       m.querySelector("[data-no]").onclick = closeModal;
-      m.querySelector("[data-yes]").onclick = () => {
-        delete S.slots[sl];
-        if (S.cur === sl) S.cur = H.SLOTS.find((x) => S.slots[x]) || "yard";
-        if (give && curOpts.refund) curOpts.refund(back, "roomsell:" + st.type);
-        closeModal(); save(); renderPlan(); refreshCoins(); toast(free || !give ? T("방을 팔았어요", "Room sold") : T(`방을 팔았어요! +${back}코인`, `Room sold! +${back} coins`));
-      };
+      m.querySelector("[data-yes]").onclick = () => { closeModal(); doSellRoom(sl); };
     });
   }
   // drag a room card from the shop onto the floor plan: on an empty plot (or anywhere on the plan) it opens the usual "Buy" popup
@@ -467,18 +461,43 @@
       m.querySelectorAll("[data-buyroom]").forEach((b) => { b.onclick = () => buildRoom(b.dataset.buyroom, slot); });
     });
   }
-  function buildRoom(type, slot) {
-    const S = ses.S, t = H.ROOMS[type], empties = H.SLOTS.filter((sl) => !S.slots[sl]);
-    if (!empties.length) { closeModal(); toast(T("빈 칸이 없어요", "No empty plots left"), true); return; }
-    const go = (sl) => buy(T(t.ko, t.en) + T(" 짓기", " — build"), roomPic(type), t.price, "room:" + type, () => {
-      S.slots[sl] = { type, wall: t.wall, floor: t.floor, items: [] }; ses.justBuilt = sl; save(); renderPlan(); toast(T("새 방이 생겼어요!", "A new room!"));
-    });
-    if (slot || empties.length === 1) { go(slot || empties[0]); return; }
-    modal(`<h2>${T("어느 칸에 지을까요?", "Which plot?")}</h2><div class="kh-slotpick">${H.SLOTS.map((sl) => { const o = S.slots[sl]; return o ? `<span class="kh-slotcell taken" aria-hidden="true">${roomImg(H.ROOMS[o.type])}</span>` : `<button type="button" class="kh-slotcell" data-slot="${sl}" aria-label="${T("빈 칸", "Empty plot")}">＋</button>`; }).join("")}<span class="kh-slotdoor">🚪 ${T("입구", "Entrance")}</span></div><div class="kh-btns"><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button></div>`, (m) => {
+  // One popup for a room card: what the room is, its price, "Buy", and "Sell" for every room of that kind you already built. (No mini floor plan: a new room goes to the plot you dropped it on, else the first empty one.)
+  const ROOM_DESC = {
+    study: ["책상과 책장이 있는 공부방이에요. 숙제와 책 읽기에 딱!", "A desk and a bookshelf: perfect for homework and reading."],
+    bedroom: ["포근하게 잠드는 침실이에요.", "A cosy bedroom for a good night's sleep."],
+    master: ["넓은 침대와 옷장이 있는 큰 방이에요.", "A big room with a large bed and a wardrobe."],
+    living: ["소파와 TV로 쉬는 거실이에요.", "A living room with a sofa and a TV."],
+    kitchen: ["요리하고 밥 먹는 주방이에요.", "A kitchen for cooking and eating."],
+    playroom: ["장난감과 ASMR 장난감을 놓고 노는 방이에요.", "A room for toys and ASMR toys."],
+    cinema: ["영화를 보는 시네마룸이에요.", "A cinema room for movie time."],
+    bath: ["씻고 노는 화장실이에요.", "A bathroom for washing and splashing."],
+    garage: ["자동차와 공구를 두는 차고예요.", "A garage for cars and tools."],
+  };
+  function roomPopup(type, forcedSlot) {
+    const S = ses.S, t = H.ROOMS[type], free = !!(curOpts && curOpts.unlimited), empties = H.SLOTS.filter((sl) => !S.slots[sl]);
+    const mine = ownedRooms(type), target = forcedSlot && !S.slots[forcedSlot] ? forcedSlot : empties[0];
+    const afford = free || t.price === 0 || curOpts.coins() >= t.price;
+    const back = free ? 0 : Math.floor(t.price * 0.8);
+    const desc = ROOM_DESC[type] ? T(ROOM_DESC[type][0], ROOM_DESC[type][1]) : "";
+    const sellRow = (sl) => { const st = S.slots[sl], n = (st.items || []).length; return `<div class="kh-roomrow"><span class="kh-roomrow-nm">${esc(roomLabel(H.roomOf(S, sl)))}<small>${T(`가구 ${n}개`, `${n} item(s)`)}</small></span><button type="button" class="kh-btn sell" data-sellroom="${sl}">${T("팔래요", "Sell")}${back ? ` <small>+${back}</small>` : ""}</button></div>`; };
+    const note = !target ? T("빈 칸이 없어서 지금은 지을 수 없어요. 방을 팔거나 비워 주세요.", "No empty plot left, so you can't build one right now.") : !afford ? T(`코인이 ${t.price - curOpts.coins()}개 모자라요. 공부하고 코인을 모아 봐요!`, `You need ${t.price - curOpts.coins()} more coins. Keep studying to earn them!`) : "";
+    modal(`<h2>${esc(T(t.ko, t.en))}</h2><div class="kh-buy-pic kh-detail-pic">${roomPic(type)}</div>
+      <p class="kh-roomdesc">${esc(desc)}</p>
+      <p class="kh-roomfacts">${T(`크기 ${t.C}×${t.R}칸`, `${t.C}×${t.R} tiles`)} · ${mine.length ? T(`지은 방 ${mine.length}개`, `${mine.length} built`) : T("아직 없어요", "none yet")}</p>
+      <p class="kh-buy-price">${COIN} <b>${t.price}</b>${t.price ? "" : ` <small>${T("무료", "Free")}</small>`}</p>${note ? `<p class="kh-buy-note">${esc(note)}</p>` : ""}
+      ${mine.length ? `<div class="kh-roomrows"><h3>${T("이미 지은 방", "Rooms you have")}</h3>${mine.map(sellRow).join("")}</div>` : ""}
+      <div class="kh-btns"><button type="button" class="kh-btn" data-primary data-yes ${target && afford ? "" : "disabled"}>${T("살래요", "Buy")}</button><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button></div>`, (m) => {
       m.querySelector("[data-no]").onclick = closeModal;
-      m.querySelectorAll("[data-slot]").forEach((b) => { b.onclick = () => go(b.dataset.slot); });
+      m.querySelector("[data-yes]").onclick = () => {
+        if (!target || S.slots[target]) return;
+        if (t.price > 0 && !curOpts.spend(t.price, "room:" + type)) { toast(T("코인이 모자라요", "Not enough coins"), true); closeModal(); return; }
+        S.slots[target] = { type, wall: t.wall, floor: t.floor, items: [] }; ses.justBuilt = target;
+        closeModal(); save(); renderPlan(); refreshCoins(); toast(T("새 방이 생겼어요!", "A new room!"));
+      };
+      m.querySelectorAll("[data-sellroom]").forEach((b) => { b.onclick = () => { closeModal(); doSellRoom(b.dataset.sellroom); }; });
     });
   }
+  const buildRoom = (type, slot) => roomPopup(type, slot);
 
   /* ------------------------------ room screen ------------------------------ */
   const roomType = () => (ses.roomId === "yard" ? "yard" : (ses.S.slots[ses.roomId] || {}).type);

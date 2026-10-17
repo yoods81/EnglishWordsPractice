@@ -451,3 +451,13 @@ html body .kh-app .kh-top .kh-planbtn{background:#cdeee2!important;border-color:
 .kh-ghostcard img { width: 100%; height: 100%; object-fit: contain; }
 .kh-plan-svg.kh-dragging .kh-pempty polygon { stroke: #2fa77f; stroke-width: 4; }
 .kh-panel .kh-roomitem { touch-action: manipulation; cursor: grab; }
+
+/* room popup: details, price, Buy, and a Sell row for each room of that kind */
+.kh-roomdesc { margin: 0 0 4px; text-align: center; color: #3b5a50; font-weight: 700; }
+.kh-roomfacts { margin: 0 0 6px; text-align: center; color: #6b8a80; font-size: .9rem; }
+.kh-roomrows { margin: 8px 0 12px; }
+.kh-roomrows h3 { margin: 0 0 6px; font-size: .9rem; color: #4a6a60; text-align: left; }
+.kh-roomrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 4px; border-top: 1px dashed #cfe3db; }
+.kh-roomrow-nm { font-weight: 800; text-align: left; }
+.kh-roomrow-nm small { display: block; font-weight: 600; color: #7a948b; }
+.kh-roomrow .kh-btn { padding: 8px 16px; }
