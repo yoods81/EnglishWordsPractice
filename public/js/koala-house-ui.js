@@ -276,14 +276,15 @@
           <img class="kh-marker" id="kh-marker" src="${kimg("base")}" alt="${T("코알라", "Koala")}" draggable="false"></div></div>
       <aside class="kh-panel" id="kh-panel" aria-label="${T("방 상점", "Room shop")}">
         ${chipsHtml([["rooms", "/img/cat/home.webp", T("방", "Rooms")]], "rooms")}
-        <div class="kh-grid">${shelfHead(T("방 상점", "Room shop"), `${built}/${H.SLOTS.length}`)}<div class="kh-items-grid kh-rooms">${H.ROOM_ORDER.map((t) => roomShopCard(t)).join("")}</div></div></aside></div><div class="kh-toast" role="status"></div>`;
+        <div class="kh-grid">${shelfHead(T("방 상점", "Room shop"), `${built}/${H.SLOTS.length}`)}<p class="kh-subnote">${T("방 카드를 평면도 위로 끌어다 놓으면 살 수 있어요. 이미 지은 방의 카드를 누르면 팔 수 있어요.", "Drag a room card onto the floor plan to buy it. Tap a card of a room you already built to sell it.")}</p><div class="kh-items-grid kh-rooms">${H.ROOM_ORDER.map((t) => roomShopCard(t)).join("")}</div></div></aside></div><div class="kh-toast" role="status"></div>`;
     ses.justBuilt = null;
     ses.root.querySelector("[data-full]").onclick = toggleFull;
     ses.root.querySelectorAll("[data-room]").forEach((b) => { press(b, () => { if (performance.now() < (ses.noTapUntil || 0)) return; if (ses.manage && b.dataset.room !== "yard") sellRoom(b.dataset.room); else pickRoom(b.dataset.room); }); });
     const mg = ses.root.querySelector("[data-manage]"); if (mg) mg.onclick = () => { ses.manage = !ses.manage; renderPlan(); };
     wirePlanDrag();
     ses.root.querySelectorAll("[data-empty]").forEach((b) => { press(b, () => chooseRoomType(b.dataset.empty)); });
-    ses.root.querySelectorAll("[data-buyroom]").forEach((b) => { b.onclick = () => buildRoom(b.dataset.buyroom); });
+    ses.root.querySelectorAll(".kh-panel [data-buyroom]").forEach((b) => { b.onclick = () => { if (performance.now() < (ses.noTapUntil || 0)) return; if (ownedRooms(b.dataset.buyroom).length) sellRoomPicker(b.dataset.buyroom); else buildRoom(b.dataset.buyroom); }; });
+    wireShopDrag();
     requestAnimationFrame(() => placeMarker(false));
     ses.root.querySelector("#kh-marker").addEventListener("load", () => placeMarker(false));
   }
@@ -345,19 +346,88 @@
     });
     svg.addEventListener("touchmove", (e) => { if (d && d.on) e.preventDefault(); }, { passive: false });
   }
+  const ownedRooms = (type) => H.SLOTS.filter((sl) => ses.S.slots[sl] && ses.S.slots[sl].type === type);
+  // a card of a room you already own: which one to sell (when there is more than one of that kind)
+  function sellRoomPicker(type) {
+    const list = ownedRooms(type);
+    if (list.length === 1) { sellRoom(list[0]); return; }
+    const t = H.ROOMS[type];
+    modal(`<h2>${T("어느 방을 팔까요?", "Which room to sell?")}</h2><div class="kh-slotpick">${H.SLOTS.map((sl) => { const o = ses.S.slots[sl]; return o && o.type === type ? `<button type="button" class="kh-slotcell" data-sell="${sl}" aria-label="${esc(roomLabel(H.roomOf(ses.S, sl)))}">${roomImg(t)}</button>` : `<span class="kh-slotcell taken" aria-hidden="true">${o ? roomImg(H.ROOMS[o.type]) : ""}</span>`; }).join("")}</div>
+      <div class="kh-btns"><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button></div>`, (m) => {
+      m.querySelector("[data-no]").onclick = closeModal;
+      m.querySelectorAll("[data-sell]").forEach((x) => { x.onclick = () => sellRoom(x.dataset.sell); });
+    });
+  }
   // sell a room back (80% of its price); what stood in it stays in your things, only the placed copies are put away
   function sellRoom(sl) {
     const S = ses.S, st = S.slots[sl];
     if (!st) return;
-    const t = H.ROOMS[st.type], n = (st.items || []).length, give = t.price > 0;
-    sellConfirm({ title: T(t.ko, t.en), pic: roomPic(st.type), sell: { paid: t.price, back: Math.floor(t.price * 0.8),
-      note: (give ? "" : T("처음부터 있던(무료) 방이라 돌려받는 코인은 없어요. ", "This room was free, so no coins come back. ")) + (n ? T(`방 안에 놓인 아이템 ${n}개는 치워져요. (아이템은 내 것으로 남아요)`, `The ${n} item(s) placed inside are put away (you keep them).`) : ""),
-      onSell: () => {
+    const t = H.ROOMS[st.type], n = (st.items || []).length, give = t.price > 0, free = !!(curOpts && curOpts.unlimited);
+    const back = free ? 0 : Math.floor(t.price * 0.8), fee = free ? 0 : t.price - back;
+    const note = (give ? "" : T("처음부터 있던(무료) 방이라 돌려받는 코인은 없어요. ", "This room was free, so no coins come back. ")) + (n ? T(`방 안에 놓인 아이템 ${n}개는 치워져요. (아이템은 내 것으로 남아요)`, `The ${n} item(s) placed inside are put away (you keep them).`) : "");
+    modal(`<h2>${esc(T(t.ko, t.en))}</h2><div class="kh-buy-pic">${roomPic(st.type)}</div>
+      <div class="kh-sellmath"><div><span>${T("산 가격", "Price you paid")}</span><b>${COIN} ${t.price}</b></div><div><span>${T("수수료 (20%)", "Fee (20%)")}</span><b>− ${fee}</b></div><div class="total"><span>${T("지갑으로 돌아와요", "Back to your wallet")}</span><b>${COIN} +${back}</b></div></div>
+      ${note ? `<p class="kh-buy-note">${esc(note)}</p>` : ""}
+      <div class="kh-btns"><button type="button" class="kh-btn sell" data-primary data-yes>${T("팔래요", "Sell")}</button><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button></div>`, (m) => {
+      m.querySelector("[data-no]").onclick = closeModal;
+      m.querySelector("[data-yes]").onclick = () => {
         delete S.slots[sl];
         if (S.cur === sl) S.cur = H.SLOTS.find((x) => S.slots[x]) || "yard";
-        if (give && curOpts.refund) curOpts.refund(Math.floor(t.price * 0.8), "roomsell:" + st.type);
-        save(); renderPlan(); return true;
-      } } });
+        if (give && curOpts.refund) curOpts.refund(back, "roomsell:" + st.type);
+        closeModal(); save(); renderPlan(); refreshCoins(); toast(free || !give ? T("방을 팔았어요", "Room sold") : T(`방을 팔았어요! +${back}코인`, `Room sold! +${back} coins`));
+      };
+    });
+  }
+  // drag a room card from the shop onto the floor plan: on an empty plot (or anywhere on the plan) it opens the usual "Buy" popup
+  function wireShopDrag() {
+    const plan = ses.root.querySelector("#kh-plan"), svg = ses.root.querySelector(".kh-plan-svg");
+    if (!plan || !svg) return;
+    let d = null;
+    const slotAt = (x, y) => { for (const e of document.elementsFromPoint(x, y)) { const g = e.closest && e.closest("[data-empty]"); if (g && svg.contains(g)) return g; } return null; };
+    const overPlan = (x, y) => { const r = plan.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; };
+    const begin = () => {
+      d.on = true; svg.classList.add("kh-dragging");
+      d.ghost = el("div", "kh-ghostcard", d.card.querySelector(".kh-roomic") ? d.card.querySelector(".kh-roomic").innerHTML : "");
+      document.body.appendChild(d.ghost);
+    };
+    const place = (ev) => { if (d.ghost) { d.ghost.style.left = ev.clientX + "px"; d.ghost.style.top = ev.clientY + "px"; } };
+    const end = (commit, ev) => {
+      if (!d) return;
+      clearTimeout(d.timer);
+      const cur = d; d = null;
+      svg.querySelectorAll(".drop").forEach((x) => x.classList.remove("drop"));
+      svg.classList.remove("kh-dragging");
+      if (cur.ghost) cur.ghost.remove();
+      if (!cur.on) return;
+      ses.noTapUntil = performance.now() + 400;
+      if (!commit || !ev || !overPlan(ev.clientX, ev.clientY)) return;
+      const g = slotAt(ev.clientX, ev.clientY);
+      buildRoom(cur.type, g ? g.dataset.empty : undefined);
+    };
+    ses.root.querySelectorAll(".kh-panel [data-buyroom]").forEach((card) => {
+      card.addEventListener("pointerdown", (ev) => {
+        if (ev.button > 0 || d) return;
+        d = { card, type: card.dataset.buyroom, x0: ev.clientX, y0: ev.clientY, on: false, ghost: null, timer: 0 };
+        try { card.setPointerCapture(ev.pointerId); } catch (e) { /* not capturable */ }
+        if (ev.pointerType === "touch") d.timer = setTimeout(() => { if (d && !d.on) { begin(); place({ clientX: d.x0, clientY: d.y0 }); } }, 380);
+      });
+      card.addEventListener("pointermove", (ev) => {
+        if (!d || d.card !== card) return;
+        const dist = Math.hypot(ev.clientX - d.x0, ev.clientY - d.y0);
+        if (!d.on) {
+          if (ev.pointerType === "touch") { if (dist > 10) { clearTimeout(d.timer); d = null; } return; }
+          if (dist < 7) return;
+          begin();
+        }
+        place(ev);
+        const g = slotAt(ev.clientX, ev.clientY);
+        svg.querySelectorAll(".drop").forEach((x) => x.classList.remove("drop"));
+        if (g) g.classList.add("drop");
+      });
+      card.addEventListener("pointerup", (ev) => end(true, ev));
+      card.addEventListener("pointercancel", () => end(false));
+    });
+    ses.root.querySelector(".kh-panel").addEventListener("touchmove", (e) => { if (d && d.on) e.preventDefault(); }, { passive: false });
   }
   function roomShopCard(t) {
     const r = H.ROOMS[t], have = Object.values(ses.S.slots).filter((x) => x.type === t).length;
