@@ -60,6 +60,7 @@
       const rf = [proj(x + w, y + d, z), proj(x + w, y, z), apex];
       return `<polygon points="${pstr(lf)}" fill="${f.left}"/><polygon points="${pstr(rf)}" fill="${f.right}"/>`;
     }
+    if (p.t === "i") { const [cx, cy] = proj(p.x, p.y, p.z), src = subImg(p.id); return src ? `<image href="${src}" x="${(cx - p.s / 2).toFixed(1)}" y="${(cy - p.s * 0.8).toFixed(1)}" width="${p.s}" height="${p.s}" preserveAspectRatio="xMidYMid meet"/>` : (subVis(p.id) ? `<text x="${cx.toFixed(1)}" y="${cy.toFixed(1)}" font-size="${p.s * 0.8}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${subVis(p.id)[0]}</text>` : ""); }
     if (p.t === "e") { const [cx, cy] = proj(p.x, p.y, p.z); return `<text x="${cx.toFixed(1)}" y="${cy.toFixed(1)}" font-size="${p.s}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${p.ch}</text>`; }
     return "";
   }
@@ -73,7 +74,7 @@
       const [cx, cy] = proj(p.x, p.y, p.z), rx = p.r * HW * Math.SQRT2, ry = p.r * HH * Math.SQRT2;
       return [[cx - rx, cy - p.h - ry], [cx + rx, cy - p.h - ry], [cx - rx, cy + ry], [cx + rx, cy + ry]];
     }
-    if (p.t === "e") { const [cx, cy] = proj(p.x, p.y, p.z); return [[cx - p.s / 2, cy - p.s], [cx + p.s / 2, cy]]; }
+    if (p.t === "e" || p.t === "i") { const [cx, cy] = proj(p.x, p.y, p.z); return [[cx - p.s / 2, cy - p.s], [cx + p.s / 2, cy]]; }
     const [cx, cy] = proj(p.x, p.y, p.z);
     return [[cx - p.r, cy - p.r], [cx + p.r, cy + p.r]];
   }
@@ -268,21 +269,36 @@
   if (D.cactus) D.cactus.stack = true;
   /* ---- garage things (only offered in a garage room): cars, a shelf to put boxes on, a tool box, storage boxes, a shoe cabinet ---- */
   const gar = (id, name, w, d, price, parts, extra) => add(id, "garage", name, w, d, price, parts, Object.assign({ only: "garage" }, extra || {}));
-  const carParts = (w, d, body, roofH) => [B(0.1, 0.2, 6, w - 0.2, d - 0.4, 16, body), B(w * 0.25, 0.3, 22, w * 0.45, d - 0.6, roofH, "#cfe2ff"), B(w * 0.25, 0.3, 22 + roofH, w * 0.45, d - 0.6, 3, body), C(0.7, 0.2, 8, 0.28, 6, "#333"), C(w - 0.7, 0.2, 8, 0.28, 6, "#333"), C(0.7, d - 0.2, 8, 0.28, 6, "#333"), C(w - 0.7, d - 0.2, 8, 0.28, 6, "#333")];
-  gar("carCompactRed", ["빨간 소형차", "Red Compact Car"], 3, 2, 150, carParts(3, 2, "#e04b4b", 12));
-  gar("carCompactYellow", ["노란 소형차", "Yellow Compact Car"], 3, 2, 150, carParts(3, 2, "#f2c230", 12));
-  gar("carSedanBlue", ["파란 중형 세단", "Blue Sedan"], 4, 2, 240, carParts(4, 2, "#4f86d6", 13));
-  gar("carSedanSilver", ["은색 중형 세단", "Silver Sedan"], 4, 2, 240, carParts(4, 2, "#b9c0c8", 13));
-  gar("carSuvGreen", ["초록 SUV", "Green SUV"], 4, 2, 340, carParts(4, 2, "#4f9a5a", 20));
-  gar("carSuvWhite", ["하얀 SUV", "White SUV"], 4, 2, 340, carParts(4, 2, "#f4f1ea", 20));
-  gar("carUteOrange", ["주황 유트", "Orange Ute"], 4, 2, 320, carParts(4, 2, "#e8873a", 14));
-  gar("carUteGrey", ["회색 유트", "Grey Ute"], 4, 2, 320, carParts(4, 2, "#6d747c", 14));
-  gar("garageShelf", ["차고 선반", "Garage Shelf"], 2, 2, 80, [[0.02, 0.02], [1.88, 0.02], [0.02, 1.88], [1.88, 1.88]].map((p) => B(p[0], p[1], 0, 0.1, 0.1, 94, "#58646e")).concat([20, 44, 68, 86].map((z) => B(0, 0, z, 2, 2, 4, "#c99a63"))), { topH: 90, tiers: [90, 72, 48, 24] });
-  gar("toolbox", ["공구함", "Tool Box"], 1, 1, 45, [B(0.1, 0.25, 0, 0.8, 0.5, 20, "#d94a3d"), B(0.1, 0.25, 20, 0.8, 0.5, 4, "#b83a30"), B(0.3, 0.4, 24, 0.4, 0.06, 6, "#999")], { stack: true, subKind: "tools" });
-  gar("contL", ["큰 수납함", "Large Container"], 1, 1, 30, [B(0.05, 0.1, 0, 0.9, 0.8, 22, "#4f86d6"), B(0, 0.05, 22, 1, 0.9, 4, "#3f6fb8")], { stack: true });
-  gar("contM", ["중간 수납함", "Medium Container"], 1, 1, 22, [B(0.15, 0.2, 0, 0.7, 0.6, 16, "#4f9a5a"), B(0.1, 0.15, 16, 0.8, 0.7, 3, "#3f8248")], { stack: true });
-  gar("contS", ["작은 수납함", "Small Container"], 1, 1, 15, [B(0.25, 0.3, 0, 0.5, 0.4, 12, "#f2c230"), B(0.2, 0.25, 12, 0.6, 0.5, 3, "#d9ac1c")], { stack: true });
-  gar("shoeCabinet", ["신발장", "Shoe Cabinet"], 1, 1, 55, [B(0.05, 0.15, 0, 0.9, 0.7, 54, "#f4f1ea"), B(0.05, 0.15, 54, 0.9, 0.7, 4, "#d8d3c8")], { topH: 58, subKind: "shoes" });
+  // cars, drawn from boxes so that every side lines up with the floor (the long side runs along x; the front is at +x)
+  const carParts = (w, d, body, type) => {
+    const y0 = 0.28, cw = d - 0.56, glass = "#a9d3ee", dark = "#2b2f36", L = w;
+    const o = [B(0.08, y0, 7, L - 0.16, cw, 12, body), B(0.08, y0, 19, L - 0.16, cw, 2, shade(body, -0.12))];   // lower body + belt line
+    const cab = type === "suv" ? [0.12 * L, 0.8 * L, 26] : type === "ute" ? [0.42 * L, 0.78 * L, 20] : [0.27 * L, 0.72 * L, 17];
+    const cx0 = cab[0], cx1 = cab[1], rh = cab[2], z0 = 21;
+    o.push(B(cx0, y0 + 0.1, z0, cx1 - cx0, cw - 0.2, rh - 4, glass), B(cx0 - 0.02, y0 + 0.08, z0 + rh - 4, cx1 - cx0 + 0.04, cw - 0.16, 4, body));   // glass + roof
+    if (type === "ute") o.push(B(0.12, y0 + 0.04, 21, cx0 - 0.2, cw - 0.08, 6, shade(body, -0.08)), B(0.12, y0 + 0.1, 21, cx0 - 0.2, cw - 0.2, 2, "#555"));   // open bed
+    o.push(B(L - 0.12, y0 + 0.12, 10, 0.06, 0.28, 5, "#fff6c8"), B(L - 0.12, y0 + cw - 0.4, 10, 0.06, 0.28, 5, "#fff6c8"), B(L - 0.12, y0 + 0.3, 6, 0.06, cw - 0.6, 3, dark));   // lights + bumper
+    o.push(B(0.06, y0 + 0.12, 11, 0.04, 0.22, 4, "#d94a3d"), B(0.06, y0 + cw - 0.34, 11, 0.04, 0.22, 4, "#d94a3d"));
+    const wl = type === "suv" ? 0.56 : 0.5, wh = type === "suv" ? 10 : 8;   // wheels: flat dark blocks on both sides, so they sort with the body
+    [0.7, L - 1.25].forEach((x) => [y0 + cw - 0.04].forEach((y) => o.push(B(x, y, 0, wl, 0.08, wh, dark))));
+    return o;
+  };
+  gar("carCompactRed", ["빨간 소형차", "Red Compact Car"], 3, 2, 150, carParts(3, 2, "#e04b4b", "compact"));
+  gar("carCompactYellow", ["노란 소형차", "Yellow Compact Car"], 3, 2, 150, carParts(3, 2, "#f2c230", "compact"));
+  gar("carSedanBlue", ["파란 중형 세단", "Blue Sedan"], 4, 2, 240, carParts(4, 2, "#4f86d6", "sedan"));
+  gar("carSedanSilver", ["은색 중형 세단", "Silver Sedan"], 4, 2, 240, carParts(4, 2, "#b9c0c8", "sedan"));
+  gar("carSuvGreen", ["초록 SUV", "Green SUV"], 4, 2, 340, carParts(4, 2, "#4f9a5a", "suv"));
+  gar("carSuvWhite", ["하얀 SUV", "White SUV"], 4, 2, 340, carParts(4, 2, "#f4f1ea", "suv"));
+  gar("carUteOrange", ["주황 유트", "Orange Ute"], 4, 2, 320, carParts(4, 2, "#e8873a", "ute"));
+  gar("carUteGrey", ["회색 유트", "Grey Ute"], 4, 2, 320, carParts(4, 2, "#6d747c", "ute"));
+  // a steel rack: 2 tiles wide, 1 deep, with a floor board, a middle board and a top board (two big compartments); things can stand on every board
+  gar("garageShelf", ["차고 선반", "Garage Shelf"], 2, 1, 80, [[0.02, 0.04], [1.86, 0.04], [0.02, 0.82], [1.86, 0.82]].map((q) => B(q[0], q[1], 0, 0.12, 0.14, 96, "#58646e")).concat([6, 46, 86].map((z) => B(0, 0, z, 2, 1, 4, "#c99a63")), [6, 46, 86].map((z) => B(0, 0.96, z, 2, 0.04, 4, "#a97c4c"))), { topH: 90, tiers: [90, 50, 10] });
+  gar("toolbox", ["공구함", "Tool Box"], 1, 1, 45, [B(0.1, 0.22, 0, 0.8, 0.56, 18, "#d94a3d"), B(0.08, 0.2, 18, 0.84, 0.6, 5, "#b83a30"), B(0.18, 0.36, 23, 0.06, 0.04, 8, "#8a8f96"), B(0.76, 0.36, 23, 0.06, 0.04, 8, "#8a8f96"), B(0.18, 0.36, 31, 0.64, 0.04, 3, "#8a8f96"), B(0.44, 0.78, 11, 0.12, 0.04, 6, "#c9ced4")], { stack: true, subKind: "tools" });
+  gar("contL", ["큰 수납함", "Large Container"], 1, 1, 30, [B(0.06, 0.1, 0, 0.88, 0.8, 22, "#4f86d6"), B(0.02, 0.06, 22, 0.96, 0.88, 4, "#3f6fb8"), B(0.3, 0.9, 12, 0.4, 0.04, 6, "#6aa0ea")], { stack: true });
+  gar("contM", ["중간 수납함", "Medium Container"], 1, 1, 22, [B(0.14, 0.2, 0, 0.72, 0.62, 16, "#4f9a5a"), B(0.1, 0.16, 16, 0.8, 0.7, 3, "#3f8248"), B(0.32, 0.82, 9, 0.36, 0.04, 5, "#76b982")], { stack: true });
+  gar("contS", ["작은 수납함", "Small Container"], 1, 1, 15, [B(0.24, 0.3, 0, 0.52, 0.42, 12, "#f2c230"), B(0.2, 0.26, 12, 0.6, 0.5, 3, "#d9ac1c"), B(0.38, 0.72, 6, 0.24, 0.04, 4, "#f7d968")], { stack: true });
+  // a cabinet with doors: what is inside is not drawn (the shoes are listed in the side panel)
+  gar("shoeCabinet", ["신발장", "Shoe Cabinet"], 1, 1, 55, [B(0.08, 0.1, 6, 0.84, 0.8, 52, "#f1eee7"), B(0.04, 0.06, 58, 0.92, 0.88, 4, "#dcd7cb"), B(0.12, 0.92, 10, 0.37, 0.03, 44, "#e5e1d6"), B(0.51, 0.92, 10, 0.37, 0.03, 44, "#e5e1d6"), B(0.4, 0.96, 28, 0.05, 0.03, 8, "#b79a63"), B(0.55, 0.96, 28, 0.05, 0.03, 8, "#b79a63"), B(0.1, 0.12, 0, 0.1, 0.1, 6, "#cfc8b8"), B(0.8, 0.12, 0, 0.1, 0.1, 6, "#cfc8b8"), B(0.1, 0.78, 0, 0.1, 0.1, 6, "#cfc8b8"), B(0.8, 0.78, 0, 0.1, 0.1, 6, "#cfc8b8")], { topH: 62, subKind: "shoes" });
   D.dresser.subKind = "desk"; D.vanity.subKind = "sink"; D.fridge.subKind = "fridge";   // things on / in them (see KoalaCore.SUB_ITEMS)
 
 
@@ -364,31 +380,7 @@
     m = ((m | 0) % 4 + 4) % 4;
     return m === 2 ? [0, -TUCK] : m === 3 ? [-TUCK, 0] : [0, 0];
   }
-  // The shoe cabinet is drawn as a true isometric box: the front picture is stretched onto the right-hand face and the side onto the left-hand face
-  const CAB = { z0: 6, z1: 58, front: [[70, 38], [155, 25], [155, 152], [70, 165]], side: [[37, 32], [70, 40], [70, 165], [37, 157]] };
-  function cabMap() {
-    const dz = CAB.z1 - CAB.z0;
-    const F = { a: 32 / 85, d: dz / 127 }; F.b = (-16 - (-13) * F.d) / 85; F.e = -(F.a * 70); F.f = (32 - CAB.z1) - (F.b * 70 + F.d * 38);
-    const L = { a: 32 / 33, d: dz / 126 }; L.b = (16 - 8 * L.d) / 33; L.e = -32 - L.a * 37; L.f = (16 - CAB.z1) - (L.b * 37 + L.d * 32);
-    return { F, L };
-  }
-  function cabinetSvg(m, noSh) {
-    const { F, L } = cabMap(), tex = MANIFEST["shoeCabinet@tex"].src, mir = !!(m & 1);
-    const poly = (q) => q.map((p) => p.join(",")).join(" ");
-    const mat = (T) => `matrix(${T.a.toFixed(4)} ${T.b.toFixed(4)} 0 ${T.d.toFixed(4)} ${T.e.toFixed(2)} ${T.f.toFixed(2)})`;
-    const z1 = CAB.z1, top = `<polygon points="0,${-z1} 32,${16 - z1} 0,${32 - z1} -32,${16 - z1}" fill="#f4f2ee" stroke="#d9d5cc" stroke-width="1" stroke-linejoin="round"/>`;
-    const legs = [[-28, 15], [0, 30], [28, 15]].map((q) => `<path d="M${q[0]} ${q[1]}v${-CAB.z0 - 2}" stroke="#ebe7df" stroke-width="5" stroke-linecap="round"/>`).join("");
-    const sh = noSh ? "" : `<ellipse cx="0" cy="18" rx="30" ry="14" fill="#3b2a1a" opacity=".10"/><ellipse cx="0" cy="18" rx="21" ry="10" fill="#3b2a1a" opacity=".12"/>`;
-    const uid = "cab" + (mir ? "m" : "n");
-    const g = `${sh}${legs}<defs><clipPath id="${uid}f"><polygon points="${poly(CAB.front)}"/></clipPath><clipPath id="${uid}s"><polygon points="${poly(CAB.side)}"/></clipPath></defs>
-      <g transform="${mat(L)}"><g clip-path="url(#${uid}s)"><image href="${tex}" width="200" height="200"/></g></g>
-      <g transform="${mat(F)}"><g clip-path="url(#${uid}f)"><image href="${tex}" width="200" height="200"/></g></g>${top}`;
-    const sx = (x) => (mir ? -x : x);
-    lastGeom = { cab: true, mir, slot: (x, y) => [sx(F.a * x + F.e), F.b * x + F.d * y + F.f] };
-    return mir ? `<g transform="scale(-1 1)">${g}</g>` : g;
-  }
   function pictureSvg(id, o, m, noSh, open) {
-    if (id === "shoeCabinet" && MANIFEST["shoeCabinet@tex"] && MANIFEST["shoeCabinet@tex"].src) return cabinetSvg(m, noSh);
     const e = open && !(m & 2) && MANIFEST[id + "@o"] || (m & 2) && MANIFEST[id + "@b"] || MANIFEST[id];   // turned to face away (m = 2, 3): the picture from behind, when there is one
     if (!e || !e.src) return "";
     const w = e.wpx || 120, h = w * (e.ratio || 1), ax = e.ax != null ? e.ax : 0.5, ay = e.ay != null ? e.ay : 0.85;
@@ -439,6 +431,11 @@
       sub.slice(0, 3).forEach((id, k) => { const v = subVis(id); if (v) o.push({ t: "e", x: def.w === 1 ? 0.5 + (k - 1) * 0.27 : 0.42 + k * 0.58, y: 0.5, z: def.w === 1 ? 54 : 36, s: def.w === 1 ? 11 : 15, ch: v[0] }); });
       return o;
     }
+    if (def.subKind === "tools") {   // tools lying on the lid
+      const o = def.parts.slice();
+      sub.slice(0, 6).forEach((id, k) => o.push({ t: "i", id, x: 0.28 + (k % 3) * 0.22, y: 0.4 + Math.floor(k / 3) * 0.2, z: 23, s: 15 }));
+      return o;
+    }
     if (def.subKind === "toys") {
       const o = def.parts.slice(0, 3);
       sub.slice(0, 4).forEach((id, k) => { const v = subVis(id); if (v) o.push({ t: "e", x: 0.22 + (k % 2) * 0.45, y: 0.3 + Math.floor(k / 2) * 0.4, z: 30 + (k % 2) * 4, s: 17, ch: v[0] }); });
@@ -465,14 +462,6 @@
     }
     if (def.subKind === "tools") {   // tools lying on the lid of the box
       return sub.slice(0, 6).map((id, k) => { const [x, y] = at(0.22 + (k % 3) * 0.28, 0.08 - Math.floor(k / 3) * 0.22); return subMark(id, x, y, g.w * 0.3); }).join("");
-    }
-    if (def.subKind === "shoes") {   // shoes standing in the three cubbies of the cabinet
-      if (g.cab) {
-        const SX = [88, 125], SY = [74, 113, 152];
-        return sub.slice(0, 5).map((id, k) => { const [x, y] = g.slot(SX[k % 2] + (k === 4 ? 0 : 0), SY[Math.floor(k / 2)]); return subMark(id, x, y, 19); }).join("");
-      }
-      const SL = [[0.44, 0.31], [0.7, 0.28], [0.44, 0.54], [0.7, 0.51], [0.44, 0.76]];
-      return sub.slice(0, 5).map((id, k) => { const [x, y] = at(SL[k][0], SL[k][1]); return subMark(id, x, y, g.w * 0.27); }).join("");
     }
     if (def.subKind === "desk") {
       const dr = def === D.dresser;   // the dresser's top is smaller and higher than a desk's
@@ -895,9 +884,12 @@
       const list = o[(c0 + c) + "," + (r0 + r)];
       if (!list || !list.length) continue;
       const top = list.find((x) => D[x.id].topH && !D[x.id].stack);
-      const tiers = top && D[top.id].tiers;   // an open shelf: each cell holds one thing per board, filled from the top board down
-      if (def.stack && top && tiers && list.length <= tiers.length && list.every((x) => x === top || D[x.id].stack)) z = Math.max(z, tiers[list.length - 1]);
-      else if (def.stack && top && list.length === 1) z = Math.max(z, D[top.id].topH); else ok = false;
+      const tiers = top && D[top.id].tiers;   // an open shelf: one thing per board
+      if (def.stack && top && tiers) {
+        const used = list.filter((x) => x !== top).map((x) => x.z | 0), free = tiers.filter((t) => !used.includes(t));
+        if (!free.length || list.some((x) => x !== top && !D[x.id].stack)) ok = false;
+        else z = Math.max(z, free.includes(piece.zHint) ? piece.zHint : free[0]);
+      } else if (def.stack && top && list.length === 1) z = Math.max(z, D[top.id].topH); else ok = false;
     }
     return { ok, z };
   }

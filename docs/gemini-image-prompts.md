@@ -31,3 +31,22 @@
 
 ## 마당 바닥 조각(선택)
 19. pond — `A small round blue pond with lily pads and a tiny wooden bridge, diorama tile, 3D.`
+
+## 새 아이템 업그레이드 (docs/ref/*.png 참고 그림을 함께 올리기)
+
+공통: `Use the attached picture as the exact reference for shape, proportions and camera angle (isometric, seen from the front-left, long side running down-right). Redraw it as a cute glossy 3D clay-toy style render with soft rounded shapes and soft studio lighting. Keep the SAME camera angle, the same silhouette and the same colours. Isolated on a pure plain white background, no scenery, no shadow on the ground except a tiny contact shadow, no text, no watermark, single object centered with margin around it.`
+
+20. carCompactRed (빨간 소형차) — `A small red compact hatchback car with round headlights and small wheels.`
+21. carCompactYellow (노란 소형차) — `A small yellow compact hatchback car with round headlights and small wheels.`
+22. carSedanBlue (파란 중형 세단) — `A blue family sedan with a smooth rounded body, glass windows and four wheels.`
+23. carSedanSilver (은색 중형 세단) — `A silver family sedan with a smooth rounded body, glass windows and four wheels.`
+24. carSuvGreen (초록 SUV) — `A green SUV with a tall boxy roof, roof rails and chunky wheels.`
+25. carSuvWhite (하얀 SUV) — `A white SUV with a tall boxy roof, roof rails and chunky wheels.`
+26. carUteOrange (주황 유트) — `An orange pickup ute with a short cabin and an open cargo bed behind it.`
+27. carUteGrey (회색 유트) — `A grey pickup ute with a short cabin and an open cargo bed behind it.`
+28. garageShelf (차고 선반) — `A garage storage rack: four dark steel posts and three wooden boards (bottom, middle, top), open on all sides, empty.`
+29. shoeCabinet (신발장) — `A cream shoe cabinet with two closed doors, small brass handles and four short feet.`
+30. toolbox (공구함) — `A red metal toolbox with a grey carry handle on the lid and a silver latch.`
+31. contL (큰 수납함) — `A large blue plastic storage container with a lid and a small handle slot.`
+32. contM (중간 수납함) — `A medium green plastic storage container with a lid and a small handle slot.`
+33. contS (작은 수납함) — `A small yellow plastic storage container with a lid and a small handle slot.`

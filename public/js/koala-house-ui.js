@@ -862,9 +862,9 @@
           const lifts = [];
           st.items.forEach((o) => { const od = H.D[o.id]; if (o.uid !== drag.uid && od && od.topH && !od.stack) (od.tiers || [od.topH]).forEach((z) => { if (!lifts.includes(z)) lifts.push(z); }); });
           lifts.sort((a, b) => b - a);
-          for (const z of lifts) { aim(z - 6); const r2 = H.canPlace(room, st, drag.piece, drag.uid); if (r2.ok && r2.z > 0) { res = r2; break; } }
+          for (const z of lifts) { aim(z - 6); drag.piece.zHint = z; const r2 = H.canPlace(room, st, drag.piece, drag.uid); if (r2.ok && r2.z > 0) { res = r2; break; } }
         }
-        if (!res) { aim(0); res = H.canPlace(room, st, drag.piece, drag.uid); }
+        if (!res) { aim(0); drag.piece.zHint = 0; res = H.canPlace(room, st, drag.piece, drag.uid); }
         drag.valid = res.ok; if (res.ok) drag.piece.z = res.z;
       }
     }

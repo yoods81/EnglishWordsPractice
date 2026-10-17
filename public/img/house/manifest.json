@@ -423,13 +423,6 @@
   "ax": 0.5,
   "ay": 0.773
  },
- "car": {
-  "src": "/img/house/car.webp",
-  "wpx": 193.3,
-  "ratio": 0.783,
-  "ax": 0.5,
-  "ay": 0.688
- },
  "treePine": {
   "src": "/img/house/treePine.webp",
   "wpx": 83,
@@ -834,105 +827,6 @@
  "@ui:b_stone": {
   "src": "/img/house/ui/b_stone.webp"
  },
- "carCompactRed": {
-  "src": "/img/house/carCompactRed.webp",
-  "wpx": 160.8,
-  "ratio": 0.685,
-  "ax": 0.5,
-  "ay": 0.627,
-  "shear": 0.17
- },
- "carCompactYellow": {
-  "src": "/img/house/carCompactYellow.webp",
-  "wpx": 160.8,
-  "ratio": 0.693,
-  "ax": 0.5,
-  "ay": 0.631,
-  "shear": 0.12
- },
- "carSedanBlue": {
-  "src": "/img/house/carSedanBlue.webp",
-  "wpx": 193.0,
-  "ratio": 0.583,
-  "ax": 0.5,
-  "ay": 0.555,
-  "shear": 0.28
- },
- "carSedanSilver": {
-  "src": "/img/house/carSedanSilver.webp",
-  "wpx": 193.0,
-  "ratio": 0.603,
-  "ax": 0.5,
-  "ay": 0.578,
-  "shear": 0.08
- },
- "carSuvGreen": {
-  "src": "/img/house/carSuvGreen.webp",
-  "wpx": 192.0,
-  "ratio": 0.682,
-  "ax": 0.5,
-  "ay": 0.635,
-  "shear": 0.17
- },
- "carSuvWhite": {
-  "src": "/img/house/carSuvWhite.webp",
-  "wpx": 193.5,
-  "ratio": 0.642,
-  "ax": 0.499,
-  "ay": 0.614,
-  "shear": 0.15
- },
- "carUteOrange": {
-  "src": "/img/house/carUteOrange.webp",
-  "wpx": 192.0,
-  "ratio": 0.593,
-  "ax": 0.5,
-  "ay": 0.561,
-  "shear": 0.1
- },
- "carUteGrey": {
-  "src": "/img/house/carUteGrey.webp",
-  "wpx": 192.0,
-  "ratio": 0.585,
-  "ax": 0.5,
-  "ay": 0.572,
-  "shear": 0.24
- },
- "toolbox": {
-  "src": "/img/house/toolbox.webp",
-  "wpx": 40.3,
-  "ratio": 0.863,
-  "ax": 0.5,
-  "ay": 0.721
- },
- "contL": {
-  "src": "/img/house/contL.webp",
-  "wpx": 48.7,
-  "ratio": 0.85,
-  "ax": 0.5,
-  "ay": 0.713
- },
- "contM": {
-  "src": "/img/house/contM.webp",
-  "wpx": 40.1,
-  "ratio": 0.807,
-  "ax": 0.5,
-  "ay": 0.696
- },
- "contS": {
-  "src": "/img/house/contS.webp",
-  "wpx": 32.4,
-  "ratio": 0.843,
-  "ax": 0.501,
-  "ay": 0.71
- },
- "shoeCabinet": {
-  "src": "/img/house/shoeCabinet.webp",
-  "wpx": 58.0,
-  "ratio": 1.408,
-  "ax": 0.5,
-  "ay": 0.833
- },
  "@sub:toolDrill": {
   "src": "/img/house/sub/drill.webp"
  },
@@ -974,12 +868,5 @@
  },
  "@sub:toolWrench": {
   "src": "/img/house/sub/toolWrench.webp"
- },
- "shoeCabinet@tex": {
-  "src": "/img/house/shoeCabinetTex.webp",
-  "wpx": 400,
-  "ratio": 1,
-  "ax": 0.5,
-  "ay": 0.5
  }
 }
