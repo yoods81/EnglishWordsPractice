@@ -848,11 +848,25 @@
       Object.assign(drag.piece, wallTarget(p.x, p.y, d, room));
       drag.valid = !wallOverlap(st, drag.piece, drag.uid);
     } else {
-      const g = cellOf(p.x, p.y + (drag.fromPanel ? 20 : 0)), f = H.footprint(drag.piece);
-      drag.piece.c = Math.round(drag.fromPanel ? g.c - f.w / 2 : g.c - drag.grab.c);
-      drag.piece.r = Math.round(drag.fromPanel ? g.r - f.d / 2 : g.r - drag.grab.r);
+      const f = H.footprint(drag.piece);
+      const aim = (lift) => {   // the cell under the pointer when the pointer is on a surface `lift` high
+        const g = cellOf(p.x, p.y + lift + (drag.fromPanel ? 20 : 0));
+        drag.piece.c = Math.round(drag.fromPanel ? g.c - f.w / 2 : g.c - drag.grab.c);
+        drag.piece.r = Math.round(drag.fromPanel ? g.r - f.d / 2 : g.r - drag.grab.r);
+      };
+      aim(0);
       if (drag.koala) { const c = drag.piece.c, r = drag.piece.r; drag.valid = koalaCellFree(c, r) || !!H.seatAt(st, c, r) || !!actAt(st, c, r) || !!drag.under; }
-      else { const res = H.canPlace(room, st, drag.piece, drag.uid); drag.valid = res.ok; if (res.ok) drag.piece.z = res.z; }
+      else {
+        let res = null;
+        if (d && d.stack) {   // small things: first look for a table / desk / shelf board under the pointer (its top is above the floor)
+          const lifts = [];
+          st.items.forEach((o) => { const od = H.D[o.id]; if (o.uid !== drag.uid && od && od.topH && !od.stack) (od.tiers || [od.topH]).forEach((z) => { if (!lifts.includes(z)) lifts.push(z); }); });
+          lifts.sort((a, b) => b - a);
+          for (const z of lifts) { aim(z - 6); const r2 = H.canPlace(room, st, drag.piece, drag.uid); if (r2.ok && r2.z > 0) { res = r2; break; } }
+        }
+        if (!res) { aim(0); res = H.canPlace(room, st, drag.piece, drag.uid); }
+        drag.valid = res.ok; if (res.ok) drag.piece.z = res.z;
+      }
     }
     const gh = ses.root.querySelector(".kh-ghost");
     if (gh) gh.innerHTML = ghostFor(drag);

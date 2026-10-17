@@ -78,10 +78,10 @@
  },
  "dresser": {
   "src": "/img/house/dresser.webp",
-  "wpx": 55,
+  "wpx": 64.7,
   "ratio": 1.367,
   "ax": 0.5,
-  "ay": 0.681
+  "ay": 0.822
  },
  "shelfWood": {
   "src": "/img/house/shelfWood.webp",
@@ -92,10 +92,11 @@
  },
  "shelfWhite": {
   "src": "/img/house/shelfWhite.webp",
-  "wpx": 76,
+  "wpx": 97.3,
   "ratio": 1.385,
-  "ax": 0.5,
-  "ay": 0.772
+  "ax": 0.501,
+  "ay": 0.76,
+  "flip": true
  },
  "wardrobeWood": {
   "src": "/img/house/wardrobeWood.webp",
@@ -838,63 +839,64 @@
   "wpx": 160.8,
   "ratio": 0.685,
   "ax": 0.5,
-  "ay": 0.627
+  "ay": 0.627,
+  "shear": 0.17
  },
  "carCompactYellow": {
   "src": "/img/house/carCompactYellow.webp",
   "wpx": 160.8,
   "ratio": 0.693,
   "ax": 0.5,
-  "ay": 0.631
+  "ay": 0.631,
+  "shear": 0.12
  },
  "carSedanBlue": {
   "src": "/img/house/carSedanBlue.webp",
   "wpx": 193.0,
   "ratio": 0.583,
   "ax": 0.5,
-  "ay": 0.555
+  "ay": 0.555,
+  "shear": 0.28
  },
  "carSedanSilver": {
   "src": "/img/house/carSedanSilver.webp",
   "wpx": 193.0,
   "ratio": 0.603,
   "ax": 0.5,
-  "ay": 0.578
+  "ay": 0.578,
+  "shear": 0.08
  },
  "carSuvGreen": {
   "src": "/img/house/carSuvGreen.webp",
   "wpx": 192.0,
   "ratio": 0.682,
   "ax": 0.5,
-  "ay": 0.635
+  "ay": 0.635,
+  "shear": 0.17
  },
  "carSuvWhite": {
   "src": "/img/house/carSuvWhite.webp",
   "wpx": 193.5,
   "ratio": 0.642,
   "ax": 0.499,
-  "ay": 0.614
+  "ay": 0.614,
+  "shear": 0.15
  },
  "carUteOrange": {
   "src": "/img/house/carUteOrange.webp",
   "wpx": 192.0,
   "ratio": 0.593,
   "ax": 0.5,
-  "ay": 0.561
+  "ay": 0.561,
+  "shear": 0.1
  },
  "carUteGrey": {
   "src": "/img/house/carUteGrey.webp",
   "wpx": 192.0,
   "ratio": 0.585,
   "ax": 0.5,
-  "ay": 0.572
- },
- "garageShelf": {
-  "src": "/img/house/garageShelf.webp",
-  "wpx": 129.6,
-  "ratio": 1.286,
-  "ax": 0.498,
-  "ay": 0.814
+  "ay": 0.572,
+  "shear": 0.24
  },
  "toolbox": {
   "src": "/img/house/toolbox.webp",
@@ -972,5 +974,12 @@
  },
  "@sub:toolWrench": {
   "src": "/img/house/sub/toolWrench.webp"
+ },
+ "shoeCabinet@tex": {
+  "src": "/img/house/shoeCabinetTex.webp",
+  "wpx": 400,
+  "ratio": 1,
+  "ax": 0.5,
+  "ay": 0.5
  }
 }
