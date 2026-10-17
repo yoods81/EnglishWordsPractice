@@ -645,8 +645,11 @@
   // Small picture of one sub-item for cards and the detail popup.
   // things for the 3D house's sink and fridge (no flat drawing; an emoji stands in)
   const HOUSE_SUB_EMOJI = { shampoo: "🧴", conditioner: "🧴", soap: "🧼", toothbrush: "🪥", toothpaste: "🦷", handwash: "🫧", mirror: "🪞", cupBrush: "🥛", chocolate: "🍫", cake: "🍰", bread: "🍞", pizza: "🍕", pasta: "🍝", meat: "🥩", veggies: "🥦", kimchi: "🥬", eggs: "🥚", cheese: "🧀", fruit: "🍎", iceCream: "🍦", water: "💧", cola: "🥤", milk: "🥛", juice: "🧃", toolDrill: "🔧", toolScrewdriver: "🪛", toolSaw: "🪚", toolHammer: "🔨", toolWrench: "🔧", toolPliers: "🗜️", toolTape: "📏", toolPaint: "🎨", shoeSneakers: "👟", shoeBoots: "🥾", shoeSandals: "🩴", shoeSlippers: "🩴", shoeSchool: "👞", shoeRain: "🥾" };
+  // 3D pictures made for some of the small things (cards and the detail popup show them instead of the flat drawing)
+  const SUB_PIC = { abcBook: [1, 1.23], animalBook: [1, 1.23], dinoBook: [1, 1.23], koalaBook: [1, 1.23], photoBeach: [1, 1], photoPicnic: [1, 1], photoPark: [1, 1], photoZoo: [1, 1], pwBell: [1, 0.96], pwPartyHat: [1, 1.54], pwFlowers: [1, 0.69], pwCollar: [1, 0.88], pwSneakers: [1, 0.84], pwScarf: [1, 1.09], pwSweater: [1, 0.87] };
   function subIcon(id) {
     const head = `<svg class="koala-icon-svg koala-sub-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" `;
+    if (SUB_PIC[id]) { const r = SUB_PIC[id][1], w = 100, h = Math.round(w * r); return `${head}viewBox="0 0 ${w} ${h}"><image href="/img/house/sub/${id}.webp" x="0" y="0" width="${w}" height="${h}" preserveAspectRatio="xMidYMid meet"/></svg>`; }
     if (BOOK_DEF[id]) return `${head}viewBox="0 0 40 40">${bigBook(id)}</svg>`;
     if (PHOTO_ART[id]) return `${head}viewBox="-2 -2 60 44"><g>${PHOTO_ART[id]}</g><rect x="0" y="0" width="56" height="40" fill="none" stroke="#9a6a3d" stroke-width="3"/></svg>`;
     if (PIC_ART[id]) return `${head}viewBox="-2 -2 60 44"><g>${PIC_ART[id]}</g><rect x="0" y="0" width="56" height="40" fill="none" stroke="#b9824f" stroke-width="3"/></svg>`;

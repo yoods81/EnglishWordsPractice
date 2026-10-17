@@ -1059,5 +1059,116 @@
   "ratio": 0.785,
   "ax": 0.5,
   "ay": 0.58
+ },
+ "garageShelf": {
+  "src": "/img/house/garageShelf.webp",
+  "wpx": 98,
+  "ratio": 1.478,
+  "ax": 0.5,
+  "ay": 0.831
+ },
+ "shoeCabinet": {
+  "src": "/img/house/shoeCabinet.webp",
+  "wpx": 66,
+  "ratio": 1.589,
+  "ax": 0.5,
+  "ay": 0.843
+ },
+ "toolbox": {
+  "src": "/img/house/toolbox.webp",
+  "wpx": 62,
+  "ratio": 1.197,
+  "ax": 0.5,
+  "ay": 0.791
+ },
+ "contS": {
+  "src": "/img/house/contS.webp",
+  "wpx": 46,
+  "ratio": 0.977,
+  "ax": 0.5,
+  "ay": 0.744
+ },
+ "contM": {
+  "src": "/img/house/contM.webp",
+  "wpx": 56,
+  "ratio": 0.945,
+  "ax": 0.5,
+  "ay": 0.735
+ },
+ "contL": {
+  "src": "/img/house/contL.webp",
+  "wpx": 66,
+  "ratio": 1.2,
+  "ax": 0.5,
+  "ay": 0.792
+ },
+ "pond": {
+  "src": "/img/house/pond.webp",
+  "wpx": 140,
+  "ratio": 0.594,
+  "ax": 0.5,
+  "ay": 0.5
+ },
+ "stones": {
+  "src": "/img/house/stones.webp",
+  "wpx": 46,
+  "ratio": 0.62,
+  "ax": 0.5,
+  "ay": 0.5
+ },
+ "rugBlue": {
+  "src": "/img/house/rugBlue.webp",
+  "wpx": 136,
+  "ratio": 0.557,
+  "ax": 0.5,
+  "ay": 0.5
+ },
+ "rugRed": {
+  "src": "/img/house/rugRed.webp",
+  "wpx": 136,
+  "ratio": 0.56,
+  "ax": 0.5,
+  "ay": 0.5
+ },
+ "rugGreen": {
+  "src": "/img/house/rugGreen.webp",
+  "wpx": 136,
+  "ratio": 0.56,
+  "ax": 0.5,
+  "ay": 0.5
+ },
+ "rugPinkSq": {
+  "src": "/img/house/rugPinkSq.webp",
+  "wpx": 126,
+  "ratio": 0.575,
+  "ax": 0.5,
+  "ay": 0.5
+ },
+ "rugYellowSq": {
+  "src": "/img/house/rugYellowSq.webp",
+  "wpx": 126,
+  "ratio": 0.585,
+  "ax": 0.5,
+  "ay": 0.5
+ },
+ "rugRunner": {
+  "src": "/img/house/rugRunner.webp",
+  "wpx": 128,
+  "ratio": 0.57,
+  "ax": 0.5,
+  "ay": 0.5,
+  "flip": true
+ },
+ "@sub:abcBook": {
+  "src": "/img/house/sub/abcBook.webp"
+ },
+ "@sub:animalBook": {
+  "src": "/img/house/sub/animalBook.webp"
+ },
+ "@sub:dinoBook": {
+  "src": "/img/house/sub/dinoBook.webp"
+ },
+ "@sub:koalaBook": {
+  "src": "/img/house/sub/koalaBook.webp"
  }
 }
