@@ -381,7 +381,7 @@
     return m === 2 ? [0, -TUCK] : m === 3 ? [-TUCK, 0] : [0, 0];
   }
   // garden things were drawn too small next to the big house pictures: their pictures are drawn this much larger (the footprint stays)
-  const OUT_SCALE = { treeApple: 2, treeCherry: 2, treeMaple: 2, treePine: 2, bush: 1.8, flowerBed: 1.5, tulips: 1.8, pond: 1.3, bench: 1.6, swing: 1.6, gardenLamp: 2, mailbox: 2, sandbox: 1.3, doghouse: 1.7, fountain: 1.5, snowman: 2, rock: 1.8, gate: 1.5, hedge: 1.4, car: 1 };
+  const OUT_SCALE = { treeApple: 2, treeCherry: 2, treeMaple: 2, treePine: 2, bush: 1.8, flowerBed: 2.6, tulips: 1.8, pond: 1.3, bench: 1.6, swing: 1.6, gardenLamp: 2, mailbox: 2, sandbox: 2.8, doghouse: 1.7, fountain: 1.5, snowman: 2, rock: 1.8, gate: 1.5, hedge: 1.4, car: 2 };
   function pictureSvg(id, o, m, noSh, open) {
     const e = open && !(m & 2) && MANIFEST[id + "@o"] || (m & 2) && MANIFEST[id + "@b"] || MANIFEST[id];   // turned to face away (m = 2, 3): the picture from behind, when there is one
     if (!e || !e.src) return "";

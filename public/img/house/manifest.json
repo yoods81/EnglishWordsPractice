@@ -351,7 +351,7 @@
   "wpx": 37,
   "ratio": 0.812,
   "ax": 0.5,
-  "ay": 0.202,
+  "ay": 0.6,
   "flip": true
  },
  "bench": {
@@ -397,7 +397,7 @@
   "wpx": 45,
   "ratio": 0.783,
   "ax": 0.5,
-  "ay": 0.092
+  "ay": 0.56
  },
  "doghouse": {
   "src": "/img/house/doghouse.webp",
