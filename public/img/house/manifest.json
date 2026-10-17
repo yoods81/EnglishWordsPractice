@@ -351,14 +351,16 @@
   "wpx": 37,
   "ratio": 0.812,
   "ax": 0.5,
-  "ay": 0.202
+  "ay": 0.202,
+  "flip": true
  },
  "bench": {
   "src": "/img/house/bench.webp",
   "wpx": 44,
   "ratio": 1.033,
   "ax": 0.5,
-  "ay": 0.472
+  "ay": 0.472,
+  "flip": true
  },
  "swing": {
   "src": "/img/house/swing.webp",
@@ -416,7 +418,8 @@
   "wpx": 61,
   "ratio": 0.823,
   "ax": 0.5,
-  "ay": 0.522
+  "ay": 0.522,
+  "flip": true
  },
  "snowman": {
   "src": "/img/house/snowman.webp",
@@ -994,5 +997,67 @@
  "@floor:paved": {
   "src": "/img/house/floorPaved.webp",
   "n": 4
+ },
+ "carCompactYellow": {
+  "src": "/img/house/carCompactYellow.webp",
+  "wpx": 160,
+  "ratio": 0.758,
+  "ax": 0.5,
+  "ay": 0.58,
+  "flip": true
+ },
+ "carSedanSilver": {
+  "src": "/img/house/carSedanSilver.webp",
+  "wpx": 190,
+  "ratio": 0.617,
+  "ax": 0.5,
+  "ay": 0.58,
+  "flip": true
+ },
+ "carSedanBlue": {
+  "src": "/img/house/carSedanBlue.webp",
+  "wpx": 190,
+  "ratio": 0.629,
+  "ax": 0.5,
+  "ay": 0.58,
+  "flip": true
+ },
+ "carSuvGreen": {
+  "src": "/img/house/carSuvGreen.webp",
+  "wpx": 190,
+  "ratio": 0.627,
+  "ax": 0.5,
+  "ay": 0.58,
+  "flip": true
+ },
+ "carUteGrey": {
+  "src": "/img/house/carUteGrey.webp",
+  "wpx": 190,
+  "ratio": 0.677,
+  "ax": 0.5,
+  "ay": 0.58,
+  "flip": true
+ },
+ "carUteOrange": {
+  "src": "/img/house/carUteOrange.webp",
+  "wpx": 190,
+  "ratio": 0.646,
+  "ax": 0.5,
+  "ay": 0.58,
+  "flip": true
+ },
+ "carCompactRed": {
+  "src": "/img/house/carCompactRed.webp",
+  "wpx": 150,
+  "ratio": 0.785,
+  "ax": 0.5,
+  "ay": 0.58
+ },
+ "car": {
+  "src": "/img/house/car.webp",
+  "wpx": 150,
+  "ratio": 0.785,
+  "ax": 0.5,
+  "ay": 0.58
  }
 }

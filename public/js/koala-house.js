@@ -254,7 +254,7 @@
 
   out("treePine", ["소나무", "Pine Tree"], 2, 2, 70, [C(1, 1, 0, 0.14, 30, "#8a5a3a"), PY(0.1, 0.1, 22, 1.8, 1.8, 44, "#2f7d5a"), PY(0.3, 0.3, 52, 1.4, 1.4, 40, "#3a8f68"), PY(0.5, 0.5, 80, 1.0, 1.0, 36, "#4aa37a")]);
   out("rock", ["바위", "Rock"], 1, 1, 20, [S(0.5, 0.55, 10, 15, "#a9b0b8"), S(0.3, 0.45, 8, 10, "#b9c0c8")]);
-  out("tulips", ["튤립 화단", "Tulip Bed"], 2, 1, 40, [B(0, 0.05, 0, 2, 0.9, 8, "#8a5a3a"), B(0.06, 0.1, 8, 1.88, 0.8, 2, "#5a3d27"), S(0.3, 0.4, 18, 6, "#e63946"), S(0.7, 0.55, 20, 6, "#ffd166"), S(1.1, 0.4, 18, 6, "#ef8fb0"), S(1.5, 0.55, 20, 6, "#e63946"), S(1.8, 0.4, 18, 6, "#ffffff")]);
+  out("tulips", ["튤립 화단", "Tulip Bed"], 1, 1, 40, [B(0, 0.05, 0, 1, 0.9, 8, "#8a5a3a"), B(0.06, 0.1, 8, 0.88, 0.8, 2, "#5a3d27"), S(0.3, 0.35, 18, 4, "#e63946"), S(0.7, 0.55, 20, 4, "#ffd166"), S(0.5, 0.75, 18, 4, "#ef8fb0"), S(0.35, 0.7, 20, 4, "#ffffff")]);   // its picture is a square bed, so it takes one tile (it was 2x1 and the picture did not fill it)
   out("gate", ["대문", "Gate"], 2, 1, 40, [B(0, 0.45, 0, 0.14, 0.14, 50, "#fafafa"), B(1.86, 0.45, 0, 0.14, 0.14, 50, "#fafafa"), B(0.14, 0.48, 12, 0.85, 0.06, 4, "#ececec"), B(0.14, 0.48, 30, 0.85, 0.06, 4, "#ececec"), B(1.01, 0.48, 12, 0.85, 0.06, 4, "#ececec"), B(1.01, 0.48, 30, 0.85, 0.06, 4, "#ececec")]);
   // pieces used by the automatic garden border (not for sale)
   out("hedge1", ["울타리 나무", "Border Hedge"], 1, 1, 0, [B(0, 0.1, 0, 1, 0.8, 26, "#3e9560"), B(0.06, 0.16, 26, 0.88, 0.68, 4, "#4aa36a")], { virtual: true });
@@ -284,13 +284,13 @@
     return o;
   };
   gar("carCompactRed", ["빨간 소형차", "Red Compact Car"], 3, 2, 150, carParts(3, 2, "#e04b4b", "compact"));
-  gar("carCompactYellow", ["노란 소형차", "Yellow Compact Car"], 3, 2, 150, carParts(3, 2, "#f2c230", "compact"));
-  gar("carSedanBlue", ["파란 중형 세단", "Blue Sedan"], 4, 2, 240, carParts(4, 2, "#4f86d6", "sedan"));
+  gar("carCompactYellow", ["하얀 소형차", "White Compact Car"], 3, 2, 150, carParts(3, 2, "#f2c230", "compact"));
+  gar("carSedanBlue", ["검은 세단", "Black Sedan"], 4, 2, 240, carParts(4, 2, "#4f86d6", "sedan"));
   gar("carSedanSilver", ["은색 중형 세단", "Silver Sedan"], 4, 2, 240, carParts(4, 2, "#b9c0c8", "sedan"));
-  gar("carSuvGreen", ["초록 SUV", "Green SUV"], 4, 2, 340, carParts(4, 2, "#4f9a5a", "suv"));
-  gar("carSuvWhite", ["하얀 SUV", "White SUV"], 4, 2, 340, carParts(4, 2, "#f4f1ea", "suv"));
+  gar("carSuvGreen", ["검은 스포츠 세단", "Black Sport Sedan"], 4, 2, 260, carParts(4, 2, "#2b2d31", "sedan"));
+  gar("carSuvWhite", ["하얀 SUV", "White SUV"], 4, 2, 340, carParts(4, 2, "#f4f1ea", "suv"), { virtual: true });   // retired: no picture for it any more (kept so that one already owned still shows)
   gar("carUteOrange", ["주황 유트", "Orange Ute"], 4, 2, 320, carParts(4, 2, "#e8873a", "ute"));
-  gar("carUteGrey", ["회색 유트", "Grey Ute"], 4, 2, 320, carParts(4, 2, "#6d747c", "ute"));
+  gar("carUteGrey", ["파란 유트", "Blue Ute"], 4, 2, 320, carParts(4, 2, "#6d747c", "ute"));
   // a steel rack: 2 tiles wide, 1 deep, with a floor board, a middle board and a top board (two big compartments); things can stand on every board
   gar("garageShelf", ["차고 선반", "Garage Shelf"], 2, 1, 80, [[0.02, 0.04], [1.86, 0.04], [0.02, 0.82], [1.86, 0.82]].map((q) => B(q[0], q[1], 0, 0.12, 0.14, 96, "#58646e")).concat([6, 46, 86].map((z) => B(0, 0, z, 2, 1, 4, "#c99a63")), [6, 46, 86].map((z) => B(0, 0.96, z, 2, 0.04, 4, "#a97c4c"))), { topH: 90, tiers: [90, 50, 10] });
   gar("toolbox", ["공구함", "Tool Box"], 1, 1, 45, [B(0.1, 0.22, 0, 0.8, 0.56, 18, "#d94a3d"), B(0.08, 0.2, 18, 0.84, 0.6, 5, "#b83a30"), B(0.18, 0.36, 23, 0.06, 0.04, 8, "#8a8f96"), B(0.76, 0.36, 23, 0.06, 0.04, 8, "#8a8f96"), B(0.18, 0.36, 31, 0.64, 0.04, 3, "#8a8f96"), B(0.44, 0.78, 11, 0.12, 0.04, 6, "#c9ced4")], { stack: true, subKind: "tools" });
@@ -381,7 +381,7 @@
     return m === 2 ? [0, -TUCK] : m === 3 ? [-TUCK, 0] : [0, 0];
   }
   // garden things were drawn too small next to the big house pictures: their pictures are drawn this much larger (the footprint stays)
-  const OUT_SCALE = { treeApple: 2, treeCherry: 2, treeMaple: 2, treePine: 2, bush: 1.8, flowerBed: 1.5, tulips: 1.5, pond: 1.3, bench: 1.6, swing: 1.6, gardenLamp: 2, mailbox: 2, sandbox: 1.3, doghouse: 1.7, fountain: 1.5, snowman: 2, rock: 1.8, gate: 1.5, hedge: 1.4, car: 1.3 };
+  const OUT_SCALE = { treeApple: 2, treeCherry: 2, treeMaple: 2, treePine: 2, bush: 1.8, flowerBed: 1.5, tulips: 1.8, pond: 1.3, bench: 1.6, swing: 1.6, gardenLamp: 2, mailbox: 2, sandbox: 1.3, doghouse: 1.7, fountain: 1.5, snowman: 2, rock: 1.8, gate: 1.5, hedge: 1.4, car: 1 };
   function pictureSvg(id, o, m, noSh, open) {
     const e = open && !(m & 2) && MANIFEST[id + "@o"] || (m & 2) && MANIFEST[id + "@b"] || MANIFEST[id];   // turned to face away (m = 2, 3): the picture from behind, when there is one
     if (!e || !e.src) return "";
