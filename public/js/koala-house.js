@@ -672,8 +672,10 @@
     const id = { fence: "fence", hedge: "hedge1", stone: "stoneWall1" }[y && y.border];
     if (id) {
       const E = 0.32, add = (c, r, m, eo) => { if (!inHouse(c, r)) virt.push({ uid: "", id, c, r, m, z: 0, fixed: true, eo }); };   // eo: the piece is moved out to the edge of the ground
-      for (let r = 0; r < dm.R; r++) { add(0, r, 1, [-E, 0]); add(dm.C - 1, r, 1, [E, 0]); }
-      for (let c = 0; c < dm.C; c++) { add(c, 0, 0, [0, -E]); add(c, dm.R - 1, 0, [0, E]); }   // the rows run into the corners, so the corners close
+      // the pieces sit on the edge; the last piece of each side is pulled back by A so that two sides meet in an L (no pieces crossing at the corner)
+      const A = 0.5 - E;
+      for (let r = 0; r < dm.R; r++) { const sh = r === 0 ? A : r === dm.R - 1 ? -A : 0; add(0, r, 1, [-E, sh]); add(dm.C - 1, r, 1, [E, sh]); }
+      for (let c = 0; c < dm.C; c++) { const sh = c === 0 ? A : c === dm.C - 1 ? -A : 0; add(c, 0, 0, [sh, -E]); add(c, dm.R - 1, 0, [sh, E]); }
       // leave a gate in front of the door
       for (let i = virt.length - 1; i >= 0; i--) { const v = virt[i]; if (ds.rot ? (v.c === dm.C - 1 && (v.r === ds.a || v.r === ds.a + 1)) : (v.r === dm.R - 1 && (v.c === ds.a || v.c === ds.a + 1))) virt.splice(i, 1); }
     }
