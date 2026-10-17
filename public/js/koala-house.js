@@ -791,7 +791,7 @@
     kitchen: { ko: "주방", en: "Kitchen", C: 6, R: 6, price: 250, wall: "yellow", floor: "pinkTile", ic: "🍳" },
     playroom: { ko: "놀이방", en: "Playroom", C: 7, R: 6, price: 200, wall: "sky", floor: "lime", ic: "🧸" },
     cinema: { ko: "시네마룸", en: "Cinema", C: 7, R: 7, price: 400, wall: "purple", floor: "plum", ic: "🎬" },
-    bath: { ko: "화장실", en: "Bathroom", C: 5, R: 5, price: 180, wall: "sky", floor: "blueTile", ic: "🛁" },
+    bath: { ko: "화장실", en: "Bathroom", C: 6, R: 6, price: 180, wall: "sky", floor: "blueTile", ic: "🛁" },
     garage: { ko: "차고", en: "Garage", C: 7, R: 6, price: 200, wall: "cream", floor: "stone", ic: "🚗" },
   };
   const ROOM_ORDER = ["study", "bedroom", "master", "living", "kitchen", "playroom", "cinema", "bath", "garage"];
