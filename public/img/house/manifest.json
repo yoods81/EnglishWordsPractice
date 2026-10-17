@@ -1173,5 +1173,23 @@
  },
  "@sub:mathBook": {
   "src": "/img/house/sub/mathBook.webp"
+ },
+ "@sub:fairyBook": {
+  "src": "/img/house/sub/fairyBook.webp"
+ },
+ "@sub:oceanBook": {
+  "src": "/img/house/sub/oceanBook.webp"
+ },
+ "@sub:jokeBook": {
+  "src": "/img/house/sub/jokeBook.webp"
+ },
+ "@sub:atlasBook": {
+  "src": "/img/house/sub/atlasBook.webp"
+ },
+ "@sub:artBook": {
+  "src": "/img/house/sub/artBook.webp"
+ },
+ "@sub:songBook": {
+  "src": "/img/house/sub/songBook.webp"
  }
 }
