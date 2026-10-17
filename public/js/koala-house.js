@@ -529,7 +529,11 @@
     const frontR = [proj(C_, 0, 0), proj(C_, R_, 0), proj(C_, R_, -12), proj(C_, 0, -12)];
     if (!(opt && opt.noSlab)) o.push(`<polygon points="${pstr(frontL)}" fill="${shade(fl.c, -0.38)}"/><polygon points="${pstr(frontR)}" fill="${shade(fl.c, -0.5)}"/>`);
     o.push(`<polygon points="${pstr(floorTop)}" fill="${fl.c}"/>`);
-    if (fl.k === "checker") {
+    const ft = MANIFEST["@floor:" + (st.floor || "")];   // a seamless picture of the ground (manifest "@floor:<key>"), repeated every `n` tiles
+    if (ft && ft.src) {
+      const n = ft.n || 4;
+      o.push(`<defs><pattern id="khF${room.uid}" patternUnits="userSpaceOnUse" width="${n}" height="${n}"><image href="${ft.src}" width="${n}" height="${n}" preserveAspectRatio="none"/></pattern></defs><g transform="matrix(32 16 -32 16 0 0)"><rect x="0" y="0" width="${C_}" height="${R_}" fill="url(#khF${room.uid})"/></g>`);
+    } else if (fl.k === "checker") {
       for (let c = 0; c < C_; c++) for (let r = 0; r < R_; r++) if ((c + r) % 2) o.push(`<polygon points="${pstr([proj(c, r, 0), proj(c + 1, r, 0), proj(c + 1, r + 1, 0), proj(c, r + 1, 0)])}" fill="${fl.a}"/>`);
     } else if (fl.k === "planks") {
       for (let r = 1; r < R_; r++) o.push(`<polyline points="${pstr([proj(0, r, 0), proj(C_, r, 0)])}" stroke="${fl.a}" stroke-width="1.6" fill="none"/>`);

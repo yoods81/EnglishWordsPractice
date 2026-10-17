@@ -877,5 +877,9 @@
   "ay": 0.936,
   "w": 5,
   "d": 5
+ },
+ "@floor:grass": {
+  "src": "/img/house/floorGrass.webp",
+  "n": 4
  }
 }
