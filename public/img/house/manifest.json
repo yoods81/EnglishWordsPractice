@@ -778,5 +778,59 @@
   "wpx": 48,
   "ratio": 1.818,
   "wall": true
+ },
+ "@ui:b_fence": {
+  "src": "/img/house/ui/b_fence.webp"
+ },
+ "@ui:b_hedge": {
+  "src": "/img/house/ui/b_hedge.webp"
+ },
+ "@ui:cabin": {
+  "src": "/img/house/ui/cabin.webp"
+ },
+ "@ui:castle": {
+  "src": "/img/house/ui/castle.webp"
+ },
+ "@ui:cottage": {
+  "src": "/img/house/ui/cottage.webp"
+ },
+ "@ui:g_autumn": {
+  "src": "/img/house/ui/g_autumn.webp"
+ },
+ "@ui:g_flower": {
+  "src": "/img/house/ui/g_flower.webp"
+ },
+ "@ui:g_lawn": {
+  "src": "/img/house/ui/g_lawn.webp"
+ },
+ "@ui:g_wide": {
+  "src": "/img/house/ui/g_wide.webp"
+ },
+ "@ui:g_winter": {
+  "src": "/img/house/ui/g_winter.webp"
+ },
+ "@ui:g_zen": {
+  "src": "/img/house/ui/g_zen.webp"
+ },
+ "@ui:modern": {
+  "src": "/img/house/ui/modern.webp"
+ },
+ "@ui:p_brick": {
+  "src": "/img/house/ui/p_brick.webp"
+ },
+ "@ui:p_plank": {
+  "src": "/img/house/ui/p_plank.webp"
+ },
+ "@ui:p_stones": {
+  "src": "/img/house/ui/p_stones.webp"
+ },
+ "@ui:twoStory": {
+  "src": "/img/house/ui/twoStory.webp"
+ },
+ "@ui:villa": {
+  "src": "/img/house/ui/villa.webp"
+ },
+ "@ui:b_stone": {
+  "src": "/img/house/ui/b_stone.webp"
  }
 }

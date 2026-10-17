@@ -972,6 +972,7 @@
     return `<button type="button" class="kh-sw${on ? " on" : ""}${own ? "" : " locked"}" data-sw="${kind}:${key}" aria-label="${esc(T(def.n[0], def.n[1]))}" aria-pressed="${on}"><span class="kh-sw-c" style="background:${def.c};box-shadow:inset 0 0 0 5px ${def.a}"></span><span class="kh-sw-n">${esc(T(def.n[0], def.n[1]))}</span>${own ? "" : `<span class="kh-pr">${COIN}${def.p}</span>`}</button>`;
   }
   const HOUSE_IC = { cottage: "🏡", villa: "🏘️", twoStory: "🏠", modern: "🏢", cabin: "🛖", castle: "🏰" };
+  const uiIc = (k, fb) => { const u = H.uiImg(k); return u ? `<img src="${u}" alt="">` : fb; };
   const optBtn = (attr, key, on, ic, label, price, own) => `<button type="button" class="kh-sw kh-opt${on ? " on" : ""}${own === false ? " locked" : ""}" ${attr}="${key}" aria-pressed="${on}"><span class="kh-optic" aria-hidden="true">${ic}</span><span class="kh-sw-n">${esc(label)}</span>${own === false ? `<span class="kh-pr">${COIN}${price}</span>` : ""}</button>`;
   let roomOwned = false;
   window.KoalaHouse.setRoomOwned = (v) => { roomOwned = !!v; try { if (ses && ses.root && ses.root.querySelector("#kh-panel")) drawPanel(); } catch (e) { /* not mounted yet */ } };
@@ -987,16 +988,16 @@
     if (ses.tab === "house") {
       const h = st.house || {};
       const grp = (title, kind, set) => `<h3>${title}</h3><div class="kh-sws">${Object.keys(set).map((k) => `<button type="button" class="kh-sw${h[kind] === k ? " on" : ""}" data-house="${kind}:${k}" aria-pressed="${h[kind] === k}" aria-label="${esc(T(set[k][0], set[k][1]))}"><span class="kh-sw-c" style="background:${set[k][2]}"></span><span class="kh-sw-n">${esc(T(set[k][0], set[k][1]))}</span></button>`).join("")}</div>`;
-      return `<h3>${T("집 모양", "House style")}</h3><div class="kh-sws">${Object.keys(H.HOUSE_STYLES).map((k) => { const d = H.HOUSE_STYLES[k]; return optBtn("data-hstyle", k, h.style === k, HOUSE_IC[k], T(d.n[0], d.n[1]), d.p, d.p === 0 || !!S.houseStyles[k]); }).join("")}</div>
+      return `<h3>${T("집 모양", "House style")}</h3><div class="kh-sws">${Object.keys(H.HOUSE_STYLES).map((k) => { const d = H.HOUSE_STYLES[k]; return optBtn("data-hstyle", k, h.style === k, uiIc(k, HOUSE_IC[k]), T(d.n[0], d.n[1]), d.p, d.p === 0 || !!S.houseStyles[k]); }).join("")}</div>
         <h3>${T("집 돌리기·옮기기", "Turn & move the house")}</h3><div class="kh-sws">${optBtn("data-hctl", "rot", false, "🔄", T("돌리기", "Turn"))}${optBtn("data-hctl", "hl", false, "◀", T("왼쪽", "Left"))}${optBtn("data-hctl", "hr", false, "▶", T("오른쪽", "Right"))}</div>
         ${grp(T("외벽", "Walls"), "wall", H.HOUSE_WALLS)}${grp(T("지붕", "Roof"), "roof", H.HOUSE_ROOFS)}${grp(T("현관문", "Door"), "door", H.HOUSE_DOORS)}`;
     }
     if (ses.tab === "garden") {
       const own = (kind, key, p) => !p || !!(S[kind] && S[kind][key]);
-      return `<h3>${T("정원 모양 (한 번에 바꾸기)", "Garden looks")}</h3><div class="kh-sws">${Object.keys(H.GARDEN_PRESETS).map((k) => { const g = H.GARDEN_PRESETS[k], fl = H.FLOORS[g.floor]; return `<button type="button" class="kh-sw kh-opt${st.floor === g.floor && st.border === g.border && st.path === g.path && st.size === g.size ? " on" : ""}" data-gpreset="${k}"><span class="kh-sw-c" style="background:${fl.c};box-shadow:inset 0 0 0 5px ${fl.a}"></span><span class="kh-sw-n">${esc(T(g.n[0], g.n[1]))}</span></button>`; }).join("")}</div>
+      return `<h3>${T("정원 모양 (한 번에 바꾸기)", "Garden looks")}</h3><div class="kh-sws">${Object.keys(H.GARDEN_PRESETS).map((k) => { const g = H.GARDEN_PRESETS[k], fl = H.FLOORS[g.floor]; return `<button type="button" class="kh-sw kh-opt${st.floor === g.floor && st.border === g.border && st.path === g.path && st.size === g.size ? " on" : ""}" data-gpreset="${k}">${H.uiImg("g_" + k) ? `<span class="kh-optic" aria-hidden="true"><img src="${H.uiImg("g_" + k)}" alt=""></span>` : `<span class="kh-sw-c" style="background:${fl.c};box-shadow:inset 0 0 0 5px ${fl.a}"></span>`}<span class="kh-sw-n">${esc(T(g.n[0], g.n[1]))}</span></button>`; }).join("")}</div>
         <h3>${T("땅", "Ground")}</h3><div class="kh-sws">${Object.keys(H.FLOORS).filter((k) => H.FLOORS[k].yard).map((k) => swatch("floor", k, H.FLOORS[k], H.FLOORS[k].p === 0 || !!S.floors[k], st.floor === k)).join("")}</div>
-        <h3>${T("울타리", "Border")}</h3><div class="kh-sws">${Object.keys(H.BORDERS).map((k) => optBtn("data-gborder", k, (st.border || "none") === k, { none: "∅", fence: "🚧", hedge: "🌿", stone: "🧱" }[k], T(H.BORDERS[k][0], H.BORDERS[k][1]))).join("")}</div>
-        <h3>${T("길", "Path")}</h3><div class="kh-sws">${Object.keys(H.PATHS).map((k) => optBtn("data-gpath", k, (st.path || "none") === k, { none: "∅", stones: "🪨", brick: "🟫", plank: "🪵" }[k], T(H.PATHS[k][0], H.PATHS[k][1]))).join("")}</div>
+        <h3>${T("울타리", "Border")}</h3><div class="kh-sws">${Object.keys(H.BORDERS).map((k) => optBtn("data-gborder", k, (st.border || "none") === k, uiIc("b_" + k, { none: "∅", fence: "🚧", hedge: "🌿", stone: "🧱" }[k]), T(H.BORDERS[k][0], H.BORDERS[k][1]))).join("")}</div>
+        <h3>${T("길", "Path")}</h3><div class="kh-sws">${Object.keys(H.PATHS).map((k) => optBtn("data-gpath", k, (st.path || "none") === k, uiIc("p_" + k, { none: "∅", stones: "🪨", brick: "🟫", plank: "🪵" }[k]), T(H.PATHS[k][0], H.PATHS[k][1]))).join("")}</div>
         <h3>${T("마당 크기", "Yard size")}</h3><div class="kh-sws">${Object.keys(H.YARD_SIZES).map((k) => { const z = H.YARD_SIZES[k]; return optBtn("data-gsize", k, (st.size || "normal") === k, `${z.C}×${z.R}`, T(z.n[0], z.n[1]), z.p, own("yardSizes", k, z.p)); }).join("")}</div>`;
     }
     const list = Object.values(H.D).filter((d) => !d.virtual && d.cat === ses.tab && (d.where === "both" || d.where === (yard ? "out" : "in"))).sort((a, b) => a.price - b.price);

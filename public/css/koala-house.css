@@ -390,3 +390,5 @@ html body .kh-app .kh-top .kh-planbtn{background:#cdeee2!important;border-color:
 .kh-buy-name{margin:4px 0}
 .kh-subic.kh-subimg { background: transparent !important; padding: 0; }
 .kh-subic.kh-subimg img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.kh-optic{display:inline-block;min-width:1.5em;min-height:1.5em}
+.kh-optic img{width:2.6rem;height:2.6rem;object-fit:contain;display:block}
