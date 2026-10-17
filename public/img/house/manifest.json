@@ -1191,5 +1191,8 @@
  },
  "@sub:songBook": {
   "src": "/img/house/sub/songBook.webp"
+ },
+ "@sub:spaceBook": {
+  "src": "/img/house/sub/spaceBook.webp"
  }
 }
