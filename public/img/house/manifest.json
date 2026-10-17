@@ -868,5 +868,14 @@
  },
  "@sub:toolWrench": {
   "src": "/img/house/sub/toolWrench.webp"
+ },
+ "@house:cottage": {
+  "src": "/img/house/houseCottage.webp",
+  "wpx": 366,
+  "ratio": 0.9766,
+  "ax": 0.5,
+  "ay": 0.936,
+  "w": 5,
+  "d": 5
  }
 }

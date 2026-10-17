@@ -575,8 +575,10 @@
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   function yardDims(y) { const z = YARD_SIZES[(y && y.size)] || YARD_SIZES.normal; return { C: z.C, R: z.R }; }
   function yardRoom(y) { return Object.assign({}, YARD, yardDims(y), { uid: "yard" + ((y && y.size) || "normal") }); }
+  // a picture for the whole house (manifest key "@house:<style>") replaces the drawn one; it may also set its own footprint (w, d)
+  const housePic = (style) => { const e = MANIFEST["@house:" + (HOUSE_STYLES[style] ? style : "cottage")]; return e && e.src ? e : null; };
   function houseRect(y) {
-    const h = (y && y.house) || {}, sty = HOUSE_STYLES[h.style] || HOUSE_STYLES.cottage, dm = yardDims(y), rot = h.rot ? 1 : 0, sh = h.shift || 0;
+    const h = (y && y.house) || {}, hp = housePic(h.style), sty = Object.assign({}, HOUSE_STYLES[h.style] || HOUSE_STYLES.cottage, hp && hp.w ? { w: hp.w, d: hp.d || hp.w } : {}), dm = yardDims(y), rot = h.rot ? 1 : 0, sh = h.shift || 0;
     if (!rot) { const c0 = clamp(Math.floor((dm.C - sty.w) / 2) + sh, 0, dm.C - sty.w); return { c0, r0: 0, c1: c0 + sty.w, r1: sty.d, w: sty.w, d: sty.d, rot }; }
     const r0 = clamp(Math.floor((dm.R - sty.w) / 2) + sh, 0, dm.R - sty.w);
     return { c0: 0, r0, c1: sty.d, r1: r0 + sty.w, w: sty.w, d: sty.d, rot };
@@ -620,6 +622,11 @@
     return o;
   }
   // the house in yard tiles (turned to face +x when rot is set)
+  function housePicSvg(y, e) {   // the picture stands on the front corner of the house's footprint (turned: mirrored)
+    const rc = houseRect(y), [cx, cy] = proj(rc.c1, rc.r1, 0), wp = e.wpx, hp = wp * e.ratio, mir = rc.rot ? 1 : 0;
+    const x = cx - (mir ? 1 - (e.ax == null ? 0.5 : e.ax) : (e.ax == null ? 0.5 : e.ax)) * wp, yy = cy - (e.ay == null ? 0.93 : e.ay) * hp;
+    return `<image href="${e.src}" x="${x.toFixed(1)}" y="${yy.toFixed(1)}" width="${wp.toFixed(1)}" height="${hp.toFixed(1)}"${mir ? ` transform="translate(${(2 * x + wp).toFixed(1)} 0) scale(-1 1)"` : ""}/>`;
+  }
   function houseParts(y) {
     const h = (y && y.house) || {}, rc = houseRect(y), loc = houseLocal(h, rc.w, rc.d);
     return loc.map((p) => {
@@ -629,7 +636,8 @@
   }
   // a little picture of the house in one style (same walls / roof / door colours as the yard's house), for the style buttons
   function houseThumb(style, y) {
-    const q = Object.assign({}, y, { house: Object.assign({}, (y && y.house) || {}, { style, rot: 0, shift: 0 }) });
+    const q = Object.assign({}, y, { house: Object.assign({}, (y && y.house) || {}, { style, rot: 0, shift: 0 }) }), hp = housePic(style);
+    if (hp) return `<svg class="kh-hthumb" viewBox="0 0 200 200" aria-hidden="true"><image href="${hp.src}" x="0" y="0" width="200" height="200" preserveAspectRatio="xMidYMid meet"/></svg>`;
     return `<svg class="kh-hthumb" viewBox="0 0 200 200" aria-hidden="true"><g>${sortParts(houseParts(q)).map(partSvg).join("")}</g></svg>`;
   }
   const houseDepth = (y) => { const rc = houseRect(y); return rc.c1 + rc.r1 - 0.4; };
@@ -717,7 +725,7 @@
     let items = (st.items || []).slice();
     CTX = items;
     if (kind === "yard") {
-      keyed.push({ k: houseDepth(st), svg: `<g class="kh-house" data-k="${houseDepth(st).toFixed(3)}">${houseParts(st).map(partSvg).join("")}</g>` });
+      keyed.push({ k: houseDepth(st), svg: `<g class="kh-house" data-k="${houseDepth(st).toFixed(3)}">${housePic((st.house || {}).style) ? housePicSvg(st, housePic((st.house || {}).style)) : houseParts(st).map(partSvg).join("")}</g>` });
       items = items.concat(yardExtras(st).virt);
     }
     items.forEach((i) => {
