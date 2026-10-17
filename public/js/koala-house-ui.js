@@ -790,7 +790,8 @@
     if (H.D[it.id].subKind === "clothes") { clothesPanel(panel, it); return; }
     const d = H.D[it.id], kind = d.subKind, api = curOpts.subs, list = api.list(kind), grp = {}; list.forEach((e) => { grp[e.id] = e.group; });
     const cur = it.sub || [], tabs = tabsFor(ses.roomId === "yard"), cat = (tabs.find((t) => t[0] === d.cat) || [0, 0, T("가구", "Furniture")])[2];
-    const icon = (e) => { const v = H.subVis(e.id), im = H.subImg(e.id); if (im) return `<span class="kh-subic kh-subimg" aria-hidden="true"><img src="${im}" alt=""></span>`; return v ? `<span class="kh-subic" style="background:${v[1]}" aria-hidden="true">${v[0]}</span>` : `<span class="kh-subic" style="background:${H.bookColor(e.id)}" aria-hidden="true">📖</span>`; };
+    const BOOKIC = { koalaBook: "🐨", abcBook: "🔤", spaceBook: "🪐", dinoBook: "🦖", fairyBook: "🧚", mathBook: "➕", oceanBook: "🐳", jokeBook: "😄", atlasBook: "🗺️", artBook: "🎨", animalBook: "🦘", songBook: "🎵" };
+    const icon = (e) => { const v = H.subVis(e.id), im = H.subImg(e.id); if (!im && !v && BOOKIC[e.id]) return `<span class="kh-subic kh-bookic" style="background:${H.bookColor(e.id)}" aria-hidden="true">${BOOKIC[e.id]}</span>`; if (im) return `<span class="kh-subic kh-subimg" aria-hidden="true"><img src="${im}" alt=""></span>`; return v ? `<span class="kh-subic" style="background:${v[1]}" aria-hidden="true">${v[0]}</span>` : `<span class="kh-subic" style="background:${H.bookColor(e.id)}" aria-hidden="true">📖</span>`; };
     const groups = Array.from(new Set(list.map((e) => e.group))), gname = { main: "", top: T("책상 위", "On top"), drawer: T("서랍 속", "In the drawer"), food: T("음식", "Food"), drink: T("음료", "Drinks") };
     const title = { tools: T("공구함 속 공구", "Tools in the box"), shoes: T("신발장 위 신발", "Shoes on the cabinet"), books: T("책장 속 책", "Books on the shelf"), desk: T("책상 위·서랍", "On the desk"), frame: T("액자 그림", "Picture"), toys: T("장난감 상자", "Toys"), sink: T("세면대 위 물건", "On the sink"), fridge: T("냉장고 속 음식", "In the fridge") }[kind] || nm(d);
     const note = kind === "books" && !it.sub ? T("지금은 기본 책이 꽂혀 있어요. 골라 넣으면 바뀌어요.", "Default books for now — pick some to replace them.") : T("눌러서 넣고 빼요. 코인으로 새 물건도 살 수 있어요.", "Tap to put in or take out. New things cost coins.");
@@ -991,7 +992,7 @@
     if (ses.tab === "house") {
       const h = st.house || {};
       const grp = (title, kind, set) => `<h3>${title}</h3><div class="kh-sws">${Object.keys(set).map((k) => `<button type="button" class="kh-sw${h[kind] === k ? " on" : ""}" data-house="${kind}:${k}" aria-pressed="${h[kind] === k}" aria-label="${esc(T(set[k][0], set[k][1]))}"><span class="kh-sw-c" style="background:${set[k][2]}"></span><span class="kh-sw-n">${esc(T(set[k][0], set[k][1]))}</span></button>`).join("")}</div>`;
-      return `<h3>${T("집 모양", "House style")}</h3><div class="kh-sws">${Object.keys(H.HOUSE_STYLES).map((k) => { const d = H.HOUSE_STYLES[k]; return optBtn("data-hstyle", k, h.style === k, uiIc(k, HOUSE_IC[k]), T(d.n[0], d.n[1]), d.p, d.p === 0 || !!S.houseStyles[k]); }).join("")}</div>
+      return `<h3>${T("집 모양", "House style")}</h3><div class="kh-sws">${Object.keys(H.HOUSE_STYLES).map((k) => { const d = H.HOUSE_STYLES[k]; return optBtn("data-hstyle", k, h.style === k, H.houseThumb(k, st), T(d.n[0], d.n[1]), d.p, d.p === 0 || !!S.houseStyles[k]); }).join("")}</div>
         <h3>${T("집 돌리기·옮기기", "Turn & move the house")}</h3><div class="kh-sws">${optBtn("data-hctl", "rot", false, "🔄", T("돌리기", "Turn"))}${optBtn("data-hctl", "hl", false, "◀", T("왼쪽", "Left"))}${optBtn("data-hctl", "hr", false, "▶", T("오른쪽", "Right"))}</div>
         ${grp(T("외벽", "Walls"), "wall", H.HOUSE_WALLS)}${grp(T("지붕", "Roof"), "roof", H.HOUSE_ROOFS)}${grp(T("현관문", "Door"), "door", H.HOUSE_DOORS)}`;
     }
@@ -1064,6 +1065,7 @@
       };
     });
     grid.querySelectorAll("[data-house]").forEach((b) => { b.onclick = () => { const [kind, key] = b.dataset.house.split(":"); const st = curState(); st.house = st.house || {}; st.house[kind] = key; save(); drawScene(); drawPanel(); }; });
+    grid.querySelectorAll(".kh-hthumb").forEach((sv) => { try { const bb = sv.firstChild.getBBox(), pad = 4; sv.setAttribute("viewBox", `${bb.x - pad} ${bb.y - pad} ${bb.width + pad * 2} ${bb.height + pad * 2}`); } catch (e) { /* not laid out yet */ } });
     grid.querySelectorAll("[data-hstyle]").forEach((b) => {
       b.onclick = () => { const k = b.dataset.hstyle, d = H.HOUSE_STYLES[k], own = d.p === 0 || !!S.houseStyles[k]; runYard(planYard({ house: { style: k, shift: 0 } }, own ? 0 : d.p, "house:" + k, T(d.n[0], d.n[1])), () => { S.houseStyles[k] = 1; }); };
     });

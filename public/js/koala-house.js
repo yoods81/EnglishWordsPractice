@@ -606,6 +606,11 @@
       return Object.assign({}, q, { x: q.x + (rc.rot ? rc.c0 : rc.c0), y: q.y + (rc.rot ? rc.r0 : 0) });
     });
   }
+  // a little picture of the house in one style (same walls / roof / door colours as the yard's house), for the style buttons
+  function houseThumb(style, y) {
+    const q = Object.assign({}, y, { house: Object.assign({}, (y && y.house) || {}, { style, rot: 0, shift: 0 }) });
+    return `<svg class="kh-hthumb" viewBox="0 0 200 200" aria-hidden="true"><g>${sortParts(houseParts(q)).map(partSvg).join("")}</g></svg>`;
+  }
   const houseDepth = (y) => { const rc = houseRect(y); return rc.c1 + rc.r1 - 0.4; };
   function doorSpan(y) { // the two tiles in front of the door, along the front wall
     const rc = houseRect(y);
@@ -869,6 +874,6 @@
   return {
     TW, TH, WALL_H, D, WALLS, FLOORS, ROOMS, ROOM_ORDER, PLAN, SLOTS, START_SLOT, YARD, HOUSE_WALLS, HOUSE_ROOFS, HOUSE_DOORS, HOUSE_STYLES, YARD_SIZES, BORDERS, PATHS, GARDEN_PRESETS,
     proj, shade, orient, itemBox, itemInner, thumbSvg, roomSvg, planSvg, wallItemSvg, floorItemSvg, sceneBox, depthCmp, roomOf, stateOf, yardDims, houseRect, subVis, bookColor,
-    subImg, uiImg, canPlace, freeCells, STARTER_OWNED: Object.keys(starter().owned), tuckOf, setOpen, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts,
+    subImg, uiImg, canPlace, freeCells, STARTER_OWNED: Object.keys(starter().owned), tuckOf, setOpen, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts, houseThumb,
   };
 });

@@ -392,3 +392,11 @@ html body .kh-app .kh-top .kh-planbtn{background:#cdeee2!important;border-color:
 .kh-subic.kh-subimg img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .kh-optic{display:inline-block;min-width:1.5em;min-height:1.5em}
 .kh-optic img{width:2.6rem;height:2.6rem;object-fit:contain;display:block}
+/* tall / wide sub-item pictures must stay inside their box */
+.kh-subic.kh-subimg { position: relative; overflow: hidden; }
+.kh-subic.kh-subimg img { position: absolute; inset: 0; width: 100%; height: 100%; max-height: none; object-fit: contain; }
+.kh-detail-pic .kh-subic.kh-subimg img { width: 100%; max-width: none; }
+.kh-bookic { box-shadow: inset 6px 0 0 rgba(0,0,0,.18), inset -2px 0 0 rgba(255,255,255,.35); border-radius: 6px 12px 12px 6px; }
+.kh-hthumb { width: 100%; height: 100%; display: block; }
+.kh-optic:has(.kh-hthumb) { width: 3rem; height: 2.6rem; }
+.kh-opt .kh-optic { font-size: 1.1rem; }
