@@ -1,8 +1,0 @@
-<!doctype html><meta charset="utf-8"><body style="margin:0;background:#fff"><div id="o"></div>
-<script src="/js/koala-house.js"></script><script>
-(async()=>{const m=await (await fetch('/img/house/manifest.json')).json();KoalaHouse.setManifest(m);
-const q=new URLSearchParams(location.search);const items=JSON.parse(q.get('items'));
-const r=Object.assign({},KoalaHouse.ROOMS[q.get('room')||'bedroom'],{uid:'t'});
-document.getElementById('o').innerHTML=KoalaHouse.roomSvg(r,{wall:r.wall,floor:r.floor,items},{});
-document.title='ready';})();
-</script>
