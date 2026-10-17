@@ -936,5 +936,41 @@
  },
  "@sub:toolScrewdriver": {
   "src": "/img/house/sub/screwdriver.webp"
+ },
+ "@sub:shoeBoots": {
+  "src": "/img/house/sub/shoeBoots.webp"
+ },
+ "@sub:shoeRain": {
+  "src": "/img/house/sub/shoeRain.webp"
+ },
+ "@sub:shoeSandals": {
+  "src": "/img/house/sub/shoeSandals.webp"
+ },
+ "@sub:shoeSchool": {
+  "src": "/img/house/sub/shoeSchool.webp"
+ },
+ "@sub:shoeSlippers": {
+  "src": "/img/house/sub/shoeSlippers.webp"
+ },
+ "@sub:shoeSneakers": {
+  "src": "/img/house/sub/shoeSneakers.webp"
+ },
+ "@sub:toolHammer": {
+  "src": "/img/house/sub/toolHammer.webp"
+ },
+ "@sub:toolPaint": {
+  "src": "/img/house/sub/toolPaint.webp"
+ },
+ "@sub:toolPliers": {
+  "src": "/img/house/sub/toolPliers.webp"
+ },
+ "@sub:toolSaw": {
+  "src": "/img/house/sub/toolSaw.webp"
+ },
+ "@sub:toolTape": {
+  "src": "/img/house/sub/toolTape.webp"
+ },
+ "@sub:toolWrench": {
+  "src": "/img/house/sub/toolWrench.webp"
  }
 }
