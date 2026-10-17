@@ -181,14 +181,14 @@
   ["wardrobeWood", "wardrobeMint"].forEach((id) => { D[id].subKind = "clothes"; });   // the Koala's clothes live in here (see KoalaHouse UI: "Inside")
   add("dresser", "furniture", ["서랍장", "Dresser"], 2, 1, 0, [B(0, 0, 0, 2, 1, 40, "#d9a066"), B(0.1, 1.0, 5, 0.86, 0.03, 14, "#e8b887"), B(1.04, 1.0, 5, 0.86, 0.03, 14, "#e8b887"), B(0.1, 1.0, 22, 0.86, 0.03, 14, "#e8b887"), B(1.04, 1.0, 22, 0.86, 0.03, 14, "#e8b887"),
     B(0.45, 1.03, 10, 0.16, 0.03, 3, "#8a5a3a"), B(1.4, 1.03, 10, 0.16, 0.03, 3, "#8a5a3a"), B(0.45, 1.03, 27, 0.16, 0.03, 3, "#8a5a3a"), B(1.4, 1.03, 27, 0.16, 0.03, 3, "#8a5a3a")], { topH: 40 });
-  add("tvStand", "furniture", ["TV와 장", "TV Stand"], 2, 1, 100, [B(0, 0.1, 0, 2, 0.8, 18, "#2f343c"), B(0.08, 0.98, 4, 0.8, 0.03, 10, "#4a5260"), B(1.12, 0.98, 4, 0.8, 0.03, 10, "#4a5260"), B(0.8, 0.4, 18, 0.4, 0.2, 5, "#1e2228"),
-    B(0.15, 0.42, 22, 1.7, 0.1, 54, "#1e2228"), B(0.22, 0.52, 27, 1.56, 0.03, 44, "#7fb6e8"), B(0.3, 0.55, 40, 0.6, 0.02, 18, "#a8d4f5")]);
+  add("tvStand", "furniture", ["TV와 장", "TV Stand"], 3, 1, 100, [B(0, 0.1, 0, 3, 0.8, 18, "#2f343c"), B(0.12, 0.98, 4, 1.2, 0.03, 10, "#4a5260"), B(1.68, 0.98, 4, 1.2, 0.03, 10, "#4a5260"), B(1.3, 0.4, 18, 0.4, 0.2, 5, "#1e2228"),
+    B(0.2, 0.42, 22, 2.6, 0.1, 54, "#1e2228"), B(0.3, 0.52, 27, 2.4, 0.03, 44, "#7fb6e8"), B(0.45, 0.55, 40, 0.9, 0.02, 18, "#a8d4f5")]);
   add("fridge", "furniture", ["냉장고", "Fridge"], 1, 1, 120, [B(0, 0, 0, 1, 1, 104, "#eef1f3"), B(0, 1.0, 62, 1, 0.03, 2, "#9aa6ae"), B(0.82, 1.03, 70, 0.07, 0.03, 24, "#9aa6ae"), B(0.82, 1.03, 30, 0.07, 0.03, 22, "#9aa6ae")]);
   add("counter", "furniture", ["조리대", "Kitchen Counter"], 2, 1, 110, [B(0, 0, 0, 2, 1, 34, "#d9a066"), B(0, 0, 34, 2, 1, 4, "#f2eadb"), B(0.12, 1.0, 6, 0.86, 0.03, 24, "#e8b887"), B(1.02, 1.0, 6, 0.86, 0.03, 24, "#e8b887"), B(0.6, 0.28, 38, 0.8, 0.45, 2, "#aab4bb"), B(0.42, 0.1, 38, 0.06, 0.06, 16, "#aab4bb")], { topH: 38 });
   add("stove", "furniture", ["가스레인지", "Stove"], 1, 1, 100, [B(0, 0, 0, 1, 1, 36, "#e8e8e8"), B(0, 0, 36, 1, 1, 3, "#3a3f46"), C(0.3, 0.3, 39, 0.16, 2, "#222"), C(0.7, 0.3, 39, 0.16, 2, "#222"), C(0.3, 0.7, 39, 0.16, 2, "#222"), C(0.7, 0.7, 39, 0.16, 2, "#222"), B(0.1, 1.0, 12, 0.8, 0.03, 18, "#2f343c")], { topH: 39 });
-  add("bathtub", "furniture", ["욕조", "Bathtub"], 2, 1, 100, [B(0, 0, 0, 2, 1, 26, "#f2f6f8"), B(0.1, 0.1, 22, 1.8, 0.8, 5, "#9ed7ee"), B(1.82, 0.4, 26, 0.1, 0.1, 14, "#b9c4ca"), S(0.5, 0.5, 30, 6, "#ffffff"), S(0.9, 0.6, 29, 5, "#ffffff")]);
+  add("bathtub", "furniture", ["욕조", "Bathtub"], 3, 1, 100, [B(0, 0, 0, 3, 1, 26, "#f2f6f8"), B(0.1, 0.1, 22, 2.8, 0.8, 5, "#9ed7ee"), B(2.82, 0.4, 26, 0.1, 0.1, 14, "#b9c4ca"), S(0.7, 0.5, 30, 6, "#ffffff"), S(1.3, 0.6, 29, 5, "#ffffff"), S(1.9, 0.45, 29, 5, "#ffffff")]);
   add("toilet", "furniture", ["변기", "Toilet"], 1, 1, 60, [B(0.2, 0.05, 0, 0.6, 0.3, 40, "#f2f6f8"), B(0.2, 0.3, 0, 0.6, 0.65, 18, "#f2f6f8"), B(0.25, 0.35, 18, 0.5, 0.55, 3, "#dcebf0")]);
-  add("vanity", "furniture", ["세면대", "Sink"], 1, 1, 70, [B(0.1, 0.1, 0, 0.8, 0.8, 30, "#f2f6f8"), B(0.1, 0.1, 30, 0.8, 0.8, 4, "#ffffff"), B(0.25, 0.25, 34, 0.5, 0.5, 2, "#cfe6f0"), B(0.45, 0.14, 34, 0.08, 0.08, 14, "#aab4bb")], { topH: 34 });
+  add("vanity", "furniture", ["세면대", "Sink"], 2, 1, 70, [B(0.1, 0.1, 0, 1.8, 0.8, 30, "#f2f6f8"), B(0.1, 0.1, 30, 1.8, 0.8, 4, "#ffffff"), B(0.55, 0.25, 34, 0.9, 0.5, 2, "#cfe6f0"), B(0.95, 0.14, 34, 0.08, 0.08, 14, "#aab4bb")], { topH: 34 });
   add("toybox", "furniture", ["장난감 상자", "Toy Box"], 1, 1, 0, [B(0.05, 0.1, 0, 0.9, 0.8, 24, "#e66a5a"), B(0.05, 0.1, 24, 0.9, 0.8, 4, "#ffd166"), B(0.38, 0.98, 12, 0.26, 0.03, 8, "#ffd166"), S(0.3, 0.5, 32, 6, "#5b8fd0"), B(0.55, 0.3, 28, 0.2, 0.2, 10, "#68b57c")], { subKind: "toys" });
   add("piano", "furniture", ["피아노", "Piano"], 2, 1, 200, [B(0, 0, 0, 2, 0.9, 52, "#2f2a36"), B(0.05, 0.92, 30, 1.9, 0.18, 4, "#f4f1ea"), B(0.05, 1.0, 34, 1.9, 0.04, 2, "#2f2a36"), B(0, 0.1, 52, 2, 0.8, 6, "#3a3342")]);
 
@@ -263,6 +263,12 @@
   // pieces the koala can be dragged onto to do something: read a book at a shelf, tend a plant
   ["shelfWood", "shelfWhite"].forEach((id) => { D[id].act = "read"; });
   ["plantBig", "cactus", "palm", "flowerBed", "tulips", "bush"].forEach((id) => { D[id].act = "water"; });
+  // Flat-topped furniture can carry small things (the lamps, vases, toys... and the cactus). topH = height of the top, in px of the scene.
+  const TOPS = { bedBlue: 41, bedPink: 41, bedMint: 41, deskWood: 38, deskWhite: 38, deskBlue: 38, counter: 42, vanity: 65, tvStand: 36, shelfWood: 69, shelfWhite: 69, wardrobeWood: 82, wardrobeMint: 81, fridge: 80, piano: 56, toybox: 20 };
+  Object.keys(TOPS).forEach((id) => { if (D[id]) D[id].topH = TOPS[id]; });
+  if (D.cactus) D.cactus.stack = true;
+  D.dresser.subKind = "desk"; D.vanity.subKind = "sink"; D.fridge.subKind = "fridge";   // things on / in them (see KoalaCore.SUB_ITEMS)
+
 
   /* ---- wall decorations: art is drawn in px on the wall plane (64 px = 1 tile along the wall) ---- */
   const wd = (id, name, uw, vh, price, art, extra) => { D[id] = Object.assign({ id, cat: "wall", name, wall: true, uw, vh, pw: uw * 64, price, where: "in", art, defH: 60 }, extra || {}); };
@@ -359,6 +365,9 @@
     pencilCup: ["✏️", "#fff"], miniGlobe: ["🌍", "#fff"], alarmClock: ["⏰", "#fff"], miniCactus: ["🌵", "#fff"], notebooks: ["📒", "#fff"], cocoaMug: ["☕", "#fff"], crayonBox: ["🖍️", "#fff"], stickerBook: ["⭐", "#fff"], secretDiary: ["📔", "#fff"], marbleBag: ["🔮", "#fff"],
     picMeadow: ["🌻", "#d5f0c4"], picSea: ["⛵", "#bfe3ff"], picRainbow: ["🌈", "#e4f2ff"], picSpace: ["🪐", "#34417a"], picFlowers: ["🌸", "#ffe6ee"], picKoala: ["🐨", "#dff0d8"], picNight: ["🌙", "#34417a"], picBeach: ["🏖️", "#ffe9b8"], picCastle: ["🏰", "#e6ddff"], picButterfly: ["🦋", "#ffeef8"],
     picPuppy: ["🐶", "#ffe9d0"], picKitten: ["🐱", "#fff0d8"], picMountain: ["🏔️", "#dfeeff"], picDinoPic: ["🦖", "#dff5d2"], picBalloons: ["🎈", "#fff0f0"], picRocketPic: ["🚀", "#dfe9ff"], picFish: ["🐠", "#cfeeff"], picCake: ["🎂", "#fff0f4"], picForest: ["🌲", "#d8f0d0"], picSnow: ["⛄", "#eaf6ff"],
+    shampoo: ["🧴", "#e6f0ff"], conditioner: ["🧴", "#ffe6f0"], soap: ["🧼", "#eaf8ff"], toothbrush: ["🪥", "#e6fff2"], toothpaste: ["🦷", "#f0f7ff"], handwash: ["🫧", "#e8f6ff"], mirror: ["🪞", "#eef4ff"], cupBrush: ["🥛", "#f4fbff"],
+    chocolate: ["🍫", "#f1e3da"], cake: ["🍰", "#fff0f4"], bread: ["🍞", "#fff1d8"], pizza: ["🍕", "#fff0d0"], pasta: ["🍝", "#fff4d6"], meat: ["🥩", "#ffe3e0"], veggies: ["🥦", "#e2f5d8"], kimchi: ["🥬", "#ffe0dc"], eggs: ["🥚", "#fff8e6"], cheese: ["🧀", "#fff3c4"], fruit: ["🍎", "#ffe6e6"], iceCream: ["🍦", "#fff0f8"],
+    water: ["💧", "#e2f2ff"], cola: ["🥤", "#ffe9e0"], milk: ["🥛", "#f4f9ff"], juice: ["🧃", "#fff0d0"],
     toyTeddy: ["🧸", "#fff"], toyBall: ["🏐", "#fff"], toyCar: ["🚗", "#fff"], toyRobot: ["🤖", "#fff"], toyDino: ["🦖", "#fff"], toyBlocks: ["🧱", "#fff"], toyDuck: ["🦆", "#fff"], toyRocket: ["🚀", "#fff"], toyBunny: ["🐰", "#fff"], toyDrum: ["🥁", "#fff"],
   };
   const subVis = (id) => SUBV[id] || null;
@@ -392,6 +401,12 @@
     }
     if (def.subKind === "toys" && open) {
       return sub.slice(0, 4).map((id, k) => { const v = subVis(id); if (!v) return ""; const [x, y] = at(0.3 + k * 0.14, 0.3 - (k % 2) * 0.1); return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${(g.w * 0.2).toFixed(1)}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${v[0]}</text>`; }).join("");
+    }
+    if (def.subKind === "sink") {
+      return sub.slice(0, 6).map((id, k) => { const v = subVis(id); if (!v) return ""; const [x, y] = at(0.22 + k * 0.1, 0.3 + (k % 2) * 0.05); return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${(g.w * 0.15).toFixed(1)}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${v[0]}</text>`; }).join("");
+    }
+    if (def.subKind === "fridge") {   // little food stickers on the door (there is no open-door picture)
+      return sub.slice(0, 12).map((id, k) => { const v = subVis(id); if (!v) return ""; const [x, y] = at(0.3 + (k % 3) * 0.17, 0.2 + Math.floor(k / 3) * 0.13); return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${(g.w * 0.15).toFixed(1)}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${v[0]}</text>`; }).join("");
     }
     if (def.subKind === "desk") {
       return sub.slice(0, 5).map((id, k) => { const v = subVis(id); if (!v) return ""; const [x, y] = at(0.3 + k * 0.1, 0.34 + (k % 2) * 0.06); return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${(g.w * 0.13).toFixed(1)}" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${v[0]}</text>`; }).join("");
@@ -668,7 +683,7 @@
       owned: { bedBlue: 1, sofaRed: 1, deskWood: 1, stoolBlue: 1, shelfWood: 1, wardrobeWood: 1, tableRound: 1, rugBlue: 1, lampDesk: 1, vase: 1, bookStack: 1, plantBig: 1, dresser: 1, toybox: 1, tvStand: 1, fridge: 1, counter: 1, stove: 1, bathtub: 1, toilet: 1, vanity: 1, treeApple: 1, bush: 1, flowerBed: 1, bench: 1, fence: 1, stones: 1, pottedSmall: 1, winDay: 1, frameSun: 1 },
       worn: {}, walls: { cream: 1, mint: 1 }, floors: { wood: 1, grass: 1 }, houseStyles: { cottage: 1 }, yardSizes: { normal: 1 },
       slots: {
-        [START_SLOT]: { type: "study", wall: "mint", floor: "wood", items: [it("rugBlue", 1, 2), it("deskWood", 3, 0), Object.assign(it("stoolBlue", 3, 1), { m: 2 }), it("shelfWood", 0, 1, 1), it("plantBig", 5, 5), Object.assign(it("lampDesk", 4, 0), { z: 34 }), Object.assign(it("bookStack", 3, 0), { z: 34 }), { uid: newUid(), id: "winDay", side: "R", u: 1.5, h: 56 }, { uid: newUid(), id: "frameSun", side: "L", u: 3.5, h: 70 }] },
+        [START_SLOT]: { type: "study", wall: "mint", floor: "wood", items: [it("rugBlue", 1, 2), it("deskWood", 3, 0), Object.assign(it("stoolBlue", 3, 1), { m: 2 }), it("shelfWood", 0, 1, 1), it("plantBig", 5, 5), Object.assign(it("lampDesk", 4, 0), { z: 38 }), Object.assign(it("bookStack", 3, 0), { z: 38 }), { uid: newUid(), id: "winDay", side: "R", u: 1.5, h: 56 }, { uid: newUid(), id: "frameSun", side: "L", u: 3.5, h: 70 }] },
       },
       yard: { size: "normal", floor: "grass", border: "fence", path: "stones", house: { style: "cottage", wall: "cream", roof: "red", door: "wood", rot: 0, shift: 0 }, items: [it("treeApple", 1, 5), it("flowerBed", 9, 6), it("bench", 3, 9), it("bush", 0, 8)] },
     };
@@ -808,6 +823,6 @@
   return {
     TW, TH, WALL_H, D, WALLS, FLOORS, ROOMS, ROOM_ORDER, PLAN, SLOTS, START_SLOT, YARD, HOUSE_WALLS, HOUSE_ROOFS, HOUSE_DOORS, HOUSE_STYLES, YARD_SIZES, BORDERS, PATHS, GARDEN_PRESETS,
     proj, shade, orient, itemBox, itemInner, thumbSvg, roomSvg, planSvg, wallItemSvg, floorItemSvg, sceneBox, depthCmp, roomOf, stateOf, yardDims, houseRect, subVis, bookColor,
-    canPlace, freeCells, tuckOf, setOpen, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts,
+    canPlace, freeCells, STARTER_OWNED: Object.keys(starter().owned), tuckOf, setOpen, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts,
   };
 });

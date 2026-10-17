@@ -337,6 +337,8 @@
     frame: { mode: "single", groups: { main: 1 }, fallback: "picMeadow" },
     toys: { mode: "multi", groups: { main: 4 } },
     collage: { mode: "multi", groups: { main: 3 } },
+    sink: { mode: "multi", groups: { main: 6 } },
+    fridge: { mode: "multi", groups: { food: 8, drink: 4 } },
     petwear: { mode: "multi", swap: true, groups: { head: 1, neck: 1, body: 1, feet: 1 } },
   };
   const SUB_PARENTS = {
@@ -410,6 +412,30 @@
     sb("toyRocket", "toys", "main", "Toy Rocket", "장난감 로켓", "3, 2, 1… blast off!", "3, 2, 1… 발사!"),
     sb("toyBunny", "toys", "main", "Bunny", "토끼 인형", "Long ears, soft fur.", "긴 귀에 보들보들 털!"),
     sb("toyDrum", "toys", "main", "Drum", "북", "Boom ba-da-boom!", "둥둥 두둥둥!"),
+    sb("shampoo", "sink", "main", "Shampoo", "샴푸", "Bubbly clean hair!", "거품 가득 깨끗한 머리!"),
+    sb("conditioner", "sink", "main", "Conditioner", "린스", "Soft and silky.", "보들보들 부드러워져요."),
+    sb("soap", "sink", "main", "Soap Bar", "비누", "Wash your hands, hooray!", "손을 씻어요, 뽀득뽀득!"),
+    sb("toothbrush", "sink", "main", "Toothbrush", "칫솔", "Brush, brush, brush!", "쓱싹쓱싹 양치해요!"),
+    sb("toothpaste", "sink", "main", "Toothpaste", "치약", "Minty fresh smiles.", "상쾌한 박하 맛 미소!"),
+    sb("handwash", "sink", "main", "Hand Wash", "핸드워시", "A pump of bubbles.", "펌프 한 번에 몽글몽글 거품!"),
+    sb("mirror", "sink", "main", "Little Mirror", "작은 거울", "Check your smile.", "웃는 얼굴을 확인해요."),
+    sb("cupBrush", "sink", "main", "Tooth Cup", "양치 컵", "A cup for rinsing.", "입을 헹구는 컵이에요."),
+    sb("chocolate", "fridge", "food", "Chocolate", "초콜릿", "A sweet little treat.", "달콤한 간식이에요."),
+    sb("cake", "fridge", "food", "Cake", "케이크", "A slice of cake!", "케이크 한 조각!"),
+    sb("bread", "fridge", "food", "Bread", "빵", "Fresh and fluffy.", "폭신폭신 갓 구운 빵!"),
+    sb("pizza", "fridge", "food", "Pizza", "피자", "Cheesy and yummy.", "치즈가 쭈욱 맛있는 피자!"),
+    sb("pasta", "fridge", "food", "Pasta", "파스타", "Twirl, twirl, slurp!", "돌돌 말아 후루룩!"),
+    sb("meat", "fridge", "food", "Meat", "고기", "Ready for dinner.", "저녁 준비 완료!"),
+    sb("veggies", "fridge", "food", "Vegetables", "채소", "Crunchy and healthy.", "아삭아삭 건강해요."),
+    sb("kimchi", "fridge", "food", "Kimchi", "김치", "Spicy and tasty.", "매콤하고 맛있는 김치!"),
+    sb("eggs", "fridge", "food", "Eggs", "달걀", "Fresh eggs.", "신선한 달걀이에요."),
+    sb("cheese", "fridge", "food", "Cheese", "치즈", "Say cheese!", "치~즈!"),
+    sb("fruit", "fridge", "food", "Fruit", "과일", "Sweet and juicy.", "달콤하고 새콤한 과일!"),
+    sb("iceCream", "fridge", "food", "Ice Cream", "아이스크림", "Cold and creamy.", "시원하고 달콤해요."),
+    sb("water", "fridge", "drink", "Water", "물", "Stay hydrated!", "물을 많이 마셔요!"),
+    sb("cola", "fridge", "drink", "Cola", "콜라", "Fizzy and bubbly.", "톡톡 쏘는 탄산!"),
+    sb("milk", "fridge", "drink", "Milk", "우유", "Good for strong bones.", "튼튼한 뼈에 좋아요."),
+    sb("juice", "fridge", "drink", "Juice", "주스", "Fruity and fresh.", "상큼한 과일 주스!"),
     sb("pwPartyHat", "petwear", "head", "Party Hat", "파티 모자", "Every day is a party!", "매일매일이 파티예요!"),
     sb("pwBow", "petwear", "head", "Ribbon Bow", "리본", "A big pink bow on top.", "머리 위에 커다란 분홍 리본!"),
     sb("pwTopHat", "petwear", "head", "Top Hat", "신사 모자", "Very fancy indeed.", "아주 멋진 신사 모자예요."),
@@ -433,6 +459,9 @@
     photoPicnic: 40, photoBeach: 40, photoBirthday: 50, photoPark: 35, photoZoo: 45, photoCamp: 55, photoSnow: 45, photoGrad: 60,
     picMeadow: 0, picSea: 25, picRainbow: 30, picSpace: 35, picFlowers: 25, picKoala: 40, picNight: 35, picBeach: 30,
     toyTeddy: 40, toyBall: 20, toyCar: 30, toyRobot: 55, toyDino: 40, toyBlocks: 30, toyDuck: 20, toyRocket: 45, toyBunny: 35, toyDrum: 30,
+    shampoo: 10, conditioner: 10, soap: 0, toothbrush: 8, toothpaste: 8, handwash: 12, mirror: 20, cupBrush: 8,
+    chocolate: 12, cake: 20, bread: 10, pizza: 18, pasta: 15, meat: 18, veggies: 10, kimchi: 12, eggs: 8, cheese: 10, fruit: 10, iceCream: 15,
+    water: 0, cola: 8, milk: 8, juice: 10,
     pwPartyHat: 15, pwBow: 15, pwTopHat: 30, pwFlowers: 25, pwCollar: 15, pwBell: 20, pwScarf: 25, pwBowTie: 20, pwSweater: 40, pwRaincoat: 40, pwCape: 45, pwBoots: 30, pwSneakers: 30,
   };
   SUB_ITEMS.forEach((x) => { x.cost = SUB_COST[x.id] || 0; });
@@ -523,6 +552,13 @@
       k.ledger.push({ t: (opts && opts.now) != null ? opts.now : Date.now(), n, why });
       if (k.ledger.length > REWARD_CONFIG.ledgerMax) k.ledger.splice(0, k.ledger.length - REWARD_CONFIG.ledgerMax);
     }
+  }
+  // A sale made outside the 2D shop (the 3D house sells its own furniture): put the money in the wallet and the ledger.
+  function creditSale(progress, n, why, opts) {
+    const k = ensureKoala(progress);
+    const refund = (opts && opts.unlimited) ? 0 : Math.max(0, Math.floor(Number(n) || 0));
+    recordSale(k, refund, why, opts);
+    return refund;
   }
   // Sell a bought room / character item back: 80% of its price returns to the coin wallet.
   // Free and streak/badge items can't be sold. The admin has unlimited coins, so gets nothing back.
@@ -966,7 +1002,7 @@
     dateKey, daysBetween, shiftDay, weekKey,
     ensureKoala, awardCoins, spendCoins, adjustCoins, awardLearning, gameCoinMultiplier, learningProgress, awardMission, awardBadge, awardReview, rewardSlice, mergeRewards,
     ITEM_SLOTS, ROOM_SLOTS, ITEMS, isSeasonActive, visibleItems, itemById, itemStatus, buyItem, equipItem, unequipSlot, syncStreakUnlocks, nextReward,
-    SUB_RULES, SUB_PARENTS, SUB_ITEMS, subKind, subById, subItemsFor, subLimit, subSelection, toggleSub, isSubOwned, buySub, sellItem, sellSub, sellValue, SELL_RATE, SUB_COST,
+    SUB_RULES, SUB_PARENTS, SUB_ITEMS, subKind, subById, subItemsFor, subLimit, subSelection, toggleSub, isSubOwned, buySub, sellItem, sellSub, creditSale, sellValue, SELL_RATE, SUB_COST,
     levelInfo,
     ensureStreak, advanceStreak, streakStatus,
   };

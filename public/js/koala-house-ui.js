@@ -129,7 +129,25 @@
   function onResize() { if (!ses) return; fit(ses.root); if (ses.screen === "plan") placeMarker(false); }
 
   /* ------------------------------ modal ------------------------------ */
-  function closeModal() { if (modalEl) { modalEl.remove(); modalEl = null; } if (ses) ses.modal = null; }
+  function closeModal() { if (modalEl) { modalEl.remove(); modalEl = null; } if (ses) ses.modal = null; document.removeEventListener("keydown", modalKey, true); }
+  // Esc closes any popup; Left / Right arrows step to the neighbouring card when the popup has arrow buttons
+  function modalKey(e) {
+    if (!modalEl) return;
+    if (e.key === "Escape") { e.preventDefault(); e.stopImmediatePropagation(); closeModal(); return; }
+    if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && modalEl._nav) { e.preventDefault(); e.stopImmediatePropagation(); modalEl._nav(e.key === "ArrowLeft" ? -1 : 1); }
+  }
+  // the shop card that was just tapped (so its popup can step to the cards next to it)
+  let lastCard = null, lastCardAt = 0;
+  document.addEventListener("click", (e) => {
+    const b = e.target && e.target.closest ? e.target.closest(".kh-items-grid > button.kh-item, .kh-subgrid > button.kh-subitem") : null;
+    if (b) { lastCard = b; lastCardAt = performance.now(); }
+  }, true);
+  function cardNeighbours() {
+    const c = lastCard;
+    if (!c || !c.isConnected || performance.now() - lastCardAt > 600) return null;
+    const list = Array.from(c.parentElement.children).filter((x) => x.tagName === "BUTTON" && !x.disabled);
+    return list.length > 1 ? { list, i: list.indexOf(c) } : null;
+  }
   function modal(html, wire) {
     closeModal();
     const m = el("div", "kh-modal", `<div class="kh-sheet" role="alertdialog" aria-modal="true">${html}</div>`);
@@ -138,6 +156,7 @@
     if (!host) return;
     host.appendChild(m);
     modalEl = m; if (ses) ses.modal = m;
+    document.addEventListener("keydown", modalKey, true);
     if (wire) wire(m);
     const b = m.querySelector("[data-primary]"); if (b) b.focus();
   }
@@ -148,17 +167,50 @@
     const coinsNow = () => (curOpts && curOpts.coins ? curOpts.coins() : Infinity), afford = o.afford != null ? o.afford : o.price === 0 || (curOpts && curOpts.unlimited) || coinsNow() >= o.price;
     const priceHtml = o.own ? "" : `<p class="kh-buy-price">${COIN} <b>${o.price}</b></p><p class="kh-buy-note">${afford ? T("코인으로 살까요? 사도 바로 놓이지 않아요.", "Buy it with your coins? It won't be placed yet.") : T(`코인이 ${o.price - coinsNow()}개 모자라요. 공부하고 코인을 모아 봐요!`, `You need ${o.price - coinsNow()} more coins. Keep studying to earn them!`)}</p>`;
     const note = o.own && o.note ? `<p class="kh-buy-note">${esc(o.note)}</p>` : "";
+    const sellBtn = o.own && o.sell ? `<button type="button" class="kh-btn sell" data-sell>${T("되팔기", "Sell back")}${o.sell.back ? ` <small>+${o.sell.back}</small>` : ""}</button>` : "";
     const btns = o.own
-      ? `<button type="button" class="kh-btn" data-primary data-go>${esc(o.go)}</button><button type="button" class="kh-btn alt" data-no>${T("취소", "Cancel")}</button>`
+      ? `<button type="button" class="kh-btn" data-primary data-go>${esc(o.go)}</button><button type="button" class="kh-btn alt" data-no>${T("취소", "Cancel")}</button>${sellBtn}`
       : `<button type="button" class="kh-btn" data-primary data-yes ${afford ? "" : "disabled"}>${T("살래요", "Buy")}</button><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button>`;
+    const nb = cardNeighbours();
     modal(`<h2>${esc(o.title)}</h2><div class="kh-buy-pic kh-detail-pic${o.own ? "" : " is-locked"}">${o.pic}</div>${priceHtml}${note}<div class="kh-btns">${btns}</div>`, (m) => {
+      if (nb) { // arrow buttons: open the previous / next card of the same list (cards that only show a message are skipped)
+        const step = (dir) => {
+          for (let k = 1; k < nb.list.length; k++) {
+            const cand = nb.list[(nb.i + dir * k + nb.list.length * k) % nb.list.length], before = modalEl;
+            cand.click();
+            if (modalEl && modalEl !== before) return;
+          }
+        };
+        m._nav = step;
+        const sheet = m.querySelector(".kh-sheet");
+        [[-1, "prev", T("이전 아이템", "Previous item"), "m14.5 5.5-6.5 6.5 6.5 6.5"], [1, "next", T("다음 아이템", "Next item"), "m9.5 5.5 6.5 6.5-6.5 6.5"]].forEach(([dir, cls, label, d]) => {
+          const bt = el("button", "kh-navbtn " + cls, `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`);
+          bt.type = "button"; bt.setAttribute("aria-label", label); bt.onclick = () => step(dir); sheet.appendChild(bt);
+        });
+      }
       m.querySelector("[data-no]").onclick = closeModal;
+      const sl = m.querySelector("[data-sell]"); if (sl) sl.onclick = () => sellConfirm(o);
       const go = m.querySelector("[data-go]"); if (go) go.onclick = () => { closeModal(); o.onGo(); };
       const yes = m.querySelector("[data-yes]");
       if (yes) yes.onclick = () => {
         const ok = o.spendFn ? o.spendFn(o.price, o.spendWhy) : curOpts.spend(o.price, o.spendWhy);
         if (!ok) { toast(T("코인이 모자라요", "Not enough coins"), true); closeModal(); return; }
         closeModal(); refreshCoins(); o.onBuy();
+      };
+    });
+  }
+  // Sell back: 80% of the price returns to the wallet (a 20% fee). o.sell = { paid, back, onSell() -> bool }
+  function sellConfirm(o) {
+    const sl = o.sell, free = !!(curOpts && curOpts.unlimited), back = free ? 0 : sl.back, fee = free ? 0 : sl.paid - sl.back;
+    modal(`<h2>${T("되팔까요?", "Sell back?")}</h2><div class="kh-buy-pic kh-detail-pic">${o.pic}</div><p class="kh-buy-name"><b>${esc(o.title)}</b></p>
+      <div class="kh-sellmath"><div><span>${T("산 가격", "Price you paid")}</span><b>${COIN} ${sl.paid}</b></div><div><span>${T("수수료 (20%)", "Fee (20%)")}</span><b>− ${fee}</b></div><div class="total"><span>${T("지갑으로 돌아와요", "Back to your wallet")}</span><b>${COIN} +${back}</b></div></div>
+      ${free ? `<p class="kh-buy-note">${T("관리자는 코인이 무제한이라 환불은 없어요.", "Admin has unlimited coins, so nothing comes back.")}</p>` : ""}
+      <div class="kh-btns"><button type="button" class="kh-btn alt" data-primary data-no>${T("그대로 두기", "Keep it")}</button><button type="button" class="kh-btn sell" data-yes>${T("되팔기", "Sell")}</button></div>`, (m) => {
+      m.querySelector("[data-no]").onclick = closeModal;
+      m.querySelector("[data-yes]").onclick = () => {
+        const ok = sl.onSell();
+        closeModal();
+        if (ok !== false) { refreshCoins(); toast(free ? T("정리했어요", "Removed") : T(`되팔았어요! +${back}코인`, `Sold back! +${back} coins`)); }
       };
     });
   }
@@ -265,7 +317,7 @@
       S.slots[sl] = { type, wall: t.wall, floor: t.floor, items: [] }; ses.justBuilt = sl; save(); renderPlan(); toast(T("새 방이 생겼어요!", "A new room!"));
     });
     if (slot || empties.length === 1) { go(slot || empties[0]); return; }
-    modal(`<h2>${T("어느 칸에 지을까요?", "Which plot?")}</h2><div class="kh-slotpick">${H.SLOTS.map((sl) => { const o = S.slots[sl]; return o ? `<span class="kh-slotcell taken" aria-hidden="true">${H.ROOMS[o.type].ic}</span>` : `<button type="button" class="kh-slotcell" data-slot="${sl}" aria-label="${T("빈 칸", "Empty plot")}">＋</button>`; }).join("")}<span class="kh-slotdoor">🚪 ${T("입구", "Entrance")}</span></div><div class="kh-btns"><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button></div>`, (m) => {
+    modal(`<h2>${T("어느 칸에 지을까요?", "Which plot?")}</h2><div class="kh-slotpick">${H.SLOTS.map((sl) => { const o = S.slots[sl]; return o ? `<span class="kh-slotcell taken" aria-hidden="true">${roomImg(H.ROOMS[o.type])}</span>` : `<button type="button" class="kh-slotcell" data-slot="${sl}" aria-label="${T("빈 칸", "Empty plot")}">＋</button>`; }).join("")}<span class="kh-slotdoor">🚪 ${T("입구", "Entrance")}</span></div><div class="kh-btns"><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button></div>`, (m) => {
       m.querySelector("[data-no]").onclick = closeModal;
       m.querySelectorAll("[data-slot]").forEach((b) => { b.onclick = () => go(b.dataset.slot); });
     });
@@ -718,7 +770,14 @@
           if (at >= 0) sub.splice(at, 1); else { if (sub.length >= 12) { toast(T("옷장이 가득 찼어요", "The wardrobe is full"), true); return; } sub.push(n); }
           it.sub = sub; save(); drawScene(); applySel(); drawPanel();
         };
-        if (st.state === "owned") { detail({ title: nmN, pic, price: 0, own: true, go: (it.sub || []).includes(n) ? T("옷장에서 빼기", "Take out") : T("옷장에 넣기", "Put in"), onGo: toggle }); return; }
+        if (st.state === "owned") { detail({ title: nmN, pic, price: 0, own: true, go: (it.sub || []).includes(n) ? T("옷장에서 빼기", "Take out") : T("옷장에 넣기", "Put in"), onGo: toggle,
+          sell: clothSell(n, () => {
+            const S2 = ses.S;
+            Object.keys(S2.slots).forEach((k) => (S2.slots[k].items || []).forEach((i) => { if (i.sub && i.sub.includes(n)) { i.sub = i.sub.filter((x) => x !== n); if (!i.sub.length) delete i.sub; } }));
+            (S2.yard.items || []).forEach((i) => { if (i.sub && i.sub.includes(n)) { i.sub = i.sub.filter((x) => x !== n); if (!i.sub.length) delete i.sub; } });
+            Object.keys(S2.worn || {}).forEach((k) => { if (S2.worn[k] === n) delete S2.worn[k]; });
+            save(); drawScene(); applySel(); drawPanel(); window.dispatchEvent(new CustomEvent("kh-worn"));
+          }) }); return; }
         if (st.state === "buyable") { detail({ title: nmN, pic, price: st.cost || 0, own: false, afford: true, spendFn: () => true, spendWhy: "", onBuy: () => { if (!wardApi.buy(id2d(n))) { toast(T("코인이 모자라요", "Not enough coins"), true); return; } refreshCoins(); drawPanel(); toast(T("샀어요! 다시 눌러서 넣어 봐요.", "Bought! Tap it again to put it in.")); } }); return; }
         toast(st.cost ? T("코인이 모자라요: ", "Not enough coins: ") + st.cost : st.hint ? T("잠겨 있어요: ", "Locked: ") + st.hint : T("아직 열 수 없어요.", "Not available yet."), true);
       };
@@ -729,8 +788,8 @@
     const d = H.D[it.id], kind = d.subKind, api = curOpts.subs, list = api.list(kind), grp = {}; list.forEach((e) => { grp[e.id] = e.group; });
     const cur = it.sub || [], tabs = tabsFor(ses.roomId === "yard"), cat = (tabs.find((t) => t[0] === d.cat) || [0, 0, T("가구", "Furniture")])[2];
     const icon = (e) => { const v = H.subVis(e.id); return v ? `<span class="kh-subic" style="background:${v[1]}" aria-hidden="true">${v[0]}</span>` : `<span class="kh-subic" style="background:${H.bookColor(e.id)}" aria-hidden="true">📖</span>`; };
-    const groups = Array.from(new Set(list.map((e) => e.group))), gname = { main: "", top: T("책상 위", "On top"), drawer: T("서랍 속", "In the drawer") };
-    const title = { books: T("책장 속 책", "Books on the shelf"), desk: T("책상 위·서랍", "On the desk"), frame: T("액자 그림", "Picture"), toys: T("장난감 상자", "Toys") }[kind] || nm(d);
+    const groups = Array.from(new Set(list.map((e) => e.group))), gname = { main: "", top: T("책상 위", "On top"), drawer: T("서랍 속", "In the drawer"), food: T("음식", "Food"), drink: T("음료", "Drinks") };
+    const title = { books: T("책장 속 책", "Books on the shelf"), desk: T("책상 위·서랍", "On the desk"), frame: T("액자 그림", "Picture"), toys: T("장난감 상자", "Toys"), sink: T("세면대 위 물건", "On the sink"), fridge: T("냉장고 속 음식", "In the fridge") }[kind] || nm(d);
     const note = kind === "books" && !it.sub ? T("지금은 기본 책이 꽂혀 있어요. 골라 넣으면 바뀌어요.", "Default books for now — pick some to replace them.") : T("눌러서 넣고 빼요. 코인으로 새 물건도 살 수 있어요.", "Tap to put in or take out. New things cost coins.");
     panel.innerHTML = `<nav class="kh-crumbs" aria-label="${T("현재 위치", "You are here")}"><button type="button" class="kh-up" data-up aria-label="${T("상위로", "Up one level")}">${ic("up")}</button>
       <button type="button" class="kh-crumb" data-up>${esc(cat)}</button><span class="kh-sep">${ic("chev")}</span><span class="kh-crumb cur">${esc(nm(d))}</span></nav>
@@ -753,7 +812,7 @@
           }
           it.sub = sub; save(); drawScene(); drawPanel();
         };
-        detail({ title: T(e.name[0], e.name[1]), pic: icon(e), price: e.cost, own: e.owned, go: on ? T("빼기", "Take out") : kind === "frame" ? T("걸기", "Hang it") : T("넣기", "Put in"), spendWhy: "sub:" + e.id, spendFn: () => api.buy(e.id), onGo: toggle,
+        detail({ title: T(e.name[0], e.name[1]), pic: icon(e), price: e.cost, own: e.owned, sell: e.owned && e.cost > 0 && api.sell ? { paid: e.cost, back: Math.floor(e.cost * 0.8), onSell: () => { const ok = api.sell(e.id); if (ok) { e.owned = false; Object.keys(ses.S.slots).forEach((k) => (ses.S.slots[k].items || []).forEach((i) => { if (i.sub) { i.sub = i.sub.filter((x) => x !== e.id); if (!i.sub.length) delete i.sub; } })); (ses.S.yard.items || []).forEach((i) => { if (i.sub) i.sub = i.sub.filter((x) => x !== e.id); }); save(); drawScene(); drawPanel(); } return ok; } } : null, go: on ? T("빼기", "Take out") : kind === "frame" ? T("걸기", "Hang it") : T("넣기", "Put in"), spendWhy: "sub:" + e.id, spendFn: () => api.buy(e.id), onGo: toggle,
           onBuy: () => { e.owned = true; drawPanel(); toast(T("샀어요! 다시 눌러서 넣어 봐요.", "Bought! Tap it again to put it in.")); } });
       };
     });
@@ -958,6 +1017,17 @@
     const apply = () => { if (mark) mark(); ses.S.yard = plan.y; save(); drawScene(); drawPanel(); placeKoalaFree(); updateKoala(); };
     if (plan.price > 0) buy(plan.label, `<span class="kh-buy-thumb">🏡</span>`, plan.price, plan.why, apply); else apply();
   }
+  // sell a piece of furniture: every copy placed in any room / the yard goes with it
+  function sellHouseItem(id) {
+    const S = ses.S, d = H.D[id];
+    if (!d || !S.owned[id]) return false;
+    delete S.owned[id];
+    Object.keys(S.slots).forEach((k) => { S.slots[k].items = (S.slots[k].items || []).filter((i) => i.id !== id); });
+    if (S.yard) S.yard.items = (S.yard.items || []).filter((i) => i.id !== id);
+    if (curOpts.refund) curOpts.refund(Math.floor(d.price * 0.8), "housesell:" + id);
+    ses.sel = null; save(); recalcZ(curState()); drawScene(); drawPanel(); hideMenu();
+    return true;
+  }
   function wireGrid(grid, yard) {
     const S = ses.S;
     grid.querySelectorAll("[data-item]").forEach((b) => {
@@ -973,7 +1043,9 @@
       b.addEventListener("click", () => {
         if (b._dragged) { b._dragged = false; return; }
         const id = b.dataset.item, d = H.D[id];
+        const sellable = ownedItem(d) && d.price > 0 && !H.STARTER_OWNED.includes(id);
         detail({ title: nm(d), pic: H.thumbSvg(id), price: d.price, own: ownedItem(d), go: T("배치하기", "Place"), spendWhy: "house:" + id,
+          sell: sellable ? { paid: d.price, back: Math.floor(d.price * 0.8), onSell: () => sellHouseItem(id) } : null,
           onGo: () => { placeNew(id); placeKoalaFree(); updateKoala(); },
           onBuy: () => { S.owned[id] = 1; save(); drawPanel(); toast(T("샀어요! 다시 눌러서 놓아 봐요.", "Bought! Tap it again to place it.")); } });
       });
@@ -1021,8 +1093,16 @@
   }
   let wardSlot = "hat";
   let wardOwned = false, wardApi = null, wardMsg = "";
-  const ID2D_OVR = { glasses: "roundGlasses", scarf: "redScarf", bunnyslippers: "slippers", soccercleats: "soccerBoots" };
+  const ID2D_OVR = { glasses: "roundGlasses", scarf: "redScarf", bunnyslippers: "slippers", soccercleats: "soccerBoots", cateye: "catEyeGlasses" };
   const id2d = (n) => ID2D_OVR[n] || (window.KoalaCore ? (KoalaCore.ITEMS.find((i) => i.id.toLowerCase() === n) || {}).id : n) || n;
+  // sell a 3D outfit piece back (it is the same purchase as the Sticker one). Returns the "sell" part of a detail popup, or null.
+  function clothSell(n, after) {
+    if (!wardApi || !wardApi.sell || !curOpts) return null;
+    const st = wardApi.status(id2d(n));
+    if (!st || st.state !== "owned" || !(st.paid > 0 || curOpts.unlimited)) return null;
+    const paid = st.paid || 0;
+    return { paid, back: Math.floor(paid * 0.8), onSell: () => { const ok = wardApi.sell(id2d(n)); if (ok && after) after(); return ok; } };
+  }
   window.KoalaHouse.setWardApi = (a) => { wardApi = a || null; };
   window.KoalaHouse.setWardOwned = (v) => { wardOwned = !!v; };
   function mountWardrobe(root, opts) {
@@ -1063,7 +1143,8 @@
       root.querySelectorAll("[data-wear]").forEach((b) => { b.onclick = () => {
         const [slot, n] = b.dataset.wear.split(":"); const st = stOf(n), nmN = T(KNAME[n][0], KNAME[n][1]), pic = `<img src="${kthumb(n)}" alt="" draggable="false">`;
         const wearIt = () => { if (S.worn[slot] === n) delete S.worn[slot]; else S.worn[slot] = n; H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); };
-        if (st.state === "owned") { detail({ title: nmN, pic, price: 0, own: true, go: S.worn[slot] === n ? T("벗기", "Take off") : T("입기", "Wear"), onGo: wearIt }); return; }
+        if (st.state === "owned") { detail({ title: nmN, pic, price: 0, own: true, go: S.worn[slot] === n ? T("벗기", "Take off") : T("입기", "Wear"), onGo: wearIt,
+          sell: clothSell(n, () => { Object.keys(S.worn).forEach((k) => { if (S.worn[k] === n) delete S.worn[k]; }); H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); }) }); return; }
         if (st.state === "buyable") { detail({ title: nmN, pic, price: st.cost || 0, own: false, afford: true, spendFn: () => true, spendWhy: "", onBuy: () => { if (!wardApi.buy(id2d(n))) { toast(T("코인이 모자라요", "Not enough coins"), true); draw(); return; } wardMsg = ""; draw(); toast(T("샀어요! 다시 눌러서 입어 봐요.", "Bought! Tap it again to wear it.")); } }); return; }
         wardMsg = st.cost ? T("코인이 모자라요: ", "Not enough coins: ") + st.cost : st.hint ? T("잠겨 있어요: ", "Locked: ") + st.hint : T("아직 열 수 없어요.", "Not available yet."); draw();
       }; });

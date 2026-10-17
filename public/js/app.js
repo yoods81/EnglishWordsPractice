@@ -15836,6 +15836,7 @@ function koalaHistoryHtml(k) {
     if (w.startsWith("item:")) { const it = KoalaCore.itemById(w.slice(5)); return "🛒 " + (it ? koalaItemName(it) : w) + rwL(" (bought)", " 구매"); }
     if (w.startsWith("sub:")) return "🛒 " + subName(w.slice(4)) + rwL(" (bought)", " 구매");
     if (w.startsWith("sell:")) { const it = KoalaCore.itemById(w.slice(5)); return "💰 " + (it ? koalaItemName(it) : w) + rwL(" (sold back, 80%)", " 되팔기 (80%)"); }
+    if (w.startsWith("housesell:")) { const hd = window.KoalaHouse && KoalaHouse.D && KoalaHouse.D[w.slice(10)]; return "💰 " + (hd ? hd.name[currentLang === "ko" ? 0 : 1] : w.slice(10)) + rwL(" (sold back, 80%)", " 되팔기 (80%)"); }
     if (w.startsWith("sellsub:")) return "💰 " + subName(w.slice(8)) + rwL(" (sold back, 80%)", " 되팔기 (80%)");
     return labels[why] || why;
   };
@@ -15872,7 +15873,18 @@ function koalaHouseOpts() {
       if (ok) saveProgress();
       return !!ok;
     },
+    refund: (n, why) => {
+      if (free) return;
+      KoalaCore.creditSale(progress, n, why, opts);
+      saveProgress();
+    },
     subs: {
+      sell: (id) => {
+        const res = KoalaCore.sellSub(progress, id, opts);
+        if (!res.ok) return false;
+        saveProgress();
+        return true;
+      },
       list: (kind) => KoalaCore.SUB_ITEMS.filter((x) => x.kind === kind).map((x) => ({
         id: x.id, name: [x.name.ko, x.name.en], cost: x.cost || 0, group: x.group,
         owned: !x.cost || KoalaCore.isSubOwned(progress, x.id),
@@ -15958,10 +15970,16 @@ function koalaSetWardApi() {
       const it = KoalaCore.itemById(id);
       if (!it) return { state: "locked", hint: "?" };
       const st = KoalaCore.itemStatus(progress, it, koalaOpts());
-      if (st.state === "equipped" || st.state === "owned") return { state: "owned" };
+      if (st.state === "equipped" || st.state === "owned") return { state: "owned", paid: it.unlock && it.unlock.coins || 0 };
       if (st.state === "buyable") return { state: "buyable", cost: st.cost || 0 };
       const hint = st.need === "badge" ? rwL("Badge", "배지") : st.need === "streak" ? rwL(`${st.days}-day streak`, `${st.days}일 연속`) : st.need === "season" ? rwL("Seasonal", "시즌 한정") : `💰 ${st.cost}`;
       return { state: "locked", hint, cost: st.cost };
+    },
+    sell: (id) => {
+      const res = KoalaCore.sellItem(progress, id, koalaOpts());
+      if (!res.ok) return false;
+      checkBadges(); saveProgress();
+      return true;
     },
     buy: (id) => {
       const it = KoalaCore.itemById(id);

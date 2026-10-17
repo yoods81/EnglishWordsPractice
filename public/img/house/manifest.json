@@ -1,14 +1,14 @@
 {
  "bedBlue": {
   "src": "/img/house/bedBlue.webp",
-  "wpx": 67,
+  "wpx": 147,
   "ratio": 0.931,
   "ax": 0.5,
   "ay": 0.359
  },
  "sofaRed": {
   "src": "/img/house/sofaRed.webp",
-  "wpx": 74,
+  "wpx": 118,
   "ratio": 0.84,
   "ax": 0.5,
   "ay": 0.485
@@ -29,28 +29,28 @@
  },
  "bedPink": {
   "src": "/img/house/bedPink.webp",
-  "wpx": 66,
+  "wpx": 147,
   "ratio": 0.935,
   "ax": 0.5,
   "ay": 0.352
  },
  "bedMint": {
   "src": "/img/house/bedMint.webp",
-  "wpx": 68,
+  "wpx": 147,
   "ratio": 0.906,
   "ax": 0.5,
   "ay": 0.351
  },
  "sofaBlue": {
   "src": "/img/house/sofaBlue.webp",
-  "wpx": 77,
+  "wpx": 118,
   "ratio": 0.808,
   "ax": 0.5,
   "ay": 0.486
  },
  "sofaGreen": {
   "src": "/img/house/sofaGreen.webp",
-  "wpx": 79,
+  "wpx": 118,
   "ratio": 0.781,
   "ax": 0.5,
   "ay": 0.482
@@ -120,21 +120,21 @@
  },
  "deskWood": {
   "src": "/img/house/deskWood.webp",
-  "wpx": 64,
+  "wpx": 88,
   "ratio": 0.975,
   "ax": 0.5,
   "ay": 0.615
  },
  "deskWhite": {
   "src": "/img/house/deskWhite.webp",
-  "wpx": 67,
+  "wpx": 88,
   "ratio": 0.921,
   "ax": 0.5,
   "ay": 0.611
  },
  "deskBlue": {
   "src": "/img/house/deskBlue.webp",
-  "wpx": 75,
+  "wpx": 88,
   "ratio": 0.831,
   "ax": 0.5,
   "ay": 0.615
@@ -155,7 +155,7 @@
  },
  "tvStand": {
   "src": "/img/house/tvStand.webp",
-  "wpx": 56,
+  "wpx": 118,
   "ratio": 1.069,
   "ax": 0.5,
   "ay": 0.599
@@ -169,7 +169,7 @@
  },
  "counter": {
   "src": "/img/house/counter.webp",
-  "wpx": 68,
+  "wpx": 88,
   "ratio": 0.906,
   "ax": 0.5,
   "ay": 0.611
@@ -183,7 +183,7 @@
  },
  "bathtub": {
   "src": "/img/house/bathtub.webp",
-  "wpx": 51,
+  "wpx": 118,
   "ratio": 0.981,
   "ax": 0.5,
   "ay": 0.52
@@ -197,7 +197,7 @@
  },
  "vanity": {
   "src": "/img/house/vanity.webp",
-  "wpx": 52,
+  "wpx": 88,
   "ratio": 1.185,
   "ax": 0.5,
   "ay": 0.74

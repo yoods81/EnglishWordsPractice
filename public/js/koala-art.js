@@ -643,6 +643,8 @@
     ROOM_ART[petId].build = (sel) => base + wearSvg(petId, sel);
   });
   // Small picture of one sub-item for cards and the detail popup.
+  // things for the 3D house's sink and fridge (no flat drawing; an emoji stands in)
+  const HOUSE_SUB_EMOJI = { shampoo: "🧴", conditioner: "🧴", soap: "🧼", toothbrush: "🪥", toothpaste: "🦷", handwash: "🫧", mirror: "🪞", cupBrush: "🥛", chocolate: "🍫", cake: "🍰", bread: "🍞", pizza: "🍕", pasta: "🍝", meat: "🥩", veggies: "🥦", kimchi: "🥬", eggs: "🥚", cheese: "🧀", fruit: "🍎", iceCream: "🍦", water: "💧", cola: "🥤", milk: "🥛", juice: "🧃" };
   function subIcon(id) {
     const head = `<svg class="koala-icon-svg koala-sub-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" `;
     if (BOOK_DEF[id]) return `${head}viewBox="0 0 40 40">${bigBook(id)}</svg>`;
@@ -650,6 +652,7 @@
     if (PIC_ART[id]) return `${head}viewBox="-2 -2 60 44"><g>${PIC_ART[id]}</g><rect x="0" y="0" width="56" height="40" fill="none" stroke="#b9824f" stroke-width="3"/></svg>`;
     if (PW_ART[id]) return `${head}viewBox="-1 -1 26 26">${PW_ART[id]}</svg>`;
     const art = TOY_ART[id] || DESK_ART[id];
+    if (!art && HOUSE_SUB_EMOJI[id]) return `${head}viewBox="0 0 40 40"><text x="20" y="31" font-size="30" text-anchor="middle" style="font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif">${HOUSE_SUB_EMOJI[id]}</text></svg>`;
     return art ? `${head}viewBox="-3 -1 26 27">${art}</svg>` : "";
   }
 
