@@ -380,10 +380,12 @@
     m = ((m | 0) % 4 + 4) % 4;
     return m === 2 ? [0, -TUCK] : m === 3 ? [-TUCK, 0] : [0, 0];
   }
+  // garden things were drawn too small next to the big house pictures: their pictures are drawn this much larger (the footprint stays)
+  const OUT_SCALE = { treeApple: 2, treeCherry: 2, treeMaple: 2, treePine: 2, bush: 1.8, flowerBed: 1.5, tulips: 1.5, pond: 1.3, bench: 1.6, swing: 1.6, gardenLamp: 2, mailbox: 2, sandbox: 1.3, doghouse: 1.7, fountain: 1.5, snowman: 2, rock: 1.8, gate: 1.5, hedge: 1.4, car: 1.3 };
   function pictureSvg(id, o, m, noSh, open) {
     const e = open && !(m & 2) && MANIFEST[id + "@o"] || (m & 2) && MANIFEST[id + "@b"] || MANIFEST[id];   // turned to face away (m = 2, 3): the picture from behind, when there is one
     if (!e || !e.src) return "";
-    const w = e.wpx || 120, h = w * (e.ratio || 1), ax = e.ax != null ? e.ax : 0.5, ay = e.ay != null ? e.ay : 0.85;
+    const w = (e.wpx || 120) * (OUT_SCALE[id] || 1), h = w * (e.ratio || 1), ax = e.ax != null ? e.ax : 0.5, ay = e.ay != null ? e.ay : 0.85;
     const tk = tuckOf(id, m);
     const mir = !!(m & 1) !== !!e.flip;   // flip: the picture was drawn along the other floor axis, so it is mirrored the other way round
     const [cx, cy] = proj(o.w / 2 + tk[0], o.d / 2 + tk[1], 0);
@@ -570,7 +572,7 @@
     cabin: { n: ["통나무집", "Log Cabin"], w: 6, d: 4, p: 120 },
     castle: { n: ["동화 성", "Fairy Castle"], w: 8, d: 5, p: 400 },
   };
-  const YARD_SIZES = { normal: { n: ["보통 마당", "Normal"], C: 14, R: 12, p: 0 }, wide: { n: ["넓은 마당", "Wide"], C: 18, R: 12, p: 120 }, large: { n: ["아주 넓은 마당", "Large"], C: 18, R: 16, p: 250 } };
+  const YARD_SIZES = { normal: { n: ["보통 마당", "Normal"], C: 14, R: 12, p: 0 }, wide: { n: ["넓은 마당", "Wide"], C: 18, R: 12, p: 120 }, large: { n: ["아주 넓은 마당", "Large"], C: 18, R: 16, p: 250 }, huge: { n: ["드넓은 마당", "Huge"], C: 22, R: 18, p: 400 }, giant: { n: ["끝없는 마당", "Giant"], C: 26, R: 22, p: 600 } };
   const BORDERS = { none: ["없음", "None"], fence: ["하얀 울타리", "White Fence"], hedge: ["생울타리", "Hedge"], stone: ["돌담", "Stone Wall"] };
   const PATHS = { none: ["없음", "None"], stones: ["징검다리", "Stepping Stones"], brick: ["벽돌길", "Brick Path"], plank: ["나무길", "Plank Path"] };
   const GARDEN_PRESETS = {

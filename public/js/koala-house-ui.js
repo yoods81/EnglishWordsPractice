@@ -190,12 +190,13 @@
       }
       m.querySelector("[data-no]").onclick = closeModal;
       const sl = m.querySelector("[data-sell]"); if (sl) sl.onclick = () => sellConfirm(o);
-      const go = m.querySelector("[data-go]"); if (go) go.onclick = () => { closeModal(); o.onGo(); };
+      const go = m.querySelector("[data-go]"); if (go) go.onclick = () => { if (!o.keep) closeModal(); o.onGo(); };
       const yes = m.querySelector("[data-yes]");
       if (yes) yes.onclick = () => {
         const ok = o.spendFn ? o.spendFn(o.price, o.spendWhy) : curOpts.spend(o.price, o.spendWhy);
         if (!ok) { toast(T("코인이 모자라요", "Not enough coins"), true); closeModal(); return; }
-        closeModal(); refreshCoins(); o.onBuy();
+        refreshCoins(); o.onBuy();   // the popup stays open: it now offers the thing to place / wear
+        if (o.go && o.onGo) detail(Object.assign({}, o, { own: true, price: 0, sell: null })); else closeModal();
       };
     });
   }
@@ -725,7 +726,7 @@
     if (ses.sel === "house") {
       const y = JSON.parse(JSON.stringify(ses.S.yard)); y.house = y.house || {};
       if (act === "rot" || act === "rotl") { y.house.rot = y.house.rot ? 0 : 1; y.house.shift = 0; }
-      else if (act === "hl" || act === "hr") y.house.shift = (y.house.shift || 0) + (act === "hr" ? 1 : -1);
+      else if (act === "hl" || act === "hr") y.house.shift = (y.house.shift || 0) + (act === "hr" ? 1 : -1) * (y.house.rot ? -1 : 1);   // turned, the house slides along the other axis: keep "right" on the right of the screen
       const before = H.houseRect(ses.S.yard), after = H.houseRect(y);
       if (before.c0 === after.c0 && before.r0 === after.r0 && before.rot === after.rot) { toast(T("더 못 움직여요", "It can't go further"), true); return; }
       if (!yardValid(y)) { toast(T("집 자리에 있는 물건을 먼저 치워요", "Move the things in the way first"), true); return; }
@@ -1064,7 +1065,7 @@
         if (b._dragged) { b._dragged = false; return; }
         const id = b.dataset.item, d = H.D[id];
         const sellable = ownedItem(d) && d.price > 0 && !H.STARTER_OWNED.includes(id);
-        detail({ title: nm(d), pic: H.thumbSvg(id), price: d.price, own: ownedItem(d), go: T("배치하기", "Place"), spendWhy: "house:" + id,
+        detail({ title: nm(d), pic: H.thumbSvg(id), price: d.price, own: ownedItem(d), go: T("배치하기", "Place"), keep: true, spendWhy: "house:" + id,
           sell: sellable ? { paid: d.price, back: Math.floor(d.price * 0.8), onSell: () => sellHouseItem(id) } : null,
           onGo: () => { placeNew(id); placeKoalaFree(); updateKoala(); },
           onBuy: () => { S.owned[id] = 1; save(); drawPanel(); toast(T("샀어요! 다시 눌러서 놓아 봐요.", "Bought! Tap it again to place it.")); } });
