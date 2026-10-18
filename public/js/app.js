@@ -4641,7 +4641,15 @@ function showNotice(kind, title, text) {
   noticeOverlay.hidden = false;
   document.getElementById("notice-ok-btn").focus();
 }
-document.getElementById("notice-ok-btn").addEventListener("click", () => { noticeOverlay.hidden = true; });
+// Something that should open right after the current notice is dismissed
+// (e.g. the "Good to know" popup after a Premium payment), so popups never stack.
+let afterNoticeHook = null;
+document.getElementById("notice-ok-btn").addEventListener("click", () => {
+  noticeOverlay.hidden = true;
+  const hook = afterNoticeHook;
+  afterNoticeHook = null;
+  if (hook) hook();
+});
 
 function setAuthMode(mode) {
   hidePasswords(document.getElementById("auth-overlay") || document);
@@ -4936,14 +4944,19 @@ function renderDataCard(account) {
   document.getElementById("my-account-data-title").textContent = "🗂️ " + rwL("What is saved", "저장되는 내용");
   document.getElementById("my-account-data-rows").innerHTML = dataNoteHtml(dataNoteRows(account.role));
 }
-function maybeShowDataNote() {
-  if (!currentUser || currentUser.role !== "free") return;
+function maybeShowDataNote(opts) {
+  if (!currentUser || currentUser.role === "admin") return;
+  // A new Premium sign-up is still on its way to checkout: this popup comes
+  // after payment, never before it.
+  if (premiumSignupPending()) return;
+  // Premium members only see it right after paying (opts.allowPaid).
+  if (currentUser.role !== "free" && !(opts && opts.allowPaid)) return;
   const key = "ywp_datanote_seen_" + currentUser.id;
   try { if (localStorage.getItem(key)) return; } catch (e) { return; }
   const ov = document.getElementById("datanote-overlay");
   if (!ov) return;
   document.getElementById("datanote-title").textContent = rwL("Good to know", "알려드려요");
-  document.getElementById("datanote-rows").innerHTML = dataNoteHtml(dataNoteRows("free"));
+  document.getElementById("datanote-rows").innerHTML = dataNoteHtml(dataNoteRows(currentUser.role));
   document.getElementById("datanote-ok-btn").textContent = rwL("Got it", "알겠어요");
   ov.hidden = false;
   document.getElementById("datanote-ok-btn").onclick = () => { ov.hidden = true; try { localStorage.setItem(key, "1"); } catch (e) { /* ignore */ } };
@@ -5354,6 +5367,7 @@ setTimeout(async function handleCheckoutReturn() {
     if (currentUser && currentUser.role === "paid") {
       setPremiumSignupPending(false);
       refreshAfterPlanChange();
+      afterNoticeHook = () => maybeShowDataNote({ allowPaid: true });
       showNotice("welcome", rwL("Welcome to Premium!", "프리미엄에 오신 걸 환영해요!"), rwL("Your payment went through and Premium is on.", "결제가 완료되어 프리미엄이 켜졌어요."));
       return;
     }
@@ -5560,7 +5574,7 @@ signupForm.addEventListener("submit", async (e) => {
     refreshSharedWords();
     koalaAfterLogin();
     if (goPay) {
-      postSignupNotice = () => { setPremiumSignupPending(false); refreshVerifyGate(); welcome(); };
+      postSignupNotice = () => { setPremiumSignupPending(false); refreshVerifyGate(); afterNoticeHook = () => maybeShowDataNote(); welcome(); };
       openPlanOverlay();
       return;
     }
