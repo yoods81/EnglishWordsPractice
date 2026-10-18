@@ -1657,3 +1657,20 @@ html:root body #view-myaccount .acct-upg-line[hidden] { display: none; }
 
 /* Round 27: the "are you sure?" popup must sit above the admin customer sheet (both are kid-modal overlays) */
 html:root body #kid-confirm-overlay { z-index: 1400; }
+
+/* Round 28: free members' menu row, and the "switch to free" / "close account" popups in the login-popup style */
+html:root body #auth-menu-premium-btn { display: flex; align-items: center; gap: 10px; font-weight: 800; color: #8a5a00; }
+html:root body #auth-menu-premium-btn[hidden] { display: none; }
+html:root body #auth-menu-premium-btn .auth-menu-ico { fill: #ffc93c; stroke: #d99a00; }
+html:root[data-theme="dark"] body #auth-menu-premium-btn { color: #ffd77a; }
+.pay-title-wrap { white-space: normal; }
+.pay-go + .pay-danger, .pay-go + .pay-cancel { margin-top: 8px; }
+.pay-danger { display: block; width: 100%; min-height: 48px; border: 0; border-radius: 16px; background: #ffe3e3; color: #b42318; font-family: var(--font-heading); font-size: 1rem; font-weight: 800; white-space: nowrap; cursor: pointer; }
+.pay-danger:hover:not(:disabled) { background: #ffd1d1; }
+.pay-danger:disabled { opacity: .6; cursor: default; }
+html[data-theme="dark"] .pay-danger { background: #4a2626; color: #ffb4ab; }
+html[data-theme="dark"] .pay-danger:hover:not(:disabled) { background: #5a2d2d; }
+.pay-field { margin: 0 0 14px; text-align: left; }
+.pay-field label { display: block; margin: 0 0 6px; font-size: .84rem; font-weight: 700; color: var(--text); }
+.pay-field input { width: 100%; box-sizing: border-box; }
+.pay-brand-name + .pay-brand-tag { margin-top: -4px; }

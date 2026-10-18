@@ -200,6 +200,53 @@ export const templates = {
     ].join("\n");
     return { subject: `[${BRAND}] ${L.title} / ${ko ? "Weekly report" : "주간 리포트"} · ${str(r.range, 40)}`, text, html };
   },
+  // Sent once, when a Premium payment goes through. The invoice links come from Stripe.
+  premiumWelcome({ username, interval, amountText, nextDateText, invoiceUrl, pdfUrl, number, appUrl }) {
+    const u = escapeHtml(username);
+    const planKo = interval === "year" ? "연간" : "월간";
+    const planEn = interval === "year" ? "Yearly" : "Monthly";
+    const plain = (parts) => parts.filter(Boolean);
+    const koLines = plain([
+      `결제 내용: 프리미엄 ${planKo} 요금제${amountText ? ` · ${amountText}` : ""}`,
+      nextDateText ? `다음 결제일: ${nextDateText}` : "",
+    ]);
+    const enLines = plain([
+      `Payment: Premium ${planEn} plan${amountText ? ` · ${amountText}` : ""}`,
+      nextDateText ? `Next payment: ${nextDateText}` : "",
+    ]);
+    const cancelKo = "구독은 내 계정에서 언제든 해지할 수 있고, 결제한 기간이 끝날 때까지는 프리미엄이 유지돼요.";
+    const cancelEn = "You can cancel any time in My Account and keep Premium until the period you paid for ends.";
+    const pdfKo = pdfUrl ? ` <a href="${escapeHtml(pdfUrl)}">인보이스 PDF 내려받기</a>` : "";
+    const pdfEn = pdfUrl ? ` <a href="${escapeHtml(pdfUrl)}">Download the invoice PDF</a>` : "";
+    const invLabel = number ? ` ${number}` : "";
+    const text = [
+      `${username}님, 프리미엄에 가입해 주셔서 감사해요!`,
+      ...koLines,
+      `인보이스${invLabel}: ${invoiceUrl || "내 계정에서 확인할 수 있어요"}`,
+      pdfUrl ? `PDF: ${pdfUrl}` : "",
+      cancelKo,
+      appUrl || "",
+      "",
+      "---",
+      `Hi ${username}, thank you for joining Premium!`,
+      ...enLines,
+      `Invoice${invLabel}: ${invoiceUrl || "available in My Account"}`,
+      pdfUrl ? `PDF: ${pdfUrl}` : "",
+      cancelEn,
+    ].filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n");
+    const button = invoiceUrl
+      ? { url: invoiceUrl, label: "인보이스 보기 / View invoice" }
+      : appUrl ? { url: appUrl, label: "사이트 열기 / Open the site" } : null;
+    return {
+      subject: `[${BRAND}] 프리미엄 결제가 완료됐어요 / Your Premium payment is confirmed`,
+      text,
+      html: layout(
+        [`<b>${u}</b>님, 프리미엄에 가입해 주셔서 감사해요! 🎉`, ...koLines.map(escapeHtml), `인보이스${escapeHtml(invLabel)}는 아래 버튼에서 볼 수 있어요.${pdfKo}`, cancelKo],
+        [`Hi <b>${u}</b>, thank you for joining Premium!`, ...enLines.map(escapeHtml), `Your invoice${escapeHtml(invLabel)} is behind the button above.${pdfEn}`, cancelEn],
+        button
+      ),
+    };
+  },
   test() {
     return {
       subject: `[${BRAND}] 테스트 메일 / Test email`,

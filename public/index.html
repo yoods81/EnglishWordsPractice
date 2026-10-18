@@ -324,33 +324,39 @@
   </div>
 
   <!-- Premium -> Free: confirm before the subscription is set to end. -->
-  <div id="sub-cancel-overlay" class="kid-modal-overlay" hidden>
-    <div class="kid-modal-card" role="dialog" aria-modal="true" aria-labelledby="sub-cancel-title">
-      <div class="kid-modal-icon" aria-hidden="true"><img src="favicon.svg?v=4" alt="" width="64" height="64"></div>
-      <div class="kid-modal-brand" id="sub-cancel-title"></div>
-      <p class="kid-modal-message" id="sub-cancel-message"></p>
-      <p class="auth-error" id="sub-cancel-error" hidden></p>
-      <div class="kid-modal-actions">
-        <button type="button" class="pill error kid-modal-btn" id="sub-cancel-ok-btn"></button>
-        <button type="button" class="pill neutral kid-modal-btn" id="sub-cancel-back-btn"></button>
+  <div id="sub-cancel-overlay" class="pay-overlay" hidden>
+    <div class="pay-card" role="dialog" aria-modal="true" aria-labelledby="sub-cancel-title">
+      <div class="pay-brand">
+        <img class="pay-brand-logo" src="favicon.svg?v=4" alt="" width="92" height="92">
+        <h3 class="pay-brand-name">Koala Study Mate</h3>
+      </div>
+      <div class="pay-main">
+        <h2 class="pay-title pay-title-wrap" id="sub-cancel-title"></h2>
+        <p class="pay-message" id="sub-cancel-message"></p>
+        <p class="auth-error" id="sub-cancel-error" hidden></p>
+        <button type="button" class="pay-go" id="sub-cancel-back-btn"></button>
+        <button type="button" class="pay-danger" id="sub-cancel-ok-btn"></button>
       </div>
     </div>
   </div>
 
   <!-- Close my account: password re-entered, then everything is erased. -->
-  <div id="delete-account-overlay" class="kid-modal-overlay" hidden>
-    <form class="kid-modal-card" id="delete-account-form" role="dialog" aria-modal="true" aria-labelledby="delete-account-title" novalidate>
-      <div class="kid-modal-icon" aria-hidden="true"><img src="favicon.svg?v=4" alt="" width="64" height="64"></div>
-      <div class="kid-modal-brand" id="delete-account-title"></div>
-      <p class="kid-modal-message" id="delete-account-message"></p>
-      <div class="auth-form delete-account-field">
-        <label for="delete-account-password" id="delete-account-password-label"></label>
-        <input id="delete-account-password" type="password" autocomplete="current-password" data-no-autofill />
-        <p class="auth-error" id="delete-account-error" hidden></p>
+  <div id="delete-account-overlay" class="pay-overlay" hidden>
+    <form class="pay-card" id="delete-account-form" role="dialog" aria-modal="true" aria-labelledby="delete-account-title" novalidate>
+      <div class="pay-brand">
+        <img class="pay-brand-logo" src="favicon.svg?v=4" alt="" width="92" height="92">
+        <h3 class="pay-brand-name">Koala Study Mate</h3>
       </div>
-      <div class="kid-modal-actions">
-        <button type="submit" class="pill error kid-modal-btn" id="delete-account-ok-btn"></button>
-        <button type="button" class="pill neutral kid-modal-btn" id="delete-account-back-btn"></button>
+      <div class="pay-main">
+        <h2 class="pay-title pay-title-wrap" id="delete-account-title"></h2>
+        <p class="pay-message" id="delete-account-message"></p>
+        <div class="auth-form delete-account-field pay-field">
+          <label for="delete-account-password" id="delete-account-password-label"></label>
+          <input id="delete-account-password" type="password" autocomplete="current-password" data-no-autofill />
+          <p class="auth-error" id="delete-account-error" hidden></p>
+        </div>
+        <button type="button" class="pay-go" id="delete-account-back-btn"></button>
+        <button type="submit" class="pay-danger" id="delete-account-ok-btn"></button>
       </div>
     </form>
   </div>
@@ -428,6 +434,7 @@
       <button id="auth-toggle" class="auth-toggle" type="button">🔑 Log In</button>
       <div id="auth-menu" class="auth-menu" hidden>
         <div id="auth-menu-koala" class="auth-koala"></div>
+        <button type="button" id="auth-menu-premium-btn" hidden><svg class="auth-menu-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2l2.7 5.6 6.1.8-4.5 4.2 1.2 6.1L12 16.9l-5.5 3 1.2-6.1-4.5-4.2 6.1-.8z"/></svg><span data-i18n="payBtn">Join Premium</span></button>
         <button type="button" id="auth-menu-account-btn"><svg class="auth-menu-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.25"/><circle cx="12" cy="9.5" r="3.2"/><path d="M5.8 18.6c1.4-2.6 3.8-3.9 6.2-3.9s4.8 1.3 6.2 3.9"/></svg><span data-i18n="myAccountMenuItem">My Account</span></button>
         <button type="button" id="auth-menu-child-btn" hidden><span class="auth-menu-ico auth-menu-child-ico" aria-hidden="true">🐨</span><span class="auth-menu-child-label"></span></button>
         <button type="button" id="auth-menu-logout-btn"><svg class="auth-menu-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4.5H6.5a1.5 1.5 0 0 0-1.5 1.5v12a1.5 1.5 0 0 0 1.5 1.5H10"/><path d="M15 8l4 4-4 4"/><path d="M19 12H9.5"/></svg><span data-i18n="authLogoutBtn">Log Out</span></button>

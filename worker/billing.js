@@ -15,6 +15,8 @@
 // Secrets / vars (see README): STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
 // STRIPE_PRICE_MONTHLY, STRIPE_PRICE_YEARLY. APP_URL is the public site URL.
 
+import { sendEmail, templates, emailSettings } from "./email.js";
+
 const STRIPE_API = "https://api.stripe.com/v1";
 const WEBHOOK_TOLERANCE_SECONDS = 5 * 60;
 // Stripe statuses during which the learner keeps premium. past_due stays
@@ -145,6 +147,40 @@ async function applySubscription(env, userId, sub) {
   return user.role;
 }
 
+// One email when a Premium payment completes: what was bought, the next
+// payment date, and links to Stripe's hosted invoice page and PDF.
+async function sendPremiumWelcomeEmail(env, session) {
+  const userId = session.client_reference_id;
+  if (!userId) return;
+  const user = await env.DB.prepare("SELECT id, username, email FROM users WHERE id = ?").bind(userId).first();
+  if (!user || !user.email) return;
+  let invoice = null;
+  const invoiceId = typeof session.invoice === "string" ? session.invoice : session.invoice?.id;
+  if (invoiceId) {
+    const r = await stripe(env, "GET", `/invoices/${encodeURIComponent(invoiceId)}`);
+    if (r.ok) invoice = r.data;
+  }
+  const row = await env.DB.prepare("SELECT plan, current_period_end FROM subscriptions WHERE user_id = ?").bind(user.id).first();
+  const cents = Number.isFinite(invoice?.amount_paid) ? invoice.amount_paid : Number.isFinite(session.amount_total) ? session.amount_total : null;
+  const currency = String(invoice?.currency || session.currency || "aud").toUpperCase();
+  const amountText = cents === null ? "" : `${currency} ${(cents / 100).toFixed(2)}`;
+  const nextDateText = row?.current_period_end ? new Date(row.current_period_end).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : "";
+  await sendEmail(env, {
+    to: user.email,
+    kind: "premium_welcome",
+    ...templates.premiumWelcome({
+      username: user.username,
+      interval: row?.plan === "year" ? "year" : "month",
+      amountText,
+      nextDateText,
+      invoiceUrl: invoice?.hosted_invoice_url || "",
+      pdfUrl: invoice?.invoice_pdf || "",
+      number: invoice?.number || "",
+      appUrl: emailSettings(env).appUrl,
+    }),
+  });
+}
+
 async function syncSubscriptionById(env, subscriptionId, fallbackUserId) {
   const res = await stripe(env, "GET", `/subscriptions/${encodeURIComponent(subscriptionId)}`);
   if (!res.ok || !res.data?.id) throw new Error(`stripe_subscription_fetch_failed_${res.status}`);
@@ -183,7 +219,10 @@ async function handleWebhook(request, env) {
   try {
     if (event.type === "checkout.session.completed") {
       if (obj.mode === "subscription" && obj.subscription) {
-        await syncSubscriptionById(env, typeof obj.subscription === "string" ? obj.subscription : obj.subscription.id, obj.client_reference_id || null);
+        const role = await syncSubscriptionById(env, typeof obj.subscription === "string" ? obj.subscription : obj.subscription.id, obj.client_reference_id || null);
+        // Thank-you email with the invoice. A mail problem must never make
+        // Stripe retry the webhook, so it is fire-and-forget.
+        if (role === "paid") await sendPremiumWelcomeEmail(env, obj).catch(() => {});
       }
     } else if (
       event.type === "customer.subscription.created" ||

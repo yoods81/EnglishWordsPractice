@@ -4508,6 +4508,8 @@ function updateAdminUI() {
   const onMyAccountSignedOut = !currentUser && document.getElementById("view-myaccount").classList.contains("active");
   if (activeOffLimitsTab || onMyAccountSignedOut) goToTab("landing");
 
+  const premiumMenuBtn = document.getElementById("auth-menu-premium-btn");
+  if (premiumMenuBtn) premiumMenuBtn.hidden = !(currentUser && currentUser.role === "free");
   if (refreshPaidFeatureGates) refreshPaidFeatureGates();
   refreshVerifyGate();
 }
@@ -4691,6 +4693,13 @@ function closeAuthOverlay() {
 }
 
 const authMenu = document.getElementById("auth-menu");
+// Free members get a "Join Premium" row above My Account in the account menu.
+document.getElementById("auth-menu-premium-btn").addEventListener("click", async () => {
+  closeAuthMenu();
+  const info = await loadBillingInfo();
+  if (info.configured && currentUser) openPlanOverlay();
+  else goToTab("myaccount"); // online payment isn't set up: the voucher code lives there
+});
 const authMenuAccountBtn = document.getElementById("auth-menu-account-btn");
 const authMenuLogoutBtn = document.getElementById("auth-menu-logout-btn");
 

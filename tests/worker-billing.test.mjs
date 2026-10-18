@@ -61,6 +61,8 @@ globalThis.fetch = async (url, init = {}) => {
     if (method === "POST" && "cancel_at_period_end" in params) s.cancel_at_period_end = params.cancel_at_period_end === "true";
     return reply(200, s);
   }
+  const inv = path.match(/^\/invoices\/(.+)$/);
+  if (inv && method === "GET") return reply(200, { id: inv[1], number: "KSM-0001", amount_paid: 599, currency: "aud", hosted_invoice_url: "https://invoice.stripe.test/i/" + inv[1], invoice_pdf: "https://invoice.stripe.test/pdf/" + inv[1] });
   const cus = path.match(/^\/customers\/(.+)$/);
   if (cus && method === "DELETE") {
     if (fake.failDeleteCustomer) return reply(500, { error: { message: "boom" } });
@@ -341,4 +343,29 @@ test("a new Premium sign-up can pay before confirming the email, and paying conf
   assert.equal((await webhook(ev)).status, 200);
   assert.equal(roleOf("u9"), "paid");
   assert.ok(db.prepare("SELECT email_verified_at v FROM users WHERE id='u9'").get().v, "a completed payment confirms the email");
+});
+
+test("a completed payment emails the member a thank-you with the Stripe invoice links", async () => {
+  const sent = [];
+  env.EMAIL = { send: async (m) => { sent.push(m); } };
+  try {
+    const u = addUser("u10", "payer", "free");
+    await call(u, "POST", "/billing/checkout", { interval: "year" });
+    const cust = db.prepare("SELECT stripe_customer_id c FROM subscriptions WHERE user_id = 'u10'").get().c;
+    makeSub("sub_10", cust, "u10", { items: { data: [{ price: { recurring: { interval: "year" } }, current_period_end: PERIOD_END }] } });
+    const ev = { id: "evt_welcome_mail", type: "checkout.session.completed", data: { object: { mode: "subscription", subscription: "sub_10", invoice: "in_10", client_reference_id: "u10", customer: cust } } };
+    assert.equal((await webhook(ev)).status, 200);
+    assert.equal(sent.length, 1);
+    assert.equal(sent[0].to, "u10@example.com");
+    assert.match(sent[0].subject, /프리미엄 결제가 완료/);
+    assert.match(sent[0].html, /https:\/\/invoice\.stripe\.test\/i\/in_10/);
+    assert.match(sent[0].text, /KSM-0001/);
+    assert.match(sent[0].text, /AUD 5\.99/);
+    assert.equal(db.prepare("SELECT status FROM email_log WHERE kind='premium_welcome' AND to_addr='u10@example.com'").get().status, "sent");
+    // a replayed event must not send a second email
+    await webhook(ev);
+    assert.equal(sent.length, 1);
+  } finally {
+    delete env.EMAIL;
+  }
 });
