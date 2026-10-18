@@ -94,6 +94,8 @@ test("deleting a user removes their coin rows", async () => {
   assert.equal((await call(admin, "POST", "/admin/users/delete", { userId: "u2" })).status, 200);
   assert.equal(db.prepare("SELECT COUNT(*) c FROM koala_grants WHERE user_id='u2'").get().c, 0);
   assert.equal(db.prepare("SELECT COUNT(*) c FROM user_koala WHERE user_id='u2'").get().c, 0);
+  // the deleted account's still-signed cookie must stop working at once
+  assert.equal((await call(other, "GET", "/koala/data")).status, 401);
 });
 
 test("account Koala data: any signed-in account can save and load its own, nobody else's", async () => {
@@ -106,7 +108,9 @@ test("account Koala data: any signed-in account can save and load its own, nobod
   const got = (await call(kid, "GET", "/koala/data")).data;
   assert.equal(got.data.koala.coins, 9);
   assert.equal(got.data.evil, undefined);
-  assert.equal((await call(other, "GET", "/koala/data")).data.data, null);
+  // a different, existing account never sees kid's data
+  db.prepare("INSERT OR IGNORE INTO users (id,username,password_hash,password_salt,role,created_at) VALUES (?,?,?,?,?,?)").run("u5", "kid5", "h", "s", "free", 5);
+  assert.equal((await call({ id: "u5", role: "free" }, "GET", "/koala/data")).data.data, null);
   const big = { koala: { x: "y".repeat(100001) } };
   assert.equal((await call(kid, "PUT", "/koala/data", { data: big })).status, 413);
 });

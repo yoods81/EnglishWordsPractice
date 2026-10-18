@@ -4972,6 +4972,8 @@ async function renderMyAccount() {
   renderChildrenUI();
   refreshEmailCard(account);
   refreshUpgradeCard(account);
+  renderSubscriptionCard(account);
+  renderDeleteCard(account);
   renderDataCard(account);
   if (window.koalaSupportUI) koalaSupportUI.renderAccountCard();
 }
@@ -5187,21 +5189,318 @@ const SIGNUP_ERROR_KEYS = {
   reserved_username: "authSignupErrorUsername",
 };
 
-// ===== PAYMENT HOOK =====================================================
-// The "Pay and join Premium" buttons (signup + upgrade) call this. Online
-// payment isn't built yet, so for now it only explains that and points to
-// the special-code route, which still works exactly as before. When the
-// payment system exists: set PAYMENT_ENABLED = true and replace the marked
-// block with the redirect to the checkout page.
-const PAYMENT_ENABLED = false;
-function startPremiumCheckout(noteEl) {
-  if (!PAYMENT_ENABLED) {
-    noteEl.hidden = false;
+// ===== PREMIUM PAYMENT (Stripe) =========================================
+// "Pay and join Premium" → pick monthly/yearly → Stripe's hosted checkout.
+// Until the Stripe keys are set on the Worker, /billing/prices says
+// `configured: false` and the buttons keep showing the old "coming soon"
+// note (the special-code route works exactly as before).
+// NB: rwL (the English/Korean picker) is defined much further down the file,
+// so everything here only calls it from inside functions that run later.
+let billingInfo = null;
+async function loadBillingInfo() {
+  if (billingInfo) return billingInfo;
+  try { billingInfo = await api("/billing/prices"); } catch (e) { return { configured: false }; }
+  return billingInfo;
+}
+function billingEl(id) { return document.getElementById(id); }
+function billingMoney(p) {
+  const fmt = new Intl.NumberFormat(currentLang === "ko" ? "ko-KR" : "en-AU", { style: "currency", currency: String(p.currency || "aud").toUpperCase() });
+  return fmt.format(p.amount / Math.pow(10, fmt.resolvedOptions().maximumFractionDigits));
+}
+function billingFail(err, code) {
+  const text = {
+    email_not_verified: rwL("Please confirm your email first, then try again.", "먼저 이메일 인증을 완료한 뒤 다시 시도해 주세요."),
+    not_eligible: rwL("This account can't do that right now. Please refresh the page.", "지금은 이 계정으로 할 수 없는 작업이에요. 페이지를 새로고침해 주세요."),
+    unauthorized: rwL("Please log in first.", "먼저 로그인해 주세요."),
+    wrong_current_password: rwL("That password isn't right.", "비밀번호가 올바르지 않아요."),
+    billing_cancel_failed: rwL("We couldn't cancel your subscription just now, so your account was NOT closed. Please try again in a moment.", "구독을 해지하지 못해서 계정은 삭제되지 않았어요. 잠시 후 다시 시도해 주세요."),
+  }[code] || rwL("Something went wrong. Please try again in a moment.", "문제가 생겼어요. 잠시 후 다시 시도해 주세요.");
+  err.textContent = text;
+  err.hidden = false;
+}
+
+async function openPlanOverlay() {
+  const info = await loadBillingInfo();
+  const prices = info.prices;
+  billingEl("plan-title").textContent = rwL("Choose your Premium plan", "프리미엄 요금제 선택");
+  billingEl("plan-message").textContent = rwL(
+    "Cancel any time in My Account — you keep Premium until the period you paid for ends.",
+    "내 계정에서 언제든 해지할 수 있어요. 결제한 기간이 끝날 때까지는 프리미엄이 유지돼요."
+  );
+  let save = "";
+  if (prices && prices.month.amount > 0) {
+    const pct = Math.round((1 - prices.year.amount / (prices.month.amount * 12)) * 100);
+    if (pct > 0) save = rwL(` · save ${pct}%`, ` · ${pct}% 할인`);
+  }
+  billingEl("plan-month-btn").textContent = rwL("Monthly", "월간 결제") + (prices ? ` — ${billingMoney(prices.month)}${rwL(" / month", " / 월")}` : "");
+  billingEl("plan-year-btn").textContent = rwL("Yearly", "연간 결제") + (prices ? ` — ${billingMoney(prices.year)}${rwL(" / year", " / 년")}` : "") + save;
+  billingEl("plan-cancel-btn").textContent = rwL("Not now", "나중에 할게요");
+  billingEl("plan-secure-note").textContent = rwL("Secure payment by Stripe. We never see your card details.", "결제는 Stripe에서 안전하게 처리돼요. 카드 정보는 저희가 볼 수 없어요.");
+  billingEl("plan-error").hidden = true;
+  billingEl("plan-month-btn").disabled = false;
+  billingEl("plan-year-btn").disabled = false;
+  billingEl("plan-overlay").hidden = false;
+}
+async function beginCheckout(interval) {
+  const err = billingEl("plan-error");
+  err.hidden = true;
+  const btns = [billingEl("plan-month-btn"), billingEl("plan-year-btn")];
+  btns.forEach((b) => { b.disabled = true; });
+  try {
+    const { url } = await api("/billing/checkout", { method: "POST", body: JSON.stringify({ interval }) });
+    location.href = url;
+    return;
+  } catch (e) {
+    const code = e && e.data && e.data.error;
+    billingFail(err, code);
+    if (code === "not_eligible") pullMe().catch(() => {});
+  }
+  btns.forEach((b) => { b.disabled = false; });
+}
+billingEl("plan-month-btn").addEventListener("click", () => beginCheckout("month"));
+billingEl("plan-year-btn").addEventListener("click", () => beginCheckout("year"));
+billingEl("plan-cancel-btn").addEventListener("click", () => { billingEl("plan-overlay").hidden = true; });
+
+// Called from the signed-in upgrade buttons (My Account card, upgrade popup).
+async function startPremiumCheckout(noteEl) {
+  const info = await loadBillingInfo();
+  if (!info.configured || !currentUser) {
+    if (noteEl) noteEl.hidden = false;
     return;
   }
-  // Future: const { url } = await api("/billing/checkout", { method: "POST" }); location.href = url;
+  openPlanOverlay();
 }
-signupPayBtn.addEventListener("click", () => startPremiumCheckout(signupPayNote));
+
+// Called from the signup form's pay button. Checkout needs an account (and a
+// confirmed email), so this creates the free account first and then explains
+// the next step; the "Pay and join Premium" button in My Account finishes it.
+async function signupThenPay() {
+  const info = await loadBillingInfo();
+  if (!info.configured) {
+    signupPayNote.hidden = false;
+    return;
+  }
+  const email = signupEmailInput.value.trim().toLowerCase();
+  const password = signupPasswordInput.value;
+  signupError.hidden = true;
+  const fail = (key) => { signupError.textContent = t(key); signupError.hidden = false; };
+  if (!validEmailClient(email)) return fail("authSignupErrorEmail");
+  if (!passwordMeetsPolicy(password)) return fail("authSignupErrorPassword");
+  if (password !== signupPasswordConfirm.value) return fail("resetMismatch");
+  if (!signupGuardianCheck.checked || !signupTermsCheck.checked) return fail("authSignupErrorConsent");
+  try {
+    const { user, verificationSent } = await api("/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ email, password, agreedTerms: true, isGuardian: true }),
+    });
+    currentUser = user;
+    closeAuthOverlay();
+    updateAdminUI();
+    refreshSharedWords();
+    koalaAfterLogin();
+    showNotice(
+      "welcome",
+      rwL("Account created!", "계정이 만들어졌어요!"),
+      rwL(
+        "Next: confirm your email, then open My Account and tap “Pay and join Premium”.",
+        "다음 단계: 이메일 인증을 마친 뒤 내 계정에서 “결제하고 프리미엄 가입”을 눌러 주세요."
+      ) + "\n" + (verificationSent ? rwL("We just sent you a confirmation email.", "방금 확인 이메일을 보냈어요.") : rwL("We couldn't send the confirmation email — use the resend button.", "확인 이메일을 보내지 못했어요. 다시 보내기 버튼을 눌러 주세요."))
+    );
+  } catch (err) {
+    const code = err && err.data && err.data.error;
+    fail(SIGNUP_ERROR_KEYS[code] || "authSignupErrorGeneric");
+  }
+}
+signupPayBtn.addEventListener("click", signupThenPay);
+
+// Everything that changes when the plan changes (paid <-> free).
+function refreshAfterPlanChange() {
+  closeUpgradeOverlay();
+  renderUpgradeReadyBanner();
+  updateAdminUI();
+  if (billingEl("view-myaccount").classList.contains("active")) renderMyAccount();
+  renderGoalStepper("quiz");
+  renderGoalStepper("spelling");
+  refreshSharedWords();
+  koalaAfterLogin();
+}
+
+// After closing an account the page reloads at /?closed=1.
+setTimeout(function handleClosedReturn() {
+  if (new URLSearchParams(location.search).get("closed") !== "1") return;
+  history.replaceState(null, "", location.pathname + location.hash);
+  showNotice("success", rwL("Your account has been closed", "회원 탈퇴가 완료됐어요"), rwL("Everything was deleted. Thank you for learning with Koala Study Mate!", "모든 데이터가 삭제됐어요. 코알라 스터디 메이트와 함께해 주셔서 감사해요!"));
+}, 0);
+
+// Stripe sends the browser back to /?checkout=success|cancel. The premium
+// switch-on arrives by webhook a moment later, so wait for it briefly.
+setTimeout(async function handleCheckoutReturn() {
+  const status = new URLSearchParams(location.search).get("checkout");
+  if (status !== "success" && status !== "cancel") return;
+  history.replaceState(null, "", location.pathname + location.hash);
+  if (status === "cancel") {
+    showNotice("warn", rwL("Payment cancelled", "결제가 취소됐어요"), rwL("No charge was made. You can try again any time from My Account.", "결제는 이루어지지 않았어요. 내 계정에서 언제든 다시 시도할 수 있어요."));
+    return;
+  }
+  for (let i = 0; i < 15; i++) {
+    try { await pullMe(); } catch (e) { /* keep waiting */ }
+    if (currentUser && currentUser.role === "paid") {
+      refreshAfterPlanChange();
+      showNotice("welcome", rwL("Welcome to Premium!", "프리미엄에 오신 걸 환영해요!"), rwL("Your payment went through and Premium is on.", "결제가 완료되어 프리미엄이 켜졌어요."));
+      return;
+    }
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+  showNotice("success", rwL("Payment received", "결제를 받았어요"), rwL("Premium switches on in a moment. If it hasn't after a few minutes, log out and back in, or contact us.", "프리미엄이 곧 켜져요. 몇 분이 지나도 안 켜지면 로그아웃 후 다시 로그인하거나 문의해 주세요."));
+}, 0);
+
+/* ---------- My Account: subscription card (Premium -> Free) ---------- */
+let subscriptionState = null; // last /billing/status
+async function renderSubscriptionCard(account) {
+  const card = billingEl("my-account-subscription-card");
+  if (!card) return;
+  if (!account || account.role !== "paid") { card.hidden = true; return; }
+  card.hidden = false;
+  billingEl("my-account-sub-title").textContent = rwL("⭐ My Premium plan", "⭐ 내 프리미엄 요금제");
+  billingEl("my-account-sub-error").hidden = true;
+  let st = null;
+  try { st = await api("/billing/status"); } catch (e) { /* show the basic card below */ }
+  subscriptionState = st;
+  const sub = st && st.subscription;
+  const managed = !!(st && st.managedByStripe);
+  const ends = sub && sub.currentPeriodEnd ? formatDate(sub.currentPeriodEnd) : "";
+  const planName = sub && sub.plan === "year" ? rwL("Yearly", "연간") : rwL("Monthly", "월간");
+  let text;
+  if (managed && sub.cancelAtPeriodEnd) {
+    text = rwL(`Your subscription is cancelled. You keep Premium until ${ends}; after that your account becomes a free account (nothing is deleted).`,
+      `구독이 해지되었어요. ${ends}까지는 프리미엄이 유지되고, 그 뒤에는 무료 계정으로 바뀌어요. (데이터는 삭제되지 않아요)`);
+  } else if (managed && sub.status === "past_due") {
+    text = rwL("Your last payment didn't go through. Please update your card so Premium isn't interrupted.", "마지막 결제가 완료되지 않았어요. 프리미엄이 끊기지 않도록 카드를 확인해 주세요.");
+  } else if (managed) {
+    text = rwL(`${planName} plan — renews on ${ends}.`, `${planName} 요금제 — ${ends}에 갱신돼요.`);
+  } else {
+    text = rwL("Premium (activated with a special code).", "프리미엄 (특별 코드로 활성화됨)");
+  }
+  billingEl("my-account-sub-status").textContent = text;
+  const resume = billingEl("my-account-sub-resume-btn");
+  const portal = billingEl("my-account-sub-portal-btn");
+  const cancel = billingEl("my-account-sub-cancel-btn");
+  resume.textContent = rwL("Keep my Premium", "프리미엄 계속 유지하기");
+  portal.textContent = rwL("Payment & invoices", "결제 수단 · 영수증");
+  cancel.textContent = rwL("Switch to free plan", "무료 회원으로 전환");
+  resume.hidden = !(managed && sub.cancelAtPeriodEnd);
+  portal.hidden = !managed;
+  cancel.hidden = managed && sub.cancelAtPeriodEnd;
+}
+billingEl("my-account-sub-resume-btn").addEventListener("click", async () => {
+  const err = billingEl("my-account-sub-error");
+  err.hidden = true;
+  try {
+    await api("/billing/resume", { method: "POST" });
+    renderSubscriptionCard(currentUser);
+  } catch (e) { billingFail(err, e && e.data && e.data.error); }
+});
+billingEl("my-account-sub-portal-btn").addEventListener("click", async () => {
+  const err = billingEl("my-account-sub-error");
+  err.hidden = true;
+  try {
+    const { url } = await api("/billing/portal", { method: "POST" });
+    location.href = url;
+  } catch (e) { billingFail(err, e && e.data && e.data.error); }
+});
+billingEl("my-account-sub-cancel-btn").addEventListener("click", () => {
+  const sub = subscriptionState && subscriptionState.subscription;
+  const managed = !!(subscriptionState && subscriptionState.managedByStripe);
+  const ends = sub && sub.currentPeriodEnd ? formatDate(sub.currentPeriodEnd) : "";
+  billingEl("sub-cancel-title").textContent = rwL("Switch to the free plan?", "무료 회원으로 전환할까요?");
+  const kept = rwL(
+    "Your own words, child profiles and wrong-answer notes are NOT deleted — they're just locked until you join Premium again.",
+    "직접 추가한 단어, 자녀 프로필, 오답 노트는 삭제되지 않아요. 프리미엄에 다시 가입하면 바로 돌아와요."
+  );
+  billingEl("sub-cancel-message").textContent = managed
+    ? rwL(`You won't be charged again. You keep Premium until ${ends}, then your account becomes free.`, `다시 결제되지 않아요. ${ends}까지 프리미엄이 유지되고, 그 뒤에 무료 회원으로 바뀌어요.`) + " " + kept
+    : rwL("Premium ends right now. A special code can't be used a second time.", "프리미엄이 지금 바로 끝나요. 특별 코드는 다시 사용할 수 없어요.") + " " + kept;
+  billingEl("sub-cancel-ok-btn").textContent = rwL("Yes, switch to free", "네, 무료로 전환할게요");
+  billingEl("sub-cancel-back-btn").textContent = rwL("Keep Premium", "프리미엄 유지");
+  billingEl("sub-cancel-error").hidden = true;
+  billingEl("sub-cancel-ok-btn").disabled = false;
+  billingEl("sub-cancel-overlay").hidden = false;
+});
+billingEl("sub-cancel-back-btn").addEventListener("click", () => { billingEl("sub-cancel-overlay").hidden = true; });
+billingEl("sub-cancel-ok-btn").addEventListener("click", async () => {
+  const err = billingEl("sub-cancel-error");
+  const btn = billingEl("sub-cancel-ok-btn");
+  err.hidden = true;
+  btn.disabled = true;
+  try {
+    const res = await api("/billing/cancel", { method: "POST" });
+    billingEl("sub-cancel-overlay").hidden = true;
+    if (res.downgraded) {
+      await pullMe();
+      refreshAfterPlanChange();
+      showNotice("success", rwL("You're on the free plan", "무료 회원으로 전환됐어요"), rwL("Your data is kept. Join Premium again any time to unlock it.", "데이터는 그대로 보관돼요. 언제든 프리미엄에 다시 가입하면 풀려요."));
+    } else {
+      renderSubscriptionCard(currentUser);
+      showNotice("success", rwL("Subscription cancelled", "구독이 해지됐어요"), rwL("You keep Premium until the end of the period you paid for.", "결제한 기간이 끝날 때까지는 프리미엄이 유지돼요."));
+    }
+  } catch (e) {
+    billingFail(err, e && e.data && e.data.error);
+    btn.disabled = false;
+  }
+});
+
+/* ---------- My Account: close my account ---------- */
+function renderDeleteCard(account) {
+  const card = billingEl("my-account-delete-card");
+  if (!card) return;
+  const show = !!account && account.role !== "admin";
+  card.hidden = !show;
+  if (!show) return;
+  billingEl("my-account-delete-title").textContent = rwL("🗑️ Close my account", "🗑️ 회원 탈퇴");
+  billingEl("my-account-delete-desc").textContent = rwL(
+    "Permanently deletes your account and everything saved with it. This can't be undone. A Premium subscription is cancelled first, so you won't be charged again.",
+    "계정과 저장된 모든 데이터가 영구적으로 삭제되며 되돌릴 수 없어요. 프리미엄 구독 중이면 먼저 해지되어 더 이상 결제되지 않아요."
+  );
+  billingEl("my-account-delete-open-btn").textContent = rwL("Close my account…", "회원 탈퇴하기…");
+}
+billingEl("my-account-delete-open-btn").addEventListener("click", () => {
+  billingEl("delete-account-title").textContent = rwL("Close your account?", "정말 탈퇴할까요?");
+  billingEl("delete-account-message").textContent = rwL(
+    "Your account, words, child profiles, koala, coins and progress will be permanently deleted. Premium subscriptions are cancelled first. This can't be undone.",
+    "계정, 단어, 자녀 프로필, 코알라, 코인, 학습 기록이 모두 영구 삭제돼요. 프리미엄 구독은 먼저 해지돼요. 되돌릴 수 없어요."
+  );
+  billingEl("delete-account-password-label").textContent = rwL("Type your password to confirm", "확인을 위해 비밀번호를 입력해 주세요");
+  billingEl("delete-account-ok-btn").textContent = rwL("Delete my account", "계정 삭제하기");
+  billingEl("delete-account-back-btn").textContent = rwL("Keep my account", "취소");
+  billingEl("delete-account-password").value = "";
+  billingEl("delete-account-error").hidden = true;
+  billingEl("delete-account-ok-btn").disabled = false;
+  billingEl("delete-account-overlay").hidden = false;
+  billingEl("delete-account-password").focus();
+});
+billingEl("delete-account-back-btn").addEventListener("click", () => { billingEl("delete-account-overlay").hidden = true; });
+billingEl("delete-account-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const err = billingEl("delete-account-error");
+  const btn = billingEl("delete-account-ok-btn");
+  const password = billingEl("delete-account-password").value;
+  err.hidden = true;
+  if (!password) return billingFail(err, "wrong_current_password");
+  btn.disabled = true;
+  try {
+    await api("/auth/delete-account", { method: "POST", body: JSON.stringify({ password }) });
+  } catch (ex) {
+    billingFail(err, ex && ex.data && ex.data.error);
+    btn.disabled = false;
+    return;
+  }
+  // The account is gone on the server: wipe everything this browser kept for
+  // it (no stash — there's nothing to come back to) and start fresh.
+  wipeUserData();
+  try { sessionStorage.removeItem(ADMIN_KEY); } catch (ex) { /* ignore */ }
+  try { localStorage.removeItem(PROFILE_KEY); } catch (ex) { /* ignore */ }
+  location.href = location.pathname + "?closed=1";
+});
 
 let signupPlan = "free";
 function setSignupPlan(plan) {

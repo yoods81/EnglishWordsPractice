@@ -306,6 +306,54 @@
     </div>
   </div>
 
+  <!-- Premium payment: pick monthly or yearly, then continue to Stripe's secure checkout. -->
+  <div id="plan-overlay" class="kid-modal-overlay" hidden>
+    <div class="kid-modal-card" role="dialog" aria-modal="true" aria-labelledby="plan-title">
+      <div class="kid-modal-icon" aria-hidden="true"><img src="favicon.svg?v=4" alt="" width="64" height="64"></div>
+      <div class="kid-modal-brand" id="plan-title"></div>
+      <p class="kid-modal-message" id="plan-message"></p>
+      <p class="auth-error" id="plan-error" hidden></p>
+      <div class="kid-modal-actions">
+        <button type="button" class="pill primary kid-modal-btn" id="plan-month-btn"></button>
+        <button type="button" class="pill primary kid-modal-btn" id="plan-year-btn"></button>
+        <button type="button" class="pill neutral kid-modal-btn" id="plan-cancel-btn"></button>
+      </div>
+      <p class="auth-hint" id="plan-secure-note"></p>
+    </div>
+  </div>
+
+  <!-- Premium -> Free: confirm before the subscription is set to end. -->
+  <div id="sub-cancel-overlay" class="kid-modal-overlay" hidden>
+    <div class="kid-modal-card" role="dialog" aria-modal="true" aria-labelledby="sub-cancel-title">
+      <div class="kid-modal-icon" aria-hidden="true"><img src="favicon.svg?v=4" alt="" width="64" height="64"></div>
+      <div class="kid-modal-brand" id="sub-cancel-title"></div>
+      <p class="kid-modal-message" id="sub-cancel-message"></p>
+      <p class="auth-error" id="sub-cancel-error" hidden></p>
+      <div class="kid-modal-actions">
+        <button type="button" class="pill error kid-modal-btn" id="sub-cancel-ok-btn"></button>
+        <button type="button" class="pill neutral kid-modal-btn" id="sub-cancel-back-btn"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Close my account: password re-entered, then everything is erased. -->
+  <div id="delete-account-overlay" class="kid-modal-overlay" hidden>
+    <form class="kid-modal-card" id="delete-account-form" role="dialog" aria-modal="true" aria-labelledby="delete-account-title" novalidate>
+      <div class="kid-modal-icon" aria-hidden="true"><img src="favicon.svg?v=4" alt="" width="64" height="64"></div>
+      <div class="kid-modal-brand" id="delete-account-title"></div>
+      <p class="kid-modal-message" id="delete-account-message"></p>
+      <div class="auth-form delete-account-field">
+        <label for="delete-account-password" id="delete-account-password-label"></label>
+        <input id="delete-account-password" type="password" autocomplete="current-password" data-no-autofill />
+        <p class="auth-error" id="delete-account-error" hidden></p>
+      </div>
+      <div class="kid-modal-actions">
+        <button type="submit" class="pill error kid-modal-btn" id="delete-account-ok-btn"></button>
+        <button type="button" class="pill neutral kid-modal-btn" id="delete-account-back-btn"></button>
+      </div>
+    </form>
+  </div>
+
   <!-- Admin: details of one paid member's word (opened by tapping its card). -->
   <div id="paid-word-detail-overlay" class="kid-modal-overlay" hidden>
     <div class="kid-modal-card pw-detail-card" role="dialog" aria-modal="true" aria-labelledby="pw-detail-word">
@@ -2316,6 +2364,16 @@ to Flip!</span></div>
         </div>
         <p id="my-account-upgrade-pay-note" class="auth-hint" hidden data-i18n="upgCardPayNote">Online payment is coming soon. For now, tap "I have a special code".</p>
       </div>
+      <div class="card" id="my-account-subscription-card" hidden>
+        <h3 id="my-account-sub-title"></h3>
+        <p class="auth-hint" id="my-account-sub-status" aria-live="polite"></p>
+        <p id="my-account-sub-error" class="auth-error" hidden></p>
+        <div class="auth-actions auth-actions-start">
+          <button type="button" class="pill accent small" id="my-account-sub-resume-btn" hidden></button>
+          <button type="button" class="pill neutral small" id="my-account-sub-portal-btn" hidden></button>
+          <button type="button" class="pill neutral small" id="my-account-sub-cancel-btn" hidden></button>
+        </div>
+      </div>
       <div class="card" id="my-account-email-card">
         <h3 data-i18n="myAccountEmailTitle">✉️ Email</h3>
         <p class="auth-hint" data-i18n="myAccountEmailDesc">We use this address to help you find your username or reset your password.</p>
@@ -2376,6 +2434,13 @@ to Flip!</span></div>
             <button type="submit" class="pill accent" id="my-account-password-submit-btn" data-i18n="myAccountChangePasswordBtn">Update password</button>
           </div>
         </form>
+      </div>
+      <div class="card" id="my-account-delete-card" hidden>
+        <h3 id="my-account-delete-title"></h3>
+        <p class="auth-hint" id="my-account-delete-desc"></p>
+        <div class="auth-actions auth-actions-start">
+          <button type="button" class="pill error small" id="my-account-delete-open-btn"></button>
+        </div>
       </div>
     </section>
   </main>

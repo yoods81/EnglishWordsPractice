@@ -121,3 +121,30 @@ The Year 5/Year 6 (English) and all four Korean-track word lists are general-pur
 Both tracks use four stages: lower primary (`elem_low`, 초등 저학년), upper primary (`elem_high`, 초등 고학년), middle school (`middle`, 중학교) and high school (`high`, 고등학교). A word keeps two levels — `Level (English)` for the English track and `Level (Korean)` for the Korean track — because the Korean track is pitched a stage lower. Old ids (`year4`…`year7`, `kr_*`) are converted on load, and `migrations/0010_word_pos_and_levels.sql` converts the shared word table (`npm run db:migrate:pos`).
 
 Words also carry a part of speech (`pos`: noun, verb, adjective, adverb, pronoun, preposition, conjunction, interjection), exported as the `Part of speech` column right after `Word` and shown as a small tag in the word lists.
+
+## Premium payments, downgrade and account closing (Stripe)
+
+Premium is a Stripe subscription (monthly or yearly). `users.role` stays the single source of truth for access; the Stripe webhook is what flips an account between `free` and `paid`, and the `subscriptions` table records why.
+
+**How it behaves**
+
+- **Pay**: *Pay and join Premium* → choose monthly/yearly (prices are read live from Stripe) → Stripe Checkout. Premium switches on when the webhook arrives (usually seconds); the site waits for it after the redirect. Until the Stripe keys below are set, the buttons keep showing the old "coming soon" note and special codes work as before.
+- **Premium → free** (My Account → *Switch to free plan*): the subscription is set to end at the close of the period already paid for, so premium stays until then and nothing more is charged; *Keep my Premium* undoes it. When Stripe ends the subscription the account becomes `free`. Premium granted by a special code (no Stripe subscription) drops to free immediately.
+- **Nothing is deleted on downgrade**: private words, child profiles 2–4 and the full wrong-answer notebook stay in the database but are locked (the existing role gates hide them). Re-subscribing brings them straight back.
+- **Close my account** (My Account → *Close my account*): asks for the password, deletes the Stripe customer first (which cancels any live subscription and the saved card — if Stripe can't be reached nothing is deleted, so a closed account can never keep being charged), then erases the account and everything it owned. The admin "delete user" tool does the same.
+- The session cookie now only proves *who* someone is; the role is re-read from the database on every request, so a subscription that just ended (or a deleted account) takes effect immediately instead of when the cookie expires.
+
+**One-time setup**
+
+1. In the Stripe dashboard create a Product "Koala Study Mate Premium" with two recurring Prices (monthly, yearly) in AUD and note their `price_…` ids. Turn on the **Customer portal** (Settings → Billing → Customer portal) so *Payment & invoices* works.
+2. Add a webhook endpoint `https://koalastudymate.com/api/billing/webhook` listening for `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated` and `customer.subscription.deleted`; copy its signing secret (`whsec_…`).
+3. Set the Worker secrets/vars (use the live keys in production; test-mode keys + `4242 4242 4242 4242` to rehearse first):
+   ```bash
+   npx wrangler secret put STRIPE_SECRET_KEY        # sk_live_… / sk_test_…
+   npx wrangler secret put STRIPE_WEBHOOK_SECRET    # whsec_…
+   npx wrangler secret put STRIPE_PRICE_MONTHLY     # price_…
+   npx wrangler secret put STRIPE_PRICE_YEARLY      # price_…
+   ```
+4. Create the tables once: `npm run db:migrate:billing` (local: `npm run db:migrate:billing:local`), then `npm run deploy`.
+
+Webhook events are verified (HMAC + 5-minute tolerance), recorded by id so retries are harmless, and never trusted for their contents — each one only says *which* subscription changed, and the Worker re-reads it from Stripe.

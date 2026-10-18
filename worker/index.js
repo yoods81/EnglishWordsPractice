@@ -6,6 +6,7 @@
 
 import { sendEmail, templates, emailSettings } from "./email.js";
 import { handleSupport } from "./support.js";
+import { handleBilling, closeBillingForUser } from "./billing.js";
 
 const SESSION_COOKIE = "ywp_session";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
@@ -214,9 +215,9 @@ async function makeSessionToken(env, userId, role) {
   return `${payload}.${await hmac(payload, env.SESSION_SECRET)}`;
 }
 
-// Returns { id, role } for a valid session cookie, or null if there isn't
-// one — the caller re-reads the user row from the DB when it needs anything
-// beyond id/role (e.g. username), since those can't change mid-session.
+// Returns { id, role } for a valid session cookie whose account still exists,
+// or null — the caller re-reads the user row from the DB when it needs
+// anything beyond id/role (e.g. username), since those can't change mid-session.
 async function getSessionUser(request, env) {
   const cookies = request.headers.get("cookie") || "";
   const match = cookies.match(new RegExp(`(?:^|;\\s*)${SESSION_COOKIE}=([^;]+)`));
@@ -228,7 +229,13 @@ async function getSessionUser(request, env) {
   if (Number(expiresAt) < Date.now()) return null;
   const payload = `${userId}.${role}.${expiresAt}`;
   if (!safeEqual(signature, await hmac(payload, env.SESSION_SECRET))) return null;
-  return { id: userId, role };
+  // The signed cookie proves *who* this is, but the role is re-read from the
+  // database on every request: a subscription that just ended (or an admin
+  // change) takes effect immediately instead of when the cookie expires, and
+  // a closed account's cookie stops working the moment the row is gone.
+  const row = await env.DB.prepare("SELECT role FROM users WHERE id = ?").bind(userId).first();
+  if (!row) return null;
+  return { id: userId, role: row.role };
 }
 
 function sessionCookie(token, maxAgeSeconds) {
@@ -395,6 +402,30 @@ async function fetchPendingUpgradeRequest(env, userId, role) {
 
 /* ---------- API ---------- */
 
+// Removes an account and everything that belongs to it. A deleted account's
+// own private words (owner_id = them) go with it — admin-shared words
+// (owner_id NULL) are never touched, since they don't belong to any one
+// account. Pending requests go too; a redeemed code's redeemed_by is left
+// as-is, a harmless dangling reference kept for the audit trail rather than
+// erased. Used by both the admin "delete user" tool and self-service closing.
+async function purgeUser(env, userId) {
+  await env.DB.batch([
+    env.DB.prepare("DELETE FROM shared_words WHERE owner_id = ?").bind(userId),
+    env.DB.prepare("DELETE FROM upgrade_requests WHERE user_id = ?").bind(userId),
+    env.DB.prepare("DELETE FROM koala_grants WHERE user_id = ?").bind(userId),
+    env.DB.prepare("DELETE FROM user_koala WHERE user_id = ?").bind(userId),
+    env.DB.prepare("DELETE FROM user_rewards WHERE user_id = ?").bind(userId),
+    env.DB.prepare("DELETE FROM user_progress WHERE account_key IN (?, ?, ?, ?, ?)").bind(userId, `${userId}:p1`, `${userId}:p2`, `${userId}:p3`, `${userId}:profiles`),
+    env.DB.prepare("DELETE FROM email_tokens WHERE user_id = ?").bind(userId),
+    env.DB.prepare("DELETE FROM weekly_report_prefs WHERE user_id = ?").bind(userId),
+    env.DB.prepare("DELETE FROM subscriptions WHERE user_id = ?").bind(userId),
+    env.DB.prepare("DELETE FROM support_messages WHERE ticket_id IN (SELECT id FROM support_tickets WHERE user_id = ?)").bind(userId),
+    env.DB.prepare("DELETE FROM support_tickets WHERE user_id = ?").bind(userId),
+    env.DB.prepare("DELETE FROM customer_notes WHERE user_id = ?").bind(userId),
+    env.DB.prepare("DELETE FROM users WHERE id = ?").bind(userId),
+  ]);
+}
+
 async function handleApi(request, env, url) {
   const route = url.pathname.slice("/api".length);
 
@@ -420,6 +451,15 @@ async function handleApi(request, env, url) {
         id: r.id, username: r.username, role: r.role, createdAt: r.created_at, upgradedAt: r.upgraded_at || null,
         email: r.email || null, emailVerified: !!r.email_verified_at,
       }) },
+    });
+    if (res) return res;
+  }
+
+  // Premium subscriptions (Stripe checkout, webhook, cancel/resume).
+  if (route.startsWith("/billing/")) {
+    const res = await handleBilling({
+      route, request, env, url,
+      h: { json, getSessionUser, makeSessionToken, sessionCookie, SESSION_TTL_MS },
     });
     if (res) return res;
   }
@@ -611,6 +651,31 @@ async function handleApi(request, env, url) {
       .bind(hash, salt, session.id)
       .run();
     return json({ ok: true });
+  }
+
+  // Self-service account closing. Password re-entered to confirm; the admin
+  // account can't be closed this way. A live Stripe subscription is cancelled
+  // first (customer deleted) — if that fails nothing is deleted, so a closed
+  // account can never keep being charged.
+  if (route === "/auth/delete-account" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session) return json({ error: "unauthorized" }, 401);
+    if (session.role === "admin") return json({ error: "cannot_delete_admin" }, 400);
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return json({ error: "bad_request" }, 400);
+    }
+    const password = typeof body?.password === "string" ? body.password : "";
+    const user = await env.DB.prepare("SELECT * FROM users WHERE id = ?").bind(session.id).first();
+    if (!user) return json({ error: "unauthorized" }, 401);
+    if (!password || !(await verifyPassword(password, user.password_salt, user.password_hash))) {
+      return json({ error: "wrong_current_password" }, 400);
+    }
+    if (!(await closeBillingForUser(env, user.id))) return json({ error: "billing_cancel_failed" }, 502);
+    await purgeUser(env, user.id);
+    return json({ ok: true }, 200, { "set-cookie": sessionCookie("", 0) });
   }
 
   // Add or change the account's email address (existing accounts that signed
@@ -1191,24 +1256,9 @@ async function handleApi(request, env, url) {
     const target = await env.DB.prepare("SELECT id FROM users WHERE id = ?").bind(userId).first();
     if (!target) return json({ error: "not_found" }, 404);
 
-    // A deleted account's own private words (owner_id = them) go with it —
-    // admin-shared words (owner_id NULL) are never touched by this, since
-    // they don't belong to any one account. Pending requests go too; a
-    // redeemed code's redeemed_by is left as-is, a harmless dangling
-    // reference kept for the audit trail rather than erased.
-    await env.DB.batch([
-      env.DB.prepare("DELETE FROM shared_words WHERE owner_id = ?").bind(userId),
-      env.DB.prepare("DELETE FROM upgrade_requests WHERE user_id = ?").bind(userId),
-      env.DB.prepare("DELETE FROM koala_grants WHERE user_id = ?").bind(userId),
-      env.DB.prepare("DELETE FROM user_koala WHERE user_id = ?").bind(userId),
-      env.DB.prepare("DELETE FROM user_rewards WHERE user_id = ?").bind(userId),
-      env.DB.prepare("DELETE FROM user_progress WHERE account_key IN (?, ?, ?, ?, ?)").bind(userId, `${userId}:p1`, `${userId}:p2`, `${userId}:p3`, `${userId}:profiles`),
-      env.DB.prepare("DELETE FROM email_tokens WHERE user_id = ?").bind(userId),
-      env.DB.prepare("DELETE FROM support_messages WHERE ticket_id IN (SELECT id FROM support_tickets WHERE user_id = ?)").bind(userId),
-      env.DB.prepare("DELETE FROM support_tickets WHERE user_id = ?").bind(userId),
-      env.DB.prepare("DELETE FROM customer_notes WHERE user_id = ?").bind(userId),
-      env.DB.prepare("DELETE FROM users WHERE id = ?").bind(userId),
-    ]);
+    // Don't leave a live Stripe subscription behind a deleted account.
+    if (!(await closeBillingForUser(env, userId))) return json({ error: "billing_cancel_failed" }, 502);
+    await purgeUser(env, userId);
     return json({ ok: true });
   }
 

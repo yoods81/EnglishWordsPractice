@@ -188,3 +188,23 @@ CREATE TABLE IF NOT EXISTS user_progress (
   progress_json TEXT NOT NULL,
   updated_at INTEGER NOT NULL
 );
+
+-- Paid subscriptions via Stripe (see migrations/0013_billing.sql).
+CREATE TABLE IF NOT EXISTS subscriptions (
+  user_id TEXT PRIMARY KEY,
+  stripe_customer_id TEXT NOT NULL,
+  stripe_subscription_id TEXT,
+  status TEXT NOT NULL DEFAULT 'incomplete',
+  plan TEXT,
+  current_period_end INTEGER,
+  cancel_at_period_end INTEGER NOT NULL DEFAULT 0,
+  updated_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_customer ON subscriptions (stripe_customer_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_subscription ON subscriptions (stripe_subscription_id);
+
+CREATE TABLE IF NOT EXISTS stripe_events (
+  event_id TEXT PRIMARY KEY,
+  type TEXT NOT NULL,
+  processed_at INTEGER NOT NULL
+);
