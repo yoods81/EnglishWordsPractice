@@ -2599,7 +2599,7 @@ function clampGoalsForRole() {
 // than the number just flatly updating.
 
 function updateSpellingStartChips() {
-  renderLevelSeg(document.getElementById("spelling-level-seg"));
+  renderLevelSeg(document.getElementById("spelling-level-seg"), true);
   // A little scoreboard so there is something to come back for: today's correct
   // spelling answers and the daily streak.
   const stats = document.getElementById("spelling-start-stats");
@@ -2666,7 +2666,7 @@ function renderLevelSeg(seg, short) {
 // The closed Settings row always shows the current choices, e.g. "Vocabulary · Upper Primary · 10 questions".
 // The collapsed Settings row shows the current choices on two tidy lines (one line on wide screens).
 function setSettingsNow(el, items) {
-  const half = el.id === "quiz-settings-now" ? items.length : (items.length > 2 ? 2 : items.length); // the quiz summary stays on one line
+  const half = /^(quiz|spelling|flash)-settings-now$/.test(el.id) ? items.length : (items.length > 2 ? 2 : items.length); // the quiz summary stays on one line
   const a = items.slice(0, half), b = items.slice(half);
   el.innerHTML = [a, b].filter((g) => g.length).map((g) => `<span>${g.map(escapeHtml).join(" · ")}</span>`).join("");
 }
@@ -3673,7 +3673,7 @@ function renderScopeSegs() {
   const html =
     btn("all", !mine, t("scopeAll"), num(counts.all), "") +
     btn("mine", mine, t("scopeMine"), locked ? "🔒" : num(counts.mine), t("scopeMineShort"));
-  const note = mine ? (counts.mine === 0 ? t("scopeNoteEmpty") : t("scopeNoteMine")) : "";
+  const note = ""; // the explanatory line was removed on purpose; the tabs say it all
   segs.forEach((seg) => {
     if (seg.dataset.sig !== html) { seg.innerHTML = html; seg.dataset.sig = html; }
     const noteEl = seg.parentElement.querySelector(".scope-note");

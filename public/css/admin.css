@@ -1506,3 +1506,21 @@ html:root:root:root body #quiz-mode-seg .qz-seg-btn[data-mode="relaxed"]::before
 html:root:root:root body #quiz-mode-seg .qz-seg-btn.on[data-mode="relaxed"]::before { content: "🐢" !important; display: inline !important; }
 html:root:root:root body #quiz-mode-seg .qz-seg-btn.on[data-mode="time"]::before { content: "⏱" !important; display: inline !important; }
 html:root:root:root body #quiz-start-screen #quiz-category-seg .qz-seg-btn { font-size: .8rem; }
+
+/* ===== v175: scope row, one-line summaries, spelling level row, no helper notes ===== */
+html:root:root:root body .scope-pick .scope-note,
+html:root:root:root body #quiz-mode-note { display: none !important; }
+html:root:root:root body .scope-pick .scope-seg { flex: 1 1 auto; width: auto; min-width: 0; }
+html:root:root:root body .scope-pick .scope-seg .qz-seg-btn,
+html:root:root:root body #quiz-start-screen .scope-seg .qz-seg-btn,
+html:root:root:root body #spelling-start-screen .scope-seg .qz-seg-btn,
+html:root:root:root body #flash-start-screen .scope-seg .qz-seg-btn { white-space: nowrap !important; flex-wrap: nowrap !important; width: auto; padding: 0 8px; }
+html:root:root:root body .scope-seg .qz-seg-btn small { white-space: nowrap; }
+/* summary: always one line */
+html:root:root:root body :is(#flash-start-screen, #quiz-start-screen, #spelling-start-screen) .fs-settings-now,
+html:root:root:root body :is(#flash-start-screen, #quiz-start-screen, #spelling-start-screen) .fs-settings-now > span { white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+/* spelling difficulty row = quiz difficulty row */
+html:root:root:root body #spelling-start-screen #spelling-level-seg { display: grid !important; grid-auto-flow: column; grid-auto-columns: minmax(0,1fr); gap: 4px; padding: 4px !important; flex-wrap: nowrap !important; }
+html:root:root:root body #spelling-start-screen #spelling-level-seg .qz-seg-btn { min-width: 0; width: auto; padding: 0 2px; white-space: nowrap !important; font-size: .85rem; }
+html:root:root:root body #spelling-start-screen #spelling-round-seg { display: grid !important; grid-auto-flow: column; grid-auto-columns: minmax(0,1fr); gap: 4px; padding: 4px !important; flex-wrap: nowrap !important; }
+html:root:root:root body #spelling-start-screen #spelling-round-seg .qz-seg-btn { min-width: 0; width: auto; padding: 0 1px; white-space: nowrap !important; font-size: .84rem; }
