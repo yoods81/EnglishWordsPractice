@@ -1568,16 +1568,28 @@ to Flip!</span></div>
             </div>
             <div class="tg-start-card">
               <h3 data-i18n="timesTableTitle">🧮 Times Table</h3>
-              <div class="tg-start-chips">
-                <button type="button" class="tg-start-chip sp-level-chip" id="timestable-start-range" aria-haspopup="true" aria-expanded="false"></button>
-                <span class="tg-start-chip tg-start-best" id="timestable-start-best" hidden></span>
-              <div class="tt-start-panel" id="timestable-start-panel" hidden>
-                  <div class="tt-range-grid" id="timestable-start-grid"></div>
-                  <div class="tt-range-quick">
-                    <button type="button" id="timestable-start-default"></button>
-                    <button type="button" id="timestable-start-all"></button>
+              <details class="fs-settings" id="timestable-settings"><summary class="fs-settings-sum"><span class="fs-settings-ico" aria-hidden="true">⚙️</span><span class="fs-settings-label" data-i18n="flashSettingsLabel">Settings</span><span class="fs-settings-now" id="timestable-settings-now"></span></summary><div class="fs-settings-body" id="timestable-settings-body">
+                <div class="qz-pick tt-pick-tables">
+                  <div class="qz-pick-title" data-i18n="timesTableTablesTitle">Tables</div>
+                  <div class="tt-start-panel" id="timestable-start-panel">
+                    <div class="tt-range-grid" id="timestable-start-grid"></div>
+                    <div class="tt-range-quick">
+                      <button type="button" id="timestable-start-default"></button>
+                      <button type="button" id="timestable-start-all"></button>
+                    </div>
                   </div>
                 </div>
+                <div class="qz-pick">
+                  <div class="qz-pick-title" data-i18n="setModeTitle">Mode</div>
+                  <div class="qz-seg" id="timestable-mode-seg" role="radiogroup" data-i18n-aria-label="setModeTitle" aria-label="Mode">
+                    <button type="button" class="qz-seg-btn" role="radio" data-mode="slow"></button>
+                    <button type="button" class="qz-seg-btn" role="radio" data-mode="normal"></button>
+                    <button type="button" class="qz-seg-btn" role="radio" data-mode="fast"></button>
+                  </div>
+                </div>
+              </div></details>
+              <div class="tg-start-chips">
+                <span class="tg-start-chip tg-start-best" id="timestable-start-best" hidden></span>
               </div>
               <div class="tg-hero" id="timestable-hero">
                 <div class="tg-slides">
@@ -1588,11 +1600,6 @@ to Flip!</span></div>
                   <div class="tg-slide tg-slide2" aria-live="polite"><b class="tg-mode-title"></b><p class="tg-mode-desc"></p><span class="tg-mode-stats"></span></div>
                 </div>
                 <div class="tg-dots" aria-hidden="true"><i></i><i></i></div>
-              </div>
-              <div class="tg-modes qz-seg" id="timestable-mode-seg" role="radiogroup" aria-label="Speed">
-                <button type="button" class="qz-seg-btn" role="radio" data-mode="slow"></button>
-                <button type="button" class="qz-seg-btn" role="radio" data-mode="normal"></button>
-                <button type="button" class="qz-seg-btn" role="radio" data-mode="fast"></button>
               </div>
               <button class="pill accent tg-start-btn" id="timestable-start-btn" data-i18n="timesTableStartBtn">Start Game</button>
             </div>

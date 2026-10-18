@@ -8606,10 +8606,12 @@ html body #flash-practice .flash-end-row #flash-end:active { transform: translat
 /* ---- Flashcards start screen: tidy picker + koala flipping a card ---- */
 html body #flash-start-screen .qz-seg-btn.on,
 html body #quiz-start-screen .qz-seg-btn.on,
+html body #timestable-start-overlay .qz-seg-btn.on,
 html body #typegame-start-overlay .qz-seg-btn.on,
 html body #spelling-start-screen .qz-seg-btn.on { background: linear-gradient(180deg, #ffe066, #ffab1a); color: #5a3000; box-shadow: 0 3px 0 #c27400; }
 #flash-start-screen .qz-seg .qz-seg-btn,
 #quiz-start-screen .qz-seg .qz-seg-btn,
+#timestable-start-overlay .qz-seg .qz-seg-btn,
 #typegame-start-overlay .qz-seg .qz-seg-btn,
 #spelling-start-screen .qz-seg .qz-seg-btn { flex: 1 1 0; min-width: 0; }
 #flash-start-screen .flash-start-selects select,
@@ -8629,18 +8631,22 @@ html body #view-quiz #quiz-start-screen .flash-start-selects select,
 html body #view-spelling #spelling-start-screen .flash-start-selects select { flex: 1 1 0; width: auto; min-width: 0; padding: 6px 28px 6px 14px; text-align: center; text-align-last: center; }
 html body #flash-start-screen .qz-seg-btn,
 html body #quiz-start-screen .qz-seg-btn,
+html body #timestable-start-overlay .qz-seg-btn,
 html body #typegame-start-overlay .qz-seg-btn,
 html body #spelling-start-screen .qz-seg-btn { border: 0 !important; background: rgba(255, 255, 255, 0.22) !important; color: #fff !important; box-shadow: none !important; text-shadow: 0 1px 0 rgba(8, 90, 72, 0.45); }
 html body #flash-start-screen .qz-seg-btn.on,
 html body #quiz-start-screen .qz-seg-btn.on,
+html body #timestable-start-overlay .qz-seg-btn.on,
 html body #typegame-start-overlay .qz-seg-btn.on,
 html body #spelling-start-screen .qz-seg-btn.on { background: #fff !important; color: #0b6b57 !important; text-shadow: none; box-shadow: 0 3px 0 rgba(8, 90, 72, 0.45) !important; }
 html body #flash-start-screen .qz-seg-btn:disabled,
 html body #quiz-start-screen .qz-seg-btn:disabled,
+html body #timestable-start-overlay .qz-seg-btn:disabled,
 html body #typegame-start-overlay .qz-seg-btn:disabled,
 html body #spelling-start-screen .qz-seg-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 #flash-start-screen .qz-seg .qz-seg-btn,
 #quiz-start-screen .qz-seg .qz-seg-btn,
+#timestable-start-overlay .qz-seg .qz-seg-btn,
 #typegame-start-overlay .qz-seg .qz-seg-btn,
 #spelling-start-screen .qz-seg .qz-seg-btn { flex: 1 1 0; min-width: 0; padding: 6px 8px; white-space: nowrap; }
 #flash-start-screen .qz-start-card,
@@ -8660,28 +8666,35 @@ html body #spelling-start-screen .qz-seg-btn:disabled { opacity: 0.55; cursor: n
 /* Flashcards start: one row per picker — title on the left, compact buttons beside it */
 #flash-start-screen .qz-pick,
 #quiz-start-screen .qz-pick,
+#timestable-start-overlay .qz-pick,
 #typegame-start-overlay .qz-pick,
 #spelling-start-screen .qz-pick { flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; padding: 0 4px; }
 #flash-start-screen .qz-pick-title,
 #quiz-start-screen .qz-pick-title,
+#timestable-start-overlay .qz-pick-title,
 #typegame-start-overlay .qz-pick-title,
 #spelling-start-screen .qz-pick-title { flex: 0 0 74px; text-align: left; font-size: 0.85rem; }
 #flash-start-screen .qz-pick .qz-seg,
 #quiz-start-screen .qz-pick .qz-seg,
+#timestable-start-overlay .qz-pick .qz-seg,
 #typegame-start-overlay .qz-pick .qz-seg,
 #spelling-start-screen .qz-pick .qz-seg { flex: 1 1 auto; width: auto; justify-content: flex-start; flex-wrap: nowrap; gap: 6px; }
 #flash-start-screen .qz-seg .qz-seg-btn,
 #quiz-start-screen .qz-seg .qz-seg-btn,
+#timestable-start-overlay .qz-seg .qz-seg-btn,
 #typegame-start-overlay .qz-seg .qz-seg-btn,
 #spelling-start-screen .qz-seg .qz-seg-btn { flex: 0 0 auto; width: auto; min-height: 30px; padding: 4px 12px; font-size: 0.78rem; }
 @media (max-width: 480px) { #flash-start-screen .qz-pick-title,
 #quiz-start-screen .qz-pick-title,
+#timestable-start-overlay .qz-pick-title,
 #typegame-start-overlay .qz-pick-title,
 #spelling-start-screen .qz-pick-title { flex-basis: 62px; font-size: 0.78rem; } #flash-start-screen .qz-seg .qz-seg-btn,
 #quiz-start-screen .qz-seg .qz-seg-btn,
+#timestable-start-overlay .qz-seg .qz-seg-btn,
 #typegame-start-overlay .qz-seg .qz-seg-btn,
 #spelling-start-screen .qz-seg .qz-seg-btn { padding: 4px 8px; font-size: 0.72rem; } #flash-start-screen .qz-pick .qz-seg,
 #quiz-start-screen .qz-pick .qz-seg,
+#timestable-start-overlay .qz-pick .qz-seg,
 #typegame-start-overlay .qz-pick .qz-seg,
 #spelling-start-screen .qz-pick .qz-seg { gap: 4px; flex-wrap: wrap; } }
 /* front-side picker is now two buttons; the select stays in the DOM as the single source of truth */
@@ -8713,34 +8726,41 @@ html body #view-spelling #spelling-start-screen .flash-start-selects select opti
 #spelling-start-screen .qz-start-card > h3 { margin-bottom: 1.1em; }
 #flash-start-screen .qz-pick .qz-seg,
 #quiz-start-screen .qz-pick .qz-seg,
+#timestable-start-overlay .qz-pick .qz-seg,
 #typegame-start-overlay .qz-pick .qz-seg,
 #spelling-start-screen .qz-pick .qz-seg { flex-wrap: wrap; }
 
 /* Flashcards start: the three picker rows share the animation panel's width/left edge */
 #flash-start-screen .qz-pick,
 #quiz-start-screen .qz-pick,
+#timestable-start-overlay .qz-pick,
 #typegame-start-overlay .qz-pick,
 #spelling-start-screen .qz-pick { width: 280px; max-width: 100%; margin: 0 auto; padding: 0; box-sizing: border-box; }
 #flash-start-screen .fs-panel, #flash-start-screen .qz-pick,
 #quiz-start-screen .fs-panel,
 #spelling-start-screen .fs-panel,
 #quiz-start-screen .qz-pick,
+#timestable-start-overlay .qz-pick,
 #typegame-start-overlay .qz-pick,
 #spelling-start-screen .qz-pick { width: 300px; max-width: 100%; }
 #flash-start-screen .qz-pick,
 #quiz-start-screen .qz-pick,
+#timestable-start-overlay .qz-pick,
 #typegame-start-overlay .qz-pick,
 #spelling-start-screen .qz-pick { gap: 8px; }
 #flash-start-screen .qz-pick-title,
 #quiz-start-screen .qz-pick-title,
+#timestable-start-overlay .qz-pick-title,
 #typegame-start-overlay .qz-pick-title,
 #spelling-start-screen .qz-pick-title { flex-basis: 60px; font-size: 0.78rem; }
 #flash-start-screen .qz-pick .qz-seg,
 #quiz-start-screen .qz-pick .qz-seg,
+#timestable-start-overlay .qz-pick .qz-seg,
 #typegame-start-overlay .qz-pick .qz-seg,
 #spelling-start-screen .qz-pick .qz-seg { gap: 4px; }
 #flash-start-screen .qz-seg .qz-seg-btn,
 #quiz-start-screen .qz-seg .qz-seg-btn,
+#timestable-start-overlay .qz-seg .qz-seg-btn,
 #typegame-start-overlay .qz-seg .qz-seg-btn,
 #spelling-start-screen .qz-seg .qz-seg-btn { padding: 4px 8px; font-size: 0.72rem; }
 
@@ -9593,26 +9613,32 @@ html body #spelling-start-screen .qz-start-card > h3 { margin-bottom: 0; font-si
 /* chips: aligned label column, clear on/off */
 html body #flash-start-screen .fs-settings-body .qz-pick,
 html body #quiz-start-screen .fs-settings-body .qz-pick,
+html body #timestable-start-overlay .fs-settings-body .qz-pick,
 html body #typegame-start-overlay .fs-settings-body .qz-pick,
 html body #spelling-start-screen .fs-settings-body .qz-pick { gap: 10px; }
 html body #flash-start-screen .fs-settings-body .qz-pick-title,
 html body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html body #timestable-start-overlay .fs-settings-body .qz-pick-title,
 html body #typegame-start-overlay .fs-settings-body .qz-pick-title,
 html body #spelling-start-screen .fs-settings-body .qz-pick-title { flex: 0 0 76px; }
 html body #flash-start-screen .fs-settings-body .qz-seg,
 html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #timestable-start-overlay .fs-settings-body .qz-seg,
 html body #typegame-start-overlay .fs-settings-body .qz-seg,
 html body #spelling-start-screen .fs-settings-body .qz-seg { flex: 1 1 0; flex-wrap: nowrap; gap: 6px; }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn { flex: 1 1 0; min-width: 0; min-height: 36px; font-size: 0.8rem; padding: 4px 6px; border: 2px solid rgba(255, 255, 255, 0.7) !important; background: rgba(255, 255, 255, 0.14) !important; color: #fff !important; }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on { background: #fff !important; color: #0b6b57 !important; border-color: #fff !important; }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on::before,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on::before,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { content: "✓ "; font-weight: 800; }
 /* steps like Spelling's */
@@ -9625,14 +9651,17 @@ html body #quiz-start-screen .sp-start-card button.sp-start-btn.pill.accent,
 html body #spelling-start-screen .sp-start-card button.sp-start-btn.pill.accent { min-height: 48px; font-size: 1.15rem; box-shadow: 0 4px 0 #c27400, 0 6px 12px rgba(194, 116, 0, 0.3) !important; }
 html body #flash-start-screen .fs-settings-body .qz-seg,
 html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #timestable-start-overlay .fs-settings-body .qz-seg,
 html body #typegame-start-overlay .fs-settings-body .qz-seg,
 html body #spelling-start-screen .fs-settings-body .qz-seg { flex-wrap: wrap; }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn { flex: 1 1 auto; white-space: nowrap; }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on::before,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on::before,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { content: "✓ "; }
 .fs-settings-sum { font-size: 0.82rem; }
@@ -9640,6 +9669,7 @@ html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::befor
 /* Flashcards start: tidier settings row */
 html body #flash-start-screen .fs-settings-sum,
 html body #quiz-start-screen .fs-settings-sum,
+html body #timestable-start-overlay .fs-settings-sum,
 html body #typegame-start-overlay .fs-settings-sum,
 html body #spelling-start-screen .fs-settings-sum { min-height: 40px; background: rgba(255, 255, 255, 0.28); }
 
@@ -9654,22 +9684,27 @@ html body #quiz-start-screen .qz-start-card > h3,
 html body #spelling-start-screen .qz-start-card > h3 { margin: 0 0 2px; }
 html body #flash-start-screen .fs-settings-sum,
 html body #quiz-start-screen .fs-settings-sum,
+html body #timestable-start-overlay .fs-settings-sum,
 html body #typegame-start-overlay .fs-settings-sum,
 html body #spelling-start-screen .fs-settings-sum { min-height: 46px; }
 html body #flash-start-screen .fs-settings-body,
 html body #quiz-start-screen .fs-settings-body,
+html body #timestable-start-overlay .fs-settings-body,
 html body #typegame-start-overlay .fs-settings-body,
 html body #spelling-start-screen .fs-settings-body { gap: 18px; padding-top: 16px; }
 html body #flash-start-screen .fs-settings-body .qz-pick,
 html body #quiz-start-screen .fs-settings-body .qz-pick,
+html body #timestable-start-overlay .fs-settings-body .qz-pick,
 html body #typegame-start-overlay .fs-settings-body .qz-pick,
 html body #spelling-start-screen .fs-settings-body .qz-pick { gap: 12px; }
 html body #flash-start-screen .fs-settings-body .qz-seg,
 html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #timestable-start-overlay .fs-settings-body .qz-seg,
 html body #typegame-start-overlay .fs-settings-body .qz-seg,
 html body #spelling-start-screen .fs-settings-body .qz-seg { gap: 10px; }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn { min-height: 42px; font-size: 0.85rem; }
 html body #flash-start-screen .fs-panel,
@@ -9683,18 +9718,22 @@ html body #quiz-start-screen .sp-start-card button.sp-start-btn.pill.accent,
 html body #spelling-start-screen .sp-start-card button.sp-start-btn.pill.accent { margin-top: 6px; min-height: 52px; }
 html body #flash-start-screen .fs-settings-body .qz-pick,
 html body #quiz-start-screen .fs-settings-body .qz-pick,
+html body #timestable-start-overlay .fs-settings-body .qz-pick,
 html body #typegame-start-overlay .fs-settings-body .qz-pick,
 html body #spelling-start-screen .fs-settings-body .qz-pick { flex-direction: column; align-items: stretch; gap: 8px; }
 html body #flash-start-screen .fs-settings-body .qz-pick-title,
 html body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html body #timestable-start-overlay .fs-settings-body .qz-pick-title,
 html body #typegame-start-overlay .fs-settings-body .qz-pick-title,
 html body #spelling-start-screen .fs-settings-body .qz-pick-title { flex: 0 0 auto; text-align: left; font-size: 0.85rem; padding-left: 4px; }
 html body #flash-start-screen .fs-settings-body .qz-seg,
 html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #timestable-start-overlay .fs-settings-body .qz-seg,
 html body #typegame-start-overlay .fs-settings-body .qz-seg,
 html body #spelling-start-screen .fs-settings-body .qz-seg { width: 100%; gap: 8px; }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn { min-height: 40px; padding: 4px 10px; font-size: 0.82rem; }
 
@@ -9868,6 +9907,7 @@ html body #quiz-start-screen.is-settings-open .qz-start-card > h3,
 html body #spelling-start-screen.is-settings-open .qz-start-card > h3 { display: none; }
 html body #flash-start-screen.is-settings-open .fs-settings-body,
 html body #quiz-start-screen.is-settings-open .fs-settings-body,
+html body #timestable-start-overlay.is-settings-open .fs-settings-body,
 html body #typegame-start-overlay.is-settings-open .fs-settings-body,
 html body #spelling-start-screen.is-settings-open .fs-settings-body { gap: 12px; padding-top: 12px; }
 
@@ -9876,6 +9916,7 @@ html body #spelling-start-screen.is-settings-open .fs-settings-body { gap: 12px;
       the label (the chips below already show the choices). */
 html body #flash-start-screen .fs-settings-sum,
 html body #quiz-start-screen .fs-settings-sum,
+html body #timestable-start-overlay .fs-settings-sum,
 html body #typegame-start-overlay .fs-settings-sum,
 html body #spelling-start-screen .fs-settings-sum {
   display: grid;
@@ -9893,37 +9934,45 @@ html body #spelling-start-screen .fs-settings-sum {
 /* The gear is dropped: the SETTINGS label says it, and the room shows every choice. */
 html body #flash-start-screen .fs-settings-ico,
 html body #quiz-start-screen .fs-settings-ico,
+html body #timestable-start-overlay .fs-settings-ico,
 html body #typegame-start-overlay .fs-settings-ico,
 html body #spelling-start-screen .fs-settings-ico { display: none; }
 .fs-settings-label { grid-column: 1; grid-row: 1; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.85; }
 html body #flash-start-screen .fs-settings-now,
 html body #quiz-start-screen .fs-settings-now,
+html body #timestable-start-overlay .fs-settings-now,
 html body #typegame-start-overlay .fs-settings-now,
 html body #spelling-start-screen .fs-settings-now { grid-column: 1; grid-row: 2; font-size: 0.84rem; font-weight: 700; }
 html body #flash-start-screen .fs-settings-sum::after,
 html body #quiz-start-screen .fs-settings-sum::after,
+html body #timestable-start-overlay .fs-settings-sum::after,
 html body #typegame-start-overlay .fs-settings-sum::after,
 html body #spelling-start-screen .fs-settings-sum::after { grid-column: 2; grid-row: 1 / 3; width: 9px; height: 9px; border-width: 3px; margin: -3px 0 0; }
 html body #flash-start-screen .fs-settings[open] .fs-settings-sum::after,
 html body #quiz-start-screen .fs-settings[open] .fs-settings-sum::after,
+html body #timestable-start-overlay .fs-settings[open] .fs-settings-sum::after,
 html body #typegame-start-overlay .fs-settings[open] .fs-settings-sum::after,
 html body #spelling-start-screen .fs-settings[open] .fs-settings-sum::after { margin: 3px 0 0; }
 html body #flash-start-screen .fs-settings[open] .fs-settings-sum,
 html body #quiz-start-screen .fs-settings[open] .fs-settings-sum,
+html body #timestable-start-overlay .fs-settings[open] .fs-settings-sum,
 html body #typegame-start-overlay .fs-settings[open] .fs-settings-sum,
 html body #spelling-start-screen .fs-settings[open] .fs-settings-sum { min-height: 46px; padding-top: 6px; padding-bottom: 6px; }
 html body #flash-start-screen .fs-settings[open] .fs-settings-now,
 html body #quiz-start-screen .fs-settings[open] .fs-settings-now,
+html body #timestable-start-overlay .fs-settings[open] .fs-settings-now,
 html body #typegame-start-overlay .fs-settings[open] .fs-settings-now,
 html body #spelling-start-screen .fs-settings[open] .fs-settings-now { display: none; }
 html body #flash-start-screen .fs-settings[open] .fs-settings-label,
 html body #quiz-start-screen .fs-settings[open] .fs-settings-label,
+html body #timestable-start-overlay .fs-settings[open] .fs-settings-label,
 html body #typegame-start-overlay .fs-settings[open] .fs-settings-label,
 html body #spelling-start-screen .fs-settings[open] .fs-settings-label { grid-row: 1 / 3; font-size: 0.85rem; letter-spacing: 0; text-transform: none; opacity: 1; }
 
 /* 3) Unselected chips: darker fill + clear white outline. Selected stays white. */
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
   background: rgba(3, 66, 52, 0.38) !important;
@@ -9933,6 +9982,7 @@ html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) 
 }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on):disabled,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on):disabled,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on):disabled,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on):disabled,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on):disabled { opacity: 0.6; }
 
@@ -9940,6 +9990,7 @@ html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on):
       (label only — the icon would not fit). */
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
   display: inline-flex;
@@ -9949,6 +10000,7 @@ html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
 }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on::before,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on::before,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { content: "✓"; }
 html body #flash-start-screen #flash-category-seg,
@@ -10037,6 +10089,7 @@ html body #spelling-start-screen.spelling-stage-box { overflow: clip; }
 /* 9) Equal-width chips: choosing one no longer makes its neighbours shrink. */
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
   flex: 1 1 0;
@@ -10049,6 +10102,7 @@ html body #flash-start-screen #flash-category-seg .qz-seg-btn,
 html body #quiz-start-screen #quiz-category-seg .qz-seg-btn { padding: 4px 4px; font-size: 0.76rem; gap: 4px; }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on::before,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on::before,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { font-size: 0.85em; }
 
@@ -10199,6 +10253,7 @@ html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill { width: 4
 #view-typegame .tg-start-card .kb-strip .kb-cloud .bubble-text { font-size: 0.8rem; }
 
 /* The tip under the stage is only for while playing; the start card already explains it. */
+#view-typegame .card:has(#timestable-start-overlay:not([hidden])) .tg-hint,
 #view-typegame .card:has(#typegame-start-overlay:not([hidden])) .tg-hint { display: none; }
 /* Before the game starts the typing box looks (and is) switched off. */
 #view-typegame .typegame-input:disabled { opacity: 0.55; cursor: not-allowed; background: #eef3f1; }
@@ -10217,6 +10272,7 @@ html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill { width: 4
   /* The speed number has no room for its "Game speed" label on a phone: show a bolt instead. */
   .game-speed-control::before { content: "⚡"; font-size: 0.85rem; margin-right: 2px; }
   /* Start screen: a taller play area (the live game already fills the screen). */
+  #view-typegame .card:has(#timestable-start-overlay:not([hidden])) #typegame-stage,
   #view-typegame .card:has(#typegame-start-overlay:not([hidden])) #typegame-stage { height: clamp(300px, calc(100dvh - 470px), 440px); }
   /* A slimmer app title on the game screens leaves more height for the game. */
   body:has(#view-typegame.active) header h1 { font-size: clamp(1.3rem, 5.6vw, 1.7rem); }
@@ -10271,6 +10327,7 @@ html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill { width: 4
 .tg-start-overlay { scrollbar-width: none; }
 .tg-start-overlay::-webkit-scrollbar { display: none; }
 @media (max-width: 480px) {
+  #view-typegame .card:has(#timestable-start-overlay:not([hidden])) #typegame-stage,
   #view-typegame .card:has(#typegame-start-overlay:not([hidden])) #typegame-stage { height: 420px; }
   #view-typegame .typegame-overlay.tg-start-overlay { padding: 90px 12px 12px; }
   #view-typegame .tg-start-card { width: min(100%, 280px); padding: 8px 14px 16px; gap: 6px; }
@@ -11870,24 +11927,31 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
   html body #flash-start-screen .sp-start-floaters { display: none; }
 
   /* 3 — Game start screens: the start card covers the whole card (HUD, scenery, input) */
+  html body #view-typegame > .card:has(#timestable-start-overlay:not([hidden])),
   html body #view-typegame > .card:has(#typegame-start-overlay:not([hidden])),
   html body #view-timestable > .card:has(#timestable-start-overlay:not([hidden])) {
     padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; overflow: visible !important;
   }
+  html body #view-typegame > .card:has(#timestable-start-overlay:not([hidden])) > *:not(.typegame-stage),
   html body #view-typegame > .card:has(#typegame-start-overlay:not([hidden])) > *:not(.typegame-stage),
   html body #view-timestable > .card:has(#timestable-start-overlay:not([hidden])) > *:not(.typegame-stage) { display: none !important; }
+  html body #view-typegame > .card:has(#timestable-start-overlay:not([hidden])) > .typegame-stage,
   html body #view-typegame > .card:has(#typegame-start-overlay:not([hidden])) > .typegame-stage,
   html body #view-timestable > .card:has(#timestable-start-overlay:not([hidden])) > .typegame-stage {
     border: 0 !important; background: none !important; box-shadow: none !important; overflow: visible !important; height: auto !important; min-height: 0 !important; margin: 0 !important;
   }
+  html body #view-typegame > .card:has(#timestable-start-overlay:not([hidden])) #typegame-stage > *:not(#timestable-start-overlay),
   html body #view-typegame > .card:has(#typegame-start-overlay:not([hidden])) #typegame-stage > *:not(#typegame-start-overlay),
   html body #view-timestable > .card:has(#timestable-start-overlay:not([hidden])) #timestable-stage > *:not(#timestable-start-overlay) { display: none !important; }
+  html body #timestable-start-overlay:not([hidden]),
   html body #typegame-start-overlay:not([hidden]),
   html body #timestable-start-overlay:not([hidden]) {
     position: static !important; inset: auto !important; padding: 0 !important; background: none !important; overflow: visible !important; display: flex;
   }
+  html body #timestable-start-overlay .tg-start-floaters,
   html body #typegame-start-overlay .tg-start-floaters,
   html body #timestable-start-overlay .tg-start-floaters { display: none; }
+  html body #timestable-start-overlay .tg-start-card,
   html body #typegame-start-overlay .tg-start-card,
   html body #timestable-start-overlay .tg-start-card {
     width: 100% !important; max-width: none !important; margin: 0 !important; box-sizing: border-box;
@@ -11963,6 +12027,7 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
   html body #quiz-start-screen .sp-start-card,
   html body #spelling-start-screen .sp-start-card,
   html body #flash-start-screen .sp-start-card,
+  html body #timestable-start-overlay .tg-start-card,
   html body #typegame-start-overlay .tg-start-card,
   html body #timestable-start-overlay .tg-start-card {
     min-height: calc(100svh - 215px); box-sizing: border-box; justify-content: space-evenly; align-items: center;
@@ -11982,6 +12047,7 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
   html body .sp-start-card .qz-pick { gap: 12px; }
   html body .sp-start-card .qz-pick-note { opacity: .85; }
   html body #quiz-start-screen .qz-dd-btn, html body #spelling-start-screen .qz-dd-btn,
+  html body .sp-start-card .qz-seg-btn:not(.active):not(.on), html body #timestable-start-overlay .sp-level-chip,
   html body .sp-start-card .qz-seg-btn:not(.active):not(.on), html body #typegame-start-overlay .sp-level-chip,
   html body .sp-start-card .qz-seg-btn:not(.active):not(.on), html body #spelling-start-screen .sp-level-chip {
     background: #fff; color: #0b6b57; border: 2px solid #8fe3c6; box-shadow: 0 2px 0 #bfeedd; text-shadow: none;
@@ -11993,17 +12059,21 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
   html body .sp-start-card .sp-start-stats * { color: #17463c; text-shadow: none; }
   html body #flash-start-screen .fs-settings,
 html body #quiz-start-screen .fs-settings,
+html body #timestable-start-overlay .fs-settings,
 html body #typegame-start-overlay .fs-settings,
 html body #spelling-start-screen .fs-settings { background: #fff; border: 2px solid #8fe3c6; box-shadow: 0 2px 0 #bfeedd; }
   html body #flash-start-screen .fs-settings-sum, html body #flash-start-screen .fs-settings-label,
   html body #flash-start-screen .fs-settings-now,
 html body #quiz-start-screen .fs-settings-sum,
+html body #timestable-start-overlay .fs-settings-sum,
 html body #typegame-start-overlay .fs-settings-sum,
 html body #spelling-start-screen .fs-settings-sum,
 html body #quiz-start-screen .fs-settings-label,
+html body #timestable-start-overlay .fs-settings-label,
 html body #typegame-start-overlay .fs-settings-label,
 html body #spelling-start-screen .fs-settings-label,
 html body #quiz-start-screen .fs-settings-now,
+html body #timestable-start-overlay .fs-settings-now,
 html body #typegame-start-overlay .fs-settings-now,
 html body #spelling-start-screen .fs-settings-now { color: #17463c; text-shadow: none; }
   html body #flash-start-screen .fs-title,
@@ -12042,17 +12112,21 @@ html body #spelling-start-screen .sp-start-card button.sp-start-btn.pill.accent 
 @media all {
   html body #flash-start-screen .fs-settings,
 html body #quiz-start-screen .fs-settings,
+html body #timestable-start-overlay .fs-settings,
 html body #typegame-start-overlay .fs-settings,
 html body #spelling-start-screen .fs-settings { border-radius: 18px; overflow: hidden; }
   html body #flash-start-screen .fs-settings-sum,
 html body #quiz-start-screen .fs-settings-sum,
+html body #timestable-start-overlay .fs-settings-sum,
 html body #typegame-start-overlay .fs-settings-sum,
 html body #spelling-start-screen .fs-settings-sum { background: transparent !important; border: 0 !important; box-shadow: none !important; border-radius: 0; }
   html body #flash-start-screen .fs-settings-sum::after, html body #flash-start-screen .fs-settings-sum *,
 html body #quiz-start-screen .fs-settings-sum::after,
+html body #timestable-start-overlay .fs-settings-sum::after,
 html body #typegame-start-overlay .fs-settings-sum::after,
 html body #spelling-start-screen .fs-settings-sum::after,
 html body #quiz-start-screen .fs-settings-sum *,
+html body #timestable-start-overlay .fs-settings-sum *,
 html body #typegame-start-overlay .fs-settings-sum *,
 html body #spelling-start-screen .fs-settings-sum * { color: #17463c !important; }
   html body #flash-start-screen .fs-count, html body #flash-start-screen .sp-start-stats,
@@ -12073,6 +12147,7 @@ html body #quiz-start-screen .fs-start-bar::after,
 html body #spelling-start-screen .fs-start-bar::after { display: none !important; }
   html body #flash-start-screen .fs-settings-body,
 html body #quiz-start-screen .fs-settings-body,
+html body #timestable-start-overlay .fs-settings-body,
 html body #typegame-start-overlay .fs-settings-body,
 html body #spelling-start-screen .fs-settings-body { background: transparent; }
 }
@@ -12080,9 +12155,11 @@ html body #spelling-start-screen .fs-settings-body { background: transparent; }
   html body #flash-start-screen .fs-settings-body .qz-seg-btn,
   html body #flash-start-screen.is-settings-open .qz-seg-btn,
 html body #quiz-start-screen .fs-settings-body .qz-seg-btn,
+html body #timestable-start-overlay .fs-settings-body .qz-seg-btn,
 html body #typegame-start-overlay .fs-settings-body .qz-seg-btn,
 html body #spelling-start-screen .fs-settings-body .qz-seg-btn,
 html body #quiz-start-screen.is-settings-open .qz-seg-btn,
+html body #timestable-start-overlay.is-settings-open .qz-seg-btn,
 html body #typegame-start-overlay.is-settings-open .qz-seg-btn,
 html body #spelling-start-screen.is-settings-open .qz-seg-btn {
     background: #fff !important; color: #0b6b57 !important; border: 2px solid #8fe3c6 !important; box-shadow: 0 2px 0 #bfeedd !important; text-shadow: none !important;
@@ -12091,34 +12168,41 @@ html body #spelling-start-screen.is-settings-open .qz-seg-btn {
   html body #flash-start-screen .fs-settings-body .qz-seg-btn[aria-checked="true"],
   html body #flash-start-screen.is-settings-open .qz-seg-btn.on,
 html body #quiz-start-screen .fs-settings-body .qz-seg-btn.on,
+html body #timestable-start-overlay .fs-settings-body .qz-seg-btn.on,
 html body #typegame-start-overlay .fs-settings-body .qz-seg-btn.on,
 html body #spelling-start-screen .fs-settings-body .qz-seg-btn.on,
 html body #quiz-start-screen .fs-settings-body .qz-seg-btn[aria-checked="true"],
+html body #timestable-start-overlay .fs-settings-body .qz-seg-btn[aria-checked="true"],
 html body #typegame-start-overlay .fs-settings-body .qz-seg-btn[aria-checked="true"],
 html body #spelling-start-screen .fs-settings-body .qz-seg-btn[aria-checked="true"],
 html body #quiz-start-screen.is-settings-open .qz-seg-btn.on,
+html body #timestable-start-overlay.is-settings-open .qz-seg-btn.on,
 html body #typegame-start-overlay.is-settings-open .qz-seg-btn.on,
 html body #spelling-start-screen.is-settings-open .qz-seg-btn.on {
     background: linear-gradient(180deg, #ffe066, #ffab1a) !important; color: #5a3000 !important; border: 0 !important; box-shadow: 0 3px 0 #c27400 !important;
   }
   html body #flash-start-screen .fs-settings-body .qz-pick-title,
 html body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html body #timestable-start-overlay .fs-settings-body .qz-pick-title,
 html body #typegame-start-overlay .fs-settings-body .qz-pick-title,
 html body #spelling-start-screen .fs-settings-body .qz-pick-title { color: #17463c !important; }
   html body #flash-start-screen .fs-settings[open] .fs-settings-sum,
 html body #quiz-start-screen .fs-settings[open] .fs-settings-sum,
+html body #timestable-start-overlay .fs-settings[open] .fs-settings-sum,
 html body #typegame-start-overlay .fs-settings[open] .fs-settings-sum,
 html body #spelling-start-screen .fs-settings[open] .fs-settings-sum { min-height: 0; }
 }
 @media all {
   html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
     background: #fff !important; color: #0b6b57 !important; border: 2px solid #8fe3c6 !important; box-shadow: 0 2px 0 #bfeedd !important;
   }
   html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
     background: linear-gradient(180deg, #ffe066, #ffab1a) !important; color: #5a3000 !important; border: 0 !important; box-shadow: 0 3px 0 #c27400 !important;
@@ -12160,6 +12244,7 @@ html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
   html body .sp-start-card .qz-seg .qz-seg-btn,
   html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
     flex: 1 1 auto; min-width: 0; border: 0 !important; box-shadow: none !important; background: transparent !important; color: var(--accent-dark) !important;
@@ -12169,6 +12254,7 @@ html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) 
   html body .sp-start-card .qz-seg .qz-seg-btn.on,
   html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
     background: var(--accent) !important; color: #fff !important; border: 0 !important; box-shadow: 0 2px 6px rgba(20, 160, 130, .35) !important;
@@ -12240,6 +12326,7 @@ html body #flash-report[data-check="1"] .sp-report-card > :not(h3):not(.flash-ch
   html body #quiz-start-screen .sp-start-card,
   html body #spelling-start-screen .sp-start-card,
   html body #flash-start-screen .sp-start-card,
+  html body #timestable-start-overlay .tg-start-card,
   html body #typegame-start-overlay .tg-start-card,
   html body #timestable-start-overlay .tg-start-card {
     width: min(100%, 38rem) !important; max-width: 100% !important; margin: 0 auto !important;
@@ -12271,6 +12358,7 @@ html body #flash-report[data-check="1"] .sp-report-card > :not(h3):not(.flash-ch
 /* 1) Same box for every start card (fluid with the root font-size). */
 @media (min-width: 481px) {
   html body #quiz-start-screen .sp-start-card, html body #spelling-start-screen .sp-start-card,
+  html body #flash-start-screen .sp-start-card, html body #timestable-start-overlay .tg-start-card,
   html body #flash-start-screen .sp-start-card, html body #typegame-start-overlay .tg-start-card,
   html body #timestable-start-overlay .tg-start-card {
     width: min(100%, 38rem) !important; min-height: 38rem !important; height: auto;
@@ -12353,10 +12441,12 @@ html body #spelling-start-screen .sp-start-stats.fs-count.is-empty { background:
 /* 5) Flashcards settings: one-line button, dropdown overlays the card. */
 html body #flash-start-screen .fs-settings,
 html body #quiz-start-screen .fs-settings,
+html body #timestable-start-overlay .fs-settings,
 html body #typegame-start-overlay .fs-settings,
 html body #spelling-start-screen .fs-settings { position: relative; background: none !important; border: 0 !important; box-shadow: none !important; overflow: visible !important; border-radius: 0; }
 html body #flash-start-screen .fs-settings-sum,
 html body #quiz-start-screen .fs-settings-sum,
+html body #timestable-start-overlay .fs-settings-sum,
 html body #typegame-start-overlay .fs-settings-sum,
 html body #spelling-start-screen .fs-settings-sum {
   display: flex !important; flex-wrap: nowrap; align-items: center; gap: 0.5rem; min-height: 3rem !important; padding: 0.4rem 1rem !important;
@@ -12364,35 +12454,43 @@ html body #spelling-start-screen .fs-settings-sum {
 }
 html body #flash-start-screen .fs-settings-ico,
 html body #quiz-start-screen .fs-settings-ico,
+html body #timestable-start-overlay .fs-settings-ico,
 html body #typegame-start-overlay .fs-settings-ico,
 html body #spelling-start-screen .fs-settings-ico { display: inline !important; font-size: 1.1rem; }
 html body #flash-start-screen .fs-settings-label,
 html body #quiz-start-screen .fs-settings-label,
+html body #timestable-start-overlay .fs-settings-label,
 html body #typegame-start-overlay .fs-settings-label,
 html body #spelling-start-screen .fs-settings-label { font-size: 0.95rem !important; font-weight: 800; letter-spacing: 0 !important; text-transform: none !important; opacity: 1 !important; color: #17463c !important; white-space: nowrap; }
 html body #flash-start-screen .fs-settings-now, html body #flash-start-screen .fs-settings[open] .fs-settings-now,
 html body #quiz-start-screen .fs-settings-now,
+html body #timestable-start-overlay .fs-settings-now,
 html body #typegame-start-overlay .fs-settings-now,
 html body #spelling-start-screen .fs-settings-now,
 html body #quiz-start-screen .fs-settings[open] .fs-settings-now,
+html body #timestable-start-overlay .fs-settings[open] .fs-settings-now,
 html body #typegame-start-overlay .fs-settings[open] .fs-settings-now,
 html body #spelling-start-screen .fs-settings[open] .fs-settings-now {
   display: block !important; flex: 1 1 0; min-width: 0; text-align: right; font-size: 0.85rem !important; font-weight: 700; color: #0b8a6e !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 html body #flash-start-screen .fs-settings-sum::after,
 html body #quiz-start-screen .fs-settings-sum::after,
+html body #timestable-start-overlay .fs-settings-sum::after,
 html body #typegame-start-overlay .fs-settings-sum::after,
 html body #spelling-start-screen .fs-settings-sum::after { margin: -3px 0 0 0.2rem !important; width: 8px !important; height: 8px !important; border-color: #0b6b57 !important; flex: 0 0 auto; }
 html body #flash-start-screen .fs-settings[open] .fs-settings-sum::after,
 html body #quiz-start-screen .fs-settings[open] .fs-settings-sum::after,
+html body #timestable-start-overlay .fs-settings[open] .fs-settings-sum::after,
 html body #typegame-start-overlay .fs-settings[open] .fs-settings-sum::after,
 html body #spelling-start-screen .fs-settings[open] .fs-settings-sum::after { margin: 3px 0 0 0.2rem !important; }
 html body #flash-start-screen .fs-settings[open] .fs-settings-sum,
 html body #quiz-start-screen .fs-settings[open] .fs-settings-sum,
+html body #timestable-start-overlay .fs-settings[open] .fs-settings-sum,
 html body #typegame-start-overlay .fs-settings[open] .fs-settings-sum,
 html body #spelling-start-screen .fs-settings[open] .fs-settings-sum { min-height: 3rem !important; border-color: #2fc79c !important; }
 html body #flash-start-screen .fs-settings-body,
 html body #quiz-start-screen .fs-settings-body,
+html body #timestable-start-overlay .fs-settings-body,
 html body #typegame-start-overlay .fs-settings-body,
 html body #spelling-start-screen .fs-settings-body {
   position: absolute !important; left: 0; right: 0; top: calc(100% + 0.5rem); z-index: 60;
@@ -12401,14 +12499,17 @@ html body #spelling-start-screen .fs-settings-body {
 }
 html body #flash-start-screen .fs-settings-body .qz-pick,
 html body #quiz-start-screen .fs-settings-body .qz-pick,
+html body #timestable-start-overlay .fs-settings-body .qz-pick,
 html body #typegame-start-overlay .fs-settings-body .qz-pick,
 html body #spelling-start-screen .fs-settings-body .qz-pick { display: flex; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important; width: 100% !important; max-width: none !important; }
 html body #flash-start-screen .fs-settings-body .qz-pick-title,
 html body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html body #timestable-start-overlay .fs-settings-body .qz-pick-title,
 html body #typegame-start-overlay .fs-settings-body .qz-pick-title,
 html body #spelling-start-screen .fs-settings-body .qz-pick-title { flex: 0 0 6.2rem !important; text-align: left !important; font-size: 0.9rem !important; color: #17463c !important; padding: 0 !important; white-space: nowrap; }
 html body #flash-start-screen .fs-settings-body .qz-seg,
 html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #timestable-start-overlay .fs-settings-body .qz-seg,
 html body #typegame-start-overlay .fs-settings-body .qz-seg,
 html body #spelling-start-screen .fs-settings-body .qz-seg {
   flex: 1 1 0 !important; width: auto !important; min-width: 0; display: flex; flex-wrap: nowrap !important; gap: 0.25rem !important;
@@ -12417,9 +12518,11 @@ html body #spelling-start-screen .fs-settings-body .qz-seg {
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
   flex: 1 1 auto !important; min-width: 0; min-height: 2.4rem !important; padding: 0.2rem 0.5rem !important; white-space: nowrap; font-size: 0.82rem !important;
@@ -12427,10 +12530,12 @@ html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) 
 }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on { background: var(--accent) !important; color: #fff !important; }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on::before,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on::before,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on::before { content: none !important; }
 html body #flash-start-screen.is-settings-open .qz-start-card > h3,
@@ -12448,14 +12553,17 @@ html body #spelling-start-screen.is-settings-open .fs-panel .sp-scene { height: 
 @media (max-width: 480px) {
   html body #flash-start-screen .fs-settings-body .qz-pick,
 html body #quiz-start-screen .fs-settings-body .qz-pick,
+html body #timestable-start-overlay .fs-settings-body .qz-pick,
 html body #typegame-start-overlay .fs-settings-body .qz-pick,
 html body #spelling-start-screen .fs-settings-body .qz-pick { flex-direction: column !important; align-items: stretch !important; gap: 0.35rem !important; }
   html body #flash-start-screen .fs-settings-body .qz-pick-title,
 html body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html body #timestable-start-overlay .fs-settings-body .qz-pick-title,
 html body #typegame-start-overlay .fs-settings-body .qz-pick-title,
 html body #spelling-start-screen .fs-settings-body .qz-pick-title { flex: 0 0 auto !important; }
   html body #flash-start-screen .fs-settings-body .qz-seg,
 html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #timestable-start-overlay .fs-settings-body .qz-seg,
 html body #typegame-start-overlay .fs-settings-body .qz-seg,
 html body #spelling-start-screen .fs-settings-body .qz-seg { flex-wrap: wrap !important; border-radius: 1.2rem !important; }
 }
@@ -12511,6 +12619,7 @@ html body #quiz-start-screen .fs-start-bar .sp-start-btn,
 html body #spelling-start-screen .fs-start-bar .sp-start-btn { margin: 0 auto; }
 html body #flash-start-screen .fs-settings-body,
 html body #quiz-start-screen .fs-settings-body,
+html body #timestable-start-overlay .fs-settings-body,
 html body #typegame-start-overlay .fs-settings-body,
 html body #spelling-start-screen .fs-settings-body { left: -3px; right: -3px; }
 html body #flash-start-screen .sp-start-card .sp-start-panel .sp-step, html body #flash-start-screen .fs-steps .sp-step,
@@ -12525,6 +12634,7 @@ html body .tg-start-card .tg-hero .kb-strip .kb-cloud .bubble-text { font-size: 
 html body #typegame-start-overlay.tg-start-overlay, html body #timestable-start-overlay.tg-start-overlay { padding: 0 !important; }
 @media (min-width: 481px) {
   html body #quiz-start-screen .sp-start-card, html body #spelling-start-screen .sp-start-card,
+  html body #flash-start-screen .sp-start-card, html body #timestable-start-overlay .tg-start-card,
   html body #flash-start-screen .sp-start-card, html body #typegame-start-overlay .tg-start-card,
   html body #timestable-start-overlay .tg-start-card { width: min(100%, 37.5rem) !important; min-height: 37.5rem !important; }
 }
@@ -12532,6 +12642,7 @@ html body .tg-start-card .tg-start-chips { position: relative; width: 100%; }
 html body .tg-start-card .tt-start-panel { left: 0 !important; right: 0 !important; top: calc(100% + 0.5rem) !important; }
 html body #flash-start-screen .fs-settings-body .qz-seg,
 html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #timestable-start-overlay .fs-settings-body .qz-seg,
 html body #typegame-start-overlay .fs-settings-body .qz-seg,
 html body #spelling-start-screen .fs-settings-body .qz-seg { box-shadow: none !important; }
 
@@ -12553,6 +12664,7 @@ html body #quiz-start-screen .qz-pick-note[data-mode="time"]::before { content: 
 
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn { padding: 0.2rem 0.25rem !important; font-size: 0.8rem !important; }
 
@@ -13149,13 +13261,16 @@ html body #spelling-start-screen .qz-start-card { gap: 18px; }
 html body #quiz-start-screen .qz-start-card > h3,
 html body #spelling-start-screen .qz-start-card > h3 { margin: 0 0 2px; }
 html body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html body #timestable-start-overlay .fs-settings-body .qz-pick-title,
 html body #typegame-start-overlay .fs-settings-body .qz-pick-title,
 html body #spelling-start-screen .fs-settings-body .qz-pick-title { margin: 0 !important; font-size: 0.9rem !important; font-weight: 800 !important; }
 html body #quiz-start-screen .fs-settings-body .qz-pick + .qz-pick,
+html body #timestable-start-overlay .fs-settings-body .qz-pick + .qz-pick,
 html body #typegame-start-overlay .fs-settings-body .qz-pick + .qz-pick,
 html body #spelling-start-screen .fs-settings-body .qz-pick + .qz-pick { margin-top: 0; }
 /* The closed Settings row lists every choice; let it wrap onto a second line instead of cutting it off. */
 html body #quiz-start-screen .fs-settings-now,
+html body #timestable-start-overlay .fs-settings-now,
 html body #typegame-start-overlay .fs-settings-now,
 html body #spelling-start-screen .fs-settings-now { white-space: normal !important; text-overflow: clip; line-height: 1.25; text-align: right; word-break: keep-all; font-size: 0.78rem !important; }
 /* The mode hint is plain text, not a pill (it is not a button). */
@@ -13362,12 +13477,14 @@ html body .qz-result-actions .qz-result-retry { background: linear-gradient(180d
 /* ---- Settings dropdown: tidy grids (no overlap on tablets, even blocks on phones) ---- */
 html body #flash-start-screen .fs-settings-body .qz-seg,
 html body #quiz-start-screen .fs-settings-body .qz-seg,
+html body #timestable-start-overlay .fs-settings-body .qz-seg,
 html body #typegame-start-overlay .fs-settings-body .qz-seg,
 html body #spelling-start-screen .fs-settings-body .qz-seg {
   display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); gap: 6px; flex-wrap: initial;
 }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
   display: flex; align-items: center; justify-content: center; text-align: center; white-space: normal; line-height: 1.15; min-height: 44px; padding: 6px 4px; flex: none; width: auto;

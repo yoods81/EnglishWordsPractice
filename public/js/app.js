@@ -292,6 +292,7 @@ const TRANSLATIONS = {
     timesTableInstrLine1: "When the problem is {{EX}}, here's how to answer:",
     timesTableInstrLine2: "Enter one of {{FMT}}",
     timesTableMaxTableLabel: "Choose tables to practise",
+    timesTableTablesTitle: "Tables",
     timesTableHowTitle: "💡 How to answer",
     timesTableOne: (n) => `Table ${n}`,
     timesTableMany: (n) => `${n} tables`,
@@ -1243,6 +1244,7 @@ const TRANSLATIONS = {
     timesTableInstrLine1: "문제가 {{EX}} 일 때 정답 입력 방법",
     timesTableInstrLine2: "{{FMT}} 셋 중 하나를 입력",
     timesTableMaxTableLabel: "연습할 단 고르기",
+    timesTableTablesTitle: "단수",
     timesTableHowTitle: "💡 이렇게 답해요",
     timesTableOne: (n) => `${n}단`,
     timesTableMany: (n) => `${n}개 단`,
@@ -7539,6 +7541,7 @@ bindSettingsNow("quiz-settings-body", "quiz-settings-now");
 bindSettingsNow("spelling-settings-body", "spelling-settings-now");
 bindSettingsNow("typegame-settings-body", "typegame-settings-now");
 wireSettingsDetails("typegame-settings", "typegame-start-overlay");
+wireSettingsDetails("timestable-settings", "timestable-start-overlay");
 wireSettingsDetails("quiz-settings", "quiz-start-screen");
 wireSettingsDetails("spelling-settings", "spelling-start-screen");
 
@@ -10024,6 +10027,11 @@ function renderTimesTableSpeedModes() {
     b.classList.toggle("on", m === timesTableSpeedMode);
     b.setAttribute("aria-checked", m === timesTableSpeedMode ? "true" : "false");
   });
+  const nowEl = document.getElementById("timestable-settings-now");
+  if (nowEl) {
+    const lab = TIMESTABLE_SPEED_LABELS[timesTableSpeedMode];
+    nowEl.textContent = `${timesTableRangeLabel()} · ${lab ? startL(lab[1], lab[2]) : ""}`;
+  }
 }
 // The tables picker on the start card (same selection as the in-game one).
 function renderTimesTableStartPicker() {
@@ -10051,12 +10059,11 @@ function renderTimesTableStartPicker() {
 }
 // Start screen chips (same idea as Typing Game): which tables are on, and the best score so far.
 function updateTimesTableStartChips() {
-  const rangeEl = document.getElementById("timestable-start-range");
   const bestEl = document.getElementById("timestable-start-best");
-  if (!rangeEl || !bestEl) return;
-  rangeEl.textContent = `📚 ${timesTableRangeLabel()} ▾`;
+  if (!bestEl) return;
   renderTimesTableSpeedModes();
   renderTimesTableStartPicker();
+
   let best = 0;
   try {
     best = timesTableHighScores[timesTableHighScoreKey()] || 0;
@@ -10124,21 +10131,6 @@ document.getElementById("timestable-range-all").addEventListener("click", () => 
 
 // Start card: the tables pill opens a picker that drops down over the card, the
 // speed buttons set where the round begins.
-function closeTimesTableStartPanel() {
-  const panel = document.getElementById("timestable-start-panel");
-  const btn = document.getElementById("timestable-start-range");
-  if (panel) panel.hidden = true;
-  if (btn) btn.setAttribute("aria-expanded", "false");
-}
-document.getElementById("timestable-start-range")?.addEventListener("click", (e) => {
-  e.stopPropagation();
-  const panel = document.getElementById("timestable-start-panel");
-  if (!panel) return;
-  panel.hidden = !panel.hidden;
-  e.currentTarget.setAttribute("aria-expanded", panel.hidden ? "false" : "true");
-});
-document.getElementById("timestable-start-panel")?.addEventListener("click", (e) => e.stopPropagation());
-document.addEventListener("click", closeTimesTableStartPanel);
 document.getElementById("timestable-start-default")?.addEventListener("click", () => document.getElementById("timestable-range-default").click());
 document.getElementById("timestable-start-all")?.addEventListener("click", () => document.getElementById("timestable-range-all").click());
 document.getElementById("timestable-mode-seg")?.addEventListener("click", (e) => {
@@ -10340,9 +10332,8 @@ function startTimesTable() {
   if (timesTableProblemPool.length === 0) {
     // nothing selected: open the picker (after the click finishes bubbling)
     setTimeout(() => {
-      const sp = document.getElementById("timestable-start-panel");
-      const sb = document.getElementById("timestable-start-range");
-      if (sp) { sp.hidden = false; sb?.setAttribute("aria-expanded", "true"); return; }
+      const sd = document.getElementById("timestable-settings");
+      if (sd) { sd.open = true; return; }
       timesTableRangePanel.hidden = false;
       timesTableRangeBtn.setAttribute("aria-expanded", "true");
     }, 0);

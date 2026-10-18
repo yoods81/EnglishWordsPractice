@@ -1110,18 +1110,21 @@ html[data-theme="dark"] .qz-dd-opt.is-selected {
 }
 html[data-theme="dark"] body #flash-start-screen .qz-seg-btn.on,
 html[data-theme="dark"] body #quiz-start-screen .qz-seg-btn.on,
+html[data-theme="dark"] body #timestable-start-overlay .qz-seg-btn.on,
 html[data-theme="dark"] body #typegame-start-overlay .qz-seg-btn.on,
 html[data-theme="dark"] body #spelling-start-screen .qz-seg-btn.on {
   color: #f38200 !important;
 }
 html[data-theme="dark"] body #flash-start-screen .qz-seg-btn,
 html[data-theme="dark"] body #quiz-start-screen .qz-seg-btn,
+html[data-theme="dark"] body #timestable-start-overlay .qz-seg-btn,
 html[data-theme="dark"] body #typegame-start-overlay .qz-seg-btn,
 html[data-theme="dark"] body #spelling-start-screen .qz-seg-btn {
   background: rgba(19,27,25,0.22) !important;
 }
 html[data-theme="dark"] body #flash-start-screen .qz-seg-btn.on,
 html[data-theme="dark"] body #quiz-start-screen .qz-seg-btn.on,
+html[data-theme="dark"] body #timestable-start-overlay .qz-seg-btn.on,
 html[data-theme="dark"] body #typegame-start-overlay .qz-seg-btn.on,
 html[data-theme="dark"] body #spelling-start-screen .qz-seg-btn.on {
   background: #131b19 !important;
@@ -1399,6 +1402,7 @@ html[data-theme="dark"] .fs-settings-sum::after {
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
   border: 2px solid rgba(21,30,28,0.7) !important;
@@ -1406,6 +1410,7 @@ html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .q
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
   background: #131b19 !important;
@@ -1414,6 +1419,7 @@ html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .q
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-sum,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-sum,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-sum,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-sum,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-sum {
   background: rgba(19,27,25,0.28) !important;
@@ -1456,12 +1462,14 @@ html[data-theme="dark"] body #flash-report.sr-big #flash-report-level {
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-sum,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-sum,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-sum,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-sum,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-sum {
   border: 2px solid rgba(21,30,28,0.75) !important;
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
   border: 2px solid rgba(21,30,28,0.85) !important;
@@ -1957,6 +1965,7 @@ html[data-theme="dark"][data-theme="dark"] body #view-addword .pill.error {
 html[data-theme="dark"] body #quiz-start-screen .sp-start-card,
 html[data-theme="dark"] body #spelling-start-screen .sp-start-card,
 html[data-theme="dark"] body #flash-start-screen .sp-start-card,
+html[data-theme="dark"] body #timestable-start-overlay .tg-start-card,
 html[data-theme="dark"] body #typegame-start-overlay .tg-start-card,
 html[data-theme="dark"] body #timestable-start-overlay .tg-start-card {
   background: linear-gradient(180deg, #14231d 0%, #1e352c 100%) !important;
@@ -1994,6 +2003,7 @@ html[data-theme="dark"] body .sp-start-card .sp-start-stats * {
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings {
   background: #131b19 !important;
@@ -2002,12 +2012,15 @@ html[data-theme="dark"] body #flash-start-screen .fs-settings-sum,
 html[data-theme="dark"] body #flash-start-screen .fs-settings-label,
 html[data-theme="dark"] body #flash-start-screen .fs-settings-now,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-sum,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-sum,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-sum,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-sum,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-label,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-label,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-label,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-label,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-now,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-now,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-now,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-now {
   color: #3db99f !important;
@@ -2045,9 +2058,11 @@ html[data-theme="dark"] body .sp-start-card .sp-start-stats span {
 html[data-theme="dark"] body #flash-start-screen .fs-settings-sum::after,
 html[data-theme="dark"] body #flash-start-screen .fs-settings-sum *,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-sum::after,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-sum::after,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-sum::after,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-sum::after,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-sum *,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-sum *,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-sum *,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-sum * {
   color: #3db99f !important;
@@ -2069,9 +2084,11 @@ html[data-theme="dark"] body #spelling-start-screen .fs-steps .sp-step {
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg-btn,
 html[data-theme="dark"] body #flash-start-screen.is-settings-open .qz-seg-btn,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg-btn,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-body .qz-seg-btn,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-body .qz-seg-btn,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg-btn,
 html[data-theme="dark"] body #quiz-start-screen.is-settings-open .qz-seg-btn,
+html[data-theme="dark"] body #timestable-start-overlay.is-settings-open .qz-seg-btn,
 html[data-theme="dark"] body #typegame-start-overlay.is-settings-open .qz-seg-btn,
 html[data-theme="dark"] body #spelling-start-screen.is-settings-open .qz-seg-btn {
   background: #131b19 !important;
@@ -2081,18 +2098,22 @@ html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg-btn.o
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg-btn[aria-checked="true"],
 html[data-theme="dark"] body #flash-start-screen.is-settings-open .qz-seg-btn.on,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg-btn.on,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-body .qz-seg-btn.on,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-body .qz-seg-btn.on,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg-btn.on,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg-btn[aria-checked="true"],
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-body .qz-seg-btn[aria-checked="true"],
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-body .qz-seg-btn[aria-checked="true"],
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg-btn[aria-checked="true"],
 html[data-theme="dark"] body #quiz-start-screen.is-settings-open .qz-seg-btn.on,
+html[data-theme="dark"] body #timestable-start-overlay.is-settings-open .qz-seg-btn.on,
 html[data-theme="dark"] body #typegame-start-overlay.is-settings-open .qz-seg-btn.on,
 html[data-theme="dark"] body #spelling-start-screen.is-settings-open .qz-seg-btn.on {
   color: #f38200 !important;
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-pick-title,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-body .qz-pick-title,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-body .qz-pick-title,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-pick-title {
   color: #3db99f !important;
@@ -2101,6 +2122,7 @@ html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-pick-t
 @media all {
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
   background: #131b19 !important;
@@ -2108,6 +2130,7 @@ html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .q
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
   color: #f38200 !important;
@@ -2211,6 +2234,7 @@ html[data-theme="dark"] body #spelling-start-screen .sp-start-stats.fs-count.is-
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-sum,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-sum,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-sum,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-sum,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-sum {
   background: #131b19 !important;
@@ -2218,6 +2242,7 @@ html[data-theme="dark"] body #spelling-start-screen .fs-settings-sum {
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-label,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-label,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-label,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-label,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-label {
   color: #3db99f !important;
@@ -2225,27 +2250,32 @@ html[data-theme="dark"] body #spelling-start-screen .fs-settings-label {
 html[data-theme="dark"] body #flash-start-screen .fs-settings-now,
 html[data-theme="dark"] body #flash-start-screen .fs-settings[open] .fs-settings-now,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-now,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-now,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-now,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-now,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings[open] .fs-settings-now,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings[open] .fs-settings-now,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings[open] .fs-settings-now,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings[open] .fs-settings-now {
   color: #3ef0c9 !important;
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-body,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-body,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-body,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-body {
   background: #131b19 !important;
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-pick-title,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-pick-title,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-body .qz-pick-title,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-body .qz-pick-title,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-pick-title {
   color: #3db99f !important;
 }
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-body .qz-seg,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-body .qz-seg,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg {
   background: #1f382e !important;
@@ -2253,9 +2283,11 @@ html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg {
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
 html[data-theme="dark"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
 html[data-theme="dark"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html[data-theme="dark"] body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html[data-theme="dark"] body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html[data-theme="dark"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
   color: #3ef0c9 !important;
@@ -3468,12 +3500,14 @@ html[data-theme="ivory"] .qz-dd-opt.is-active {
 }
 html[data-theme="ivory"] body #flash-start-screen .qz-seg-btn,
 html[data-theme="ivory"] body #quiz-start-screen .qz-seg-btn,
+html[data-theme="ivory"] body #timestable-start-overlay .qz-seg-btn,
 html[data-theme="ivory"] body #typegame-start-overlay .qz-seg-btn,
 html[data-theme="ivory"] body #spelling-start-screen .qz-seg-btn {
   background: rgba(253,250,244,0.22) !important;
 }
 html[data-theme="ivory"] body #flash-start-screen .qz-seg-btn.on,
 html[data-theme="ivory"] body #quiz-start-screen .qz-seg-btn.on,
+html[data-theme="ivory"] body #timestable-start-overlay .qz-seg-btn.on,
 html[data-theme="ivory"] body #typegame-start-overlay .qz-seg-btn.on,
 html[data-theme="ivory"] body #spelling-start-screen .qz-seg-btn.on {
   background: #fdfaf4 !important;
@@ -3611,6 +3645,7 @@ html[data-theme="ivory"] .fs-settings-sum::after {
 }
 html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
 html[data-theme="ivory"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn,
+html[data-theme="ivory"] body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html[data-theme="ivory"] body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn,
 html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn {
   border: 2px solid rgba(253,250,244,0.7) !important;
@@ -3618,6 +3653,7 @@ html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body .qz-seg .
 }
 html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
 html[data-theme="ivory"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
+html[data-theme="ivory"] body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on,
 html[data-theme="ivory"] body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn.on,
 html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
   background: #fdfaf4 !important;
@@ -3625,6 +3661,7 @@ html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body .qz-seg .
 }
 html[data-theme="ivory"] body #flash-start-screen .fs-settings-sum,
 html[data-theme="ivory"] body #quiz-start-screen .fs-settings-sum,
+html[data-theme="ivory"] body #timestable-start-overlay .fs-settings-sum,
 html[data-theme="ivory"] body #typegame-start-overlay .fs-settings-sum,
 html[data-theme="ivory"] body #spelling-start-screen .fs-settings-sum {
   background: rgba(253,250,244,0.28) !important;
@@ -3653,12 +3690,14 @@ html[data-theme="ivory"] body #flash-report.sr-big #flash-report-level {
 }
 html[data-theme="ivory"] body #flash-start-screen .fs-settings-sum,
 html[data-theme="ivory"] body #quiz-start-screen .fs-settings-sum,
+html[data-theme="ivory"] body #timestable-start-overlay .fs-settings-sum,
 html[data-theme="ivory"] body #typegame-start-overlay .fs-settings-sum,
 html[data-theme="ivory"] body #spelling-start-screen .fs-settings-sum {
   border: 2px solid rgba(253,250,244,0.75) !important;
 }
 html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html[data-theme="ivory"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html[data-theme="ivory"] body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html[data-theme="ivory"] body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
   border: 2px solid rgba(253,250,244,0.85) !important;
@@ -3867,6 +3906,7 @@ html[data-theme="ivory"] body #view-addword .select-all-toggle {
 html[data-theme="ivory"] body #quiz-start-screen .sp-start-card,
 html[data-theme="ivory"] body #spelling-start-screen .sp-start-card,
 html[data-theme="ivory"] body #flash-start-screen .sp-start-card,
+html[data-theme="ivory"] body #timestable-start-overlay .tg-start-card,
 html[data-theme="ivory"] body #typegame-start-overlay .tg-start-card,
 html[data-theme="ivory"] body #timestable-start-overlay .tg-start-card {
   background: linear-gradient(180deg, #f2fffa 0%, #ede5d2 100%) !important;
@@ -3886,6 +3926,7 @@ html[data-theme="ivory"] body .sp-start-card .sp-start-stats {
 }
 html[data-theme="ivory"] body #flash-start-screen .fs-settings,
 html[data-theme="ivory"] body #quiz-start-screen .fs-settings,
+html[data-theme="ivory"] body #timestable-start-overlay .fs-settings,
 html[data-theme="ivory"] body #typegame-start-overlay .fs-settings,
 html[data-theme="ivory"] body #spelling-start-screen .fs-settings {
   background: #fdfaf4 !important;
@@ -3908,9 +3949,11 @@ html[data-theme="ivory"] body #spelling-start-screen .fs-steps .sp-step {
 html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg-btn,
 html[data-theme="ivory"] body #flash-start-screen.is-settings-open .qz-seg-btn,
 html[data-theme="ivory"] body #quiz-start-screen .fs-settings-body .qz-seg-btn,
+html[data-theme="ivory"] body #timestable-start-overlay .fs-settings-body .qz-seg-btn,
 html[data-theme="ivory"] body #typegame-start-overlay .fs-settings-body .qz-seg-btn,
 html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body .qz-seg-btn,
 html[data-theme="ivory"] body #quiz-start-screen.is-settings-open .qz-seg-btn,
+html[data-theme="ivory"] body #timestable-start-overlay.is-settings-open .qz-seg-btn,
 html[data-theme="ivory"] body #typegame-start-overlay.is-settings-open .qz-seg-btn,
 html[data-theme="ivory"] body #spelling-start-screen.is-settings-open .qz-seg-btn {
   background: #fdfaf4 !important;
@@ -3919,6 +3962,7 @@ html[data-theme="ivory"] body #spelling-start-screen.is-settings-open .qz-seg-bt
 @media all {
 html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html[data-theme="ivory"] body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
+html[data-theme="ivory"] body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html[data-theme="ivory"] body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
   background: #fdfaf4 !important;
@@ -3955,18 +3999,21 @@ html[data-theme="ivory"] body #spelling-start-screen .fs-panel {
 }
 html[data-theme="ivory"] body #flash-start-screen .fs-settings-sum,
 html[data-theme="ivory"] body #quiz-start-screen .fs-settings-sum,
+html[data-theme="ivory"] body #timestable-start-overlay .fs-settings-sum,
 html[data-theme="ivory"] body #typegame-start-overlay .fs-settings-sum,
 html[data-theme="ivory"] body #spelling-start-screen .fs-settings-sum {
   background: #fdfaf4 !important;
 }
 html[data-theme="ivory"] body #flash-start-screen .fs-settings-body,
 html[data-theme="ivory"] body #quiz-start-screen .fs-settings-body,
+html[data-theme="ivory"] body #timestable-start-overlay .fs-settings-body,
 html[data-theme="ivory"] body #typegame-start-overlay .fs-settings-body,
 html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body {
   background: #fdfaf4 !important;
 }
 html[data-theme="ivory"] body #flash-start-screen .fs-settings-body .qz-seg,
 html[data-theme="ivory"] body #quiz-start-screen .fs-settings-body .qz-seg,
+html[data-theme="ivory"] body #timestable-start-overlay .fs-settings-body .qz-seg,
 html[data-theme="ivory"] body #typegame-start-overlay .fs-settings-body .qz-seg,
 html[data-theme="ivory"] body #spelling-start-screen .fs-settings-body .qz-seg {
   background: #ebe2ce !important;
