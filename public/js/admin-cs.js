@@ -332,7 +332,7 @@
       </section>
 
       <section class="adm-card adm-card-codes">
-        <div class="adm-card-head"><h3>🎟️ ${esc(L("Special codes", "특별 코드"))}</h3>
+        <div class="adm-card-head"><h3>🎟️ ${esc(L("Voucher codes", "바우처 코드"))}</h3>
           <button type="button" class="adm-link" data-ov-go="customers">${esc(L("Manage ›", "관리 ›"))}</button></div>
         <div class="adm-big">${fmt(T.codesUnused)}<small>${esc(L("unused", "미사용"))}</small></div>
         <div class="adm-sub">
@@ -529,8 +529,8 @@
     },
     {
       key: "premium",
-      en: ["About Premium", "Hi {name}, Premium unlocks adding your own words (including from photos), your own flashcard deck and the wrong-answer notebook. Online payment is coming later — for now we can send you a special code. Would you like one?\n\n— Koala Study Mate team"],
-      ko: ["프리미엄 안내", "{name}님, 프리미엄은 사진으로 단어 추가하기, 나만의 플래시카드, 오답 노트를 쓸 수 있어요. 온라인 결제는 곧 준비할 예정이고, 지금은 특별 코드로 안내해 드리고 있어요. 코드를 보내 드릴까요?\n\n— 코알라 스터디 메이트 팀"],
+      en: ["About Premium", "Hi {name}, Premium unlocks adding your own words (including from photos), your own flashcard deck and the wrong-answer notebook. Online payment is coming later — for now we can send you a voucher code. Would you like one?\n\n— Koala Study Mate team"],
+      ko: ["프리미엄 안내", "{name}님, 프리미엄은 사진으로 단어 추가하기, 나만의 플래시카드, 오답 노트를 쓸 수 있어요. 온라인 결제는 곧 준비할 예정이고, 지금은 바우처 코드로 안내해 드리고 있어요. 코드를 보내 드릴까요?\n\n— 코알라 스터디 메이트 팀"],
     },
     {
       key: "solved",

@@ -828,7 +828,7 @@ const TRANSLATIONS = {
     myAccountPasswordChanged: "Password updated.",
     myAccountChangePasswordBtn: "Update password",
     myAccountWrongCurrentPassword: "That current password isn't right.",
-    myAccountUsername: "Email (login ID)",
+    myAccountUsername: "Email",
     myAccountRole: "Role",
     myAccountJoined: "Joined",
     myAccountUpgraded: "Upgraded to premium",
@@ -849,8 +849,8 @@ const TRANSLATIONS = {
     authUsernameHint: "3-20 characters: letters, numbers, underscore.",
     authPasswordLabel: "Password",
     authPasswordHint: "At least 8 characters, with a capital letter, a number and a special character.",
-    authCodeLabel: "Special code (optional, for a premium account)",
-    authCodeLabelPlain: "Special code",
+    authCodeLabel: "Voucher code (optional, for a premium account)",
+    authCodeLabelPlain: "Voucher code",
     authCancelBtn: "Cancel",
     authLoginBtn: "Login",
     authSignupBtn: "Sign Up",
@@ -862,7 +862,7 @@ const TRANSLATIONS = {
     authLoginUseEmail: "Your login ID is now your email address. Please type the email you signed up with instead of a username.",
     authAdminOfflineErrorText: "Can't reach the server right now, so admin login isn't available. Please try again later.",
     authSignupErrorTaken: "That email is already registered. Try logging in instead.",
-    authSignupErrorCode: "That special code isn't valid, or has already been used.",
+    authSignupErrorCode: "That voucher code isn't valid, or has already been used.",
     authSignupErrorUsername: "Username must be 3-20 characters: letters, numbers, underscore.",
     authSignupErrorPassword: "Password needs 8+ characters with a capital letter, a number and a special character.",
     authSignupErrorGeneric: "Sign up failed — please try again.",
@@ -872,7 +872,7 @@ const TRANSLATIONS = {
     authEmailLabel: "Email",
     authEmailHint: "This email is your login ID. We'll send a confirmation link, and use it if you forget your password.",
     authSignupErrorEmail: "Please enter a valid email address.",
-    authSignupErrorPremiumCode: "Premium needs a special code for now. Enter one, or choose the free account.",
+    authSignupErrorPremiumCode: "Premium needs a voucher code for now. Enter one, or choose the free account.",
     signupPlanLabel: "Choose your plan",
     signupPlanFree: "Free account",
     signupPlanFreeDesc: "Start learning right away",
@@ -883,7 +883,7 @@ const TRANSLATIONS = {
     pwRuleDigit: "1 number",
     pwRuleSpecial: "1 special character (!@#)",
     payBtn: "Join Premium",
-    payComingSoon: "Online payment is coming soon. For now, join Premium with a special code below.",
+    payComingSoon: "Online payment is coming soon. For now, join Premium with a voucher code below.",
     forgotPasswordTitle: "Forgot password",
     forgotPasswordHint: "Type your email (your login ID). We'll email a reset link to it.",
     forgotPasswordBtn: "Send reset link",
@@ -973,7 +973,7 @@ const TRANSLATIONS = {
     adminEmailLogEmpty: "No emails sent yet.",
     adminEmailKinds: { verify: "Confirmation", reset: "Password reset", forgot_username: "Username reminder", test: "Test", support: "Support reply", support_admin: "Support alert" },
     upgradeTitle: "⭐ Upgrade to Premium",
-    upgradeDesc: "Snap your child's homework and we turn the words into practice. Enter a special code from the admin to unlock premium: unlimited practice, photo word extraction, your own private word list and the full mistakes notebook.",
+    upgradeDesc: "Snap your child's homework and we turn the words into practice. Enter a voucher code from the admin to unlock premium: unlimited practice, photo word extraction, your own private word list and the full mistakes notebook.",
     upgradeSubmitBtn: "Upgrade",
     upgradeErrorNotEligible: "This account can't be upgraded from here.",
     anonymousPremiumFeaturePrompt: "Sign up and upgrade to premium to unlock this feature!",
@@ -1776,7 +1776,7 @@ const TRANSLATIONS = {
     myAccountPasswordChanged: "비밀번호가 변경됐어요.",
     myAccountChangePasswordBtn: "비밀번호 변경",
     myAccountWrongCurrentPassword: "현재 비밀번호가 올바르지 않아요.",
-    myAccountUsername: "이메일 (로그인 아이디)",
+    myAccountUsername: "이메일",
     myAccountRole: "역할",
     myAccountJoined: "가입일",
     myAccountUpgraded: "프리미엄 업그레이드일",
@@ -1797,8 +1797,8 @@ const TRANSLATIONS = {
     authUsernameHint: "3~20자: 영문, 숫자, 밑줄(_)만 가능해요.",
     authPasswordLabel: "비밀번호",
     authPasswordHint: "8자 이상, 대문자·숫자·특수문자를 각각 1개 이상 넣어 주세요.",
-    authCodeLabel: "특별 코드 (선택, 프리미엄 계정 가입 시 입력)",
-    authCodeLabelPlain: "특별 코드",
+    authCodeLabel: "바우처 코드 (선택, 프리미엄 계정 가입 시 입력)",
+    authCodeLabelPlain: "바우처 코드",
     authCancelBtn: "취소",
     authLoginBtn: "로그인",
     authSignupBtn: "회원가입",
@@ -1810,7 +1810,7 @@ const TRANSLATIONS = {
     authLoginUseEmail: "이제 로그인 아이디는 이메일 주소예요. 아이디 대신 가입할 때 쓴 이메일을 입력해 주세요.",
     authAdminOfflineErrorText: "지금은 서버에 연결할 수 없어서 관리자 로그인을 할 수 없어요. 잠시 후 다시 시도해 주세요.",
     authSignupErrorTaken: "이미 가입된 이메일이에요. 로그인해 주세요.",
-    authSignupErrorCode: "특별 코드가 올바르지 않거나 이미 사용됐어요.",
+    authSignupErrorCode: "바우처 코드가 올바르지 않거나 이미 사용됐어요.",
     authSignupErrorUsername: "아이디는 3~20자의 영문/숫자/밑줄(_)만 가능해요.",
     authSignupErrorPassword: "비밀번호는 8자 이상이며 대문자, 숫자, 특수문자를 각각 1개 이상 포함해야 해요.",
     authSignupErrorGeneric: "회원가입에 실패했어요 — 다시 시도해주세요.",
@@ -1820,7 +1820,7 @@ const TRANSLATIONS = {
     authEmailLabel: "이메일",
     authEmailHint: "이 이메일이 로그인 아이디예요. 확인 메일을 보내드리고, 비밀번호를 잊었을 때도 사용돼요.",
     authSignupErrorEmail: "올바른 이메일 주소를 입력해 주세요.",
-    authSignupErrorPremiumCode: "지금은 프리미엄 가입에 특별 코드가 필요해요. 코드를 입력하거나 일반 회원으로 가입해 주세요.",
+    authSignupErrorPremiumCode: "지금은 프리미엄 가입에 바우처 코드가 필요해요. 코드를 입력하거나 일반 회원으로 가입해 주세요.",
     signupPlanLabel: "가입 유형을 선택해 주세요",
     signupPlanFree: "일반 회원",
     signupPlanFreeDesc: "무료로 바로 시작해요",
@@ -1831,7 +1831,7 @@ const TRANSLATIONS = {
     pwRuleDigit: "숫자 1개 이상",
     pwRuleSpecial: "특수문자 1개 (!@#)",
     payBtn: "프리미엄 가입",
-    payComingSoon: "온라인 결제는 곧 열릴 예정이에요. 지금은 아래 특별 코드로 프리미엄에 가입할 수 있어요.",
+    payComingSoon: "온라인 결제는 곧 열릴 예정이에요. 지금은 아래 바우처 코드로 프리미엄에 가입할 수 있어요.",
     forgotPasswordTitle: "비밀번호를 잊었어요",
     forgotPasswordHint: "이메일(로그인 아이디)을 입력하면 그 주소로 재설정 링크를 보내드려요.",
     forgotPasswordBtn: "재설정 링크 보내기",
@@ -1921,7 +1921,7 @@ const TRANSLATIONS = {
     adminEmailLogEmpty: "아직 보낸 메일이 없어요.",
     adminEmailKinds: { verify: "이메일 인증", reset: "비밀번호 재설정", forgot_username: "아이디 안내", test: "테스트", support: "문의 답변", support_admin: "문의 알림" },
     upgradeTitle: "⭐ 프리미엄으로 업그레이드",
-    upgradeDesc: "숙제를 사진으로 찍으면 단어가 연습 문제로 바뀌어요. admin에게 받은 특별 코드를 입력하면 무제한 연습, 사진 단어 추출, 나만의 단어장, 전체 오답 노트를 모두 쓸 수 있어요.",
+    upgradeDesc: "숙제를 사진으로 찍으면 단어가 연습 문제로 바뀌어요. admin에게 받은 바우처 코드를 입력하면 무제한 연습, 사진 단어 추출, 나만의 단어장, 전체 오답 노트를 모두 쓸 수 있어요.",
     upgradeSubmitBtn: "업그레이드",
     upgradeErrorNotEligible: "이 계정은 여기서 업그레이드할 수 없어요.",
     anonymousPremiumFeaturePrompt: "이 기능을 사용하려면 가입 후 프리미엄으로 업그레이드해야 해요!",
@@ -4454,9 +4454,6 @@ const authModeToggle = document.getElementById("auth-mode-toggle");
 const signupEmailInput = document.getElementById("signup-email-input");
 const signupPlanFreeBtn = document.getElementById("signup-plan-free-btn");
 const signupPlanPremiumBtn = document.getElementById("signup-plan-premium-btn");
-const signupPremiumPanel = document.getElementById("signup-premium-panel");
-const signupPayBtn = document.getElementById("signup-pay-btn");
-const signupPayNote = document.getElementById("signup-pay-note");
 const recoverPanel = document.getElementById("recover-panel");
 const recoverMessage = document.getElementById("recover-message");
 const recoverError = document.getElementById("recover-error");
@@ -4466,7 +4463,6 @@ const signupGuardianCheck = document.getElementById("signup-guardian-check");
 const signupTermsCheck = document.getElementById("signup-terms-check");
 const signupPasswordInput = document.getElementById("signup-password-input");
 const signupPasswordConfirm = document.getElementById("signup-password-confirm");
-const signupCodeInput = document.getElementById("signup-code-input");
 const signupError = document.getElementById("signup-error");
 const signupCancelBtn = document.getElementById("signup-cancel-btn");
 
@@ -4683,7 +4679,6 @@ function openAuthOverlay(mode, notice) {
   signupTermsCheck.checked = false;
   signupPasswordInput.value = "";
   signupPasswordConfirm.value = "";
-  signupCodeInput.value = "";
   signupEmailInput.value = "";
   setSignupPlan("free");
   setAuthMode(mode);
@@ -4961,10 +4956,14 @@ async function renderMyAccount() {
     { num: escapeHtml(account.username), lbl: t("myAccountUsername"), cls: "stat-box-id" },
     { num: roleLabel(account.role), lbl: t("myAccountRole") },
     { num: formatDate(account.createdAt), lbl: t("myAccountJoined") },
-    // The premium-upgrade date only means something once an account has upgraded.
-    ...(account.upgradedAt ? [{ num: formatDate(account.upgradedAt), lbl: t("myAccountUpgraded") }] : []),
   ];
-  myAccountStatusEl.classList.toggle("stats-grid-3", tiles.length === 3);
+  // Email, role and join date share one line. The premium-upgrade date only
+  // means something once an account has upgraded, so it gets its own small line.
+  const upgLine = document.getElementById("my-account-upgraded-line");
+  if (upgLine) {
+    upgLine.hidden = !account.upgradedAt;
+    upgLine.textContent = account.upgradedAt ? `⭐ ${t("myAccountUpgraded")} · ${formatDate(account.upgradedAt)}` : "";
+  }
   myAccountStatusEl.innerHTML = tiles
     .map((s) => `<div class="stat-box${s.cls ? " " + s.cls : ""}"><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div></div>`)
     .join("");
@@ -4979,7 +4978,7 @@ async function renderMyAccount() {
 }
 
 // Upgrade card: only a free (signed-in) account sees it. Paying is the future
-// checkout hook; the special code still opens the same upgrade popup as before.
+// checkout hook; the voucher code still opens the same upgrade popup as before.
 const myAccountUpgradeCard = document.getElementById("my-account-upgrade-card");
 const myAccountUpgradeStatus = document.getElementById("my-account-upgrade-status");
 function refreshUpgradeCard(account) {
@@ -5234,6 +5233,9 @@ async function openPlanOverlay() {
   // Nothing in a row is allowed to wrap, so the labels stay on a single line.
   const fillPlan = (btn, name, tag, price) => {
     btn.textContent = "";
+    const radio = document.createElement("span");
+    radio.className = "pay-plan-radio";
+    radio.setAttribute("aria-hidden", "true");
     const left = document.createElement("span");
     left.className = "pay-plan-name";
     left.textContent = name;
@@ -5246,21 +5248,35 @@ async function openPlanOverlay() {
     const right = document.createElement("span");
     right.className = "pay-plan-price";
     right.textContent = price;
-    btn.append(left, right);
+    btn.append(radio, left, right);
   };
-  fillPlan(billingEl("plan-year-btn"), rwL("Yearly", "연간"), pct > 0 ? rwL(`Save ${pct}%`, `${pct}% 할인`) : "", prices ? `${billingMoney(prices.year)}${rwL(" / year", " / 년")}` : "");
   fillPlan(billingEl("plan-month-btn"), rwL("Monthly", "월간"), "", prices ? `${billingMoney(prices.month)}${rwL(" / month", " / 월")}` : "");
+  fillPlan(billingEl("plan-year-btn"), rwL("Yearly", "연간"), pct > 0 ? rwL(`Save ${pct}%`, `${pct}% 할인`) : "", prices ? `${billingMoney(prices.year)}${rwL(" / year", " / 년")}` : "");
+  selectPlan("month");
+  billingEl("plan-pay-btn").textContent = rwL("Continue to payment", "결제하기");
   billingEl("plan-cancel-btn").textContent = rwL("Not now", "나중에 할게요");
   billingEl("plan-secure-note").textContent = rwL("Secure payment by Stripe. We never see your card details.", "결제는 Stripe에서 안전하게 처리돼요. 카드 정보는 저희가 볼 수 없어요.");
   billingEl("plan-error").hidden = true;
   billingEl("plan-month-btn").disabled = false;
   billingEl("plan-year-btn").disabled = false;
+  billingEl("plan-pay-btn").disabled = false;
   billingEl("plan-overlay").hidden = false;
+}
+// Radio-style plan rows: exactly one is selected, Monthly by default.
+let selectedPlan = "month";
+let postSignupNotice = null;
+function selectPlan(interval) {
+  selectedPlan = interval === "year" ? "year" : "month";
+  for (const [key, id] of [["month", "plan-month-btn"], ["year", "plan-year-btn"]]) {
+    const on = key === selectedPlan;
+    billingEl(id).classList.toggle("is-on", on);
+    billingEl(id).setAttribute("aria-checked", String(on));
+  }
 }
 async function beginCheckout(interval) {
   const err = billingEl("plan-error");
   err.hidden = true;
-  const btns = [billingEl("plan-month-btn"), billingEl("plan-year-btn")];
+  const btns = [billingEl("plan-month-btn"), billingEl("plan-year-btn"), billingEl("plan-pay-btn")];
   btns.forEach((b) => { b.disabled = true; });
   try {
     const { url } = await api("/billing/checkout", { method: "POST", body: JSON.stringify({ interval }) });
@@ -5273,9 +5289,13 @@ async function beginCheckout(interval) {
   }
   btns.forEach((b) => { b.disabled = false; });
 }
-billingEl("plan-month-btn").addEventListener("click", () => beginCheckout("month"));
-billingEl("plan-year-btn").addEventListener("click", () => beginCheckout("year"));
-billingEl("plan-cancel-btn").addEventListener("click", () => { billingEl("plan-overlay").hidden = true; });
+billingEl("plan-month-btn").addEventListener("click", () => selectPlan("month"));
+billingEl("plan-year-btn").addEventListener("click", () => selectPlan("year"));
+billingEl("plan-pay-btn").addEventListener("click", () => beginCheckout(selectedPlan));
+billingEl("plan-cancel-btn").addEventListener("click", () => {
+  billingEl("plan-overlay").hidden = true;
+  if (postSignupNotice) { const show = postSignupNotice; postSignupNotice = null; show(); }
+});
 
 // Called from the signed-in upgrade buttons (My Account card, upgrade popup).
 async function startPremiumCheckout(noteEl) {
@@ -5286,48 +5306,6 @@ async function startPremiumCheckout(noteEl) {
   }
   openPlanOverlay();
 }
-
-// Called from the signup form's pay button. Checkout needs an account (and a
-// confirmed email), so this creates the free account first and then explains
-// the next step; the "Pay and join Premium" button in My Account finishes it.
-async function signupThenPay() {
-  const info = await loadBillingInfo();
-  if (!info.configured) {
-    signupPayNote.hidden = false;
-    return;
-  }
-  const email = signupEmailInput.value.trim().toLowerCase();
-  const password = signupPasswordInput.value;
-  signupError.hidden = true;
-  const fail = (key) => { signupError.textContent = t(key); signupError.hidden = false; };
-  if (!validEmailClient(email)) return fail("authSignupErrorEmail");
-  if (!passwordMeetsPolicy(password)) return fail("authSignupErrorPassword");
-  if (password !== signupPasswordConfirm.value) return fail("resetMismatch");
-  if (!signupGuardianCheck.checked || !signupTermsCheck.checked) return fail("authSignupErrorConsent");
-  try {
-    const { user, verificationSent } = await api("/auth/signup", {
-      method: "POST",
-      body: JSON.stringify({ email, password, agreedTerms: true, isGuardian: true }),
-    });
-    currentUser = user;
-    closeAuthOverlay();
-    updateAdminUI();
-    refreshSharedWords();
-    koalaAfterLogin();
-    showNotice(
-      "welcome",
-      rwL("Account created!", "계정이 만들어졌어요!"),
-      rwL(
-        "Next: confirm your email, then open My Account and tap “Join Premium”.",
-        "다음 단계: 이메일 인증을 마친 뒤 내 계정에서 “프리미엄 가입”을 눌러 주세요."
-      ) + "\n" + (verificationSent ? rwL("We just sent you a confirmation email.", "방금 확인 이메일을 보냈어요.") : rwL("We couldn't send the confirmation email — use the resend button.", "확인 이메일을 보내지 못했어요. 다시 보내기 버튼을 눌러 주세요."))
-    );
-  } catch (err) {
-    const code = err && err.data && err.data.error;
-    fail(SIGNUP_ERROR_KEYS[code] || "authSignupErrorGeneric");
-  }
-}
-signupPayBtn.addEventListener("click", signupThenPay);
 
 // Everything that changes when the plan changes (paid <-> free).
 function refreshAfterPlanChange() {
@@ -5395,7 +5373,7 @@ async function renderSubscriptionCard(account) {
   } else if (managed) {
     text = rwL(`${planName} plan — renews on ${ends}.`, `${planName} 요금제 — ${ends}에 갱신돼요.`);
   } else {
-    text = rwL("Premium (activated with a special code).", "프리미엄 (특별 코드로 활성화됨)");
+    text = rwL("Premium (activated with a voucher code).", "프리미엄 (바우처 코드로 활성화됨)");
   }
   billingEl("my-account-sub-status").textContent = text;
   const resume = billingEl("my-account-sub-resume-btn");
@@ -5435,7 +5413,7 @@ billingEl("my-account-sub-cancel-btn").addEventListener("click", () => {
   );
   billingEl("sub-cancel-message").textContent = managed
     ? rwL(`You won't be charged again. You keep Premium until ${ends}, then your account becomes free.`, `다시 결제되지 않아요. ${ends}까지 프리미엄이 유지되고, 그 뒤에 무료 회원으로 바뀌어요.`) + " " + kept
-    : rwL("Premium ends right now. A special code can't be used a second time.", "프리미엄이 지금 바로 끝나요. 특별 코드는 다시 사용할 수 없어요.") + " " + kept;
+    : rwL("Premium ends right now. A voucher code can't be used a second time.", "프리미엄이 지금 바로 끝나요. 바우처 코드는 다시 사용할 수 없어요.") + " " + kept;
   billingEl("sub-cancel-ok-btn").textContent = rwL("Yes, switch to free", "네, 무료로 전환할게요");
   billingEl("sub-cancel-back-btn").textContent = rwL("Keep Premium", "프리미엄 유지");
   billingEl("sub-cancel-error").hidden = true;
@@ -5526,8 +5504,6 @@ function setSignupPlan(plan) {
   signupPlanPremiumBtn.classList.toggle("is-active", premium);
   signupPlanFreeBtn.setAttribute("aria-pressed", String(!premium));
   signupPlanPremiumBtn.setAttribute("aria-pressed", String(premium));
-  signupPremiumPanel.hidden = !premium;
-  signupPayNote.hidden = true;
 }
 signupPlanFreeBtn.addEventListener("click", () => setSignupPlan("free"));
 signupPlanPremiumBtn.addEventListener("click", () => setSignupPlan("premium"));
@@ -5537,7 +5513,6 @@ signupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const email = signupEmailInput.value.trim().toLowerCase();
   const password = signupPasswordInput.value;
-  const specialCode = signupPlan === "premium" ? signupCodeInput.value.trim() : "";
   signupError.hidden = true;
   const fail = (key) => {
     signupError.textContent = t(key);
@@ -5547,19 +5522,31 @@ signupForm.addEventListener("submit", async (e) => {
   if (!passwordMeetsPolicy(password)) return fail("authSignupErrorPassword");
   if (password !== signupPasswordConfirm.value) return fail("resetMismatch");
   if (!signupGuardianCheck.checked || !signupTermsCheck.checked) return fail("authSignupErrorConsent");
-  if (signupPlan === "premium" && !specialCode) return fail("authSignupErrorPremiumCode");
+  const wantsPremium = signupPlan === "premium";
 
   try {
     const { user, verificationSent } = await api("/auth/signup", {
       method: "POST",
-      body: JSON.stringify({ email, password, agreedTerms: true, isGuardian: true, ...(specialCode ? { specialCode } : {}) }),
+      body: JSON.stringify({ email, password, agreedTerms: true, isGuardian: true }),
     });
     currentUser = user;
     closeAuthOverlay();
     updateAdminUI();
     refreshSharedWords();
     koalaAfterLogin();
-    showNotice("welcome", t("noticeSignupTitle"), t(verificationSent ? "noticeSignupSent" : "noticeSignupNotSent"));
+    // Premium sign-up: the account is created free, then the plan / checkout
+    // popup opens straight away. If online payment isn't set up yet, or the
+    // person closes the popup, they just get the normal welcome notice.
+    const welcome = () => showNotice("welcome", t("noticeSignupTitle"), t(verificationSent ? "noticeSignupSent" : "noticeSignupNotSent"));
+    if (wantsPremium) {
+      const info = await loadBillingInfo();
+      if (info.configured) {
+        postSignupNotice = welcome;
+        openPlanOverlay();
+        return;
+      }
+    }
+    welcome();
   } catch (err) {
     const code = err && err.data && err.data.error;
     fail(SIGNUP_ERROR_KEYS[code] || "authSignupErrorGeneric");
@@ -13741,7 +13728,7 @@ function renderAdminStats() {
   renderAdminStats._t = setTimeout(() => { if (window.koalaRefreshOverview) window.koalaRefreshOverview(); }, 800);
 }
 
-/* ---------- Admin: paid-signup special codes ---------- */
+/* ---------- Admin: paid-signup voucher codes ---------- */
 const adminCodesGenerateBtn = document.getElementById("admin-codes-generate-btn");
 const adminCodesSort = document.getElementById("admin-codes-sort");
 const adminCodesGrid = document.getElementById("admin-codes-grid");
@@ -13755,7 +13742,7 @@ async function loadAdminCodes() {
     const { codes } = await api("/admin/codes");
     adminCodes = codes;
   } catch (e) {
-    console.warn("Could not load special codes", e);
+    console.warn("Could not load voucher codes", e);
   }
   renderAdminCodes();
 }

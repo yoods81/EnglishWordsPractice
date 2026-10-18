@@ -1604,9 +1604,6 @@ html:root[data-theme="dark"] body #view-myaccount .acct-upgrade .pill.neutral { 
 .pay-plan-name { font-family: var(--font-heading); font-size: 1.02rem; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
 .pay-plan-price { font-size: .95rem; white-space: nowrap; }
 .pay-plan-tag { font-style: normal; font-family: inherit; font-size: .72rem; font-weight: 800; padding: 3px 8px; border-radius: 8px; background: #fff; color: #b36b00; white-space: nowrap; }
-/* the yearly plan is the highlighted choice, in the same amber as the Sign Up button */
-#plan-year-btn { background: #ffbf47; color: #4a3000; }
-#plan-year-btn:hover:not(:disabled) { background: #ffb324; }
 .pay-cancel { display: block; width: 100%; padding: 10px 0; border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 700; font-size: .92rem; cursor: pointer; text-align: center; white-space: nowrap; }
 .pay-cancel:hover { color: var(--text); text-decoration: underline; }
 .pay-secure { margin: 6px 0 0; font-size: .76rem; line-height: 1.5; color: var(--muted); text-align: center; }
@@ -1617,7 +1614,6 @@ html[data-theme="dark"] .pay-brand-name, html[data-theme="dark"] .pay-title { co
 html[data-theme="dark"] .pay-brand-tag { color: #93b0a8; }
 html[data-theme="dark"] .pay-plan { background: #243730; color: #e8f3ee; }
 html[data-theme="dark"] .pay-plan:hover:not(:disabled) { background: #2c453b; }
-html[data-theme="dark"] #plan-year-btn { background: #ffbf47; color: #4a3000; }
 @media (max-width: 640px) {
   .pay-card { grid-template-columns: minmax(0, 1fr); max-width: 400px; overflow-y: auto; }
   .pay-brand { flex-direction: row; justify-content: flex-start; padding: 12px 18px; gap: 12px; }
@@ -1634,3 +1630,30 @@ html:root:root body #view-myaccount .acct-upgrade .acct-join-btn { background: #
 html:root:root body #view-myaccount .acct-upgrade .acct-join-btn:hover { background: #ffa400 !important; }
 html:root:root body #view-myaccount .acct-upgrade .pill.neutral { background: #dcefe7 !important; color: #0b6b57 !important; }
 html:root:root[data-theme="dark"] body #view-myaccount .acct-upgrade .pill.neutral { background: #2c453b !important; color: #8fe3c8 !important; }
+
+/* Round 27: payment popup - radio rows (Monthly first, selected by default, yellow highlight) + a Pay button */
+.pay-plan { position: relative; }
+.pay-plan-radio { flex: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 2px #b9d8cd; }
+.pay-plan-name { flex: 1 1 auto; min-width: 0; }
+.pay-plan.is-on { background: #ffe9a8; color: #4a3000; }
+.pay-plan.is-on:hover:not(:disabled) { background: #ffe29a; }
+.pay-plan.is-on .pay-plan-radio { background: #e39a00 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-6.5' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 20px no-repeat; box-shadow: none; }
+.pay-plan:focus-visible { outline: 3px solid #e39a00; outline-offset: 2px; }
+.pay-go { display: block; width: 100%; min-height: 48px; margin-top: 4px; border: 0; border-radius: 16px; background: var(--accent); color: #fff; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; white-space: nowrap; cursor: pointer; }
+.pay-go:hover:not(:disabled) { background: var(--accent-dark); }
+.pay-go:disabled { opacity: .6; cursor: default; }
+html[data-theme="dark"] .pay-plan-radio { background: #1d302a; box-shadow: inset 0 0 0 2px #4f7a6b; }
+html[data-theme="dark"] .pay-plan.is-on { background: #5a4818; color: #fff3cf; }
+html[data-theme="dark"] .pay-plan.is-on:hover:not(:disabled) { background: #6a551c; }
+
+/* Round 27: My Account - email, role and join date on one line */
+html:root body #view-myaccount #my-account-status.acct-oneline { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; margin-bottom: 8px; }
+html:root body #view-myaccount .acct-oneline .stat-box { grid-column: auto; padding: 8px 10px; min-width: 0; text-align: left; }
+html:root body #view-myaccount .acct-oneline .stat-box .num { font-size: .95rem; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; word-break: normal; overflow-wrap: normal; }
+html:root body #view-myaccount .acct-oneline .stat-box .lbl { font-size: .72rem; white-space: nowrap; }
+@media (max-width: 400px) { html:root body #view-myaccount .acct-oneline .stat-box { padding: 8px 8px; } html:root body #view-myaccount .acct-oneline .stat-box .num { font-size: .88rem; } }
+html:root body #view-myaccount .acct-upg-line { margin: 0 0 4px; font-size: .82rem; font-weight: 700; color: #8a5a00; }
+html:root body #view-myaccount .acct-upg-line[hidden] { display: none; }
+
+/* Round 27: the "are you sure?" popup must sit above the admin customer sheet (both are kid-modal overlays) */
+html:root body #kid-confirm-overlay { z-index: 1400; }

@@ -114,12 +114,6 @@
         <label for="signup-password-confirm" data-i18n="resetConfirmLabel">Type it again</label>
         <input id="signup-password-confirm" type="password" autocomplete="new-password" />
 
-        <div id="signup-premium-panel" class="premium-panel" hidden>
-          <button type="button" id="signup-pay-btn" class="pill primary premium-pay-btn" data-i18n="payBtn">💳 Pay and join Premium</button>
-          <p id="signup-pay-note" class="auth-hint" hidden data-i18n="payComingSoon">Online payment is coming soon. For now, join Premium with a special code below.</p>
-          <label id="signup-code-label" for="signup-code-input" data-i18n="authCodeLabelPlain">Special code</label>
-          <input id="signup-code-input" type="text" autocomplete="off" />
-        </div>
         <label class="auth-consent"><input type="checkbox" id="signup-guardian-check" /><span data-i18n="authConsentGuardian">I am 18 or older (a parent or guardian) and I'm creating this account for my family.</span></label>
         <label class="auth-consent"><input type="checkbox" id="signup-terms-check" /><span data-i18n="authConsentTerms">I agree to the Terms of Use and the Privacy Policy.</span></label>
         <p id="signup-error" class="auth-error" hidden></p>
@@ -226,7 +220,7 @@
       <div class="auth-main">
       <h2 data-i18n="upgradeTitle">⭐ Upgrade to Premium</h2>
       <p class="auth-notice" id="upgrade-notice" hidden></p>
-      <p class="auth-hint" data-i18n="upgradeDesc">General accounts are capped at 100 questions per round. Enter a special code from the admin to unlock more questions and your own private word list.</p>
+      <p class="auth-hint" data-i18n="upgradeDesc">General accounts are capped at 100 questions per round. Enter a voucher code from the admin to unlock more questions and your own private word list.</p>
 
       <div id="upgrade-request-pending" hidden>
         <p class="auth-hint" data-i18n="upgradeRequestPendingMsg">Your request is in — waiting for admin to approve it. Check back later.</p>
@@ -239,10 +233,10 @@
       </div>
 
       <button type="button" id="upgrade-pay-btn" class="pill primary premium-pay-btn" data-i18n="payBtn">💳 Pay and join Premium</button>
-      <p id="upgrade-pay-note" class="auth-hint" hidden data-i18n="payComingSoon">Online payment is coming soon. For now, join Premium with a special code below.</p>
+      <p id="upgrade-pay-note" class="auth-hint" hidden data-i18n="payComingSoon">Online payment is coming soon. For now, join Premium with a voucher code below.</p>
 
       <form id="upgrade-form" class="auth-form">
-        <label for="upgrade-code-input" data-i18n="authCodeLabelPlain">Special code</label>
+        <label for="upgrade-code-input" data-i18n="authCodeLabelPlain">Voucher code</label>
         <input id="upgrade-code-input" type="text" autocomplete="off" />
         <p id="upgrade-error" class="auth-error" hidden></p>
         <div class="auth-actions">
@@ -318,10 +312,11 @@
         <h2 class="pay-title" id="plan-title"></h2>
         <p class="pay-message" id="plan-message"></p>
         <p class="auth-error" id="plan-error" hidden></p>
-        <div class="pay-plans">
-          <button type="button" class="pay-plan" id="plan-year-btn"></button>
-          <button type="button" class="pay-plan" id="plan-month-btn"></button>
+        <div class="pay-plans" role="radiogroup" aria-labelledby="plan-title">
+          <button type="button" class="pay-plan is-on" id="plan-month-btn" role="radio" aria-checked="true"></button>
+          <button type="button" class="pay-plan" id="plan-year-btn" role="radio" aria-checked="false"></button>
         </div>
+        <button type="button" class="pay-go" id="plan-pay-btn"></button>
         <button type="button" class="pay-cancel" id="plan-cancel-btn"></button>
         <p class="pay-secure" id="plan-secure-note"></p>
       </div>
@@ -2320,7 +2315,8 @@ to Flip!</span></div>
     <section id="view-myaccount" class="view">
       <div class="card">
         <h3 data-i18n="myAccountTitle">🧑 My Account</h3>
-        <div id="my-account-status" class="stats-grid"></div>
+        <div id="my-account-status" class="stats-grid acct-oneline"></div>
+        <p id="my-account-upgraded-line" class="acct-upg-line" hidden></p>
         <div class="acct-upgrade" id="my-account-upgrade-card" hidden>
           <div class="acct-upgrade-head">
             <span class="upgrade-card-badge" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 4.5l5.6 11.6 12.7 1.7-9.3 8.8 2.4 12.6L24 33.1l-11.4 6.1 2.4-12.6-9.3-8.8 12.7-1.7z" fill="#ffc93c" stroke="#d99a00" stroke-width="3" stroke-linejoin="round"/><path d="M24 13.5l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#fff3b0"/></svg></span>

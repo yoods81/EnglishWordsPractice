@@ -327,7 +327,7 @@ function genId() {
   return crypto.randomUUID();
 }
 
-// A special code an admin generates and hands to someone directly (no email
+// A voucher code an admin generates and hands to someone directly (no email
 // step) so they can sign up as a paid account. Readable groups, no visually
 // ambiguous characters (0/O, 1/I/L) since it may be typed by hand.
 function genSpecialCode() {
@@ -884,7 +884,7 @@ async function handleApi(request, env, url) {
     return json({ ok: true, username: user.username });
   }
 
-  // Redeems a special code against an already-existing free account, moving
+  // Redeems a voucher code against an already-existing free account, moving
   // it to paid — the same one-time code mechanism signup already uses,
   // just for someone who signed up before deciding to upgrade.
   if (route === "/auth/upgrade" && request.method === "POST") {
@@ -1435,7 +1435,7 @@ async function handleApi(request, env, url) {
     });
   }
 
-  // Approves a pending upgrade request: generates a fresh special code bound
+  // Approves a pending upgrade request: generates a fresh voucher code bound
   // to that one requester (target_user_id) and stores it on the request row
   // so the requester's own /auth/me response can surface it as "ready to
   // redeem" — no separate delivery channel needed.

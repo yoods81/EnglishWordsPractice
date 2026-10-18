@@ -249,7 +249,7 @@ export async function handleBilling({ route, request, env, url, h }) {
       configured: billingConfigured(env),
       role: session.role,
       subscription: publicSubscription(row),
-      // premium without a Stripe subscription = granted by a special code / the admin
+      // premium without a Stripe subscription = granted by a voucher code / the admin
       managedByStripe: !!(row && row.stripe_subscription_id && ENTITLED_STATUSES.includes(row.status)),
     });
   }
@@ -314,7 +314,7 @@ export async function handleBilling({ route, request, env, url, h }) {
 
   // Premium -> free. A Stripe subscription ends at the close of the paid
   // period (premium stays until then, no more charges). Premium that never
-  // went through Stripe (special code / set by the admin) has no period to
+  // went through Stripe (voucher code / set by the admin) has no period to
   // wait for, so it drops to free right away.
   if (route === "/billing/cancel" && request.method === "POST") {
     if (session.role !== "paid") return json({ error: "not_eligible" }, 400);
