@@ -569,8 +569,27 @@ const TRANSLATIONS = {
     addModeBulk: "Multiple words",
     bulkWordsLabel: "Words (one per line, or separated by commas)",
     bulkWordsPlaceholder: "resilient\nmagnificent\ncurious",
-    bulkWordsHint: "We'll automatically look up each word's meaning and example, and guess a matching level for it.",
+    bulkWordsHint: "We'll look up each word's meaning and example and guess a level — you can check and fix everything before saving.",
     bulkAddSaveBtn: "Save words",
+    bulkPreviewBtn: "Preview words",
+    bulkPreviewTitle: "📋 Check before saving",
+    bulkPreviewCancel: "Cancel",
+    bulkPreviewSummary: (total, fresh, exists) => `${total} word${total === 1 ? "" : "s"}: ${fresh} new${exists ? `, ${exists} already in the list (unticked)` : ""}. Fix anything below, then save.`,
+    bulkPreviewSave: (n) => `Save ${n} word${n === 1 ? "" : "s"}`,
+    bulkPreviewNothing: "Tick at least one word to save.",
+    bulkColWord: "Word",
+    bulkColMeaningEn: "English meaning",
+    bulkColMeaningKo: "Korean meaning",
+    bulkColPos: "Part of speech",
+    bulkColLevelEn: "English level",
+    bulkColLevelKo: "Korean level",
+    bulkTagNew: "New",
+    bulkTagExists: "Already in your list — tick to update it",
+    bulkTagShared: "Already in the shared list",
+    bulkTagNoMeaning: "No meaning found yet",
+    bulkPreviewDone: (added, updated) => `Saved ${added} new word${added === 1 ? "" : "s"}${updated ? ` and updated ${updated}` : ""}. Type the next ones!`,
+    bulkPreviewDoneFailed: (ok, failed) => `Saved ${ok}, but ${failed} could not be sent to the server — they are kept here; try Upload again.`,
+    manualSavedStatus: (w) => `✅ "${w}" saved — add the next one!`,
     bulkAnalyzing: "Analyzing words...",
     bulkNoWords: "Please enter at least one word.",
     bulkAddedStatus: (n) => `Added ${n} word${n === 1 ? "" : "s"}!`,
@@ -724,6 +743,19 @@ const TRANSLATIONS = {
     changeLevelPlaceholder: "📚 Change level",
     changeLevelConfirm: (n, level) => `Move ${n} selected word(s) to ${level}?`,
     changeLevelDone: (n, level) => `Moved ${n} word(s) to ${level}.`,
+    bulkEditTitle: (n) => `Change ${n} selected word${n === 1 ? "" : "s"}`,
+    bulkEditEnLevel: "English level",
+    bulkEditKoLevel: "Korean level",
+    bulkEditPos: "Part of speech",
+    bulkEditNoChange: "No change",
+    bulkEditClearPos: "Clear part of speech",
+    bulkEditApply: "Apply",
+    bulkEditConfirm: (n, parts) => `Change ${n} selected word(s) like this?\n${parts}`,
+    bulkEditDone: (n, parts) => `Updated ${parts} for ${n} word(s).`,
+    bulkEditPartEn: (lv) => `English level → ${lv}`,
+    bulkEditPartKo: (lv) => `Korean level → ${lv}`,
+    bulkEditPartPos: (pos) => `part of speech → ${pos}`,
+    bulkEditPosCleared: "none",
     uploadLocalBtn: (n) => `☁️ Upload ${n} to server`,
     uploadLocalConfirm: (n) =>
       `Upload ${n} word(s) saved in this browser to the server, so they show up on every device?`,
@@ -1473,8 +1505,27 @@ const TRANSLATIONS = {
     addModeBulk: "여러 단어 추가",
     bulkWordsLabel: "단어들 (한 줄에 하나씩, 또는 쉼표로 구분)",
     bulkWordsPlaceholder: "resilient\nmagnificent\ncurious",
-    bulkWordsHint: "각 단어의 뜻과 예문을 자동으로 찾아드리고, 알맞은 레벨도 자동으로 추정해드려요.",
+    bulkWordsHint: "각 단어의 뜻과 예문을 찾아드리고 레벨도 추정해 드려요. 저장하기 전에 표에서 모두 확인하고 고칠 수 있어요.",
     bulkAddSaveBtn: "단어 저장하기",
+    bulkPreviewBtn: "미리보기",
+    bulkPreviewTitle: "📋 저장 전에 확인하세요",
+    bulkPreviewCancel: "취소",
+    bulkPreviewSummary: (total, fresh, exists) => `${total}개 단어: 새 단어 ${fresh}개${exists ? `, 이미 있는 단어 ${exists}개(체크 해제됨)` : ""}. 아래에서 고친 뒤 저장하세요.`,
+    bulkPreviewSave: (n) => `${n}개 단어 저장`,
+    bulkPreviewNothing: "저장할 단어를 하나 이상 체크해 주세요.",
+    bulkColWord: "단어",
+    bulkColMeaningEn: "영어 뜻",
+    bulkColMeaningKo: "한국어 뜻",
+    bulkColPos: "품사",
+    bulkColLevelEn: "영어 레벨",
+    bulkColLevelKo: "한국어 레벨",
+    bulkTagNew: "새 단어",
+    bulkTagExists: "이미 내 목록에 있어요 — 체크하면 업데이트",
+    bulkTagShared: "공용 단어장에 이미 있어요",
+    bulkTagNoMeaning: "뜻을 아직 못 찾았어요",
+    bulkPreviewDone: (added, updated) => `새 단어 ${added}개를 저장했어요${updated ? `, ${updated}개는 업데이트했어요` : ""}. 다음 단어를 입력하세요!`,
+    bulkPreviewDoneFailed: (ok, failed) => `${ok}개는 저장했지만 ${failed}개는 서버로 보내지 못했어요. 이 기기에는 남아 있으니 다시 업로드해 주세요.`,
+    manualSavedStatus: (w) => `✅ "${w}" 저장했어요 — 다음 단어를 추가하세요!`,
     bulkAnalyzing: "단어 분석 중...",
     bulkNoWords: "단어를 최소 1개 이상 입력해주세요.",
     bulkAddedStatus: (n) => `${n}개의 단어를 추가했어요!`,
@@ -1624,6 +1675,19 @@ const TRANSLATIONS = {
     changeLevelPlaceholder: "📚 레벨 변경",
     changeLevelConfirm: (n, level) => `선택한 단어 ${n}개를 ${level} 레벨로 옮길까요?`,
     changeLevelDone: (n, level) => `${n}개를 ${level} 레벨로 옮겼어요.`,
+    bulkEditTitle: (n) => `선택한 ${n}개 단어 한 번에 바꾸기`,
+    bulkEditEnLevel: "영어 레벨",
+    bulkEditKoLevel: "한국어 레벨",
+    bulkEditPos: "품사",
+    bulkEditNoChange: "변경 안 함",
+    bulkEditClearPos: "품사 지우기",
+    bulkEditApply: "적용",
+    bulkEditConfirm: (n, parts) => `선택한 단어 ${n}개를 이렇게 바꿀까요?\n${parts}`,
+    bulkEditDone: (n, parts) => `${n}개 단어를 바꿨어요: ${parts}`,
+    bulkEditPartEn: (lv) => `영어 레벨 → ${lv}`,
+    bulkEditPartKo: (lv) => `한국어 레벨 → ${lv}`,
+    bulkEditPartPos: (pos) => `품사 → ${pos}`,
+    bulkEditPosCleared: "없음",
     uploadLocalBtn: (n) => `☁️ ${n}개 서버로 올리기`,
     uploadLocalConfirm: (n) => `이 브라우저에 저장된 단어 ${n}개를 서버로 올릴까요? 모든 기기에서 보이게 됩니다.`,
     uploadLocalDone: (n) => `${n}개를 서버로 올렸어요.`,
@@ -11833,6 +11897,8 @@ const customFilterToggleBtn = document.getElementById("custom-filter-toggle-btn"
 const customFilterPanel = document.getElementById("custom-filter-panel");
 const customFilterLevelGroup = document.getElementById("custom-filter-level-group");
 let selectedCustomWordIds = new Set();
+// Words just added/updated — flashed in "My added words" for a moment (see flashJustAdded()).
+let justAddedCustomIds = new Set();
 // How many of the current (filtered/sorted) list's rows renderCustomWords()
 // actually puts in the DOM — Load More just raises this and re-renders,
 // instead of the whole list sitting in one tall, separately-scrolling box.
@@ -11956,12 +12022,163 @@ addModeBulkBtn.addEventListener("click", () => {
   setAddMode("bulk");
 });
 
+/* ---- Multiple words: look up -> preview table -> save ----
+   "Preview words" looks each new word up and opens a full-width table where every
+   field can be fixed; nothing is saved until "Save" is pressed. Words already in the
+   list are filled from what is stored, flagged, and left unticked (tick one to update
+   it). A word that lives only in the shared list (when you are not its owner) is locked. */
+const bulkPreviewCard = document.getElementById("bulk-preview-card");
+const bulkPreviewTable = document.getElementById("bulk-preview-table");
+const bulkPreviewSummary = document.getElementById("bulk-preview-summary");
+const bulkPreviewSelectAll = document.getElementById("bulk-preview-select-all");
+const bulkPreviewSaveBtn = document.getElementById("bulk-preview-save-btn");
+const bulkPreviewSaveLabel = document.getElementById("bulk-preview-save-label");
+const bulkPreviewSpinner = document.getElementById("bulk-preview-spinner");
+const bulkPreviewCancelBtn = document.getElementById("bulk-preview-cancel-btn");
+const bulkPreviewStatus = document.getElementById("bulk-preview-status");
+let bulkPreviewRows = [];
+
+const bpLocked = (r) => !!r.existing && !r.mine;
+const bpValidLevel = (id, levels) => (levels.some((l) => l.id === id) ? id : levels.length ? levels[0].id : "");
+
+// Briefly highlights freshly added/updated words in "My added words" so you can see where they landed.
+function flashJustAdded(ids) {
+  justAddedCustomIds = new Set(ids);
+  setTimeout(() => { justAddedCustomIds = new Set(); }, 4000);
+}
+
+function closeBulkPreview() {
+  bulkPreviewRows = [];
+  bulkPreviewTable.innerHTML = "";
+  bulkPreviewStatus.textContent = "";
+  bulkPreviewCard.hidden = true;
+}
+
+function updateBulkPreviewFooter() {
+  const n = bulkPreviewRows.filter((r) => r.tick && !bpLocked(r)).length;
+  bulkPreviewSaveLabel.textContent = t("bulkPreviewSave", n);
+  bulkPreviewSaveBtn.disabled = n === 0;
+  const selectable = bulkPreviewRows.filter((r) => !bpLocked(r));
+  bulkPreviewSelectAll.checked = selectable.length > 0 && selectable.every((r) => r.tick);
+  const exists = bulkPreviewRows.filter((r) => r.existing).length;
+  bulkPreviewSummary.textContent = t("bulkPreviewSummary", bulkPreviewRows.length, bulkPreviewRows.length - exists, exists);
+}
+
+function renderBulkPreview() {
+  bulkPreviewTable.innerHTML = "";
+  const mkCell = (cls, label) => {
+    const c = document.createElement("div");
+    c.className = `bp-cell ${cls}`;
+    c.setAttribute("role", "cell");
+    if (label) c.dataset.label = label;
+    return c;
+  };
+  const head = document.createElement("div");
+  head.className = "bp-row bp-head-row";
+  head.setAttribute("role", "row");
+  ["", t("bulkColWord"), t("bulkColMeaningEn"), t("bulkColMeaningKo"), t("bulkColPos"), t("bulkColLevelEn"), t("bulkColLevelKo")].forEach((txt) => {
+    const c = document.createElement("div");
+    c.className = "bp-cell";
+    c.setAttribute("role", "columnheader");
+    c.textContent = txt;
+    head.appendChild(c);
+  });
+  bulkPreviewTable.appendChild(head);
+
+  const buildSelect = (items, value, onChange) => {
+    const sel = document.createElement("select");
+    sel.className = "bp-select";
+    items.forEach(([v, label]) => {
+      const o = document.createElement("option");
+      o.value = v;
+      o.textContent = label;
+      sel.appendChild(o);
+    });
+    sel.value = value;
+    sel.addEventListener("change", () => onChange(sel.value));
+    return sel;
+  };
+  const posItems = [["", t("bulkEditNoChange")]].concat(POS_LIST.map((p) => [p.id, `${posLabel(p.id)} (${p.abbr})`]));
+  const enItems = SYSTEMS.en.levels.map((lv) => [lv.id, lv.label]);
+  const koItems = SYSTEMS.ko.levels.map((lv) => [lv.id, lv.label]);
+  posItems[0][1] = currentLang === "ko" ? "선택 안 함" : "Not set";
+
+  bulkPreviewRows.forEach((r) => {
+    const row = document.createElement("div");
+    row.className = "bp-row" + (r.existing ? " is-existing" : "") + (bpLocked(r) ? " is-locked" : "");
+    row.setAttribute("role", "row");
+
+    const tickCell = mkCell("bp-tick");
+    const tick = document.createElement("input");
+    tick.type = "checkbox";
+    tick.checked = r.tick && !bpLocked(r);
+    tick.disabled = bpLocked(r);
+    tick.addEventListener("change", () => { r.tick = tick.checked; updateBulkPreviewFooter(); });
+    tickCell.appendChild(tick);
+    row.appendChild(tickCell);
+
+    const wordCell = mkCell("bp-wordcell");
+    const w = document.createElement("span");
+    w.className = "bp-word";
+    w.textContent = r.word;
+    wordCell.appendChild(w);
+    const tag = document.createElement("span");
+    tag.className = "bp-tag" + (r.existing ? " is-warn" : "");
+    tag.textContent = r.existing ? (r.mine ? t("bulkTagExists") : t("bulkTagShared")) : t("bulkTagNew");
+    wordCell.appendChild(tag);
+    const warn = document.createElement("span");
+    warn.className = "bp-tag is-warn";
+    warn.textContent = t("bulkTagNoMeaning");
+    wordCell.appendChild(warn);
+    const refreshWarn = () => { warn.hidden = !!(r.defEn.trim() && r.defKo.trim()); };
+    refreshWarn();
+    row.appendChild(wordCell);
+
+    const mkInput = (key, label, placeholder) => {
+      const cell = mkCell("bp-inputcell", label);
+      const inp = document.createElement("input");
+      inp.type = "text";
+      inp.className = "bp-input";
+      inp.value = r[key];
+      inp.disabled = bpLocked(r);
+      inp.setAttribute("aria-label", `${label}: ${r.word}`);
+      if (placeholder) inp.placeholder = placeholder;
+      inp.addEventListener("input", () => { r[key] = inp.value; refreshWarn(); });
+      cell.appendChild(inp);
+      return cell;
+    };
+    row.appendChild(mkInput("defEn", t("bulkColMeaningEn")));
+    row.appendChild(mkInput("defKo", t("bulkColMeaningKo")));
+
+    const posCell = mkCell("bp-selectcell", t("bulkColPos"));
+    const posSel = buildSelect(posItems, r.pos, (v) => { r.pos = v; });
+    posSel.disabled = bpLocked(r);
+    posCell.appendChild(posSel);
+    row.appendChild(posCell);
+
+    const enCell = mkCell("bp-selectcell", t("bulkColLevelEn"));
+    const enSel = buildSelect(enItems, r.lvEn, (v) => { r.lvEn = v; });
+    enSel.disabled = bpLocked(r);
+    enCell.appendChild(enSel);
+    row.appendChild(enCell);
+
+    const koCell = mkCell("bp-selectcell", t("bulkColLevelKo"));
+    const koSel = buildSelect(koItems, r.lvKo, (v) => { r.lvKo = v; });
+    koSel.disabled = bpLocked(r);
+    koCell.appendChild(koSel);
+    row.appendChild(koCell);
+
+    bulkPreviewTable.appendChild(row);
+  });
+  updateBulkPreviewFooter();
+}
+
 bulkAddSaveBtn.addEventListener("click", async () => {
   if (!canUsePaidFeatures()) {
     promptUpgradeForFeature();
     return;
   }
-  const allWords = Array.from(
+  const words = Array.from(
     new Set(
       bulkWordsInput.value
         .split(/[\n,]+/)
@@ -11969,87 +12186,138 @@ bulkAddSaveBtn.addEventListener("click", async () => {
         .filter((w) => /^[a-z']{2,}$/.test(w))
     )
   );
-  if (allWords.length === 0) {
+  if (words.length === 0) {
     bulkAddStatus.textContent = t("bulkNoWords");
     return;
   }
 
-  // Words already saved in customWords are dropped before the lookup step,
-  // so they never cost an unnecessary dictionary API call.
-  const words = allWords.filter((w) => !findCustomWordByText(w));
-  const skipped = allWords.length - words.length;
-
   bulkAddSaveBtn.disabled = true;
+  bulkAddSpinner.hidden = false;
+  bulkAddSaveLabel.textContent = t("bulkAnalyzing");
+  bulkAddStatus.textContent = t("ocrAddingStatus", words.length);
 
-  let added = [];
-  let failedCount = 0;
-  if (words.length > 0) {
-    bulkAddSpinner.hidden = false;
-    bulkAddSaveLabel.textContent = t("bulkAnalyzing");
-    bulkAddStatus.textContent = t("ocrAddingStatus", words.length);
-
-    const infos = await mapWithConcurrency(words, 4, (w) => fetchWordInfo(w), (done, total) => {
+  try {
+    // Words already in the list are not looked up again (no wasted dictionary calls);
+    // their row is filled from what is stored.
+    const toLookup = words.filter((w) => !findCustomWordByText(w));
+    const infos = await mapWithConcurrency(toLookup, 4, (w) => fetchWordInfo(w), (done, total) => {
       bulkAddStatus.textContent = t("ocrAddingProgress", done, total);
     });
+    const infoByWord = new Map(toLookup.map((w, i) => [w, infos[i] || {}]));
 
-    added = words.map((word, i) => {
-      const info = infos[i];
-      const newWord = {
-        id: genId(),
-        word,
-        example: (info && info.example) || "",
-        definitionEn: (info && info.definitionEn) || null,
-        definitionKo: (info && info.definitionKo) || null,
+    // A miss is often the dictionary rate-limiting a big batch, not an unknown word — one automatic retry.
+    const missing = toLookup.filter((w) => { const i = infoByWord.get(w); return !(i.definitionEn && i.definitionKo); });
+    if (missing.length > 0) {
+      bulkAddStatus.textContent = t("bulkRetryingMissing", missing.length);
+      const retry = await mapWithConcurrency(missing, 4, (w) => fetchWordInfo(w), (done, total) => {
+        bulkAddStatus.textContent = t("retryProgress", done, total);
+      });
+      missing.forEach((w, i) => {
+        const r = retry[i];
+        if (!r) return;
+        const cur = infoByWord.get(w);
+        infoByWord.set(w, {
+          definitionEn: cur.definitionEn || r.definitionEn,
+          definitionKo: cur.definitionKo || r.definitionKo,
+          example: cur.example || r.example,
+          pos: cur.pos || r.pos,
+        });
+      });
+    }
+
+    bulkPreviewRows = words.map((word) => {
+      const existing = findCustomWordByText(word);
+      const info = infoByWord.get(word) || {};
+      const src = existing || {
+        definitionEn: info.definitionEn,
+        definitionKo: info.definitionKo,
+        example: info.example,
+        pos: normPos(info.pos),
         levelEn: guessLevelForWord(word, "en"),
         levelKo: guessLevelForWord(word, "ko"),
-        noDefinitionEn: !(info && info.definitionEn),
-        noDefinitionKo: !(info && info.definitionKo),
-        source: "bulk",
-        createdAt: Date.now(),
-        ...newWordStorageFlags(),
       };
-      customWords.push(newWord);
-      return newWord;
+      return {
+        word,
+        existing,
+        mine: !!existing && isMyCustomWord(existing),
+        tick: !existing,
+        defEn: src.definitionEn || "",
+        defKo: src.definitionKo || "",
+        example: src.example || "",
+        pos: src.pos || "",
+        lvEn: bpValidLevel(src.levelEn, SYSTEMS.en.levels),
+        lvKo: bpValidLevel(src.levelKo, SYSTEMS.ko.levels),
+      };
     });
-    saveCustomWords();
-    const pushResult = await pushSharedWords(added);
-    failedCount = pushResult.failed.length;
+    bulkAddStatus.textContent = withQuotaNote("");
+    renderBulkPreview();
+    bulkPreviewStatus.textContent = "";
+    bulkPreviewCard.hidden = false;
+    try { bulkPreviewCard.scrollIntoView({ block: "start", behavior: "smooth" }); } catch (e) { /* older browsers */ }
+  } finally {
+    bulkAddSpinner.hidden = true;
+    bulkAddSaveLabel.textContent = t("bulkPreviewBtn");
+    bulkAddSaveBtn.disabled = false;
+  }
+});
 
-    // A word that came back without a definition on the first pass — often
-    // dictionaryapi.dev rate-limiting under a big batch, not the word
-    // actually being unknown — gets one automatic retry right away, instead
-    // of requiring a separate manual "Retry All" click afterwards.
-    const stillMissing = added.filter((w) => w.noDefinitionEn || w.noDefinitionKo);
-    if (stillMissing.length > 0) {
-      bulkAddStatus.textContent = t("bulkRetryingMissing", stillMissing.length);
-      const retryInfos = await mapWithConcurrency(
-        stillMissing,
-        4,
-        (w) => fetchWordInfo(w.word),
-        (done, total) => {
-          bulkAddStatus.textContent = t("retryProgress", done, total);
-        }
-      );
-      stillMissing.forEach((w, i) => applyFetchedInfo(w, retryInfos[i]));
-      saveCustomWords();
-      await pushSharedWords(stillMissing.filter((w) => w.remote));
+bulkPreviewSelectAll.addEventListener("change", () => {
+  bulkPreviewRows.forEach((r) => { if (!bpLocked(r)) r.tick = bulkPreviewSelectAll.checked; });
+  renderBulkPreview();
+});
+bulkPreviewCancelBtn.addEventListener("click", closeBulkPreview);
+
+bulkPreviewSaveBtn.addEventListener("click", async () => {
+  if (!canUsePaidFeatures()) {
+    promptUpgradeForFeature();
+    return;
+  }
+  const chosen = bulkPreviewRows.filter((r) => r.tick && !bpLocked(r));
+  if (chosen.length === 0) {
+    bulkPreviewStatus.textContent = t("bulkPreviewNothing");
+    return;
+  }
+  bulkPreviewSaveBtn.disabled = true;
+  bulkPreviewSpinner.hidden = false;
+
+  const added = [];
+  const updated = [];
+  chosen.forEach((r) => {
+    const apply = (w) => {
+      w.definitionEn = r.defEn.trim() || null;
+      w.definitionKo = r.defKo.trim() || null;
+      w.noDefinitionEn = !w.definitionEn;
+      w.noDefinitionKo = !w.definitionKo;
+      w.levelEn = r.lvEn;
+      w.levelKo = r.lvKo;
+      w.pos = r.pos || null;
+      if (!w.example && r.example) w.example = r.example;
+    };
+    if (r.existing) {
+      apply(r.existing);
+      updated.push(r.existing);
+    } else {
+      const w = { id: genId(), word: r.word, example: "", source: "bulk", createdAt: Date.now(), ...newWordStorageFlags() };
+      apply(w);
+      customWords.push(w);
+      added.push(w);
     }
-  }
+  });
+  saveCustomWords();
+  const push = await pushSharedWords(added.concat(updated.filter((w) => w.remote)));
+  const failedCount = push.failed.length;
 
-  const savedCount = added.length - failedCount;
-  if (failedCount > 0) {
-    bulkAddStatus.textContent = withQuotaNote(t("bulkAddedWithFailures", savedCount, failedCount));
-  } else if (skipped > 0) {
-    bulkAddStatus.textContent = withQuotaNote(t("bulkAddedWithSkipped", added.length, skipped));
-  } else {
-    bulkAddStatus.textContent = withQuotaNote(t("bulkAddedStatus", added.length));
-  }
+  const okCount = added.length + updated.length - failedCount;
+  bulkAddStatus.textContent = withQuotaNote(failedCount > 0 ? t("bulkPreviewDoneFailed", okCount, failedCount) : t("bulkPreviewDone", added.length, updated.length));
+  flashJustAdded(added.concat(updated).map((w) => w.id));
   bulkWordsInput.value = "";
-  bulkAddSpinner.hidden = true;
-  bulkAddSaveLabel.textContent = t("bulkAddSaveBtn");
-  bulkAddSaveBtn.disabled = false;
+  bulkPreviewSpinner.hidden = true;
+  closeBulkPreview();
   renderCustomWords();
   renderWordList();
+  if (refreshPaidFeatureGates) refreshPaidFeatureGates();
+  // Ready for the next batch straight away.
+  bulkWordsInput.focus();
 });
 
 function populateLevelSelects() {
@@ -12066,6 +12334,7 @@ function populateLevelSelects() {
     sel.value = currentLevel;
   });
   populateBulkLevelSelect();
+  try { populateBulkEditSelects(); } catch (e) { /* selection state not ready yet during start-up */ }
   populateWordlistLevelSelect();
   renderCustomLevelFilter();
 }
@@ -12149,6 +12418,74 @@ function populateBulkLevelSelect() {
   customLevelSelect.value = "";
 }
 
+// ---- Bulk edit bar (My added words): English level / Korean level / part of speech ----
+// Every select starts on "No change"; only the ones the user actually picks are applied.
+const BULK_POS_CLEAR = "__clear";
+const BULK_EDIT_SELECT_IDS = ["cw-bulk-level-en", "cw-bulk-level-ko", "cw-bulk-pos"];
+
+function populateBulkEditSelects() {
+  const fill = (id, items) => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = "";
+    const first = document.createElement("option");
+    first.value = "";
+    first.textContent = t("bulkEditNoChange");
+    sel.appendChild(first);
+    items.forEach(([value, label]) => {
+      const o = document.createElement("option");
+      o.value = value;
+      o.textContent = label;
+      sel.appendChild(o);
+    });
+    sel.value = "";
+  };
+  fill("cw-bulk-level-en", SYSTEMS.en.levels.map((lv) => [lv.id, lv.label]));
+  fill("cw-bulk-level-ko", SYSTEMS.ko.levels.map((lv) => [lv.id, lv.label]));
+  fill("cw-bulk-pos", [[BULK_POS_CLEAR, t("bulkEditClearPos")]].concat(POS_LIST.map((p) => [p.id, `${posLabel(p.id)} (${p.abbr})`])));
+  syncBulkEditBar();
+}
+
+// Shown only while words are ticked; Apply stays off until at least one select is changed.
+function syncBulkEditBar() {
+  const bar = document.getElementById("cw-bulk-edit");
+  if (!bar) return;
+  const n = selectedCustomWordIds.size;
+  bar.hidden = n === 0;
+  if (n === 0) return;
+  document.getElementById("cw-bulk-edit-title").textContent = t("bulkEditTitle", n);
+  const picked = BULK_EDIT_SELECT_IDS.some((id) => { const s = document.getElementById(id); return s && s.value; });
+  document.getElementById("cw-bulk-apply-btn").disabled = !picked;
+}
+
+function applyBulkEdit() {
+  const lvEn = document.getElementById("cw-bulk-level-en").value;
+  const lvKo = document.getElementById("cw-bulk-level-ko").value;
+  const posVal = document.getElementById("cw-bulk-pos").value;
+  if (!lvEn && !lvKo && !posVal) return;
+  const selected = customWords.filter((w) => selectedCustomWordIds.has(w.id));
+  if (selected.length === 0) return;
+
+  const parts = [];
+  if (lvEn) parts.push(t("bulkEditPartEn", levelLabelIn(lvEn, SYSTEMS.en.levels)));
+  if (lvKo) parts.push(t("bulkEditPartKo", levelLabelIn(lvKo, SYSTEMS.ko.levels)));
+  if (posVal) parts.push(t("bulkEditPartPos", posVal === BULK_POS_CLEAR ? t("bulkEditPosCleared") : posLabel(posVal)));
+  if (!confirm(t("bulkEditConfirm", selected.length, parts.join("\n")))) return;
+
+  selected.forEach((w) => {
+    if (lvEn) w.levelEn = lvEn;
+    if (lvKo) w.levelKo = lvKo;
+    if (posVal) w.pos = posVal === BULK_POS_CLEAR ? null : posVal;
+  });
+  selectedCustomWordIds.clear();
+  saveCustomWords();
+  customWordsStatus.textContent = t("bulkEditDone", selected.length, parts.join(", "));
+  populateBulkEditSelects(); // back to "No change"
+  renderCustomWords();
+  renderWordList();
+  pushSharedWords(selected.filter((w) => w.remote));
+}
+
 // A free account can try the manual form for 10 words (kept only while the page is open — see
 // newWordStorageFlags); bulk / photo / Excel stay premium.
 const FREE_WORD_TRIAL = 10;
@@ -12205,6 +12542,17 @@ manualForm.addEventListener("submit", (e) => {
   }
   saveCustomWords();
   resetManualForm();
+  // Continuous entry: after a NEW word, keep the level and part of speech just used,
+  // say what was saved, flash it in the list and put the cursor back on the word box.
+  if (newWord) {
+    if (manualLevelSelect.options.length) manualLevelSelect.value = level;
+    if (manualPosSelect) manualPosSelect.value = manualPos || "";
+    manualAddStatus.textContent = t("manualSavedStatus", newWord.word);
+    flashJustAdded([newWord.id]);
+    manualWordInput.focus();
+  } else if (editedWord) {
+    flashJustAdded([editedWord.id]);
+  }
   renderCustomWords();
   renderWordList();
   if (refreshPaidFeatureGates) refreshPaidFeatureGates();
@@ -12359,6 +12707,7 @@ function updateDeleteSelectedBtn() {
   customDeleteSelectedBtn.classList.toggle("error", hasSelection);
   customDeleteSelectedBtn.classList.toggle("neutral", !hasSelection);
   customLevelSelect.disabled = !hasSelection;
+  syncBulkEditBar();
   const selCount = document.getElementById("cw-select-count");
   if (selCount) selCount.textContent = hasSelection ? (currentLang === "ko" ? `${selectedCustomWordIds.size}개 선택됨` : `${selectedCustomWordIds.size} selected`) : "";
   syncCustomActionBar();
@@ -12515,7 +12864,7 @@ function renderCustomWords({ resetPaging = true } = {}) {
   if (remaining > 0) customWordsLoadMoreLabel.textContent = t("loadMoreWords", Math.min(CUSTOM_WORDS_PAGE_SIZE, remaining));
   pageItems.forEach((w) => {
       const row = document.createElement("div");
-      row.className = "wordlist-item";
+      row.className = "wordlist-item" + (justAddedCustomIds.has(w.id) ? " just-added" : "");
 
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
@@ -12625,6 +12974,10 @@ customWordsLoadMoreBtn.addEventListener("click", () => {
   customWordsVisibleCount += CUSTOM_WORDS_PAGE_SIZE;
   renderCustomWords({ resetPaging: false });
 });
+
+BULK_EDIT_SELECT_IDS.forEach((id) => document.getElementById(id).addEventListener("change", syncBulkEditBar));
+document.getElementById("cw-bulk-apply-btn").addEventListener("click", applyBulkEdit);
+populateBulkEditSelects(); // in case the first populateLevelSelects() ran before this block was reached
 
 // Bulk levels are set for the language track you're looking at; the other
 // track keeps the level that was guessed for it, the same as editing one word.

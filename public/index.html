@@ -1827,9 +1827,9 @@ to Flip!</span></div>
             <label for="bulk-words-input" data-i18n="bulkWordsLabel">Words (one per line, or separated by commas)</label>
             <textarea id="bulk-words-input" rows="5" data-i18n-placeholder="bulkWordsPlaceholder" placeholder="resilient&#10;magnificent&#10;curious"></textarea>
           </div>
-          <p class="muted" data-i18n="bulkWordsHint">We'll automatically look up each word's meaning and example, and guess a matching level for it.</p>
+          <p class="muted" data-i18n="bulkWordsHint">We'll look up each word's meaning and example and guess a level — you can check and fix everything before saving.</p>
           <div class="form-actions">
-            <button type="button" class="pill accent" id="bulk-add-save-btn"><span class="btn-spinner" id="bulk-add-spinner" hidden aria-hidden="true"></span><span id="bulk-add-save-label" data-i18n="bulkAddSaveBtn">Save words</span></button>
+            <button type="button" class="pill accent" id="bulk-add-save-btn"><span class="btn-spinner" id="bulk-add-spinner" hidden aria-hidden="true"></span><span id="bulk-add-save-label" data-i18n="bulkPreviewBtn">Preview words</span></button>
           </div>
           <div id="bulk-add-status" class="spelling-tip"></div>
         </div>
@@ -1839,6 +1839,26 @@ to Flip!</span></div>
              one card, so it's centered on the page and stays put while scrolling. -->
         <div class="premium-gate-overlay" id="manual-premium-overlay" hidden></div>
       </div>
+      </div>
+
+      <!-- Multiple-words preview: opens full width under the two add cards once "Preview words"
+           is pressed. Every row can be fixed before saving; words already in the list are
+           flagged and left unticked (tick one to update it instead). Built by JS. -->
+      <div class="card bulk-preview-card" id="bulk-preview-card" hidden>
+        <div class="bp-head">
+          <h3 data-i18n="bulkPreviewTitle">📋 Check before saving</h3>
+          <p class="muted" id="bulk-preview-summary"></p>
+        </div>
+        <label class="select-all-toggle bp-select-all" for="bulk-preview-select-all">
+          <input type="checkbox" id="bulk-preview-select-all" />
+          <span data-i18n="selectAllLabel">Select All</span>
+        </label>
+        <div class="bp-table" id="bulk-preview-table" role="table"></div>
+        <div class="form-actions">
+          <button type="button" class="pill accent" id="bulk-preview-save-btn"><span class="btn-spinner" id="bulk-preview-spinner" hidden aria-hidden="true"></span><span id="bulk-preview-save-label"></span></button>
+          <button type="button" class="pill neutral" id="bulk-preview-cancel-btn" data-i18n="bulkPreviewCancel">Cancel</button>
+        </div>
+        <div id="bulk-preview-status" class="spelling-tip" role="status" aria-live="polite"></div>
       </div>
 
       <div class="card" id="my-added-words-card">
@@ -1887,6 +1907,27 @@ to Flip!</span></div>
           </label>
           <button type="button" class="pill neutral small" id="custom-delete-selected-btn" data-i18n="deleteSelectedBtn" disabled>🗑️ Delete</button>
           <span class="cw-select-count" id="cw-select-count"></span>
+        </div>
+        <!-- Appears while words are ticked: change their English level, Korean level and/or
+             part of speech in one go. Each select starts on "No change", so only what
+             you pick is touched. Plain flat bar — no border, so it reads as a tool, not a button. -->
+        <div class="cw-bulk-edit" id="cw-bulk-edit" hidden>
+          <div class="cw-bulk-edit-title" id="cw-bulk-edit-title"></div>
+          <div class="cw-bulk-edit-fields">
+            <label class="cw-bulk-edit-field">
+              <span data-i18n="bulkEditEnLevel">English level</span>
+              <select id="cw-bulk-level-en" class="level-bulk-select"></select>
+            </label>
+            <label class="cw-bulk-edit-field">
+              <span data-i18n="bulkEditKoLevel">Korean level</span>
+              <select id="cw-bulk-level-ko" class="level-bulk-select"></select>
+            </label>
+            <label class="cw-bulk-edit-field">
+              <span data-i18n="bulkEditPos">Part of speech</span>
+              <select id="cw-bulk-pos" class="level-bulk-select"></select>
+            </label>
+            <button type="button" class="pill accent small" id="cw-bulk-apply-btn" data-i18n="bulkEditApply" disabled>Apply</button>
+          </div>
         </div>
         <p class="muted wordlist-count" id="custom-words-count"></p>
         <p class="muted" id="custom-words-storage-note" hidden></p>
