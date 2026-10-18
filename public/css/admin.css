@@ -1589,12 +1589,12 @@ html:root[data-theme="dark"] body #view-myaccount .acct-upgrade .pill.neutral { 
 /* Round 26: Premium payment popup - same look as the login / sign-up popup (mint brand panel + flat rows, amber highlight, no blue) */
 .pay-overlay { position: fixed; inset: 0; background: rgba(20, 28, 55, 0.55); display: flex; align-items: center; justify-content: center; z-index: 1200; padding: 16px; }
 .pay-overlay[hidden] { display: none; }
-.pay-card { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); width: 100%; max-width: 600px; max-height: calc(100dvh - 32px); overflow: hidden; background: #fff; border: 1px solid var(--outline); border-radius: 20px; box-shadow: 0 20px 50px rgba(0, 0, 0, .25); }
-.pay-brand { background: #d6f3e7; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; }
+.pay-card { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); width: 100%; max-width: 680px; max-height: calc(100dvh - 32px); overflow: hidden; background: #fff; border: 1px solid var(--outline); border-radius: 20px; box-shadow: 0 20px 50px rgba(0, 0, 0, .25); }
+.pay-brand { background: #d6f3e7; padding: 20px 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; }
 .pay-brand-logo { width: 92px; height: 92px; }
 .pay-brand-name { margin: 0; font-family: var(--font-heading); font-size: 1.1rem; line-height: 1.2; color: #23403a; }
 .pay-brand-tag { margin: 0; font-size: .8rem; line-height: 1.5; color: #5f7d75; white-space: pre-line; }
-.pay-main { padding: 22px 22px 20px; overflow-y: auto; min-width: 0; text-align: left; }
+.pay-main { padding: 20px 22px 16px; overflow-x: hidden; overflow-y: auto; min-width: 0; text-align: left; }
 .pay-title { margin: 0 0 8px; font-family: var(--font-heading); font-size: 1.2rem; line-height: 1.25; color: #23403a; text-align: left; white-space: nowrap; }
 .pay-message { margin: 0 0 16px; font-size: .86rem; line-height: 1.5; color: var(--text); opacity: .85; }
 .pay-plans { display: grid; gap: 8px; margin-bottom: 8px; }
@@ -1620,6 +1620,7 @@ html[data-theme="dark"] .pay-plan:hover:not(:disabled) { background: #2c453b; }
   .pay-brand-tag { display: none; }
   .pay-brand-logo { width: 44px; height: 44px; }
   .pay-main { overflow: visible; padding: 16px 18px 20px; }
+  .pay-plan { padding: 0 12px; }
 }
 @media (max-width: 480px) {
   .pay-overlay { align-items: flex-end; padding: 0; }
