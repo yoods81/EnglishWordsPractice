@@ -2666,7 +2666,7 @@ function renderLevelSeg(seg, short) {
 // The closed Settings row always shows the current choices, e.g. "Vocabulary · Upper Primary · 10 questions".
 // The collapsed Settings row shows the current choices on two tidy lines (one line on wide screens).
 function setSettingsNow(el, items) {
-  const half = /^(quiz|spelling|flash)-settings-now$/.test(el.id) ? items.length : (items.length > 2 ? 2 : items.length); // the quiz summary stays on one line
+  const half = /^(quiz|spelling|flash|typegame)-settings-now$/.test(el.id) ? items.length : (items.length > 2 ? 2 : items.length); // the quiz summary stays on one line
   const a = items.slice(0, half), b = items.slice(half);
   el.innerHTML = [a, b].filter((g) => g.length).map((g) => `<span>${g.map(escapeHtml).join(" · ")}</span>`).join("");
 }
@@ -7537,6 +7537,8 @@ quizCategorySel.addEventListener("change", buildQuizQuestions);
 });
 bindSettingsNow("quiz-settings-body", "quiz-settings-now");
 bindSettingsNow("spelling-settings-body", "spelling-settings-now");
+bindSettingsNow("typegame-settings-body", "typegame-settings-now");
+wireSettingsDetails("typegame-settings", "typegame-start-overlay");
 wireSettingsDetails("quiz-settings", "quiz-start-screen");
 wireSettingsDetails("spelling-settings", "spelling-start-screen");
 
@@ -8829,11 +8831,9 @@ function enterTypeGameTab() {
 // The start screen's two little chips: which level's words will fall, and this
 // level's best score so far (hidden until there is one).
 function updateTypeGameStartChips() {
-  const levelEl = document.getElementById("typegame-start-level");
   const bestEl = document.getElementById("typegame-start-best");
-  if (!levelEl || !bestEl) return;
-  levelEl.textContent = `📚 ${levelLabel(currentLevel)} ▾`;
-  levelEl.setAttribute("aria-label", startL("Change level", "레벨 바꾸기"));
+  if (!bestEl) return;
+  renderLevelSeg(document.getElementById("typegame-level-seg"), true);
   renderTypeGameModes();
   const best = typeGameHighScores[typeGameHighScoreKey()] || 0;
   bestEl.hidden = best <= 0;

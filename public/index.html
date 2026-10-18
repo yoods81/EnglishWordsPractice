@@ -1340,15 +1340,27 @@ to Flip!</span></div>
             </div>
             <div class="tg-start-card">
               <h3 data-i18n="typeGameTitle">⌨️ Typing Game</h3>
-              <div class="qz-pick scope-pick">
-          <div class="qz-pick-title" data-i18n="scopeTitle">Words from</div>
-          <div class="qz-seg scope-seg" role="radiogroup" data-i18n-aria-label="scopeTitle" aria-label="Words from"></div>
-          <p class="qz-pick-note scope-note" hidden></p>
-        </div>
+              <details class="fs-settings" id="typegame-settings"><summary class="fs-settings-sum"><span class="fs-settings-ico" aria-hidden="true">⚙️</span><span class="fs-settings-label" data-i18n="flashSettingsLabel">Settings</span><span class="fs-settings-now" id="typegame-settings-now"></span></summary><div class="fs-settings-body" id="typegame-settings-body" data-oneline="1">
+                <div class="qz-pick scope-pick">
+                  <div class="qz-pick-title" data-i18n="scopeTitle">Words from</div>
+                  <div class="qz-seg scope-seg" role="radiogroup" data-i18n-aria-label="scopeTitle" aria-label="Words from"></div>
+                  <p class="qz-pick-note scope-note" hidden></p>
+                </div>
+                <div class="qz-pick">
+                  <div class="qz-pick-title" data-i18n="setDifficultyTitle">Difficulty</div>
+                  <div class="qz-seg" id="typegame-level-seg" role="radiogroup" data-i18n-aria-label="setDifficultyTitle" aria-label="Difficulty"></div>
+                </div>
+                <div class="qz-pick">
+                  <div class="qz-pick-title" data-i18n="setModeTitle">Mode</div>
+                  <div class="qz-seg" id="typegame-mode-seg" role="radiogroup" data-i18n-aria-label="setModeTitle" aria-label="Mode">
+                    <button type="button" class="qz-seg-btn" role="radio" data-mode="beginner"></button>
+                    <button type="button" class="qz-seg-btn" role="radio" data-mode="intermediate"></button>
+                    <button type="button" class="qz-seg-btn" role="radio" data-mode="pro"></button>
+                  </div>
+                </div>
+              </div></details>
               <div class="tg-start-chips">
-                <button type="button" class="tg-start-chip sp-level-chip" id="typegame-start-level" aria-label="Change level" aria-haspopup="true" aria-expanded="false"></button>
                 <span class="tg-start-chip tg-start-best" id="typegame-start-best" hidden></span>
-                <div class="tt-start-panel tg-level-panel" id="typegame-level-panel" hidden></div>
               </div>
               <div class="tg-hero" id="typegame-hero">
                 <div class="tg-slides">
@@ -1360,11 +1372,6 @@ to Flip!</span></div>
                   <div class="tg-slide tg-slide2" aria-live="polite"><b class="tg-mode-title"></b><p class="tg-mode-desc"></p><span class="tg-mode-stats"></span></div>
                 </div>
                 <div class="tg-dots" aria-hidden="true"><i></i><i></i></div>
-              </div>
-              <div class="tg-modes qz-seg" id="typegame-mode-seg" role="radiogroup" aria-label="Difficulty">
-                <button type="button" class="qz-seg-btn" role="radio" data-mode="beginner"></button>
-                <button type="button" class="qz-seg-btn" role="radio" data-mode="intermediate"></button>
-                <button type="button" class="qz-seg-btn" role="radio" data-mode="pro"></button>
               </div>
               <button class="pill accent tg-start-btn" id="typegame-start-btn" data-i18n="typeGameStartBtn">Start Game</button>
             </div>
