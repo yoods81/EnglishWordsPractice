@@ -18,6 +18,10 @@ const GOAL_MAX_PAID = 200;
 const GOAL_STEP = 5;
 const LEVELS_KEY = "ywp_levels_v1"; // { en: "elem_high", ko: "elem_high" }
 const LANG_KEY = "ywp_lang_v1";
+// Practice scope (Quiz / Spelling / Typing Game / Flashcards): "all" = every word of the level,
+// "mine" = only the words this (premium/admin) account added itself. One setting shared by all four.
+const SCOPE_KEY = "ywp_scope_v1";
+let practiceScope = (() => { try { return localStorage.getItem(SCOPE_KEY) === "mine" ? "mine" : "all"; } catch (e) { return "all"; } })();
 const ADMIN_KEY = "ywp_admin_v1";
 const PROFILE_KEY = "ywp_active_profile_v1"; // { uid, n } — which child (slot) is learning on this device
 const PROFILES_CACHE_KEY = "ywp_profiles_v1"; // { uid, list } — last known child list
@@ -590,6 +594,15 @@ const TRANSLATIONS = {
     bulkPreviewDone: (added, updated) => `Saved ${added} new word${added === 1 ? "" : "s"}${updated ? ` and updated ${updated}` : ""}. Type the next ones!`,
     bulkPreviewDoneFailed: (ok, failed) => `Saved ${ok}, but ${failed} could not be sent to the server — they are kept here; try Upload again.`,
     manualSavedStatus: (w) => `✅ "${w}" saved — add the next one!`,
+    scopeTitle: "📚 Words from",
+    scopeAll: "🌏 All words",
+    scopeMine: "⭐ My words only",
+    scopeMineShort: "My words only",
+    scopeUnit: "",
+    scopeNoteMine: "Only the words you added, within the level you picked.",
+    scopeNoteEmpty: "You haven't added any words at this level yet — add some in Add Word first!",
+    quizNotEnoughMine: (lvl) => `Not enough of your own ${lvl} words yet (at least 4 are needed). Add more in Add Word, or switch to All words!`,
+    typeGameNotEnoughMine: (lvl) => `You need at least 4 of your own ${lvl} words to play — add more in Add Word, or switch to All words!`,
     bulkAnalyzing: "Analyzing words...",
     bulkNoWords: "Please enter at least one word.",
     bulkAddedStatus: (n) => `Added ${n} word${n === 1 ? "" : "s"}!`,
@@ -1526,6 +1539,15 @@ const TRANSLATIONS = {
     bulkPreviewDone: (added, updated) => `새 단어 ${added}개를 저장했어요${updated ? `, ${updated}개는 업데이트했어요` : ""}. 다음 단어를 입력하세요!`,
     bulkPreviewDoneFailed: (ok, failed) => `${ok}개는 저장했지만 ${failed}개는 서버로 보내지 못했어요. 이 기기에는 남아 있으니 다시 업로드해 주세요.`,
     manualSavedStatus: (w) => `✅ "${w}" 저장했어요 — 다음 단어를 추가하세요!`,
+    scopeTitle: "📚 출제 범위",
+    scopeAll: "🌏 전체 단어",
+    scopeMine: "⭐ 내 단어만",
+    scopeMineShort: "내 단어만",
+    scopeUnit: "개",
+    scopeNoteMine: "선택한 난이도 안에서, 내가 추가한 단어만 출제돼요.",
+    scopeNoteEmpty: "이 난이도에 추가한 단어가 아직 없어요 — 단어 추가에서 먼저 추가해 보세요!",
+    quizNotEnoughMine: (lvl) => `${lvl} 레벨에 내가 추가한 단어가 아직 부족해요(4개 이상 필요). 단어를 더 추가하거나 '전체 단어'로 바꿔 보세요!`,
+    typeGameNotEnoughMine: (lvl) => `${lvl} 레벨에 내가 추가한 단어가 4개 이상 있어야 해요 — 단어를 더 추가하거나 '전체 단어'로 바꿔 보세요!`,
     bulkAnalyzing: "단어 분석 중...",
     bulkNoWords: "단어를 최소 1개 이상 입력해주세요.",
     bulkAddedStatus: (n) => `${n}개의 단어를 추가했어요!`,
@@ -2534,7 +2556,7 @@ function quizPoolSizeForCurrentCategory() {
 }
 
 function spellingPoolSize() {
-  return getSpellingPool(currentLevel).length;
+  return getSpellingPool(currentLevel, true).length;
 }
 
 function goalPoolSize(mode) {
@@ -2639,7 +2661,7 @@ function bindSettingsNow(bodyId, nowId) {
   if (!body || !now) return;
   const update = () => {
     setSettingsNow(now, Array.from(body.querySelectorAll(".qz-seg-btn.on"))
-      .map((b) => (b.dataset.now || b.textContent).replace(/^[^\p{L}\p{N}]+/u, "").trim()));
+      .map((b) => (b.dataset.now != null ? b.dataset.now : b.textContent).replace(/^[^\p{L}\p{N}]+/u, "").trim()).filter(Boolean));
   };
   new MutationObserver(update).observe(body, { subtree: true, childList: true, attributes: true, attributeFilter: ["class", "data-now"] });
   update();
@@ -3045,10 +3067,20 @@ if (/[?&]tts(=|&|$)/.test(location.search)) {
 
 /* ================= LEVEL POOLS ================= */
 
-function getVocabPool(level) {
-  const custom = customWords
+// True when the practice screens should draw only from the words this account added.
+// Guarded: it can be asked during start-up, before the account state exists.
+function isMineScope() {
+  if (practiceScope !== "mine") return false;
+  try { return !!canUsePaidFeatures(); } catch (e) { return false; }
+}
+
+function getVocabPool(level, scoped) {
+  const mineOnly = !!scoped && isMineScope();
+  const custom = (mineOnly ? myCustomWords() : customWords)
     .filter((w) => cwLevel(w) === level)
     .map((w) => ({ word: w.word, definition: cwDefinition(w) || t("ocrNoDefFound"), example: w.example || "", custom: true }));
+  // "My words only" practice: just the words this account added, nothing from the built-in bank.
+  if (mineOnly) return custom;
   // Once admin has shared at least one managed word at this level, the DB is
   // the single source of truth for it — the old hardcoded bank stops
   // contributing entirely, so a deliberate admin deletion stays deleted
@@ -3070,8 +3102,8 @@ function getVocabPool(level) {
 // track, but keeping two parallel word lists in sync (and making sure every
 // word in both had a real definition) wasn't sustainable, so both
 // categories were merged into one managed pool.
-function getSpellingPool(level) {
-  return getVocabPool(level).map((w) => ({ word: w.word, tip: t("hintPrefix", w.definition), custom: !!w.custom }));
+function getSpellingPool(level, scoped) {
+  return getVocabPool(level, scoped).map((w) => ({ word: w.word, tip: t("hintPrefix", w.definition), custom: !!w.custom }));
 }
 
 function getSynonymPool(level) {
@@ -3219,6 +3251,7 @@ function applyStaticTranslations() {
   if (typeof renderQuizStart === "function" && quizPhase === "start") renderQuizStart();
   if (typeof renderHome === "function") renderHome();
   updateCategoryOptionVisibility();
+  renderScopeSegs();
   // These two show state (not static copy), so re-derive them after the
   // generic data-i18n sweep above may have reset them to their default text.
   if (typeof ocrFileNameEl !== "undefined" && ocrLastFileName) ocrFileNameEl.textContent = ocrLastFileName;
@@ -3607,6 +3640,42 @@ document.addEventListener("keydown", (e) => {
 });
 window.addEventListener("resize", closeAllTabGroups);
 
+/* ---------- Practice scope line ("All words" / "My words only") ---------- */
+function scopeCounts() {
+  return { all: getVocabPool(currentLevel).length, mine: myCustomWords().filter((w) => cwLevel(w) === currentLevel).length };
+}
+// Fills every ".scope-seg" (first line of the Quiz / Spelling / Flashcards settings and the Typing Game card).
+function renderScopeSegs() {
+  const segs = document.querySelectorAll(".scope-seg");
+  if (!segs.length) return;
+  let counts = { all: 0, mine: 0 };
+  let locked = true;
+  try { counts = scopeCounts(); locked = !canUsePaidFeatures(); } catch (e) { /* account state not ready yet */ }
+  const mine = isMineScope();
+  const num = (n) => `${n.toLocaleString()}${t("scopeUnit")}`;
+  const btn = (scope, on, label, small, now) =>
+    `<button type="button" class="qz-seg-btn${on ? " on" : ""}" role="radio" aria-checked="${on}" data-scope="${scope}" data-now="${escapeHtml(now)}">${label} <small>${small}</small></button>`;
+  const html =
+    btn("all", !mine, t("scopeAll"), num(counts.all), "") +
+    btn("mine", mine, t("scopeMine"), locked ? "🔒" : num(counts.mine), t("scopeMineShort"));
+  const note = mine ? (counts.mine === 0 ? t("scopeNoteEmpty") : t("scopeNoteMine")) : "";
+  segs.forEach((seg) => {
+    if (seg.dataset.sig !== html) { seg.innerHTML = html; seg.dataset.sig = html; }
+    const noteEl = seg.parentElement.querySelector(".scope-note");
+    if (noteEl) { noteEl.textContent = note; noteEl.hidden = !note; }
+  });
+}
+function setPracticeScope(scope) {
+  if (scope === "mine" && !canUsePaidFeatures()) { promptUpgradeForFeature(); return; }
+  practiceScope = scope === "mine" ? "mine" : "all";
+  try { localStorage.setItem(SCOPE_KEY, practiceScope); } catch (e) { /* private mode */ }
+  refreshCurrentView(); // re-enters the open screen, which re-reads its pool and redraws the counts
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest && e.target.closest(".scope-seg .qz-seg-btn");
+  if (b) setPracticeScope(b.dataset.scope);
+});
+
 function refreshCurrentView() {
   const active = document.querySelector(".tab-btn.active");
   if (active) refreshView(active.dataset.view);
@@ -3637,6 +3706,7 @@ function scrollNavBarToTop() {
 }
 
 function refreshView(view) {
+  renderScopeSegs();
   if (view === "landing") renderHome();
   if (view === "flashcards") buildFlashDeck();
   if (view === "quiz") showQuizStart();
@@ -5782,6 +5852,7 @@ let flashDeck = [];
 let flashIndex = 0;
 
 function getFlashItems(category, level) {
+  if (isMineScope() && category !== "vocabulary") return []; // synonyms/antonyms come from the built-in bank only
   if (category === "synonyms") {
     return getSynonymPool(level)
       .filter((s) => s.synonym)
@@ -5800,7 +5871,7 @@ function getFlashItems(category, level) {
         example: `"${s.word}" is the opposite of "${s.antonym}".`,
       }));
   }
-  return getVocabPool(level);
+  return getVocabPool(level, true);
 }
 
 function usingMyDeck() {
@@ -6236,7 +6307,7 @@ const flashSettingsBody = document.getElementById("flash-settings-body");
 function updateFlashSettingsNow() {
   const now = document.getElementById("flash-settings-now");
   if (!flashSettingsBody || !now) return;
-  setSettingsNow(now, Array.from(flashSettingsBody.querySelectorAll(".qz-seg-btn.on")).map((b) => b.textContent.replace(/^[^\p{L}\p{N}]+/u, "").trim()));
+  setSettingsNow(now, Array.from(flashSettingsBody.querySelectorAll(".qz-seg-btn.on")).map((b) => (b.dataset.now != null ? b.dataset.now : b.textContent).replace(/^[^\p{L}\p{N}]+/u, "").trim()).filter(Boolean));
 }
 if (flashSettingsBody) {
   new MutationObserver(updateFlashSettingsNow).observe(flashSettingsBody, { subtree: true, childList: true, attributes: true, attributeFilter: ["class"] });
@@ -6641,7 +6712,7 @@ function saveQuizKoMeaning() {
 function buildQuizPool() {
   return QuizCore.buildQuestions(
     quizCategorySel.value,
-    { vocab: getVocabPool(currentLevel), synonyms: getSynonymPool(currentLevel), homophones: getHomophonePool(currentLevel) },
+    { vocab: getVocabPool(currentLevel, true), synonyms: isMineScope() ? [] : getSynonymPool(currentLevel), homophones: isMineScope() ? [] : getHomophonePool(currentLevel) },
     { shuffle, prompts: { synonym: (w) => t("quizSynonymPrompt", w), homophone: (w) => t("quizHomophonePrompt", w) } }
   );
 }
@@ -6706,7 +6777,7 @@ function renderQuizStart() {
   const poolSize = quizPoolAll.length;
   const newLeft = freshLeft(quizPoolAll, "quiz", (q) => q.target);
   quizStartWarn.hidden = poolSize > 0;
-  quizStartWarn.textContent = poolSize > 0 ? "" : t("quizNotEnough", levelLabel(currentLevel));
+  quizStartWarn.textContent = poolSize > 0 ? "" : t(isMineScope() ? "quizNotEnoughMine" : "quizNotEnough", levelLabel(currentLevel));
   { const left = dailyQuotaLeft("quiz"); if (poolSize > 0 && left !== Infinity && left <= effectiveGoal("quiz", poolSize)) { quizStartWarn.hidden = false; quizStartWarn.textContent = t("dailyLeftNote", left); } }
   quizStartBtn.disabled = poolSize === 0 || newLeft === 0;
   renderNewLeft("quiz", poolSize, newLeft, quizStartBtn.parentElement, "questions here", "설정");
@@ -7519,7 +7590,7 @@ let spellingCurrentChecked = false; // has the current word passed a "Check Answ
 // whichever screen (start / practice) was already showing instead of
 // bouncing back to "Start the first word".
 function renderSpellingNewLeft() {
-  const pool = getSpellingPool(currentLevel);
+  const pool = getSpellingPool(currentLevel, true);
   const left = freshLeft(pool, "spelling");
   spellingStartBtn.disabled = pool.length > 0 && left === 0;
   renderNewLeft("spelling", pool.length, left, spellingStartBtn.parentElement, "words for this level", "레벨");
@@ -7527,7 +7598,7 @@ function renderSpellingNewLeft() {
 function buildSpellingDeck({ resetScreen = true, list = null } = {}) {
   spellingGoalBanner.hidden = true;
   spellingGoalCelebrated = false;
-  const pool = getSpellingPool(currentLevel);
+  const pool = getSpellingPool(currentLevel, true);
 
   // Overdue-for-review words first (most overdue first), then never-seen
   // words, then words not due yet — see pickWordsForSession(). This
@@ -8279,7 +8350,7 @@ function renderSpellingReport() {
     const lab = retryBtn.querySelector("span:last-child");
     if (lab) lab.textContent = rwL(`Retry missed (${words.length})`, `틀린 단어 다시 풀기 (${words.length})`);
   }
-  const leftNow = freshLeft(getSpellingPool(currentLevel), "spelling");
+  const leftNow = freshLeft(getSpellingPool(currentLevel, true), "spelling");
   spellingReportRestartBtn.hidden = leftNow === 0;
   let sNote = document.getElementById("spelling-report-note");
   if (!sNote) { sNote = document.createElement("p"); sNote.id = "spelling-report-note"; sNote.className = "qz-result-note"; spellingReportRestartBtn.parentElement.appendChild(sNote); }
@@ -8331,7 +8402,7 @@ document.getElementById("spelling-report-game")?.addEventListener("click", () =>
 // Report buttons start the next round straight away (no detour via the start screen).
 function startSpellingRoundNow(opts) {
   if (dailyQuotaLeft("spelling") <= 0) { promptDailyCap(); return; }
-  if (!opts || !opts.list) { if (freshLeft(getSpellingPool(currentLevel), "spelling") === 0) { renderSpellingReport(); return; } }
+  if (!opts || !opts.list) { if (freshLeft(getSpellingPool(currentLevel, true), "spelling") === 0) { renderSpellingReport(); return; } }
   buildSpellingDeck(opts);
   if (!spellingDeck.length) return;
   spellingStartScreen.hidden = true;
@@ -8342,7 +8413,7 @@ function startSpellingRoundNow(opts) {
 spellingReportRestartBtn.addEventListener("click", () => startSpellingRoundNow());
 document.getElementById("spelling-report-retry")?.addEventListener("click", () => {
   const missed = new Set(Array.from(spellingSessionWrongWords.keys()));
-  const list = shuffle(getSpellingPool(currentLevel).filter((w) => missed.has(w.word)));
+  const list = shuffle(getSpellingPool(currentLevel, true).filter((w) => missed.has(w.word)));
   if (!list.length) return;
   startSpellingRoundNow({ list: list.slice(0, Math.max(1, dailyQuotaLeft("spelling"))) });
 });
@@ -8537,7 +8608,7 @@ function typeGameHighScoreKey() {
 // modes always agree on what "this level's words" means. Multi-word phrases
 // don't fall — filtered out rather than dropped silently mid-game.
 function buildTypeGameWordPool() {
-  const words = getSpellingPool(currentLevel)
+  const words = getSpellingPool(currentLevel, true)
     .map((w) => w.word)
     .filter((w) => /^[A-Za-z']+$/.test(w));
   return Array.from(new Set(words));
@@ -8886,7 +8957,7 @@ function resetTypeGame() {
   const freshN = typeGameFreshWords().length;
   const usedUp = !notEnough && freshN < TYPEGAME_MIN_POOL_SIZE;
   typeGameStartBtn.disabled = notEnough || usedUp;
-  typeGameStartMessage.textContent = notEnough ? t("typeGameNotEnough", levelLabel(currentLevel)) : t("typeGameDesc");
+  typeGameStartMessage.textContent = notEnough ? t(isMineScope() ? "typeGameNotEnoughMine" : "typeGameNotEnough", levelLabel(currentLevel)) : t("typeGameDesc");
   renderNewLeft("typing", typeGameWordPool.length, usedUp ? 0 : freshN, typeGameStartMessage, "words for this level", "레벨");
   updateTypeGameStartChips();
   typeGameOverOverlay.hidden = true;

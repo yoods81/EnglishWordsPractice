@@ -1463,3 +1463,30 @@ html:root body #bulk-preview-card .bp-toolbar #bulk-preview-save-top-btn {
 }
 /* Vertical centring of the select text: no top/bottom padding, line-height = height. */
 html:root body #my-added-words-card .cw-bulk-edit .cw-bulk-edit-field .level-bulk-select { padding-top: 0; padding-bottom: 0; line-height: 34px; }
+
+/* ===== Settings summary line: left-aligned ===== */
+html:root:root:root body :is(#flash-start-screen, #quiz-start-screen, #spelling-start-screen) .fs-settings-now { text-align: left !important; justify-self: start; }
+html:root:root:root body :is(#flash-start-screen, #quiz-start-screen, #spelling-start-screen) .fs-settings-now > span { display: block; text-align: left !important; }
+
+/* ===== Flashcards "Cards per round": always one line ===== */
+html:root:root:root body #flash-round-seg { display: flex !important; flex-wrap: nowrap !important; gap: 4px; }
+html:root:root:root body #flash-round-seg .qz-seg-btn { flex: 1 1 0; min-width: 0; padding-left: 4px; padding-right: 4px; white-space: nowrap !important; }
+
+/* ===== Practice scope line (All words / My words only) ===== */
+html:root:root body .scope-seg { display: grid !important; grid-template-columns: 1fr 1fr; gap: 4px; }
+html:root:root body .scope-seg .qz-seg-btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; }
+html:root:root body .scope-seg .qz-seg-btn small { font-size: .74em; font-weight: 600; opacity: .85; }
+html:root:root body .scope-pick .scope-note[hidden] { display: none; }
+html:root:root body .scope-pick .scope-note { text-align: center; margin: 6px 0 0; }
+html:root body .tg-start-card .scope-pick { width: 100%; max-width: 420px; margin: 4px auto 6px; }
+
+/* scope seg: equal columns, one line label+count */
+html:root:root:root body .scope-seg { display: grid !important; grid-template-columns: 1fr 1fr !important; }
+html:root:root:root body .scope-seg .qz-seg-btn { flex-wrap: nowrap !important; white-space: nowrap !important; padding-left: 6px; padding-right: 6px; }
+html:root:root:root body .scope-seg .qz-seg-btn small { display: inline; }
+/* typing game start card: readable title, clear selected state */
+html:root:root:root body .tg-start-card .scope-pick .qz-pick-title { color: #0f5c4d; text-shadow: 0 1px 0 #fff; text-align: center; }
+html:root:root:root body .tg-start-card .scope-seg { background: rgba(255,255,255,.7); border-radius: 999px; padding: 4px; }
+html:root:root:root body .tg-start-card .scope-seg .qz-seg-btn { background: transparent; box-shadow: none; color: #0f6b57; border: 0; }
+html:root:root:root body .tg-start-card .scope-seg .qz-seg-btn.on { background: #22c9a3; color: #fff; box-shadow: 0 2px 6px rgba(34,201,163,.35); }
+html:root:root:root body .tg-start-card .scope-note { color: #0f5c4d; font-size: .8rem; }
