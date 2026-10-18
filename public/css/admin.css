@@ -1440,3 +1440,26 @@ html:root[data-theme="dark"] body #bulk-preview-card .bp-select { background: #1
 /* Flash for a word that was just added or edited in "My added words". */
 @keyframes cwJustAdded { 0% { background-color: #bff3df; } 100% { background-color: transparent; } }
 html:root body #my-added-words-card .wordlist-item.just-added { animation: cwJustAdded 2.6s ease-out 1; }
+
+/* ===== Pill sizing pass: bulk edit bar + preview toolbar match the My words buttons (36px, fully round, 0.88rem bold) ===== */
+html:root body #my-added-words-card .cw-bulk-edit .cw-bulk-edit-field .level-bulk-select {
+  height: 36px; min-height: 36px; box-sizing: border-box; padding: 0 28px; border-radius: 999px;
+  font-family: inherit; font-size: .88rem; font-weight: 800; line-height: 1; width: auto;
+  text-align: center; text-align-last: center; -moz-text-align-last: center;
+}
+html:root body #my-added-words-card .cw-bulk-edit .cw-bulk-edit-field .level-bulk-select option { text-align: center; }
+html:root body #my-added-words-card .cw-bulk-edit #cw-bulk-apply-btn {
+  display: inline-flex; align-items: center; justify-content: center; height: 36px; min-height: 36px; box-sizing: border-box;
+  padding: 0 22px; border-radius: 999px; font-family: inherit; font-size: .88rem; font-weight: 800; line-height: 1; width: auto; white-space: nowrap; margin: 0;
+}
+html:root body #bulk-preview-card .bp-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 4px 0 8px; }
+html:root body #bulk-preview-card .bp-toolbar .bp-select-all { margin: 0; }
+html:root body #bulk-preview-card .bp-toolbar #bulk-preview-save-top-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 36px; min-height: 36px; box-sizing: border-box;
+  padding: 0 18px; border: 0 !important; border-radius: 999px; font-family: inherit; font-size: .88rem; font-weight: 800; line-height: 1; width: auto; white-space: nowrap; margin: 0;
+}
+@media (max-width: 520px) {
+  html:root body #my-added-words-card .cw-bulk-edit .cw-bulk-edit-field .level-bulk-select { width: 100%; }
+}
+/* Vertical centring of the select text: no top/bottom padding, line-height = height. */
+html:root body #my-added-words-card .cw-bulk-edit .cw-bulk-edit-field .level-bulk-select { padding-top: 0; padding-bottom: 0; line-height: 34px; }

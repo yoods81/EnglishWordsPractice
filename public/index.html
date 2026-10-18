@@ -664,7 +664,7 @@
         <div class="qz-pick">
           <div class="qz-pick-title" data-i18n="flashSourceTitle">Cards from</div>
           <div class="qz-seg">
-            <button type="button" class="source-btn qz-seg-btn on" id="flash-source-level" aria-pressed="true" data-i18n="flashSourceAuto">🎯 Level words</button>
+            <button type="button" class="source-btn qz-seg-btn on" id="flash-source-level" aria-pressed="true" data-i18n="flashSourceAuto">🎯 My level words</button>
             <button type="button" class="source-btn qz-seg-btn" id="flash-source-mine" aria-pressed="false" data-i18n="flashSourceMine">⭐ My cards</button>
           </div>
         </div>
@@ -1849,10 +1849,14 @@ to Flip!</span></div>
           <h3 data-i18n="bulkPreviewTitle">📋 Check before saving</h3>
           <p class="muted" id="bulk-preview-summary"></p>
         </div>
-        <label class="select-all-toggle bp-select-all" for="bulk-preview-select-all">
-          <input type="checkbox" id="bulk-preview-select-all" />
-          <span data-i18n="selectAllLabel">Select All</span>
-        </label>
+        <div class="bp-toolbar">
+          <label class="select-all-toggle bp-select-all" for="bulk-preview-select-all">
+            <input type="checkbox" id="bulk-preview-select-all" />
+            <span data-i18n="selectAllLabel">Select All</span>
+          </label>
+          <!-- Same action as the Save button under the table, so it is reachable without scrolling a long list. -->
+          <button type="button" class="pill accent" id="bulk-preview-save-top-btn"><span class="btn-spinner" id="bulk-preview-spinner-top" hidden aria-hidden="true"></span><span id="bulk-preview-save-top-label"></span></button>
+        </div>
         <div class="bp-table" id="bulk-preview-table" role="table"></div>
         <div class="form-actions">
           <button type="button" class="pill accent" id="bulk-preview-save-btn"><span class="btn-spinner" id="bulk-preview-spinner" hidden aria-hidden="true"></span><span id="bulk-preview-save-label"></span></button>

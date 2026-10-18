@@ -431,7 +431,7 @@ const TRANSLATIONS = {
     qzSeeResults: "See results 🏁",
     flashFrontModeLabel: "Flashcard front side",
     flashSourceLabel: "Flashcard source",
-    flashSourceAuto: "🎯 Level words",
+    flashSourceAuto: "🎯 My level words",
     flashSourceMine: "⭐ My cards",
     flashSourceTitle: "Cards from",
     flashFrontTitle: "Card front",
@@ -1369,7 +1369,7 @@ const TRANSLATIONS = {
     qzKoMeaningShow: "뜻 보기",
     flashFrontModeLabel: "플래시카드 앞면",
     flashSourceLabel: "플래시카드 출처",
-    flashSourceAuto: "🎯 레벨 단어",
+    flashSourceAuto: "🎯 나의 레벨 단어",
     flashSourceMine: "⭐ 나만의 카드",
     flashSourceTitle: "카드 선택",
     flashFrontTitle: "카드 앞면",
@@ -12034,6 +12034,9 @@ const bulkPreviewSelectAll = document.getElementById("bulk-preview-select-all");
 const bulkPreviewSaveBtn = document.getElementById("bulk-preview-save-btn");
 const bulkPreviewSaveLabel = document.getElementById("bulk-preview-save-label");
 const bulkPreviewSpinner = document.getElementById("bulk-preview-spinner");
+const bulkPreviewSaveTopBtn = document.getElementById("bulk-preview-save-top-btn");
+const bulkPreviewSaveTopLabel = document.getElementById("bulk-preview-save-top-label");
+const bulkPreviewSpinnerTop = document.getElementById("bulk-preview-spinner-top");
 const bulkPreviewCancelBtn = document.getElementById("bulk-preview-cancel-btn");
 const bulkPreviewStatus = document.getElementById("bulk-preview-status");
 let bulkPreviewRows = [];
@@ -12057,7 +12060,9 @@ function closeBulkPreview() {
 function updateBulkPreviewFooter() {
   const n = bulkPreviewRows.filter((r) => r.tick && !bpLocked(r)).length;
   bulkPreviewSaveLabel.textContent = t("bulkPreviewSave", n);
+  bulkPreviewSaveTopLabel.textContent = t("bulkPreviewSave", n);
   bulkPreviewSaveBtn.disabled = n === 0;
+  bulkPreviewSaveTopBtn.disabled = n === 0;
   const selectable = bulkPreviewRows.filter((r) => !bpLocked(r));
   bulkPreviewSelectAll.checked = selectable.length > 0 && selectable.every((r) => r.tick);
   const exists = bulkPreviewRows.filter((r) => r.existing).length;
@@ -12267,7 +12272,7 @@ bulkPreviewSelectAll.addEventListener("change", () => {
 });
 bulkPreviewCancelBtn.addEventListener("click", closeBulkPreview);
 
-bulkPreviewSaveBtn.addEventListener("click", async () => {
+async function saveBulkPreview() {
   if (!canUsePaidFeatures()) {
     promptUpgradeForFeature();
     return;
@@ -12278,7 +12283,9 @@ bulkPreviewSaveBtn.addEventListener("click", async () => {
     return;
   }
   bulkPreviewSaveBtn.disabled = true;
+  bulkPreviewSaveTopBtn.disabled = true;
   bulkPreviewSpinner.hidden = false;
+  bulkPreviewSpinnerTop.hidden = false;
 
   const added = [];
   const updated = [];
@@ -12312,13 +12319,16 @@ bulkPreviewSaveBtn.addEventListener("click", async () => {
   flashJustAdded(added.concat(updated).map((w) => w.id));
   bulkWordsInput.value = "";
   bulkPreviewSpinner.hidden = true;
+  bulkPreviewSpinnerTop.hidden = true;
   closeBulkPreview();
   renderCustomWords();
   renderWordList();
   if (refreshPaidFeatureGates) refreshPaidFeatureGates();
   // Ready for the next batch straight away.
   bulkWordsInput.focus();
-});
+}
+bulkPreviewSaveBtn.addEventListener("click", saveBulkPreview);
+bulkPreviewSaveTopBtn.addEventListener("click", saveBulkPreview);
 
 function populateLevelSelects() {
   fillPosSelect(manualPosSelect, manualPosSelect && manualPosSelect.value);
