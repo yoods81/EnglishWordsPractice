@@ -353,8 +353,15 @@ const TRANSLATIONS = {
     qzStartTitle: "💡 Quiz",
     qzLevelTitle: "📚 Difficulty",
     qzModeTitle: "🎮 Mode",
-    qzModeRelaxed: "🌿 Relaxed",
-    qzModeTime: "⏱ Time Attack",
+    qzModeRelaxed: "Relaxed",
+    qzModeTime: "Time Attack",
+    qzTypeTitle: "Question type",
+    qzNowQuestions: (n) => `${n} Qs`,
+    qzNowQuestionsAll: "All Qs",
+    qzNowRelaxed: "Easy",
+    qzNowTime: "Time Attack",
+    qzShortCat: { vocabulary: "Vocab", meaning: "Meaning", fillblank: "Blank", listening: "Listen", synonyms: "Syn.", homophones: "Homo." },
+    qzShortLevel: { elem_low: "Lower Pri.", elem_high: "Upper Pri.", middle: "Middle", high: "High" },
     qzModeNoteRelaxed: "Take your time. No clock!",
     qzModeNoteTime: (c, ty) => `Beat the clock: ${c}s a question (${ty}s typing)!`,
     quizStartBtn: "Start Quiz",
@@ -594,7 +601,7 @@ const TRANSLATIONS = {
     bulkPreviewDone: (added, updated) => `Saved ${added} new word${added === 1 ? "" : "s"}${updated ? ` and updated ${updated}` : ""}. Type the next ones!`,
     bulkPreviewDoneFailed: (ok, failed) => `Saved ${ok}, but ${failed} could not be sent to the server — they are kept here; try Upload again.`,
     manualSavedStatus: (w) => `✅ "${w}" saved — add the next one!`,
-    scopeTitle: "📚 Words from",
+    scopeTitle: "Words from",
     scopeAll: "🌏 All words",
     scopeMine: "⭐ My words only",
     scopeMineShort: "My words only",
@@ -1297,8 +1304,15 @@ const TRANSLATIONS = {
     qzStartTitle: "💡 퀴즈",
     qzLevelTitle: "📚 난이도",
     qzModeTitle: "🎮 모드",
-    qzModeRelaxed: "🌿 여유롭게",
-    qzModeTime: "⏱ 타임어택",
+    qzModeRelaxed: "천천히",
+    qzModeTime: "타임어택",
+    qzTypeTitle: "문제유형",
+    qzNowQuestions: (n) => `${n}문제`,
+    qzNowQuestionsAll: "전체 문제",
+    qzNowRelaxed: "쉽게",
+    qzNowTime: "타임어택",
+    qzShortCat: { vocabulary: "어휘", meaning: "뜻", fillblank: "빈칸", listening: "듣기", synonyms: "유의어", homophones: "동음" },
+    qzShortLevel: { elem_low: "초등(저)", elem_high: "초등(고)", middle: "중등", high: "고등" },
     qzModeNoteRelaxed: "천천히 풀어요. 시간 제한이 없어요!",
     qzModeNoteTime: (c, ty) => `문제당 ${c}초 (쓰기 ${ty}초)! 시계와 승부해요!`,
     quizStartBtn: "퀴즈 시작",
@@ -1539,7 +1553,7 @@ const TRANSLATIONS = {
     bulkPreviewDone: (added, updated) => `새 단어 ${added}개를 저장했어요${updated ? `, ${updated}개는 업데이트했어요` : ""}. 다음 단어를 입력하세요!`,
     bulkPreviewDoneFailed: (ok, failed) => `${ok}개는 저장했지만 ${failed}개는 서버로 보내지 못했어요. 이 기기에는 남아 있으니 다시 업로드해 주세요.`,
     manualSavedStatus: (w) => `✅ "${w}" 저장했어요 — 다음 단어를 추가하세요!`,
-    scopeTitle: "📚 출제 범위",
+    scopeTitle: "출제 범위",
     scopeAll: "🌏 전체 단어",
     scopeMine: "⭐ 내 단어만",
     scopeMineShort: "내 단어만",
@@ -2625,14 +2639,15 @@ function renderRoundSeg(mode) {
     b.classList.toggle("on", on);
     b.classList.toggle("is-locked", locked);
     b.setAttribute("aria-checked", on ? "true" : "false");
-    b.textContent = (n === 0 ? t("flashRoundAll") : String(n)) + (locked ? " 🔒" : "");
-    b.dataset.now = n === 0 ? t("qzChipQuestionsAll") : t("qzChipQuestions", n);
+    b.textContent = n === 0 ? t("flashRoundAll") : String(n);
+    if (locked) { const lk = document.createElement("i"); lk.className = "rs-lock"; lk.textContent = "🔒"; lk.setAttribute("aria-hidden", "true"); b.appendChild(lk); }
+    b.dataset.now = mode === "quiz" ? (n === 0 ? t("qzNowQuestionsAll") : t("qzNowQuestions", n)) : (n === 0 ? t("qzChipQuestionsAll") : t("qzChipQuestions", n));
   });
 }
 
 // Difficulty = the level (Year 4 ... / the Korean school grades), the same one the
 // header badge shows, so the two always agree.
-function renderLevelSeg(seg) {
+function renderLevelSeg(seg, short) {
   if (!seg) return;
   seg.innerHTML = "";
   currentSystem().levels.forEach((lv) => {
@@ -2642,7 +2657,7 @@ function renderLevelSeg(seg) {
     btn.className = "qz-seg-btn" + (on ? " on" : "");
     btn.setAttribute("role", "radio");
     btn.setAttribute("aria-checked", String(on));
-    btn.textContent = lv.label;
+    btn.textContent = (short && (t("qzShortLevel") || {})[lv.id]) || lv.label;
     btn.addEventListener("click", () => { if (lv.id !== currentLevel) applyLevel(lv.id); });
     seg.appendChild(btn);
   });
@@ -2651,7 +2666,7 @@ function renderLevelSeg(seg) {
 // The closed Settings row always shows the current choices, e.g. "Vocabulary · Upper Primary · 10 questions".
 // The collapsed Settings row shows the current choices on two tidy lines (one line on wide screens).
 function setSettingsNow(el, items) {
-  const half = items.length > 2 ? 2 : items.length;
+  const half = el.id === "quiz-settings-now" ? items.length : (items.length > 2 ? 2 : items.length); // the quiz summary stays on one line
   const a = items.slice(0, half), b = items.slice(half);
   el.innerHTML = [a, b].filter((g) => g.length).map((g) => `<span>${g.map(escapeHtml).join(" · ")}</span>`).join("");
 }
@@ -6743,7 +6758,7 @@ function renderQuizCategorySeg() {
     b.className = "qz-seg-btn" + (on ? " on" : "");
     b.setAttribute("role", "radio");
     b.setAttribute("aria-checked", on ? "true" : "false");
-    b.textContent = opt.textContent.trim();
+    b.textContent = (t("qzShortCat") || {})[opt.value] || opt.textContent.trim();
     b.addEventListener("click", () => {
       if (quizCategorySel.value === opt.value) return;
       quizCategorySel.value = opt.value;
@@ -6754,12 +6769,13 @@ function renderQuizCategorySeg() {
 }
 
 function renderQuizStart() {
-  renderLevelSeg(quizLevelSeg);
+  renderLevelSeg(quizLevelSeg, true);
 
   quizModeSeg.querySelectorAll(".qz-seg-btn").forEach((b) => {
     const on = b.dataset.mode === quizMode;
     b.classList.toggle("on", on);
     b.setAttribute("aria-checked", String(on));
+    b.dataset.now = b.dataset.mode === "time" ? t("qzNowTime") : t("qzNowRelaxed");
   });
   quizModeNote.dataset.mode = quizMode;
   quizModeNote.textContent = quizMode === "time"

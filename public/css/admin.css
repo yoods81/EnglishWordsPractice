@@ -1490,3 +1490,19 @@ html:root:root:root body .tg-start-card .scope-seg { background: rgba(255,255,25
 html:root:root:root body .tg-start-card .scope-seg .qz-seg-btn { background: transparent; box-shadow: none; color: #0f6b57; border: 0; }
 html:root:root:root body .tg-start-card .scope-seg .qz-seg-btn.on { background: #22c9a3; color: #fff; box-shadow: 0 2px 6px rgba(34,201,163,.35); }
 html:root:root:root body .tg-start-card .scope-note { color: #0f5c4d; font-size: .8rem; }
+
+/* ===== Quiz settings: every row on one line ===== */
+html:root:root:root body #quiz-start-screen #quiz-settings-body .qz-seg:not(.scope-seg) { display: grid !important; grid-auto-flow: column; grid-auto-columns: minmax(0,1fr); gap: 4px; padding: 4px !important; flex-wrap: nowrap !important; }
+html:root:root:root body #quiz-start-screen #quiz-settings-body .qz-seg:not(.scope-seg) .qz-seg-btn { min-width: 0; width: auto; padding: 0 2px; white-space: nowrap !important; font-size: .85rem; }
+html:root:root:root body #quiz-start-screen #quiz-round-seg .qz-seg-btn { font-size: .84rem; padding: 0 1px; }
+html:root:root:root body #quiz-start-screen .qz-pick-title { white-space: nowrap; }
+/* mode buttons: bigger emoji icons */
+html:root:root:root body #quiz-mode-seg .qz-seg-btn::before { font-size: 1.45em; line-height: 1; margin-right: 6px; vertical-align: -0.12em; }
+html:root:root:root body #quiz-mode-seg .qz-seg-btn[data-mode="relaxed"]::before { content: "🐢"; }
+html:root:root:root body #quiz-mode-seg .qz-seg-btn[data-mode="time"]::before { content: "⏱"; }
+html:root:root:root body #quiz-start-screen #quiz-settings-now > span { white-space: normal; }
+html:root:root body .qz-seg-btn .rs-lock { font-style: normal; font-size: .62em; margin-left: 1px; }
+html:root:root:root body #quiz-mode-seg .qz-seg-btn[data-mode="relaxed"]::before,
+html:root:root:root body #quiz-mode-seg .qz-seg-btn.on[data-mode="relaxed"]::before { content: "🐢" !important; display: inline !important; }
+html:root:root:root body #quiz-mode-seg .qz-seg-btn.on[data-mode="time"]::before { content: "⏱" !important; display: inline !important; }
+html:root:root:root body #quiz-start-screen #quiz-category-seg .qz-seg-btn { font-size: .8rem; }

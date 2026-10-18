@@ -778,6 +778,7 @@ to Flip!</span></div>
                 <div class="flash-back-row flash-back-row--ex"><div class="example speakable-line" id="flash-example" title="Tap to hear">example sentence</div><button type="button" class="wl-speak wl-speak--example" id="flash-ex-speak" title="Hear it" aria-label="Hear it"></button></div>
               </div>
             </div>
+
           </div>
           <button type="button" id="flash-next" data-i18n-aria-label="nextLabel" aria-label="Next">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -917,27 +918,19 @@ to Flip!</span></div>
             <option value="homophones" data-i18n="optHomophones">Homophones</option>
               </select>
             </div>
-            <details class="fs-settings" id="quiz-settings"><summary class="fs-settings-sum"><span class="fs-settings-ico" aria-hidden="true">⚙️</span><span class="fs-settings-label" data-i18n="flashSettingsLabel">Settings</span><span class="fs-settings-now" id="quiz-settings-now"></span></summary><div class="fs-settings-body" id="quiz-settings-body">
+            <details class="fs-settings" id="quiz-settings"><summary class="fs-settings-sum"><span class="fs-settings-ico" aria-hidden="true">⚙️</span><span class="fs-settings-label" data-i18n="flashSettingsLabel">Settings</span><span class="fs-settings-now" id="quiz-settings-now"></span></summary><div class="fs-settings-body" id="quiz-settings-body" data-oneline="1">
             <div class="qz-pick scope-pick">
           <div class="qz-pick-title" data-i18n="scopeTitle">📚 Words from</div>
           <div class="qz-seg scope-seg" role="radiogroup" data-i18n-aria-label="scopeTitle" aria-label="Words from"></div>
           <p class="qz-pick-note scope-note" hidden></p>
         </div>
         <div class="qz-pick">
-              <div class="qz-pick-title" data-i18n="categoryLabel">Category</div>
-              <div class="qz-seg" id="quiz-category-seg" role="radiogroup" data-i18n-aria-label="categoryLabel" aria-label="Category"></div>
+              <div class="qz-pick-title" data-i18n="qzTypeTitle">Question type</div>
+              <div class="qz-seg" id="quiz-category-seg" role="radiogroup" data-i18n-aria-label="qzTypeTitle" aria-label="Question type"></div>
             </div>
             <div class="qz-pick">
               <div class="qz-pick-title" data-i18n="setDifficultyTitle">Difficulty</div>
               <div class="qz-seg" id="quiz-level-seg" role="radiogroup" data-i18n-aria-label="setDifficultyTitle" aria-label="Difficulty"></div>
-            </div>
-            <div class="qz-pick">
-              <div class="qz-pick-title" data-i18n="setModeTitle">Mode</div>
-              <div class="qz-seg" id="quiz-mode-seg" role="radiogroup" data-i18n-aria-label="setModeTitle" aria-label="Mode">
-                <button type="button" class="qz-seg-btn" role="radio" data-mode="relaxed" data-i18n="qzModeRelaxed">🌿 Relaxed</button>
-                <button type="button" class="qz-seg-btn" role="radio" data-mode="time" data-i18n="qzModeTime">⏱ Time Attack</button>
-              </div>
-              <p class="qz-pick-note" id="quiz-mode-note"></p>
             </div>
             <div class="qz-pick">
               <div class="qz-pick-title" data-i18n="qzCountTitle">Questions</div>
@@ -949,6 +942,14 @@ to Flip!</span></div>
             <button type="button" class="qz-seg-btn" data-round="100" role="radio" aria-checked="false">100</button>
             <button type="button" class="qz-seg-btn" data-round="0" role="radio" aria-checked="false">All</button>
               </div>
+            </div>
+            <div class="qz-pick">
+              <div class="qz-pick-title" data-i18n="setModeTitle">Mode</div>
+              <div class="qz-seg" id="quiz-mode-seg" role="radiogroup" data-i18n-aria-label="setModeTitle" aria-label="Mode">
+                <button type="button" class="qz-seg-btn" role="radio" data-mode="relaxed" data-i18n="qzModeRelaxed">Relaxed</button>
+                <button type="button" class="qz-seg-btn" role="radio" data-mode="time" data-i18n="qzModeTime">Time Attack</button>
+              </div>
+              <p class="qz-pick-note" id="quiz-mode-note"></p>
             </div>
             </div></details>
             <div class="sp-start-panel fs-panel"><svg class="sp-scene fs-scene qz-scene" viewBox="0 0 300 150" role="img" aria-label="A koala holding up a quiz card while the right answer lights up">
