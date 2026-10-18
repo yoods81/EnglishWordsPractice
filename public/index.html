@@ -307,18 +307,24 @@
   </div>
 
   <!-- Premium payment: pick monthly or yearly, then continue to Stripe's secure checkout. -->
-  <div id="plan-overlay" class="kid-modal-overlay" hidden>
-    <div class="kid-modal-card" role="dialog" aria-modal="true" aria-labelledby="plan-title">
-      <div class="kid-modal-icon" aria-hidden="true"><img src="favicon.svg?v=4" alt="" width="64" height="64"></div>
-      <div class="kid-modal-brand" id="plan-title"></div>
-      <p class="kid-modal-message" id="plan-message"></p>
-      <p class="auth-error" id="plan-error" hidden></p>
-      <div class="kid-modal-actions">
-        <button type="button" class="pill primary kid-modal-btn" id="plan-month-btn"></button>
-        <button type="button" class="pill primary kid-modal-btn" id="plan-year-btn"></button>
-        <button type="button" class="pill neutral kid-modal-btn" id="plan-cancel-btn"></button>
+  <div id="plan-overlay" class="pay-overlay" hidden>
+    <div class="pay-card" role="dialog" aria-modal="true" aria-labelledby="plan-title">
+      <div class="pay-brand">
+        <img class="pay-brand-logo" src="favicon.svg?v=4" alt="" width="92" height="92">
+        <h3 class="pay-brand-name">Koala Study Mate</h3>
+        <p class="pay-brand-tag" id="plan-brand-tag"></p>
       </div>
-      <p class="auth-hint" id="plan-secure-note"></p>
+      <div class="pay-main">
+        <h2 class="pay-title" id="plan-title"></h2>
+        <p class="pay-message" id="plan-message"></p>
+        <p class="auth-error" id="plan-error" hidden></p>
+        <div class="pay-plans">
+          <button type="button" class="pay-plan" id="plan-year-btn"></button>
+          <button type="button" class="pay-plan" id="plan-month-btn"></button>
+        </div>
+        <button type="button" class="pay-cancel" id="plan-cancel-btn"></button>
+        <p class="pay-secure" id="plan-secure-note"></p>
+      </div>
     </div>
   </div>
 
@@ -2315,6 +2321,34 @@ to Flip!</span></div>
       <div class="card">
         <h3 data-i18n="myAccountTitle">🧑 My Account</h3>
         <div id="my-account-status" class="stats-grid"></div>
+        <div class="acct-upgrade" id="my-account-upgrade-card" hidden>
+          <div class="acct-upgrade-head">
+            <span class="upgrade-card-badge" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 4.5l5.6 11.6 12.7 1.7-9.3 8.8 2.4 12.6L24 33.1l-11.4 6.1 2.4-12.6-9.3-8.8 12.7-1.7z" fill="#ffc93c" stroke="#d99a00" stroke-width="3" stroke-linejoin="round"/><path d="M24 13.5l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#fff3b0"/></svg></span>
+            <div>
+              <h4 data-i18n="upgCardTitle">Upgrade to Premium</h4>
+              <p class="upgrade-card-lead" data-i18n="upgCardLead">Turn any homework into practice.</p>
+            </div>
+          </div>
+          <div class="upgrade-hero">
+            <span class="upgrade-hero-ico" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="6" y="18" width="52" height="38" rx="9" fill="#22c9a3" stroke="#0b6b57" stroke-width="4"/><path d="M22 18l4-8h12l4 8" fill="#22c9a3" stroke="#0b6b57" stroke-width="4" stroke-linejoin="round"/><circle cx="32" cy="36" r="12" fill="#fff" stroke="#0b6b57" stroke-width="4"/><circle cx="32" cy="36" r="5" fill="#2d6cff"/><circle cx="48" cy="26" r="2.6" fill="#ffd166"/></svg></span>
+            <div>
+              <strong data-i18n="upgHeroTitle">Snap the homework. We find the words.</strong>
+              <p data-i18n="upgHeroText">Take a photo of a school word sheet or a book page. We pick out the tricky words and turn them into flashcards, spelling and quizzes in seconds.</p>
+            </div>
+          </div>
+          <ul class="upgrade-benefits">
+            <li data-i18n="upgBenefit2">Photo, PDF, Word or Excel files all work</li>
+            <li data-i18n="upgBenefit3">Your own word list, matched to your child's school week</li>
+            <li data-i18n="upgBenefit1">Practise with more than 100 questions per round</li>
+            <li data-i18n="upgBenefit4">Your progress follows you to any device</li>
+          </ul>
+          <p id="my-account-upgrade-status" class="auth-success" hidden></p>
+          <div class="upgrade-card-actions">
+            <button type="button" id="my-account-upgrade-pay-btn" class="pill acct-join-btn" data-i18n="payBtn">Join Premium</button>
+            <button type="button" id="my-account-upgrade-code-btn" class="pill neutral" data-i18n="upgCodeBtn">Voucher code</button>
+          </div>
+          <p id="my-account-upgrade-pay-note" class="auth-hint" hidden data-i18n="upgCardPayNote">Online payment is coming soon. For now, tap "Voucher code".</p>
+        </div>
       </div>
       <div class="card" id="my-account-level-card">
         <h3 data-i18n="myAccountLevelTitle">📚 Study level</h3>
@@ -2335,34 +2369,6 @@ to Flip!</span></div>
           <p data-i18n="childrenLocked">Premium lets you add up to 4 children and keep each child's progress separate.</p>
           <button type="button" class="pill accent small" id="children-upgrade-btn" data-i18n="childrenUpgradeBtn">Upgrade to Premium</button>
         </div>
-      </div>
-      <div class="card upgrade-card" id="my-account-upgrade-card" hidden>
-        <div class="upgrade-card-head">
-          <span class="upgrade-card-badge" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 4.5l5.6 11.6 12.7 1.7-9.3 8.8 2.4 12.6L24 33.1l-11.4 6.1 2.4-12.6-9.3-8.8 12.7-1.7z" fill="#ffc93c" stroke="#d99a00" stroke-width="3" stroke-linejoin="round"/><path d="M24 13.5l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#fff3b0"/></svg></span>
-          <div>
-            <h3 data-i18n="upgCardTitle">Upgrade to Premium</h3>
-            <p class="upgrade-card-lead" data-i18n="upgCardLead">Turn any homework into practice.</p>
-          </div>
-        </div>
-        <div class="upgrade-hero">
-          <span class="upgrade-hero-ico" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="6" y="18" width="52" height="38" rx="9" fill="#22c9a3" stroke="#0b6b57" stroke-width="4"/><path d="M22 18l4-8h12l4 8" fill="#22c9a3" stroke="#0b6b57" stroke-width="4" stroke-linejoin="round"/><circle cx="32" cy="36" r="12" fill="#fff" stroke="#0b6b57" stroke-width="4"/><circle cx="32" cy="36" r="5" fill="#2d6cff"/><circle cx="48" cy="26" r="2.6" fill="#ffd166"/></svg></span>
-          <div>
-            <strong data-i18n="upgHeroTitle">Snap the homework. We find the words.</strong>
-            <p data-i18n="upgHeroText">Take a photo of a school word sheet or a book page. We pick out the tricky words and turn them into flashcards, spelling and quizzes in seconds.</p>
-          </div>
-        </div>
-        <ul class="upgrade-benefits">
-          <li data-i18n="upgBenefit2">Photo, PDF, Word or Excel files all work</li>
-          <li data-i18n="upgBenefit3">Your own word list, matched to your child's school week</li>
-          <li data-i18n="upgBenefit1">Practise with more than 100 questions per round</li>
-          <li data-i18n="upgBenefit4">Your progress follows you to any device</li>
-        </ul>
-        <p id="my-account-upgrade-status" class="auth-success" hidden></p>
-        <div class="upgrade-card-actions">
-          <button type="button" id="my-account-upgrade-pay-btn" class="pill primary" data-i18n="payBtn">Pay and join Premium</button>
-          <button type="button" id="my-account-upgrade-code-btn" class="pill neutral" data-i18n="upgCodeBtn">I have a special code</button>
-        </div>
-        <p id="my-account-upgrade-pay-note" class="auth-hint" hidden data-i18n="upgCardPayNote">Online payment is coming soon. For now, tap "I have a special code".</p>
       </div>
       <div class="card" id="my-account-subscription-card" hidden>
         <h3 id="my-account-sub-title"></h3>

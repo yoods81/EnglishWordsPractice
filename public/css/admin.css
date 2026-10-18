@@ -1567,3 +1567,70 @@ html:root:root:root body #timestable-start-overlay #timestable-mode-seg { displa
 html:root:root:root body #timestable-start-overlay #timestable-mode-seg .qz-seg-btn { min-width: 0; width: auto; padding: 0 2px; white-space: nowrap !important; font-size: .85rem; }
 html:root:root:root body #timestable-start-overlay .fs-settings-now { white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 html:root:root:root body #timestable-start-overlay .tg-start-chips:not(:has(.tg-start-best:not([hidden]))) { display: none; }
+
+/* Round 26: My Account - the Premium upgrade now lives inside the account card, with a flat amber "Join Premium" button */
+html:root body #view-myaccount .acct-upgrade { margin-top: 16px; padding: 16px; border-radius: 18px; background: #f3faf7; }
+html:root body #view-myaccount .acct-upgrade[hidden] { display: none; }
+html:root body #view-myaccount .acct-upgrade-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+html:root body #view-myaccount .acct-upgrade-head h4 { margin: 0; font-family: var(--font-heading); font-size: 1.08rem; color: var(--text); }
+html:root body #view-myaccount .acct-upgrade .upgrade-hero { background: #fff; border: 0 !important; box-shadow: none !important; margin: 0 0 4px; }
+html:root body #view-myaccount .acct-upgrade .upgrade-card-actions { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 8px; }
+html:root body #view-myaccount .acct-upgrade .upgrade-card-actions .pill { width: 100%; min-height: 46px; padding: 0 10px; border: 0 !important; box-shadow: none !important; white-space: nowrap; font-size: 1rem; font-weight: 800; justify-content: center; }
+html:root body #view-myaccount .acct-upgrade .acct-join-btn { background: #ffb324; color: #4a3000; }
+html:root body #view-myaccount .acct-upgrade .acct-join-btn::before { content: "\2605"; margin-right: 6px; color: #fff; text-shadow: 0 1px 0 rgba(139, 84, 0, .35); }
+html:root body #view-myaccount .acct-upgrade .acct-join-btn:hover { background: #ffa400; }
+html:root body #view-myaccount .acct-upgrade .acct-join-btn:active { transform: translateY(1px); }
+html:root body #view-myaccount .acct-upgrade .pill.neutral { background: #dcefe7; color: #0b6b57; }
+html:root body #view-myaccount .acct-upgrade .pill.neutral:hover { background: #cde8dd; }
+html:root[data-theme="dark"] body #view-myaccount .acct-upgrade { background: #1f2f29; }
+html:root[data-theme="dark"] body #view-myaccount .acct-upgrade .upgrade-hero { background: #243730; }
+html:root[data-theme="dark"] body #view-myaccount .acct-upgrade .pill.neutral { background: #2c453b; color: #8fe3c8; }
+
+/* Round 26: Premium payment popup - same look as the login / sign-up popup (mint brand panel + flat rows, amber highlight, no blue) */
+.pay-overlay { position: fixed; inset: 0; background: rgba(20, 28, 55, 0.55); display: flex; align-items: center; justify-content: center; z-index: 1200; padding: 16px; }
+.pay-overlay[hidden] { display: none; }
+.pay-card { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); width: 100%; max-width: 600px; max-height: calc(100dvh - 32px); overflow: hidden; background: #fff; border: 1px solid var(--outline); border-radius: 20px; box-shadow: 0 20px 50px rgba(0, 0, 0, .25); }
+.pay-brand { background: #d6f3e7; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; }
+.pay-brand-logo { width: 92px; height: 92px; }
+.pay-brand-name { margin: 0; font-family: var(--font-heading); font-size: 1.1rem; line-height: 1.2; color: #23403a; }
+.pay-brand-tag { margin: 0; font-size: .8rem; line-height: 1.5; color: #5f7d75; white-space: pre-line; }
+.pay-main { padding: 22px 22px 20px; overflow-y: auto; min-width: 0; text-align: left; }
+.pay-title { margin: 0 0 8px; font-family: var(--font-heading); font-size: 1.2rem; line-height: 1.25; color: #23403a; text-align: left; white-space: nowrap; }
+.pay-message { margin: 0 0 16px; font-size: .86rem; line-height: 1.5; color: var(--text); opacity: .85; }
+.pay-plans { display: grid; gap: 8px; margin-bottom: 8px; }
+.pay-plan { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 56px; padding: 0 16px; border: 0; border-radius: 16px; background: #eef6f2; color: var(--text); font: inherit; font-weight: 800; white-space: nowrap; cursor: pointer; text-align: left; }
+.pay-plan:hover:not(:disabled) { background: #dcefe7; }
+.pay-plan:disabled { opacity: .6; cursor: default; }
+.pay-plan-name { font-family: var(--font-heading); font-size: 1.02rem; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.pay-plan-price { font-size: .95rem; white-space: nowrap; }
+.pay-plan-tag { font-style: normal; font-family: inherit; font-size: .72rem; font-weight: 800; padding: 3px 8px; border-radius: 8px; background: #fff; color: #b36b00; white-space: nowrap; }
+/* the yearly plan is the highlighted choice, in the same amber as the Sign Up button */
+#plan-year-btn { background: #ffbf47; color: #4a3000; }
+#plan-year-btn:hover:not(:disabled) { background: #ffb324; }
+.pay-cancel { display: block; width: 100%; padding: 10px 0; border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 700; font-size: .92rem; cursor: pointer; text-align: center; white-space: nowrap; }
+.pay-cancel:hover { color: var(--text); text-decoration: underline; }
+.pay-secure { margin: 6px 0 0; font-size: .76rem; line-height: 1.5; color: var(--muted); text-align: center; }
+.pay-secure::before { content: "\1F512\00a0"; }
+html[data-theme="dark"] .pay-card { background: #1d302a; }
+html[data-theme="dark"] .pay-brand { background: #254a3d; }
+html[data-theme="dark"] .pay-brand-name, html[data-theme="dark"] .pay-title { color: #e6f3ee; }
+html[data-theme="dark"] .pay-brand-tag { color: #93b0a8; }
+html[data-theme="dark"] .pay-plan { background: #243730; color: #e8f3ee; }
+html[data-theme="dark"] .pay-plan:hover:not(:disabled) { background: #2c453b; }
+html[data-theme="dark"] #plan-year-btn { background: #ffbf47; color: #4a3000; }
+@media (max-width: 640px) {
+  .pay-card { grid-template-columns: minmax(0, 1fr); max-width: 400px; overflow-y: auto; }
+  .pay-brand { flex-direction: row; justify-content: flex-start; padding: 12px 18px; gap: 12px; }
+  .pay-brand-tag { display: none; }
+  .pay-brand-logo { width: 44px; height: 44px; }
+  .pay-main { overflow: visible; padding: 16px 18px 20px; }
+}
+@media (max-width: 480px) {
+  .pay-overlay { align-items: flex-end; padding: 0; }
+  .pay-card { max-width: none; max-height: 90dvh; border-radius: 22px 22px 0 0; border-width: 1px 0 0; padding-bottom: env(safe-area-inset-bottom); animation: sheet-slide-up 0.28s cubic-bezier(0.2, 0.9, 0.3, 1); }
+  .pay-title { font-size: 1.1rem; }
+}
+html:root:root body #view-myaccount .acct-upgrade .acct-join-btn { background: #ffb324 !important; color: #4a3000 !important; }
+html:root:root body #view-myaccount .acct-upgrade .acct-join-btn:hover { background: #ffa400 !important; }
+html:root:root body #view-myaccount .acct-upgrade .pill.neutral { background: #dcefe7 !important; color: #0b6b57 !important; }
+html:root:root[data-theme="dark"] body #view-myaccount .acct-upgrade .pill.neutral { background: #2c453b !important; color: #8fe3c8 !important; }

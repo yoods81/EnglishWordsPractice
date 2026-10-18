@@ -882,7 +882,7 @@ const TRANSLATIONS = {
     pwRuleUpper: "1 uppercase letter",
     pwRuleDigit: "1 number",
     pwRuleSpecial: "1 special character (!@#)",
-    payBtn: "💳 Pay and join Premium",
+    payBtn: "Join Premium",
     payComingSoon: "Online payment is coming soon. For now, join Premium with a special code below.",
     forgotPasswordTitle: "Forgot password",
     forgotPasswordHint: "Type your email (your login ID). We'll email a reset link to it.",
@@ -920,14 +920,14 @@ const TRANSLATIONS = {
     pwHide: "Hide password",
     upgCardTitle: "Upgrade to Premium",
     upgCardLead: "Turn any homework into practice.",
-    upgCardPayNote: "Online payment is coming soon. For now, tap \"I have a special code\".",
+    upgCardPayNote: "Online payment is coming soon. For now, tap \"Voucher code\".",
     upgBenefit1: "Practise without a daily limit",
     upgBenefit2: "Photo, PDF, Word or Excel files all work",
     upgBenefit3: "Your own word list, matched to your child's school week",
     upgBenefit4: "Your progress follows you to any device",
     upgHeroTitle: "Snap the homework. We find the words.",
     upgHeroText: "Take a photo of a school word sheet or a book page. We pick out the tricky words and turn them into flashcards, spelling and quizzes in seconds.",
-    upgCodeBtn: "I have a special code",
+    upgCodeBtn: "Voucher code",
     upgPendingNote: "Your upgrade request is waiting for the admin.",
     upgReadyNote: "The admin sent you a code. Tap the button below to use it.",
     noticeSignupTitle: "Welcome, new friend!",
@@ -1830,7 +1830,7 @@ const TRANSLATIONS = {
     pwRuleUpper: "대문자 1개 이상",
     pwRuleDigit: "숫자 1개 이상",
     pwRuleSpecial: "특수문자 1개 (!@#)",
-    payBtn: "💳 결제하고 프리미엄 가입",
+    payBtn: "프리미엄 가입",
     payComingSoon: "온라인 결제는 곧 열릴 예정이에요. 지금은 아래 특별 코드로 프리미엄에 가입할 수 있어요.",
     forgotPasswordTitle: "비밀번호를 잊었어요",
     forgotPasswordHint: "이메일(로그인 아이디)을 입력하면 그 주소로 재설정 링크를 보내드려요.",
@@ -1868,14 +1868,14 @@ const TRANSLATIONS = {
     pwHide: "비밀번호 숨기기",
     upgCardTitle: "프리미엄으로 업그레이드",
     upgCardLead: "숙제가 곧 연습 문제가 돼요.",
-    upgCardPayNote: "온라인 결제는 곧 열릴 예정이에요. 지금은 \"특별 코드가 있어요\"를 눌러 주세요.",
+    upgCardPayNote: "온라인 결제는 곧 열릴 예정이에요. 지금은 \"바우처 코드\"를 눌러 주세요.",
     upgBenefit1: "하루 제한 없이 마음껏 연습",
     upgBenefit2: "사진, PDF, 워드, 엑셀 파일 모두 OK",
     upgBenefit3: "우리 아이 학교 진도에 딱 맞는 나만의 단어장",
     upgBenefit4: "기기를 바꿔도 학습 기록이 그대로 이어져요",
     upgHeroTitle: "숙제를 찰칵! 단어는 저절로",
     upgHeroText: "학교 단어 숙제나 책 한 페이지를 사진으로 찍어 올리면, 어려운 단어만 쏙쏙 뽑아 플래시카드·스펠링·퀴즈로 바로 연습할 수 있어요.",
-    upgCodeBtn: "특별 코드가 있어요",
+    upgCodeBtn: "바우처 코드",
     upgPendingNote: "업그레이드 요청을 관리자가 확인하는 중이에요.",
     upgReadyNote: "관리자가 코드를 보냈어요. 아래 버튼을 눌러 사용해 보세요.",
     noticeSignupTitle: "환영해요, 새 친구!",
@@ -5227,13 +5227,29 @@ async function openPlanOverlay() {
     "Cancel any time in My Account — you keep Premium until the period you paid for ends.",
     "내 계정에서 언제든 해지할 수 있어요. 결제한 기간이 끝날 때까지는 프리미엄이 유지돼요."
   );
-  let save = "";
-  if (prices && prices.month.amount > 0) {
-    const pct = Math.round((1 - prices.year.amount / (prices.month.amount * 12)) * 100);
-    if (pct > 0) save = rwL(` · save ${pct}%`, ` · ${pct}% 할인`);
-  }
-  billingEl("plan-month-btn").textContent = rwL("Monthly", "월간 결제") + (prices ? ` — ${billingMoney(prices.month)}${rwL(" / month", " / 월")}` : "");
-  billingEl("plan-year-btn").textContent = rwL("Yearly", "연간 결제") + (prices ? ` — ${billingMoney(prices.year)}${rwL(" / year", " / 년")}` : "") + save;
+  billingEl("plan-brand-tag").textContent = rwL("Learn a little every day,\nmaster English words", "매일 조금씩,\n영어 단어 정복");
+  let pct = 0;
+  if (prices && prices.month.amount > 0) pct = Math.round((1 - prices.year.amount / (prices.month.amount * 12)) * 100);
+  // Each plan is one row: name (+ discount tag) on the left, price on the right.
+  // Nothing in a row is allowed to wrap, so the labels stay on a single line.
+  const fillPlan = (btn, name, tag, price) => {
+    btn.textContent = "";
+    const left = document.createElement("span");
+    left.className = "pay-plan-name";
+    left.textContent = name;
+    if (tag) {
+      const badge = document.createElement("em");
+      badge.className = "pay-plan-tag";
+      badge.textContent = tag;
+      left.appendChild(badge);
+    }
+    const right = document.createElement("span");
+    right.className = "pay-plan-price";
+    right.textContent = price;
+    btn.append(left, right);
+  };
+  fillPlan(billingEl("plan-year-btn"), rwL("Yearly", "연간"), pct > 0 ? rwL(`Save ${pct}%`, `${pct}% 할인`) : "", prices ? `${billingMoney(prices.year)}${rwL(" / year", " / 년")}` : "");
+  fillPlan(billingEl("plan-month-btn"), rwL("Monthly", "월간"), "", prices ? `${billingMoney(prices.month)}${rwL(" / month", " / 월")}` : "");
   billingEl("plan-cancel-btn").textContent = rwL("Not now", "나중에 할게요");
   billingEl("plan-secure-note").textContent = rwL("Secure payment by Stripe. We never see your card details.", "결제는 Stripe에서 안전하게 처리돼요. 카드 정보는 저희가 볼 수 없어요.");
   billingEl("plan-error").hidden = true;
@@ -5302,8 +5318,8 @@ async function signupThenPay() {
       "welcome",
       rwL("Account created!", "계정이 만들어졌어요!"),
       rwL(
-        "Next: confirm your email, then open My Account and tap “Pay and join Premium”.",
-        "다음 단계: 이메일 인증을 마친 뒤 내 계정에서 “결제하고 프리미엄 가입”을 눌러 주세요."
+        "Next: confirm your email, then open My Account and tap “Join Premium”.",
+        "다음 단계: 이메일 인증을 마친 뒤 내 계정에서 “프리미엄 가입”을 눌러 주세요."
       ) + "\n" + (verificationSent ? rwL("We just sent you a confirmation email.", "방금 확인 이메일을 보냈어요.") : rwL("We couldn't send the confirmation email — use the resend button.", "확인 이메일을 보내지 못했어요. 다시 보내기 버튼을 눌러 주세요."))
     );
   } catch (err) {
@@ -11568,7 +11584,7 @@ function setupArcadeGameKeyboard(cfg) {
     // any other text field owns the keyboard while it's up — otherwise typing
     // "admin" into the login box would hit M and toggle the game's mute button
     // (and Space/Enter/Esc/arrows would drive the game behind it).
-    if (document.querySelector(".auth-overlay:not([hidden]), .kid-modal-overlay:not([hidden]), .level-overlay:not([hidden])")) return;
+    if (document.querySelector(".auth-overlay:not([hidden]), .kid-modal-overlay:not([hidden]), .level-overlay:not([hidden]), .pay-overlay:not([hidden])")) return;
     const activeEl = document.activeElement;
     if (
       activeEl &&
