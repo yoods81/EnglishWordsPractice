@@ -325,3 +325,20 @@ test("the admin delete tool also cancels billing before removing a subscriber", 
   assert.equal((await call(admin, "POST", "/admin/users/delete", { userId: "u7" })).status, 200);
   assert.equal(fake.customers[cust], undefined);
 });
+
+test("a new Premium sign-up can pay before confirming the email, and paying confirms it", async () => {
+  const fresh = addUser("u9", "fresh", "free");
+  db.prepare("UPDATE users SET email_verified_at = NULL WHERE id = 'u9'").run();
+  // everything else on the site is still locked for an unconfirmed account…
+  assert.equal((await call(fresh, "GET", "/words")).data?.error, "email_not_verified");
+  // …but the billing routes are open so checkout can start
+  const co = await call(fresh, "POST", "/billing/checkout", { interval: "month" });
+  assert.equal(co.status, 200);
+  assert.equal(db.prepare("SELECT email_verified_at v FROM users WHERE id='u9'").get().v, null, "starting checkout alone doesn't confirm the email");
+  const cust = db.prepare("SELECT stripe_customer_id c FROM subscriptions WHERE user_id = 'u9'").get().c;
+  makeSub("sub_9", cust, "u9");
+  const ev = { id: "evt_signup_pay", type: "checkout.session.completed", data: { object: { mode: "subscription", subscription: "sub_9", client_reference_id: "u9", customer: cust } } };
+  assert.equal((await webhook(ev)).status, 200);
+  assert.equal(roleOf("u9"), "paid");
+  assert.ok(db.prepare("SELECT email_verified_at v FROM users WHERE id='u9'").get().v, "a completed payment confirms the email");
+});

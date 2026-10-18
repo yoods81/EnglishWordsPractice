@@ -132,6 +132,9 @@ async function applySubscription(env, userId, sub) {
     if (user.role !== "paid") {
       await env.DB.prepare("UPDATE users SET role = 'paid', upgraded_at = ? WHERE id = ?").bind(now, userId).run();
     }
+    // Someone who signed up for Premium goes straight to checkout without the
+    // email-confirmation step; a completed payment counts as that confirmation.
+    await env.DB.prepare("UPDATE users SET email_verified_at = ? WHERE id = ? AND email IS NOT NULL AND email_verified_at IS NULL").bind(now, userId).run();
     return "paid";
   }
   // Subscription over (canceled / unpaid / expired): back to free. Data is kept, just locked.

@@ -5333,18 +5333,25 @@ setTimeout(async function handleCheckoutReturn() {
   if (status !== "success" && status !== "cancel") return;
   history.replaceState(null, "", location.pathname + location.hash);
   if (status === "cancel") {
+    // Back without paying: the account is a normal free one again, so the
+    // email confirmation applies after all (the confirmation email was already sent).
+    setPremiumSignupPending(false);
+    refreshVerifyGate();
     showNotice("warn", rwL("Payment cancelled", "결제가 취소됐어요"), rwL("No charge was made. You can try again any time from My Account.", "결제는 이루어지지 않았어요. 내 계정에서 언제든 다시 시도할 수 있어요."));
     return;
   }
   for (let i = 0; i < 15; i++) {
     try { await pullMe(); } catch (e) { /* keep waiting */ }
     if (currentUser && currentUser.role === "paid") {
+      setPremiumSignupPending(false);
       refreshAfterPlanChange();
       showNotice("welcome", rwL("Welcome to Premium!", "프리미엄에 오신 걸 환영해요!"), rwL("Your payment went through and Premium is on.", "결제가 완료되어 프리미엄이 켜졌어요."));
       return;
     }
     await new Promise((r) => setTimeout(r, 2000));
   }
+  setPremiumSignupPending(false);
+  refreshVerifyGate();
   showNotice("success", rwL("Payment received", "결제를 받았어요"), rwL("Premium switches on in a moment. If it hasn't after a few minutes, log out and back in, or contact us.", "프리미엄이 곧 켜져요. 몇 분이 지나도 안 켜지면 로그아웃 후 다시 로그인하거나 문의해 주세요."));
 }, 0);
 
@@ -5523,28 +5530,30 @@ signupForm.addEventListener("submit", async (e) => {
   if (password !== signupPasswordConfirm.value) return fail("resetMismatch");
   if (!signupGuardianCheck.checked || !signupTermsCheck.checked) return fail("authSignupErrorConsent");
   const wantsPremium = signupPlan === "premium";
+  const billingReady = wantsPremium && !!(await loadBillingInfo()).configured;
 
   try {
     const { user, verificationSent } = await api("/auth/signup", {
       method: "POST",
       body: JSON.stringify({ email, password, agreedTerms: true, isGuardian: true }),
     });
+    // Premium sign-up: skip the confirmation gate and the welcome notice, and
+    // open the plan / checkout popup straight away. The welcome notice comes
+    // after payment, when they enter the site. If online payment isn't set up,
+    // or the person closes the popup, they get the normal welcome notice and
+    // the normal email confirmation.
+    const welcome = () => showNotice("welcome", t("noticeSignupTitle"), t(verificationSent ? "noticeSignupSent" : "noticeSignupNotSent"));
+    const goPay = wantsPremium && billingReady;
+    if (goPay) setPremiumSignupPending(true);
     currentUser = user;
     closeAuthOverlay();
     updateAdminUI();
     refreshSharedWords();
     koalaAfterLogin();
-    // Premium sign-up: the account is created free, then the plan / checkout
-    // popup opens straight away. If online payment isn't set up yet, or the
-    // person closes the popup, they just get the normal welcome notice.
-    const welcome = () => showNotice("welcome", t("noticeSignupTitle"), t(verificationSent ? "noticeSignupSent" : "noticeSignupNotSent"));
-    if (wantsPremium) {
-      const info = await loadBillingInfo();
-      if (info.configured) {
-        postSignupNotice = welcome;
-        openPlanOverlay();
-        return;
-      }
+    if (goPay) {
+      postSignupNotice = () => { setPremiumSignupPending(false); refreshVerifyGate(); welcome(); };
+      openPlanOverlay();
+      return;
     }
     welcome();
   } catch (err) {
@@ -5648,7 +5657,17 @@ resetForm.addEventListener("submit", async (e) => {
    A signed-in account with an unconfirmed email sees only this card until the
    link in the email is opened (the server refuses everything else too). Older
    accounts with no email on file are not gated; they just get the nudge below. */
+// A new Premium sign-up skips the email-confirmation step: it is held back
+// (this tab only) from the moment the account is created until checkout ends.
+const PREMIUM_SIGNUP_KEY = "koala-premium-signup";
+function premiumSignupPending() {
+  try { return sessionStorage.getItem(PREMIUM_SIGNUP_KEY) === "1"; } catch (e) { return false; }
+}
+function setPremiumSignupPending(on) {
+  try { if (on) sessionStorage.setItem(PREMIUM_SIGNUP_KEY, "1"); else sessionStorage.removeItem(PREMIUM_SIGNUP_KEY); } catch (e) { /* ignore */ }
+}
 function needsEmailGate() {
+  if (premiumSignupPending()) return false;
   return !!currentUser && currentUser.role !== "admin" && !!currentUser.email && !currentUser.emailVerified;
 }
 let verifyGateTimer = null;

@@ -435,7 +435,8 @@ async function handleApi(request, env, url) {
   // Admins and older accounts with no email on file are not affected.
   // /support/* and /announcement stay open too: someone stuck on the
   // confirmation step is exactly who needs to be able to write to us.
-  if (!route.startsWith("/auth/") && !route.startsWith("/support/") && route !== "/announcement") {
+  // /billing/* stays open too: a new Premium sign-up pays before confirming the email.
+  if (!route.startsWith("/auth/") && !route.startsWith("/support/") && !route.startsWith("/billing/") && route !== "/announcement") {
     const gateSession = await getSessionUser(request, env);
     if (gateSession && gateSession.role !== "admin") {
       const gateRow = await env.DB.prepare("SELECT email, email_verified_at FROM users WHERE id = ?").bind(gateSession.id).first();
