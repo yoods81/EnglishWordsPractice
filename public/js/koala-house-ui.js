@@ -173,14 +173,19 @@
       : `<button type="button" class="kh-btn" data-primary data-yes ${afford ? "" : "disabled"}>${T("살래요", "Buy")}</button><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button>`;
     const nb = cardNeighbours();
     const playBtn = o.sound && window.ASMR && ASMR.has(o.sound) ? `<button type="button" class="kh-btn kh-play" data-play aria-pressed="false"><span class="kh-play-ic" aria-hidden="true">▶</span> <span class="kh-play-tx">${T("소리 듣기", "Listen")}</span></button>` : "";
-    modal(`<h2>${esc(o.title)}</h2><div class="kh-buy-pic kh-detail-pic${o.own ? "" : " is-locked"}">${o.pic}</div>${playBtn}${priceHtml}${note}<div class="kh-btns">${btns}</div>`, (m) => {
+    modal(`<h2>${esc(o.title)}</h2><div class="kh-buy-pic kh-detail-pic${o.own ? "" : " is-locked"}">${o.pic}</div>${playBtn}${playBtn ? `<p class="kh-asmr-note" data-asmr-note role="status" hidden>${T("구매하신 후 ASMR상자에 넣고 재생시켜 주세요", "Buy it, put it in the ASMR Box, then play it from the box.")}</p>` : ""}${priceHtml}${note}<div class="kh-btns">${btns}</div>`, (m) => {
       const pb = m.querySelector("[data-play]");
       if (pb) {   // a ▶ button: plays the toy's ASMR sound, tap again to stop. The picture wiggles while it plays.
-        const pic = m.querySelector(".kh-detail-pic");
+        const pic = m.querySelector(".kh-detail-pic"), asmrNote = m.querySelector("[data-asmr-note]");
         const sync = (id) => { const on = id === o.sound; pb.setAttribute("aria-pressed", on); pb.classList.toggle("is-on", on); pic.classList.toggle("is-playing", on); pb.querySelector(".kh-play-ic").textContent = on ? "■" : "▶"; pb.querySelector(".kh-play-tx").textContent = on ? T("멈추기", "Stop") : T("소리 듣기", "Listen"); };
         const off = ASMR.onChange(sync);
         m._asmrOff = off;
-        pb.onclick = () => { if (!ASMR.toggle(o.sound)) sync(null); };
+        // Only a bought toy that is inside an ASMR box, opened from that box's list (o.canPlay), may play. Anything else shows the note inside the card.
+        pb.onclick = () => {
+          if (!o.canPlay) { ASMR.stop(); sync(null); if (asmrNote) asmrNote.hidden = false; return; }
+          if (asmrNote) asmrNote.hidden = true;
+          if (!ASMR.toggle(o.sound)) sync(null);
+        };
       }
       if (nb) { // arrow buttons: open the previous / next card of the same list (cards that only show a message are skipped)
         const step = (dir) => {
@@ -503,10 +508,10 @@
   const roomType = () => (ses.roomId === "yard" ? "yard" : (ses.S.slots[ses.roomId] || {}).type);
   const fitsHere = (d, yard) => (d.where === "both" || d.where === (yard ? "out" : "in")) && (!d.only || d.only === roomType());
   function tabsFor(yard) {
-    if (!yard && roomType() === "garage") return [["garage", "/img/house/carCompactRed.webp", T("차고", "Garage")], ["furniture", "/img/cat/furniture.webp", T("가구", "Furniture")], ["plant", "/img/cat/plant.webp", T("식물", "Plants")], ["small", "/img/cat/small.webp", T("소품", "Props")], ["wall", "/img/cat/poster.webp", T("벽장식", "Wall")], ["style", "/img/cat/wallpaper.webp", T("벽·바닥", "Style")]];
+    if (!yard && roomType() === "garage") return [["garage", "/img/house/carCompactRed.webp", T("차고", "Garage")], ["furniture", "/img/cat/furniture.webp", T("가구", "Furniture")], ["toys", "/img/cat/toy.webp", T("장난감", "Toys")], ["plant", "/img/cat/plant.webp", T("식물", "Plants")], ["small", "/img/cat/small.webp", T("소품", "Props")], ["wall", "/img/cat/poster.webp", T("벽장식", "Wall")], ["style", "/img/cat/wallpaper.webp", T("벽·바닥", "Style")]];
     return yard
       ? [["outdoor", "/img/cat/outdoor.webp", T("정원 물건", "Garden")], ["plant", "/img/cat/plant.webp", T("식물", "Plants")], ["house", "/img/cat/home.webp", T("집 외관", "House")], ["garden", "/img/cat/garden.webp", T("정원 형태", "Layout")]]
-      : [["furniture", "/img/cat/furniture.webp", T("가구", "Furniture")], ["rug", "/img/cat/rug.webp", T("러그", "Rugs")], ["plant", "/img/cat/plant.webp", T("식물", "Plants")], ["small", "/img/cat/small.webp", T("소품", "Props")], ["wall", "/img/cat/poster.webp", T("벽장식", "Wall")], ["style", "/img/cat/wallpaper.webp", T("벽·바닥", "Style")]];
+      : [["furniture", "/img/cat/furniture.webp", T("가구", "Furniture")], ["toys", "/img/cat/toy.webp", T("장난감", "Toys")], ["rug", "/img/cat/rug.webp", T("러그", "Rugs")], ["plant", "/img/cat/plant.webp", T("식물", "Plants")], ["small", "/img/cat/small.webp", T("소품", "Props")], ["wall", "/img/cat/poster.webp", T("벽장식", "Wall")], ["style", "/img/cat/wallpaper.webp", T("벽·바닥", "Style")]];
   }
   function openRoom(id) {
     if (!roomDef(id)) { renderPlan(); return; }
@@ -967,10 +972,10 @@
     const d = H.D[it.id], kind = d.subKind, api = curOpts.subs, list = api.list(kind), grp = {}; list.forEach((e) => { grp[e.id] = e.group; });
     const cur = it.sub || [], tabs = tabsFor(ses.roomId === "yard"), cat = (tabs.find((t) => t[0] === d.cat) || [0, 0, T("가구", "Furniture")])[2];
     const BOOKIC = { koalaBook: "🐨", abcBook: "🔤", spaceBook: "🪐", dinoBook: "🦖", fairyBook: "🧚", mathBook: "➕", oceanBook: "🐳", jokeBook: "😄", atlasBook: "🗺️", artBook: "🎨", animalBook: "🦘", songBook: "🎵" };
-    const icon = (e) => { const v = H.subVis(e.id), im = H.subImg(e.id); if (kind === "asmr" && window.KoalaArt) return `<span class="kh-subic kh-subimg kh-asmric" aria-hidden="true">${window.KoalaArt.subIcon(e.id)}</span>`; if (!im && !v && BOOKIC[e.id]) return `<span class="kh-subic kh-bookic" style="background:${H.bookColor(e.id)}" aria-hidden="true">${BOOKIC[e.id]}</span>`; if (im) return `<span class="kh-subic kh-subimg" aria-hidden="true"><img src="${im}" alt=""></span>`; return v ? `<span class="kh-subic" style="background:${v[1]}" aria-hidden="true">${v[0]}</span>` : `<span class="kh-subic" style="background:${H.bookColor(e.id)}" aria-hidden="true">📖</span>`; };
+    const icon = (e) => { const v = H.subVis(e.id), im = H.subImg(e.id); if (kind === "asmr" && !im && window.KoalaArt) return `<span class="kh-subic kh-subimg kh-asmric" aria-hidden="true">${window.KoalaArt.subIcon(e.id)}</span>`; if (!im && !v && BOOKIC[e.id]) return `<span class="kh-subic kh-bookic" style="background:${H.bookColor(e.id)}" aria-hidden="true">${BOOKIC[e.id]}</span>`; if (im) return `<span class="kh-subic kh-subimg" aria-hidden="true"><img src="${im}" alt=""></span>`; return v ? `<span class="kh-subic" style="background:${v[1]}" aria-hidden="true">${v[0]}</span>` : `<span class="kh-subic" style="background:${H.bookColor(e.id)}" aria-hidden="true">📖</span>`; };
     const groups = Array.from(new Set(list.map((e) => e.group))), gname = { main: "", top: T("책상 위", "On top"), drawer: T("서랍 속", "In the drawer"), food: T("음식", "Food"), drink: T("음료", "Drinks"), squishy: T("🫧 말랑이", "🫧 Squishies"), clicky: T("🖱️ 딸깍이", "🖱️ Clickers"), popit: T("💥 뽁뽁이", "💥 Poppers"), crunch: T("🧂 사각사각", "🧂 Crunchy") };
     const title = { tools: T("공구함 속 공구", "Tools in the box"), shoes: T("신발장 위 신발", "Shoes on the cabinet"), books: T("책장 속 책", "Books on the shelf"), desk: T("책상 위·서랍", "On the desk"), frame: T("액자 그림", "Picture"), toys: T("장난감 상자", "Toys"), sink: T("세면대 위 물건", "On the sink"), fridge: T("냉장고 속 음식", "In the fridge"), asmr: T("ASMR 장난감", "ASMR toys") }[kind] || nm(d);
-    const note = kind === "books" && !it.sub ? T("지금은 기본 책이 꽂혀 있어요. 골라 넣으면 바뀌어요.", "Default books for now — pick some to replace them.") : kind === "asmr" ? T("카드를 누르면 ▶ 버튼이 나와요. 눌러서 소리를 들어 봐요! (이어폰으로 들으면 더 좋아요)", "Tap a card to get a ▶ button and listen! (Earphones sound best.)") : T("눌러서 넣고 빼요. 코인으로 새 물건도 살 수 있어요.", "Tap to put in or take out. New things cost coins.");
+    const note = kind === "books" && !it.sub ? T("지금은 기본 책이 꽂혀 있어요. 골라 넣으면 바뀌어요.", "Default books for now — pick some to replace them.") : kind === "asmr" ? T("산 장난감을 눌러 상자에 넣은 뒤, 카드를 눌러 ▶ 버튼으로 들어 봐요. 상자 밖 장난감은 소리가 나지 않아요! (이어폰으로 들으면 더 좋아요)", "Buy a toy and put it in the box, then tap its card and press ▶. Toys outside the box stay silent! (Earphones sound best.)") : T("눌러서 넣고 빼요. 코인으로 새 물건도 살 수 있어요.", "Tap to put in or take out. New things cost coins.");
     panel.innerHTML = `<nav class="kh-crumbs" aria-label="${T("현재 위치", "You are here")}"><button type="button" class="kh-up" data-up aria-label="${T("상위로", "Up one level")}">${ic("up")}</button>
       <button type="button" class="kh-crumb" data-up>${esc(cat)}</button><span class="kh-sep">${ic("chev")}</span><span class="kh-crumb cur">${esc(nm(d))}</span></nav>
       <div class="kh-grid" id="kh-grid">${shelfHead(title)}<p class="kh-subnote">${note}</p>${groups.map((g) => `${gname[g] ? `<h3>${gname[g]}</h3>` : ""}<div class="kh-subgrid">${list.filter((e) => e.group === g).map((e) => { const on = cur.includes(e.id); return `<button type="button" class="kh-subitem${on ? " on" : ""}${e.owned ? "" : " locked"}" data-sub="${e.id}" aria-pressed="${on}">${icon(e)}<span class="kh-nm">${esc(T(e.name[0], e.name[1]))}</span>${e.owned ? (on ? `<span class="kh-pr kh-ok">${ic("check")}</span>` : "") : `<span class="kh-pr">${COIN}${e.cost}</span>`}</button>`; }).join("")}</div>`).join("")}
@@ -992,7 +997,7 @@
           }
           it.sub = sub; save(); drawScene(); drawPanel();
         };
-        detail({ sound: kind === "asmr" ? e.id : null, title: T(e.name[0], e.name[1]), pic: icon(e), price: e.cost, own: e.owned, sell: e.owned && e.cost > 0 && api.sell ? { paid: e.cost, back: Math.floor(e.cost * 0.8), onSell: () => { const ok = api.sell(e.id); if (ok) { e.owned = false; Object.keys(ses.S.slots).forEach((k) => (ses.S.slots[k].items || []).forEach((i) => { if (i.sub) { i.sub = i.sub.filter((x) => x !== e.id); if (!i.sub.length) delete i.sub; } })); (ses.S.yard.items || []).forEach((i) => { if (i.sub) i.sub = i.sub.filter((x) => x !== e.id); }); save(); drawScene(); drawPanel(); } return ok; } } : null, go: on ? T("빼기", "Take out") : kind === "frame" ? T("걸기", "Hang it") : T("넣기", "Put in"), spendWhy: "sub:" + e.id, spendFn: () => api.buy(e.id), onGo: toggle,
+        detail({ sound: kind === "asmr" ? e.id : null, canPlay: kind === "asmr" && !!e.owned && on, title: T(e.name[0], e.name[1]), pic: icon(e), price: e.cost, own: e.owned, sell: e.owned && e.cost > 0 && api.sell ? { paid: e.cost, back: Math.floor(e.cost * 0.8), onSell: () => { const ok = api.sell(e.id); if (ok) { e.owned = false; Object.keys(ses.S.slots).forEach((k) => (ses.S.slots[k].items || []).forEach((i) => { if (i.sub) { i.sub = i.sub.filter((x) => x !== e.id); if (!i.sub.length) delete i.sub; } })); (ses.S.yard.items || []).forEach((i) => { if (i.sub) i.sub = i.sub.filter((x) => x !== e.id); }); save(); drawScene(); drawPanel(); } return ok; } } : null, go: on ? T("빼기", "Take out") : kind === "frame" ? T("걸기", "Hang it") : T("넣기", "Put in"), spendWhy: "sub:" + e.id, spendFn: () => api.buy(e.id), onGo: toggle,
           onBuy: () => { e.owned = true; drawPanel(); toast(T("샀어요! 다시 눌러서 넣어 봐요.", "Bought! Tap it again to put it in.")); } });
       };
     });
@@ -1196,7 +1201,24 @@
     }
     const list = Object.values(H.D).filter((d) => !d.virtual && d.cat === ses.tab && fitsHere(d, yard)).sort((a, b) => a.price - b.price);
     const haveN = list.filter(ownedItem).length, tabName = (tabsFor(yard).find((t) => t[0] === ses.tab) || [0, 0, ""])[2];
-    return `${shelfHead(tabName, `${haveN}/${list.length}`)}<div class="kh-items-grid">${list.map((d) => { const own = ownedItem(d); return `<button type="button" class="kh-item${own ? "" : " locked"}" data-item="${d.id}" aria-label="${esc(nm(d))}${own ? "" : ", " + d.price}">${H.thumbSvg(d.id)}<span class="kh-nm">${esc(nm(d))}</span>${own ? "" : `<span class="kh-pr">${COIN}${d.price}</span>`}</button>`; }).join("")}</div>`;
+    return `${shelfHead(tabName, `${haveN}/${list.length}`)}<div class="kh-items-grid">${list.map((d) => { const own = ownedItem(d); return `<button type="button" class="kh-item${own ? "" : " locked"}" data-item="${d.id}" aria-label="${esc(nm(d))}${own ? "" : ", " + d.price}">${H.thumbSvg(d.id)}<span class="kh-nm">${esc(nm(d))}</span>${own ? "" : `<span class="kh-pr">${COIN}${d.price}</span>`}</button>`; }).join("")}</div>${ses.tab === "toys" && !yard ? asmrToysHtml() : ""}`;
+  }
+  // The ASMR toys are part of the Toys category: they are bought here, but they only make their sound from inside an ASMR box (tap the box in the room to open its list).
+  // the picture of an ASMR toy: the supplied 3D image (manifest "@sub:<id>") when there is one, otherwise the drawn SVG
+  function asmrPic(id) { const im = H.subImg(id); return im ? `<img src="${im}" alt="" draggable="false">` : (window.KoalaArt ? window.KoalaArt.subIcon(id) : ""); }
+  function asmrToysHtml() {
+    const api = curOpts && curOpts.subs; if (!api) return "";
+    const list = api.list("asmr"); if (!list.length) return "";
+    const groups = [["squishy", T("🫧 말랑이", "🫧 Squishies")], ["clicky", T("🖱️ 딸깍이", "🖱️ Clickers")], ["popit", T("💥 뽁뽁이", "💥 Poppers")], ["crunch", T("🧂 사각사각", "🧂 Crunchy")]];
+    const card = (e) => `<button type="button" class="kh-item${e.owned ? "" : " locked"}" data-asmr="${e.id}" aria-label="${esc(T(e.name[0], e.name[1]))}${e.owned ? "" : ", " + e.cost}"><span class="kh-thumb kh-asmrthumb"><span class="kh-subic kh-subimg kh-asmric" aria-hidden="true">${asmrPic(e.id)}</span></span><span class="kh-nm">${esc(T(e.name[0], e.name[1]))}</span>${e.owned ? "" : `<span class="kh-pr">${COIN}${e.cost}</span>`}</button>`;
+    return `${shelfHead(T("ASMR 장난감", "ASMR toys"), `${list.filter((e) => e.owned).length}/${list.length}`)}<p class="kh-subnote">${T("산 뒤에 ASMR 상자에 넣고, 상자를 눌러서 들어 봐요.", "Buy a toy, put it in an ASMR Box, then tap the box to listen.")}</p>${groups.map(([g, label]) => { const l = list.filter((e) => e.group === g); return l.length ? `<h3>${label}</h3><div class="kh-items-grid">${l.map(card).join("")}</div>` : ""; }).join("")}`;
+  }
+  // every placed ASMR box (this room's first), so a toy picked in the shop can be put into one
+  function asmrBoxes() {
+    const out = [], cur = curState();
+    (cur.items || []).forEach((i) => { if (i.id === "asmrBox") out.push(i); });
+    Object.keys(ses.S.slots).forEach((k) => { const st = ses.S.slots[k]; if (st !== cur) (st.items || []).forEach((i) => { if (i.id === "asmrBox") out.push(i); }); });
+    return out;
   }
   // change the yard; may cost coins (a new size / ground / house style)
   function planYard(patch, price, why, label) {
@@ -1246,6 +1268,26 @@
           sell: ownedItem(d) ? { paid, back: Math.floor(paid * 0.8), note: (give ? "" : T("무료로 받은 아이템이라 돌려받는 코인은 없어요. ", "This one was free, so no coins come back. ")) + T("방에 놓아 둔 것도 모두 치워져요.", "Every copy placed in your rooms is removed too."), onSell: () => sellHouseItem(id) } : null,
           onGo: () => { placeNew(id); placeKoalaFree(); updateKoala(); },
           onBuy: () => { S.owned[id] = 1; save(); drawPanel(); toast(T("샀어요! 다시 눌러서 놓아 봐요.", "Bought! Tap it again to place it.")); } });
+      });
+    });
+    grid.querySelectorAll("[data-asmr]").forEach((b) => {
+      b.addEventListener("click", () => {
+        const api = curOpts.subs, e = api && api.list("asmr").find((x) => x.id === b.dataset.asmr); if (!e) return;
+        const boxes = asmrBoxes(), host = boxes.find((i) => (i.sub || []).includes(e.id)), pic = `<span class="kh-subic kh-subimg kh-asmric" aria-hidden="true">${asmrPic(e.id)}</span>`;
+        const toggle = () => {   // put it into an ASMR box (this room's first), or take it out of the box it is in
+          if (host) { host.sub = (host.sub || []).filter((x) => x !== e.id); if (!host.sub.length) delete host.sub; save(); drawScene(); drawPanel(); toast(T("상자에서 뺐어요", "Taken out of the box")); return; }
+          const box = boxes[0];
+          if (!box) { toast(T("ASMR 상자를 먼저 방에 놓아 주세요", "Place an ASMR Box in a room first"), true); return; }
+          let sub = (box.sub || []).slice();
+          const same = sub.filter((x) => { const f = api.list("asmr").find((y) => y.id === x); return f && f.group === e.group; }), lim = api.limit("asmr", e.group) || 99;
+          if (same.length >= lim) sub.splice(sub.indexOf(same[0]), 1);
+          sub.push(e.id); box.sub = sub; save(); drawScene(); drawPanel();
+          toast(T("ASMR 상자에 넣었어요! 상자를 눌러서 들어 봐요.", "Put in the ASMR Box! Tap the box to listen."));
+        };
+        detail({ sound: e.id, canPlay: false, title: T(e.name[0], e.name[1]), pic, price: e.cost, own: e.owned,
+          go: host ? T("상자에서 빼기", "Take out of the box") : T("ASMR 상자에 넣기", "Put in an ASMR Box"), spendWhy: "sub:" + e.id, spendFn: () => api.buy(e.id), onGo: toggle,
+          sell: e.owned && e.cost > 0 && api.sell ? { paid: e.cost, back: Math.floor(e.cost * 0.8), onSell: () => { const ok = api.sell(e.id); if (ok) { Object.keys(ses.S.slots).forEach((k) => (ses.S.slots[k].items || []).forEach((i) => { if (i.sub) { i.sub = i.sub.filter((x) => x !== e.id); if (!i.sub.length) delete i.sub; } })); save(); drawScene(); drawPanel(); } return ok; } } : null,
+          onBuy: () => { drawPanel(); toast(T("샀어요! ASMR 상자에 넣어 봐요.", "Bought! Put it in an ASMR Box.")); } });
       });
     });
     grid.querySelectorAll("[data-sw]").forEach((b) => {

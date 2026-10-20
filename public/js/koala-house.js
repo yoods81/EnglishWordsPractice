@@ -116,7 +116,7 @@
 
   /* ============================== catalog ============================== */
   // def: { id, cat, name:[ko,en], w, d (footprint, tiles), parts, price, flat, stack, topH, where }
-  //   cat: furniture | rug | small | plant | wall | outdoor    where: in | out | both
+  //   cat: furniture | toys | rug | small | plant | wall | outdoor    where: in | out | both
   // wall defs: { wall:true, uw (tiles), vh (px), art(u0, v0) -> svg in (tiles, px) space }
   const D = {};
   const add = (id, cat, name, w, d, price, parts, extra) => { D[id] = Object.assign({ id, cat, name, w, d, price: price || 0, parts, where: "in" }, extra || {}); };
@@ -189,8 +189,8 @@
   add("bathtub", "furniture", ["욕조", "Bathtub"], 3, 1, 100, [B(0, 0, 0, 3, 1, 26, "#f2f6f8"), B(0.1, 0.1, 22, 2.8, 0.8, 5, "#9ed7ee"), B(2.82, 0.4, 26, 0.1, 0.1, 14, "#b9c4ca"), S(0.7, 0.5, 30, 6, "#ffffff"), S(1.3, 0.6, 29, 5, "#ffffff"), S(1.9, 0.45, 29, 5, "#ffffff")]);
   add("toilet", "furniture", ["변기", "Toilet"], 1, 1, 60, [B(0.2, 0.05, 0, 0.6, 0.3, 40, "#f2f6f8"), B(0.2, 0.3, 0, 0.6, 0.65, 18, "#f2f6f8"), B(0.25, 0.35, 18, 0.5, 0.55, 3, "#dcebf0")]);
   add("vanity", "furniture", ["세면대", "Sink"], 2, 1, 70, [B(0.1, 0.1, 0, 1.8, 0.8, 30, "#f2f6f8"), B(0.1, 0.1, 30, 1.8, 0.8, 4, "#ffffff"), B(0.55, 0.25, 34, 0.9, 0.5, 2, "#cfe6f0"), B(0.95, 0.14, 34, 0.08, 0.08, 14, "#aab4bb")], { topH: 34 });
-  add("toybox", "furniture", ["장난감 상자", "Toy Box"], 1, 1, 0, [B(0.05, 0.1, 0, 0.9, 0.8, 24, "#e66a5a"), B(0.05, 0.1, 24, 0.9, 0.8, 4, "#ffd166"), B(0.38, 0.98, 12, 0.26, 0.03, 8, "#ffd166"), S(0.3, 0.5, 32, 6, "#5b8fd0"), B(0.55, 0.3, 28, 0.2, 0.2, 10, "#68b57c")], { subKind: "toys" });
-  add("asmrBox", "furniture", ["ASMR 상자", "ASMR Box"], 1, 1, 60, [B(0.05, 0.1, 0, 0.9, 0.8, 24, "#8f7be0"), B(0.05, 0.1, 24, 0.9, 0.8, 4, "#ff9ecb"), B(0.38, 0.98, 12, 0.26, 0.03, 8, "#ff9ecb"), S(0.3, 0.5, 32, 6, "#7be08a"), B(0.55, 0.3, 28, 0.2, 0.2, 10, "#ffd166")], { subKind: "asmr" });
+  add("toybox", "toys", ["장난감 상자", "Toy Box"], 1, 1, 0, [B(0.05, 0.1, 0, 0.9, 0.8, 24, "#e66a5a"), B(0.05, 0.1, 24, 0.9, 0.8, 4, "#ffd166"), B(0.38, 0.98, 12, 0.26, 0.03, 8, "#ffd166"), S(0.3, 0.5, 32, 6, "#5b8fd0"), B(0.55, 0.3, 28, 0.2, 0.2, 10, "#68b57c")], { subKind: "toys" });
+  add("asmrBox", "toys", ["ASMR 상자", "ASMR Box"], 1, 1, 60, [B(0.05, 0.1, 0, 0.9, 0.8, 24, "#8f7be0"), B(0.05, 0.1, 24, 0.9, 0.8, 4, "#ff9ecb"), B(0.38, 0.98, 12, 0.26, 0.03, 8, "#ff9ecb"), S(0.3, 0.5, 32, 6, "#7be08a"), B(0.55, 0.3, 28, 0.2, 0.2, 10, "#ffd166")], { subKind: "asmr" });
   add("piano", "furniture", ["피아노", "Piano"], 2, 1, 200, [B(0, 0, 0, 2, 0.9, 52, "#2f2a36"), B(0.05, 0.92, 30, 1.9, 0.18, 4, "#f4f1ea"), B(0.05, 1.0, 34, 1.9, 0.04, 2, "#2f2a36"), B(0, 0.1, 52, 2, 0.8, 6, "#3a3342")]);
 
   function rug(id, name, kind, col, price) {

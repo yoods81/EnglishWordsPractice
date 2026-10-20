@@ -432,6 +432,9 @@ html body .kh-app .kh-top .kh-planbtn{background:#cdeee2!important;border-color:
 .kh-btn.kh-play { display: flex; align-items: center; justify-content: center; gap: 8px; width: fit-content; margin: 0 auto 12px; min-width: 180px; padding: 12px 26px; font-size: 1.05rem; background: linear-gradient(180deg, #a78bfa, #7c5ce6); box-shadow: 0 4px 12px rgba(124, 92, 230, .38); }
 .kh-btn.kh-play .kh-play-ic { font-size: 1.1rem; }
 .kh-btn.kh-play.is-on { background: linear-gradient(180deg, #ff8aa5, #f0577f); box-shadow: 0 4px 12px rgba(240, 87, 127, .35); }
+.kh-item .kh-asmrthumb { display: grid; place-items: center; width: 100%; height: 64px; }
+.kh-item .kh-asmrthumb .kh-subic { width: 60px; height: 60px; }
+.kh-asmr-note { margin: 0 auto 12px; max-width: 300px; padding: 10px 14px; border-radius: 14px; background: #fff4dc; color: #8a5a0a; font-weight: 800; font-size: .92rem; line-height: 1.4; text-align: center; box-shadow: 0 2px 0 #f0d49a; }
 .kh-detail-pic.is-playing .kh-subic { animation: kh-asmr-wob .5s ease-in-out infinite alternate; }
 @keyframes kh-asmr-wob { from { transform: scale(1) rotate(-2deg); } to { transform: scale(1.1, .92) rotate(2deg); } }
 @media (prefers-reduced-motion: reduce) { .kh-detail-pic.is-playing .kh-subic { animation: none; } }

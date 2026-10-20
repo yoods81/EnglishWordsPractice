@@ -599,3 +599,15 @@ test("asmr toys: every ASMR sub-item has a sound recipe and a drawn picture, and
     assert.ok(K.subLimit("asmr", x.group) > 0, x.group);
   });
 });
+
+test("toys category: both toy boxes live in Toys and can be bought in every indoor room (the garage too)", () => {
+  const H = require("../public/js/koala-house.js");
+  ["toybox", "asmrBox"].forEach((id) => {
+    const d = H.D[id];
+    assert.equal(d.cat, "toys", id);
+    assert.equal(d.where, "in", id);
+    assert.ok(!d.only, id + " must not be limited to one kind of room");
+  });
+  assert.equal(H.D.asmrBox.subKind, "asmr");
+  assert.ok(K.SUB_ITEMS.filter((x) => x.kind === "asmr").length > 0);
+});
