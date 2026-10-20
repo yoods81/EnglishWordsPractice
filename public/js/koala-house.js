@@ -265,7 +265,7 @@
   ["shelfWood", "shelfWhite"].forEach((id) => { D[id].act = "read"; });
   ["plantBig", "cactus", "palm", "flowerBed", "tulips", "bush"].forEach((id) => { D[id].act = "water"; });
   // Flat-topped furniture can carry small things (the lamps, vases, toys... and the cactus). topH = height of the top, in px of the scene.
-  const TOPS = { bedBlue: 41, bedPink: 41, bedMint: 41, deskWood: 38, deskWhite: 38, deskBlue: 31, counter: 42, vanity: 65, tvStand: 28, shelfWood: 69, shelfWhite: 69, wardrobeWood: 82, wardrobeMint: 81, fridge: 80, piano: 56, toybox: 20 };
+  const TOPS = { bedBlue: 41, bedPink: 41, bedMint: 41, deskWood: 38, deskWhite: 38, deskBlue: 31, counter: 42, vanity: 65, tvStand: 28, shelfWood: 69, shelfWhite: 69, wardrobeWood: 82, wardrobeMint: 81, fridge: 80, piano: 56, toybox: 20, tableSquare: 50 };
   Object.keys(TOPS).forEach((id) => { if (D[id]) D[id].topH = TOPS[id]; });
   if (D.cactus) D.cactus.stack = true;
   /* ---- garage things (only offered in a garage room): cars, a shelf to put boxes on, a tool box, storage boxes, a shoe cabinet ---- */

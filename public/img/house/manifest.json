@@ -71,10 +71,10 @@
  },
  "tableSquare": {
   "src": "/img/house/tableSquare.webp",
-  "wpx": 59,
+  "wpx": 126,
   "ratio": 0.938,
   "ax": 0.5,
-  "ay": 0.421
+  "ay": 0.689
  },
  "dresser": {
   "src": "/img/house/dresser.webp",
@@ -85,10 +85,10 @@
  },
  "shelfWood": {
   "src": "/img/house/shelfWood.webp",
-  "wpx": 69,
+  "wpx": 92,
   "ratio": 1.523,
-  "ax": 0.5,
-  "ay": 0.772
+  "ax": 0.454,
+  "ay": 0.873
  },
  "shelfWhite": {
   "src": "/img/house/shelfWhite.webp",
@@ -107,10 +107,10 @@
  },
  "wardrobeMint": {
   "src": "/img/house/wardrobeMint.webp",
-  "wpx": 75,
+  "wpx": 100,
   "ratio": 1.592,
-  "ax": 0.5,
-  "ay": 0.799
+  "ax": 0.546,
+  "ay": 0.784
  },
  "stoolBlue": {
   "src": "/img/house/stoolBlue.webp",
@@ -215,10 +215,10 @@
  },
  "piano": {
   "src": "/img/house/piano.webp",
-  "wpx": 77,
+  "wpx": 104,
   "ratio": 1.163,
-  "ax": 0.5,
-  "ay": 0.732
+  "ax": 0.519,
+  "ay": 0.751
  },
  "lampFloor": {
   "src": "/img/house/lampFloor.webp",
@@ -1194,5 +1194,50 @@
  },
  "@sub:spaceBook": {
   "src": "/img/house/sub/spaceBook.webp"
+ },
+ "@sub:mochiSquish": {
+  "src": "/img/house/sub/mochiSquish.webp"
+ },
+ "@sub:slimeSquish": {
+  "src": "/img/house/sub/slimeSquish.webp"
+ },
+ "@sub:tofuSquish": {
+  "src": "/img/house/sub/tofuSquish.webp"
+ },
+ "@sub:jellySquish": {
+  "src": "/img/house/sub/jellySquish.webp"
+ },
+ "@sub:clickPen": {
+  "src": "/img/house/sub/clickPen.webp"
+ },
+ "@sub:fidgetCube": {
+  "src": "/img/house/sub/fidgetCube.webp"
+ },
+ "@sub:clickerBtn": {
+  "src": "/img/house/sub/clickerBtn.webp"
+ },
+ "@sub:bubbleWrap": {
+  "src": "/img/house/sub/bubbleWrap.webp"
+ },
+ "@sub:pushPop": {
+  "src": "/img/house/sub/pushPop.webp"
+ },
+ "@sub:popBoba": {
+  "src": "/img/house/sub/popBoba.webp"
+ },
+ "@sub:waterBeads": {
+  "src": "/img/house/sub/waterBeads.webp"
+ },
+ "@sub:kineticSand": {
+  "src": "/img/house/sub/kineticSand.webp"
+ },
+ "@sub:soapCut": {
+  "src": "/img/house/sub/soapCut.webp"
+ },
+ "@sub:iceCrunch": {
+  "src": "/img/house/sub/iceCrunch.webp"
+ },
+ "@sub:scratchPad": {
+  "src": "/img/house/sub/scratchPad.webp"
  }
 }

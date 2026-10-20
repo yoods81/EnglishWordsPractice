@@ -983,6 +983,7 @@
     panel.querySelectorAll("[data-up]").forEach((x) => { x.onclick = () => { ses.subOf = null; drawScene(); applySel(); drawPanel(); }; });
     const rs = panel.querySelector("[data-reset]"); if (rs) rs.onclick = () => { delete it.sub; save(); drawScene(); drawPanel(); };
     panel.querySelectorAll("[data-sub]").forEach((bt) => {
+      wireCardDrag(bt, kind, list.find((x) => x.id === bt.dataset.sub), api);
       bt.onclick = () => {
         const e = list.find((x) => x.id === bt.dataset.sub), on = (it.sub || []).includes(e.id);
         const toggle = () => {
@@ -1000,6 +1001,66 @@
         detail({ sound: kind === "asmr" ? e.id : null, canPlay: kind === "asmr" && !!e.owned && on, title: T(e.name[0], e.name[1]), pic: icon(e), price: e.cost, own: e.owned, sell: e.owned && e.cost > 0 && api.sell ? { paid: e.cost, back: Math.floor(e.cost * 0.8), onSell: () => { const ok = api.sell(e.id); if (ok) { e.owned = false; Object.keys(ses.S.slots).forEach((k) => (ses.S.slots[k].items || []).forEach((i) => { if (i.sub) { i.sub = i.sub.filter((x) => x !== e.id); if (!i.sub.length) delete i.sub; } })); (ses.S.yard.items || []).forEach((i) => { if (i.sub) i.sub = i.sub.filter((x) => x !== e.id); }); save(); drawScene(); drawPanel(); } return ok; } } : null, go: on ? T("빼기", "Take out") : kind === "frame" ? T("걸기", "Hang it") : T("넣기", "Put in"), spendWhy: "sub:" + e.id, spendFn: () => api.buy(e.id), onGo: toggle,
           onBuy: () => { e.owned = true; drawPanel(); toast(T("샀어요! 다시 눌러서 넣어 봐요.", "Bought! Tap it again to put it in.")); } });
       };
+    });
+  }
+
+  /* ---- dragging a sub-item card (a toy, a book...) onto the piece that holds it ---- */
+  // Put a bought sub-item inside a placed piece (same rules as tapping "Put in": a frame holds one picture, a group has a limit).
+  function putSubIn(it, kind, e, api) {
+    const grp = {}; api.list(kind).forEach((x) => { grp[x.id] = x.group; });
+    let sub = (it.sub || []).slice();
+    if (sub.includes(e.id)) { toast(T("이미 안에 들어 있어요", "Already inside"), true); return false; }
+    if (kind === "frame") sub = [];
+    const same = sub.filter((x) => grp[x] === e.group), lim = api.limit(kind, e.group) || 99;
+    if (same.length >= lim) sub.splice(sub.indexOf(same[0]), 1);
+    sub.push(e.id); it.sub = sub; save(); drawScene(); applySel(); drawPanel();
+    toast(T(`${nm(H.D[it.id])} 안에 넣었어요!`, `Put inside the ${nm(H.D[it.id])}!`));
+    return true;
+  }
+  // Mouse / pen: press a card you own, drag it over a matching piece in the room (it lights up) and let go to put it inside.
+  // A plain click still opens the card as before.
+  function wireCardDrag(card, kind, e, api) {
+    if (!e || !e.owned) return;
+    card.addEventListener("dragstart", (ev) => ev.preventDefault());   // the browser's own picture drag would swallow the pointer events
+    card.querySelectorAll("img").forEach((im) => { im.draggable = false; });
+    card.addEventListener("click", (ev) => { if (card._dragged) { card._dragged = false; ev.stopImmediatePropagation(); ev.preventDefault(); } }, true);
+    card.addEventListener("pointerdown", (ev) => {
+      if (ev.button > 0 || ev.pointerType === "touch" || !ses || ses.drag) return;
+      const x0 = ev.clientX, y0 = ev.clientY, src = card.querySelector(".kh-subic");
+      let ghost = null, lit = null;
+      const target = (cx, cy) => {
+        const st = curState();
+        for (const n of document.elementsFromPoint(cx, cy)) {
+          const g = n.closest && n.closest(".kh-it[data-uid]"); if (!g) continue;
+          const it = st.items.find((x) => x.uid === g.dataset.uid);
+          if (it && H.D[it.id] && H.D[it.id].subKind === kind) return { it, g };
+        }
+        return null;
+      };
+      const mv = (m) => {
+        if (!ghost) {
+          if (Math.hypot(m.clientX - x0, m.clientY - y0) < 7) return;
+          card._dragged = true;
+          ghost = el("div", "kh-subghost", src ? src.outerHTML : ""); document.body.appendChild(ghost);
+          document.body.classList.add("kh-carddrag");
+        }
+        ghost.style.left = m.clientX + "px"; ghost.style.top = m.clientY + "px";
+        const t = target(m.clientX, m.clientY), g = t ? t.g : null;
+        if (g !== lit) { if (lit) lit.classList.remove("kh-drop-ok"); if (g) g.classList.add("kh-drop-ok"); lit = g; }
+      };
+      const done = (u, cancel) => {
+        window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", cn);
+        if (lit) lit.classList.remove("kh-drop-ok");
+        document.body.classList.remove("kh-carddrag");
+        if (!ghost) return;
+        ghost.remove();
+        if (cancel || !ses) return;
+        const t = target(u.clientX, u.clientY), stage = ses.root.querySelector("#kh-stage"), r = stage && stage.getBoundingClientRect();
+        if (t) putSubIn(t.it, kind, e, api);
+        else if (r && u.clientX >= r.left && u.clientX <= r.right && u.clientY >= r.top && u.clientY <= r.bottom) toast(T("넣을 수 있는 가구 위에 놓아 주세요", "Drop it onto a piece that can hold it"), true);
+      };
+      const up = (u) => done(u, false), cn = (u) => done(u, true);
+      window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", cn);
     });
   }
 
@@ -1271,6 +1332,7 @@
       });
     });
     grid.querySelectorAll("[data-asmr]").forEach((b) => {
+      if (curOpts.subs) wireCardDrag(b, "asmr", curOpts.subs.list("asmr").find((x) => x.id === b.dataset.asmr), curOpts.subs);
       b.addEventListener("click", () => {
         const api = curOpts.subs, e = api && api.list("asmr").find((x) => x.id === b.dataset.asmr); if (!e) return;
         const boxes = asmrBoxes(), host = boxes.find((i) => (i.sub || []).includes(e.id)), pic = `<span class="kh-subic kh-subimg kh-asmric" aria-hidden="true">${asmrPic(e.id)}</span>`;

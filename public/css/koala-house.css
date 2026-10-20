@@ -464,3 +464,11 @@ html body .kh-app .kh-top .kh-planbtn{background:#cdeee2!important;border-color:
 .kh-roomrow-nm { font-weight: 800; text-align: left; }
 .kh-roomrow-nm small { display: block; font-weight: 600; color: #7a948b; }
 .kh-roomrow .kh-btn { padding: 8px 16px; }
+
+/* dragging a sub-item card onto the piece that holds it */
+.kh-subghost { position: fixed; z-index: 100000; width: 68px; height: 68px; pointer-events: none; transform: translate(-50%, -62%) rotate(-4deg); filter: drop-shadow(0 8px 10px rgba(30, 60, 50, .35)); }
+.kh-subghost .kh-subic { width: 68px; height: 68px; display: block; background: transparent !important; position: relative; }
+.kh-subghost .kh-subic svg, .kh-subghost .kh-subic img { width: 100%; height: 100%; object-fit: contain; display: block; }
+body.kh-carddrag { cursor: grabbing; user-select: none; -webkit-user-select: none; }
+.kh-it.kh-drop-ok { filter: drop-shadow(0 0 4px #ffd34d) drop-shadow(0 0 10px #ffb21e); }
+.kh-subitem:not(.locked), .kh-item[data-asmr]:not(.locked) { cursor: grab; }
