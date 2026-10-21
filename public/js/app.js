@@ -811,6 +811,7 @@ const TRANSLATIONS = {
     footerText: "Made for Australian primary students. 🇦🇺",
     footerAbout: "About",
     footerFaq: "FAQ",
+    footerLearn: "Free lists",
     startFab: "Let's START!",
     footerPrivacy: "Privacy",
     footerTerms: "Terms",
@@ -1771,6 +1772,7 @@ const TRANSLATIONS = {
     footerText: "영어 필수 단어를 공부하는 학생들을 위해 만들었어요. 🇰🇷",
     footerAbout: "소개",
     footerFaq: "자주 묻는 질문",
+    footerLearn: "무료 단어 목록",
     startFab: "시작해요!",
     footerPrivacy: "개인정보",
     footerTerms: "이용약관",
@@ -3272,8 +3274,8 @@ function applyStaticTranslations() {
   document.getElementById("app-title").textContent = t("appTitle");
   document.getElementById("app-subtitle").textContent = t("appSubtitle");
   document.getElementById("app-footer-text").textContent = t("footerText");
-  { const ff = document.getElementById("footer-faq-link"), fa = document.getElementById("footer-about-link"), fp = document.getElementById("footer-privacy-link"), ft = document.getElementById("footer-terms-link");
-    if (ff) ff.textContent = t("footerFaq"); if (fa) fa.textContent = t("footerAbout"); if (fp) fp.textContent = t("footerPrivacy"); if (ft) ft.textContent = t("footerTerms"); }
+  { const fl = document.getElementById("footer-learn-link"), ff = document.getElementById("footer-faq-link"), fa = document.getElementById("footer-about-link"), fp = document.getElementById("footer-privacy-link"), ft = document.getElementById("footer-terms-link");
+    if (fl) fl.textContent = t("footerLearn"); if (ff) ff.textContent = t("footerFaq"); if (fa) fa.textContent = t("footerAbout"); if (fp) fp.textContent = t("footerPrivacy"); if (ft) ft.textContent = t("footerTerms"); }
   {
     // The button shows the flag of the CURRENT language (Windows has no flag
     // emoji, so these are small SVGs) plus a caret; tapping it opens a menu
