@@ -40,6 +40,13 @@
   <link rel="stylesheet" href="css/admin.css" />
 </head>
 <body class="on-landing">
+  <noscript>
+    <div style="max-width:640px;margin:24px auto;padding:16px;font-family:sans-serif;line-height:1.6">
+      <h1>Koala Study Mate</h1>
+      <p>Koala Study Mate helps Australian primary students in Years 3–6 practise English vocabulary, spelling and times tables with quizzes, flashcards, typing games and a koala friend. Please turn on JavaScript in your browser to use the app.</p>
+      <p><a href="/about">About</a> · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Use</a></p>
+    </div>
+  </noscript>
   <!-- Shared gradients for the 3D heart icons in the HUD (see renderTypeGameHearts in app.js) -->
   <svg class="tg-svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
     <defs>
@@ -699,6 +706,20 @@
           </button>
         </div>
       </div>
+
+      <!-- Intro text for first-time visitors and search engines (SEO). Default
+           text is English; app.js swaps it via data-i18n when the language changes. -->
+      <section class="home-about" id="home-about" aria-labelledby="home-about-title">
+        <h2 id="home-about-title" data-i18n="homeAboutTitle">Practise English words and times tables with a koala friend</h2>
+        <p data-i18n="homeAboutP1">Koala Study Mate helps Australian primary students in Years 3–6 build vocabulary, spelling and times-table skills with short daily quizzes, flashcards, typing games and fun rewards.</p>
+        <p data-i18n="homeAboutP2">New words every day, matched to your level. Helpful practice for NAPLAN-style spelling and vocabulary. Free to start, with a Korean language option.</p>
+        <div class="home-about-feats">
+          <div><b data-i18n="homeAboutF1T">Quiz &amp; Spelling</b><span data-i18n="homeAboutF1D">New words every day, matched to your level</span></div>
+          <div><b data-i18n="homeAboutF2T">Times Tables</b><span data-i18n="homeAboutF2D">Games that make the facts stick</span></div>
+          <div><b data-i18n="homeAboutF3T">Flashcards &amp; Typing</b><span data-i18n="homeAboutF3D">Unlimited free practice</span></div>
+          <div><b data-i18n="homeAboutF4T">Korean support</b><span data-i18n="homeAboutF4D">Separate levels for Korean learners</span></div>
+        </div>
+      </section>
     </section>
 
     <!-- Flashcards -->
@@ -2471,7 +2492,12 @@ to Flip!</span></div>
   </main>
 
   <footer id="app-footer"><span id="app-footer-text">Made for Australian primary students learning English vocabulary. 🇦🇺</span>
-    <button type="button" id="contact-open-btn" class="footer-link">Contact us</button>
+    <nav class="footer-links" aria-label="About and legal">
+      <a href="/about" id="footer-about-link" class="footer-link">About</a>
+      <a href="/privacy" id="footer-privacy-link" class="footer-link">Privacy</a>
+      <a href="/terms" id="footer-terms-link" class="footer-link">Terms</a>
+      <button type="button" id="contact-open-btn" class="footer-link">Contact us</button>
+    </nav>
   </footer>
 
   <!-- Mobile-only bottom tab bar (see .bottom-tabs in style.css). Home, Progress,

@@ -6,13 +6,13 @@
 ## 프로젝트 환경
 - GitHub: yoods81/EnglishWordsPractice (origin), 작업 브랜치: `claude/au-year4-english-vocab-app-6nw6iz`
 - 컴퓨터 2대에서 작업: `I:\EnglishWordsPractice`, `D:\Koala Study Mate` (VS Code 터미널, PowerShell)
-- 배포: `git pull` 후 `npm run deploy` (사용자가 직접 실행)
+- 배포: `npm run deploy`. "작업종료" 때 push 후 Claude가 자동으로 실행한다.
 - 서비스워커 버전이 바뀔 때마다 사이트 타이틀 옆에 작은 글씨(v122 식)로 버전 표시
 - 사이트 이메일: admin@koalastudymate.com (Cloudflare Email Routing/Sending)
 
 ## 명령어 규칙
 - 사용자가 "작업시작"이라고 하면 명령어를 알려 주지 말고 **직접 실행**한다: `git pull origin claude/au-year4-english-vocab-app-6nw6iz`. 실행 후 마지막 세션에서 한 일을 `git log`와 메모리의 세션 요약(session-log)을 함께 보고 간략하게 요약해 설명한다. 코드 변경이 없는 논의·점검 세션도 포함한다.
-- "작업종료"라고 하면 **직접 실행**한다: git add / commit / push. commit -m 제목은 그 작업에 맞게 알아서 채운다. 변경 내용을 알 수 없으면 추측하지 말고 먼저 물어본다. 바뀐 파일이 없으면 커밋하지 않고 그렇게 알린다. 커밋 여부와 상관없이 그 세션의 논의·결정·남은 할 일을 메모리 `session-log`에 한 줄 요약으로 갱신한다(최근 것이 위, 오래된 것은 정리). 실행 결과를 보고한다.
+- "작업종료"라고 하면 **직접 실행**한다: git add / commit / push 후 `npm run deploy`까지. commit -m 제목은 그 작업에 맞게 알아서 채운다. 변경 내용을 알 수 없으면 추측하지 말고 먼저 물어본다. 바뀐 파일이 없으면 커밋하지 않고 그렇게 알린다. 커밋 여부와 상관없이 그 세션의 논의·결정·남은 할 일을 메모리 `session-log`에 한 줄 요약으로 갱신한다(최근 것이 위, 오래된 것은 정리). 배포는 push 성공 후에만 하고, 코드 변경이 없으면 배포하지 않는다. 실행 결과를 보고한다.
 - 사용자에게 명령어를 안내해야 할 때는 `cd` 줄을 넣지 않는다.
 
 ## 작업 방식

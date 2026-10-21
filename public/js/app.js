@@ -809,6 +809,16 @@ const TRANSLATIONS = {
     resetBtn: "Reset all progress",
     resetConfirm: "This will erase all your saved progress. Are you sure?",
     footerText: "Made for Australian primary students. 🇦🇺",
+    footerAbout: "About",
+    footerPrivacy: "Privacy",
+    footerTerms: "Terms",
+    homeAboutTitle: "Practise English words and times tables with a koala friend",
+    homeAboutP1: "Koala Study Mate helps Australian primary students in Years 3–6 build vocabulary, spelling and times-table skills with short daily quizzes, flashcards, typing games and fun rewards.",
+    homeAboutP2: "New words every day, matched to your level. Helpful practice for NAPLAN-style spelling and vocabulary. Free to start, with a Korean language option.",
+    homeAboutF1T: "Quiz & Spelling", homeAboutF1D: "New words every day, matched to your level",
+    homeAboutF2T: "Times Tables", homeAboutF2D: "Games that make the facts stick",
+    homeAboutF3T: "Flashcards & Typing", homeAboutF3D: "Unlimited free practice",
+    homeAboutF4T: "Korean support", homeAboutF4D: "Separate levels for Korean learners",
     authHeaderLoginBtn: "🔑 Log In",
     authToggleLoggedOutHint: "Sign in to save your progress",
     authLogoutBtn: "Logout",
@@ -1757,6 +1767,16 @@ const TRANSLATIONS = {
     resetBtn: "전체 진행상황 초기화",
     resetConfirm: "저장된 모든 진행상황이 사라져요. 계속할까요?",
     footerText: "영어 필수 단어를 공부하는 학생들을 위해 만들었어요. 🇰🇷",
+    footerAbout: "소개",
+    footerPrivacy: "개인정보",
+    footerTerms: "이용약관",
+    homeAboutTitle: "코알라 친구와 함께 영어 단어와 구구단을 연습해요",
+    homeAboutP1: "Koala Study Mate는 호주 초등학생(Year 3~6)이 퀴즈, 플래시카드, 타이핑 게임으로 매일 조금씩 단어·스펠링·구구단을 익히는 앱이에요.",
+    homeAboutP2: "매일 내 레벨에 맞는 새 단어가 나와요. NAPLAN 스타일의 스펠링·어휘 연습에도 도움이 돼요. 무료로 시작할 수 있고 한국어도 지원해요.",
+    homeAboutF1T: "퀴즈 & 스펠링", homeAboutF1D: "매일 내 레벨의 새 단어",
+    homeAboutF2T: "구구단", homeAboutF2D: "게임으로 쏙쏙 외우기",
+    homeAboutF3T: "플래시카드 & 타이핑", homeAboutF3D: "무제한 무료 연습",
+    homeAboutF4T: "한국어 지원", homeAboutF4D: "한국 학생 레벨 따로 제공",
     authHeaderLoginBtn: "🔑 로그인",
     authToggleLoggedOutHint: "로그인하면 학습 진행 상황이 저장돼요",
     authLogoutBtn: "로그아웃",
@@ -3248,6 +3268,8 @@ function applyStaticTranslations() {
   document.getElementById("app-title").textContent = t("appTitle");
   document.getElementById("app-subtitle").textContent = t("appSubtitle");
   document.getElementById("app-footer-text").textContent = t("footerText");
+  { const fa = document.getElementById("footer-about-link"), fp = document.getElementById("footer-privacy-link"), ft = document.getElementById("footer-terms-link");
+    if (fa) fa.textContent = t("footerAbout"); if (fp) fp.textContent = t("footerPrivacy"); if (ft) ft.textContent = t("footerTerms"); }
   {
     // The button shows the flag of the CURRENT language (Windows has no flag
     // emoji, so these are small SVGs) plus a caret; tapping it opens a menu
