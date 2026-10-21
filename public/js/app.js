@@ -810,6 +810,8 @@ const TRANSLATIONS = {
     resetConfirm: "This will erase all your saved progress. Are you sure?",
     footerText: "Made for Australian primary students. 🇦🇺",
     footerAbout: "About",
+    footerFaq: "FAQ",
+    startFab: "Let's START!",
     footerPrivacy: "Privacy",
     footerTerms: "Terms",
     homeAboutTitle: "Practise English words and times tables with a koala friend",
@@ -1768,6 +1770,8 @@ const TRANSLATIONS = {
     resetConfirm: "저장된 모든 진행상황이 사라져요. 계속할까요?",
     footerText: "영어 필수 단어를 공부하는 학생들을 위해 만들었어요. 🇰🇷",
     footerAbout: "소개",
+    footerFaq: "자주 묻는 질문",
+    startFab: "시작해요!",
     footerPrivacy: "개인정보",
     footerTerms: "이용약관",
     homeAboutTitle: "코알라 친구와 함께 영어 단어와 구구단을 연습해요",
@@ -3268,8 +3272,8 @@ function applyStaticTranslations() {
   document.getElementById("app-title").textContent = t("appTitle");
   document.getElementById("app-subtitle").textContent = t("appSubtitle");
   document.getElementById("app-footer-text").textContent = t("footerText");
-  { const fa = document.getElementById("footer-about-link"), fp = document.getElementById("footer-privacy-link"), ft = document.getElementById("footer-terms-link");
-    if (fa) fa.textContent = t("footerAbout"); if (fp) fp.textContent = t("footerPrivacy"); if (ft) ft.textContent = t("footerTerms"); }
+  { const ff = document.getElementById("footer-faq-link"), fa = document.getElementById("footer-about-link"), fp = document.getElementById("footer-privacy-link"), ft = document.getElementById("footer-terms-link");
+    if (ff) ff.textContent = t("footerFaq"); if (fa) fa.textContent = t("footerAbout"); if (fp) fp.textContent = t("footerPrivacy"); if (ft) ft.textContent = t("footerTerms"); }
   {
     // The button shows the flag of the CURRENT language (Windows has no flag
     // emoji, so these are small SVGs) plus a caret; tapping it opens a menu
@@ -19325,3 +19329,8 @@ statsPanels.parent.addEventListener("click", async (e) => {
   window.addEventListener("resize", set);
   window.addEventListener("load", set);
 })();
+
+// Koala start button (tablet/desktop home): jump straight into the Quiz, the same as tapping its tile.
+document.getElementById("start-fab")?.addEventListener("click", () => {
+  document.querySelector('.landing-tile[data-view="quiz"]')?.click();
+});

@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://koalastudymate.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://koalastudymate.com/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://koalastudymate.com/faq</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://koalastudymate.com/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://koalastudymate.com/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>
