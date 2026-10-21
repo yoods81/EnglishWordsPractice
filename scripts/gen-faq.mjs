@@ -24,14 +24,13 @@ const page = readFileSync(join(root, "scripts", "faq-page.template.html"), "utf8
 const pubGroups = data.groups.map((g) => ({ ...g, items: g.items.filter(isPublic) })).filter((g) => g.items.length);
 const sections = pubGroups.map((g) =>
   `<section class="faq-group" id="${g.id}"><h2>${both(g.title)}</h2>\n${g.items.map(item).join("\n")}\n</section>`).join("\n");
-const nav = pubGroups.map((g) => `<a href="#${g.id}">${both(g.title)}</a>`).join("");
 const ld = JSON.stringify({
   "@context": "https://schema.org", "@type": "FAQPage",
   mainEntity: pubGroups.flatMap((g) => g.items).map((it) => ({
     "@type": "Question", name: it.q.en, acceptedAnswer: { "@type": "Answer", text: it.a.en } })),
 });
 writeFileSync(join(root, "public", "faq.html"),
-  page.replace("@@NAV@@", nav).replace("@@SECTIONS@@", sections).replace("@@LD@@", ld));
+  page.replace("@@SECTIONS@@", sections).replace("@@LD@@", ld));
 
 // ---- About page: featured questions ----
 const aboutPath = join(root, "public", "about.html");
