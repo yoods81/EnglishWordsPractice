@@ -4011,12 +4011,57 @@ async function pushProgressToServer() {
 // After a sign-in / page load: pull the server copy of progress (paid/admin),
 // then the saved Koala world (every account), then apply any coins an admin
 // gave, then report this device's balance.
+// Admin-added My Koala items/categories (migrations/0014_koala_items.sql):
+// fetched once and merged on top of the built-in catalogs in koala-core.js /
+// koala-house.js, which this never touches. Safe to call repeatedly; each
+// module only merges ids it hasn't seen yet.
+var koalaItemCatalogLoaded = false;
+async function loadKoalaItemCatalog() {
+  try {
+    const added = await KoalaCore.loadItems(koalaItemCatalogLoaded && isAdmin);
+    (added || []).forEach((it) => KoalaArt.registerCustomItem(it));
+    if (window.KoalaHouse && KoalaHouse.loadCatalog) await KoalaHouse.loadCatalog(koalaItemCatalogLoaded && isAdmin);
+    koalaItemCatalogLoaded = true;
+    const kv = document.getElementById("view-koala");
+    if (kv && kv.classList.contains("active")) renderKoala();
+  } catch (e) {
+    console.warn("Could not load admin-added Koala items", e);
+  }
+}
+
+// Categories offered in the admin "add/edit item" form's <select>, for
+// whichever screen (character wardrobe or study room) it was opened from.
+function koalaAdminCatsFor(mode) {
+  const slots = mode === "room" ? KoalaCore.ROOM_SLOTS : KoalaCore.ITEM_SLOTS;
+  const titles = KOALA_SLOT_TITLES();
+  return slots.map((s) => {
+    const built = titles[s];
+    const custom = KoalaCore.customCatLabel(s);
+    const label = built ? String(built).replace(/^\S+\s/, "") : custom ? rwL(custom.en, custom.ko) : s;
+    return { id: s, label };
+  });
+}
+
+// After an admin adds or edits a My Koala item: an edit needs the stale
+// cached copy dropped first, or loadItems() would skip the id as "already
+// merged" and the fresh name/price would never show up this session.
+async function koalaAdminRefresh(editedId) {
+  if (editedId) {
+    const idx = KoalaCore.ITEMS.findIndex((it) => it.id === editedId);
+    if (idx >= 0) KoalaCore.ITEMS.splice(idx, 1);
+  }
+  await KoalaCore.loadItems(true);
+  closeKoalaItemDetail();
+  renderKoala();
+}
+
 async function koalaAfterLogin() {
   if (currentUser && restoreUserData(currentUser.id)) { location.reload(); return; }
   await loadChildProfiles();
   if (canWriteServerWords()) await syncProgressOnLogin();
   await pullKoalaData();
   await applyKoalaGrants();
+  await loadKoalaItemCatalog();
   pushKoalaData();
   pushKoalaSummary();
   maybeShowDataNote();
@@ -16474,10 +16519,16 @@ function koalaStudioTopHtml(k, mode) {
 function koalaCatsHtml(mode) {
   const slots = mode === "room" ? KoalaCore.ROOM_SLOTS.concat(KOALA_SUB_KINDS.map((x) => "sub:" + x)) : KoalaCore.ITEM_SLOTS;
   const titles = KOALA_SLOT_TITLES();
-  const catTitle = (s) => (koalaIsSubCat(s) ? koalaSubKindTitle(s.slice(4)) : titles[s]);
+  const catTitle = (s) => {
+    if (koalaIsSubCat(s)) return koalaSubKindTitle(s.slice(4));
+    if (titles[s]) return titles[s];
+    const custom = KoalaCore.customCatLabel(s); // admin-added category: no emoji prefix to strip
+    return custom ? rwL(custom.en, custom.ko) : s;
+  };
   const CAT_IC = { headwear: "hat", face: "face", clothing: "body", bottoms: "legs", jewelry: "neck", shoes: "feet", accessory: "back", wallpaper: "wallpaper", rug: "rug", poster: "poster", desk: "desk", lamp: "lamp", shelf: "shelf", plant: "plant", window: "window", garland: "garland", pet: "pet", toy: "toy", "sub:books": "books", "sub:desk": "stationery", "sub:toys": "toy", "sub:frame": "poster", "sub:collage": "collage", "sub:petwear": "petwear" };
   const catLabel = (s) => `${CAT_IC[s] ? `<img class="koala-cat-ic" src="img/cat/${CAT_IC[s]}.webp" alt="" draggable="false">` : ""}<span>${String(catTitle(s)).replace(/^\S+\s/, "")}</span>`;
-  const cats = slots.map((s) => `<button type="button" class="koala-cat${koalaIsSubCat(s) ? " koala-cat-sub" : ""}${koalaSlotPick[mode] === s ? " on" : ""}" role="tab" aria-selected="${koalaSlotPick[mode] === s}" data-koala-cat="${s}">${catLabel(s)}</button>`).join("");
+  const cats = slots.map((s) => `<button type="button" class="koala-cat${koalaIsSubCat(s) ? " koala-cat-sub" : ""}${koalaSlotPick[mode] === s ? " on" : ""}" role="tab" aria-selected="${koalaSlotPick[mode] === s}" data-koala-cat="${s}">${catLabel(s)}</button>`).join("")
+    + (isAdmin ? `<button type="button" class="koala-cat koala-cat-admin-add" data-koala-admin-add-cat="${mode}" aria-label="${rwL("Add category", "카테고리 추가")}">+</button>` : "");
   return `<div class="koala-cats-wrap"><button type="button" class="koala-cats-nav prev" data-koala-cats-nav="-1" aria-label="${rwL("Scroll left", "왼쪽으로")}" hidden>‹</button>
     <div class="koala-cats" role="tablist" aria-label="${rwL("Item categories", "아이템 종류")}">${cats}</div>
     <button type="button" class="koala-cats-nav next" data-koala-cats-nav="1" aria-label="${rwL("Scroll right", "오른쪽으로")}" hidden>›</button></div>`;
@@ -16524,7 +16575,9 @@ function koalaShopGridHtml(mode) {
   if (koalaIsSubCat(slot)) return head + koalaSubShopHtml(slot.slice(4));
   const items = KoalaCore.visibleItems(progress, slot, { showAll: serverAdmin });
   const have = items.filter((it) => { const s = KoalaCore.itemStatus(progress, it, koalaOpts()).state; return s === "equipped" || s === "owned"; }).length;
-  return `${head}<div class="koala-shelf-head"><span class="koala-shelf-title">${KOALA_SLOT_TITLES()[slot]} <small>${have}/${items.length}</small></span></div>
+  const slotLabel = KOALA_SLOT_TITLES()[slot] || (KoalaCore.customCatLabel(slot) && rwL(KoalaCore.customCatLabel(slot).en, KoalaCore.customCatLabel(slot).ko)) || slot;
+  const addBtn = isAdmin ? `<button type="button" class="pill neutral small koala-admin-add-item-btn" data-koala-admin-add-item="${mode}:${slot}">${rwL("+ Add item", "+ 아이템 추가")}</button>` : "";
+  return `${head}<div class="koala-shelf-head"><span class="koala-shelf-title">${slotLabel} <small>${have}/${items.length}</small></span>${addBtn}</div>
     <div class="koala-grid">${items.map(koalaItemCardHtml).join("")}</div>`;
 }
 
@@ -16680,6 +16733,7 @@ function koalaHouseOpts() {
     L: rwL,
     coins: () => KoalaCore.ensureKoala(progress).coins,
     unlimited: free,
+    isAdmin: !!serverAdmin, // item management buttons: admin-only, unlike `unlimited` (also true for paid)
     spend: (n, why) => {
       if (free) return true;
       const ok = KoalaCore.spendCoins(progress, n, "house:" + why, opts);
@@ -17266,10 +17320,11 @@ function openKoalaItemDetail(id, opts) {
       price = `<div class="koala-itemd-price">${koalaItemStatusText(st).replace(/<[^>]*>/g, "")}</div>`;
       act = `<button type="button" class="pill" data-koala-zoom-close>${rwL("Close", "닫기")}</button>`;
     }
+    const adminEdit = isAdmin && it.custom ? `<button type="button" class="pill neutral small" data-koala-admin-edit-item="${escapeHtml(id)}">${rwL("✏️ Edit", "✏️ 수정")}</button>` : "";
     card.innerHTML = `<div class="koala-zoom-head"><span class="koala-subd-from">${rwL(isRoom ? "Room item" : "Koala item", isRoom ? "방 아이템" : "코알라 아이템")}</span><button type="button" class="koala-zoom-close" data-koala-zoom-close>${rwL("✕ Close", "✕ 닫기")}</button></div>
       <div class="koala-subd-stage koala-itemd-stage${own ? "" : " is-locked"}">${KoalaArt.itemIcon(id)}</div>
       <div class="koala-subd-name">${escapeHtml(koalaItemName(it))}</div>${price}
-      <div class="koala-subd-act koala-itemd-act">${act}</div><div class="koala-subd-msg" role="status">${msg ? escapeHtml(msg) : ""}</div>`;
+      <div class="koala-subd-act koala-itemd-act">${act}${adminEdit}</div><div class="koala-subd-msg" role="status">${msg ? escapeHtml(msg) : ""}</div>`;
     const b = card.querySelector("[data-koala-detail-go],[data-koala-detail-buy]") || card.querySelector("[data-koala-zoom-close]");
     if (b) b.focus();
   };
@@ -17360,7 +17415,32 @@ document.addEventListener("click", (e) => {
   const zoom = e.target.closest("[data-koala-zoom]");
   if (zoom) { openKoalaZoom(zoom.dataset.koalaZoom); return; }
   const card = e.target.closest("[data-koala-item]");
-  if (card) koalaTap(card.dataset.koalaItem);
+  if (card) { koalaTap(card.dataset.koalaItem); return; }
+  const addCat = e.target.closest("[data-koala-admin-add-cat]");
+  if (addCat) {
+    const mode = addCat.dataset.koalaAdminAddCat;
+    KoalaAdminItems.openCategoryForm({ kind: mode === "room" ? "studyroom" : "character", lang: currentLang, onSaved: () => koalaAdminRefresh() });
+    return;
+  }
+  const addItem = e.target.closest("[data-koala-admin-add-item]");
+  if (addItem) {
+    const [mode, slot] = addItem.dataset.koalaAdminAddItem.split(":");
+    KoalaAdminItems.openItemForm({ kind: mode === "room" ? "studyroom" : "character", cats: koalaAdminCatsFor(mode), cat: slot, lang: currentLang, onSaved: () => koalaAdminRefresh() });
+    return;
+  }
+  const editItem = e.target.closest("[data-koala-admin-edit-item]");
+  if (editItem) {
+    const id = editItem.dataset.koalaAdminEditItem, it = KoalaCore.itemById(id);
+    if (it) {
+      const mode = KoalaCore.ROOM_SLOTS.includes(it.slot) ? "room" : "character";
+      KoalaAdminItems.openItemForm({
+        kind: mode === "room" ? "studyroom" : "character", cats: koalaAdminCatsFor(mode),
+        item: { id: it.id, cat: it.slot, name: it.name, unlock: it.unlock.coins != null ? { type: "coins", value: it.unlock.coins } : { type: "free" }, active: true },
+        lang: currentLang, onSaved: () => koalaAdminRefresh(id),
+      });
+    }
+    return;
+  }
 });
 document.addEventListener("keydown", (e) => {
   if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("[data-koala-zoom]")) { e.preventDefault(); openKoalaZoom(e.target.dataset.koalaZoom); }

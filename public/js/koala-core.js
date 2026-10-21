@@ -1032,6 +1032,54 @@
     return JSON.stringify(canon(rewardSlice(progress))) !== before;
   }
 
+  /* ---------- Admin-added items (My Koala item management) ----------
+     Fetched once per page load and merged additively into ITEMS/ITEM_SLOTS/
+     ROOM_SLOTS — the ~250 built-in items above are never touched or
+     replaced. See migrations/0014_koala_items.sql for why only new,
+     admin-created items live in the database. Safe to call from a browser
+     only (uses fetch); Node tests never call it. */
+  const CUSTOM_IMG = {};
+  const CUSTOM_CAT_LABEL = {};
+  let itemsLoaded = false;
+  function buildUnlock(u) {
+    if (!u) return { free: true };
+    if (u.type === "coins") return { coins: Number(u.value) || 0 };
+    if (u.type === "streak") return { streak: Number(u.value) || 0 };
+    if (u.type === "badge") return { badge: String(u.value || "") };
+    return { free: true };
+  }
+  async function loadItems(force) {
+    if (itemsLoaded && !force) return [];
+    const added = [];
+    try {
+      const getJson = (url, fallback) => fetch(url).then((r) => (r.ok ? r.json() : fallback)).catch(() => fallback);
+      const [charRes, roomRes, charCats, roomCats] = await Promise.all([
+        getJson("/api/items?kind=character", { items: [] }),
+        getJson("/api/items?kind=studyroom", { items: [] }),
+        getJson("/api/item-categories?kind=character", { categories: [] }),
+        getJson("/api/item-categories?kind=studyroom", { categories: [] }),
+      ]);
+      (charCats.categories || []).concat(roomCats.categories || []).forEach((c) => { CUSTOM_CAT_LABEL[c.id] = c.label; });
+      (charCats.categories || []).forEach((c) => { if (!ITEM_SLOTS.includes(c.id)) ITEM_SLOTS.push(c.id); });
+      (roomCats.categories || []).forEach((c) => { if (!ROOM_SLOTS.includes(c.id)) ROOM_SLOTS.push(c.id); });
+      const rows = (charRes.items || []).concat((roomRes.items || []).map((it) => Object.assign({}, it, { kind: "room" })));
+      rows.forEach((row) => {
+        if (ITEMS.some((it) => it.id === row.id)) return; // never override a built-in id
+        const it = { id: row.id, slot: row.cat, name: row.name, unlock: buildUnlock(row.unlock), custom: true };
+        if (row.kind === "room") it.kind = "room";
+        if (row.season) it.season = row.season;
+        ITEMS.push(it);
+        CUSTOM_IMG[row.id] = { img2d: row.imageUrl2d || null, img3d: row.imageUrl || null };
+        added.push({ id: row.id, kind: it.kind || "character", slot: row.cat, img2d: row.imageUrl2d || null, img3d: row.imageUrl || null });
+      });
+      itemsLoaded = true;
+    } catch (e) { /* offline or API error: built-in items still work fine */ }
+    return added;
+  }
+  const customImg2d = (id) => (CUSTOM_IMG[id] && CUSTOM_IMG[id].img2d) || null;
+  const customImg3d = (id) => (CUSTOM_IMG[id] && CUSTOM_IMG[id].img3d) || null;
+  const customCatLabel = (id) => CUSTOM_CAT_LABEL[id] || null;
+
   return {
     REWARD_CONFIG,
     dateKey, daysBetween, shiftDay, weekKey,
@@ -1040,5 +1088,6 @@
     SUB_RULES, SUB_PARENTS, SUB_ITEMS, subKind, subById, subItemsFor, subLimit, subSelection, toggleSub, isSubOwned, buySub, sellItem, sellSub, creditSale, sellValue, SELL_RATE, SUB_COST,
     levelInfo,
     ensureStreak, advanceStreak, streakStatus,
+    loadItems, customImg2d, customImg3d, customCatLabel,
   };
 });

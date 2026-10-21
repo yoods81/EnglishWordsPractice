@@ -26,6 +26,8 @@
     "db:migrate:email-id:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0012_email_as_login_id.sql",
     "db:migrate:billing": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0013_billing.sql",
     "db:migrate:billing:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0013_billing.sql",
+    "db:migrate:items": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0014_koala_items.sql",
+    "db:migrate:items:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0014_koala_items.sql",
     "db:migrate:users:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0001_users_and_word_ownership.sql"
   },
   "devDependencies": {

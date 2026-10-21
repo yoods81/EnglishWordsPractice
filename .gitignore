@@ -7,4 +7,8 @@ wrangler admin password and session secret.txt
 *.bak
 *.bak*
 backup-*/
-Diary/
+Diary/*
+!Diary/deploy-log.md
+English Words/
+Koala Images/
+*.docx

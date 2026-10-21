@@ -1785,5 +1785,204 @@ async function handleApi(request, env, url) {
     return json({ saved: words.length, posSaved });
   }
 
+  // My Koala item management (admin-added items only — see migrations/0014_koala_items.sql
+  // for why the ~250 built-in items stay hardcoded in public/js/koala-core.js and
+  // koala-house.js instead of living here too). The client merges these additively
+  // on top of its built-in catalogs; it never replaces them.
+  const KOALA_ITEM_KINDS = ["character", "studyroom", "house"];
+  const KOALA_UNLOCK_TYPES = ["free", "coins", "streak", "badge"];
+  function itemRowToJson(r) {
+    return {
+      id: r.id, kind: r.kind, cat: r.cat,
+      name: { ko: r.name_ko, en: r.name_en },
+      unlock: { type: r.unlock_type, value: r.unlock_value },
+      price: r.price || 0,
+      season: r.season_from && r.season_to ? { from: JSON.parse(r.season_from), to: JSON.parse(r.season_to) } : null,
+      w: r.w ?? null, d: r.d ?? null, where: r.where_placement || null,
+      parts: r.parts_json ? JSON.parse(r.parts_json) : null,
+      imageKey: r.image_key || null, imageKey2d: r.image_key_2d || null,
+      sortOrder: r.sort_order || 0,
+    };
+  }
+  function categoryRowToJson(r) {
+    return { kind: r.kind, id: r.id, label: { ko: r.label_ko, en: r.label_en }, iconUrl: itemImageUrl(r.icon_path), sortOrder: r.sort_order || 0 };
+  }
+  function itemImageUrl(key) {
+    if (!key) return null;
+    return key.startsWith("r2:") ? `/api/items/image/${encodeURIComponent(key.slice(3))}` : key;
+  }
+
+  if (route === "/items" && request.method === "GET") {
+    const kind = url.searchParams.get("kind");
+    if (!KOALA_ITEM_KINDS.includes(kind)) return json({ error: "bad_request" }, 400);
+    const { results } = await env.DB.prepare("SELECT * FROM items WHERE kind = ? AND active = 1 ORDER BY sort_order ASC, created_at ASC").bind(kind).all();
+    const items = (results || []).map(itemRowToJson).map((it) => Object.assign(it, {
+      imageUrl: itemImageUrl(it.imageKey), imageUrl2d: itemImageUrl(it.imageKey2d),
+    }));
+    return json({ items });
+  }
+
+  if (route === "/item-categories" && request.method === "GET") {
+    const kind = url.searchParams.get("kind");
+    if (!KOALA_ITEM_KINDS.includes(kind)) return json({ error: "bad_request" }, 400);
+    const { results } = await env.DB.prepare("SELECT * FROM item_categories WHERE kind = ? AND active = 1 ORDER BY sort_order ASC, created_at ASC").bind(kind).all();
+    return json({ categories: (results || []).map(categoryRowToJson) });
+  }
+
+  if (route === "/items/manifest" && request.method === "GET") {
+    // House-only: the admin-added items reshaped into /img/house/manifest.json's
+    // own format, so koala-house-ui.js can merge it straight into KoalaHouse.setManifest().
+    const { results } = await env.DB.prepare("SELECT id, image_key, w, d FROM items WHERE kind = 'house' AND active = 1 AND image_key IS NOT NULL").all();
+    const manifest = {};
+    for (const r of results || []) {
+      const src = itemImageUrl(r.image_key);
+      if (src) manifest[r.id] = { src, wpx: Math.max(60, (r.w || 1) * 64), ratio: r.d && r.w ? r.d / r.w : 1, ax: 0.5, ay: 0.9 };
+    }
+    return json(manifest);
+  }
+
+  if (route.startsWith("/items/image/") && request.method === "GET") {
+    if (!env.ITEM_IMAGES) return json({ error: "not_found" }, 404);
+    const key = decodeURIComponent(route.slice("/items/image/".length));
+    const obj = await env.ITEM_IMAGES.get(key);
+    if (!obj) return json({ error: "not_found" }, 404);
+    return new Response(obj.body, {
+      headers: { "content-type": obj.httpMetadata?.contentType || "image/webp", "cache-control": "public, max-age=31536000, immutable" },
+    });
+  }
+
+  if (route === "/admin/items/upload-image" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    if (!env.ITEM_IMAGES) return json({ error: "server_not_configured" }, 500);
+    let body;
+    try { body = await request.json(); } catch (e) { return json({ error: "bad_request" }, 400); }
+    const image = typeof body?.image === "string" ? body.image : "";
+    const mediaType = ["image/jpeg", "image/png", "image/webp"].includes(body?.mediaType) ? body.mediaType : "";
+    if (!image || !mediaType || image.length > 8000000) return json({ error: "bad_image" }, 400);
+    let bytes;
+    try {
+      const bin = atob(image);
+      bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    } catch (e) {
+      return json({ error: "bad_image" }, 400);
+    }
+    const ext = mediaType === "image/png" ? "png" : mediaType === "image/jpeg" ? "jpg" : "webp";
+    const key = `items/${genId()}.${ext}`;
+    await env.ITEM_IMAGES.put(key, bytes, { httpMetadata: { contentType: mediaType } });
+    return json({ imageKey: `r2:${key}` });
+  }
+
+  if (route === "/admin/item-categories" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    let body;
+    try { body = await request.json(); } catch (e) { return json({ error: "bad_request" }, 400); }
+    const kind = KOALA_ITEM_KINDS.includes(body?.kind) ? body.kind : "";
+    const id = typeof body?.id === "string" ? body.id.trim().slice(0, 40) : "";
+    const labelKo = typeof body?.label?.ko === "string" ? body.label.ko.trim().slice(0, 40) : "";
+    const labelEn = typeof body?.label?.en === "string" ? body.label.en.trim().slice(0, 40) : "";
+    if (!kind || !/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(id) || !labelKo || !labelEn) return json({ error: "bad_request" }, 400);
+    const exists = await env.DB.prepare("SELECT 1 FROM item_categories WHERE kind = ? AND id = ?").bind(kind, id).first();
+    if (exists) return json({ error: "duplicate" }, 409);
+    const iconPath = typeof body?.iconKey === "string" && body.iconKey ? body.iconKey.slice(0, 200) : null;
+    const now = Date.now();
+    await env.DB.prepare(
+      "INSERT INTO item_categories (kind, id, label_ko, label_en, icon_path, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    ).bind(kind, id, labelKo, labelEn, iconPath, Number.isInteger(body?.sortOrder) ? body.sortOrder : 0, now, now).run();
+    return json({ ok: true });
+  }
+
+  if (route.startsWith("/admin/item-categories/") && (request.method === "PUT" || request.method === "PATCH")) {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    const parts = route.slice("/admin/item-categories/".length).split("/");
+    const kind = parts[0], id = decodeURIComponent(parts[1] || "");
+    if (!KOALA_ITEM_KINDS.includes(kind) || !id) return json({ error: "bad_request" }, 400);
+    let body;
+    try { body = await request.json(); } catch (e) { return json({ error: "bad_request" }, 400); }
+    const row = await env.DB.prepare("SELECT * FROM item_categories WHERE kind = ? AND id = ?").bind(kind, id).first();
+    if (!row) return json({ error: "not_found" }, 404);
+    if (request.method === "PATCH") {
+      const active = body?.active ? 1 : 0;
+      await env.DB.prepare("UPDATE item_categories SET active = ?, updated_at = ? WHERE kind = ? AND id = ?").bind(active, Date.now(), kind, id).run();
+      return json({ ok: true });
+    }
+    const labelKo = typeof body?.label?.ko === "string" ? body.label.ko.trim().slice(0, 40) : row.label_ko;
+    const labelEn = typeof body?.label?.en === "string" ? body.label.en.trim().slice(0, 40) : row.label_en;
+    const sortOrder = Number.isInteger(body?.sortOrder) ? body.sortOrder : row.sort_order;
+    if (!labelKo || !labelEn) return json({ error: "bad_request" }, 400);
+    await env.DB.prepare("UPDATE item_categories SET label_ko = ?, label_en = ?, sort_order = ?, updated_at = ? WHERE kind = ? AND id = ?")
+      .bind(labelKo, labelEn, sortOrder, Date.now(), kind, id).run();
+    return json({ ok: true });
+  }
+
+  if (route === "/admin/items" && request.method === "POST") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    let body;
+    try { body = await request.json(); } catch (e) { return json({ error: "bad_request" }, 400); }
+    const kind = KOALA_ITEM_KINDS.includes(body?.kind) ? body.kind : "";
+    const id = typeof body?.id === "string" ? body.id.trim().slice(0, 40) : "";
+    const cat = typeof body?.cat === "string" ? body.cat.trim().slice(0, 40) : "";
+    const nameKo = typeof body?.name?.ko === "string" ? body.name.ko.trim().slice(0, 60) : "";
+    const nameEn = typeof body?.name?.en === "string" ? body.name.en.trim().slice(0, 60) : "";
+    const unlockType = KOALA_UNLOCK_TYPES.includes(body?.unlock?.type) ? body.unlock.type : "";
+    const unlockValue = body?.unlock?.value != null ? String(body.unlock.value).slice(0, 40) : null;
+    if (!kind || !/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(id) || !cat || !nameKo || !nameEn || !unlockType) return json({ error: "bad_request" }, 400);
+    const exists = await env.DB.prepare("SELECT 1 FROM items WHERE id = ?").bind(id).first();
+    if (exists) return json({ error: "duplicate" }, 409);
+    const price = unlockType === "coins" ? Math.max(0, Math.min(100000, Number(unlockValue) || 0)) : 0;
+    let w = null, d = null, wherePlacement = null, partsJson = null;
+    if (kind === "house") {
+      w = Math.max(1, Math.min(8, Number(body?.w) || 1));
+      d = Math.max(1, Math.min(8, Number(body?.d) || 1));
+      wherePlacement = ["in", "out", "both"].includes(body?.where) ? body.where : "in";
+      // A simple flat placeholder box: just enough for the hit box / drag
+      // handles, since the real picture is drawn from image_key instead
+      // (see /img/house/manifest.json's mechanism, reused in /items/manifest).
+      partsJson = JSON.stringify([{ t: "b", x: 0, y: 0, z: 0, w, d, h: 10, c: "#cfe8df" }]);
+    }
+    const seasonFrom = Array.isArray(body?.season?.from) ? JSON.stringify(body.season.from.slice(0, 2).map(Number)) : null;
+    const seasonTo = Array.isArray(body?.season?.to) ? JSON.stringify(body.season.to.slice(0, 2).map(Number)) : null;
+    const imageKey = typeof body?.imageKey === "string" ? body.imageKey.slice(0, 200) : null;
+    const imageKey2d = kind !== "house" && typeof body?.imageKey2d === "string" ? body.imageKey2d.slice(0, 200) : null;
+    const now = Date.now();
+    await env.DB.prepare(
+      `INSERT INTO items (id, kind, cat, name_ko, name_en, unlock_type, unlock_value, price, season_from, season_to, w, d, where_placement, parts_json, image_key, image_key_2d, created_by, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(id, kind, cat, nameKo, nameEn, unlockType, unlockValue, price, seasonFrom, seasonTo, w, d, wherePlacement, partsJson, imageKey, imageKey2d, session.id, now, now).run();
+    return json({ ok: true, id });
+  }
+
+  if (route.startsWith("/admin/items/") && (request.method === "PUT" || request.method === "PATCH")) {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    const id = decodeURIComponent(route.slice("/admin/items/".length));
+    if (!id) return json({ error: "bad_request" }, 400);
+    const row = await env.DB.prepare("SELECT * FROM items WHERE id = ?").bind(id).first();
+    if (!row) return json({ error: "not_found" }, 404);
+    let body;
+    try { body = await request.json(); } catch (e) { return json({ error: "bad_request" }, 400); }
+    if (request.method === "PATCH") {
+      const active = body?.active ? 1 : 0;
+      await env.DB.prepare("UPDATE items SET active = ?, updated_at = ? WHERE id = ?").bind(active, Date.now(), id).run();
+      return json({ ok: true });
+    }
+    const nameKo = typeof body?.name?.ko === "string" ? body.name.ko.trim().slice(0, 60) : row.name_ko;
+    const nameEn = typeof body?.name?.en === "string" ? body.name.en.trim().slice(0, 60) : row.name_en;
+    const unlockType = KOALA_UNLOCK_TYPES.includes(body?.unlock?.type) ? body.unlock.type : row.unlock_type;
+    const unlockValue = body?.unlock?.value != null ? String(body.unlock.value).slice(0, 40) : row.unlock_value;
+    const price = unlockType === "coins" ? Math.max(0, Math.min(100000, Number(unlockValue) || 0)) : 0;
+    const imageKey = typeof body?.imageKey === "string" && body.imageKey ? body.imageKey.slice(0, 200) : row.image_key;
+    const imageKey2d = row.kind !== "house" && typeof body?.imageKey2d === "string" && body.imageKey2d ? body.imageKey2d.slice(0, 200) : row.image_key_2d;
+    if (!nameKo || !nameEn) return json({ error: "bad_request" }, 400);
+    await env.DB.prepare(
+      "UPDATE items SET name_ko = ?, name_en = ?, unlock_type = ?, unlock_value = ?, price = ?, image_key = ?, image_key_2d = ?, updated_at = ? WHERE id = ?"
+    ).bind(nameKo, nameEn, unlockType, unlockValue, price, imageKey, imageKey2d, Date.now(), id).run();
+    return json({ ok: true });
+  }
+
   return json({ error: "not_found" }, 404);
 }

@@ -955,9 +955,39 @@
   // the direction a seat faces (the way the koala looks when sitting on it): 0 +y, 1 +x, 2 -y, 3 -x
   const seatFacing = (i) => ((i.m | 0) % 4 + 4) % 4;
 
+  /* ---------- Admin-added items (My Koala item management) ----------
+     Fetched once and merged into D by id — the hardcoded furniture above is
+     never touched. A new item's picture is drawn through the existing
+     manifest.json mechanism (koala-house-ui.js merges it in with its own
+     fetch of /api/items/manifest), so parts here is just a flat placeholder
+     box: enough for the hit box / drag handles. See migrations/0014_koala_items.sql. */
+  let customCats = [];
+  let houseCatalogLoaded = false;
+  async function loadCatalog(force) {
+    if (houseCatalogLoaded && !force) return;
+    try {
+      const [itemsRes, catsRes] = await Promise.all([
+        fetch("/api/items?kind=house").then((r) => (r.ok ? r.json() : { items: [] })).catch(() => ({ items: [] })),
+        fetch("/api/item-categories?kind=house").then((r) => (r.ok ? r.json() : { categories: [] })).catch(() => ({ categories: [] })),
+      ]);
+      (itemsRes.items || []).forEach((row) => {
+        if (D[row.id]) return; // never override a built-in id
+        D[row.id] = {
+          id: row.id, cat: row.cat, name: [row.name.ko, row.name.en],
+          w: row.w || 1, d: row.d || 1, price: row.price || 0,
+          parts: row.parts || [{ t: "b", x: 0, y: 0, z: 0, w: row.w || 1, d: row.d || 1, h: 10, c: "#cfe8df" }],
+          where: row.where || "in", custom: true,
+        };
+      });
+      customCats = (catsRes.categories || []).map((c) => ({ id: c.id, icon: c.iconUrl || "/img/cat/small.webp", label: c.label }));
+      houseCatalogLoaded = true;
+    } catch (e) { /* offline or API error: built-in furniture still works fine */ }
+  }
+
   return {
     TW, TH, WALL_H, D, WALLS, FLOORS, ROOMS, ROOM_ORDER, PLAN, SLOTS, START_SLOT, YARD, HOUSE_WALLS, HOUSE_ROOFS, HOUSE_DOORS, HOUSE_STYLES, YARD_SIZES, BORDERS, PATHS, GARDEN_PRESETS,
     proj, shade, orient, itemBox, itemInner, thumbSvg, roomSvg, planSvg, wallItemSvg, floorItemSvg, sceneBox, depthCmp, roomOf, stateOf, yardDims, houseRect, subVis, bookColor,
     subImg, uiImg, floorImg, canPlace, freeCells, STARTER_OWNED: Object.keys(starter().owned), tuckOf, setOpen, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts, houseThumb, housePic,
+    loadCatalog, customCategories: () => customCats,
   };
 });

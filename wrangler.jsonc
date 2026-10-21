@@ -40,5 +40,13 @@
 			"database_name": "englishwordspractice",
 			"database_id": "d668fdc3-e149-4361-bc76-b2def46fb060"
 		}
+	],
+	// Pictures an admin uploads for new My Koala items (see migrations/0014_koala_items.sql).
+	// Run `wrangler r2 bucket create koala-study-mate-items` once before this binding works.
+	"r2_buckets": [
+		{
+			"binding": "ITEM_IMAGES",
+			"bucket_name": "koala-study-mate-items"
+		}
 	]
 }

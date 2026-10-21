@@ -9284,6 +9284,22 @@ button.koala-zoom-tag:focus-visible { outline: 3px solid var(--accent-dark); out
 .koala-sell-btns { display: flex; justify-content: center; gap: 8px; margin-top: 8px; }
 .koala-sell-btns .pill { min-height: 44px; }
 .koala-sell-math { margin: 8px auto 4px; max-width: 300px; display: grid; gap: 4px; text-align: left; }
+
+/* ---- My Koala admin: add/edit item + add category (admin-only, not shown to kids) ---- */
+.koala-cat-admin-add { border: 2px dashed var(--outline, #cfe7df) !important; background: transparent !important; color: var(--muted) !important; font-weight: 800; font-size: 1.1rem; padding: 0 16px !important; }
+.koala-shelf-head { flex-wrap: wrap; gap: 8px; }
+.koala-admin-add-item-btn { margin-left: auto; }
+.koala-admin-card { width: min(94vw, 460px); text-align: left; }
+.koala-admin-body { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.koala-admin-field { display: flex; flex-direction: column; gap: 4px; font-size: .88rem; font-weight: 700; color: var(--text); }
+.koala-admin-field input, .koala-admin-field select { min-height: 42px; padding: 0 10px; border-radius: 10px; border: 2px solid var(--outline, #cfe7df); background: var(--card-bg); color: var(--text); font: inherit; font-weight: 500; }
+.koala-admin-field input[type="file"] { padding: 8px 10px; }
+.koala-admin-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.koala-admin-check { flex-direction: row; align-items: center; gap: 8px; }
+.koala-admin-check input { min-height: auto; width: 18px; height: 18px; }
+.koala-admin-note { font-size: .78rem; color: var(--muted); margin: 0; }
+.koala-admin-actions { display: flex; gap: 8px; margin-top: 4px; }
+.koala-admin-err { color: #c2410c; font-weight: 700; font-size: .85rem; margin: 0; }
 .koala-sell-math > div { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 10px; border-radius: 10px; background: #fff8e6; }
 .koala-sell-math b { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-heading); }
 .koala-sell-math .koala-coin { width: 1rem; height: 1rem; }

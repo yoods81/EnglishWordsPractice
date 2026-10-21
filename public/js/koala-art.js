@@ -862,5 +862,44 @@
     return avatar(Object.assign({}, equipped || {}, { [SLOT_OF[id]]: id }), { view: art.view === "head" ? "head" : "full" });
   }
 
-  return { roomArtInfo: (id) => (ROOM_ART[id] ? { layer: ROOM_ART[id].layer, view: ROOM_ART[id].view } : null), avatar, room, itemPicture, itemIcon, previewFor, subIcon, artIds: () => Object.keys(ART), hasArt: (id) => !!ART[id] || !!ROOM_ART[id] };
+  /* ---------- Admin-added items (My Koala item management) ----------
+     A new item has no hand-drawn art, only an uploaded flat picture. Rather
+     than teach every drawing function a second code path, this builds a
+     plain ROOM_ART/ART entry out of that picture — using one generic
+     position per slot, reused from an existing item of the same slot — and
+     drops it straight into the same lookup tables the hand-drawn items use.
+     Every function above (itemIcon, previewFor, room, avatar, ...) then
+     already knows how to draw it, unchanged. Never overwrites a real,
+     hand-drawn entry. */
+  const GENERIC_ROOM_VIEW = {
+    wallpaper: { layer: "wall", view: ROOM_VIEW, draw: "0 0 320 150" },
+    rug: { layer: "rug", view: "58 168 204 48" },
+    poster: { layer: "poster", view: "16 8 100 90" },
+    desk: { layer: "desk", view: "0 84 130 90" },
+    lamp: { layer: "lamp", view: "110 0 100 80" },
+    shelf: { layer: "shelf", view: "216 20 100 140" },
+    plant: { layer: "plant", view: "236 100 80 120" },
+    window: { layer: "window", view: "104 22 108 68" },
+    garland: { layer: "garland", view: "104 0 112 34" },
+    pet: { layer: "pet", view: "208 158 64 54" },
+    toy: { layer: "toy", view: "14 156 76 58" },
+  };
+  const GENERIC_CHAR_VIEW = { headwear: "head", face: "head" }; // everything else falls back to "full"
+  function imageInBox(src, viewStr) {
+    const [x, y, w, h] = viewStr.split(" ").map(Number);
+    return `<image href="${src}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid meet"/>`;
+  }
+  function registerCustomItem(it) {
+    if (!it || !it.id || !it.img2d || ART[it.id] || ROOM_ART[it.id]) return;
+    if (it.kind === "room") {
+      const g = GENERIC_ROOM_VIEW[it.slot] || GENERIC_ROOM_VIEW.poster;
+      ROOM_ART[it.id] = { layer: g.layer, view: g.view, svg: imageInBox(it.img2d, g.draw || g.view) };
+    } else {
+      SLOT_OF[it.id] = it.slot;
+      const view = GENERIC_CHAR_VIEW[it.slot] || "full";
+      ART[it.id] = { view, front: imageInBox(it.img2d, view === "head" ? HEAD_VIEW : FULL_VIEW) };
+    }
+  }
+
+  return { roomArtInfo: (id) => (ROOM_ART[id] ? { layer: ROOM_ART[id].layer, view: ROOM_ART[id].view } : null), avatar, room, itemPicture, itemIcon, previewFor, subIcon, artIds: () => Object.keys(ART), hasArt: (id) => !!ART[id] || !!ROOM_ART[id], registerCustomItem };
 });

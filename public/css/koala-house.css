@@ -174,7 +174,9 @@ button.kh-slotcell{border:3px dashed #5fae95;background:#fff;color:#27403a}
 .kh-cat{min-height:38px;padding:0 14px;border-radius:999px;border:2px solid #cfe7df;background:#fff;color:#27403a;font-weight:700;font-size:.9rem;white-space:nowrap}
 .kh-cat.on{background:var(--accent,#2ec7a0);border-color:var(--accent-dark,#16a085);color:#fff}
 .kh-cat:focus-visible{outline:3px solid var(--accent-dark,#16a085);outline-offset:2px}
+.kh-admin-add-cat{border-style:dashed;background:transparent;color:#6b8076;font-weight:900}
 .kh-shelf-head{display:flex;align-items:baseline;margin:2px 2px 8px}
+.kh-admin-add-item{margin:0 0 8px}
 .kh-shelf-title{font-weight:700;font-size:1.05rem}
 .kh-shelf-title small{color:#6b837b;font-weight:600}
 .kh-grid{scrollbar-width:thin}

@@ -92,10 +92,19 @@
     ses.raf = requestAnimationFrame(loop);
     const back = memo.roomId && memo.screen === "room" ? roomDef(memo.roomId) : null;
     if (back) openRoom(memo.roomId); else renderPlan();
-    fetch("/img/house/manifest.json").then((r) => (r.ok ? r.json() : {})).then((m) => {
-      if (!ses || !m || !Object.keys(m).length) return;
-      H.setManifest(m);
-      extraImg = { back: m["koala:back"] && m["koala:back"].src, sit: m["koala:sit"] && m["koala:sit"].src, sitback: m["koala:sitback"] && m["koala:sitback"].src, read: m["koala:read"] && m["koala:read"].src };
+    Promise.all([
+      fetch("/img/house/manifest.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
+      // Admin-added House items' pictures (migrations/0014_koala_items.sql),
+      // reshaped server-side into this same manifest format — merged in, not
+      // replacing a single hand-placed AI picture above. H.loadCatalog() fills
+      // in D (the catalog itself) in parallel so both land before the redraw.
+      fetch("/api/items/manifest?kind=house").then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
+      H.loadCatalog ? H.loadCatalog() : Promise.resolve(),
+    ]).then(([m, custom]) => {
+      const merged = Object.assign({}, m, custom);
+      if (!ses || !Object.keys(merged).length) return;
+      H.setManifest(merged);
+      extraImg = { back: merged["koala:back"] && merged["koala:back"].src, sit: merged["koala:sit"] && merged["koala:sit"].src, sitback: merged["koala:sitback"] && merged["koala:sitback"].src, read: merged["koala:read"] && merged["koala:read"].src };
       if (ses.screen === "room") drawScene(); else renderPlan();
     }).catch(() => {});
   }
@@ -247,7 +256,8 @@
 
   // The shop panel is built like the 2D one: a row of category chips on top, the items of the chosen category below.
   function chipsHtml(tabs, cur) { // tabs: [id, icon, label]
-    return `<div class="kh-cats-wrap"><button type="button" class="kh-cats-nav prev" data-cnav="-1" aria-label="${T("왼쪽으로", "Scroll left")}" hidden>‹</button><div class="kh-cats" role="tablist">${tabs.map((t) => `<button type="button" role="tab" class="kh-cat${t[0] === cur ? " on" : ""}" data-tab="${t[0]}" aria-selected="${t[0] === cur}">${t[1] && /\.webp$/.test(t[1]) ? `<img class="kh-cat-ic" src="${t[1]}" alt="" draggable="false">` : ""}<span>${esc(t[2])}</span></button>`).join("")}</div><button type="button" class="kh-cats-nav next" data-cnav="1" aria-label="${T("오른쪽으로", "Scroll right")}" hidden>›</button></div>`;
+    const adminAddCat = curOpts && curOpts.isAdmin ? `<button type="button" role="tab" class="kh-cat kh-admin-add-cat" data-kh-admin-add-cat aria-label="${T("카테고리 추가", "Add category")}">+</button>` : "";
+    return `<div class="kh-cats-wrap"><button type="button" class="kh-cats-nav prev" data-cnav="-1" aria-label="${T("왼쪽으로", "Scroll left")}" hidden>‹</button><div class="kh-cats" role="tablist">${tabs.map((t) => `<button type="button" role="tab" class="kh-cat${t[0] === cur ? " on" : ""}" data-tab="${t[0]}" aria-selected="${t[0] === cur}">${t[1] && /\.webp$/.test(t[1]) ? `<img class="kh-cat-ic" src="${t[1]}" alt="" draggable="false">` : ""}<span>${esc(t[2])}</span></button>`).join("")}${adminAddCat}</div><button type="button" class="kh-cats-nav next" data-cnav="1" aria-label="${T("오른쪽으로", "Scroll right")}" hidden>›</button></div>`;
   }
   // arrows + edge fade on the category row; centres the chosen chip
   function initCats(root) {
@@ -507,11 +517,20 @@
   /* ------------------------------ room screen ------------------------------ */
   const roomType = () => (ses.roomId === "yard" ? "yard" : (ses.S.slots[ses.roomId] || {}).type);
   const fitsHere = (d, yard) => (d.where === "both" || d.where === (yard ? "out" : "in")) && (!d.only || d.only === roomType());
+  // Admin-added House categories (migrations/0014_koala_items.sql) are appended
+  // after the built-in tabs — never inserted among them, so nothing shifts.
+  function customTabs() {
+    return H.customCategories ? H.customCategories().map((c) => [c.id, c.icon, T(c.label.ko, c.label.en)]) : [];
+  }
   function tabsFor(yard) {
+    // Admin-added categories are indoor-room categories only for now (a new
+    // category's meaning in the yard's very different tab set — house
+    // style, garden layout — isn't well defined), so they're appended here
+    // only, never in the yard or garage tab sets.
     if (!yard && roomType() === "garage") return [["garage", "/img/house/carCompactRed.webp", T("차고", "Garage")], ["furniture", "/img/cat/furniture.webp", T("가구", "Furniture")], ["toys", "/img/cat/toy.webp", T("장난감", "Toys")], ["plant", "/img/cat/plant.webp", T("식물", "Plants")], ["small", "/img/cat/small.webp", T("소품", "Props")], ["wall", "/img/cat/poster.webp", T("벽장식", "Wall")], ["style", "/img/cat/wallpaper.webp", T("벽·바닥", "Style")]];
     return yard
       ? [["outdoor", "/img/cat/outdoor.webp", T("정원 물건", "Garden")], ["plant", "/img/cat/plant.webp", T("식물", "Plants")], ["house", "/img/cat/home.webp", T("집 외관", "House")], ["garden", "/img/cat/garden.webp", T("정원 형태", "Layout")]]
-      : [["furniture", "/img/cat/furniture.webp", T("가구", "Furniture")], ["toys", "/img/cat/toy.webp", T("장난감", "Toys")], ["rug", "/img/cat/rug.webp", T("러그", "Rugs")], ["plant", "/img/cat/plant.webp", T("식물", "Plants")], ["small", "/img/cat/small.webp", T("소품", "Props")], ["wall", "/img/cat/poster.webp", T("벽장식", "Wall")], ["style", "/img/cat/wallpaper.webp", T("벽·바닥", "Style")]];
+      : [["furniture", "/img/cat/furniture.webp", T("가구", "Furniture")], ["toys", "/img/cat/toy.webp", T("장난감", "Toys")], ["rug", "/img/cat/rug.webp", T("러그", "Rugs")], ["plant", "/img/cat/plant.webp", T("식물", "Plants")], ["small", "/img/cat/small.webp", T("소품", "Props")], ["wall", "/img/cat/poster.webp", T("벽장식", "Wall")], ["style", "/img/cat/wallpaper.webp", T("벽·바닥", "Style")]].concat(customTabs());
   }
   function openRoom(id) {
     if (!roomDef(id)) { renderPlan(); return; }
@@ -1227,6 +1246,22 @@
     panel.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { ses.tab = b.dataset.tab; if (roomOwned) { roomOwned = false; window.dispatchEvent(new CustomEvent("kh-owned-off")); } drawPanel(); }; });
     initCats(panel);
     wireGrid(panel.querySelector("#kh-grid"), yard);
+    const addCatBtn = panel.querySelector("[data-kh-admin-add-cat]");
+    if (addCatBtn && window.KoalaAdminItems) {
+      addCatBtn.onclick = () => KoalaAdminItems.openCategoryForm({
+        kind: "house", lang: curOpts.L("en", "ko"),
+        onSaved: async () => { await H.loadCatalog(true); drawPanel(); },
+      });
+    }
+    const addItemBtn = panel.querySelector("[data-kh-admin-add-item]");
+    if (addItemBtn && window.KoalaAdminItems) {
+      addItemBtn.onclick = () => KoalaAdminItems.openItemForm({
+        kind: "house", cat: addItemBtn.dataset.khAdminAddItem,
+        cats: tabsFor(yard).map((t) => ({ id: t[0], label: t[2] })),
+        lang: curOpts.L("en", "ko"),
+        onSaved: async () => { await H.loadCatalog(true); drawPanel(); },
+      });
+    }
   }
   function swatch(kind, key, def, own, on) {
     return `<button type="button" class="kh-sw${on ? " on" : ""}${own ? "" : " locked"}" data-sw="${kind}:${key}" aria-label="${esc(T(def.n[0], def.n[1]))}" aria-pressed="${on}"><span class="kh-sw-c" style="${kind === "floor" && H.floorImg(key) ? `background:url(${H.floorImg(key)}) center/cover;box-shadow:inset 0 0 0 2px rgba(255,255,255,.7)` : `background:${def.c};box-shadow:inset 0 0 0 5px ${def.a}`}"></span><span class="kh-sw-n">${esc(T(def.n[0], def.n[1]))}</span>${own ? "" : `<span class="kh-pr">${COIN}${def.p}</span>`}</button>`;
@@ -1262,7 +1297,9 @@
     }
     const list = Object.values(H.D).filter((d) => !d.virtual && d.cat === ses.tab && fitsHere(d, yard)).sort((a, b) => a.price - b.price);
     const haveN = list.filter(ownedItem).length, tabName = (tabsFor(yard).find((t) => t[0] === ses.tab) || [0, 0, ""])[2];
-    return `${shelfHead(tabName, `${haveN}/${list.length}`)}<div class="kh-items-grid">${list.map((d) => { const own = ownedItem(d); return `<button type="button" class="kh-item${own ? "" : " locked"}" data-item="${d.id}" aria-label="${esc(nm(d))}${own ? "" : ", " + d.price}">${H.thumbSvg(d.id)}<span class="kh-nm">${esc(nm(d))}</span>${own ? "" : `<span class="kh-pr">${COIN}${d.price}</span>`}</button>`; }).join("")}</div>${ses.tab === "toys" && !yard ? asmrToysHtml() : ""}`;
+    const adminAdd = curOpts && curOpts.isAdmin
+      ? `<button type="button" class="kh-btn alt kh-admin-add-item" data-kh-admin-add-item="${ses.tab}">${T("+ 아이템 추가", "+ Add item")}</button>` : "";
+    return `${shelfHead(tabName, `${haveN}/${list.length}`)}${adminAdd}<div class="kh-items-grid">${list.map((d) => { const own = ownedItem(d); return `<button type="button" class="kh-item${own ? "" : " locked"}" data-item="${d.id}" aria-label="${esc(nm(d))}${own ? "" : ", " + d.price}">${H.thumbSvg(d.id)}<span class="kh-nm">${esc(nm(d))}</span>${own ? "" : `<span class="kh-pr">${COIN}${d.price}</span>`}</button>`; }).join("")}</div>${ses.tab === "toys" && !yard ? asmrToysHtml() : ""}`;
   }
   // The ASMR toys are part of the Toys category: they are bought here, but they only make their sound from inside an ASMR box (tap the box in the room to open its list).
   // the picture of an ASMR toy: the supplied 3D image (manifest "@sub:<id>") when there is one, otherwise the drawn SVG
