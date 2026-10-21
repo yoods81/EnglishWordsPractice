@@ -14,7 +14,7 @@ header.site{max-width:1120px}
 .pop{animation:pop .5s}
 .reveal{opacity:0;transform:translateY(26px);transition:opacity .6s,transform .6s}
 .reveal.in{opacity:1;transform:none}
-@media (prefers-reduced-motion: reduce){.float,.fab,.chip{animation:none!important}.reveal{opacity:1;transform:none;transition:none}}
+@media (prefers-reduced-motion: reduce){.float,.fab{animation:none!important}.reveal{opacity:1;transform:none;transition:none}}
 
 /* ---- steps ---- */
 .step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:26px 22px 8px;min-width:0}
@@ -26,42 +26,36 @@ header.site{max-width:1120px}
 .shot img{width:100%;display:block}
 .tag{display:inline-block;font-size:12px;font-weight:700;color:#8a5a00;background:#ffe9a8;border-radius:8px;padding:2px 8px;margin-left:6px;vertical-align:middle;font-family:"Segoe UI",sans-serif}
 .media{display:flex;flex-direction:column;align-items:center;gap:8px;max-width:100%;min-width:0}
-.media .rooms,.media .items{max-width:380px}
 
 /* step 4 koala */
 .kstage{position:relative;width:300px;height:340px;display:grid;place-items:center}
 .kstage .glow{position:absolute;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,#fff6c9 0,#d9f7ec 55%,transparent 72%)}
 .kstage .kk{height:290px;position:relative;filter:drop-shadow(0 12px 10px rgba(14,156,125,.25))}
-.chip{position:absolute;width:64px;height:64px;border-radius:18px;background:var(--card);box-shadow:0 3px 0 var(--mint);display:grid;place-items:center;border:0;padding:4px}
-.chip img{width:52px;height:52px;object-fit:contain}
-.chip.c1{left:0;top:20px;animation:fl 3.6s ease-in-out infinite}.chip.c2{right:0;top:50px;animation:fl 4s ease-in-out infinite .5s}.chip.c3{left:6px;bottom:40px;animation:fl 3.8s ease-in-out infinite 1s}.chip.c4{right:8px;bottom:20px;animation:fl 4.2s ease-in-out infinite 1.5s}
-.items{display:flex;gap:8px;overflow-x:auto;padding:4px 4px 8px;width:100%;scrollbar-width:none}.items::-webkit-scrollbar{display:none}
-.it{flex:0 0 66px;height:78px;border-radius:14px;background:var(--card);color:var(--muted);box-shadow:0 3px 0 var(--mint);border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-size:11px}
-.it img{width:44px;height:44px;object-fit:contain}.it.on{background:#d9f7ec;color:#0b7e65;box-shadow:0 3px 0 var(--accent)}
-.cn{width:14px;height:14px;border-radius:50%;display:inline-block;vertical-align:-2px;margin-right:3px;background:radial-gradient(circle at 35% 30%,#fff3a8,#ffc21a 55%,#d99a00);box-shadow:0 1px 0 #b07a00,inset 0 0 0 2px #ffd84d}
-.iname{font-weight:700;min-height:22px;font-size:14px}
 
-/* step 5 room */
-.stage{position:relative;width:310px;height:230px;border-radius:22px;background:
- linear-gradient(45deg,#d4f1e4 25%,transparent 25%,transparent 75%,#d4f1e4 75%) 0 0/40px 40px,
- linear-gradient(45deg,#d4f1e4 25%,#e9f9f2 25%,#e9f9f2 75%,#d4f1e4 75%) 20px 20px/40px 40px;box-shadow:0 6px 0 #b9e4d3,0 0 0 6px var(--shot-ring);touch-action:none;overflow:hidden}
-.dr{position:absolute;width:84px;cursor:grab;user-select:none;-webkit-user-drag:none;filter:drop-shadow(0 6px 4px rgba(0,0,0,.18));transition:filter .15s}
-.dr:active{cursor:grabbing;filter:drop-shadow(0 12px 8px rgba(0,0,0,.25))}
-.hint{font-size:12px;color:var(--muted);margin-top:6px}
-.rooms{display:flex;gap:10px;overflow-x:auto;padding:12px 10px 8px;width:100%;scrollbar-width:none}.rooms::-webkit-scrollbar{display:none}
-.room{flex:0 0 108px;text-align:center;padding:8px;border-radius:16px;background:var(--card);box-shadow:0 3px 0 var(--mint);font-size:12px;font-weight:700;font-family:var(--font)}
-.room img{width:84px;height:84px;object-fit:contain;display:block;margin:0 auto 2px}
+/* step 5 rooms: four cards in a 2x2 grid */
+.rooms-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:400px;padding:4px 0}
+.room{text-align:center;padding:14px 10px 12px;border-radius:20px;background:var(--card);box-shadow:0 3px 0 var(--mint);font-size:15px;font-weight:700;font-family:var(--font)}
+.room img{width:100%;max-width:150px;aspect-ratio:1;object-fit:contain;display:block;margin:0 auto 4px}
 
-/* step 6 add words */
-.add{width:100%;max-width:460px;padding:16px;text-align:left;background:var(--card);border-radius:18px;box-shadow:0 3px 0 var(--mint)}
-.flow{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:12px;font-size:12px;color:var(--muted);text-align:center}
-.flow div{flex:1}.flow span.ic{display:block;font-size:30px}.flow i{font-style:normal;color:var(--accent)}
-.sheet{background:#fffdf3;color:#333a37;border-radius:12px;padding:10px;box-shadow:0 3px 0 #efe6bd;font-size:15px;line-height:2}
-.w{display:inline-block;padding:2px 10px;margin:2px 2px;border-radius:10px;background:#eef9f5;box-shadow:0 2px 0 var(--mint);cursor:pointer;font-weight:600;transition:.15s;border:0;font:inherit;font-weight:600;color:#333a37}
-.w.on{background:#bff3d6;box-shadow:0 2px 0 #6fd49a}
-.btn{display:block;width:100%;margin-top:10px;padding:11px;border:0;border-radius:14px;background:linear-gradient(#3ee6c6,var(--accent-dark));color:#fff;font-family:var(--font);font-weight:700;font-size:16px;box-shadow:0 4px 0 #0b7e65;cursor:pointer}
-.btn:disabled{background:#cfd9d6;box-shadow:0 4px 0 #b4c0bc;cursor:default}
-.mylist{margin-top:10px;font-size:13px;color:var(--muted);min-height:20px}
+/* step 6: animated "how it works" (snap -> pick -> list); each stage lights up in turn, 6s loop */
+.add{width:100%;max-width:460px;padding:20px 12px 16px;background:var(--card);border-radius:18px;box-shadow:0 3px 0 var(--mint)}
+.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:4px;text-align:center;font-size:13px;color:var(--muted)}
+.fs{display:flex;flex-direction:column;align-items:center;gap:8px;font-weight:700;opacity:.55;transform:scale(.94);animation:fsAct 6s ease-in-out infinite}
+.fs2{animation-delay:2s}.fs3{animation-delay:4s}
+@keyframes fsAct{0%{opacity:.55;transform:scale(.94)}6%,30%{opacity:1;transform:scale(1.04)}36%,100%{opacity:.55;transform:scale(.94)}}
+.vis{width:92px;height:92px;border-radius:22px;background:var(--bg);box-shadow:0 3px 0 var(--mint);display:grid;place-items:center;position:relative;overflow:hidden;align-content:center}
+.vis .ic{font-size:44px;line-height:1}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;animation:flashA 6s infinite}
+@keyframes flashA{0%,4%{opacity:0}6%{opacity:.95}14%,100%{opacity:0}}
+.wd{display:block;font-size:11px;padding:1px 8px;border-radius:8px;background:var(--card);color:var(--text);box-shadow:0 2px 0 var(--mint);margin:2px 0;animation:wdSel 6s infinite}
+.wd.w1{animation-delay:2.2s}.wd.w2{animation-delay:2.7s}.wd.w3{animation-delay:3.2s}
+@keyframes wdSel{0%{background:var(--card);transform:none}4%,22%{background:#bff3d6;color:#17553a;transform:scale(1.07)}28%,100%{background:var(--card);transform:none}}
+.plus{position:absolute;right:7px;top:7px;background:var(--accent);color:#fff;font-style:normal;font-weight:700;border-radius:10px;padding:1px 7px;font-size:13px;opacity:0;animation:plusA 6s infinite 4s}
+@keyframes plusA{0%{opacity:0;transform:translateY(8px) scale(.6)}6%,30%{opacity:1;transform:none}36%,100%{opacity:0}}
+.arrow{font-style:normal;color:var(--accent);font-size:22px;opacity:.3;animation:arr 6s infinite}
+.arrow.a1{animation-delay:1.4s}.arrow.a2{animation-delay:3.4s}
+@keyframes arr{0%{opacity:.3;transform:none}6%{opacity:1;transform:translateX(5px)}20%,100%{opacity:.3;transform:none}}
+@media (prefers-reduced-motion: reduce){.fs,.wd,.plus,.arrow,.flash{animation:none!important}.fs{opacity:1;transform:none}.plus{opacity:1}.flash{display:none}}
 
 /* FAQ block + FAQ page */
 .faqsec{max-width:760px;margin:34px auto 0;padding:0 18px}
@@ -101,7 +95,7 @@ footer.site .fl{margin:0 8px}
  .step.alt>.shot,.step.alt>.media{grid-column:1}
  .step h2{font-size:28px}.step p{font-size:16px}.step .note{font-size:13px}
  .shot{width:270px;height:350px}
- .stage{width:360px;height:260px}.kstage{width:330px}
+ .kstage{width:330px}
  .faqsec{margin-top:50px}
  .end{display:none}
  .fab-float{display:block;position:fixed;right:16px;bottom:12px;z-index:30;animation:fl 3s ease-in-out infinite}
@@ -111,6 +105,6 @@ footer.site .fl{margin:0 8px}
 @media (min-width:1100px){
  .hero{padding:50px 40px 20px}.hero h1{font-size:56px}
  .step{gap:10px 60px;padding:46px 40px}.step h2{font-size:34px}.step p{font-size:18px}
- .shot{width:300px;height:390px}.stage{width:440px;height:310px}.kstage{width:380px;height:400px}.kstage .kk{height:340px}
+ .shot{width:300px;height:390px}.kstage{width:380px;height:400px}.kstage .kk{height:340px}
  .fab-float{right:28px;bottom:22px}.fab-float img{width:210px}.fab-float .lbl{font-size:25px}
 }

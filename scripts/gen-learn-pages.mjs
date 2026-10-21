@@ -103,7 +103,7 @@ PAGES.push({
 // ---- hub ----
 const hubItems = PAGES.map((p) => `<a class="hub-card" href="/${p.slug}"><b>${esc(p.name)}</b><span>${esc(p.h1)}</span></a>`).join("");
 
-const footer = `<footer class="site"><a href="/">Home</a><a href="/learn">Free lists</a><a href="/about">About</a><a href="/faq">FAQ</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></footer>`;
+const footer = `<footer class="site"><a href="/">Home</a><a href="/about">About</a><a href="/learn">Free lists</a><a href="/faq">FAQ</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></footer>`;
 const head = (slug, title, desc) => `<!DOCTYPE html>
 <html lang="en-AU">
 <head>

@@ -29,8 +29,8 @@
 
   <main class="wrap">
     <section class="hero">
-      <h1><span class="t-en">Everything you need to become a word master</span><span class="t-ko">단어 박사가 되는 데 필요한 모든 것</span> 🌳</h1>
-      <p><span class="t-en">Koala Study Mate is a practice app for Australian primary students in Years 3 to 6. Build English vocabulary, spelling and times-table skills a little each day, from seed to tree.</span><span class="t-ko">Koala Study Mate는 호주 초등학생(Year 3~6)을 위한 연습 앱이에요. 씨앗에서 나무까지, 매일 조금씩 영어 단어·스펠링·구구단을 익혀요.</span></p>
+      <h1><span class="t-en">Everything you need<br>to become a word master</span><span class="t-ko">단어 박사가 되는 데<br>필요한 모든 것</span> 🌳</h1>
+      <p><span class="t-en">Koala Study Mate is a practice app for Australian primary students in Years 3 to 6.<br>Build vocabulary, spelling and times tables a little each day.</span><span class="t-ko">Koala Study Mate는 호주 초등학생(Year 3~6)을 위한 연습 앱이에요.<br>단어·스펠링·구구단을 매일 조금씩 익혀요.</span></p>
     </section>
 
     <section class="step reveal">
@@ -60,10 +60,7 @@
       <p><span class="t-en">Spend coins on hats, clothes and shoes and try them on.</span><span class="t-ko">코인으로 모자·옷·신발을 사서 입혀 보세요.</span></p>
       <p class="note"><span class="t-en">Free accounts can decorate a cute sticker koala.</span><span class="t-ko">무료 회원은 귀여운 스티커 코알라로 꾸밀 수 있어요.</span></p>
       <div class="media">
-        <div class="kstage"><span class="glow"></span><img class="kk float" src="/img/koala-premium-teaser.webp" alt="A 3D koala wearing a crown, sunglasses, a hoodie and jeans" loading="lazy" />
-          <span class="chip c1"><img src="/img/koala/th/wizardhat.webp" alt="" loading="lazy" /></span><span class="chip c2"><img src="/img/koala/th/heartglasses.webp" alt="" loading="lazy" /></span><span class="chip c3"><img src="/img/koala/th/rainboots.webp" alt="" loading="lazy" /></span><span class="chip c4"><img src="/img/koala/th/butterflywings.webp" alt="" loading="lazy" /></span></div>
-        <div class="iname" id="iname"></div>
-        <div class="items" id="items"></div>
+        <div class="kstage"><span class="glow"></span><img class="kk float" src="/img/koala-premium-teaser.webp" alt="A 3D koala wearing a crown, sunglasses, a hoodie and jeans" loading="lazy" /></div>
       </div>
     </section>
 
@@ -73,9 +70,7 @@
       <p><span class="t-en">Drag furniture wherever you like.</span><span class="t-ko">가구를 끌어서 마음대로 배치해 보세요.</span></p>
       <p class="note"><span class="t-en">Buy new rooms with coins to grow your home. Free accounts decorate with sticker items.</span><span class="t-ko">코인으로 새 방을 사서 집을 넓혀 가요. 무료 회원은 스티커 아이템으로 꾸밀 수 있어요.</span></p>
       <div class="media">
-        <div class="stage" id="stage" role="img" aria-label="A room you can rearrange"></div>
-        <div class="hint"><span class="t-en">👆 Try dragging the furniture</span><span class="t-ko">👆 가구를 드래그해 보세요</span></div>
-        <div class="rooms"><div class="room"><img src="/img/rooms/playroom.webp" alt="" loading="lazy" />Playroom</div><div class="room"><img src="/img/rooms/study.webp" alt="" loading="lazy" />Study</div><div class="room"><img src="/img/rooms/kitchen.webp" alt="" loading="lazy" />Kitchen</div><div class="room"><img src="/img/rooms/cinema.webp" alt="" loading="lazy" />Cinema</div><div class="room"><img src="/img/rooms/garage.webp" alt="" loading="lazy" />Garage</div></div>
+        <div class="rooms rooms-grid"><div class="room"><img src="/img/rooms/playroom.webp" alt="Playroom" loading="lazy" />Playroom</div><div class="room"><img src="/img/rooms/study.webp" alt="Study" loading="lazy" />Study</div><div class="room"><img src="/img/rooms/kitchen.webp" alt="Kitchen" loading="lazy" />Kitchen</div><div class="room"><img src="/img/rooms/cinema.webp" alt="Cinema" loading="lazy" />Cinema</div></div>
       </div>
     </section>
 
@@ -85,11 +80,14 @@
       <p><span class="t-en">Snap a photo of a book or word list and pick the words you want.</span><span class="t-ko">교과서나 단어장을 사진으로 찍고 원하는 단어를 골라요.</span></p>
       <p class="note"><span class="t-en">Free accounts can type in 10 words to try it out.</span><span class="t-ko">무료 회원은 직접 입력한 단어 10개를 체험할 수 있어요.</span></p>
       <div class="media" style="width:100%">
-        <div class="add">
-          <div class="flow"><div><span class="ic">📷</span><span class="t-en">Snap a photo</span><span class="t-ko">사진 찍기</span></div><i>➜</i><div><span class="ic">👆</span><span class="t-en">Pick words</span><span class="t-ko">단어 고르기</span></div><i>➜</i><div><span class="ic">📖</span><span class="t-en">My word list</span><span class="t-ko">내 단어장</span></div></div>
-          <div class="sheet" id="sheet"></div>
-          <button class="btn" id="addb" type="button" disabled></button>
-          <div class="mylist" id="ml"></div>
+        <div class="add" aria-hidden="true">
+          <div class="flow">
+            <div class="fs fs1"><div class="vis"><span class="ic">📷</span><i class="flash"></i></div><span class="t-en">Snap a photo</span><span class="t-ko">사진 찍기</span></div>
+            <i class="arrow a1">➜</i>
+            <div class="fs fs2"><div class="vis"><b class="wd w1">ancient</b><b class="wd w2">forest</b><b class="wd w3">habitat</b></div><span class="t-en">Pick words</span><span class="t-ko">단어 고르기</span></div>
+            <i class="arrow a2">➜</i>
+            <div class="fs fs3"><div class="vis"><span class="ic">📖</span><i class="plus">+3</i></div><span class="t-en">My word list</span><span class="t-ko">내 단어장</span></div>
+          </div>
         </div>
       </div>
     </section>
@@ -119,73 +117,18 @@
   <a class="fab fab-float" href="/" aria-label="Start practising"><span class="lbl"><span class="t-en">Let's START!</span><span class="t-ko">시작해요!</span></span><img src="/img/start-koala.webp" alt="" width="180" height="185" /></a>
 
   <footer class="site">
-    <a href="/">Home</a><a href="/learn">Free lists</a><a href="/about">About</a><a href="/faq">FAQ</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a>
+    <a href="/">Home</a><a href="/about">About</a><a href="/learn">Free lists</a><a href="/faq">FAQ</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a>
   </footer>
 
   <script>
     (function () {
       var KEY = "ywp_lang_v1", lang = "en", $ = function (id) { return document.getElementById(id); };
       try { lang = localStorage.getItem(KEY) === "ko" ? "ko" : "en"; } catch (e) {}
-      var T = function (en, ko) { return lang === "ko" ? ko : en; };
-
-      // ---- Step 4: items (real names and prices from the app) ----
-      var IT = [["crown", "Golden Crown", "황금 왕관", "streak"], ["beanie", "Winter Beanie", "털모자", 70], ["sunglasses", "Cool Sunglasses", "멋진 선글라스", 150],
-        ["hoodie", "Green Hoodie", "초록 후드티", 110], ["jeans", "Jeans", "청바지", 90], ["sneakers", "Red Sneakers", "빨간 운동화", 70]];
-      var items = $("items"), nm = $("iname"), picked = null;
-      function cost(c) { return c === "streak" ? "🔥 " + T("7-day streak", "7일 연속") : '<i class="cn"></i>' + c; }
-      function drawItems() {
-        items.innerHTML = "";
-        IT.forEach(function (x) {
-          var b = document.createElement("button"); b.type = "button"; b.className = "it" + (picked === x[0] ? " on" : "");
-          b.innerHTML = '<img src="/img/koala/th/' + x[0] + '.webp" alt="" loading="lazy"><span>' + cost(x[3]) + "</span>";
-          b.onclick = function () { picked = x[0]; drawItems(); showName(true); };
-          items.appendChild(b);
-        });
-      }
-      function showName(animate) {
-        var x = IT.filter(function (y) { return y[0] === picked; })[0];
-        nm.innerHTML = x ? T(x[1], x[2]) + " · " + cost(x[3]) : T("Tap an item to see it 👇", "아이템을 눌러 보세요 👇");
-        if (animate) { nm.classList.remove("pop"); void nm.offsetWidth; nm.classList.add("pop"); }
-      }
-
-      // ---- Step 5: drag the furniture ----
-      var st = $("stage");
-      [["bedBlue", 16, 92], ["chairYellow", 196, 24], ["bookStack", 210, 140], ["cactus", 120, 18], ["blocks", 110, 150]].forEach(function (a) {
-        var i = document.createElement("img"); i.className = "dr"; i.src = "/img/house/" + a[0] + ".webp"; i.alt = ""; i.draggable = false;
-        i.style.left = a[1] + "px"; i.style.top = a[2] + "px";
-        i.onpointerdown = function (e) {
-          i.setPointerCapture(e.pointerId);
-          var r = st.getBoundingClientRect(), ox = e.clientX - i.offsetLeft, oy = e.clientY - i.offsetTop; i.style.zIndex = 9;
-          i.onpointermove = function (ev) {
-            var nx = Math.max(-10, Math.min(r.width - i.width + 10, ev.clientX - ox)), ny = Math.max(-10, Math.min(r.height - i.height + 10, ev.clientY - oy));
-            i.style.left = nx + "px"; i.style.top = ny + "px";
-          };
-          i.onpointerup = function () { i.onpointermove = null; i.onpointerup = null; };
-        };
-        st.appendChild(i);
-      });
-
-      // ---- Step 6: pick words ----
-      var WORDS = "The ancient forest was full of precious resources that every habitat needs".split(" ");
-      var sheet = $("sheet"), addb = $("addb"), ml = $("ml"), sel = [], mine = [];
-      function addLabel() { addb.textContent = sel.length ? T("Add " + sel.length + " word" + (sel.length > 1 ? "s" : ""), sel.length + "개 단어 추가하기") : T("Add words", "단어 추가하기"); }
-      function mineText() { ml.innerHTML = mine.length ? "📖 " + T("My list:", "내 단어장:") + " <b>" + mine.join(", ") + "</b> ✅" : T("Picked words appear here", "고른 단어가 여기에 쌓여요"); }
-      WORDS.forEach(function (w) {
-        var s = document.createElement("button"); s.type = "button"; s.className = "w"; s.textContent = w;
-        s.onclick = function () { var k = sel.indexOf(w); if (k >= 0) sel.splice(k, 1); else sel.push(w); s.classList.toggle("on"); addb.disabled = !sel.length; addLabel(); };
-        sheet.appendChild(s); sheet.appendChild(document.createTextNode(" "));
-      });
-      addb.onclick = function () {
-        sel.forEach(function (w) { if (mine.indexOf(w) < 0) mine.push(w); }); sel = [];
-        sheet.querySelectorAll(".w").forEach(function (x) { x.classList.remove("on"); });
-        addb.disabled = true; addLabel(); mineText(); ml.classList.remove("pop"); void ml.offsetWidth; ml.classList.add("pop");
-      };
 
       // ---- language + reveal ----
       function apply(l) {
         lang = l; document.body.classList.toggle("ko", l === "ko"); document.documentElement.lang = l;
         document.querySelectorAll(".langs button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.l === l)); });
-        drawItems(); showName(false); addLabel(); mineText();
       }
       document.querySelectorAll(".langs button").forEach(function (b) {
         b.addEventListener("click", function () { try { localStorage.setItem(KEY, b.dataset.l); } catch (e) {} apply(b.dataset.l); });
