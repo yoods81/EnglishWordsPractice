@@ -1,6 +1,6 @@
 // Koala Study Mate — ASMR toy sounds.
 //
-// Every sound is synthesised on the fly with the Web Audio API (nothing to download): short bursts of
+// Toys play real recordings (public/sounds/asmr). The synthesised recipes below are the fallback: short bursts of
 // filtered noise and tiny sine "bodies" laid out in a pattern, the way a squeezed squishy, a clicky pen
 // or a sheet of bubble wrap sounds. A recipe is a function (ctx, out, rnd) that schedules its events
 // and returns how long the sound lasts. Recipes can run on a live AudioContext (play) or an
@@ -297,6 +297,30 @@
     scratchPad: { recipe: "scratch", group: "crunch", trim: 5.89 },
   };
 
+  // Real recordings (public/sounds/asmr/<toyId>-<n>.wav), each with a gain that evens out the loudness.
+  // A toy with two recordings alternates between them. The synthesised recipes above stay as the fallback
+  // if a file cannot be loaded (offline first visit, blocked request) and for toys without a recording.
+  const FILE_DIR = "/sounds/asmr/";
+  const FILES = {
+    bubbleWrap: [["bubbleWrap-1.wav", 1.37], ["bubbleWrap-2.wav", 1.61]],
+    clickPen: [["clickPen-1.wav", 1.74]],
+    iceCrunch: [["iceCrunch-1.wav", 0.9], ["iceCrunch-2.wav", 0.9]],
+    fidgetCube: [["fidgetCube-1.wav", 4.23]],
+    jellySquish: [["jellySquish-1.wav", 0.9], ["jellySquish-2.wav", 0.49]],
+    keySwitch: [["keySwitch-1.wav", 1.68], ["keySwitch-2.wav", 0.9]],
+    kineticSand: [["kineticSand-1.wav", 1.03]],
+    mochiSquish: [["mochiSquish-1.wav", 1.12]],
+    scratchPad: [["scratchPad-1.wav", 0.99], ["scratchPad-2.wav", 1.01]],
+    popBoba: [["popBoba-1.wav", 0.54]],
+    pushPop: [["pushPop-1.wav", 0.98], ["pushPop-2.wav", 0.6]],
+    soapCut: [["soapCut-1.wav", 0.9]],
+    waterBeads: [["waterBeads-1.wav", 6]],
+    tofuSquish: [["tofuSquish-1.wav", 3.0]],
+    slimeSquish: [["slimeSquish-1.wav", 6], ["slimeSquish-2.wav", 1.38]],
+  };
+  const LOOP_CAP = 24;   // seconds: a short clip repeats (with a little gap) until about this long; a long clip plays once
+  const LOOP_GAP = 0.35;
+
   // Put the recipe's events on ctx, going to dest, starting at "when" (seconds on ctx's clock). Returns the length in seconds.
   function schedule(ctx, dest, id, when) {
     const toy = TOYS[id];
@@ -317,13 +341,13 @@
     master.connect(comp); comp.connect(ctx.destination);
     return master;
   }
-  let live = null;     // { ctx, master, playing: id|null, timer }
+  let live = null;     // { ctx, master, playing: id|null, timer, srcs: [], token }
   function ensure() {
     if (typeof window === "undefined") return null;
     const C = window.AudioContext || window.webkitAudioContext;
     if (!C) return null;
     try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) { /* not supported */ }
-    if (!live) { const ctx = new C(); live = { ctx, master: bus(ctx), playing: null, timer: 0 }; }
+    if (!live) { const ctx = new C(); live = { ctx, master: bus(ctx), playing: null, timer: 0, srcs: [], token: 0 }; }
     if (live.ctx.state !== "running") live.ctx.resume().catch(() => {});
     return live;
   }
@@ -332,11 +356,46 @@
   function stop() {
     if (!live) return;
     clearTimeout(live.timer);
+    live.token++;                       // a recording that is still loading must not start afterwards
     live.playing = null;
+    live.srcs.forEach((s) => { try { s.stop(); } catch (e) { /* already ended */ } });
+    live.srcs = [];
     // drop everything that is still scheduled: swap the master bus for a fresh one
     try { live.master.disconnect(); } catch (e) { /* already gone */ }
     live.master = bus(live.ctx);
     emit();
+  }
+  // decoded recordings, kept per context (a promise per url so two taps never fetch twice)
+  const bufCache = new Map();
+  function loadBuf(ctx, url) {
+    let p = bufCache.get(url);
+    if (!p) {
+      p = fetch(url).then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.arrayBuffer(); })
+        .then((ab) => new Promise((ok, no) => { const q = ctx.decodeAudioData(ab, ok, no); if (q && q.then) q.then(ok, no); }));
+      p.catch(() => bufCache.delete(url));
+      bufCache.set(url, p);
+    }
+    return p;
+  }
+  // Put the recordings of a toy on ctx, alternating and repeating them. Returns the length in seconds.
+  function scheduleFiles(ctx, dest, bufs, gains, when, trim, srcs) {
+    const FADE = 0.005;   // a tiny fade at both ends so a cut-off recording never clicks
+    let t = when, i = 0, first = true;
+    for (;;) {
+      const b = bufs[i % bufs.length], g = gains[i % bufs.length] * trim;
+      if (!first && t - when + b.duration > LOOP_CAP) break;
+      const src = ctx.createBufferSource(), gn = ctx.createGain();
+      src.buffer = b;
+      gn.gain.setValueAtTime(0.0001, t);
+      gn.gain.linearRampToValueAtTime(g, t + FADE);
+      gn.gain.setValueAtTime(g, Math.max(t + FADE, t + b.duration - FADE));
+      gn.gain.linearRampToValueAtTime(0.0001, t + b.duration);
+      src.connect(gn); gn.connect(dest);
+      src.start(t);
+      if (srcs) srcs.push(src);
+      t += b.duration + LOOP_GAP; i++; first = false;
+    }
+    return t - when;
   }
   // Start a toy's sound (stops whatever was playing). Must be called from a tap so that phones let it play.
   function play(id) {
@@ -344,9 +403,20 @@
     const L = ensure();
     if (!L) return false;
     stop();
-    const len = schedule(L.ctx, L.master, id, L.ctx.currentTime + 0.06);   // not at 0: the clock keeps running, so a later play would otherwise be scheduled in the past (silent)
+    const token = L.token, files = FILES[id];
     L.playing = id;
-    L.timer = setTimeout(() => { if (live && live.playing === id) { live.playing = null; emit(); } }, Math.ceil(len * 1000) + 150);
+    const finish = (len) => { L.timer = setTimeout(() => { if (live && live.playing === id && live.token === token) { live.playing = null; emit(); } }, Math.ceil(len * 1000) + 150); };
+    const synth = () => {   // the synthesised recipe
+      const len = schedule(L.ctx, L.master, id, L.ctx.currentTime + 0.06);   // not at 0: the clock keeps running, so a later play would otherwise be scheduled in the past (silent)
+      finish(len);
+    };
+    if (files && files.length) {
+      Promise.all(files.map((f) => loadBuf(L.ctx, FILE_DIR + f[0]))).then((bufs) => {
+        if (L.token !== token) return;   // stopped (or another toy started) while loading
+        const len = scheduleFiles(L.ctx, L.master, bufs, files.map((f) => f[1]), L.ctx.currentTime + 0.06, 1, L.srcs);
+        finish(len);
+      }).catch(() => { if (L.token === token) synth(); });
+    } else synth();
     emit();
     return true;
   }
@@ -355,5 +425,5 @@
   const onChange = (f) => { listeners.push(f); return () => { const i = listeners.indexOf(f); if (i >= 0) listeners.splice(i, 1); }; };
   const has = (id) => !!TOYS[id];
 
-  return { GROUPS, TOYS, RECIPES, bus, schedule, play, stop, toggle, isPlaying, onChange, has };
+  return { GROUPS, TOYS, RECIPES, FILES, bus, schedule, play, stop, toggle, isPlaying, onChange, has };
 });
