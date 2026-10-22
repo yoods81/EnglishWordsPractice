@@ -31,10 +31,17 @@ export async function open({ role = "admin", width = 1200, height = 1000, touch 
   return { b, p, ctx };
 }
 
+// Free/guest accounts get a "Good to know" note on first load that blocks clicks — close it.
+export async function dismissPopups(p) {
+  const ok = p.locator("#datanote-overlay:not([hidden]) #datanote-ok-btn");
+  if (await ok.count()) { await ok.click().catch(() => {}); await p.waitForTimeout(300); }
+}
+
 // Open My Koala (nav buttons may be hidden on small screens, so click through JS).
 export async function gotoKoala(p) {
   await p.goto(BASE + "/");
   await p.waitForTimeout(2500);
+  await dismissPopups(p);
   await p.evaluate(() => document.querySelector('.tab-btn[data-view="koala"]').click());
   await p.waitForTimeout(2000);
 }
