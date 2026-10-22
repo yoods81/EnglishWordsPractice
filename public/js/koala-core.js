@@ -1069,7 +1069,7 @@
         if (row.kind === "room") it.kind = "room";
         if (row.season) it.season = row.season;
         ITEMS.push(it);
-        CUSTOM_IMG[row.id] = { img2d: row.imageUrl2d || null, img3d: row.imageUrl || null };
+        CUSTOM_IMG[row.id] = { img2d: row.imageUrl2d || null, img3d: row.imageUrl || null, fit: row.fit || null };
         added.push({ id: row.id, kind: it.kind || "character", slot: row.cat, img2d: row.imageUrl2d || null, img3d: row.imageUrl || null });
       });
       itemsLoaded = true;
@@ -1078,7 +1078,14 @@
   }
   const customImg2d = (id) => (CUSTOM_IMG[id] && CUSTOM_IMG[id].img2d) || null;
   const customImg3d = (id) => (CUSTOM_IMG[id] && CUSTOM_IMG[id].img3d) || null;
+  const customFit = (id) => (CUSTOM_IMG[id] && CUSTOM_IMG[id].fit) || null;
   const customCatLabel = (id) => CUSTOM_CAT_LABEL[id] || null;
+  // An admin deleted this category: drop it from this page's tab lists (built-in slots are never in CUSTOM_CAT_LABEL).
+  function forgetCustomCat(id) {
+    if (!CUSTOM_CAT_LABEL[id]) return;
+    delete CUSTOM_CAT_LABEL[id];
+    [ITEM_SLOTS, ROOM_SLOTS].forEach((list) => { const i = list.indexOf(id); if (i >= 0) list.splice(i, 1); });
+  }
 
   return {
     REWARD_CONFIG,
@@ -1088,6 +1095,6 @@
     SUB_RULES, SUB_PARENTS, SUB_ITEMS, subKind, subById, subItemsFor, subLimit, subSelection, toggleSub, isSubOwned, buySub, sellItem, sellSub, creditSale, sellValue, SELL_RATE, SUB_COST,
     levelInfo,
     ensureStreak, advanceStreak, streakStatus,
-    loadItems, customImg2d, customImg3d, customCatLabel,
+    loadItems, customImg2d, customImg3d, customFit, customCatLabel, forgetCustomCat,
   };
 });

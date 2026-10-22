@@ -1801,8 +1801,15 @@ async function handleApi(request, env, url) {
       w: r.w ?? null, d: r.d ?? null, where: r.where_placement || null,
       parts: r.parts_json ? JSON.parse(r.parts_json) : null,
       imageKey: r.image_key || null, imageKey2d: r.image_key_2d || null,
+      fit: r.fit_json ? JSON.parse(r.fit_json) : null,
       sortOrder: r.sort_order || 0,
     };
+  }
+  function parseFit(f) {
+    if (!f || typeof f !== "object") return null;
+    const x = Number(f.x), y = Number(f.y), w = Number(f.w), h = Number(f.h);
+    if (![x, y, w, h].every(Number.isFinite) || w < 20 || h < 20 || w > 2000 || h > 2000 || Math.abs(x) > 3000 || Math.abs(y) > 3000) return null;
+    return JSON.stringify({ x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) });
   }
   function categoryRowToJson(r) {
     return { kind: r.kind, id: r.id, label: { ko: r.label_ko, en: r.label_en }, iconUrl: itemImageUrl(r.icon_path), sortOrder: r.sort_order || 0 };
@@ -1918,6 +1925,38 @@ async function handleApi(request, env, url) {
     return json({ ok: true });
   }
 
+  // Delete an admin-added category. Refused while any item still sits in it, so nothing is orphaned.
+  if (route.startsWith("/admin/item-categories/") && request.method === "DELETE") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    const parts = route.slice("/admin/item-categories/".length).split("/");
+    const kind = parts[0], id = decodeURIComponent(parts[1] || "");
+    if (!KOALA_ITEM_KINDS.includes(kind) || !id) return json({ error: "bad_request" }, 400);
+    const row = await env.DB.prepare("SELECT 1 FROM item_categories WHERE kind = ? AND id = ?").bind(kind, id).first();
+    if (!row) return json({ error: "not_found" }, 404);
+    const used = await env.DB.prepare("SELECT COUNT(*) AS n FROM items WHERE kind = ? AND cat = ?").bind(kind, id).first();
+    if (used && used.n > 0) return json({ error: "not_empty", count: used.n }, 409);
+    await env.DB.prepare("DELETE FROM item_categories WHERE kind = ? AND id = ?").bind(kind, id).run();
+    return json({ ok: true });
+  }
+
+  // Delete an admin-added item for good, and its pictures. Built-in items are not in this table.
+  if (route.startsWith("/admin/items/") && request.method === "DELETE") {
+    const session = await getSessionUser(request, env);
+    if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
+    const id = decodeURIComponent(route.slice("/admin/items/".length));
+    if (!id) return json({ error: "bad_request" }, 400);
+    const row = await env.DB.prepare("SELECT image_key, image_key_2d FROM items WHERE id = ?").bind(id).first();
+    if (!row) return json({ error: "not_found" }, 404);
+    await env.DB.prepare("DELETE FROM items WHERE id = ?").bind(id).run();
+    if (env.ITEM_IMAGES) {
+      for (const k of [row.image_key, row.image_key_2d]) {
+        if (k && k.startsWith("r2:")) { try { await env.ITEM_IMAGES.delete(k.slice(3)); } catch (e) { /* the row is gone; a leftover picture is harmless */ } }
+      }
+    }
+    return json({ ok: true });
+  }
+
   if (route === "/admin/items" && request.method === "POST") {
     const session = await getSessionUser(request, env);
     if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
@@ -1950,9 +1989,9 @@ async function handleApi(request, env, url) {
     const imageKey2d = kind !== "house" && typeof body?.imageKey2d === "string" ? body.imageKey2d.slice(0, 200) : null;
     const now = Date.now();
     await env.DB.prepare(
-      `INSERT INTO items (id, kind, cat, name_ko, name_en, unlock_type, unlock_value, price, season_from, season_to, w, d, where_placement, parts_json, image_key, image_key_2d, created_by, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).bind(id, kind, cat, nameKo, nameEn, unlockType, unlockValue, price, seasonFrom, seasonTo, w, d, wherePlacement, partsJson, imageKey, imageKey2d, session.id, now, now).run();
+      `INSERT INTO items (id, kind, cat, name_ko, name_en, unlock_type, unlock_value, price, season_from, season_to, w, d, where_placement, parts_json, image_key, image_key_2d, fit_json, created_by, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(id, kind, cat, nameKo, nameEn, unlockType, unlockValue, price, seasonFrom, seasonTo, w, d, wherePlacement, partsJson, imageKey, imageKey2d, kind === "character" ? parseFit(body?.fit) : null, session.id, now, now).run();
     return json({ ok: true, id });
   }
 
@@ -1979,8 +2018,8 @@ async function handleApi(request, env, url) {
     const imageKey2d = row.kind !== "house" && typeof body?.imageKey2d === "string" && body.imageKey2d ? body.imageKey2d.slice(0, 200) : row.image_key_2d;
     if (!nameKo || !nameEn) return json({ error: "bad_request" }, 400);
     await env.DB.prepare(
-      "UPDATE items SET name_ko = ?, name_en = ?, unlock_type = ?, unlock_value = ?, price = ?, image_key = ?, image_key_2d = ?, updated_at = ? WHERE id = ?"
-    ).bind(nameKo, nameEn, unlockType, unlockValue, price, imageKey, imageKey2d, Date.now(), id).run();
+      "UPDATE items SET name_ko = ?, name_en = ?, unlock_type = ?, unlock_value = ?, price = ?, image_key = ?, image_key_2d = ?, fit_json = ?, updated_at = ? WHERE id = ?"
+    ).bind(nameKo, nameEn, unlockType, unlockValue, price, imageKey, imageKey2d, row.kind === "character" && body?.fit ? (parseFit(body.fit) || row.fit_json) : row.fit_json, Date.now(), id).run();
     return json({ ok: true });
   }
 

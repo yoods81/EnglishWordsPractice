@@ -28,6 +28,8 @@
     "db:migrate:billing:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0013_billing.sql",
     "db:migrate:items": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0014_koala_items.sql",
     "db:migrate:items:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0014_koala_items.sql",
+    "db:migrate:item-fit": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0015_item_fit.sql",
+    "db:migrate:item-fit:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0015_item_fit.sql",
     "db:migrate:users:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0001_users_and_word_ownership.sql"
   },
   "devDependencies": {

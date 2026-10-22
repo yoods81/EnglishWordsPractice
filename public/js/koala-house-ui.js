@@ -17,8 +17,11 @@
   const KORDER = ["backpack", "hoodie", "tshirt", "stripeshirt", "pinkdress", "labcoat", "overalls", "jersey", "jeans", "khakishorts", "cargopants", "sweatpants", "plaidskirt", "denimskirt", "flowerskirt", "tutu", "sneakers", "rainboots", "cowboyboots", "balletshoes", "bunnyslippers", "soccercleats", "sandals", "rollerskates", "scarf", "pearlnecklace", "goldchain", "heartpendant", "starpendant", "diamondpendant", "bowtie", "rubybrooch", "goldmedal", "glasses", "bushhat", "partyhat", "crown", "bluecap", "gradhat", "flowercrown", "wizardhat", "santahat", "beanie", "cowboyhat", "chefhat", "bunnyears", "sunglasses", "starglasses", "heartglasses", "cateye", "goggles", "eyepatch", "moustache", "freckles", "monocle"];
   const KSLOT = { hat: ["bushhat", "partyhat", "crown", "bluecap", "gradhat", "flowercrown", "wizardhat", "santahat", "beanie", "cowboyhat", "chefhat", "bunnyears"], face: ["glasses", "sunglasses", "starglasses", "heartglasses", "cateye", "goggles", "eyepatch", "moustache", "freckles", "monocle"], neck: ["scarf", "pearlnecklace", "goldchain", "heartpendant", "starpendant", "diamondpendant", "bowtie", "rubybrooch", "goldmedal"], body: ["hoodie", "tshirt", "stripeshirt", "pinkdress", "labcoat", "overalls", "jersey"], legs: ["jeans", "khakishorts", "cargopants", "sweatpants", "plaidskirt", "denimskirt", "flowerskirt", "tutu"], back: ["backpack", "herocape", "angelwings", "butterflywings", "surfboard"], feet: ["sneakers", "rainboots", "cowboyboots", "balletshoes", "bunnyslippers", "soccercleats", "sandals", "rollerskates"] };
   const KNAME = { bushhat: ["부시햇", "Bush Hat"], partyhat: ["파티 모자", "Party Hat"], crown: ["왕관", "Crown"], bluecap: ["파란 모자", "Blue Cap"], gradhat: ["졸업 모자", "Graduation Hat"], flowercrown: ["꽃 왕관", "Flower Crown"], wizardhat: ["마법사 모자", "Wizard Hat"], santahat: ["산타 모자", "Santa Hat"], beanie: ["털모자", "Winter Beanie"], cowboyhat: ["카우보이 모자", "Cowboy Hat"], chefhat: ["요리사 모자", "Chef Hat"], bunnyears: ["토끼 귀", "Bunny Ears"], glasses: ["안경", "Glasses"], sunglasses: ["선글라스", "Sunglasses"], starglasses: ["별 안경", "Star Glasses"], heartglasses: ["하트 안경", "Heart Glasses"], cateye: ["캣아이 안경", "Cat-eye Glasses"], goggles: ["수영 고글", "Swim Goggles"], eyepatch: ["안대", "Eye Patch"], moustache: ["콧수염", "Moustache"], freckles: ["주근깨", "Freckles"], monocle: ["외알 안경", "Monocle"], scarf: ["목도리", "Scarf"], pearlnecklace: ["진주 목걸이", "Pearl Necklace"], goldchain: ["금 목걸이", "Gold Chain"], heartpendant: ["하트 펜던트", "Heart Pendant"], starpendant: ["별 펜던트", "Star Pendant"], diamondpendant: ["다이아 펜던트", "Diamond Pendant"], bowtie: ["나비넥타이", "Bow Tie"], rubybrooch: ["루비 브로치", "Ruby Brooch"], goldmedal: ["금메달", "Gold Medal"], hoodie: ["후드티", "Hoodie"], tshirt: ["빨간 티셔츠", "Red T-shirt"], stripeshirt: ["줄무늬 셔츠", "Striped Shirt"], pinkdress: ["분홍 원피스", "Pink Dress"], labcoat: ["과학자 가운", "Lab Coat"], overalls: ["멜빵바지", "Overalls"], jersey: ["축구 유니폼", "Soccer Jersey"], backpack: ["배낭", "Backpack"], herocape: ["영웅 망토", "Hero Cape"], angelwings: ["천사 날개", "Angel Wings"], butterflywings: ["나비 날개", "Butterfly Wings"], surfboard: ["서핑보드", "Surfboard"], sneakers: ["운동화", "Sneakers"], rainboots: ["노란 장화", "Rain Boots"], cowboyboots: ["카우보이 부츠", "Cowboy Boots"], balletshoes: ["발레 슈즈", "Ballet Shoes"], bunnyslippers: ["토끼 슬리퍼", "Bunny Slippers"], soccercleats: ["축구화", "Soccer Cleats"], sandals: ["샌들", "Sandals"], rollerskates: ["롤러스케이트", "Roller Skates"], jeans: ["청바지", "Jeans"], khakishorts: ["카키 반바지", "Khaki Shorts"], cargopants: ["카고 바지", "Cargo Pants"], sweatpants: ["남색 조거팬츠", "Jogger Pants"], plaidskirt: ["체크 치마", "Plaid Skirt"], denimskirt: ["청치마", "Denim Skirt"], flowerskirt: ["꽃무늬 치마", "Flower Skirt"], tutu: ["튀튀 치마", "Tutu"] };
-  const kimg = (n) => `/img/koala/${n}.webp`;
-  const kthumb = (n) => `/img/koala/th/${n}.webp`;   // clean product-style picture for the shop grids
+  // Admin-added clothing: id -> { src, box:[x0,y0,x1,y1] }. Their picture lives on the server and
+  // their place on the koala is the admin's saved "fit" (see syncCustomWard / koala-admin-items.js).
+  const CUSTOM_WARD = {};
+  const kimg = (n) => (CUSTOM_WARD[n] ? CUSTOM_WARD[n].src : `/img/koala/${n}.webp`);
+  const kthumb = (n) => (CUSTOM_WARD[n] ? CUSTOM_WARD[n].src : `/img/koala/th/${n}.webp`);   // clean product-style picture for the shop grids
 
   let ses = null;           // the house session
   let curOpts = null;       // opts of whatever is mounted (for T)
@@ -108,6 +111,12 @@
       if (ses.screen === "room") drawScene(); else renderPlan();
     }).catch(() => {});
   }
+  // an admin just added an item: fetch the pictures again so it is not stuck as a grey box until a reload
+  async function reloadManifest() {
+    const get = (u) => fetch(u).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+    const [m, custom] = await Promise.all([get("/img/house/manifest.json"), get("/api/items/manifest?kind=house")]);
+    H.setManifest(Object.assign({}, m, custom));
+  }
   function destroy() {
     if (!ses) return;
     cancelAnimationFrame(ses.raf);
@@ -182,7 +191,9 @@
       : `<button type="button" class="kh-btn" data-primary data-yes ${afford ? "" : "disabled"}>${T("살래요", "Buy")}</button><button type="button" class="kh-btn alt" data-no>${T("닫기", "Close")}</button>`;
     const nb = cardNeighbours();
     const playBtn = o.sound && window.ASMR && ASMR.has(o.sound) ? `<button type="button" class="kh-btn kh-play" data-play aria-pressed="false"><span class="kh-play-ic" aria-hidden="true">▶</span> <span class="kh-play-tx">${T("소리 듣기", "Listen")}</span></button>` : "";
-    modal(`<h2>${esc(o.title)}</h2><div class="kh-buy-pic kh-detail-pic${o.own ? "" : " is-locked"}">${o.pic}</div>${playBtn}${playBtn ? `<p class="kh-asmr-note" data-asmr-note role="status" hidden>${T("구매하신 후 ASMR상자에 넣고 재생시켜 주세요", "Buy it, put it in the ASMR Box, then play it from the box.")}</p>` : ""}${priceHtml}${note}<div class="kh-btns">${btns}</div>`, (m) => {
+    modal(`<h2>${esc(o.title)}</h2><div class="kh-buy-pic kh-detail-pic${o.own ? "" : " is-locked"}">${o.pic}</div>${playBtn}${playBtn ? `<p class="kh-asmr-note" data-asmr-note role="status" hidden>${T("구매하신 후 ASMR상자에 넣고 재생시켜 주세요", "Buy it, put it in the ASMR Box, then play it from the box.")}</p>` : ""}${priceHtml}${note}<div class="kh-btns">${btns}</div>${o.adminDel ? `<button type="button" class="kh-btn alt kh-admin-del" data-admin-del>${T("🗑 관리자: 아이템 삭제", "🗑 Admin: delete item")}</button>` : ""}`, (m) => {
+      const adb = m.querySelector("[data-admin-del]");
+      if (adb) adb.onclick = o.adminDel;
       const pb = m.querySelector("[data-play]");
       if (pb) {   // a ▶ button: plays the toy's ASMR sound, tap again to stop. The picture wiggles while it plays.
         const pic = m.querySelector(".kh-detail-pic"), asmrNote = m.querySelector("[data-asmr-note]");
@@ -1253,13 +1264,23 @@
         onSaved: async () => { await H.loadCatalog(true); drawPanel(); },
       });
     }
+    const delCatBtn = panel.querySelector("[data-kh-admin-del-cat]");
+    if (delCatBtn && window.KoalaAdminItems) {
+      delCatBtn.onclick = () => {
+        const cid = delCatBtn.dataset.khAdminDelCat, c = H.customCategories().find((x) => x.id === cid);
+        KoalaAdminItems.deleteCategory({
+          kind: "house", id: cid, label: c ? T(c.label.ko, c.label.en) : cid, lang: curOpts.L("en", "ko"),
+          onDeleted: async () => { await H.loadCatalog(true); ses.tab = tabsFor(yard)[0][0]; drawPanel(); },
+        });
+      };
+    }
     const addItemBtn = panel.querySelector("[data-kh-admin-add-item]");
     if (addItemBtn && window.KoalaAdminItems) {
       addItemBtn.onclick = () => KoalaAdminItems.openItemForm({
         kind: "house", cat: addItemBtn.dataset.khAdminAddItem,
         cats: tabsFor(yard).map((t) => ({ id: t[0], label: t[2] })),
         lang: curOpts.L("en", "ko"),
-        onSaved: async () => { await H.loadCatalog(true); drawPanel(); },
+        onSaved: async () => { await H.loadCatalog(true); await reloadManifest(); drawScene(); drawPanel(); },
       });
     }
   }
@@ -1298,7 +1319,7 @@
     const list = Object.values(H.D).filter((d) => !d.virtual && d.cat === ses.tab && fitsHere(d, yard)).sort((a, b) => a.price - b.price);
     const haveN = list.filter(ownedItem).length, tabName = (tabsFor(yard).find((t) => t[0] === ses.tab) || [0, 0, ""])[2];
     const adminAdd = curOpts && curOpts.isAdmin
-      ? `<button type="button" class="kh-btn alt kh-admin-add-item" data-kh-admin-add-item="${ses.tab}">${T("+ 아이템 추가", "+ Add item")}</button>` : "";
+      ? `<button type="button" class="kh-btn alt kh-admin-add-item" data-kh-admin-add-item="${ses.tab}">${T("+ 아이템 추가", "+ Add item")}</button>${H.customCategories().some((c) => c.id === ses.tab) ? `<button type="button" class="kh-btn alt kh-admin-del" data-kh-admin-del-cat="${ses.tab}">${T("🗑 카테고리 삭제", "🗑 Delete category")}</button>` : ""}` : "";
     return `${shelfHead(tabName, `${haveN}/${list.length}`)}${adminAdd}<div class="kh-items-grid">${list.map((d) => { const own = ownedItem(d); return `<button type="button" class="kh-item${own ? "" : " locked"}" data-item="${d.id}" aria-label="${esc(nm(d))}${own ? "" : ", " + d.price}">${H.thumbSvg(d.id)}<span class="kh-nm">${esc(nm(d))}</span>${own ? "" : `<span class="kh-pr">${COIN}${d.price}</span>`}</button>`; }).join("")}</div>${ses.tab === "toys" && !yard ? asmrToysHtml() : ""}`;
   }
   // The ASMR toys are part of the Toys category: they are bought here, but they only make their sound from inside an ASMR box (tap the box in the room to open its list).
@@ -1363,6 +1384,16 @@
         const id = b.dataset.item, d = H.D[id];
         const give = houseRefundable(id), paid = give ? d.price : 0;
         detail({ title: nm(d), pic: H.thumbSvg(id), price: d.price, own: ownedItem(d), go: T("배치하기", "Place"), keep: true, spendWhy: "house:" + id,
+          adminDel: curOpts && curOpts.isAdmin && d.custom && window.KoalaAdminItems ? () => KoalaAdminItems.deleteItem({
+            id, name: { ko: d.name[0], en: d.name[1] }, lang: curOpts.L("en", "ko"),
+            onDeleted: () => {
+              const S = ses.S;   // gone for everyone: take it out of this house too, no refund
+              delete S.owned[id];
+              Object.keys(S.slots).forEach((k) => { S.slots[k].items = (S.slots[k].items || []).filter((i) => i.id !== id); });
+              if (S.yard) S.yard.items = (S.yard.items || []).filter((i) => i.id !== id);
+              delete H.D[id]; ses.sel = null; closeModal(); save(); recalcZ(curState()); drawScene(); drawPanel(); hideMenu();
+            },
+          }) : null,
           sell: ownedItem(d) ? { paid, back: Math.floor(paid * 0.8), note: (give ? "" : T("무료로 받은 아이템이라 돌려받는 코인은 없어요. ", "This one was free, so no coins come back. ")) + T("방에 놓아 둔 것도 모두 치워져요.", "Every copy placed in your rooms is removed too."), onSell: () => sellHouseItem(id) } : null,
           onGo: () => { placeNew(id); placeKoalaFree(); updateKoala(); },
           onBuy: () => { S.owned[id] = 1; save(); drawPanel(); toast(T("샀어요! 다시 눌러서 놓아 봐요.", "Bought! Tap it again to place it.")); } });
@@ -1452,8 +1483,30 @@
   }
   window.KoalaHouse.setWardApi = (a) => { wardApi = a || null; };
   window.KoalaHouse.setWardOwned = (v) => { wardOwned = !!v; };
+  // 3D wardrobe slot <-> the 2D (Sticker) slot an admin-added item is filed under
+  const WARD_TO_2D = { hat: "headwear", face: "face", neck: "jewelry", body: "clothing", legs: "bottoms", back: "accessory", feet: "shoes" };
+  // Fold the admin-added clothing that has a 3D picture AND a saved fit into the wardrobe tables
+  // (KSLOT = which slot, KNAME = label, KBOX = where it sits, KORDER/KBEHIND = layering).
+  function syncCustomWard() {
+    if (!window.KoalaCore || !KoalaCore.customFit) return;
+    const to3d = {}; Object.keys(WARD_TO_2D).forEach((k) => { to3d[WARD_TO_2D[k]] = k; });
+    KoalaCore.ITEMS.forEach((it) => {
+      const n = it.id.toLowerCase(), sl = it.custom && to3d[it.slot], src = it.custom && KoalaCore.customImg3d(it.id), f = it.custom && KoalaCore.customFit(it.id);
+      if (!sl || !src || !f) return;
+      CUSTOM_WARD[n] = { src, box: [f.x, f.y, f.x + f.w, f.y + f.h] };
+      KBOX[n] = CUSTOM_WARD[n].box;
+      KNAME[n] = [it.name.ko, it.name.en];
+      if (!KSLOT[sl].includes(n)) {
+        KSLOT[sl].push(n);
+        if (sl === "back") KBEHIND.push(n);
+        else if (sl === "body" || sl === "legs" || sl === "feet") KORDER.splice(KORDER.indexOf("scarf"), 0, n);
+        else KORDER.push(n);
+      }
+    });
+  }
   function mountWardrobe(root, opts) {
     if (ses) destroy();
+    syncCustomWard();
     curOpts = opts;
     wardHost = root;
     const S = H.load();
@@ -1483,10 +1536,16 @@
       fit(root);
       root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage">${wardBackdrop()}<svg class="kh-ward-koala" viewBox="64 20 553 1020" role="img" aria-label="${T("3D 코알라", "3D Koala")}"><ellipse cx="340" cy="962" rx="205" ry="22" fill="#000" opacity=".16"/><g class="kh-wbody">${imgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
         <aside class="kh-panel">${chipsHtml(slots.map((sl) => [sl, `/img/cat/${sl}.webp`, slotName[sl]]), wardOwned ? "" : wardSlot)}
-        ${wardOwned ? ownedHtml() : `<div class="kh-grid">${shelfHead(slotName[wardSlot], `${S.worn[wardSlot] ? 1 : 0}/${KSLOT[wardSlot].length}`)}<div class="kh-items-grid">${KSLOT[wardSlot].map((n) => itemBtn(wardSlot, n)).join("")}</div>
+        ${wardOwned ? ownedHtml() : `<div class="kh-grid">${shelfHead(slotName[wardSlot], `${S.worn[wardSlot] ? 1 : 0}/${KSLOT[wardSlot].length}`)}${opts.isAdmin ? `<button type="button" class="kh-btn alt kh-admin-add-item" data-kh-admin-add-item="${wardSlot}">${T("+ 아이템 추가", "+ Add item")}</button>` : ""}<div class="kh-items-grid">${KSLOT[wardSlot].map((n) => itemBtn(wardSlot, n)).join("")}</div>
         ${wornN ? clearBtn : ""}${wardMsg ? `<p class="kh-empty">${esc(wardMsg)}</p>` : ""}</div>`}</aside>`;
       root.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { wardSlot = b.dataset.tab; if (wardOwned) { wardOwned = false; window.dispatchEvent(new CustomEvent("kh-owned-off")); } draw(); }; });
       initCats(root);
+      const wardCats = () => slots.map((sl) => ({ id: WARD_TO_2D[sl], label: slotName[sl] }));
+      const wardSaved = async () => { await H.loadCatalog(true); if (window.KoalaCore) await KoalaCore.loadItems(true); syncCustomWard(); draw(); };
+      const wAddCat = root.querySelector("[data-kh-admin-add-cat]");
+      if (wAddCat && window.KoalaAdminItems) wAddCat.onclick = () => KoalaAdminItems.openCategoryForm({ kind: "character", lang: curOpts.L("en", "ko"), onSaved: wardSaved });
+      const wAddItem = root.querySelector("[data-kh-admin-add-item]");
+      if (wAddItem && window.KoalaAdminItems) wAddItem.onclick = () => KoalaAdminItems.openItemForm({ kind: "character", cat: WARD_TO_2D[wardSlot], cats: wardCats(), lang: curOpts.L("en", "ko"), onSaved: wardSaved });
       root.querySelectorAll("[data-wear]").forEach((b) => { b.onclick = () => {
         const [slot, n] = b.dataset.wear.split(":"); const st = stOf(n), nmN = T(KNAME[n][0], KNAME[n][1]), pic = `<img src="${kthumb(n)}" alt="" draggable="false">`;
         const wearIt = () => { if (S.worn[slot] === n) delete S.worn[slot]; else S.worn[slot] = n; H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); };

@@ -16577,7 +16577,8 @@ function koalaShopGridHtml(mode) {
   const have = items.filter((it) => { const s = KoalaCore.itemStatus(progress, it, koalaOpts()).state; return s === "equipped" || s === "owned"; }).length;
   const slotLabel = KOALA_SLOT_TITLES()[slot] || (KoalaCore.customCatLabel(slot) && rwL(KoalaCore.customCatLabel(slot).en, KoalaCore.customCatLabel(slot).ko)) || slot;
   const addBtn = isAdmin ? `<button type="button" class="pill neutral small koala-admin-add-item-btn" data-koala-admin-add-item="${mode}:${slot}">${rwL("+ Add item", "+ 아이템 추가")}</button>` : "";
-  return `${head}<div class="koala-shelf-head"><span class="koala-shelf-title">${slotLabel} <small>${have}/${items.length}</small></span>${addBtn}</div>
+  const delCatBtn = isAdmin && KoalaCore.customCatLabel(slot) ? `<button type="button" class="pill neutral small koala-admin-del" data-koala-admin-del-cat="${mode}:${slot}">${rwL("🗑 Delete category", "🗑 카테고리 삭제")}</button>` : "";
+  return `${head}<div class="koala-shelf-head"><span class="koala-shelf-title">${slotLabel} <small>${have}/${items.length}</small></span>${delCatBtn}${addBtn}</div>
     <div class="koala-grid">${items.map(koalaItemCardHtml).join("")}</div>`;
 }
 
@@ -17428,6 +17429,16 @@ document.addEventListener("click", (e) => {
     KoalaAdminItems.openItemForm({ kind: mode === "room" ? "studyroom" : "character", cats: koalaAdminCatsFor(mode), cat: slot, lang: currentLang, onSaved: () => koalaAdminRefresh() });
     return;
   }
+  const delCat = e.target.closest("[data-koala-admin-del-cat]");
+  if (delCat) {
+    const [mode, slot] = delCat.dataset.koalaAdminDelCat.split(":");
+    const lbl = KoalaCore.customCatLabel(slot);
+    KoalaAdminItems.deleteCategory({
+      kind: mode === "room" ? "studyroom" : "character", id: slot, label: lbl ? rwL(lbl.en, lbl.ko) : slot, lang: currentLang,
+      onDeleted: () => { KoalaCore.forgetCustomCat(slot); koalaSlotPick[mode] = mode === "room" ? "wallpaper" : "headwear"; renderKoala(); },
+    });
+    return;
+  }
   const editItem = e.target.closest("[data-koala-admin-edit-item]");
   if (editItem) {
     const id = editItem.dataset.koalaAdminEditItem, it = KoalaCore.itemById(id);
@@ -17435,7 +17446,7 @@ document.addEventListener("click", (e) => {
       const mode = KoalaCore.ROOM_SLOTS.includes(it.slot) ? "room" : "character";
       KoalaAdminItems.openItemForm({
         kind: mode === "room" ? "studyroom" : "character", cats: koalaAdminCatsFor(mode),
-        item: { id: it.id, cat: it.slot, name: it.name, unlock: it.unlock.coins != null ? { type: "coins", value: it.unlock.coins } : { type: "free" }, active: true },
+        item: { id: it.id, cat: it.slot, name: it.name, unlock: it.unlock.coins != null ? { type: "coins", value: it.unlock.coins } : { type: "free" }, active: true, img3dUrl: KoalaCore.customImg3d(it.id), fit: KoalaCore.customFit(it.id) },
         lang: currentLang, onSaved: () => koalaAdminRefresh(id),
       });
     }
