@@ -1802,14 +1802,17 @@ async function handleApi(request, env, url) {
       parts: r.parts_json ? JSON.parse(r.parts_json) : null,
       imageKey: r.image_key || null, imageKey2d: r.image_key_2d || null,
       fit: r.fit_json ? JSON.parse(r.fit_json) : null,
+      fit2d: r.fit2d_json ? JSON.parse(r.fit2d_json) : null,
       sortOrder: r.sort_order || 0,
     };
   }
-  function parseFit(f) {
+  // where a picture sits on the koala: {x,y,w,h}. 3D: pixels of the 3D koala picture (~1000 wide); 2D: units of the flat koala (200 wide)
+  function parseFit(f, minSide = 20, maxSide = 2000) {
     if (!f || typeof f !== "object") return null;
     const x = Number(f.x), y = Number(f.y), w = Number(f.w), h = Number(f.h);
-    if (![x, y, w, h].every(Number.isFinite) || w < 20 || h < 20 || w > 2000 || h > 2000 || Math.abs(x) > 3000 || Math.abs(y) > 3000) return null;
-    return JSON.stringify({ x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) });
+    if (![x, y, w, h].every(Number.isFinite) || w < minSide || h < minSide || w > maxSide || h > maxSide || Math.abs(x) > 3000 || Math.abs(y) > 3000) return null;
+    const r1 = (v) => Math.round(v * 10) / 10;
+    return JSON.stringify({ x: r1(x), y: r1(y), w: r1(w), h: r1(h) });
   }
   function categoryRowToJson(r) {
     return { kind: r.kind, id: r.id, label: { ko: r.label_ko, en: r.label_en }, iconUrl: itemImageUrl(r.icon_path), sortOrder: r.sort_order || 0 };
@@ -1989,9 +1992,9 @@ async function handleApi(request, env, url) {
     const imageKey2d = kind !== "house" && typeof body?.imageKey2d === "string" ? body.imageKey2d.slice(0, 200) : null;
     const now = Date.now();
     await env.DB.prepare(
-      `INSERT INTO items (id, kind, cat, name_ko, name_en, unlock_type, unlock_value, price, season_from, season_to, w, d, where_placement, parts_json, image_key, image_key_2d, fit_json, created_by, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).bind(id, kind, cat, nameKo, nameEn, unlockType, unlockValue, price, seasonFrom, seasonTo, w, d, wherePlacement, partsJson, imageKey, imageKey2d, kind === "character" ? parseFit(body?.fit) : null, session.id, now, now).run();
+      `INSERT INTO items (id, kind, cat, name_ko, name_en, unlock_type, unlock_value, price, season_from, season_to, w, d, where_placement, parts_json, image_key, image_key_2d, fit_json, fit2d_json, created_by, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(id, kind, cat, nameKo, nameEn, unlockType, unlockValue, price, seasonFrom, seasonTo, w, d, wherePlacement, partsJson, imageKey, imageKey2d, kind === "character" ? parseFit(body?.fit) : null, kind === "character" ? parseFit(body?.fit2d, 3, 400) : null, session.id, now, now).run();
     return json({ ok: true, id });
   }
 
@@ -2018,8 +2021,8 @@ async function handleApi(request, env, url) {
     const imageKey2d = row.kind !== "house" && typeof body?.imageKey2d === "string" && body.imageKey2d ? body.imageKey2d.slice(0, 200) : row.image_key_2d;
     if (!nameKo || !nameEn) return json({ error: "bad_request" }, 400);
     await env.DB.prepare(
-      "UPDATE items SET name_ko = ?, name_en = ?, unlock_type = ?, unlock_value = ?, price = ?, image_key = ?, image_key_2d = ?, fit_json = ?, updated_at = ? WHERE id = ?"
-    ).bind(nameKo, nameEn, unlockType, unlockValue, price, imageKey, imageKey2d, row.kind === "character" && body?.fit ? (parseFit(body.fit) || row.fit_json) : row.fit_json, Date.now(), id).run();
+      "UPDATE items SET name_ko = ?, name_en = ?, unlock_type = ?, unlock_value = ?, price = ?, image_key = ?, image_key_2d = ?, fit_json = ?, fit2d_json = ?, updated_at = ? WHERE id = ?"
+    ).bind(nameKo, nameEn, unlockType, unlockValue, price, imageKey, imageKey2d, row.kind === "character" && body?.fit ? (parseFit(body.fit) || row.fit_json) : row.fit_json, row.kind === "character" && body?.fit2d ? (parseFit(body.fit2d, 3, 400) || row.fit2d_json) : row.fit2d_json, Date.now(), id).run();
     return json({ ok: true });
   }
 

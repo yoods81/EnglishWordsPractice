@@ -303,6 +303,7 @@
   const FILE_DIR = "/sounds/asmr/";
   const FILES = {
     bubbleWrap: [["bubbleWrap-1.wav", 1.37], ["bubbleWrap-2.wav", 1.61]],
+    clickerBtn: [["clickerBtn-1.wav", 0.7]],
     clickPen: [["clickPen-1.wav", 1.74]],
     iceCrunch: [["iceCrunch-1.wav", 0.9], ["iceCrunch-2.wav", 0.9]],
     fidgetCube: [["fidgetCube-1.wav", 4.23]],

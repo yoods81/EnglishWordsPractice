@@ -391,8 +391,11 @@
     const mir = !!(m & 1) !== !!e.flip;   // flip: the picture was drawn along the other floor axis, so it is mirrored the other way round
     const [cx, cy] = proj(o.w / 2 + tk[0], o.d / 2 + tk[1], 0);
     lastGeom = { cx, cy, w, h, x: cx - w * ax, y: cy - h * ay, mir };
-    const rx = (o.w + o.d) * 32 * 0.33;
-    const sh = noSh ? "" : `<ellipse cx="${cx}" cy="${cy + (o.w + o.d) * 2}" rx="${rx}" ry="${rx * 0.5}" fill="#3b2a1a" opacity=".10"/><ellipse cx="${cx}" cy="${cy + (o.w + o.d) * 2}" rx="${rx * 0.7}" ry="${rx * 0.35}" fill="#3b2a1a" opacity=".12"/>`;
+    // contact shadow: the shape of the piece's own footprint (soft, rounded), so the whole piece - the far end of a long bed
+    // or sofa too - looks planted on the floor, and pieces standing side by side share one dark floor patch instead of floating
+    const gx = (o.w - o.d) * 16, gy = (o.w + o.d) * 8;   // footprint centre relative to its top corner
+    const fp = (k) => [[0, 0], [o.w * 32, o.w * 16], [(o.w - o.d) * 32, (o.w + o.d) * 16], [-o.d * 32, o.d * 16]].map((q) => (cx + (q[0] - gx) * k).toFixed(1) + "," + (cy + (q[1] - gy) * k).toFixed(1)).join(" ");
+    const sh = noSh ? "" : `<g fill="#3b2a1a" stroke="#3b2a1a" stroke-linejoin="round"><polygon points="${fp(0.84)}" stroke-width="4" opacity=".08"/><polygon points="${fp(0.62)}" stroke-width="6" opacity=".09"/></g>`;
     // shear: a picture drawn from a flatter camera has its long side at a shallower slope than the floor lines; tilt it so that a car does not look nose-up
     const sk = e.shear ? (mir ? -e.shear : e.shear) : 0;
     const tf = (sk ? `translate(${cx} ${cy}) matrix(1 ${sk} 0 1 0 0) translate(${-cx} ${-cy})` : "") + (mir ? `${sk ? " " : ""}translate(${cx * 2} 0) scale(-1 1)` : "");
@@ -455,6 +458,9 @@
     if (def.subKind === "clothes" && open) {
       const n = Math.min(sub.length, 8);
       return sub.slice(0, n).map((id, k) => { const [x, y] = at(0.34 + (k % 4) * 0.105, k < 4 ? 0.34 : 0.6), sz = g.w * 0.21; return `<image href="/img/koala/th/${id}.webp" x="${(x - sz / 2).toFixed(1)}" y="${(y - sz / 2).toFixed(1)}" width="${sz.toFixed(1)}" height="${sz.toFixed(1)}"/>`; }).join("");
+    }
+    if (def.id === "asmrBox" && open) {   // its opening sits lower and a little narrower than the toy box's: keep the toys inside it
+      return sub.slice(0, 4).map((id, k) => { const [x, y] = at(0.32 + k * 0.12, 0.46 - (k % 2) * 0.07); return subMark(id, x, y, g.w * 0.22); }).join("");
     }
     if ((def.subKind === "toys" || def.subKind === "asmr") && open) {
       return sub.slice(0, 4).map((id, k) => { const [x, y] = at(0.3 + k * 0.14, 0.3 - (k % 2) * 0.1); return subMark(id, x, y, g.w * 0.26); }).join("");
@@ -731,6 +737,49 @@
     return host ? Math.max(own, depthKey(host) + 0.02 + (i.z || 0) / 5000) : own;
   }
   function depthCmp(a, b) { return depthKey(a) - depthKey(b); }
+  // Painter's order for the floor pieces of a room. One "far corner" number per piece mis-orders pieces whose footprints differ
+  // in shape (a tall shelf beside a long bed, a chair at the end of a table): one ends up drawn over the other. So the order is
+  // worked out from the footprints themselves: piece A must be drawn before B when A lies entirely behind B (smaller x, or
+  // smaller y) with the two sharing that border. Pieces with no such relation keep the old far-corner order. Pieces standing
+  // on a table are drawn right after it. Returns the entries in drawing order, with data-k rewritten so the koala (placed by
+  // that number) still finds its place among them.
+  function depthOrder(list) {
+    const n = list.length, EPS = 1e-6;
+    const hostOf = (e) => {
+      const i = e.i, d = i && D[i.id];
+      if (!d || !(d.stack && i.z > 0)) return null;
+      const cell = Math.round(i.c) + "," + Math.round(i.r);
+      return list.find((x) => x !== e && x.i && D[x.i.id] && D[x.i.id].topH && !D[x.i.id].stack && cellsOf(x.i).includes(cell)) || null;
+    };
+    const stacked = new Map(); list.forEach((e) => { const h = hostOf(e); if (h) stacked.set(e, h); });
+    const main = list.filter((e) => !stacked.has(e)), m = main.length;
+    const rect = main.map((e) => { const d = e.i && D[e.i.id]; if (!d) return null; const o = orient(d, e.i.m); return { x0: e.i.c, x1: e.i.c + o.w, y0: e.i.r, y1: e.i.r + o.d }; });
+    const out = Array.from({ length: m }, () => []), indeg = new Array(m).fill(0), has = Array.from({ length: m }, () => new Set());
+    const edge = (a, b) => { if (!has[a].has(b)) { has[a].add(b); out[a].push(b); indeg[b]++; } };
+    for (let a = 0; a < m; a++) for (let b = a + 1; b < m; b++) {
+      const A = rect[a], B = rect[b];
+      if (!A || !B) { const dk = main[a].k - main[b].k; if (dk < -EPS) edge(a, b); else if (dk > EPS) edge(b, a); continue; }
+      const ovx = A.x0 < B.x1 - EPS && B.x0 < A.x1 - EPS, ovy = A.y0 < B.y1 - EPS && B.y0 < A.y1 - EPS;
+      if (ovx && ovy) { const dk = main[a].k - main[b].k; if (dk < -EPS) edge(a, b); else if (dk > EPS) edge(b, a); continue; }   // overlapping footprints: old order
+      const aFirst = (A.x1 <= B.x0 + EPS && (A.y1 <= B.y0 + EPS || ovy)) || (A.y1 <= B.y0 + EPS && ovx);
+      const bFirst = (B.x1 <= A.x0 + EPS && (B.y1 <= A.y0 + EPS || ovy)) || (B.y1 <= A.y0 + EPS && ovx);
+      if (aFirst && !bFirst) edge(a, b); else if (bFirst && !aFirst) edge(b, a);
+      else { const dk = main[a].k - main[b].k; if (dk < -EPS) edge(a, b); else if (dk > EPS) edge(b, a); }   // side by side: either order works, keep the old one
+    }
+    const done = new Array(m).fill(false), order = [];
+    for (let step = 0; step < m; step++) {
+      let pick = -1;
+      for (let a = 0; a < m; a++) if (!done[a] && indeg[a] === 0 && (pick < 0 || main[a].k < main[pick].k)) pick = a;
+      if (pick < 0) for (let a = 0; a < m; a++) if (!done[a] && (pick < 0 || indeg[a] < indeg[pick] || (indeg[a] === indeg[pick] && main[a].k < main[pick].k))) pick = a;   // a cycle: break it at the least-blocked piece
+      done[pick] = true; order.push(main[pick]); out[pick].forEach((b) => { indeg[b]--; });
+    }
+    // pieces standing on a table come right after it
+    const res = [];
+    order.forEach((e) => { res.push(e); list.filter((x) => stacked.get(x) === e).sort((a, b) => (a.i.z || 0) - (b.i.z || 0)).forEach((x) => res.push(x)); });
+    let prev = -1e9;
+    res.forEach((e) => { const kk = Math.max(e.k, prev + 0.001); prev = kk; e.svg = e.svg.replace(/data-k="[^"]*"/, `data-k="${kk.toFixed(3)}"`); });
+    return res;
+  }
   function floorItemSvg(i) {
     const def = D[i.id], [x, y] = proj(i.c + (i.eo ? i.eo[0] : 0), i.r + (i.eo ? i.eo[1] : 0), i.z || 0);
     return `<g class="kh-it${i.fixed ? " kh-fixed" : ""}" data-uid="${i.uid || ""}" data-id="${i.id}" data-k="${def.flat ? -1 : depthKey(i).toFixed(3)}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})">${itemInner(def, i.m, i)}</g>`;
@@ -774,11 +823,11 @@
       const d = D[i.id]; if (!d) return;
       if (d.wall) wallSvg.push(wallItemSvg(i));
       else if (d.flat) flatSvg.push(floorItemSvg(i));
-      else keyed.push({ k: depthKey(i), svg: floorItemSvg(i) });
+      else keyed.push({ k: depthKey(i), svg: floorItemSvg(i), i });
     });
-    keyed.sort((a, b) => a.k - b.k);
+    const ordered = depthOrder(keyed);
     const view = `${box.x} ${box.y} ${box.w} ${box.h}`;
-    return `<svg class="kh-room-svg" viewBox="${view}" xmlns="http://www.w3.org/2000/svg" ${o.label ? `role="img" aria-label="${o.label}"` : 'aria-hidden="true"'}><defs>${sh.clips}</defs><g class="kh-shell">${sh.svg}</g><g class="kh-items">${wallSvg.join("")}${flatSvg.join("")}${keyed.map((x) => x.svg).join("")}${""}</g>${o.extra || ""}</svg>`;
+    return `<svg class="kh-room-svg" viewBox="${view}" xmlns="http://www.w3.org/2000/svg" ${o.label ? `role="img" aria-label="${o.label}"` : 'aria-hidden="true"'}><defs>${sh.clips}</defs><g class="kh-shell">${sh.svg}</g><g class="kh-items">${wallSvg.join("")}${flatSvg.join("")}${ordered.map((x) => x.svg).join("")}${""}</g>${o.extra || ""}</svg>`;
   }
 
   /* ============================== rooms & state ============================== */
@@ -888,12 +937,12 @@
         const d = D[i.id]; if (!d) return;
         if (d.wall) { if (i.side === "L" ? tallL : tallR) walls.push(wallItemSvg(i)); }
         else if (d.flat) flat.push(floorItemSvg(i));
-        else keyed.push({ k: depthKey(i), svg: floorItemSvg(i) });
+        else keyed.push({ k: depthKey(i), svg: floorItemSvg(i), i });
       });
-      keyed.sort((a, b) => a.k - b.k);
+      const ordered = depthOrder(keyed);
       const name = String(o.name ? o.name(room) : room.en), lw = Math.round(Math.max(70, name.length * 21 + 34)), [lx, ly] = proj(room.C - 1, room.R - 1, 0);
       const floor = pstr([proj(0, 0, 0), proj(room.C, 0, 0), proj(room.C, room.R, 0), proj(0, room.R, 0)]);
-      out.push(`<g class="kh-proom${o.fresh === sl ? " pop" : ""}" data-room="${sl}" role="button" tabindex="0" aria-label="${esc(name)}" transform="translate(${px.toFixed(1)} ${py.toFixed(1)})"><defs>${sh.clips}</defs><g class="kh-shell">${sh.svg}</g><polygon class="kh-hit" points="${floor}" fill="transparent"/>${floorLabel(name, room)}<g class="kh-items">${walls.join("")}${flat.join("")}${keyed.map((x) => x.svg).join("")}</g></g>`);
+      out.push(`<g class="kh-proom${o.fresh === sl ? " pop" : ""}" data-room="${sl}" role="button" tabindex="0" aria-label="${esc(name)}" transform="translate(${px.toFixed(1)} ${py.toFixed(1)})"><defs>${sh.clips}</defs><g class="kh-shell">${sh.svg}</g><polygon class="kh-hit" points="${floor}" fill="transparent"/>${floorLabel(name, room)}<g class="kh-items">${walls.join("")}${flat.join("")}${ordered.map((x) => x.svg).join("")}</g></g>`);
     });
     const box = sceneBox({ C: totC, R: totR }, "room");
     return `<svg class="kh-plan-svg" viewBox="${box.x} ${box.y} ${box.w} ${box.h}" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="${esc(o.title || "")}">${out.join("")}${labels.join("")}</svg>`;
@@ -986,7 +1035,7 @@
 
   return {
     TW, TH, WALL_H, D, WALLS, FLOORS, ROOMS, ROOM_ORDER, PLAN, SLOTS, START_SLOT, YARD, HOUSE_WALLS, HOUSE_ROOFS, HOUSE_DOORS, HOUSE_STYLES, YARD_SIZES, BORDERS, PATHS, GARDEN_PRESETS,
-    proj, shade, orient, itemBox, itemInner, thumbSvg, roomSvg, planSvg, wallItemSvg, floorItemSvg, sceneBox, depthCmp, roomOf, stateOf, yardDims, houseRect, subVis, bookColor,
+    proj, shade, orient, itemBox, itemInner, thumbSvg, roomSvg, planSvg, wallItemSvg, floorItemSvg, sceneBox, depthCmp, depthOrder, roomOf, stateOf, yardDims, houseRect, subVis, bookColor,
     subImg, uiImg, floorImg, canPlace, freeCells, STARTER_OWNED: Object.keys(starter().owned), tuckOf, setOpen, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts, houseThumb, housePic,
     loadCatalog, customCategories: () => customCats,
   };

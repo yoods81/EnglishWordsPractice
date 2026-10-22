@@ -889,17 +889,32 @@
     const [x, y, w, h] = viewStr.split(" ").map(Number);
     return `<image href="${src}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid meet"/>`;
   }
+  const CUSTOM_IDS = new Set();   // ids made here, so an admin edit can replace the picture while a built-in entry is never touched
   function registerCustomItem(it) {
-    if (!it || !it.id || !it.img2d || ART[it.id] || ROOM_ART[it.id]) return;
+    if (!it || !it.id || !it.img2d) return;
+    if ((ART[it.id] || ROOM_ART[it.id]) && !CUSTOM_IDS.has(it.id)) return;
+    CUSTOM_IDS.add(it.id);
     if (it.kind === "room") {
       const g = GENERIC_ROOM_VIEW[it.slot] || GENERIC_ROOM_VIEW.poster;
       ROOM_ART[it.id] = { layer: g.layer, view: g.view, svg: imageInBox(it.img2d, g.draw || g.view) };
     } else {
       SLOT_OF[it.id] = it.slot;
       const view = GENERIC_CHAR_VIEW[it.slot] || "full";
-      ART[it.id] = { view, front: imageInBox(it.img2d, view === "head" ? HEAD_VIEW : FULL_VIEW) };
+      // fit2d = where the picture sits on the koala (set in the admin form); without it the picture fills the whole view box
+      const box = it.fit2d ? [it.fit2d.x, it.fit2d.y, it.fit2d.w, it.fit2d.h].join(" ") : (view === "head" ? HEAD_VIEW : FULL_VIEW);
+      ART[it.id] = { view, front: imageInBox(it.img2d, box) };
     }
   }
 
-  return { roomArtInfo: (id) => (ROOM_ART[id] ? { layer: ROOM_ART[id].layer, view: ROOM_ART[id].view } : null), avatar, room, itemPicture, itemIcon, previewFor, subIcon, artIds: () => Object.keys(ART), hasArt: (id) => !!ART[id] || !!ROOM_ART[id], registerCustomItem };
+  // The admin form's preview: the picture placed on the koala (or in the room) exactly like a saved item would be.
+  function previewCustom(slot, src, kind, fit2d) {
+    if (kind === "studyroom") {
+      const g = GENERIC_ROOM_VIEW[slot] || GENERIC_ROOM_VIEW.poster;
+      return room({}, {}, {}).replace(/<\/svg>\s*$/, imageInBox(src, g.draw || g.view) + "</svg>");
+    }
+    const view = GENERIC_CHAR_VIEW[slot] || "full", head = view === "head";
+    return avatar({}, { view: head ? "head" : "full" }).replace(/<\/svg>\s*$/,imageInBox(src, fit2d ? [fit2d.x, fit2d.y, fit2d.w, fit2d.h].join(" ") : head ? HEAD_VIEW : FULL_VIEW) + "</svg>");
+  }
+
+  return { previewCustom, roomArtInfo: (id) => (ROOM_ART[id] ? { layer: ROOM_ART[id].layer, view: ROOM_ART[id].view } : null), avatar, room, itemPicture, itemIcon, previewFor, subIcon, artIds: () => Object.keys(ART), hasArt: (id) => !!ART[id] || !!ROOM_ART[id], registerCustomItem };
 });

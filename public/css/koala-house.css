@@ -474,4 +474,4 @@ html body .kh-app .kh-top .kh-planbtn{background:#cdeee2!important;border-color:
 body.kh-carddrag { cursor: grabbing; user-select: none; -webkit-user-select: none; }
 .kh-it.kh-drop-ok { filter: drop-shadow(0 0 4px #ffd34d) drop-shadow(0 0 10px #ffb21e); }
 .kh-subitem:not(.locked), .kh-item[data-asmr]:not(.locked) { cursor: grab; }
-.kh-btns + .kh-admin-del { margin-top: 12px; }
+.kh-btns ~ .kh-btn { margin-top: 12px; }

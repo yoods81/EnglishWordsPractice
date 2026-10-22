@@ -4050,7 +4050,8 @@ async function koalaAdminRefresh(editedId) {
     const idx = KoalaCore.ITEMS.findIndex((it) => it.id === editedId);
     if (idx >= 0) KoalaCore.ITEMS.splice(idx, 1);
   }
-  await KoalaCore.loadItems(true);
+  const added = await KoalaCore.loadItems(true);
+  (added || []).forEach((it) => KoalaArt.registerCustomItem(it));   // without this a new item's card has no picture
   closeKoalaItemDetail();
   renderKoala();
 }
@@ -16549,7 +16550,7 @@ function koalaOwnedListHtml(mode) {
   let total = 0;
   const section = (title, count, body) => `<div class="koala-own-group"><div class="koala-own-title">${title} <small>${count}</small></div>${body}</div>`;
   const groups = slots.map((slot) => {
-    const list = KoalaCore.ITEMS.filter((it) => it.slot === slot && k.items.owned[it.id]);
+    const list = KoalaCore.ITEMS.filter((it) => it.slot === slot && !it.no2d && k.items.owned[it.id]);
     if (!list.length) return "";
     total += list.length;
     return section(titles[slot], list.length, `<div class="koala-grid">${list.map(itemCard).join("")}</div>`);
@@ -17321,7 +17322,7 @@ function openKoalaItemDetail(id, opts) {
       price = `<div class="koala-itemd-price">${koalaItemStatusText(st).replace(/<[^>]*>/g, "")}</div>`;
       act = `<button type="button" class="pill" data-koala-zoom-close>${rwL("Close", "닫기")}</button>`;
     }
-    const adminEdit = isAdmin && it.custom ? `<button type="button" class="pill neutral small" data-koala-admin-edit-item="${escapeHtml(id)}">${rwL("✏️ Edit", "✏️ 수정")}</button>` : "";
+    const adminEdit = isAdmin && it.custom ? `<button type="button" class="pill neutral small" data-koala-admin-edit-item="${escapeHtml(id)}">${rwL("✏️ Edit", "✏️ 수정")}</button><button type="button" class="pill neutral small koala-admin-del" data-koala-admin-del-item="${escapeHtml(id)}">${rwL("🗑 Delete", "🗑 삭제")}</button>` : "";
     card.innerHTML = `<div class="koala-zoom-head"><span class="koala-subd-from">${rwL(isRoom ? "Room item" : "Koala item", isRoom ? "방 아이템" : "코알라 아이템")}</span><button type="button" class="koala-zoom-close" data-koala-zoom-close>${rwL("✕ Close", "✕ 닫기")}</button></div>
       <div class="koala-subd-stage koala-itemd-stage${own ? "" : " is-locked"}">${KoalaArt.itemIcon(id)}</div>
       <div class="koala-subd-name">${escapeHtml(koalaItemName(it))}</div>${price}
@@ -17426,7 +17427,13 @@ document.addEventListener("click", (e) => {
   const addItem = e.target.closest("[data-koala-admin-add-item]");
   if (addItem) {
     const [mode, slot] = addItem.dataset.koalaAdminAddItem.split(":");
-    KoalaAdminItems.openItemForm({ kind: mode === "room" ? "studyroom" : "character", cats: koalaAdminCatsFor(mode), cat: slot, lang: currentLang, onSaved: () => koalaAdminRefresh() });
+    KoalaAdminItems.openItemForm({ kind: mode === "room" ? "studyroom" : "character", dim: "2d", cats: koalaAdminCatsFor(mode), cat: slot, lang: currentLang, onSaved: () => koalaAdminRefresh() });
+    return;
+  }
+  const delItem = e.target.closest("[data-koala-admin-del-item]");
+  if (delItem) {
+    const id = delItem.dataset.koalaAdminDelItem, it = KoalaCore.itemById(id);
+    if (it) KoalaAdminItems.deleteItem({ id, name: it.name, lang: currentLang, onDeleted: () => koalaAdminRefresh(id) });
     return;
   }
   const delCat = e.target.closest("[data-koala-admin-del-cat]");
@@ -17445,8 +17452,8 @@ document.addEventListener("click", (e) => {
     if (it) {
       const mode = KoalaCore.ROOM_SLOTS.includes(it.slot) ? "room" : "character";
       KoalaAdminItems.openItemForm({
-        kind: mode === "room" ? "studyroom" : "character", cats: koalaAdminCatsFor(mode),
-        item: { id: it.id, cat: it.slot, name: it.name, unlock: it.unlock.coins != null ? { type: "coins", value: it.unlock.coins } : { type: "free" }, active: true, img3dUrl: KoalaCore.customImg3d(it.id), fit: KoalaCore.customFit(it.id) },
+        kind: mode === "room" ? "studyroom" : "character", dim: "2d", cats: koalaAdminCatsFor(mode),
+        item: { id: it.id, cat: it.slot, name: it.name, unlock: it.unlock.coins != null ? { type: "coins", value: it.unlock.coins } : { type: "free" }, active: true, img2dUrl: KoalaCore.customImg2d(it.id), fit2d: KoalaCore.customFit2d(it.id), img3dUrl: KoalaCore.customImg3d(it.id), fit: KoalaCore.customFit(it.id) },
         lang: currentLang, onSaved: () => koalaAdminRefresh(id),
       });
     }

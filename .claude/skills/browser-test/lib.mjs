@@ -1,9 +1,9 @@
-// Browser-test helper for Koala Study Mate (see SKILL.md). Local only: talks to `wrangler dev --port 8799`.
+// Browser-test helper for Koala Study Mate (see SKILL.md). Local only: talks to `wrangler dev --port 8787`.
 import { chromium } from "playwright-core";
 import crypto from "crypto";
 import fs from "fs";
 
-export const BASE = "http://127.0.0.1:8799";
+export const BASE = "http://127.0.0.1:8787";
 const SECRET = "localtestsecret123"; // must match .dev.vars written by setup.sh
 const USERS = { admin: "adm1", paid: "paid1", free: "free1" };
 
@@ -56,4 +56,33 @@ export async function makePng(p, file, color = "#e0245e") {
   }, color);
   fs.writeFileSync(file, Buffer.from(b64, "base64"));
   return file;
+}
+
+// ---- Test-data hygiene: the local DB is the SAME one the user works in on http://localhost:8787. ----
+// Never wipe items/categories wholesale. Take a snapshot before the test and, at the end, delete only what the test created.
+export async function snapshot(p) {
+  await p.goto(BASE + "/");
+  return p.evaluate(async () => {
+    const ids = { items: [], cats: [] };
+    for (const k of ["character", "studyroom", "house"]) {
+      const it = await fetch("/api/items?kind=" + k).then((r) => r.json()).catch(() => ({ items: [] }));
+      const ct = await fetch("/api/item-categories?kind=" + k).then((r) => r.json()).catch(() => ({ categories: [] }));
+      (it.items || []).forEach((i) => ids.items.push(i.id));
+      (ct.categories || []).forEach((c) => ids.cats.push(k + "/" + c.id));
+    }
+    return ids;
+  });
+}
+export async function restore(p, snap) {
+  await p.goto(BASE + "/");
+  return p.evaluate(async (before) => {
+    let n = 0;
+    for (const k of ["character", "studyroom", "house"]) {
+      const it = await fetch("/api/items?kind=" + k).then((r) => r.json()).catch(() => ({ items: [] }));
+      for (const i of it.items || []) if (!before.items.includes(i.id)) { await fetch("/api/admin/items/" + i.id, { method: "DELETE" }); n++; }
+      const ct = await fetch("/api/item-categories?kind=" + k).then((r) => r.json()).catch(() => ({ categories: [] }));
+      for (const c of ct.categories || []) if (!before.cats.includes(k + "/" + c.id)) { await fetch("/api/admin/item-categories/" + k + "/" + c.id, { method: "DELETE" }); n++; }
+    }
+    return n;
+  }, snap);
 }

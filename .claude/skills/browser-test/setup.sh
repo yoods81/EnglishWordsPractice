@@ -16,7 +16,7 @@ grep -qs '^SESSION_SECRET=localtestsecret123' .dev.vars || printf 'SESSION_SECRE
 # 3) local D1: schema + the migrations the schema does not already include.
 #    When a new migrations/NNNN_*.sql is added, append it to this list.
 for f in schema.sql migrations/0006_koala_coins.sql migrations/0007_koala_account_sync.sql \
-         migrations/0014_koala_items.sql migrations/0015_item_fit.sql; do
+         migrations/0014_koala_items.sql migrations/0015_item_fit.sql migrations/0016_item_fit2d.sql; do
   npx wrangler d1 execute englishwordspractice --local --file="./$f" >/dev/null 2>&1 || echo "note: $f had errors (usually 'already exists' — fine)"
 done
 

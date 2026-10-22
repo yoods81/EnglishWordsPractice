@@ -1,10 +1,10 @@
 {
  "bedBlue": {
   "src": "/img/house/bedBlue.webp",
-  "wpx": 160.0,
+  "wpx": 160,
   "ratio": 0.931,
   "ax": 0.5,
-  "ay": 0.739
+  "ay": 0.679
  },
  "sofaRed": {
   "src": "/img/house/sofaRed.webp",
@@ -32,28 +32,28 @@
   "wpx": 159.7,
   "ratio": 0.935,
   "ax": 0.5,
-  "ay": 0.74
+  "ay": 0.693
  },
  "bedMint": {
   "src": "/img/house/bedMint.webp",
   "wpx": 159.7,
   "ratio": 0.906,
   "ax": 0.5,
-  "ay": 0.729
+  "ay": 0.674
  },
  "sofaBlue": {
   "src": "/img/house/sofaBlue.webp",
   "wpx": 127.7,
   "ratio": 0.808,
   "ax": 0.5,
-  "ay": 0.697
+  "ay": 0.649
  },
  "sofaGreen": {
   "src": "/img/house/sofaGreen.webp",
   "wpx": 127.7,
   "ratio": 0.781,
   "ax": 0.5,
-  "ay": 0.686
+  "ay": 0.656
  },
  "chairPurple": {
   "src": "/img/house/chairPurple.webp",
@@ -81,21 +81,21 @@
   "wpx": 64.7,
   "ratio": 1.367,
   "ax": 0.5,
-  "ay": 0.822
+  "ay": 0.788
  },
  "shelfWood": {
   "src": "/img/house/shelfWood.webp",
   "wpx": 92,
   "ratio": 1.523,
   "ax": 0.454,
-  "ay": 0.873
+  "ay": 0.823
  },
  "shelfWhite": {
   "src": "/img/house/shelfWhite.webp",
   "wpx": 97.3,
   "ratio": 1.385,
   "ax": 0.501,
-  "ay": 0.76,
+  "ay": 0.812,
   "flip": true
  },
  "wardrobeWood": {
@@ -103,28 +103,28 @@
   "wpx": 96.5,
   "ratio": 1.49,
   "ax": 0.5,
-  "ay": 0.841
+  "ay": 0.82
  },
  "wardrobeMint": {
   "src": "/img/house/wardrobeMint.webp",
   "wpx": 100,
   "ratio": 1.592,
   "ax": 0.546,
-  "ay": 0.784
+  "ay": 0.828
  },
  "stoolBlue": {
   "src": "/img/house/stoolBlue.webp",
-  "wpx": 29,
+  "wpx": 45.5,
   "ratio": 1.55,
-  "ax": 0.5,
-  "ay": 0.644
+  "ax": 0.499,
+  "ay": 0.724
  },
  "deskWood": {
   "src": "/img/house/deskWood.webp",
   "wpx": 95.8,
   "ratio": 0.975,
   "ax": 0.5,
-  "ay": 0.749
+  "ay": 0.717
  },
  "deskWhite": {
   "src": "/img/house/deskWhite.webp",
@@ -144,17 +144,17 @@
  },
  "stoolRed": {
   "src": "/img/house/stoolRed.webp",
-  "wpx": 28,
+  "wpx": 45.6,
   "ratio": 1.615,
   "ax": 0.5,
-  "ay": 0.646
+  "ay": 0.764
  },
  "tableRound": {
   "src": "/img/house/tableRound.webp",
-  "wpx": 56,
+  "wpx": 116.7,
   "ratio": 0.975,
   "ax": 0.5,
-  "ay": 0.414
+  "ay": 0.728
  },
  "tvStand": {
   "src": "/img/house/tvStand.webp",
@@ -180,45 +180,45 @@
  },
  "stove": {
   "src": "/img/house/stove.webp",
-  "wpx": 53,
+  "wpx": 61.6,
   "ratio": 1.179,
   "ax": 0.5,
-  "ay": 0.744
+  "ay": 0.759
  },
  "bathtub": {
   "src": "/img/house/bathtub.webp",
   "wpx": 127.7,
   "ratio": 0.981,
   "ax": 0.5,
-  "ay": 0.753
+  "ay": 0.673
  },
  "toilet": {
   "src": "/img/house/toilet.webp",
-  "wpx": 39,
+  "wpx": 55.2,
   "ratio": 1.417,
-  "ax": 0.5,
-  "ay": 0.71
+  "ax": 0.501,
+  "ay": 0.777
  },
  "vanity": {
   "src": "/img/house/vanity.webp",
   "wpx": 96.2,
   "ratio": 1.185,
   "ax": 0.5,
-  "ay": 0.794
+  "ay": 0.75
  },
  "toybox": {
   "src": "/img/house/toybox.webp",
-  "wpx": 44,
+  "wpx": 54.9,
   "ratio": 0.908,
   "ax": 0.5,
-  "ay": 0.6
+  "ay": 0.712
  },
  "piano": {
   "src": "/img/house/piano.webp",
   "wpx": 104,
   "ratio": 1.163,
   "ax": 0.519,
-  "ay": 0.751
+  "ay": 0.825
  },
  "lampFloor": {
   "src": "/img/house/lampFloor.webp",
@@ -306,10 +306,10 @@
  },
  "plantBig": {
   "src": "/img/house/plantBig.webp",
-  "wpx": 50,
+  "wpx": 58.3,
   "ratio": 1.246,
   "ax": 0.5,
-  "ay": 0.743
+  "ay": 0.802
  },
  "cactus": {
   "src": "/img/house/cactus.webp",
@@ -356,10 +356,10 @@
  },
  "bench": {
   "src": "/img/house/bench.webp",
-  "wpx": 44,
+  "wpx": 55.8,
   "ratio": 1.033,
-  "ax": 0.5,
-  "ay": 0.472,
+  "ax": 0.501,
+  "ay": 0.757,
   "flip": true
  },
  "swing": {
@@ -371,10 +371,10 @@
  },
  "fence": {
   "src": "/img/house/bd_fence.webp",
-  "wpx": 38,
+  "wpx": 64,
   "ratio": 0.863,
   "ax": 0.5,
-  "ay": 0.817,
+  "ay": 0.747,
   "flip": true,
   "shear": -0.17
  },
@@ -401,10 +401,10 @@
  },
  "doghouse": {
   "src": "/img/house/doghouse.webp",
-  "wpx": 49,
+  "wpx": 64.7,
   "ratio": 1.015,
-  "ax": 0.5,
-  "ay": 0.356
+  "ax": 0.501,
+  "ay": 0.725
  },
  "fountain": {
   "src": "/img/house/fountain.webp",
@@ -415,10 +415,10 @@
  },
  "hedge": {
   "src": "/img/house/hedge.webp",
-  "wpx": 61,
+  "wpx": 69.3,
   "ratio": 0.823,
-  "ax": 0.5,
-  "ay": 0.522,
+  "ax": 0.501,
+  "ay": 0.717,
   "flip": true
  },
  "snowman": {
@@ -451,10 +451,10 @@
  },
  "gate": {
   "src": "/img/house/gate.webp",
-  "wpx": 48,
+  "wpx": 64.9,
   "ratio": 1.244,
-  "ax": 0.5,
-  "ay": 0.598
+  "ax": 0.501,
+  "ay": 0.812
  },
  "stoolBlue@b": {
   "src": "/img/house/stoolBlue_b.webp",
@@ -958,19 +958,19 @@
  },
  "hedge1": {
   "src": "/img/house/bd_hedge1.webp",
-  "wpx": 58,
+  "wpx": 64,
   "ratio": 0.783,
   "ax": 0.5,
-  "ay": 0.692,
+  "ay": 0.716,
   "flip": true,
   "shear": -0.36
  },
  "stoneWall1": {
   "src": "/img/house/bd_stoneWall1.webp",
-  "wpx": 52,
+  "wpx": 64,
   "ratio": 0.74,
   "ax": 0.5,
-  "ay": 0.688,
+  "ay": 0.704,
   "flip": true,
   "shear": -0.31
  },
@@ -1083,17 +1083,17 @@
  },
  "contS": {
   "src": "/img/house/contS.webp",
-  "wpx": 46,
+  "wpx": 59.7,
   "ratio": 0.977,
-  "ax": 0.5,
-  "ay": 0.744
+  "ax": 0.498,
+  "ay": 0.699
  },
  "contM": {
   "src": "/img/house/contM.webp",
-  "wpx": 56,
+  "wpx": 66.4,
   "ratio": 0.945,
-  "ax": 0.5,
-  "ay": 0.735
+  "ax": 0.501,
+  "ay": 0.72
  },
  "contL": {
   "src": "/img/house/contL.webp",
@@ -1239,5 +1239,22 @@
  },
  "@sub:scratchPad": {
   "src": "/img/house/sub/scratchPad.webp"
+ },
+ "asmrBox": {
+  "src": "/img/house/asmrBox.webp",
+  "wpx": 55.3,
+  "ratio": 1.041,
+  "ax": 0.502,
+  "ay": 0.753
+ },
+ "asmrBox@o": {
+  "src": "/img/house/asmrBox_o.webp",
+  "wpx": 55.3,
+  "ratio": 1.041,
+  "ax": 0.502,
+  "ay": 0.753
+ },
+ "@sub:keySwitch": {
+  "src": "/img/house/sub/keySwitch.webp"
  }
 }

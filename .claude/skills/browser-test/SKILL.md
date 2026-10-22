@@ -23,10 +23,10 @@ add it to the list in `setup.sh` and re-run.
 ## Start the local server (background)
 
 ```bash
-npx wrangler dev --port 8799 > "$TMPDIR/wd.log" 2>&1 &    # PowerShell: Start-Process / run_in_background
+npx wrangler dev --port 8787 > "$TMPDIR/wd.log" 2>&1 &    # PowerShell: Start-Process / run_in_background
 ```
 
-Wait for `Ready on http://127.0.0.1:8799`. Stop it when done (`taskkill //F //IM workerd.exe`).
+Wait for `Ready on http://127.0.0.1:8787`. Stop it when done (`taskkill //F //IM workerd.exe`).
 Never use `--remote` and never run a remote D1 command for testing — everything here is local only.
 
 ## Drive it
@@ -36,7 +36,7 @@ Write throw-away scripts in the session scratchpad (not in the repo) that import
 ```js
 import { open } from "<abs path>/.claude/skills/browser-test/lib.mjs";
 const { b, p } = await open({ role: "admin", width: 1200, height: 1000 }); // role: admin | paid | free | none
-await p.goto("http://127.0.0.1:8799/");
+await p.goto("http://127.0.0.1:8787/");
 await p.evaluate(() => document.querySelector('.tab-btn[data-view="koala"]').click()); // nav buttons can be hidden: click via JS
 await p.screenshot({ path: "shot.png" });   // then READ the png — a blank/odd screenshot is a failure
 await b.close();
@@ -50,7 +50,7 @@ Rules of thumb:
 - Native `confirm()` dialogs: `p.on("dialog", d => d.accept())`.
 - File uploads: `p.setInputFiles(selector, path)`. Make test PNGs with a canvas in `p.evaluate` (see lib `makePng`).
 - Role is re-read from the DB on every request, so `role: "free"` / `"paid"` users in the local DB behave like real ones.
-- Test data only goes into the local DB (`.wrangler/`, gitignored). Clean up what you created when practical.
+- Test data only goes into the local DB (`.wrangler/`, gitignored) — but that is the SAME DB the user works in at http://localhost:8787. **Never wipe items/categories wholesale** (no "delete every item" loops). At the start of a test call `const snap = await snapshot(p)` (from lib.mjs), and at the end `await restore(p, snap)`, which deletes only what the test created. A cleanup script that deleted all items once wiped the user's own test items.
 
 ## Useful selectors (My Koala)
 

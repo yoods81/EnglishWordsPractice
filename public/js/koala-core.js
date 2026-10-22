@@ -300,7 +300,7 @@
   function visibleItems(progress, slot, opts) {
     const o = opts || {};
     const k = ensureKoala(progress);
-    return ITEMS.filter((it) => it.slot === slot && (!it.season || k.items.owned[it.id] || o.showAll || isSeasonActive(it, o.date)));
+    return ITEMS.filter((it) => it.slot === slot && !it.no2d && (!it.season || k.items.owned[it.id] || o.showAll || isSeasonActive(it, o.date)));
   }
   const itemById = (id) => ITEMS.find((i) => i.id === id) || null;
 
@@ -1066,11 +1066,12 @@
       rows.forEach((row) => {
         if (ITEMS.some((it) => it.id === row.id)) return; // never override a built-in id
         const it = { id: row.id, slot: row.cat, name: row.name, unlock: buildUnlock(row.unlock), custom: true };
+        if (!row.imageUrl2d) it.no2d = true;   // made in the 3D wardrobe only: not shown in the 2D Sticker lists
         if (row.kind === "room") it.kind = "room";
         if (row.season) it.season = row.season;
         ITEMS.push(it);
-        CUSTOM_IMG[row.id] = { img2d: row.imageUrl2d || null, img3d: row.imageUrl || null, fit: row.fit || null };
-        added.push({ id: row.id, kind: it.kind || "character", slot: row.cat, img2d: row.imageUrl2d || null, img3d: row.imageUrl || null });
+        CUSTOM_IMG[row.id] = { img2d: row.imageUrl2d || null, img3d: row.imageUrl || null, fit: row.fit || null, fit2d: row.fit2d || null };
+        added.push({ id: row.id, kind: it.kind || "character", slot: row.cat, img2d: row.imageUrl2d || null, img3d: row.imageUrl || null, fit2d: row.fit2d || null });
       });
       itemsLoaded = true;
     } catch (e) { /* offline or API error: built-in items still work fine */ }
@@ -1078,6 +1079,7 @@
   }
   const customImg2d = (id) => (CUSTOM_IMG[id] && CUSTOM_IMG[id].img2d) || null;
   const customImg3d = (id) => (CUSTOM_IMG[id] && CUSTOM_IMG[id].img3d) || null;
+  const customFit2d = (id) => (CUSTOM_IMG[id] && CUSTOM_IMG[id].fit2d) || null;
   const customFit = (id) => (CUSTOM_IMG[id] && CUSTOM_IMG[id].fit) || null;
   const customCatLabel = (id) => CUSTOM_CAT_LABEL[id] || null;
   // An admin deleted this category: drop it from this page's tab lists (built-in slots are never in CUSTOM_CAT_LABEL).
@@ -1095,6 +1097,6 @@
     SUB_RULES, SUB_PARENTS, SUB_ITEMS, subKind, subById, subItemsFor, subLimit, subSelection, toggleSub, isSubOwned, buySub, sellItem, sellSub, creditSale, sellValue, SELL_RATE, SUB_COST,
     levelInfo,
     ensureStreak, advanceStreak, streakStatus,
-    loadItems, customImg2d, customImg3d, customFit, customCatLabel, forgetCustomCat,
+    loadItems, customImg2d, customImg3d, customFit, customFit2d, customCatLabel, forgetCustomCat,
   };
 });
