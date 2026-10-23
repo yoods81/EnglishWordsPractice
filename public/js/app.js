@@ -16413,7 +16413,7 @@ function koalaItemGoLabel(it, st) {
   const on = st.state === "equipped", looks = /wall|floor/i.test(it.slot), isRoom = KoalaCore.ROOM_SLOTS.includes(it.slot);
   return looks ? (on ? rwL("Take it off", "빼기") : rwL("Apply", "적용하기")) : isRoom ? (on ? rwL("Take it out", "빼기") : rwL("Place", "배치하기")) : (on ? rwL("Take it off", "벗기") : rwL("Wear", "입기"));
 }
-const SP_X = '<svg class="sp-x" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+const SP_X = '<svg class="spp-x" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 function openKoalaSellConfirm(id) {
   const it = KoalaCore.itemById(id);
   if (!it || !it.unlock.coins || !KoalaCore.ensureKoala(progress).items.owned[id]) return;
@@ -16424,18 +16424,18 @@ function openKoalaSellConfirm(id) {
   const el = document.createElement("div");
   el.id = "koala-sellconf";
   el.className = "koala-zoom-overlay";
-  const keepsSubs = KoalaCore.subKind(id) ? `<p class="sp-note">${rwL("Things you bought for it stay yours.", "이 아이템에 쓰던 물건은 그대로 내 거예요.")}</p>` : "";
-  el.innerHTML = `<div class="sp-card" role="alertdialog" aria-modal="true" aria-label="${rwL("Sell back", "되팔기")}">
-    <div class="sp-head"><h2 class="sp-title">${rwL("Sell back?", "되팔까요?")}</h2>
-      <button type="button" class="sp-close" data-koala-zoom-close>${SP_X} ${rwL("Close", "닫기")}</button></div>
-    <div class="sp-stage">${KoalaArt.itemIcon(id)}</div>
-    <div class="sp-name">${escapeHtml(koalaItemName(it))}</div>
-    <div class="sp-rows">
-      <div class="sp-row"><span>${SP_ICONS.coin} ${rwL("Price you paid", "산 가격")}</span><b>${SP_ICONS.coin} ${paid}</b></div>
-      <div class="sp-row"><span>${SP_ICONS.gear} ${rwL("Fee (20%)", "수수료 (20%)")}</span><b>− ${serverAdmin ? 0 : paid - back}</b></div>
-      <div class="sp-row total"><span>${SP_ICONS.wallet} ${rwL("Back to your wallet", "지갑으로 돌아와요")}</span><b>+ ${back}</b></div></div>
-    ${serverAdmin ? `<p class="sp-note">${rwL("Admin has unlimited Coins, so nothing comes back.", "관리자는 코인이 무제한이라 환불은 없어요.")}</p>` : ""}${keepsSubs}
-    <div class="sp-btns"><button type="button" class="sp-btn teal" data-koala-sell-wear>${goLabel}</button><button type="button" class="sp-btn orange" data-koala-sell-go><span aria-hidden="true">💰</span> ${rwL("Sell it", "되팔기")}</button></div></div>`;
+  const keepsSubs = KoalaCore.subKind(id) ? `<p class="spp-note">${rwL("Things you bought for it stay yours.", "이 아이템에 쓰던 물건은 그대로 내 거예요.")}</p>` : "";
+  el.innerHTML = `<div class="spp-card" role="alertdialog" aria-modal="true" aria-label="${rwL("Sell back", "되팔기")}">
+    <div class="spp-head">
+      <button type="button" class="spp-close" data-koala-zoom-close>${SP_X} ${rwL("Close", "닫기")}</button></div>
+    <div class="spp-stage">${KoalaArt.itemIcon(id)}</div>
+    <div class="spp-name">${escapeHtml(koalaItemName(it))}</div>
+    <div class="spp-rows">
+      <div class="spp-row"><span>${SP_ICONS.coin} ${rwL("Price you paid", "산 가격")}</span><b>${SP_ICONS.coin} ${paid}</b></div>
+      <div class="spp-row"><span>${SP_ICONS.gear} ${rwL("Fee (20%)", "수수료 (20%)")}</span><b>− ${serverAdmin ? 0 : paid - back}</b></div>
+      <div class="spp-row total"><span>${SP_ICONS.wallet} ${rwL("Back to your wallet", "지갑으로 돌아와요")}</span><b>+ ${back}</b></div></div>
+    ${serverAdmin ? `<p class="spp-note">${rwL("Admin has unlimited Coins, so nothing comes back.", "관리자는 코인이 무제한이라 환불은 없어요.")}</p>` : ""}${keepsSubs}
+    <div class="spp-btns"><button type="button" class="spp-btn teal" data-koala-sell-wear>${goLabel}</button><button type="button" class="spp-btn orange" data-koala-sell-go><span aria-hidden="true">💰</span> ${rwL("Sell it", "되팔기")}</button></div></div>`;
   el.addEventListener("click", (e) => {
     if (e.target === el || e.target.closest("[data-koala-zoom-close]")) { closeKoalaSell(); return; }
     if (e.target.closest("[data-koala-sell-wear]")) { closeKoalaSell(); handleKoalaItem(id); return; }
@@ -17303,7 +17303,7 @@ function openKoalaItemDetail(id, opts) {
   el.id = "koala-itemdetail";
   el.className = "koala-zoom-overlay";
   const card = document.createElement("div");
-  card.className = "sp-card koala-itemd-card";
+  card.className = "spp-card koala-itemd-card";
   card.setAttribute("role", "dialog");
   card.setAttribute("aria-modal", "true");
   card.setAttribute("aria-label", koalaItemName(it));
@@ -17312,24 +17312,24 @@ function openKoalaItemDetail(id, opts) {
     const k = KoalaCore.ensureKoala(progress);
     const own = st.state === "owned" || st.state === "equipped";
     let price = "", act = "";
-    const cancel = `<button type="button" class="sp-btn sand" data-koala-zoom-close>${rwL("Close", "닫기")}</button>`;
+    const cancel = `<button type="button" class="spp-btn sand" data-koala-zoom-close>${rwL("Close", "닫기")}</button>`;
     if (own) {
       const go = opts.onPlace ? rwL("Place", "배치하기") : koalaItemGoLabel(it, st);
-      act = `<button type="button" class="sp-btn teal" data-koala-detail-go>${go}</button>${cancel}`;
+      act = `<button type="button" class="spp-btn teal" data-koala-detail-go>${go}</button>${cancel}`;
     } else if (st.state === "buyable") {
       const short = serverAdmin ? 0 : st.cost - k.coins;
-      price = `<div class="sp-rows"><div class="sp-row"><span>${SP_ICONS.coin} ${rwL("Price", "가격")}</span><b>${serverAdmin ? rwL("Free for Admin", "관리자는 무료") : st.cost}</b></div></div>`;
-      act = short > 0 ? `<p class="sp-note">${rwL(`${short} more Coins to unlock`, `${short}코인 더 모으면 살 수 있어요`)}</p>`.replace("<p", "<p style=\"flex:1 1 100%\"") + cancel
-        : `<button type="button" class="sp-btn teal" data-koala-detail-buy>${rwL("Buy", "살래요")}</button>${cancel}`;
+      price = `<div class="spp-rows"><div class="spp-row"><span>${SP_ICONS.coin} ${rwL("Price", "가격")}</span><b>${serverAdmin ? rwL("Free for Admin", "관리자는 무료") : st.cost}</b></div></div>`;
+      act = short > 0 ? `<p class="spp-note">${rwL(`${short} more Coins to unlock`, `${short}코인 더 모으면 살 수 있어요`)}</p>`.replace("<p", "<p style=\"flex:1 1 100%\"") + cancel
+        : `<button type="button" class="spp-btn teal" data-koala-detail-buy>${rwL("Buy", "살래요")}</button>${cancel}`;
     } else {
-      price = `<div class="sp-rows"><div class="sp-row"><span>${koalaItemStatusText(st).replace(/<[^>]*>/g, "")}</span></div></div>`;
+      price = `<div class="spp-rows"><div class="spp-row"><span>${koalaItemStatusText(st).replace(/<[^>]*>/g, "")}</span></div></div>`;
       act = cancel;
     }
-    const adminEdit = isAdmin && it.custom ? `<div class="sp-admin"><button type="button" class="pill neutral small" data-koala-admin-edit-item="${escapeHtml(id)}">${rwL("✏️ Edit", "✏️ 수정")}</button><button type="button" class="pill neutral small koala-admin-del" data-koala-admin-del-item="${escapeHtml(id)}">${rwL("🗑 Delete", "🗑 삭제")}</button></div>` : "";
-    card.innerHTML = `<div class="sp-head"><h2 class="sp-title">${rwL(isRoom ? "Room item" : "Koala item", isRoom ? "방 아이템" : "코알라 아이템")}</h2><button type="button" class="sp-close" data-koala-zoom-close>${SP_X} ${rwL("Close", "닫기")}</button></div>
-      <div class="sp-stage${own ? "" : " is-locked"}">${KoalaArt.itemIcon(id)}</div>
-      <div class="sp-name">${escapeHtml(koalaItemName(it))}</div>${price}
-      <div class="sp-btns">${act}</div>${adminEdit}<div class="sp-msg" role="status">${msg ? escapeHtml(msg) : ""}</div>`;
+    const adminEdit = isAdmin && it.custom ? `<div class="spp-admin"><button type="button" class="pill neutral small" data-koala-admin-edit-item="${escapeHtml(id)}">${rwL("✏️ Edit", "✏️ 수정")}</button><button type="button" class="pill neutral small koala-admin-del" data-koala-admin-del-item="${escapeHtml(id)}">${rwL("🗑 Delete", "🗑 삭제")}</button></div>` : "";
+    card.innerHTML = `<div class="spp-head"><h2 class="spp-title">${rwL(isRoom ? "Room item" : "Koala item", isRoom ? "방 아이템" : "코알라 아이템")}</h2><button type="button" class="spp-close" data-koala-zoom-close>${SP_X} ${rwL("Close", "닫기")}</button></div>
+      <div class="spp-stage${own ? "" : " is-locked"}">${KoalaArt.itemIcon(id)}</div>
+      <div class="spp-name">${escapeHtml(koalaItemName(it))}</div>${price}
+      <div class="spp-btns">${act}</div>${adminEdit}<div class="spp-msg" role="status">${msg ? escapeHtml(msg) : ""}</div>`;
       };
   body("");
   el.appendChild(card);

@@ -239,14 +239,14 @@
   // Sell back: 80% of the price returns to the wallet (a 20% fee). o.sell = { paid, back, onSell() -> bool }
   function sellConfirm(o) {
     const sl = o.sell, free = !!(curOpts && curOpts.unlimited), back = free ? 0 : sl.back, fee = free ? 0 : sl.paid - sl.back;
-    const goBtn = o.go && o.onGo ? `<button type="button" class="sp-btn teal" data-primary data-go>${esc(o.go)}</button>` : "";
-    modal(`<div class="sp-card"><div class="sp-head"><h2 class="sp-title">${T("되팔까요?", "Sell back?")}</h2><button type="button" class="sp-close" data-no><svg class="sp-x" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg> ${T("닫기", "Close")}</button></div>
-      <div class="sp-stage">${o.pic}</div><div class="sp-name">${esc(o.title)}</div>
-      <div class="sp-rows"><div class="sp-row"><span>${SP_ICONS.coin} ${T("산 가격", "Price you paid")}</span><b>${SP_ICONS.coin} ${sl.paid}</b></div><div class="sp-row"><span>${SP_ICONS.gear} ${T("수수료 (20%)", "Fee (20%)")}</span><b>− ${fee}</b></div><div class="sp-row total"><span>${SP_ICONS.wallet} ${T("지갑으로 돌아와요", "Back to your wallet")}</span><b>+ ${back}</b></div></div>
-      ${sl.note ? `<p class="sp-note">${esc(sl.note)}</p>` : ""}
-      ${free ? `<p class="sp-note">${T("관리자는 코인이 무제한이라 환불은 없어요.", "Admin has unlimited coins, so nothing comes back.")}</p>` : ""}
-      <div class="sp-btns">${goBtn}<button type="button" class="sp-btn orange" data-yes><span aria-hidden="true">💰</span> ${T("되팔기", "Sell")}</button></div></div>`, (m) => {
-      const sheet = m.querySelector(".kh-sheet"); if (sheet) sheet.classList.add("sp-sheet");
+    const goBtn = o.go && o.onGo ? `<button type="button" class="spp-btn teal" data-primary data-go>${esc(o.go)}</button>` : "";
+    modal(`<div class="spp-card"><div class="spp-head"><button type="button" class="spp-close" data-no><svg class="spp-x" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg> ${T("닫기", "Close")}</button></div>
+      <div class="spp-stage">${o.pic}</div><div class="spp-name">${esc(o.title)}</div>
+      <div class="spp-rows"><div class="spp-row"><span>${SP_ICONS.coin} ${T("산 가격", "Price you paid")}</span><b>${SP_ICONS.coin} ${sl.paid}</b></div><div class="spp-row"><span>${SP_ICONS.gear} ${T("수수료 (20%)", "Fee (20%)")}</span><b>− ${fee}</b></div><div class="spp-row total"><span>${SP_ICONS.wallet} ${T("지갑으로 돌아와요", "Back to your wallet")}</span><b>+ ${back}</b></div></div>
+      ${sl.note ? `<p class="spp-note">${esc(sl.note)}</p>` : ""}
+      ${free ? `<p class="spp-note">${T("관리자는 코인이 무제한이라 환불은 없어요.", "Admin has unlimited coins, so nothing comes back.")}</p>` : ""}
+      <div class="spp-btns">${goBtn}<button type="button" class="spp-btn orange" data-yes><span aria-hidden="true">💰</span> ${T("되팔기", "Sell")}</button></div></div>`, (m) => {
+      const sheet = m.querySelector(".kh-sheet"); if (sheet) sheet.classList.add("spp-sheet");
       const go = m.querySelector("[data-go]"); if (go) go.onclick = () => { if (!o.keep) closeModal(); o.onGo(); };
       m.querySelector("[data-no]").onclick = closeModal;
       m.querySelector("[data-yes]").onclick = () => {
@@ -908,7 +908,7 @@
       if (!it) { m.hidden = true; return; }
       const d = H.D[it.id];
       name = nm(d);
-      btns = (d.wall ? "" : turn) + (d.subKind && curOpts.subs ? b("subs", "inside", T("열어보기", "Open"), "accent") : "") + b("del", "trash", T("치우기", "Remove"), "danger");
+      btns = (d.wall ? "" : turn) + (d.subKind && curOpts.subs && d.subKind !== "toys" && d.subKind !== "asmr" ? b("subs", "inside", T("열어보기", "Open"), "accent") : "") + b("del", "trash", T("치우기", "Remove"), "danger");
     }
     m.innerHTML = `<div class="kh-mhead"><b>${esc(name)}</b><button type="button" class="kh-mclose" data-act="x" aria-label="${T("닫기", "Close")}">${ic("x")}</button></div><div class="kh-mrow">${btns}</div>`;
     m.hidden = false;

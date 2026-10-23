@@ -13995,39 +13995,39 @@ html:root body #view-koala .koala-cats-wrap .koala-cats { gap: 5px; }
 .koala-admin-pic2d svg { width: 100%; max-height: 260px; }
 
 /* ---- "Sell back?" popup (My items, Sticker + Pop-out): cream card, teal frame, chunky toy buttons ---- */
-.sp-card { position: relative; width: min(92vw, 400px); max-height: 96vh; max-height: 96dvh; overflow-y: auto; scrollbar-width: none; box-sizing: border-box; padding: 14px 16px 16px; text-align: center; color: #4a3322; background: linear-gradient(180deg, #fffaf0, #fbf1da); border: 4px solid #6cc4ad; border-radius: 30px; box-shadow: 0 0 0 3px #d5f0e7, 0 22px 50px rgba(30, 70, 60, .35); }
-.sp-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
-.sp-title { margin: 0; font-family: var(--font-heading, inherit); font-size: 1.45rem; font-weight: 800; color: #4a3322; text-align: left; }
-.sp-close, .sp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: inherit; font-weight: 800; color: #fff; border: 0; cursor: pointer; text-shadow: 0 1px 0 rgba(0, 0, 0, .18); -webkit-tap-highlight-color: transparent; }
-.sp-close { flex: 0 0 auto; min-height: 40px; padding: 0 16px; border-radius: 999px; font-size: 1rem; background: linear-gradient(180deg, #5fd0b4, #2fa88c); box-shadow: 0 4px 0 #1f7f69, inset 0 2px 0 rgba(255, 255, 255, .45); }
-.sp-btn { flex: 1 1 0; min-width: 0; min-height: 46px; padding: 0 12px; border-radius: 999px; font-size: 1.05rem; }
-.sp-btn.teal { background: linear-gradient(180deg, #5fd0b4, #2fa88c); box-shadow: 0 5px 0 #1f7f69, inset 0 2px 0 rgba(255, 255, 255, .45); }
-.sp-btn.orange { background: linear-gradient(180deg, #ff9d62, #ee6a2c); box-shadow: 0 5px 0 #b84a17, inset 0 2px 0 rgba(255, 255, 255, .45); }
-.sp-card::-webkit-scrollbar { display: none; }
-.sp-close:active, .sp-btn:active { filter: brightness(.94); }
-.sp-close:focus-visible, .sp-btn:focus-visible { outline: 3px solid #1f7f69; outline-offset: 3px; }
-.sp-x { display: block; }
-.sp-stage { display: grid; place-items: center; width: min(70%, 220px); height: min(26vh, 26dvh, 190px); width: auto; margin: 2px auto 0; padding: 4px; box-sizing: border-box; }
-.sp-stage > svg, .sp-stage > img { display: block; width: auto; height: 100%; max-width: 100%; object-fit: contain; }
-.sp-stage .kh-subic { width: 100%; height: 100%; max-width: 190px; max-height: 190px; }
-.sp-name { margin: 4px 0 8px; font-family: var(--font-heading, inherit); font-size: 1.2rem; font-weight: 800; color: #4a3322; }
-.sp-rows { display: grid; gap: 6px; max-width: 360px; margin: 0 auto; text-align: left; }
-.sp-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 12px; border-radius: 16px; background: #fffdf8; box-shadow: 0 2px 6px rgba(120, 90, 40, .14); font-weight: 700; }
-.sp-row > span { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
-.sp-row > b { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-heading, inherit); font-size: 1.15rem; white-space: nowrap; }
-.sp-ic { width: 1.6rem; height: 1.6rem; flex: 0 0 auto; display: block; }
-.sp-ic-w { width: 2rem; height: 1.8rem; margin: -2px -2px -2px -4px; }
-.sp-row > b .sp-ic { width: 1.45rem; height: 1.45rem; }
-.sp-row.total { background: linear-gradient(180deg, #e4fbf3, #cdf4e7); color: #12705a; box-shadow: 0 0 0 2px #6cc4ad, 0 4px 14px rgba(95, 208, 180, .45); }
-.sp-gear { font-style: normal; color: #a9743c; font-size: 1.3rem; line-height: 1; width: 1.45rem; text-align: center; }
-.sp-wallet { font-style: normal; font-size: 1.35rem; line-height: 1; width: 1.45rem; text-align: center; }
-.sp-note { margin: 8px 6px 0; font-size: .88rem; color: #8a7358; }
-.sp-btns { display: flex; gap: 10px; max-width: 360px; margin: 12px auto 2px; }
-.sp-btn.sand { background: linear-gradient(180deg, #fffaf0, #f1e3c4); color: #7a5a30; text-shadow: none; box-shadow: 0 5px 0 #cdb485, inset 0 2px 0 rgba(255, 255, 255, .8); }
-.kh-app .kh-sheet.sp-sheet { width: auto; padding: 0; background: transparent; box-shadow: none; border-radius: 0; }
-.kh-app .kh-sheet .sp-title { margin: 0; font-size: 1.45rem; color: #4a3322; letter-spacing: 0; }
-@media (max-width: 420px) { .kh-app .kh-sheet .sp-title { font-size: 1.25rem; } }
-@media (max-width: 420px) { .sp-card { padding: 14px 14px 18px; } .sp-title { font-size: 1.25rem; } .sp-btn { font-size: 1rem; padding: 0 8px; } }
+.spp-card { position: relative; width: min(92vw, 400px); max-height: 96vh; max-height: 96dvh; overflow-y: auto; scrollbar-width: none; box-sizing: border-box; padding: 14px 16px 16px; text-align: center; color: #4a3322; background: linear-gradient(180deg, #fffaf0, #fbf1da); border: 4px solid #6cc4ad; border-radius: 30px; box-shadow: 0 0 0 3px #d5f0e7, 0 22px 50px rgba(30, 70, 60, .35); }
+.spp-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.spp-title { margin: 0; font-family: var(--font-heading, inherit); font-size: 1.45rem; font-weight: 800; color: #4a3322; text-align: left; }
+.spp-close, .spp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: inherit; font-weight: 800; color: #fff; border: 0; cursor: pointer; text-shadow: none; transform: none; -webkit-tap-highlight-color: transparent; }
+.spp-close { flex: 0 0 auto; min-height: 38px; padding: 0 16px; border-radius: 12px; font-size: .98rem; background: #22b98c; box-shadow: none; text-shadow: none; }
+.spp-btn { flex: 1 1 0; min-width: 0; min-height: 44px; padding: 0 10px; border-radius: 12px; font-size: 1rem; }
+.spp-btn.teal { background: #22b98c; box-shadow: none; }
+.spp-btn.orange { background: #f07a3c; box-shadow: none; }
+.spp-card::-webkit-scrollbar { display: none; }
+.spp-close:active, .spp-btn:active { filter: brightness(.94); }
+.spp-close:focus-visible, .spp-btn:focus-visible { outline: 3px solid #1f7f69; outline-offset: 3px; }
+.spp-x { display: block; }
+.spp-stage { display: grid; place-items: center; width: min(70%, 220px); height: min(26vh, 26dvh, 190px); width: auto; margin: 2px auto 0; padding: 4px; box-sizing: border-box; }
+.spp-stage > svg, .spp-stage > img { display: block; width: auto; height: 100%; max-width: 100%; object-fit: contain; }
+.spp-stage .kh-subic { width: 100%; height: 100%; max-width: 190px; max-height: 190px; }
+.spp-name { margin: 4px 0 8px; font-family: var(--font-heading, inherit); font-size: 1.2rem; font-weight: 800; color: #4a3322; }
+.spp-rows { display: grid; gap: 6px; max-width: 360px; margin: 0 auto; text-align: left; }
+.spp-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 12px; border-radius: 16px; background: #fffdf8; box-shadow: 0 2px 6px rgba(120, 90, 40, .14); font-weight: 700; }
+.spp-row > span { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.spp-row > b { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-heading, inherit); font-size: 1.15rem; white-space: nowrap; }
+.spp-ic { width: 1.6rem; height: 1.6rem; flex: 0 0 auto; display: block; }
+.spp-ic-w { width: 2rem; height: 1.8rem; margin: -2px -2px -2px -4px; }
+.spp-row > b .spp-ic { width: 1.45rem; height: 1.45rem; }
+.spp-row.total { background: linear-gradient(180deg, #e4fbf3, #cdf4e7); color: #12705a; box-shadow: 0 0 0 2px #6cc4ad, 0 4px 14px rgba(95, 208, 180, .45); }
+.spp-gear { font-style: normal; color: #a9743c; font-size: 1.3rem; line-height: 1; width: 1.45rem; text-align: center; }
+.spp-wallet { font-style: normal; font-size: 1.35rem; line-height: 1; width: 1.45rem; text-align: center; }
+.spp-note { margin: 8px 6px 0; font-size: .88rem; color: #8a7358; }
+.spp-btns { display: flex; gap: 10px; max-width: 360px; margin: 12px auto 2px; }
+.spp-btn.sand { background: #efe3c8; color: #7a5a30; text-shadow: none; box-shadow: none; }
+.kh-app .kh-sheet.spp-sheet { width: auto; padding: 0; background: transparent; box-shadow: none; border-radius: 0; }
+.kh-app .kh-sheet .spp-title { margin: 0; font-size: 1.45rem; color: #4a3322; letter-spacing: 0; }
+@media (max-width: 420px) { .kh-app .kh-sheet .spp-title { font-size: 1.25rem; } }
+@media (max-width: 420px) { .spp-card { padding: 14px 14px 18px; } .spp-title { font-size: 1.25rem; } .spp-btn { font-size: 1rem; padding: 0 8px; } }
 
 /* ---- admin "+ Add item": a flat teal button with a centred plus ---- */
 .koala-admin-add-item-btn, .kh-admin-add-item { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 18px; border: 0; border-radius: 12px; font: inherit; font-weight: 800; font-size: .95rem; line-height: 1; color: #fff; cursor: pointer; background: #1f9e8a; box-shadow: none; }
@@ -14037,10 +14037,10 @@ html:root body #view-koala .koala-cats-wrap .koala-cats { gap: 5px; }
 .koala-admin-add-item-btn:focus-visible, .kh-admin-add-item:focus-visible { outline: 3px solid #0f6e55; outline-offset: 2px; }
 
 @media (min-width: 720px) { html body #view-koala .koala-studio-top > .koala-cats { margin-top: 12px; } }
-.sp-stage.is-locked { filter: grayscale(.45); opacity: .85; }
-.sp-btns { flex-wrap: wrap; }
-.sp-admin { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
-.sp-msg { min-height: 1.2em; margin-top: 6px; font-weight: 700; color: #c2410c; font-size: .9rem; }
+.spp-stage.is-locked { filter: grayscale(.45); opacity: .85; }
+.spp-btns { flex-wrap: wrap; }
+.spp-admin { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+.spp-msg { min-height: 1.2em; margin-top: 6px; font-weight: 700; color: #c2410c; font-size: .9rem; }
 
 /* ---- Sticker / Pop-out / My items: one mint bar, three equal tabs; the chosen tab takes the card colour below ---- */
 html body #view-koala .koala-dimrow.kdt { display: block; margin: 10px 0 0; padding: 0; position: relative; z-index: 3; }
@@ -14059,3 +14059,49 @@ html body #view-koala .koala-dimrow.kdt + .koala-studio .koala-stage.is-characte
 @media (min-width: 720px) {
   html body #view-koala .koala-dimrow.kdt.ctx-2d-char { display: grid; grid-template-columns: minmax(280px, 330px) minmax(0, 1fr); column-gap: 16px; }
 }
+
+.spp-head { justify-content: flex-end; }
+.spp-head:has(.spp-title) { justify-content: space-between; }
+.spp-close:hover, .spp-btn:hover { filter: brightness(1.06); }
+
+/* ---- tabs: don't cut "My items"; in Pop-out the bar matches the Koala card width too ---- */
+html body #view-koala .kdt-tab { font-size: .88rem; gap: 5px; padding: 0 2px; }
+html body #view-koala .kdt-tab > span { overflow: visible; text-overflow: clip; }
+html body #view-koala .koala-dimrow.kdt { container-type: inline-size; }
+@container (min-width: 820px) { html body #view-koala .kdt.ctx-3d-char.is-paid .kdt-bar { width: calc(100% - min(400px, 46vw)); } }
+html body #view-koala .kh-ward:not(.kh-narrow) .kh-panel { padding-top: 12px; }
+
+/* ---- every Pop-out popup (kh-sheet) shares the cream card + teal frame + flat buttons ---- */
+html body .kh-app .kh-sheet:not(.spp-sheet) { width: min(360px, 100%); padding: 16px 16px 16px; background: linear-gradient(180deg, #fffaf0, #fbf1da); border: 4px solid #6cc4ad; border-radius: 28px; box-shadow: 0 0 0 3px #d5f0e7, 0 22px 50px rgba(30, 70, 60, .35); color: #4a3322; }
+html body .kh-app .kh-sheet:not(.spp-sheet) h2 { color: #4a3322; font-size: 1.25rem; font-weight: 800; margin: 0 0 8px; }
+html body .kh-app .kh-sheet .kh-buy-pic, html body .kh-app .kh-sheet .kh-detail-pic { height: 180px; max-height: 180px; padding: 4px; margin: 0 auto 10px; background: none; box-shadow: none; border-radius: 0; }
+html body .kh-app .kh-sheet .kh-detail-pic > svg, html body .kh-app .kh-sheet .kh-detail-pic > img, html body .kh-app .kh-sheet .kh-buy-pic > svg, html body .kh-app .kh-sheet .kh-buy-pic > img { max-height: 168px; }
+html body .kh-app .kh-sheet .kh-buy-price { background: #fffdf8; box-shadow: 0 2px 6px rgba(120, 90, 40, .14); color: #4a3322; border-radius: 16px; padding: 6px 18px; }
+html body .kh-app .kh-sheet .kh-buy-note { color: #8a7358; margin: 0 0 10px; }
+html body .kh-app .kh-sheet .kh-btns { flex-wrap: nowrap; gap: 8px; }
+html body .kh-app .kh-sheet .kh-btns .kh-btn, html body .kh-app .kh-sheet > .kh-btn { flex: 1 1 0; min-width: 0; min-height: 42px; padding: 0 8px; border-radius: 12px; font-size: .92rem; font-weight: 800; white-space: nowrap; color: #fff; background: #22b98c; box-shadow: none; border: 0; text-shadow: none; transform: none; }
+html body .kh-app .kh-sheet .kh-btns .kh-btn.alt, html body .kh-app .kh-sheet > .kh-btn.alt { background: #efe3c8; color: #7a5a30; box-shadow: none; }
+html body .kh-app .kh-sheet .kh-btns .kh-btn.sell { background: #f07a3c; color: #fff; box-shadow: none; }
+html body .kh-app .kh-sheet .kh-btns .kh-btn.sell small { margin-left: 3px; opacity: 1; }
+html body .kh-app .kh-sheet .kh-btns .kh-btn:disabled { opacity: .5; }
+html body .kh-app .kh-sheet .kh-btns .kh-btn:active { transform: none; filter: brightness(.94); }
+html body .kh-app .kh-sheet > .kh-btn { width: 100%; margin-top: 8px; flex: none; }
+html body .kh-app .kh-sheet .kh-navbtn { border: 0; background: #fff; box-shadow: 0 2px 6px rgba(30, 70, 60, .25); }
+
+/* ---- the little menu over a placed item: same family, flat colourful buttons ---- */
+html body .kh-app .kh-menu { background: linear-gradient(180deg, #fffaf0, #fbf1da); border: 3px solid #6cc4ad; border-radius: 20px; box-shadow: 0 0 0 2px #d5f0e7, 0 12px 28px rgba(30, 70, 60, .3); }
+html body .kh-app .kh-mhead b { color: #4a3322; font-size: .9rem; }
+html body .kh-app .kh-menu .kh-mclose { background: #22b98c; color: #fff; border-radius: 9px; width: 28px; height: 28px; }
+html body .kh-app .kh-menu .kh-mclose:hover { background: #1fa97f; }
+html body .kh-app .kh-menu .kh-mbtn { background: #fff; color: #2a8f72; border-radius: 12px; box-shadow: 0 1px 4px rgba(120, 90, 40, .15); font-weight: 800; }
+html body .kh-app .kh-menu .kh-mbtn:hover { background: #e9f8f2; }
+html body .kh-app .kh-menu .kh-mbtn.accent { background: #22b98c; color: #fff; }
+html body .kh-app .kh-menu .kh-mbtn.danger { background: #ffe9dc; color: #d4572a; }
+html body .kh-app .kh-menu .kh-mbtn.danger:hover { background: #ffdcc9; }
+
+/* ---- the 2D sub-item / other card popups use the same look ---- */
+html body .koala-subd-card { background: linear-gradient(180deg, #fffaf0, #fbf1da); border: 4px solid #6cc4ad; border-radius: 28px; box-shadow: 0 0 0 3px #d5f0e7, 0 22px 50px rgba(30, 70, 60, .35); color: #4a3322; }
+html body .koala-subd-card .koala-zoom-close { background: #22b98c; border: 0; color: #fff; border-radius: 12px; box-shadow: none; }
+html body .koala-subd-card .pill { border: 0; border-radius: 12px; box-shadow: none; background: #efe3c8; color: #7a5a30; text-shadow: none; }
+html body .koala-subd-card .pill.accent { background: #22b98c; color: #fff; }
+html body .koala-subd-card .pill.warn { background: #f07a3c; color: #fff; }

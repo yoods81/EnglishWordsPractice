@@ -187,10 +187,18 @@
  },
  "bathtub": {
   "src": "/img/house/bathtub.webp",
-  "wpx": 114.9,
+  "wpx": 127.7,
   "ratio": 0.981,
   "ax": 0.5,
-  "ay": 0.79
+  "ay": 0.673,
+  "mat": [
+   0.867,
+   -0.0303,
+   0.0333,
+   0.79,
+   -14,
+   -16.3
+  ]
  },
  "toilet": {
   "src": "/img/house/toilet.webp",
@@ -508,18 +516,10 @@
  },
  "toybox@o": {
   "src": "/img/house/toybox_o.webp",
-  "wpx": 35,
+  "wpx": 60,
   "ratio": 1.154,
   "ax": 0.5,
-  "ay": 0.604,
-  "mat": [
-   0.977,
-   0.06,
-   -0.0575,
-   1.105,
-   0.2,
-   1.2
-  ]
+  "ay": 0.77
  },
  "@sub:alarmClock": {
   "src": "/img/house/sub/alarmClock.webp"
