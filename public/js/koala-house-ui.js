@@ -239,11 +239,15 @@
   // Sell back: 80% of the price returns to the wallet (a 20% fee). o.sell = { paid, back, onSell() -> bool }
   function sellConfirm(o) {
     const sl = o.sell, free = !!(curOpts && curOpts.unlimited), back = free ? 0 : sl.back, fee = free ? 0 : sl.paid - sl.back;
-    modal(`<h2>${T("되팔까요?", "Sell back?")}</h2><div class="kh-buy-pic kh-detail-pic">${o.pic}</div><p class="kh-buy-name"><b>${esc(o.title)}</b></p>
-      <div class="kh-sellmath"><div><span>${T("산 가격", "Price you paid")}</span><b>${COIN} ${sl.paid}</b></div><div><span>${T("수수료 (20%)", "Fee (20%)")}</span><b>− ${fee}</b></div><div class="total"><span>${T("지갑으로 돌아와요", "Back to your wallet")}</span><b>${COIN} +${back}</b></div></div>
-      ${sl.note ? `<p class="kh-buy-note">${esc(sl.note)}</p>` : ""}
-      ${free ? `<p class="kh-buy-note">${T("관리자는 코인이 무제한이라 환불은 없어요.", "Admin has unlimited coins, so nothing comes back.")}</p>` : ""}
-      <div class="kh-btns"><button type="button" class="kh-btn alt" data-primary data-no>${T("그대로 두기", "Keep it")}</button><button type="button" class="kh-btn sell" data-yes>${T("되팔기", "Sell")}</button></div>`, (m) => {
+    const goBtn = o.go && o.onGo ? `<button type="button" class="sp-btn teal" data-primary data-go>${esc(o.go)}</button>` : "";
+    modal(`<div class="sp-card"><div class="sp-head"><h2 class="sp-title">${T("되팔까요?", "Sell back?")}</h2><button type="button" class="sp-close" data-no><svg class="sp-x" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg> ${T("닫기", "Close")}</button></div>
+      <div class="sp-stage">${o.pic}</div><div class="sp-name">${esc(o.title)}</div>
+      <div class="sp-rows"><div class="sp-row"><span>${SP_ICONS.coin} ${T("산 가격", "Price you paid")}</span><b>${SP_ICONS.coin} ${sl.paid}</b></div><div class="sp-row"><span>${SP_ICONS.gear} ${T("수수료 (20%)", "Fee (20%)")}</span><b>− ${fee}</b></div><div class="sp-row total"><span>${SP_ICONS.wallet} ${T("지갑으로 돌아와요", "Back to your wallet")}</span><b>+ ${back}</b></div></div>
+      ${sl.note ? `<p class="sp-note">${esc(sl.note)}</p>` : ""}
+      ${free ? `<p class="sp-note">${T("관리자는 코인이 무제한이라 환불은 없어요.", "Admin has unlimited coins, so nothing comes back.")}</p>` : ""}
+      <div class="sp-btns">${goBtn}<button type="button" class="sp-btn orange" data-yes><span aria-hidden="true">💰</span> ${T("되팔기", "Sell")}</button></div></div>`, (m) => {
+      const sheet = m.querySelector(".kh-sheet"); if (sheet) sheet.classList.add("sp-sheet");
+      const go = m.querySelector("[data-go]"); if (go) go.onclick = () => { if (!o.keep) closeModal(); o.onGo(); };
       m.querySelector("[data-no]").onclick = closeModal;
       m.querySelector("[data-yes]").onclick = () => {
         const ok = sl.onSell();
@@ -904,7 +908,7 @@
       if (!it) { m.hidden = true; return; }
       const d = H.D[it.id];
       name = nm(d);
-      btns = (d.wall ? "" : turn) + (d.subKind && curOpts.subs ? b("subs", "inside", T("안쪽 꾸미기", "Inside"), "accent") : "") + b("del", "trash", T("치우기", "Remove"), "danger");
+      btns = (d.wall ? "" : turn) + (d.subKind && curOpts.subs ? b("subs", "inside", T("열어보기", "Open"), "accent") : "") + b("del", "trash", T("치우기", "Remove"), "danger");
     }
     m.innerHTML = `<div class="kh-mhead"><b>${esc(name)}</b><button type="button" class="kh-mclose" data-act="x" aria-label="${T("닫기", "Close")}">${ic("x")}</button></div><div class="kh-mrow">${btns}</div>`;
     m.hidden = false;
@@ -1321,7 +1325,7 @@
     const list = Object.values(H.D).filter((d) => !d.virtual && d.cat === ses.tab && fitsHere(d, yard)).sort((a, b) => a.price - b.price);
     const haveN = list.filter(ownedItem).length, tabName = (tabsFor(yard).find((t) => t[0] === ses.tab) || [0, 0, ""])[2];
     const adminAdd = curOpts && curOpts.isAdmin
-      ? `<button type="button" class="kh-btn alt kh-admin-add-item" data-kh-admin-add-item="${ses.tab}">${T("+ 아이템 추가", "+ Add item")}</button>${H.customCategories().some((c) => c.id === ses.tab) ? `<button type="button" class="kh-btn alt kh-admin-del" data-kh-admin-del-cat="${ses.tab}">${T("🗑 카테고리 삭제", "🗑 Delete category")}</button>` : ""}` : "";
+      ? `<button type="button" class="kh-admin-add-item" data-kh-admin-add-item="${ses.tab}"><span class="add-ic" aria-hidden="true">+</span>${T("아이템 추가", "Add item")}</button>${H.customCategories().some((c) => c.id === ses.tab) ? `<button type="button" class="kh-btn alt kh-admin-del" data-kh-admin-del-cat="${ses.tab}">${T("🗑 카테고리 삭제", "🗑 Delete category")}</button>` : ""}` : "";
     return `${shelfHead(tabName, `${haveN}/${list.length}`)}${adminAdd}<div class="kh-items-grid">${list.map((d) => { const own = ownedItem(d); return `<button type="button" class="kh-item${own ? "" : " locked"}" data-item="${d.id}" aria-label="${esc(nm(d))}${own ? "" : ", " + d.price}">${H.thumbSvg(d.id)}<span class="kh-nm">${esc(nm(d))}</span>${own ? "" : `<span class="kh-pr">${COIN}${d.price}</span>`}</button>`; }).join("")}</div>${ses.tab === "toys" && !yard ? asmrToysHtml() : ""}`;
   }
   // The ASMR toys are part of the Toys category: they are bought here, but they only make their sound from inside an ASMR box (tap the box in the room to open its list).
@@ -1561,7 +1565,7 @@
       fit(root);
       root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage">${wardBackdrop()}<svg class="kh-ward-koala" viewBox="64 20 553 1020" role="img" aria-label="${T("3D 코알라", "3D Koala")}"><ellipse cx="340" cy="962" rx="205" ry="22" fill="#000" opacity=".16"/><g class="kh-wbody">${imgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
         <aside class="kh-panel">${chipsHtml(slots.map((sl) => [sl, `/img/cat/${sl}.webp`, slotName[sl]]), wardOwned ? "" : wardSlot)}
-        ${wardOwned ? ownedHtml() : `<div class="kh-grid">${shelfHead(slotName[wardSlot], `${S.worn[wardSlot] ? 1 : 0}/${KSLOT[wardSlot].length}`)}${opts.isAdmin ? `<button type="button" class="kh-btn alt kh-admin-add-item" data-kh-admin-add-item="${wardSlot}">${T("+ 아이템 추가", "+ Add item")}</button>` : ""}<div class="kh-items-grid">${KSLOT[wardSlot].map((n) => itemBtn(wardSlot, n)).join("")}</div>
+        ${wardOwned ? ownedHtml() : `<div class="kh-grid">${shelfHead(slotName[wardSlot], `${S.worn[wardSlot] ? 1 : 0}/${KSLOT[wardSlot].length}`)}${opts.isAdmin ? `<button type="button" class="kh-admin-add-item" data-kh-admin-add-item="${wardSlot}"><span class="add-ic" aria-hidden="true">+</span>${T("아이템 추가", "Add item")}</button>` : ""}<div class="kh-items-grid">${KSLOT[wardSlot].map((n) => itemBtn(wardSlot, n)).join("")}</div>
         ${wornN ? clearBtn : ""}${wardMsg ? `<p class="kh-empty">${esc(wardMsg)}</p>` : ""}</div>`}</aside>`;
       root.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { wardSlot = b.dataset.tab; if (wardOwned) { wardOwned = false; window.dispatchEvent(new CustomEvent("kh-owned-off")); } draw(); }; });
       initCats(root);

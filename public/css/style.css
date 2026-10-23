@@ -13993,3 +13993,69 @@ html:root body #view-koala .koala-cats-wrap .koala-cats { gap: 5px; }
 .kh-admin-del { color: #c2410c; }
 .koala-admin-pic2d { width: 100%; border-radius: 10px; background: var(--card-bg); }
 .koala-admin-pic2d svg { width: 100%; max-height: 260px; }
+
+/* ---- "Sell back?" popup (My items, Sticker + Pop-out): cream card, teal frame, chunky toy buttons ---- */
+.sp-card { position: relative; width: min(92vw, 400px); max-height: 96vh; max-height: 96dvh; overflow-y: auto; scrollbar-width: none; box-sizing: border-box; padding: 14px 16px 16px; text-align: center; color: #4a3322; background: linear-gradient(180deg, #fffaf0, #fbf1da); border: 4px solid #6cc4ad; border-radius: 30px; box-shadow: 0 0 0 3px #d5f0e7, 0 22px 50px rgba(30, 70, 60, .35); }
+.sp-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.sp-title { margin: 0; font-family: var(--font-heading, inherit); font-size: 1.45rem; font-weight: 800; color: #4a3322; text-align: left; }
+.sp-close, .sp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: inherit; font-weight: 800; color: #fff; border: 0; cursor: pointer; text-shadow: 0 1px 0 rgba(0, 0, 0, .18); -webkit-tap-highlight-color: transparent; }
+.sp-close { flex: 0 0 auto; min-height: 40px; padding: 0 16px; border-radius: 999px; font-size: 1rem; background: linear-gradient(180deg, #5fd0b4, #2fa88c); box-shadow: 0 4px 0 #1f7f69, inset 0 2px 0 rgba(255, 255, 255, .45); }
+.sp-btn { flex: 1 1 0; min-width: 0; min-height: 46px; padding: 0 12px; border-radius: 999px; font-size: 1.05rem; }
+.sp-btn.teal { background: linear-gradient(180deg, #5fd0b4, #2fa88c); box-shadow: 0 5px 0 #1f7f69, inset 0 2px 0 rgba(255, 255, 255, .45); }
+.sp-btn.orange { background: linear-gradient(180deg, #ff9d62, #ee6a2c); box-shadow: 0 5px 0 #b84a17, inset 0 2px 0 rgba(255, 255, 255, .45); }
+.sp-card::-webkit-scrollbar { display: none; }
+.sp-close:active, .sp-btn:active { filter: brightness(.94); }
+.sp-close:focus-visible, .sp-btn:focus-visible { outline: 3px solid #1f7f69; outline-offset: 3px; }
+.sp-x { display: block; }
+.sp-stage { display: grid; place-items: center; width: min(70%, 220px); height: min(26vh, 26dvh, 190px); width: auto; margin: 2px auto 0; padding: 4px; box-sizing: border-box; }
+.sp-stage > svg, .sp-stage > img { display: block; width: auto; height: 100%; max-width: 100%; object-fit: contain; }
+.sp-stage .kh-subic { width: 100%; height: 100%; max-width: 190px; max-height: 190px; }
+.sp-name { margin: 4px 0 8px; font-family: var(--font-heading, inherit); font-size: 1.2rem; font-weight: 800; color: #4a3322; }
+.sp-rows { display: grid; gap: 6px; max-width: 360px; margin: 0 auto; text-align: left; }
+.sp-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 12px; border-radius: 16px; background: #fffdf8; box-shadow: 0 2px 6px rgba(120, 90, 40, .14); font-weight: 700; }
+.sp-row > span { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.sp-row > b { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-heading, inherit); font-size: 1.15rem; white-space: nowrap; }
+.sp-ic { width: 1.6rem; height: 1.6rem; flex: 0 0 auto; display: block; }
+.sp-ic-w { width: 2rem; height: 1.8rem; margin: -2px -2px -2px -4px; }
+.sp-row > b .sp-ic { width: 1.45rem; height: 1.45rem; }
+.sp-row.total { background: linear-gradient(180deg, #e4fbf3, #cdf4e7); color: #12705a; box-shadow: 0 0 0 2px #6cc4ad, 0 4px 14px rgba(95, 208, 180, .45); }
+.sp-gear { font-style: normal; color: #a9743c; font-size: 1.3rem; line-height: 1; width: 1.45rem; text-align: center; }
+.sp-wallet { font-style: normal; font-size: 1.35rem; line-height: 1; width: 1.45rem; text-align: center; }
+.sp-note { margin: 8px 6px 0; font-size: .88rem; color: #8a7358; }
+.sp-btns { display: flex; gap: 10px; max-width: 360px; margin: 12px auto 2px; }
+.sp-btn.sand { background: linear-gradient(180deg, #fffaf0, #f1e3c4); color: #7a5a30; text-shadow: none; box-shadow: 0 5px 0 #cdb485, inset 0 2px 0 rgba(255, 255, 255, .8); }
+.kh-app .kh-sheet.sp-sheet { width: auto; padding: 0; background: transparent; box-shadow: none; border-radius: 0; }
+.kh-app .kh-sheet .sp-title { margin: 0; font-size: 1.45rem; color: #4a3322; letter-spacing: 0; }
+@media (max-width: 420px) { .kh-app .kh-sheet .sp-title { font-size: 1.25rem; } }
+@media (max-width: 420px) { .sp-card { padding: 14px 14px 18px; } .sp-title { font-size: 1.25rem; } .sp-btn { font-size: 1rem; padding: 0 8px; } }
+
+/* ---- admin "+ Add item": a flat teal button with a centred plus ---- */
+.koala-admin-add-item-btn, .kh-admin-add-item { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 18px; border: 0; border-radius: 12px; font: inherit; font-weight: 800; font-size: .95rem; line-height: 1; color: #fff; cursor: pointer; background: #1f9e8a; box-shadow: none; }
+.kh-admin-add-item { margin: 0 0 10px; }
+.koala-admin-add-item-btn .add-ic, .kh-admin-add-item .add-ic { display: inline-block; font-size: 1.35rem; font-weight: 800; line-height: 1; margin-top: -2px; }
+.koala-admin-add-item-btn:hover, .kh-admin-add-item:hover { background: #188877; }
+.koala-admin-add-item-btn:focus-visible, .kh-admin-add-item:focus-visible { outline: 3px solid #0f6e55; outline-offset: 2px; }
+
+@media (min-width: 720px) { html body #view-koala .koala-studio-top > .koala-cats { margin-top: 12px; } }
+.sp-stage.is-locked { filter: grayscale(.45); opacity: .85; }
+.sp-btns { flex-wrap: wrap; }
+.sp-admin { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+.sp-msg { min-height: 1.2em; margin-top: 6px; font-weight: 700; color: #c2410c; font-size: .9rem; }
+
+/* ---- Sticker / Pop-out / My items: one mint bar, three equal tabs; the chosen tab takes the card colour below ---- */
+html body #view-koala .koala-dimrow.kdt { display: block; margin: 10px 0 0; padding: 0; position: relative; z-index: 3; }
+html body #view-koala .kdt-bar { display: flex; gap: 4px; padding: 6px 6px 0; background: var(--accent, #22c89a); border-radius: 18px 18px 0 0; }
+html body #view-koala .kdt-tab { flex: 1 1 0; min-width: 0; height: 42px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 4px; margin: 0; border: 0; border-radius: 14px 14px 0 0; background: transparent; color: #fff; font: inherit; font-weight: 800; font-size: .92rem; white-space: nowrap; text-shadow: 0 1px 0 rgba(0, 0, 0, .15); box-shadow: none; position: relative; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+html body #view-koala .kdt-tab > span { overflow: hidden; text-overflow: ellipsis; }
+html body #view-koala .kdt-tab.on { background: var(--tabc); color: var(--accent-dark, #16906d); text-shadow: none; }
+html body #view-koala .kdt.ctx-3d-char:not(.is-paid) .kdt-tab.on, html body #view-koala .kdt.ctx-3d-room:not(.is-paid) .kdt-tab.on { color: #fff; }
+html body #view-koala .kdt-tab:focus-visible { outline: 3px solid #fff; outline-offset: -3px; }
+html body #view-koala .kdt-tab .kd-ic { width: 17px; height: 17px; flex: none; }
+html body #view-koala .kdt-tab .kd-crown { color: #ffd34d; }
+html body #view-koala .kdt-tab .kdt-ic-img { width: 22px; height: 22px; object-fit: contain; flex: none; }
+@media (max-width: 380px) { html body #view-koala .kdt-tab { font-size: .84rem; gap: 4px; } html body #view-koala .kdt-tab .kdt-ic-img { width: 20px; height: 20px; } }
+/* the card under the bar squares its top corners so the bar and card form one piece */
+html body #view-koala .koala-dimrow.kdt + .koala-studio .koala-stage.is-character, html body #view-koala .koala-dimrow.kdt + .koala-studio .koala-plan-card, html body #view-koala .koala-dimrow.kdt + .koala-dim3d > .kt-teaser, html body #view-koala .koala-dimrow.kdt + .koala-dim3d > #kh-host, html body #view-koala .koala-dimrow.kdt + .kt-teaser { border-top-left-radius: 0; border-top-right-radius: 0; }
+@media (min-width: 720px) {
+  html body #view-koala .koala-dimrow.kdt.ctx-2d-char { display: grid; grid-template-columns: minmax(280px, 330px) minmax(0, 1fr); column-gap: 16px; }
+}

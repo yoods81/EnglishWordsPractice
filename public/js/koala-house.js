@@ -390,7 +390,8 @@
     const tk = tuckOf(id, m);
     const mir = !!(m & 1) !== !!e.flip;   // flip: the picture was drawn along the other floor axis, so it is mirrored the other way round
     const [cx, cy] = proj(o.w / 2 + tk[0], o.d / 2 + tk[1], 0);
-    lastGeom = { cx, cy, w, h, x: cx - w * ax, y: cy - h * ay, mir };
+    const mt = e.mat && e.mat.length === 6 ? e.mat : null;   // mat: a small affine fix [a b c d e f] (e, f in px) for a picture whose faces are not at the true 2:1 floor angle
+    lastGeom = { cx, cy, w, h, x: cx - w * ax, y: cy - h * ay, mir, mt };
     // contact shadow: the shape of the piece's own footprint (soft, rounded), so the whole piece - the far end of a long bed
     // or sofa too - looks planted on the floor, and pieces standing side by side share one dark floor patch instead of floating
     const gx = (o.w - o.d) * 16, gy = (o.w + o.d) * 8;   // footprint centre relative to its top corner
@@ -398,7 +399,7 @@
     const sh = noSh ? "" : `<g fill="#3b2a1a" stroke="#3b2a1a" stroke-linejoin="round"><polygon points="${fp(0.84)}" stroke-width="4" opacity=".08"/><polygon points="${fp(0.62)}" stroke-width="6" opacity=".09"/></g>`;
     // shear: a picture drawn from a flatter camera has its long side at a shallower slope than the floor lines; tilt it so that a car does not look nose-up
     const sk = e.shear ? (mir ? -e.shear : e.shear) : 0;
-    const tf = (sk ? `translate(${cx} ${cy}) matrix(1 ${sk} 0 1 0 0) translate(${-cx} ${-cy})` : "") + (mir ? `${sk ? " " : ""}translate(${cx * 2} 0) scale(-1 1)` : "");
+    const tf = [sk ? `translate(${cx} ${cy}) matrix(1 ${sk} 0 1 0 0) translate(${-cx} ${-cy})` : "", mir ? `translate(${cx * 2} 0) scale(-1 1)` : "", mt ? `translate(${cx} ${cy}) matrix(${mt.join(" ")}) translate(${-cx} ${-cy})` : ""].filter(Boolean).join(" ");
     return sh + `<image href="${e.src}" x="${cx - w * ax}" y="${cy - h * ay}" width="${w}" height="${h}"${tf ? ` transform="${tf}"` : ""} preserveAspectRatio="xMidYMid meet"/>`;
   }
   /* ---- things inside furniture (sub-items) ---- */
@@ -454,7 +455,14 @@
   // the things inside / on a piece that is drawn as a picture: clothes in an open wardrobe, toys out of an open box, things on a desk
   function subOverlay(def, it, g, open) {
     if (!g || !it || !it.sub || !it.sub.length) return "";
-    const sub = it.sub, at = (fx, fy) => [g.x + g.w * (g.mir ? 1 - fx : fx), g.y + g.h * fy];
+    const sub = it.sub, at = (fx, fy) => {
+      let x = g.x + g.w * (g.mir ? 1 - fx : fx), y = g.y + g.h * fy;
+      if (g.mt) {   // the picture was corrected by a matrix: move the things placed on it the same way
+        const [a, b, c, d, e, f] = g.mt, dx = (g.mir ? 2 * g.cx - x : x) - g.cx, dy = y - g.cy, nx = g.cx + a * dx + c * dy + e;
+        x = g.mir ? 2 * g.cx - nx : nx; y = g.cy + b * dx + d * dy + f;
+      }
+      return [x, y];
+    };
     if (def.subKind === "clothes" && open) {
       const n = Math.min(sub.length, 8);
       return sub.slice(0, n).map((id, k) => { const [x, y] = at(0.34 + (k % 4) * 0.105, k < 4 ? 0.34 : 0.6), sz = g.w * 0.21; return `<image href="/img/koala/th/${id}.webp" x="${(x - sz / 2).toFixed(1)}" y="${(y - sz / 2).toFixed(1)}" width="${sz.toFixed(1)}" height="${sz.toFixed(1)}"/>`; }).join("");
