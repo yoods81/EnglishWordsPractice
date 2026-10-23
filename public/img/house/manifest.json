@@ -1288,5 +1288,20 @@
  },
  "@sub:keySwitch": {
   "src": "/img/house/sub/keySwitch.webp"
+ },
+ "koala:iso_stand_f": {
+  "src": "/img/koala/iso_stand_f.webp"
+ },
+ "koala:iso_stand_b": {
+  "src": "/img/koala/iso_stand_b.webp"
+ },
+ "koala:iso_sit_f": {
+  "src": "/img/koala/iso_sit_f.webp"
+ },
+ "koala:iso_sit_b": {
+  "src": "/img/koala/iso_sit_b.webp"
+ },
+ "koala:iso_lie": {
+  "src": "/img/koala/iso_lie.webp"
  }
 }

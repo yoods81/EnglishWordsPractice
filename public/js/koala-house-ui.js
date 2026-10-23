@@ -661,10 +661,12 @@
     // lying: the standing koala turned onto its back (angle set by the facing, see updateKoala)
     // iso pictures (when supplied): the body picture is swapped, whatever is worn is laid over it as before
     const wornOver = wornNames().filter((n) => n !== "base").map((n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; }).join("");
-    const isoStand = (cls, src) => (src ? `<svg class="${cls}" x="-27" y="-89.8" width="54" height="99.85" viewBox="64 20 553 1020" overflow="hidden" display="none">${one(src)}${wornOver}</svg>` : "");
-    const isoSit = (cls, src) => (src ? `<svg class="${cls}" x="-20" y="-49.1" width="40" height="49.1" viewBox="0 0 720 883" overflow="hidden" display="none"><image href="${src}" x="0" y="0" width="720" height="883"/></svg>` : "");
-    const lie = `<g class="kh-klie" display="none"><g class="kh-klieturn" transform="translate(0 -12) rotate(0) translate(0 40)">${stand.replace("kh-kstand", "kh-klstand")}</g></g>`;   // its own class: ".kh-kstand" must only ever find the real standing picture (the copy used to be found first, so the front picture never switched off and was drawn over the back / sitting ones)
-    return `<g class="kh-koala" data-k="0"><ellipse class="kh-kshadow" cx="0" cy="2" rx="24" ry="8" fill="#000" opacity=".16"/><g class="kh-kbody">${lie}<g class="kh-kflip">${stand}${isoStand("kh-kisosf", extraImg.isoStandF)}${isoStand("kh-kisosb", extraImg.isoStandB)}${isoSit("kh-kisotf", extraImg.isoSitF)}${isoSit("kh-kisotb", extraImg.isoSitB)}${back}${standBack}${sit}${readImg}${pose("kh-kwaterimg", extraImg.water)}${book}${can}</g></g></g>`;
+    // front views carry what is worn; back views show only the picture (the front-facing item pictures do not fit a back)
+    const isoStand = (cls, src, items) => (src ? `<svg class="${cls}" x="-27" y="-89.8" width="54" height="99.85" viewBox="64 20 553 1020" overflow="hidden" display="none">${one(src)}${items ? wornOver : ""}</svg>` : "");
+    const isoSit = (cls, src, items) => (src ? (items ? sitSvg(cls, src, 40, 49.1, 720, 883, "translate(5.5 9.2) scale(1.281) translate(-64 -222)", (n) => !KSLOT.feet.includes(n) && !KSLOT.legs.includes(n)) : `<svg class="${cls}" x="-20" y="-49.1" width="40" height="49.1" viewBox="0 0 720 883" overflow="hidden" display="none"><image href="${src}" x="0" y="0" width="720" height="883"/></svg>`) : "");
+    const lieIso = extraImg.isoLie ? `<image class="kh-klieiso" href="${extraImg.isoLie}" x="-30" y="-17" width="60" height="38.1" preserveAspectRatio="xMidYMid meet"/>` : "";
+    const lie = `<g class="kh-klie" display="none">${lieIso}<g class="kh-klieturn" display="${extraImg.isoLie ? "none" : "inline"}" transform="translate(0 -12) rotate(0) translate(0 40)">${stand.replace("kh-kstand", "kh-klstand")}</g></g>`;   // its own class: ".kh-kstand" must only ever find the real standing picture (the copy used to be found first, so the front picture never switched off and was drawn over the back / sitting ones)
+    return `<g class="kh-koala" data-k="0"><ellipse class="kh-kshadow" cx="0" cy="2" rx="24" ry="8" fill="#000" opacity=".16"/><g class="kh-kbody">${lie}<g class="kh-kflip">${stand}${isoStand("kh-kisosf", extraImg.isoStandF, true)}${isoStand("kh-kisosb", extraImg.isoStandB, false)}${isoSit("kh-kisotf", extraImg.isoSitF, true)}${isoSit("kh-kisotb", extraImg.isoSitB, false)}${back}${standBack}${sit}${readImg}${pose("kh-kwaterimg", extraImg.water)}${book}${can}</g></g></g>`;
   }
   const FLIP = [-1, 1, 1, -1]; // facing 0 (+r, left-down) 1 (+c, right-down) 2 (-r, right-up) 3 (-c, left-up)
   function koalaCellFree(c, r) {
@@ -701,7 +703,8 @@
     { const lt = g.querySelector(".kh-klieturn"); if (lt) lt.setAttribute("transform", `translate(0 ${k.z ? -6 : -12}) rotate(${[-135, 135, 45, -45][k.dir]}) translate(0 40)`); } show(".kh-ksit", sit && !away && !isoT); show(".kh-ksitback", sit && away && !isoT);
     show(".kh-kreadimg", rd); show(".kh-kwaterimg", wt); show(".kh-kread", false); show(".kh-kwater", wt && !hasWt);
     g.querySelector(".kh-kbody").setAttribute("transform", `translate(0 ${(-Math.abs(Math.sin(k.bob)) * (k.pose === "stand" ? 4 : 1.2)).toFixed(1)})`);
-    g.querySelector(".kh-kflip").setAttribute("transform", `scale(${FLIP[k.dir]} 1) skewY(${k.dir < 2 ? 12 : -12})`);   // a lean as well as the mirror, so the four quarter turns all look different
+    g.querySelector(".kh-kflip").setAttribute("transform", (isoS || isoT) ? `scale(${[1, -1, -1, 1][k.dir]} 1)` : `scale(${FLIP[k.dir]} 1) skewY(${k.dir < 2 ? 12 : -12})`);   // iso pictures face the lower-left (front) / upper-left (back) and are mirrored for the right-hand turns
+    { const li = g.querySelector(".kh-klieiso"); if (li) li.setAttribute("transform", `translate(0 ${k.z ? -2 : -6}) ` + ["scale(-1 1) rotate(190)", "rotate(190)", "scale(-1 1) rotate(10)", "rotate(10)"][k.dir]); }   // a lean as well as the mirror, so the four quarter turns all look different
     g.querySelector(".kh-kshadow").setAttribute("opacity", (k.z ? 0 : 0.16));
     let key = k.c + k.r + 2.02;
     if (k.pose === "lie" && k.bed) { const bd = curState().items.find((i) => i.uid === k.bed); if (bd) key = Math.max(key, H.depthKey(bd) + 0.05); }
