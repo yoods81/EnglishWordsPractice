@@ -108,7 +108,9 @@
       const merged = Object.assign({}, m, custom);
       if (!ses || !Object.keys(merged).length) return;
       H.setManifest(merged);
-      extraImg = { back: merged["koala:back"] && merged["koala:back"].src, sit: merged["koala:sit"] && merged["koala:sit"].src, sitback: merged["koala:sitback"] && merged["koala:sitback"].src, read: merged["koala:read"] && merged["koala:read"].src };
+      extraImg = { back: merged["koala:back"] && merged["koala:back"].src, sit: merged["koala:sit"] && merged["koala:sit"].src, sitback: merged["koala:sitback"] && merged["koala:sitback"].src, read: merged["koala:read"] && merged["koala:read"].src,
+        // pictures drawn along the room's own diagonal (3/4 views): stand / sit, facing front-left and back-left (the right-hand ones are the mirror), and lying
+        isoStandF: merged["koala:iso_stand_f"] && merged["koala:iso_stand_f"].src, isoStandB: merged["koala:iso_stand_b"] && merged["koala:iso_stand_b"].src, isoSitF: merged["koala:iso_sit_f"] && merged["koala:iso_sit_f"].src, isoSitB: merged["koala:iso_sit_b"] && merged["koala:iso_sit_b"].src, isoLie: merged["koala:iso_lie"] && merged["koala:iso_lie"].src };
       if (ses.screen === "room") drawScene(); else renderPlan();
     }).catch(() => {});
   }
@@ -657,8 +659,12 @@
     // standing and turned away: there is no standing back picture, so the 3/4-back picture is used (a bit larger, feet on the floor)
     const standBack = `<g class="kh-kstandback" display="none" transform="translate(0 3) scale(1.38)">${sitBack3q(worn, isHat).replace("kh-ksitback", "").replace('display="none"', 'display="inline"')}</g>`;
     // lying: the standing koala turned onto its back (angle set by the facing, see updateKoala)
-    const lie = `<g class="kh-klie" display="none"><g class="kh-klieturn" transform="translate(0 -12) rotate(0) translate(0 40)">${stand}</g></g>`;
-    return `<g class="kh-koala" data-k="0"><ellipse class="kh-kshadow" cx="0" cy="2" rx="24" ry="8" fill="#000" opacity=".16"/><g class="kh-kbody">${lie}<g class="kh-kflip">${stand}${back}${standBack}${sit}${readImg}${pose("kh-kwaterimg", extraImg.water)}${book}${can}</g></g></g>`;
+    // iso pictures (when supplied): the body picture is swapped, whatever is worn is laid over it as before
+    const wornOver = wornNames().filter((n) => n !== "base").map((n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; }).join("");
+    const isoStand = (cls, src) => (src ? `<svg class="${cls}" x="-27" y="-89.8" width="54" height="99.85" viewBox="64 20 553 1020" overflow="hidden" display="none">${one(src)}${wornOver}</svg>` : "");
+    const isoSit = (cls, src) => (src ? `<svg class="${cls}" x="-20" y="-49.1" width="40" height="49.1" viewBox="0 0 720 883" overflow="hidden" display="none"><image href="${src}" x="0" y="0" width="720" height="883"/></svg>` : "");
+    const lie = `<g class="kh-klie" display="none"><g class="kh-klieturn" transform="translate(0 -12) rotate(0) translate(0 40)">${stand.replace("kh-kstand", "kh-klstand")}</g></g>`;   // its own class: ".kh-kstand" must only ever find the real standing picture (the copy used to be found first, so the front picture never switched off and was drawn over the back / sitting ones)
+    return `<g class="kh-koala" data-k="0"><ellipse class="kh-kshadow" cx="0" cy="2" rx="24" ry="8" fill="#000" opacity=".16"/><g class="kh-kbody">${lie}<g class="kh-kflip">${stand}${isoStand("kh-kisosf", extraImg.isoStandF)}${isoStand("kh-kisosb", extraImg.isoStandB)}${isoSit("kh-kisotf", extraImg.isoSitF)}${isoSit("kh-kisotb", extraImg.isoSitB)}${back}${standBack}${sit}${readImg}${pose("kh-kwaterimg", extraImg.water)}${book}${can}</g></g></g>`;
   }
   const FLIP = [-1, 1, 1, -1]; // facing 0 (+r, left-down) 1 (+c, right-down) 2 (-r, right-up) 3 (-c, left-up)
   function koalaCellFree(c, r) {
@@ -686,10 +692,13 @@
     const sit = k.pose === "sit", lie = k.pose === "lie", rd = k.pose === "read", wt = k.pose === "water", away = k.dir === 2 || k.dir === 3, hasBack = !!g.querySelector(".kh-kback");
     const hasRd = true, hasWt = !!g.querySelector(".kh-kwaterimg");
     const show = (sel, on) => { const e = g.querySelector(sel); if (e) e.setAttribute("display", on ? "inline" : "none"); };
+    const isoS = (k.pose === "stand" && (away ? g.querySelector(".kh-kisosb") : g.querySelector(".kh-kisosf"))) || null, isoT = (sit && (away ? g.querySelector(".kh-kisotb") : g.querySelector(".kh-kisotf"))) || null;
     const backPic = k.pose === "stand" && away;   // standing, turned away: the back picture (a made-up one from the 3/4-back art when there is no real standing back)
-    show(".kh-kstand", !sit && !(rd && hasRd) && !(wt && hasWt) && !backPic); show(".kh-kback", backPic && hasBack); show(".kh-kstandback", backPic && !hasBack);
+    ["kisosf", "kisosb", "kisotf", "kisotb"].forEach((c) => show("." + "kh-" + c, false));
+    if (isoS) isoS.setAttribute("display", "inline"); if (isoT) isoT.setAttribute("display", "inline");
+    show(".kh-kstand", !sit && !(rd && hasRd) && !(wt && hasWt) && !backPic && !isoS); show(".kh-kback", backPic && hasBack && !isoS); show(".kh-kstandback", backPic && !hasBack && !isoS);
     show(".kh-klie", lie); { const kf = g.querySelector(".kh-kflip"); if (kf) kf.setAttribute("display", lie ? "none" : "inline"); }
-    { const lt = g.querySelector(".kh-klieturn"); if (lt) lt.setAttribute("transform", `translate(0 ${k.z ? -6 : -12}) rotate(${[-135, 135, 45, -45][k.dir]}) translate(0 40)`); } show(".kh-ksit", sit && !away); show(".kh-ksitback", sit && away);
+    { const lt = g.querySelector(".kh-klieturn"); if (lt) lt.setAttribute("transform", `translate(0 ${k.z ? -6 : -12}) rotate(${[-135, 135, 45, -45][k.dir]}) translate(0 40)`); } show(".kh-ksit", sit && !away && !isoT); show(".kh-ksitback", sit && away && !isoT);
     show(".kh-kreadimg", rd); show(".kh-kwaterimg", wt); show(".kh-kread", false); show(".kh-kwater", wt && !hasWt);
     g.querySelector(".kh-kbody").setAttribute("transform", `translate(0 ${(-Math.abs(Math.sin(k.bob)) * (k.pose === "stand" ? 4 : 1.2)).toFixed(1)})`);
     g.querySelector(".kh-kflip").setAttribute("transform", `scale(${FLIP[k.dir]} 1) skewY(${k.dir < 2 ? 12 : -12})`);   // a lean as well as the mirror, so the four quarter turns all look different
@@ -1184,6 +1193,15 @@
           st.items.forEach((o) => { const od = H.D[o.id]; if (o.uid !== drag.uid && od && od.topH && !od.stack) (od.tiers || [od.topH]).forEach((z) => { if (!lifts.includes(z)) lifts.push(z); }); });
           lifts.sort((a, b) => b - a);
           for (const z of lifts) { aim(z - 6); drag.piece.zHint = z; const r2 = H.canPlace(room, st, drag.piece, drag.uid); if (r2.ok && r2.z > 0) { res = r2; break; } }
+        }
+        if (!res && d && d.seat && /^(stool|chair)/.test(d.id)) {   // a chair dragged onto a desk / table (the picture under the pointer): it is pushed in under it, on the desk cell nearest to where it was aimed
+          const under = document.elementsFromPoint(ev.clientX, ev.clientY).map((e2) => e2.closest && e2.closest(".kh-it[data-uid]")).filter(Boolean).map((g2) => st.items.find((o) => o.uid === g2.dataset.uid)).find((o) => o && o.uid !== drag.uid && /desk|table/i.test(o.id));
+          if (under) {
+            aim(0);
+            const cells = H.cellsOf(under).map((q) => q.split(",").map(Number)).sort((a, b) => Math.hypot(a[0] - drag.piece.c, a[1] - drag.piece.r) - Math.hypot(b[0] - drag.piece.c, b[1] - drag.piece.r));
+            drag.piece.c = cells[0][0]; drag.piece.r = cells[0][1]; drag.piece.zHint = 0;
+            const r2 = H.canPlace(room, st, drag.piece, drag.uid); if (r2.ok) res = r2;
+          }
         }
         if (!res) { aim(0); drag.piece.zHint = 0; res = H.canPlace(room, st, drag.piece, drag.uid); }
         drag.valid = res.ok; if (res.ok) drag.piece.z = res.z;

@@ -121,14 +121,14 @@
  },
  "deskWood": {
   "src": "/img/house/deskWood.webp",
-  "wpx": 107.3,
+  "wpx": 120.2,
   "ratio": 0.975,
   "ax": 0.5,
   "ay": 0.717
  },
  "deskWhite": {
   "src": "/img/house/deskWhite.webp",
-  "wpx": 107.7,
+  "wpx": 120.6,
   "ratio": 0.921,
   "ax": 0.5,
   "ay": 0.734,
@@ -136,7 +136,7 @@
  },
  "deskBlue": {
   "src": "/img/house/deskBlue.webp",
-  "wpx": 107.3,
+  "wpx": 120.2,
   "ratio": 0.831,
   "ax": 0.5,
   "ay": 0.703,
@@ -474,14 +474,14 @@
  },
  "stoolBlue@b": {
   "src": "/img/house/stoolBlue_b.webp",
-  "wpx": 36,
+  "wpx": 54.0,
   "ratio": 1.242,
   "ax": 0.5,
   "ay": 0.642
  },
  "stoolRed@b": {
   "src": "/img/house/stoolRed_b.webp",
-  "wpx": 34,
+  "wpx": 51.0,
   "ratio": 1.315,
   "ax": 0.5,
   "ay": 0.642

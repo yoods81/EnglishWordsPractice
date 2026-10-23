@@ -267,12 +267,12 @@
   ["shelfWood", "shelfWhite"].forEach((id) => { D[id].act = "read"; });
   ["plantBig", "cactus", "palm", "flowerBed", "tulips", "bush"].forEach((id) => { D[id].act = "water"; });
   // Flat-topped furniture can carry small things (the lamps, vases, toys... and the cactus). topH = height of the top, in px of the scene.
-  const TOPS = { bedBlue: 41, bedPink: 41, bedMint: 41, deskWood: 38, deskWhite: 38, deskBlue: 31, counter: 42, vanity: 65, tvStand: 28, shelfWood: 69, shelfWhite: 69, wardrobeWood: 82, wardrobeMint: 81, fridge: 80, piano: 56, tableSquare: 50 };
+  const TOPS = { bedBlue: 41, bedPink: 41, bedMint: 41, deskWood: 38, deskWhite: 38, deskBlue: 52, counter: 50, vanity: 77, tvStand: 60, shelfWood: 94, shelfWhite: 94, wardrobeWood: 106, wardrobeMint: 105, fridge: 82, piano: 78, tableSquare: 65, tableRound: 70, dresser: 70 };
   Object.keys(TOPS).forEach((id) => { if (D[id]) D[id].topH = TOPS[id]; });
   // every other piece of furniture can carry small things on its top too: the top is the highest part of the piece
   Object.keys(D).forEach((id) => {
     const d = D[id];
-    if (d.topH || d.wall || d.flat || d.stack || d.cat === "small" || d.cat === "toys" || d.where === "out" || !d.parts) return;
+    if (d.topH || d.wall || d.flat || d.stack || d.cat === "small" || d.cat === "toys" || d.where === "out" || !d.parts || d.seat || /^(plant|palm|lamp|car|toilet|bathtub|stove)/.test(id)) return;
     const top = d.parts.reduce((m, p) => Math.max(m, p.t === "b" ? p.z + p.h : p.t === "c" ? p.z + p.h : 0), 0);
     if (top >= 14 && top <= 110) d.topH = Math.round(top);
   });
@@ -797,8 +797,18 @@
     res.forEach((e) => { const kk = Math.max(e.k, prev + 0.001); prev = kk; e.svg = e.svg.replace(/data-k="[^"]*"/, `data-k="${kk.toFixed(3)}"`); });
     return res;
   }
+  function chairCentre(i) {
+    if (i.eo || !/^(stool|chair)/.test(i.id) || !D[i.id].seat) return [0, 0];
+    const m = ((i.m | 0) % 4 + 4) % 4; if (m !== 2 && m !== 3) return [0, 0];
+    const front = m === 2 ? Math.round(i.c) + "," + (Math.round(i.r) - 1) : (Math.round(i.c) - 1) + "," + Math.round(i.r);
+    const host = CTX.find((x) => x !== i && D[x.id] && /desk|table/i.test(x.id) && cellsOf(x).includes(front));
+    if (!host) return [0, 0];
+    const o = orient(D[host.id], host.m), cl = (v) => Math.max(-0.5, Math.min(0.5, v));
+    return m === 2 ? [cl(host.c + o.w / 2 - (i.c + 0.5)), 0] : [0, cl(host.r + o.d / 2 - (i.r + 0.5))];
+  }
   function floorItemSvg(i) {
-    const def = D[i.id], [x, y] = proj(i.c + (i.eo ? i.eo[0] : 0), i.r + (i.eo ? i.eo[1] : 0), i.z || 0);
+    const def = D[i.id], nud = chairCentre(i),   // a chair pulled up to a desk / table is centred on it   // a small thing on a desk / shelf top is nudged to the back: the pictures' tops are drawn a little further back than the model's
+      [x, y] = proj(i.c + (i.eo ? i.eo[0] : 0) + nud[0], i.r + (i.eo ? i.eo[1] : 0) + nud[1], i.z || 0);
     return `<g class="kh-it${i.fixed ? " kh-fixed" : ""}" data-uid="${i.uid || ""}" data-id="${i.id}" data-k="${def.flat ? -1 : depthKey(i).toFixed(3)}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})">${itemInner(def, i.m, i)}</g>`;
   }
   function wallMatrix(side) { return side === "L" ? "matrix(-0.5 0.25 0 1 0 0)" : "matrix(0.5 0.25 0 1 0 0)"; }
@@ -1033,6 +1043,7 @@
     for (let c = 0; c < f.w; c++) for (let r = 0; r < f.d; r++) {
       const list = o[(c0 + c) + "," + (r0 + r)];
       if (!list || !list.length) continue;
+      if (def.seat && /^(stool|chair)/.test(def.id) && list.every((x) => /desk|table/i.test(x.id))) continue;   // a chair may be pushed in under a desk / table
       ok = false;   // a big piece needs the floor free
     }
     return { ok, z };
