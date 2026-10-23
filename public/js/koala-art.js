@@ -903,6 +903,7 @@
       // fit2d = where the picture sits on the koala (set in the admin form); without it the picture fills the whole view box
       const box = it.fit2d ? [it.fit2d.x, it.fit2d.y, it.fit2d.w, it.fit2d.h].join(" ") : (view === "head" ? HEAD_VIEW : FULL_VIEW);
       ART[it.id] = { view, front: imageInBox(it.img2d, box) };
+      if (it.fit2d) ICON_VIEW[it.id] = box;   // the card / popup picture is cropped to the item itself, so it is big and centred
     }
   }
 

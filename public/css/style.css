@@ -14225,3 +14225,79 @@ html body .kh-app .kh-sheet .kh-btns .kh-btn { white-space: nowrap; }
 html body #view-koala .koala-wallet-stat { align-items: center; text-align: center; }
 html body #view-koala .koala-wallet-stat > span { display: flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.25; font-size: 12.5px; }
 .spp-close, .spp-btn { white-space: nowrap; }
+
+/* ======== UX pass 3: ONE mint (the My Koala nav button colour #22c9a3) for every green button / tab on the page ======== */
+:root { --kmint: #22c9a3; --kmint-d: #1db894; }
+html body #view-koala .kdt-bar { background: var(--kmint); padding: 0; gap: 0; border-radius: 18px 18px 0 0; overflow: hidden; }
+html body #view-koala .kdt-tab { height: 48px; border-radius: 0; padding: 0 4px; }
+html body #view-koala .kdt-tab.on { background: var(--tabc); }
+html body #view-koala .kdt-tab:first-child.on { border-top-left-radius: 18px; }
+html body #view-koala .kdt-tab:last-child.on { border-top-right-radius: 18px; }
+html body #view-koala .kdt-tab:not(:first-child):not(:last-child).on { border-radius: 14px 14px 0 0; }
+html body #view-koala .stats-tab.on, html body #view-koala .koala-cat.on, html body #view-koala .pill.accent, html body #view-koala .koala-earn-go, html body #view-koala .koala-next-btn,
+html body #view-koala .kh-cat.on, html body .kh-app .kh-cat.on { background: var(--kmint); background-image: none; color: #fff; }
+.spp-btn.teal, .spp-close, html body .kh-app .kh-sheet .kh-btns .kh-btn, html body .kh-app .kh-sheet > .kh-btn, html body .koala-subd-card .koala-zoom-close, html body .koala-subd-card .pill.accent,
+html body #view-koala .koala-admin-add-item-btn, html body .kh-app .kh-admin-add-item, .kh-top.over .kh-pillbtn.done, html body .kh-app .kh-top.over .kh-pillbtn.done, html body .kh-app .kh-menu .kh-mclose, html body .kh-app .kh-menu .kh-mbtn.accent { background: var(--kmint); background-image: none; color: #fff; }
+html body .kh-app .kh-sheet .kh-btns .kh-btn.alt, html body .kh-app .kh-sheet > .kh-btn.alt, .spp-btn.sand { background: #efe3c8; color: #6a4a22; }
+html body .kh-app .kh-sheet .kh-btns .kh-btn.sell, .spp-btn.orange { background: #f07a3c; color: #fff; }
+.spp-btn.teal:hover, .spp-close:hover, html body #view-koala .koala-admin-add-item-btn:hover, html body .kh-app .kh-admin-add-item:hover { background: var(--kmint-d); filter: none; }
+html body #view-koala .koala-history-n { color: #0e9c7d; }
+/* the ▶ Listen button is purple so it can't be mistaken for the green "Put in" button */
+html body .kh-app .kh-sheet > .kh-btn.kh-play { background: #8b6cf0; color: #fff; width: 100%; min-width: 0; }
+html body .kh-app .kh-sheet > .kh-btn.kh-play.is-on { background: #f0577f; }
+
+/* ---- tab bar ↔ category row on the same line (desktop, character pages) ---- */
+@media (min-width: 720px) {
+  html body #view-koala .koala-dimrow.kdt.ctx-2d-char + .koala-studio > .koala-shelf { margin-top: -47px; }
+}
+
+/* ---- hint text sits at the TOP of the stage so it never covers the Koala ---- */
+.koala-stage-tip { top: 12px; bottom: auto; }
+.koala-stage-tip { background: none; text-shadow: 0 1px 2px rgba(255, 255, 255, .8); }
+.kh-ward-tip { top: 12px; bottom: auto; }
+.kh-ward-sit, .kh-ward-stage.is-sit .kh-ward-stand { display: none; }
+.kh-ward-stage.is-sit .kh-ward-sit { display: block; height: 80%; width: auto; max-width: 100%; position: relative; z-index: 1; }
+
+/* ---- breathing room between a heading, the "add item" button and the cards ---- */
+html body .kh-app .kh-panel .kh-admin-add-item { margin: 4px 0 14px; }
+html body .kh-app .kh-panel .kh-subnote { margin: 4px 0 14px; }
+html body .kh-app .kh-panel .kh-grid > h3, html body .kh-app .kh-panel .kh-shelfhead { margin-top: 18px; }
+html body .kh-app .kh-panel .kh-items-grid + * { margin-top: 18px; }
+html body .kh-app .kh-panel .kh-items-grid { margin-bottom: 8px; }
+
+/* ---- admin form: no scrollbar strip, selects centred ---- */
+.koala-admin-card { scrollbar-width: none; }
+.koala-admin-card::-webkit-scrollbar { display: none; }
+.koala-admin-field select, .koala-admin-field input { line-height: 1.2; padding-top: 0; padding-bottom: 0; }
+.koala-admin-field select { padding-left: 8px; height: 44px; }
+.koala-admin-body { padding-bottom: 6px; }
+html body .kh-app .kh-panel .kh-shelf-head { margin: 18px 2px 10px; }
+html body .kh-app .kh-panel .kh-cats-wrap + .kh-grid .kh-shelf-head:first-child, html body .kh-app .kh-panel .kh-grid > .kh-shelf-head:first-child { margin-top: 10px; }
+
+/* 3D character, wide screens: the category row rises to the tab line; the Koala stage starts under the tab bar */
+@media (min-width: 720px) {
+  html body #view-koala .koala-dimrow.kdt.ctx-3d-char.is-paid + .koala-dim3d:has(.kh-ward:not(.kh-narrow)) { margin-top: -48px; }
+  html body #view-koala .koala-dim3d .kh-ward:not(.kh-narrow) .kh-ward-stage { margin-top: 48px; align-self: stretch; }
+  html body #view-koala .koala-dim3d .kh-ward:not(.kh-narrow) .kh-panel { padding-top: 0; }
+}
+.koala-admin-field select { display: flex; align-items: center; line-height: normal; padding: 0 10px; height: 46px; text-overflow: ellipsis; }
+.koala-admin-field input[type="text"], .koala-admin-field input[type="number"] { height: 46px; }
+
+/* ---- room screen: "my items only" button in the top bar ---- */
+html body .kh-app .kh-top.over .kh-ownbtn img { width: 26px; height: 26px; object-fit: contain; }
+html body .kh-app .kh-top.over .kh-ownbtn.on { background: var(--kmint); }
+@media (max-width: 400px) { html body .kh-app .kh-top.over .kh-ownbtn img { width: 22px; height: 22px; } html body .kh-app .kh-top.over .kh-ibtn { width: 31px; } html body .kh-app .kh-top.over .kh-title.pill, html body .kh-app .kh-top.over .kh-roomtitle { max-width: 78px; } }
+
+/* ---- 360px fixes: room top bar fits (title shows as an icon only), wallet labels stay on one line ---- */
+@media (max-width: 400px) {
+  html body .kh-app .kh-top.over .kh-roomtitle > span, html body .kh-app .kh-top.over .kh-title.pill > span:not(.kh-roomtitle-ic) { display: none; }
+  html body .kh-app .kh-top.over .kh-title.pill { max-width: 40px; padding: 0 2px; }
+  html body .kh-app .kh-top.over .kh-coins b { font-size: .9rem; }
+}
+html body #view-koala .koala-wallet-stat > span { flex-direction: row; flex-wrap: nowrap; white-space: nowrap; font-size: 12px; gap: 3px; }
+html body #view-koala .koala-wallet-stat { padding-left: 4px; padding-right: 4px; }
+.koala-stage-tip { top: 56px; }
+.kh-ward-tip { top: 14px; }
+html body .kh-app .kh-managebtn { min-height: 38px; padding: 0 14px; }
+/* portrait tablets: the room shop panel spans the full width under the room (it was stuck at 44vw) */
+@media (max-width: 760px), (orientation: portrait) { html body .kh-app .kh-room-screen .kh-panel { width: 100% !important; } html body .kh-app .kh-room-screen { flex-direction: column; align-items: stretch; } html body .kh-app .kh-room-screen .kh-stage { width: 100%; } }

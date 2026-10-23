@@ -54,6 +54,7 @@
     chev: '<path d="m9 18 6-6-6-6"/>',
     up: '<path d="M14 9 9 4 4 9"/><path d="M20 20h-7a4 4 0 0 1-4-4V4"/>',
     sit: '<path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/><path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"/><path d="M5 18v2"/><path d="M19 18v2"/>',
+    lie: '<path d="M2 18h20"/><path d="M2 18v-6h13a4 4 0 0 1 4 4v2"/><circle cx="6.5" cy="8.5" r="2.2"/>',
     stand: '<circle cx="12" cy="5" r="2"/><path d="M12 7v7"/><path d="M8 11h8"/><path d="m9 22 3-8 3 8"/>',
     inside: '<rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>',
   };
@@ -467,16 +468,40 @@
     const c = plan.querySelector(`[data-room="${id}"] .kh-hit`) || plan.querySelector(`[data-room="${id}"]`) || plan.querySelector('[data-room="yard"]');
     if (!c) return;
     const pr = plan.getBoundingClientRect(), cr = c.getBoundingClientRect(), onFloor = c.classList.contains("kh-hit");
+    const place = (x, y) => { m.style.left = x + "px"; m.style.top = y + "px"; };
+    const dest = [cr.left - pr.left + (onFloor ? cr.width * 0.5 : Math.min(36, cr.width * 0.2)), cr.top - pr.top + (onFloor ? cr.height * 0.5 : 4)];
+    clearTimeout(ses.walkT); ses.walkT = null;
+    const from = ses.markerAt;
+    ses.markerAt = id;
+    // between two rooms the koala walks out of the room, along the corridors, and into the other room
+    const svg = plan.querySelector(".kh-plan-svg");
+    if (animate && !reduced() && svg && from && from !== id && from !== "yard" && id !== "yard" && svg.getScreenCTM) {
+      const path = H.planPath(ses.S, from, id), ctm = svg.getScreenCTM();
+      if (path.length > 1 && ctm) {
+        const pts = path.map(([x, y]) => { const q = H.proj(x, y, 0), p0 = svg.createSVGPoint(); p0.x = q[0]; p0.y = q[1]; const s = p0.matrixTransform(ctm); return [s.x - pr.left, s.y - pr.top]; });
+        pts[pts.length - 1] = dest;
+        let i = 0;
+        const step = () => {
+          if (!ses || i >= pts.length) { if (m) { m.classList.remove("walk"); } return; }
+          const q = pts[i], p0 = i ? pts[i - 1] : [parseFloat(m.style.left) || q[0], parseFloat(m.style.top) || q[1]], len = Math.hypot(q[0] - p0[0], q[1] - p0[1]), ms = Math.max(120, Math.min(650, len * 3.2));
+          m.style.transition = `left ${ms}ms linear, top ${ms}ms linear`; m.classList.add("walk"); place(q[0], q[1]); i++;
+          ses.walkT = setTimeout(step, ms);
+        };
+        step();
+        ses.walkMs = pts.reduce((t, q, k) => t + (k ? Math.max(120, Math.min(650, Math.hypot(q[0] - pts[k - 1][0], q[1] - pts[k - 1][1]) * 3.2)) : 0), 150);
+        return;
+      }
+    }
+    ses.walkMs = animate && !reduced() ? 700 : 0;
     m.style.transition = animate && !reduced() ? "left .7s ease-in-out, top .7s ease-in-out" : "none";
     // on a room the koala stands in the middle; at the yard button he stands on its top edge so the label stays readable
-    m.style.left = (cr.left - pr.left + (onFloor ? cr.width * 0.5 : Math.min(36, cr.width * 0.2))) + "px";
-    m.style.top = (cr.top - pr.top + (onFloor ? cr.height * 0.5 : 4)) + "px";
+    place(dest[0], dest[1]);
     m.classList.toggle("walk", !!animate && !reduced());
   }
   function pickRoom(id) {
     placeMarker(true, id);
     // a room opens straight into the full-screen editor (one step less than before)
-    setTimeout(() => { if (ses && ses.screen === "plan") { openRoom(id); if (ses.screen === "room" && !ses.full) toggleFull(); } }, reduced() ? 0 : 760);
+    setTimeout(() => { if (ses && ses.screen === "plan") { openRoom(id); if (ses.screen === "room" && !ses.full) toggleFull(); } }, reduced() ? 0 : (ses.walkMs || 700) + 60);
   }
   // the floor-plan button goes straight back to the inline plan card (leaves full screen on the way)
   function backToPlan() {
@@ -629,7 +654,11 @@
     const can = `<g class="kh-kwater" display="none"><g><animateTransform attributeName="transform" type="rotate" values="0 17 -30;-20 17 -30;-20 17 -30;0 17 -30" keyTimes="0;.3;.8;1" dur="2.6s" repeatCount="indefinite"/>
       <path d="M10 -37q-8 1-7 9" fill="none" stroke="#3b86b8" stroke-width="2.2" stroke-linecap="round"/><rect x="9" y="-38" width="16" height="12" rx="3" fill="#7cc4ee" stroke="#3b86b8" stroke-width="1.3"/><path d="M24 -32 33 -40" stroke="#3b86b8" stroke-width="2.6" stroke-linecap="round"/><path d="M31 -44 37 -40.5 32 -37Z" fill="#3b86b8"/><rect x="11" y="-36" width="4" height="8" rx="1.5" fill="#fff" opacity=".45"/></g>
       <g fill="#8fd3f5"><circle cx="38" cy="-32" r="1.6"><animate attributeName="cy" values="-36;-14" dur=".9s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0" dur=".9s" repeatCount="indefinite"/></circle><circle cx="34" cy="-33" r="1.4"><animate attributeName="cy" values="-36;-14" dur=".9s" begin=".3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0" dur=".9s" begin=".3s" repeatCount="indefinite"/></circle><circle cx="41" cy="-33" r="1.4"><animate attributeName="cy" values="-36;-14" dur=".9s" begin=".6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0" dur=".9s" begin=".6s" repeatCount="indefinite"/></circle></g></g>`;
-    return `<g class="kh-koala" data-k="0"><ellipse class="kh-kshadow" cx="0" cy="2" rx="24" ry="8" fill="#000" opacity=".16"/><g class="kh-kbody"><g class="kh-kflip">${stand}${back}${sit}${readImg}${pose("kh-kwaterimg", extraImg.water)}${book}${can}</g></g></g>`;
+    // standing and turned away: there is no standing back picture, so the 3/4-back picture is used (a bit larger, feet on the floor)
+    const standBack = `<g class="kh-kstandback" display="none" transform="translate(0 3) scale(1.38)">${sitBack3q(worn, isHat).replace("kh-ksitback", "").replace('display="none"', 'display="inline"')}</g>`;
+    // lying: the standing koala turned onto its back (angle set by the facing, see updateKoala)
+    const lie = `<g class="kh-klie" display="none"><g class="kh-klieturn" transform="translate(0 -12) rotate(0) translate(0 40)">${stand}</g></g>`;
+    return `<g class="kh-koala" data-k="0"><ellipse class="kh-kshadow" cx="0" cy="2" rx="24" ry="8" fill="#000" opacity=".16"/><g class="kh-kbody">${lie}<g class="kh-kflip">${stand}${back}${standBack}${sit}${readImg}${pose("kh-kwaterimg", extraImg.water)}${book}${can}</g></g></g>`;
   }
   const FLIP = [-1, 1, 1, -1]; // facing 0 (+r, left-down) 1 (+c, right-down) 2 (-r, right-up) 3 (-c, left-up)
   function koalaCellFree(c, r) {
@@ -641,8 +670,9 @@
     const k = ses.koala, room = curRoom();
     if (k.pose === "sit" && k.seat && H.seatAt(curState(), Math.round(k.c), Math.round(k.r))) return;
     if ((k.pose === "read" || k.pose === "water") && curState().items.some((i) => i.uid === k.act)) return;
+    if (k.pose === "lie" && bedAt(Math.round(k.c), Math.round(k.r))) return;
     standUp(true);
-    if (koalaCellFree(Math.round(k.c), Math.round(k.r))) { k.c = Math.round(k.c); k.r = Math.round(k.r); return; }
+    if (koalaCellFree(Math.round(k.c), Math.round(k.r))) return;
     const cells = H.freeCells(room, curState());
     if (!cells.length) return;
     cells.sort((a, b) => Math.hypot(a[0] - k.c, a[1] - k.r) - Math.hypot(b[0] - k.c, b[1] - k.r));
@@ -653,15 +683,19 @@
     if (!g) return;
     const k = ses.koala, stoolSit = k.pose === "sit" && k.seat && /^stool/.test((curState().items.find((i) => i.uid === k.seat) || {}).id || ""), seatIt = k.pose === "sit" && k.seat && curState().items.find((i) => i.uid === k.seat), tk = seatIt ? H.tuckOf(seatIt.id, seatIt.m).map((v, i) => v + (/^stool/.test(seatIt.id) ? { 2: [0.5, 0.2], 3: [0.2, 0.5] }[((seatIt.m | 0) % 4 + 4) % 4] || [0, 0] : [0, 0])[i]) : [0, 0], [x, y] = H.proj(k.c + 0.5 + tk[0], k.r + 0.5 + tk[1], (k.z || 0) - (stoolSit ? 3 : 0));
     g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
-    const sit = k.pose === "sit", rd = k.pose === "read", wt = k.pose === "water", away = k.dir === 2 || k.dir === 3, hasBack = !!g.querySelector(".kh-kback");
+    const sit = k.pose === "sit", lie = k.pose === "lie", rd = k.pose === "read", wt = k.pose === "water", away = k.dir === 2 || k.dir === 3, hasBack = !!g.querySelector(".kh-kback");
     const hasRd = true, hasWt = !!g.querySelector(".kh-kwaterimg");
     const show = (sel, on) => { const e = g.querySelector(sel); if (e) e.setAttribute("display", on ? "inline" : "none"); };
-    show(".kh-kstand", !sit && !(rd && hasRd) && !(wt && hasWt) && !(k.pose === "stand" && away && hasBack)); show(".kh-kback", k.pose === "stand" && away && hasBack); show(".kh-ksit", sit && !away); show(".kh-ksitback", sit && away);
+    const backPic = k.pose === "stand" && away;   // standing, turned away: the back picture (a made-up one from the 3/4-back art when there is no real standing back)
+    show(".kh-kstand", !sit && !(rd && hasRd) && !(wt && hasWt) && !backPic); show(".kh-kback", backPic && hasBack); show(".kh-kstandback", backPic && !hasBack);
+    show(".kh-klie", lie); { const kf = g.querySelector(".kh-kflip"); if (kf) kf.setAttribute("display", lie ? "none" : "inline"); }
+    { const lt = g.querySelector(".kh-klieturn"); if (lt) lt.setAttribute("transform", `translate(0 ${k.z ? -6 : -12}) rotate(${[-135, 135, 45, -45][k.dir]}) translate(0 40)`); } show(".kh-ksit", sit && !away); show(".kh-ksitback", sit && away);
     show(".kh-kreadimg", rd); show(".kh-kwaterimg", wt); show(".kh-kread", false); show(".kh-kwater", wt && !hasWt);
     g.querySelector(".kh-kbody").setAttribute("transform", `translate(0 ${(-Math.abs(Math.sin(k.bob)) * (k.pose === "stand" ? 4 : 1.2)).toFixed(1)})`);
-    g.querySelector(".kh-kflip").setAttribute("transform", `scale(${FLIP[k.dir]} 1)`);
+    g.querySelector(".kh-kflip").setAttribute("transform", `scale(${FLIP[k.dir]} 1) skewY(${k.dir < 2 ? 12 : -12})`);   // a lean as well as the mirror, so the four quarter turns all look different
     g.querySelector(".kh-kshadow").setAttribute("opacity", (k.z ? 0 : 0.16));
-    const key = k.c + k.r + 2.02;
+    let key = k.c + k.r + 2.02;
+    if (k.pose === "lie" && k.bed) { const bd = curState().items.find((i) => i.uid === k.bed); if (bd) key = Math.max(key, H.depthKey(bd) + 0.05); }
     g.dataset.k = key;
     const layer = ses.root.querySelector(".kh-items");
     let before = null;
@@ -714,11 +748,19 @@
     if (seatItem) { const d = H.D[seatItem.id]; k.c = cell[0]; k.r = cell[1]; k.z = d.seat; k.seat = seatItem.uid; k.dir = H.seatFacing(seatItem); if (!(seatItem.m | 0)) { const dk = deskDir(cell); if (dk != null) { k.dir = dk; if (/^stool/.test(seatItem.id)) { seatItem.m = dk; H.persist(ses.S); drawScene(); } } } k.exit = exitCell || null; }
     else { k.z = 0; k.seat = null; k.exit = null; }
   }
+  const bedAt = (c, r) => (curState().items || []).find((i) => /^bed/i.test(i.id) && H.cellsOf(i).includes(c + "," + r)) || null;
+  // lie down: on the bed under the koala when there is one (then it lies along the bed), otherwise on the floor
+  function lieDown() {
+    const k = ses.koala, c = Math.round(k.c), r = Math.round(k.r), bed = bedAt(c, r);
+    k.pose = "lie"; k.path = []; k.after = null; k.seat = null; k.exit = null; k.act = null; k.sitT = 1e9;
+    k.z = bed ? Math.max(0, (H.D[bed.id].topH || 40) - 6) : 0; k.bed = bed ? bed.uid : null;
+    if (bed) { const o = H.orient(H.D[bed.id], bed.m), alongC = o.w >= o.d; if (alongC ? (k.dir !== 1 && k.dir !== 3) : (k.dir !== 0 && k.dir !== 2)) k.dir = alongC ? 3 : 2; }
+  }
   function standUp(quiet) {
     const k = ses.koala;
     if (k.pose === "stand") return;
     if (k.seat && k.exit && koalaCellFree(k.exit[0], k.exit[1])) { k.c = k.exit[0]; k.r = k.exit[1]; }
-    k.pose = "stand"; k.z = 0; k.seat = null; k.exit = null; k.act = null;
+    k.pose = "stand"; k.z = 0; k.seat = null; k.exit = null; k.act = null; k.bed = null;
     if (!quiet) k.wait = 0.8;
   }
   // doing something at a piece: reading at a shelf, tending a plant. The koala stands next to it, facing it.
@@ -739,6 +781,7 @@
   const neighbourFree = (c, r) => [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([a, b]) => [c + a, r + b]).filter((p) => koalaCellFree(p[0], p[1]));
   function koalaThink(dt) {
     const k = ses.koala, st = curState();
+    if (k.pose === "lie") { updateKoala(); return; }
     if (k.pose === "sit") {
       if (k.seat && !st.items.some((i) => i.uid === k.seat)) { standUp(); return; }
       k.sitT -= dt; k.bob = 0;
@@ -871,7 +914,7 @@
     for (const m of [0, 1]) {
       for (const [c, r] of cells) {
         const piece = { uid: H.newUid(), id, c, r, m, z: 0 }, res = H.canPlace(room, st, piece);
-        if (res.ok) { piece.z = res.z; if (d.stack && res.z > 0) return piece; if (!best) best = piece; }
+        if (res.ok) { piece.z = res.z; if (d.stack) { if (res.z === 0) return piece; } if (!best) best = piece; }
       }
       if (best && !d.stack) break;
     }
@@ -897,9 +940,9 @@
     const b = (act, icon, label, cls) => `<button type="button" class="kh-mbtn${cls ? " " + cls : ""}" data-act="${act}" aria-label="${esc(label)}">${ic(icon)}<span>${esc(label)}</span></button>`;
     const turn = b("rotl", "rotl", T("왼쪽", "Left")) + b("rot", "rot", T("오른쪽", "Right"));
     if (ses.sel === "koala") {
-      const up = ses.koala.pose !== "stand";
+      const ps = ses.koala.pose;   // one button that goes round: stand -> sit -> lie -> stand
       name = T("코알라", "Koala");
-      btns = turn + b("sit", up ? "stand" : "sit", up ? T("일어서기", "Stand") : T("앉기", "Sit"));
+      btns = turn + (ps === "sit" ? b("sit", "lie", T("눕기", "Lie down")) : ps === "lie" ? b("sit", "stand", T("일어서기", "Stand")) : b("sit", "sit", T("앉기", "Sit")));
     } else if (ses.sel === "house") {
       name = T("집", "House");
       btns = b("hl", "left", T("왼쪽 이동", "Move left")) + b("hr", "right", T("오른쪽 이동", "Move right")) + turn;
@@ -908,7 +951,7 @@
       if (!it) { m.hidden = true; return; }
       const d = H.D[it.id];
       name = nm(d);
-      btns = (d.wall ? "" : turn) + (d.subKind && curOpts.subs && d.subKind !== "toys" && d.subKind !== "asmr" ? b("subs", "inside", T("열어보기", "Open"), "accent") : "") + b("del", "trash", T("치우기", "Remove"), "danger");
+      btns = (d.wall ? "" : turn) + "" + b("del", "trash", T("치우기", "Remove"), "danger");
     }
     m.innerHTML = `<div class="kh-mhead"><b>${esc(name)}</b><button type="button" class="kh-mclose" data-act="x" aria-label="${T("닫기", "Close")}">${ic("x")}</button></div><div class="kh-mrow">${btns}</div>`;
     m.hidden = false;
@@ -935,7 +978,7 @@
     if (ses.sel === "koala") {
       const k = ses.koala;
       if (act === "rot" || act === "rotl") { k.dir = (k.dir + (act === "rot" ? 1 : 3)) % 4; updateKoala(); }
-      else if (act === "sit") { if (k.pose === "sit") standUp(true); else { const s = H.seatAt(st, Math.round(k.c), Math.round(k.r)); sitOn(s || null, [Math.round(k.c), Math.round(k.r)]); } updateKoala(); showMenu(); }
+      else if (act === "sit") { if (k.pose === "lie") standUp(true); else if (k.pose === "sit") { lieDown(); } else { const s = H.seatAt(st, Math.round(k.c), Math.round(k.r)); sitOn(s || null, [Math.round(k.c), Math.round(k.r)]); } updateKoala(); showMenu(); }
       return;
     }
     if (ses.sel === "house") {
@@ -1104,8 +1147,8 @@
   function ghostFor(drag) {
     const p = drag.piece, d = H.D[p.id];
     if (d && d.wall) return H.wallItemSvg(p);
-    const f = H.footprint(p), c0 = Math.round(p.c), r0 = Math.round(p.r);
-    const quad = [H.proj(c0, r0, 0), H.proj(c0 + f.w, r0, 0), H.proj(c0 + f.w, r0 + f.d, 0), H.proj(c0, r0 + f.d, 0)].map((q) => q.map((v) => v.toFixed(1)).join(",")).join(" ");
+    const f = H.footprint(p), sm = !!(d && d.stack) || !!drag.koala, c0 = sm ? p.c : Math.round(p.c), r0 = sm ? p.r : Math.round(p.r), fw = sm ? 0.5 : f.w, fd = sm ? 0.5 : f.d, zq = sm ? (p.z || 0) : 0;
+    const quad = [H.proj(c0 + (sm ? 0.25 : 0), r0 + (sm ? 0.25 : 0), zq), H.proj(c0 + (sm ? 0.25 : 0) + fw, r0 + (sm ? 0.25 : 0), zq), H.proj(c0 + (sm ? 0.25 : 0) + fw, r0 + (sm ? 0.25 : 0) + fd, zq), H.proj(c0 + (sm ? 0.25 : 0), r0 + (sm ? 0.25 : 0) + fd, zq)].map((q) => q.map((v) => v.toFixed(1)).join(",")).join(" ");
     const poly = `<polygon class="kh-foot ${drag.valid ? "ok" : "bad"}" points="${quad}"/>`;
     if (drag.koala) return poly;
     const q = Object.assign({}, p, { c: c0, r: r0 });
@@ -1128,11 +1171,12 @@
       const f = H.footprint(drag.piece);
       const aim = (lift) => {   // the cell under the pointer when the pointer is on a surface `lift` high
         const g = cellOf(p.x, p.y + lift + (drag.fromPanel ? 20 : 0));
-        drag.piece.c = Math.round(drag.fromPanel ? g.c - f.w / 2 : g.c - drag.grab.c);
-        drag.piece.r = Math.round(drag.fromPanel ? g.r - f.d / 2 : g.r - drag.grab.r);
+        const gc = drag.fromPanel ? g.c - f.w / 2 : g.c - drag.grab.c, gr = drag.fromPanel ? g.r - f.d / 2 : g.r - drag.grab.r, free = (d && d.stack) || drag.koala;   // small things and the koala go exactly where the finger / pointer is (no grid)
+        drag.piece.c = free ? Math.max(-0.49, Math.min(room.C - 0.51, Math.round(gc * 64) / 64)) : Math.round(gc);   // small things may sit right at the wall side of a desk / shelf top: keep them inside the room
+        drag.piece.r = free ? Math.max(-0.49, Math.min(room.R - 0.51, Math.round(gr * 64) / 64)) : Math.round(gr);
       };
       aim(0);
-      if (drag.koala) { const c = drag.piece.c, r = drag.piece.r; drag.valid = koalaCellFree(c, r) || !!H.seatAt(st, c, r) || !!actAt(st, c, r) || !!drag.under; }
+      if (drag.koala) { const c = Math.round(drag.piece.c), r = Math.round(drag.piece.r); drag.valid = koalaCellFree(c, r) || !!bedAt(c, r) || !!H.seatAt(st, c, r) || !!actAt(st, c, r) || !!drag.under; }
       else {
         let res = null;
         if (d && d.stack) {   // small things: first look for a table / desk / shelf board under the pointer (its top is above the floor)
@@ -1176,7 +1220,8 @@
         const seat = H.seatAt(st, c, r), act = seat ? null : (drag.under || actAt(st, c, r));
         if (seat) sitOn(seat, [c, r], neighbourFree(c, r)[0] || null);
         else if (act) startAct(act);
-        else if (koalaCellFree(c, r)) { standUp(true); k.c = c; k.r = r; k.path = []; }
+        else if (bedAt(c, r)) { standUp(true); k.c = drag.piece.c; k.r = drag.piece.r; k.path = []; lieDown(); }   // dropped on a bed: it lies down there
+        else if (koalaCellFree(c, r)) { const keep = k.pose === "lie"; standUp(true); k.c = drag.piece.c; k.r = drag.piece.r; k.path = []; if (keep) lieDown(); }
       }
       ses.sel = "koala"; drawScene(); showMenu(); return;
     }
@@ -1184,7 +1229,7 @@
       if (!drag.overStage) { st.items = st.items.filter((x) => x.uid !== drag.uid); (drag.riders || []).forEach((rd) => { const it = st.items.find((x) => x.uid === rd.it.uid); if (it) it.z = 0; }); ses.sel = null; recalcZ(st); save(); drawScene(); hideMenu(); placeKoalaFree(); toast(T("치웠어요", "Put away")); return; }
       if (!drag.valid) { toast(T("여기엔 놓을 수 없어요", "Can't go there"), true); drawScene(); showMenu(); return; }
       const it = st.items.find((x) => x.uid === drag.uid);
-      const pc = Math.round(drag.piece.c), pr = Math.round(drag.piece.r);
+      const stk = !!H.D[it.id].stack, pc = stk ? drag.piece.c : Math.round(drag.piece.c), pr = stk ? drag.piece.r : Math.round(drag.piece.r);
       if (H.D[it.id].wall) Object.assign(it, { side: drag.piece.side, u: drag.piece.u, h: drag.piece.h });
       else { it.c = pc; it.r = pr; it.z = drag.piece.z || 0; (drag.riders || []).forEach((rd) => { const r2 = st.items.find((x) => x.uid === rd.it.uid); if (r2) { r2.c = pc + rd.dc; r2.r = pr + rd.dr; } }); }
       recalcZ(st); save(); drawScene(); showMenu(); placeKoalaFree(); updateKoala();
@@ -1194,7 +1239,7 @@
     if (!drag.overStage) return;
     if (!drag.valid) { toast(T("여기엔 놓을 수 없어요", "Can't go there"), true); return; }
     const piece = Object.assign({ uid: H.newUid() }, drag.piece);
-    if (!H.D[piece.id].wall) { piece.c = Math.round(piece.c); piece.r = Math.round(piece.r); }
+    if (!H.D[piece.id].wall && !H.D[piece.id].stack) { piece.c = Math.round(piece.c); piece.r = Math.round(piece.r); }
     placeNew(piece.id, piece); placeKoalaFree(); updateKoala();
   }
   function beginDrag(ev, init) {
@@ -1216,7 +1261,17 @@
     const stage = ses.root.querySelector("#kh-stage");
     stage.addEventListener("pointerdown", (ev) => {
       if (!ses.edit || ev.button > 0 || ev.target.closest(".kh-menu,.kh-top")) return;
-      const g = ev.target.closest && ev.target.closest(".kh-it:not(.kh-fixed),.kh-koala,.kh-house");
+      let g = ev.target.closest && ev.target.closest(".kh-it:not(.kh-fixed),.kh-koala,.kh-house");
+      {   // small props are tiny and often hidden behind bigger pieces: a press near one of them grabs it first
+        const reach = ev.pointerType === "touch" ? 26 : 16, stc = curState();
+        let best = null, bd = reach;
+        ses.root.querySelectorAll(".kh-it[data-uid]").forEach((el2) => {
+          const it2 = stc.items.find((x) => x.uid === el2.dataset.uid); if (!it2 || !H.D[it2.id] || !H.D[it2.id].stack) return;
+          const r = el2.getBoundingClientRect(), dd = Math.hypot(ev.clientX - (r.left + r.width / 2), ev.clientY - (r.top + r.height * 0.6));
+          if (dd < bd) { bd = dd; best = el2; }
+        });
+        if (best && !(g && g.dataset && g.dataset.uid === best.dataset.uid)) g = best;
+      }
       if (!g) {
         if (ses.sel) { ses.sel = null; applySel(); hideMenu(); }
         leaveSubs();
@@ -1259,8 +1314,11 @@
     const subIt = ses.subOf && curState().items.find((i) => i.uid === ses.subOf);
     if (ses.subOf && !(subIt && H.D[subIt.id] && H.D[subIt.id].subKind && curOpts.subs)) ses.subOf = null;
     if (ses.subOf) { subsPanel(panel, subIt); return; }
-    panel.innerHTML = `${chipsHtml(tabs, roomOwned ? "" : ses.tab)}<div class="kh-grid" id="kh-grid">${gridHtml(yard)}</div>`;
-    panel.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { ses.tab = b.dataset.tab; if (roomOwned) { roomOwned = false; window.dispatchEvent(new CustomEvent("kh-owned-off")); } drawPanel(); }; });
+    panel.innerHTML = `${chipsHtml([["__own", "/img/cat/items.webp", T("내 아이템", "My items")]].concat(tabs), roomOwned ? "__own" : ses.tab)}<div class="kh-grid" id="kh-grid">${gridHtml(yard)}</div>`;
+    panel.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => {
+      if (b.dataset.tab === "__own") { roomOwned = true; drawPanel(); return; }   // first chip: everything I own, in one list
+      ses.tab = b.dataset.tab; if (roomOwned) { roomOwned = false; window.dispatchEvent(new CustomEvent("kh-owned-off")); } drawPanel();
+    }; });
     initCats(panel);
     wireGrid(panel.querySelector("#kh-grid"), yard);
     const addCatBtn = panel.querySelector("[data-kh-admin-add-cat]");
@@ -1421,7 +1479,7 @@
           toast(T("ASMR 상자에 넣었어요! 상자를 눌러서 들어 봐요.", "Put in the ASMR Box! Tap the box to listen."));
         };
         detail({ sound: e.id, canPlay: false, title: T(e.name[0], e.name[1]), pic, price: e.cost, own: e.owned,
-          go: host ? T("상자에서 빼기", "Take out of the box") : T("ASMR 상자에 넣기", "Put in an ASMR Box"), spendWhy: "sub:" + e.id, spendFn: () => api.buy(e.id), onGo: toggle,
+          go: host ? T("빼기", "Take out") : T("넣기", "Put in"), spendWhy: "sub:" + e.id, spendFn: () => api.buy(e.id), onGo: toggle,
           sell: e.owned && e.cost > 0 && api.sell ? { paid: e.cost, back: Math.floor(e.cost * 0.8), onSell: () => { const ok = api.sell(e.id); if (ok) { Object.keys(ses.S.slots).forEach((k) => (ses.S.slots[k].items || []).forEach((i) => { if (i.sub) { i.sub = i.sub.filter((x) => x !== e.id); if (!i.sub.length) delete i.sub; } })); save(); drawScene(); drawPanel(); } return ok; } } : null,
           onBuy: () => { drawPanel(); toast(T("샀어요! ASMR 상자에 넣어 봐요.", "Bought! Put it in an ASMR Box.")); } });
       });
@@ -1476,7 +1534,7 @@
     return KoalaArt.room({}, {}, { bare: true }).replace('class="koala-room-svg"', 'class="kh-ward-bg" preserveAspectRatio="xMidYMax slice"');
   }
   let wardSlot = "hat";
-  let wardOwned = false, wardApi = null, wardMsg = "";
+  let wardOwned = false, wardApi = null, wardMsg = "", wardSit = false;
   const ID2D_OVR = { glasses: "roundGlasses", scarf: "redScarf", bunnyslippers: "slippers", soccercleats: "soccerBoots", cateye: "catEyeGlasses" };
   const id2d = (n) => ID2D_OVR[n] || (window.KoalaCore ? (KoalaCore.ITEMS.find((i) => i.id.toLowerCase() === n) || {}).id : n) || n;
   // sell a 3D outfit piece back (it is the same purchase as the Sticker one). Returns the "sell" part of a detail popup, or null.
@@ -1563,7 +1621,10 @@
       const wornN = slots.filter((sl) => S.worn[sl]).length;
       root.className = "kh-app kh-embed kh-ward";
       fit(root);
-      root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage">${wardBackdrop()}<svg class="kh-ward-koala" viewBox="64 20 553 1020" role="img" aria-label="${T("3D 코알라", "3D Koala")}"><ellipse cx="340" cy="962" rx="205" ry="22" fill="#000" opacity=".16"/><g class="kh-wbody">${imgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
+      const sitT = "translate(5.5 9.2) scale(1.281) translate(-64 -222)", cvw = (n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; };
+      const sitNames = names.filter((n) => n !== "base" && !KSLOT.feet.includes(n) && !KSLOT.legs.includes(n));
+      const sitSvgW = `<svg class="kh-ward-koala kh-ward-sit" viewBox="0 0 720 883" role="img" aria-label="${T("앉은 3D 코알라", "Sitting 3D Koala")}"><ellipse cx="360" cy="860" rx="250" ry="24" fill="#000" opacity=".16"/><g class="kh-wbody"><g transform="${sitT}">${sitNames.filter((n) => KBEHIND.includes(n)).map(cvw).join("")}</g><image href="${extraImg.sit || kimg("sit")}" x="0" y="0" width="720" height="883"/><g transform="${sitT}">${sitNames.filter((n) => !KBEHIND.includes(n)).map(cvw).join("")}</g></g></svg>`;
+      root.innerHTML = `<div class="kh-ward-stage${wardSit ? " is-sit" : ""}" id="kh-wstage">${wardBackdrop()}${sitSvgW}<svg class="kh-ward-koala kh-ward-stand" viewBox="64 20 553 1020" role="img" aria-label="${T("3D 코알라", "3D Koala")}"><ellipse cx="340" cy="962" rx="205" ry="22" fill="#000" opacity=".16"/><g class="kh-wbody">${imgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
         <aside class="kh-panel">${chipsHtml(slots.map((sl) => [sl, `/img/cat/${sl}.webp`, slotName[sl]]), wardOwned ? "" : wardSlot)}
         ${wardOwned ? ownedHtml() : `<div class="kh-grid">${shelfHead(slotName[wardSlot], `${S.worn[wardSlot] ? 1 : 0}/${KSLOT[wardSlot].length}`)}${opts.isAdmin ? `<button type="button" class="kh-admin-add-item" data-kh-admin-add-item="${wardSlot}"><span class="add-ic" aria-hidden="true">+</span>${T("아이템 추가", "Add item")}</button>` : ""}<div class="kh-items-grid">${KSLOT[wardSlot].map((n) => itemBtn(wardSlot, n)).join("")}</div>
         ${wornN ? clearBtn : ""}${wardMsg ? `<p class="kh-empty">${esc(wardMsg)}</p>` : ""}</div>`}</aside>`;
@@ -1584,7 +1645,8 @@
         wardMsg = st.cost ? T("코인이 모자라요: ", "Not enough coins: ") + st.cost : st.hint ? T("잠겨 있어요: ", "Locked: ") + st.hint : T("아직 열 수 없어요.", "Not available yet."); draw();
       }; });
       const clr = root.querySelector("[data-clear]"); if (clr) clr.onclick = () => { S.worn = {}; H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); };
-      const kb = root.querySelector(".kh-wbody"); root.querySelector("#kh-wstage").onclick = () => { kb.classList.remove("hop"); void kb.getBoundingClientRect(); kb.classList.add("hop"); };
+      const wst = root.querySelector("#kh-wstage");
+      wst.onclick = () => { wardSit = !wardSit; wst.classList.toggle("is-sit", wardSit); const kb = wst.querySelector(wardSit ? ".kh-ward-sit .kh-wbody" : ".kh-ward-stand .kh-wbody"); if (kb) { kb.classList.remove("hop"); void kb.getBoundingClientRect(); kb.classList.add("hop"); } };
     };
     if (wardApi) { let ch = false; slots.forEach((sl) => { if (S.worn[sl] && !hasIt(S.worn[sl])) { delete S.worn[sl]; ch = true; } }); if (ch) H.persist(S); }
     draw();

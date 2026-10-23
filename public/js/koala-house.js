@@ -208,6 +208,8 @@
   rug("rugRunner", ["긴 러그", "Runner Rug"], "runner", "#9a7be0", 30);
 
   /* ---- small things (stack on tables / desks / dressers) ---- */
+  // the bathtub picture is about 1.4 : 1, so it fills 2 x 1 tiles (it used to be 3 x 1 and looked far too short for its tiles)
+  if (D.bathtub) { const k = 2 / 3; D.bathtub.w = 2; D.bathtub.parts = D.bathtub.parts.map((q) => Object.assign({}, q, { x: q.x * k }, q.w != null ? { w: q.w * k } : {})); }
   const small = (id, name, price, parts, extra) => add(id, "small", name, 1, 1, price, parts, Object.assign({ stack: true }, extra || {}));
   small("lampDesk", ["스탠드", "Desk Lamp"], 0, [C(0.5, 0.5, 0, 0.2, 3, "#555a63"), C(0.5, 0.5, 3, 0.04, 22, "#555a63"), C(0.5, 0.5, 25, 0.26, 12, "#f2c94c")]);
   small("lampPink", ["분홍 스탠드", "Pink Lamp"], 30, [C(0.5, 0.5, 0, 0.2, 3, "#555a63"), C(0.5, 0.5, 3, 0.04, 22, "#555a63"), C(0.5, 0.5, 25, 0.26, 12, "#ef8fb0")]);
@@ -265,8 +267,15 @@
   ["shelfWood", "shelfWhite"].forEach((id) => { D[id].act = "read"; });
   ["plantBig", "cactus", "palm", "flowerBed", "tulips", "bush"].forEach((id) => { D[id].act = "water"; });
   // Flat-topped furniture can carry small things (the lamps, vases, toys... and the cactus). topH = height of the top, in px of the scene.
-  const TOPS = { bedBlue: 41, bedPink: 41, bedMint: 41, deskWood: 38, deskWhite: 38, deskBlue: 31, counter: 42, vanity: 65, tvStand: 28, shelfWood: 69, shelfWhite: 69, wardrobeWood: 82, wardrobeMint: 81, fridge: 80, piano: 56, toybox: 20, tableSquare: 50 };
+  const TOPS = { bedBlue: 41, bedPink: 41, bedMint: 41, deskWood: 38, deskWhite: 38, deskBlue: 31, counter: 42, vanity: 65, tvStand: 28, shelfWood: 69, shelfWhite: 69, wardrobeWood: 82, wardrobeMint: 81, fridge: 80, piano: 56, tableSquare: 50 };
   Object.keys(TOPS).forEach((id) => { if (D[id]) D[id].topH = TOPS[id]; });
+  // every other piece of furniture can carry small things on its top too: the top is the highest part of the piece
+  Object.keys(D).forEach((id) => {
+    const d = D[id];
+    if (d.topH || d.wall || d.flat || d.stack || d.cat === "small" || d.cat === "toys" || d.where === "out" || !d.parts) return;
+    const top = d.parts.reduce((m, p) => Math.max(m, p.t === "b" ? p.z + p.h : p.t === "c" ? p.z + p.h : 0), 0);
+    if (top >= 14 && top <= 110) d.topH = Math.round(top);
+  });
   if (D.cactus) D.cactus.stack = true;
   /* ---- garage things (only offered in a garage room): cars, a shelf to put boxes on, a tool box, storage boxes, a shoe cabinet ---- */
   const gar = (id, name, w, d, price, parts, extra) => add(id, "garage", name, w, d, price, parts, Object.assign({ only: "garage" }, extra || {}));
@@ -374,7 +383,7 @@
   let OPENUID = null;                       // the piece whose "inside" is being edited is drawn open (doors / lid open)
   const setOpen = (uid) => { OPENUID = uid || null; };
   let lastGeom = null;                      // { cx, cy, w, h, x, y } of the picture drawn last (the things inside are placed by it)
-  const TUCK = 0.3;
+  const TUCK = 0.62;
   function tuckOf(id, m) {
     const d = D[id];
     if (!d || !d.seat || !/^(stool|chair)/.test(id)) return [0, 0];
@@ -756,7 +765,7 @@
     const hostOf = (e) => {
       const i = e.i, d = i && D[i.id];
       if (!d || !(d.stack && i.z > 0)) return null;
-      const cell = Math.round(i.c) + "," + Math.round(i.r);
+      const cell = Math.floor(i.c + 0.5 + 1e-6) + "," + Math.floor(i.r + 0.5 + 1e-6);
       return list.find((x) => x !== e && x.i && D[x.i.id] && D[x.i.id].topH && !D[x.i.id].stack && cellsOf(x.i).includes(cell)) || null;
     };
     const stacked = new Map(); list.forEach((e) => { const h = hostOf(e); if (h) stacked.set(e, h); });
@@ -920,15 +929,39 @@
     return `<text class="kh-flabel" transform="matrix(${k})" x="0" y="0" text-anchor="middle" font-size="22" font-weight="800" fill="#27403a" stroke="#fff" stroke-width="4" stroke-opacity=".85" paint-order="stroke" stroke-linejoin="round" letter-spacing=".5" pointer-events="none">${esc(name)}</text>`;
   }
   const PLAN_PART = 34;
-  function planSvg(S, opts) {
-    const o = opts || {}, nC = PLAN.cols, nR = PLAN.rows, colW = new Array(nC).fill(0), rowD = new Array(nR).fill(0);
+  // Plan geometry: a corridor of PLAN_HALL tiles runs after every column and every row (between the rooms, and along the front / right edge).
+  const PLAN_HALL = 1.4;
+  function planLayout(S) {
+    const nC = PLAN.cols, nR = PLAN.rows, colW = new Array(nC).fill(0), rowD = new Array(nR).fill(0);
     SLOTS.forEach((sl, i) => { const c = i % nC, r = Math.floor(i / nC), st = S.slots[sl], t = st && ROOMS[st.type]; colW[c] = Math.max(colW[c], t ? t.C : 6); rowD[r] = Math.max(rowD[r], t ? t.R : 6); });
     const cx0 = [], ry0 = []; let acc = 0;
-    colW.forEach((w, i) => { cx0[i] = acc; acc += w; }); const totC = acc; acc = 0;
-    rowD.forEach((d, i) => { ry0[i] = acc; acc += d; }); const totR = acc;
+    colW.forEach((w, i) => { cx0[i] = acc; acc += w + PLAN_HALL; }); const totC = acc; acc = 0;
+    rowD.forEach((d, i) => { ry0[i] = acc; acc += d + PLAN_HALL; }); const totR = acc;
+    return { nC, nR, colW, rowD, cx0, ry0, totC, totR, hall: PLAN_HALL };
+  }
+  // the walk of the Koala from one plot to another along the corridors, in plan tiles: [[x, y], ...]
+  function planPath(S, fromId, toId) {
+    const L = planLayout(S), at = (id) => { const i = SLOTS.indexOf(id); if (i < 0) return null; const c = i % L.nC, r = Math.floor(i / L.nC), st = S.slots[id], t = (st && ROOMS[st.type]) || { C: 6, R: 6 }; return { c, r, x: L.cx0[c] + t.C / 2, y: L.ry0[r] + t.R / 2, fy: L.ry0[r] + L.rowD[r] + L.hall / 2, fx: L.cx0[c] + L.colW[c] + L.hall / 2 }; };
+    const a = at(fromId), b = at(toId); if (!a || !b || fromId === toId) return b ? [[b.x, b.y]] : [];
+    const vxx = b.c < a.c ? L.cx0[a.c] - L.hall / 2 : a.fx;   // the corridor beside the starting room that leads towards the target
+    const pts = [[a.x, a.y], [a.x, a.fy], [vxx, a.fy]];
+    if (b.r !== a.r) pts.push([vxx, b.fy]);
+    pts.push([b.x, b.fy], [b.x, b.y]);
+    return pts.filter((p, i) => !i || Math.abs(p[0] - pts[i - 1][0]) > 1e-6 || Math.abs(p[1] - pts[i - 1][1]) > 1e-6);
+  }
+  function planSvg(S, opts) {
+    const o = opts || {}, LY = planLayout(S), nC = LY.nC, nR = LY.nR, colW = LY.colW, rowD = LY.rowD, cx0 = LY.cx0, ry0 = LY.ry0, totC = LY.totC, totR = LY.totR;
     const cells = SLOTS.map((sl, i) => ({ sl, c: i % nC, r: Math.floor(i / nC) })).sort((a, b) => (a.c + a.r) - (b.c + b.r) || a.r - b.r);
     const quad = (x, y, w, d, z) => pstr([proj(x, y, z), proj(x + w, y, z), proj(x + w, y + d, z), proj(x, y + d, z)]);
     const out = [], labels = [];
+    // the corridors: one big floor under every room, with a slab edge and a soft tile pattern
+    const slabEdge = (x0, y0, x1, y1, f) => `<polygon points="${pstr([proj(x0, y0, 0), proj(x1, y1, 0), proj(x1, y1, -12), proj(x0, y0, -12)])}" fill="${f}"/>`;
+    out.push(slabEdge(0, totR, totC, totR, shade("#e8d9ba", -0.38)) + slabEdge(totC, 0, totC, totR, shade("#e8d9ba", -0.5)) + `<polygon points="${quad(0, 0, totC, totR, 0)}" fill="#e8d9ba"/>`);
+    for (let k = 1; k < totC; k++) out.push(`<polyline points="${pstr([proj(k, 0, 0), proj(k, totR, 0)])}" stroke="#dccaa5" stroke-width="1.4" fill="none"/>`);
+    for (let k = 1; k < totR; k++) out.push(`<polyline points="${pstr([proj(0, k, 0), proj(totC, k, 0)])}" stroke="#dccaa5" stroke-width="1.4" fill="none"/>`);
+    // a dashed walking line down the middle of each corridor
+    for (let c = 0; c < nC; c++) { const x = cx0[c] + colW[c] + LY.hall / 2; out.push(`<polyline points="${pstr([proj(x, 0.3, 0), proj(x, totR - 0.3, 0)])}" stroke="#d3c3a0" stroke-width="3" stroke-dasharray="3 10" stroke-linecap="round" fill="none"/>`); }
+    for (let r = 0; r < nR; r++) { const y = ry0[r] + rowD[r] + LY.hall / 2; out.push(`<polyline points="${pstr([proj(0.3, y, 0), proj(totC - 0.3, y, 0)])}" stroke="#d3c3a0" stroke-width="3" stroke-dasharray="3 10" stroke-linecap="round" fill="none"/>`); }
     cells.forEach(({ sl, c, r }) => {
       const ox = cx0[c], oy = ry0[r], cw = colW[c], rd = rowD[r], st = S.slots[sl], hall = st ? "#e6dcc8" : "#e4f2ea";
       out.push(`<polygon points="${pstr([proj(ox, oy + rd, 0), proj(ox + cw, oy + rd, 0), proj(ox + cw, oy + rd, -12), proj(ox, oy + rd, -12)])}" fill="${shade(hall, -0.38)}"/><polygon points="${pstr([proj(ox + cw, oy, 0), proj(ox + cw, oy + rd, 0), proj(ox + cw, oy + rd, -12), proj(ox + cw, oy, -12)])}" fill="${shade(hall, -0.5)}"/><polygon points="${quad(ox, oy, cw, rd, 0)}" fill="${hall}"/>`);
@@ -953,12 +986,12 @@
       out.push(`<g class="kh-proom${o.fresh === sl ? " pop" : ""}" data-room="${sl}" role="button" tabindex="0" aria-label="${esc(name)}" transform="translate(${px.toFixed(1)} ${py.toFixed(1)})"><defs>${sh.clips}</defs><g class="kh-shell">${sh.svg}</g><polygon class="kh-hit" points="${floor}" fill="transparent"/>${floorLabel(name, room)}<g class="kh-items">${walls.join("")}${flat.join("")}${ordered.map((x) => x.svg).join("")}</g></g>`);
     });
     const box = sceneBox({ C: totC, R: totR }, "room");
-    return `<svg class="kh-plan-svg" viewBox="${box.x} ${box.y} ${box.w} ${box.h}" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="${esc(o.title || "")}">${out.join("")}${labels.join("")}</svg>`;
+    return `<svg class="kh-plan-svg" data-hall="${LY.hall}" viewBox="${box.x} ${box.y} ${box.w} ${box.h}" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="${esc(o.title || "")}">${out.join("")}${labels.join("")}</svg>`;
   }
 
   /* ---- placement rules ---- */
   function footprint(i) { const o = orient(D[i.id], i.m); return { w: o.w, d: o.d }; }
-  function cellsOf(i) { const f = footprint(i), a = []; for (let c = 0; c < f.w; c++) for (let r = 0; r < f.d; r++) a.push((Math.floor(i.c + 1e-6) + c) + "," + (Math.floor(i.r + 1e-6) + r)); return a; }
+  function cellsOf(i) { if (D[i.id] && D[i.id].stack) return [Math.floor(i.c + 0.5 + 1e-6) + "," + Math.floor(i.r + 0.5 + 1e-6)]; const f = footprint(i), a = []; for (let c = 0; c < f.w; c++) for (let r = 0; r < f.d; r++) a.push((Math.floor(i.c + 1e-6) + c) + "," + (Math.floor(i.r + 1e-6) + r)); return a; }
   D._house = { id: "_house", cat: "sys", name: ["집", "House"], w: 1, d: 1, price: 0, parts: [], virtual: true, where: "none" };
   // occupant map for non-flat floor pieces
   function occupancy(items, skipUid) {
@@ -979,7 +1012,7 @@
   // can the piece sit at (c, r)? returns {ok, z}
   function canPlace(room, st, piece, skipUid) {
     const def = D[piece.id], f = footprint(piece);
-    const c0 = Math.round(piece.c), r0 = Math.round(piece.r);
+    const c0 = D[piece.id].stack ? Math.floor(piece.c + 0.5 + 1e-6) : Math.round(piece.c), r0 = D[piece.id].stack ? Math.floor(piece.r + 0.5 + 1e-6) : Math.round(piece.r);
     if (c0 < 0 || r0 < 0 || c0 + f.w > room.C || r0 + f.d > room.R) return { ok: false, z: 0 };
     const o = occ(room, st, skipUid);
     if (def.flat) {
@@ -987,16 +1020,20 @@
       return { ok: true, z: 0 };
     }
     let z = 0, ok = true;
+    if (def.stack) {   // a small thing takes a quarter of a tile: it can sit on the floor or on top of any piece, as long as no other small thing is within half a tile at the same height
+      const cc = c0, rr = r0, list = o[cc + "," + rr] || [];
+      const hosts = list.filter((x) => !D[x.id].stack), others = list.filter((x) => D[x.id].stack);
+      const top = hosts.find((x) => D[x.id].topH), tiers = top && D[top.id].tiers;
+      if (hosts.length && !top) return { ok: false, z: 0 };
+      z = top ? (tiers ? (tiers.includes(piece.zHint) ? piece.zHint : tiers[0]) : D[top.id].topH) : 0;
+      if (piece.zHint && !top) return { ok: false, z: 0 };   // aimed at a surface that is not there
+      if (others.some((x) => (x.z | 0) === z && Math.abs(x.c - piece.c) < 0.12 && Math.abs(x.r - piece.r) < 0.12)) return { ok: false, z: 0 };
+      return { ok: true, z };
+    }
     for (let c = 0; c < f.w; c++) for (let r = 0; r < f.d; r++) {
       const list = o[(c0 + c) + "," + (r0 + r)];
       if (!list || !list.length) continue;
-      const top = list.find((x) => D[x.id].topH && !D[x.id].stack);
-      const tiers = top && D[top.id].tiers;   // an open shelf: one thing per board
-      if (def.stack && top && tiers) {
-        const used = list.filter((x) => x !== top).map((x) => x.z | 0), free = tiers.filter((t) => !used.includes(t));
-        if (!free.length || list.some((x) => x !== top && !D[x.id].stack)) ok = false;
-        else z = Math.max(z, free.includes(piece.zHint) ? piece.zHint : free[0]);
-      } else if (def.stack && top && list.length === 1) z = Math.max(z, D[top.id].topH); else ok = false;
+      ok = false;   // a big piece needs the floor free
     }
     return { ok, z };
   }
@@ -1045,6 +1082,6 @@
     TW, TH, WALL_H, D, WALLS, FLOORS, ROOMS, ROOM_ORDER, PLAN, SLOTS, START_SLOT, YARD, HOUSE_WALLS, HOUSE_ROOFS, HOUSE_DOORS, HOUSE_STYLES, YARD_SIZES, BORDERS, PATHS, GARDEN_PRESETS,
     proj, shade, orient, itemBox, itemInner, thumbSvg, roomSvg, planSvg, wallItemSvg, floorItemSvg, sceneBox, depthCmp, depthOrder, roomOf, stateOf, yardDims, houseRect, subVis, bookColor,
     subImg, uiImg, floorImg, canPlace, freeCells, STARTER_OWNED: Object.keys(starter().owned), tuckOf, setOpen, occupancy, occ, depthKey, footprint, cellsOf, seatAt, seatFacing, load, persist, starter, newUid, setManifest, wallMatrix, houseParts, houseThumb, housePic,
-    loadCatalog, customCategories: () => customCats,
+    loadCatalog, customCategories: () => customCats, planLayout, planPath,
   };
 });

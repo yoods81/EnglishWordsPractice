@@ -121,14 +121,14 @@
  },
  "deskWood": {
   "src": "/img/house/deskWood.webp",
-  "wpx": 95.8,
+  "wpx": 107.3,
   "ratio": 0.975,
   "ax": 0.5,
   "ay": 0.717
  },
  "deskWhite": {
   "src": "/img/house/deskWhite.webp",
-  "wpx": 96.2,
+  "wpx": 107.7,
   "ratio": 0.921,
   "ax": 0.5,
   "ay": 0.734,
@@ -136,7 +136,7 @@
  },
  "deskBlue": {
   "src": "/img/house/deskBlue.webp",
-  "wpx": 95.8,
+  "wpx": 107.3,
   "ratio": 0.831,
   "ax": 0.5,
   "ay": 0.703,
@@ -192,12 +192,12 @@
   "ax": 0.5,
   "ay": 0.673,
   "mat": [
-   0.867,
-   -0.0303,
-   0.0333,
-   0.79,
-   -14,
-   -16.3
+   0.9,
+   0.07,
+   0.39,
+   0.92,
+   -6,
+   -4
   ]
  },
  "toilet": {

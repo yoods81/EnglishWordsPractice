@@ -17330,7 +17330,7 @@ function openKoalaItemDetail(id, opts) {
       const short = serverAdmin ? 0 : st.cost - k.coins;
       price = `<div class="spp-rows"><div class="spp-row"><span>${SP_ICONS.coin} ${rwL("Price", "가격")}</span><b>${serverAdmin ? rwL("Free for Admin", "관리자는 무료") : st.cost}</b></div></div>`;
       act = short > 0 ? `<p class="spp-note">${rwL(`${short} more Coins to unlock`, `${short}코인 더 모으면 살 수 있어요`)}</p>`.replace("<p", "<p style=\"flex:1 1 100%\"") + cancel
-        : `<button type="button" class="spp-btn teal" data-koala-detail-buy>${rwL("Buy", "살래요")}</button>${cancel}`;
+        : `<button type="button" class="spp-btn teal" data-koala-detail-buy>${rwL("Buy", "살래요")}</button>${serverAdmin ? `<button type="button" class="spp-btn teal" data-koala-detail-buywear>${koalaItemGoLabel(it, { state: "owned" })}</button>` : ""}${cancel}`;
     } else {
       price = `<div class="spp-rows"><div class="spp-row"><span>${koalaItemStatusText(st).replace(/<[^>]*>/g, "")}</span></div></div>`;
       act = cancel;
@@ -17347,6 +17347,11 @@ function openKoalaItemDetail(id, opts) {
     if (e.target === el || e.target.closest("[data-koala-zoom-close]")) { closeKoalaItemDetail(); return; }
     if (e.target.closest("[data-koala-detail-go]")) {
       closeKoalaItemDetail();
+      if (opts.onPlace) opts.onPlace(); else handleKoalaItem(id);
+      return;
+    }
+    if (e.target.closest("[data-koala-detail-buywear]")) {   // admin has no locks: take it and put it on / place it in one tap
+      KoalaCore.buyItem(progress, id, koalaOpts()); checkBadges(); saveProgress(); closeKoalaItemDetail();
       if (opts.onPlace) opts.onPlace(); else handleKoalaItem(id);
       return;
     }
