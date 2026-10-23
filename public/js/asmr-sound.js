@@ -14,8 +14,8 @@
 
   // The categories (a toy box groups its toys by these) and the toys in each.
   const GROUPS = {
-    squishy: { ko: "말랑이", en: "Squishies", icon: "🫧" },
-    clicky: { ko: "딸깍이", en: "Clickers", icon: "🖱️" },
+    squishy: { ko: "말랑이", en: "Squishies", icon: "💧" },
+    clicky: { ko: "딸깍이", en: "Clickers", icon: "👆" },
     popit: { ko: "뽁뽁이", en: "Poppers", icon: "💥" },
     crunch: { ko: "사각사각", en: "Crunchy", icon: "🧂" },
   };

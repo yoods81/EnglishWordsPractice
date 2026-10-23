@@ -1009,7 +1009,7 @@
     const cur = it.sub || [], tabs = tabsFor(ses.roomId === "yard"), cat = (tabs.find((t) => t[0] === d.cat) || [0, 0, T("가구", "Furniture")])[2];
     const BOOKIC = { koalaBook: "🐨", abcBook: "🔤", spaceBook: "🪐", dinoBook: "🦖", fairyBook: "🧚", mathBook: "➕", oceanBook: "🐳", jokeBook: "😄", atlasBook: "🗺️", artBook: "🎨", animalBook: "🦘", songBook: "🎵" };
     const icon = (e) => { const v = H.subVis(e.id), im = H.subImg(e.id); if (kind === "asmr" && !im && window.KoalaArt) return `<span class="kh-subic kh-subimg kh-asmric" aria-hidden="true">${window.KoalaArt.subIcon(e.id)}</span>`; if (!im && !v && BOOKIC[e.id]) return `<span class="kh-subic kh-bookic" style="background:${H.bookColor(e.id)}" aria-hidden="true">${BOOKIC[e.id]}</span>`; if (im) return `<span class="kh-subic kh-subimg" aria-hidden="true"><img src="${im}" alt=""></span>`; return v ? `<span class="kh-subic" style="background:${v[1]}" aria-hidden="true">${v[0]}</span>` : `<span class="kh-subic" style="background:${H.bookColor(e.id)}" aria-hidden="true">📖</span>`; };
-    const groups = Array.from(new Set(list.map((e) => e.group))), gname = { main: "", top: T("책상 위", "On top"), drawer: T("서랍 속", "In the drawer"), food: T("음식", "Food"), drink: T("음료", "Drinks"), squishy: T("🫧 말랑이", "🫧 Squishies"), clicky: T("🖱️ 딸깍이", "🖱️ Clickers"), popit: T("💥 뽁뽁이", "💥 Poppers"), crunch: T("🧂 사각사각", "🧂 Crunchy") };
+    const groups = Array.from(new Set(list.map((e) => e.group))), gname = { main: "", top: T("책상 위", "On top"), drawer: T("서랍 속", "In the drawer"), food: T("음식", "Food"), drink: T("음료", "Drinks"), squishy: T("💧 말랑이", "💧 Squishies"), clicky: T("👆 딸깍이", "👆 Clickers"), popit: T("💥 뽁뽁이", "💥 Poppers"), crunch: T("🧂 사각사각", "🧂 Crunchy") };
     const title = { tools: T("공구함 속 공구", "Tools in the box"), shoes: T("신발장 위 신발", "Shoes on the cabinet"), books: T("책장 속 책", "Books on the shelf"), desk: T("책상 위·서랍", "On the desk"), frame: T("액자 그림", "Picture"), toys: T("장난감 상자", "Toys"), sink: T("세면대 위 물건", "On the sink"), fridge: T("냉장고 속 음식", "In the fridge"), asmr: T("ASMR 장난감", "ASMR toys") }[kind] || nm(d);
     const note = kind === "books" && !it.sub ? T("지금은 기본 책이 꽂혀 있어요. 골라 넣으면 바뀌어요.", "Default books for now — pick some to replace them.") : kind === "asmr" ? T("산 장난감을 눌러 상자에 넣은 뒤, 카드를 눌러 ▶ 버튼으로 들어 봐요. 상자 밖 장난감은 소리가 나지 않아요! (이어폰으로 들으면 더 좋아요)", "Buy a toy and put it in the box, then tap its card and press ▶. Toys outside the box stay silent! (Earphones sound best.)") : T("눌러서 넣고 빼요. 코인으로 새 물건도 살 수 있어요.", "Tap to put in or take out. New things cost coins.");
     panel.innerHTML = `<nav class="kh-crumbs" aria-label="${T("현재 위치", "You are here")}"><button type="button" class="kh-up" data-up aria-label="${T("상위로", "Up one level")}">${ic("up")}</button>
@@ -1319,7 +1319,7 @@
       return `<h3>${T("정원 모양 (한 번에 바꾸기)", "Garden looks")}</h3><div class="kh-sws">${Object.keys(H.GARDEN_PRESETS).map((k) => { const g = H.GARDEN_PRESETS[k], fl = H.FLOORS[g.floor]; return `<button type="button" class="kh-sw kh-opt${st.floor === g.floor && st.border === g.border && st.path === g.path && st.size === g.size ? " on" : ""}" data-gpreset="${k}">${H.uiImg("g_" + k) ? `<span class="kh-optic" aria-hidden="true"><img src="${H.uiImg("g_" + k)}" alt=""></span>` : `<span class="kh-sw-c" style="background:${fl.c};box-shadow:inset 0 0 0 5px ${fl.a}"></span>`}<span class="kh-sw-n">${esc(T(g.n[0], g.n[1]))}</span></button>`; }).join("")}</div>
         <h3>${T("땅", "Ground")}</h3><div class="kh-sws">${Object.keys(H.FLOORS).filter((k) => H.FLOORS[k].yard).map((k) => swatch("floor", k, H.FLOORS[k], H.FLOORS[k].p === 0 || !!S.floors[k], st.floor === k)).join("")}</div>
         <h3>${T("울타리", "Border")}</h3><div class="kh-sws">${Object.keys(H.BORDERS).map((k) => optBtn("data-gborder", k, (st.border || "none") === k, uiIc("b_" + k, { none: "∅", fence: "🚧", hedge: "🌿", stone: "🧱" }[k]), T(H.BORDERS[k][0], H.BORDERS[k][1]))).join("")}</div>
-        <h3>${T("길", "Path")}</h3><div class="kh-sws">${Object.keys(H.PATHS).map((k) => optBtn("data-gpath", k, (st.path || "none") === k, uiIc("p_" + k, { none: "∅", stones: "🪨", brick: "🟫", plank: "🪵" }[k]), T(H.PATHS[k][0], H.PATHS[k][1]))).join("")}</div>
+        <h3>${T("길", "Path")}</h3><div class="kh-sws">${Object.keys(H.PATHS).map((k) => optBtn("data-gpath", k, (st.path || "none") === k, uiIc("p_" + k, { none: "∅", stones: "⛰️", brick: "🟫", plank: "📏" }[k]), T(H.PATHS[k][0], H.PATHS[k][1]))).join("")}</div>
         <h3>${T("마당 크기", "Yard size")}</h3><div class="kh-sws">${Object.keys(H.YARD_SIZES).map((k) => { const z = H.YARD_SIZES[k]; return optBtn("data-gsize", k, (st.size || "normal") === k, `${z.C}×${z.R}`, T(z.n[0], z.n[1]), z.p, own("yardSizes", k, z.p)); }).join("")}</div>`;
     }
     const list = Object.values(H.D).filter((d) => !d.virtual && d.cat === ses.tab && fitsHere(d, yard)).sort((a, b) => a.price - b.price);
@@ -1334,7 +1334,7 @@
   function asmrToysHtml() {
     const api = curOpts && curOpts.subs; if (!api) return "";
     const list = api.list("asmr"); if (!list.length) return "";
-    const groups = [["squishy", T("🫧 말랑이", "🫧 Squishies")], ["clicky", T("🖱️ 딸깍이", "🖱️ Clickers")], ["popit", T("💥 뽁뽁이", "💥 Poppers")], ["crunch", T("🧂 사각사각", "🧂 Crunchy")]];
+    const groups = [["squishy", T("💧 말랑이", "💧 Squishies")], ["clicky", T("👆 딸깍이", "👆 Clickers")], ["popit", T("💥 뽁뽁이", "💥 Poppers")], ["crunch", T("🧂 사각사각", "🧂 Crunchy")]];
     const card = (e) => `<button type="button" class="kh-item${e.owned ? "" : " locked"}" data-asmr="${e.id}" aria-label="${esc(T(e.name[0], e.name[1]))}${e.owned ? "" : ", " + e.cost}"><span class="kh-thumb kh-asmrthumb"><span class="kh-subic kh-subimg kh-asmric" aria-hidden="true">${asmrPic(e.id)}</span></span><span class="kh-nm">${esc(T(e.name[0], e.name[1]))}</span>${e.owned ? "" : `<span class="kh-pr">${COIN}${e.cost}</span>`}</button>`;
     return `${shelfHead(T("ASMR 장난감", "ASMR toys"), `${list.filter((e) => e.owned).length}/${list.length}`)}<p class="kh-subnote">${T("산 뒤에 ASMR 상자에 넣고, 상자를 눌러서 들어 봐요.", "Buy a toy, put it in an ASMR Box, then tap the box to listen.")}</p>${groups.map(([g, label]) => { const l = list.filter((e) => e.group === g); return l.length ? `<h3>${label}</h3><div class="kh-items-grid">${l.map(card).join("")}</div>` : ""; }).join("")}`;
   }
@@ -1389,7 +1389,7 @@
         if (b._dragged) { b._dragged = false; return; }
         const id = b.dataset.item, d = H.D[id];
         const give = houseRefundable(id), paid = give ? d.price : 0;
-        detail({ title: nm(d), pic: H.thumbSvg(id), price: d.price, own: ownedItem(d), go: T("배치하기", "Place"), keep: true, spendWhy: "house:" + id,
+        detail({ title: nm(d), pic: H.thumbSvg(id), price: d.price, own: ownedItem(d), go: T("배치하기", "Place"), spendWhy: "house:" + id,
           adminDel: curOpts && curOpts.isAdmin && d.custom && window.KoalaAdminItems ? () => KoalaAdminItems.deleteItem({
             id, name: { ko: d.name[0], en: d.name[1] }, lang: curOpts.L("en", "ko"),
             onDeleted: () => {

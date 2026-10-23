@@ -485,7 +485,7 @@ const TRANSLATIONS = {
     dailyCapFree: (n) => `You've used today's ${n} questions. Upgrade to Premium for unlimited practice!`,
     dailyLeftNote: (n) => `Today: ${n} questions left`,
     dailyRoundGuest: "You've played today's free round. Sign up for free to keep playing without limits!",
-    guestCoinTeaser: "Sign up free to turn your hard work into Koala Coins and save your progress! 🪙",
+    guestCoinTeaser: "Sign up free to turn your hard work into Koala Coins and save your progress! 💰",
     guestCoinTeaserBtn: "Sign up free",
     wrongTrialNote: "Free accounts keep your 10 latest mistakes. Upgrade to Premium for the full notebook and daily review!",
     wrongTrialBtn: "Unlock the full notebook",
@@ -1453,7 +1453,7 @@ const TRANSLATIONS = {
     dailyCapFree: (n) => `오늘의 문제 ${n}개를 모두 풀었어요. 프리미엄으로 업그레이드하면 제한 없이 풀 수 있어요!`,
     dailyLeftNote: (n) => `오늘 남은 문제 ${n}개`,
     dailyRoundGuest: "오늘의 무료 1판을 모두 했어요. 무료로 가입하면 제한 없이 계속 할 수 있어요!",
-    guestCoinTeaser: "무료로 가입하면 열심히 푼 만큼 코알라 코인을 모으고 기록도 저장할 수 있어요! 🪙",
+    guestCoinTeaser: "무료로 가입하면 열심히 푼 만큼 코알라 코인을 모으고 기록도 저장할 수 있어요! 💰",
     guestCoinTeaserBtn: "무료 가입",
     wrongTrialNote: "일반 회원은 최근 틀린 단어 10개까지 볼 수 있어요. 프리미엄이면 전체 오답 노트와 매일 복습을 쓸 수 있어요!",
     wrongTrialBtn: "전체 오답 노트 열기",
@@ -4253,7 +4253,9 @@ function activeChild() {
 function defaultChildProfiles() {
   return [{ slot: 0, name: rwL("Child 1", "자녀 1"), avatar: "koala" }];
 }
-function childPicLabel(c) { return `${PROFILE_AVATARS[c.avatar] || "🐨"} ${c.name}`; }
+// A profile still named "Child 1" / "자녀 1" follows the site language; a name the family typed is kept as is.
+function childName(c) { const m = /^(?:Child|자녀) (\d)$/.exec(String(c.name || "")); return m ? rwL(`Child ${m[1]}`, `자녀 ${m[1]}`) : c.name; }
+function childPicLabel(c) { return `${PROFILE_AVATARS[c.avatar] || "🐨"} ${childName(c)}`; }
 
 async function loadChildProfiles() {
   if (!currentUser || !(serverAdmin || currentUser.role === "paid")) { childProfiles = []; renderChildrenUI(); return; }
@@ -4334,7 +4336,7 @@ function childRowsHtml() {
     const on = c.slot === act;
     return `<div class="child-row${on ? " is-active" : ""}" data-slot="${c.slot}">
       <button type="button" class="child-avatar" data-child-act="avatar" aria-label="${rwL("Change picture", "그림 바꾸기")}">${PROFILE_AVATARS[c.avatar] || "🐨"}</button>
-      <input class="child-name" type="text" maxlength="20" value="${escapeHtml(c.name)}" aria-label="${rwL("Child's name", "자녀 이름")}" data-child-act="name">
+      <input class="child-name" type="text" maxlength="20" value="${escapeHtml(childName(c))}" aria-label="${rwL("Child's name", "자녀 이름")}" data-child-act="name">
       ${on ? `<span class="child-now">${rwL("Learning now", "학습 중")}</span>` : `<button type="button" class="pill accent small child-switch" data-child-act="switch">${rwL("Switch", "전환")}</button>`}
       ${c.slot === 0 ? "" : `<button type="button" class="child-del" data-child-act="del" aria-label="${rwL("Remove child", "자녀 삭제")}">✕</button>`}
     </div>`;
@@ -4363,7 +4365,7 @@ function renderChildrenUI() {
     menuBtn.hidden = !multi;
     const c = activeChild();
     const lbl = menuBtn.querySelector(".auth-menu-child-label");
-    if (lbl && c) lbl.textContent = c.name;
+    if (lbl && c) lbl.textContent = childName(c);
     const ico = menuBtn.querySelector(".auth-menu-child-ico");
     if (ico && c) ico.textContent = PROFILE_AVATARS[c.avatar] || "🐨";
   }
@@ -9133,7 +9135,7 @@ function updateGameLockUI(mode) {
     const m = canUseAccountFeatures() ? gameCoinMult(mode) : 1;
     // Shown only when it differs from the normal rate (or for paid members, whose rate can grow).
     chip.hidden = !(canUseAccountFeatures() && m !== 1);
-    chip.textContent = `🪙×${m}`;
+    chip.textContent = `💰×${m}`;
     chip.classList.toggle("is-low", m < 1);
     chip.title = t("gameCoinMultTip");
   }
@@ -16100,13 +16102,13 @@ const KOALA_SLOT_TITLES = () => ({
   desk: rwL("📚 Desk", "📚 책상"),
   lamp: rwL("💡 Lamp", "💡 램프"),
   shelf: rwL("📖 Bookshelf", "📖 책장"),
-  plant: rwL("🪴 Plant", "🪴 화분"),
-  window: rwL("🪟 Window", "🪟 창문"),
+  plant: rwL("🌿 Plant", "🌿 화분"),
+  window: rwL("🌅 Window", "🌅 창문"),
   garland: rwL("🎏 Hanging Decor", "🎏 천장 장식"),
   pet: rwL("🐾 Pets", "🐾 반려동물"),
   toy: rwL("🧸 Toy Boxes", "🧸 장난감 상자"),
 });
-const KOALA_SLOT_EMOJI = { headwear: "🎩", face: "👓", clothing: "👕", bottoms: "👖", jewelry: "💍", shoes: "👟", accessory: "🎒", wallpaper: "🎨", rug: "🟡", poster: "🖼️", desk: "📚", lamp: "💡", shelf: "📖", plant: "🪴", window: "🪟", garland: "🎏", pet: "🐾", toy: "🧸" };
+const KOALA_SLOT_EMOJI = { headwear: "🎩", face: "👓", clothing: "👕", bottoms: "👖", jewelry: "💍", shoes: "👟", accessory: "🎒", wallpaper: "🎨", rug: "🟡", poster: "🖼️", desk: "📚", lamp: "💡", shelf: "📖", plant: "🌿", window: "🌅", garland: "🎏", pet: "🐾", toy: "🧸" };
 let koalaDim = "2d"; // "2d" | "3d" (3D needs Premium)
 let koalaTab = "character"; // "character" | "room" | "coins" | "badges"
 let koalaHistoryAll = false; // Coin history: false = latest 10 only, true = everything kept (up to 100)
@@ -16689,8 +16691,8 @@ function koalaCoinsHtml(k) {
           <div class="koala-wallet-val">${inf ? "∞" : k.coins.toLocaleString()}</div></div></div>
       <div class="koala-wallet-stats">
         <button type="button" class="koala-wallet-stat" data-coin-detail="earned"><span>${rwL("💰 Collected", "💰 모은 코인")}</span><b>+${k.earned.toLocaleString()}</b></button>
-        <button type="button" class="koala-wallet-stat" data-coin-detail="spent"><span>${rwL("🛍️ Shopping", "🛍️ 쇼핑한 코인")}</span><b>−${k.spent.toLocaleString()}</b></button>
-        <button type="button" class="koala-wallet-stat" data-coin-detail="refunded"><span>${PIG_SVG} ${rwL("Got back", "돌려받은 코인")}</span><b>+${k.refunded.toLocaleString()}</b></button></div>
+        <button type="button" class="koala-wallet-stat" data-coin-detail="spent"><span>${rwL("🛍️ Shopping", "🛍️ 쓴 코인")}</span><b>−${k.spent.toLocaleString()}</b></button>
+        <button type="button" class="koala-wallet-stat" data-coin-detail="refunded"><span>${PIG_SVG} ${rwL("Got back", "돌려받음")}</span><b>+${k.refunded.toLocaleString()}</b></button></div>
       <p class="koala-wallet-note">${rwL("Sell an item back and 80% of its price returns here (a 20% fee). Every buy and sale is listed below. Tap a box to see its chart.", "산 아이템을 되팔면 가격의 80%가 이 지갑으로 돌아와요 (수수료 20%). 사고 판 내역은 아래에 모두 기록돼요. 칸을 누르면 그래프를 볼 수 있어요.")}</p></div>
     ${koalaEarnHtml()}
     ${koalaHistoryHtml(k)}`;
@@ -16712,6 +16714,14 @@ function koalaHistoryHtml(k) {
     if (w.startsWith("sell:")) { const it = KoalaCore.itemById(w.slice(5)); return "💰 " + (it ? koalaItemName(it) : w) + rwL(" (sold back, 80%)", " 되팔기 (80%)"); }
     if (w.startsWith("housesell:")) { const hd = window.KoalaHouse && KoalaHouse.D && KoalaHouse.D[w.slice(10)]; return "💰 " + (hd ? hd.name[currentLang === "ko" ? 0 : 1] : w.slice(10)) + rwL(" (sold back, 80%)", " 되팔기 (80%)"); }
     if (w.startsWith("sellsub:")) return "💰 " + subName(w.slice(8)) + rwL(" (sold back, 80%)", " 되팔기 (80%)");
+    if (w.startsWith("house:")) {   // things bought in the Pop-out house: room plots, furniture, wallpapers, garden bits
+      const H = window.KoalaHouse || {}, ko = currentLang === "ko", rest = w.slice(6), parts = rest.split(":"), key = parts[parts.length - 1];
+      const D = H.D && H.D[key], R = H.ROOMS && H.ROOMS[key], pick = (o, kk) => (o ? (Array.isArray(o) ? o[ko ? 0 : 1] : o[kk]) : null);
+      if (parts[0] === "room") return "🏠 " + (R ? R[ko ? "ko" : "en"] : key) + rwL(" (room built)", " 방 짓기");
+      const sub = KoalaCore.subById && KoalaCore.subById(key);
+      const nm = D ? D.name[ko ? 0 : 1] : sub ? sub.name[ko ? "ko" : "en"] : (H.WALLS && H.WALLS[key] ? H.WALLS[key].n[ko ? 0 : 1] : H.FLOORS && H.FLOORS[key] ? H.FLOORS[key].n[ko ? 0 : 1] : H.HOUSE_STYLES && H.HOUSE_STYLES[key] ? H.HOUSE_STYLES[key].n[ko ? 0 : 1] : null);
+      return "🛒 " + (nm || rwL("House item", "집 아이템")) + rwL(" (bought)", " 구매");
+    }
     return labels[why] || why;
   };
   const moreBtn = recent.length > 10

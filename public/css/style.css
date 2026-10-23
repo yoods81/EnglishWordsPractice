@@ -14105,3 +14105,123 @@ html body .koala-subd-card .koala-zoom-close { background: #22b98c; border: 0; c
 html body .koala-subd-card .pill { border: 0; border-radius: 12px; box-shadow: none; background: #efe3c8; color: #7a5a30; text-shadow: none; }
 html body .koala-subd-card .pill.accent { background: #22b98c; color: #fff; }
 html body .koala-subd-card .pill.warn { background: #f07a3c; color: #fff; }
+
+/* ---- Pop-out Room tab: the floor plan fills the top (full width), the room shop / My items list sits below it ---- */
+html body .kh-app.kh-planmode:not(.kh-full) .kh-plan-screen { flex-direction: column; align-items: stretch; }
+html body .kh-app.kh-planmode:not(.kh-full) .kh-planmain { flex: none; width: 100%; }
+html body .kh-app.kh-planmode:not(.kh-full) .kh-plan-screen .kh-panel { width: 100%; max-height: none; flex: none; border-left: 0; border-top: 3px solid #cfe6dd; }
+html body .kh-app.kh-planmode:not(.kh-full) .kh-plan-svg { flex: none; width: 100%; height: auto; }
+html body .kh-app.kh-planmode:not(.kh-full) .kh-plan-screen .kh-items-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+html body .kh-app .kh-navbtn { border: 2px solid #6cc4ad; }
+html body #view-koala .koala-dimrow.kdt + .koala-studio, html body #view-koala .koala-dimrow.kdt + .koala-dim3d, html body #view-koala .koala-dimrow.kdt + .kt-teaser { margin-top: -2px; }
+@media (min-width: 720px) { html body #view-koala .koala-dimrow.kdt.ctx-2d-char { grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); } }
+html body #view-koala .kdt-bar { padding: 6px 0 0; }
+html body #view-koala .kdt-tab:first-child { border-top-left-radius: 18px; }
+html body #view-koala .kdt-tab:last-child { border-top-right-radius: 18px; }
+@media (min-width: 720px) {
+  html body #view-koala .koala-dimrow.kdt.ctx-2d-char { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); column-gap: 16px; container-type: normal; }
+  html body #view-koala .koala-dimrow.kdt.ctx-2d-char + .koala-studio { margin-top: 0; }
+  html body #view-koala .koala-dimrow.kdt + .koala-studio .koala-stage.is-character { margin-top: -6px; }
+}
+
+/* ---- popup polish (mobile audit): picture never overlaps the name; no heavy focus ring on popup buttons ---- */
+.spp-stage { overflow: hidden; }
+.spp-stage > img, .spp-stage > svg, .spp-stage .kh-subic, .spp-stage .kh-subic img, .spp-stage .kh-subic svg { max-height: 100%; }
+.spp-stage > img { height: 100%; width: auto; max-width: 100%; }
+html body .kh-app .kh-sheet .kh-btn:focus, html body .kh-app .kh-sheet .kh-btn:focus-visible { outline: none; }
+.spp-btn:focus-visible, .spp-close:focus-visible { outline: 3px solid #0f6e55; outline-offset: 2px; }
+
+/* ---- Pop-out room (mobile): the sticky room stays on top; the item list scrolls underneath it, never over it ---- */
+html body .kh-app .kh-room-screen .kh-stage { z-index: 4; }
+html body .kh-app .kh-room-screen .kh-panel { position: relative; z-index: 1; }
+@media (max-width: 720px) and (orientation: portrait) { #koala-zoom .koala-zoom-stage { margin-top: 10vh; margin-top: 10dvh; } }
+
+/* ---- touch targets (mobile audit) ---- */
+@media (max-width: 720px) {
+  .footer-link { display: inline-flex; align-items: center; min-height: 40px; padding: 0 6px; }
+  html body .kh-app .kh-managebtn { min-height: 38px; padding: 0 14px; }
+}
+@media (max-width: 720px) { html body #view-koala .koala-next-btn { min-height: 40px; padding: 0 16px; } }
+
+/* ======== UX pass 1 (readability for kids): nothing under 12px, darker secondary text, roomier rows ======== */
+html body #view-koala { --muted: #52695f; }
+html body #view-koala .progress-sub, html body #view-koala .koala-try-bar, html body #view-koala .koala-wallet-note, html body #view-koala .koala-note,
+html body #view-koala .badge-hint, html body #view-koala .badge-summary, html body #view-koala .koala-streak-sub, html body #view-koala .koala-history-day,
+html body #view-koala .koala-studio-lv small, html body #view-koala .koala-shelf-title small, html body #view-koala .kh-subnote { color: #47625a; }
+html body #view-koala .koala-try-bar { font-size: .85rem; }
+html body #view-koala .koala-item-name { font-size: .85rem; line-height: 1.25; }
+html body #view-koala .koala-item-status { font-size: .8rem; font-weight: 800; }
+html body #view-koala .koala-item-status.own, html body #view-koala .koala-item-status.cost { color: #3f564e; }
+html body #view-koala .badge-name { font-size: .82rem; line-height: 1.25; }
+html body #view-koala .badge-desc { font-size: .78rem; line-height: 1.3; color: #47625a; }
+html body #view-koala .koala-wallet-note, html body #view-koala .koala-note { font-size: .88rem; line-height: 1.45; }
+html body #view-koala .koala-hero-next, html body #view-koala .koala-streak-goal-lbl, html body #view-koala .koala-streak-chip, html body #view-koala .koala-next-sub { font-size: .88rem; line-height: 1.4; }
+html body #view-koala .koala-earn-go { font-size: .9rem; min-height: 40px; }
+html body #view-koala .koala-next-btn { font-size: .88rem; }
+html body #view-koala .kp-door-tag { font-size: .75rem; }
+html body #view-koala .stats-tab { font-size: .82rem; }
+html body .kh-app .kh-nm { font-size: .78rem; line-height: 1.2; }
+html body .kh-app .kh-pr { font-size: .8rem; }
+html body .kh-app .kh-subtxt { font-size: .75rem; color: #47625a; }
+html body .kh-app .kh-subnote { font-size: .85rem; line-height: 1.4; }
+html body .kh-app .kh-cats-wrap .kh-cat { font-size: .85rem; min-height: 38px; }
+html body .kh-app .kh-cats-wrap .kh-cat span { font-size: inherit; }
+/* items inside lists: breathing room */
+html body #view-koala .koala-grid, html body .kh-app .kh-items-grid { gap: 10px; }
+html body #view-koala .koala-shelf-title, html body .kh-app .kh-panel h3 { margin-top: 14px; margin-bottom: 8px; }
+
+/* ======== UX pass 2: bigger finger targets for category rows / arrows, clearer "can't place" footprint ======== */
+html body .kh-app .kh-cats-nav { width: 40px; height: 40px; }
+html body .kh-app .kh-cats-wrap .kh-cat { min-height: 42px; padding: 0 12px; }
+html body #view-koala .koala-cat { min-height: 42px; }
+html body .kh-app .kh-foot.bad { fill: rgba(240, 70, 60, .28); stroke: #e5483c; stroke-width: 2.5; stroke-dasharray: 5 4; }
+html body .kh-app .kh-foot.ok { fill: rgba(60, 200, 140, .22); stroke: #1f9e6e; stroke-width: 2.5; }
+html body .kh-app .kh-modal .kh-sheet h2 { text-align: center; }
+
+/* rem is small on phones: use px so nothing is under 12px */
+html body #view-koala .stats-tab { font-size: 13px; }
+html body #view-koala .koala-try-bar { font-size: 13px; }
+html body #view-koala .koala-item-name { font-size: 13px; }
+html body #view-koala .koala-item-status { font-size: 12.5px; }
+html body #view-koala .koala-cat > span, html body #view-koala .koala-cats .koala-cat { font-size: 13px; }
+html body #view-koala .badge-name { font-size: 12.5px; }
+html body #view-koala .badge-desc { font-size: 12px; }
+html body #view-koala .kp-door-tag { font-size: 12px; }
+html body #view-koala .koala-wallet-stat span, html body #view-koala .koala-history-day, html body #view-koala .koala-earn-row small { font-size: 12.5px; }
+html body #view-koala .koala-next-btn, html body #view-koala .koala-earn-go { font-size: 13px; }
+html body .kh-app .kh-nm { font-size: 12.5px; }
+html body .kh-app .kh-pr { font-size: 12.5px; }
+html body .kh-app .kh-subtxt { font-size: 12px; }
+html body .kh-app .kh-subnote { font-size: 13px; }
+html body .kh-app .kh-cats-wrap .kh-cat, html body .kh-app .kh-cats-wrap .kh-cat span { font-size: 13px; }
+
+/* ---- contrast: white text needs a deeper teal / orange behind it (was ~2:1) ---- */
+html body #view-koala .kdt-bar { background: #129c78; }
+html body #view-koala .kdt-tab { text-shadow: none; }
+html body #view-koala .stats-tab.on, html body #view-koala .koala-cat.on, html body #view-koala .pill.accent, html body #view-koala .koala-earn-go, html body #view-koala .koala-next-btn { background: #129c78; background-image: none; color: #fff; }
+html body #view-koala .kh-cat.on, html body .kh-app .kh-cat.on { background: #129c78; color: #fff; }
+.spp-btn.teal, .spp-close, html body .kh-app .kh-sheet .kh-btns .kh-btn, html body .kh-app .kh-sheet > .kh-btn { background: #13a07c; }
+.spp-btn.orange, html body .kh-app .kh-sheet .kh-btns .kh-btn.sell { background: #dd5f1f; }
+.spp-btn.sand, html body .kh-app .kh-sheet .kh-btns .kh-btn.alt, html body .kh-app .kh-sheet > .kh-btn.alt { background: #efe3c8; color: #6a4a22; }
+html body #view-koala .koala-admin-add-item-btn, html body .kh-app .kh-admin-add-item { background: #0f8a73; }
+html body #view-koala .koala-history-n { color: #0f6e55; }
+html body #view-koala .koala-history-n.spent { color: #9a3b12; }
+html body #view-koala .koala-studio-lv, html body #view-koala .koala-studio-lv span { color: #0f6e55; }
+html body #view-koala .stats-tab:not(.on) { color: #0b5f49; }
+html body #view-koala .koala-studio-lv small, html body #view-koala .koala-shelf-title small { color: #3d564d; }
+html body #view-koala .kdt-tab { font-weight: 800; letter-spacing: .01em; }
+
+/* ======== Korean / narrow-phone fit (360px): nothing wraps inside a button, nothing slides off screen ======== */
+@media (max-width: 400px) {
+  html body .kh-app .kh-top.over { left: 6px; right: 6px; top: 6px; padding: 4px; }
+  html body .kh-app .kh-top.over .kh-title.pill { padding: 0 6px; font-size: .88rem; max-width: 96px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  html body .kh-app .kh-top.over .kh-coins { padding: 0 4px; }
+  html body .kh-app .kh-top.over .kh-ibtn { width: 34px; }
+  html body .kh-app .kh-top.over .kh-pillbtn.done { margin-left: 2px; padding: 0 10px; }
+  html body .kh-app .kh-sheet .kh-btns .kh-btn { padding: 0 4px; font-size: .88rem; }
+  html body .kh-app .kh-sheet .kh-btns .kh-btn.sell { flex: 1.35 1 0; }
+}
+html body .kh-app .kh-sheet .kh-btns .kh-btn { white-space: nowrap; }
+html body #view-koala .koala-wallet-stat { align-items: center; text-align: center; }
+html body #view-koala .koala-wallet-stat > span { display: flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.25; font-size: 12.5px; }
+.spp-close, .spp-btn { white-space: nowrap; }
