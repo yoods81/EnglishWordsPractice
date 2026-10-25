@@ -15,11 +15,11 @@ const BROWSERS = [
 ];
 
 // role: "admin" | "paid" | "free" | "none" (logged out). The session cookie is stateless + HMAC-signed.
-export async function open({ role = "admin", width = 1200, height = 1000, touch = false } = {}) {
+export async function open({ role = "admin", width = 1200, height = 1000, touch = false, dsf = 0 } = {}) {
   const executablePath = BROWSERS.find((f) => fs.existsSync(f));
   if (!executablePath) throw new Error("No Edge/Chrome found — edit BROWSERS in lib.mjs");
   const b = await chromium.launch({ executablePath, headless: true });
-  const ctx = await b.newContext({ viewport: { width, height }, hasTouch: touch, isMobile: touch, deviceScaleFactor: touch ? 2 : 1 });
+  const ctx = await b.newContext({ viewport: { width, height }, hasTouch: touch, isMobile: touch, deviceScaleFactor: dsf || (touch ? 2 : 1) });
   if (role !== "none") {
     const payload = `${USERS[role]}.${role}.${Date.now() + 6 * 3600e3}`;
     const sig = crypto.createHmac("sha256", SECRET).update(payload).digest("hex");
