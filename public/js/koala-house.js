@@ -1058,7 +1058,7 @@
     return (st.items || []).find((i) => { const d = D[i.id]; return d && d.seat && cellsOf(i).includes(c + "," + r); }) || null;
   }
   // the direction a seat faces (the way the koala looks when sitting on it): 0 +y, 1 +x, 2 -y, 3 -x
-  const seatFacing = (i) => ((i.m | 0) % 4 + 4) % 4;
+  const seatFacing = (i) => { const m = ((i.m | 0) % 4 + 4) % 4; return /^(stool|chair)/.test(i.id) ? m : m & 1; };   // only chairs / stools have a picture from behind: a sofa or bench turned 180 degrees still looks the same, so the koala faces the way the picture does
 
   /* ---------- Admin-added items (My Koala item management) ----------
      Fetched once and merged into D by id — the hardcoded furniture above is
