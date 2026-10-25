@@ -629,8 +629,11 @@
   }
 
   /* ---- koala ---- */
-  const wornNames = () => kordered(ses.S.worn);
-  function koalaMarkup() {
+  // what the koala in the markup wears: the room's koala is always the plain one (clothes only show in the dress-up window, where they are checked by eye)
+  let KW = {};
+  const wornNames = () => kordered(KW);
+  function koalaMarkup(wm) {
+    KW = wm || {};
     const imgs = wornNames().map((n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; }).join("");
     const one = (src) => { const b = KBOX.base; return `<image href="${src}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; };
     const stand = `<svg class="kh-kstand" x="-27" y="-89.8" width="54" height="99.85" viewBox="64 20 553 1020" overflow="hidden">${imgs}</svg>`;
@@ -638,7 +641,7 @@
     // sitting / reading koalas are pictures of their own (img/koala/*.webp; "koala:sit", "koala:sitback", "koala:read" in the manifest override them)
     const own = (cls, src, w, h, bottom) => `<image class="${cls}" href="${src}" x="${-w / 2}" y="${(bottom - h).toFixed(1)}" width="${w}" height="${h}" preserveAspectRatio="xMidYMax meet" display="none"/>`;
     // worn items on the sitting pictures: the sitting koala is the standing one at 1.281x (front) / 1.29x (from behind), so the same layers can be placed by a transform
-    const worn = ses.S.worn, tr = (t) => `<g transform="${t}">`, cv = (n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; };
+    const worn = KW, tr = (t) => `<g transform="${t}">`, cv = (n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; };
     const cvIso = (n) => { const b = KISO[n]; return b && !CUSTOM_WARD[n] ? `<image href="/img/koala/${n}_iso.webp" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>` : cv(n); };   // 3/4-view picture of an item for the iso bodies (the front one when there is none)
     const isHat = (n) => KSLOT.hat.includes(n);
     // seen from behind and turned towards the desk (3/4 view): its own picture and its own item renders (img/koala/*_3q.webp), placed by pixel boxes of the 1136x1408 source
@@ -664,12 +667,13 @@
     const standBack = `<g class="kh-kstandback" display="none" transform="translate(0 3) scale(1.38)">${sitBack3q(worn, isHat).replace("kh-ksitback", "").replace('display="none"', 'display="inline"')}</g>`;
     // lying: the standing koala turned onto its back (angle set by the facing, see updateKoala)
     // iso pictures (when supplied): the body picture is swapped, whatever is worn is laid over it as before
-    const wornIso = wornNames().filter((n) => n !== "base"), wornOver = wornIso.filter((n) => !KBEHIND.includes(n)).map(cvIso).join(""), wornUnder = wornIso.filter((n) => KBEHIND.includes(n)).map(cvIso).join("");
+    const underFirst = (a) => a.filter((n) => KSLOT.legs.includes(n)).concat(a.filter((n) => KSLOT.feet.includes(n)), a.filter((n) => !KSLOT.feet.includes(n) && !KSLOT.legs.includes(n)));   // bottoms go under the top (a shirt hangs over the trousers' waist), shoes over the bottoms
+    const wornIso = underFirst(wornNames().filter((n) => n !== "base")), wornOver = wornIso.filter((n) => !KBEHIND.includes(n)).map(cvIso).join(""), wornUnder = wornIso.filter((n) => KBEHIND.includes(n)).map(cvIso).join("");
     // front views carry what is worn; back views show only the picture (the front-facing item pictures do not fit a back)
     const backPic = (n) => { const b = KISOB[n]; return b ? `<image href="/img/koala/${n}_isob.webp" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>` : ""; };   // back view: only items that have a back picture (the front ones do not fit a back)
     const isoStand = (cls, src, items, back) => (src ? `<svg class="${cls}" x="-21.6" y="-69.8" width="43.2" height="79.9" viewBox="64 20 553 1020" overflow="hidden" display="none">${items ? wornUnder : ""}${one(src)}${items ? wornOver : back ? wornIso.filter((n) => KBEHIND.includes(n) && !CUSTOM_WARD[n]).concat(wornIso.filter((n) => !KBEHIND.includes(n) && !CUSTOM_WARD[n])).map(backPic).join("") : ""}</svg>` : "");
     const isoSit = (cls, src, items, back) => (src ? (items ? sitSvg(cls, src, 40, 49.1, 720, 883, "translate(5.5 9.2) scale(1.281) translate(-64 -222)", (n) => !KSLOT.feet.includes(n) && !KSLOT.legs.includes(n), false, cvIso, { hat: "translate(-33.2 -279) scale(1.25)", face: "translate(-71.6 -333) scale(1.374)" }) : `<svg class="${cls}" x="-20" y="-49.1" width="40" height="49.1" viewBox="0 0 720 883" overflow="${back ? "visible" : "hidden"}" display="none"><image href="${src}" x="0" y="0" width="720" height="883"/>${back ? `<g transform="translate(-139.5 -357.2) scale(1.606)">${wornIso.filter((n) => !CUSTOM_WARD[n] && (KSLOT.body.includes(n) || n === "scarf" || KSLOT.back.includes(n))).map(backPic).join("")}</g><g transform="translate(-139.5 -302) scale(1.606)">${wornIso.filter((n) => !CUSTOM_WARD[n] && KSLOT.hat.includes(n)).map(backPic).join("")}</g>` : ""}</svg>`) : "");   // sitting from behind: the standing-back item pictures, moved so the head lines up (hats, tops, scarf, back items)
-    const lieItems = wornIso.filter((n) => KISOL[n] && !CUSTOM_WARD[n]).sort((a, b) => kordered(ses.S.worn).indexOf(a) - kordered(ses.S.worn).indexOf(b)).map((n) => { const b = KISOL[n]; return `<image href="/img/koala/${n}_isol.webp" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; }).join("");
+    const lieItems = wornIso.filter((n) => KISOL[n] && !CUSTOM_WARD[n]).sort((a, b) => kordered(KW).indexOf(a) - kordered(KW).indexOf(b)).map((n) => { const b = KISOL[n]; return `<image href="/img/koala/${n}_isol.webp" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; }).join("");
     const lieIso = extraImg.isoLie ? `<g class="kh-klieiso"><svg x="-30" y="-17" width="60" height="38.1" viewBox="0 0 1076 683" overflow="visible"><image href="${extraImg.isoLie}" x="0" y="0" width="1076" height="683"/>${lieItems}</svg></g>` : "";   // the lying picture with the worn items that have a lying picture (the others are left off)
     const lie = `<g class="kh-klie" display="none">${lieIso}<g class="kh-klieturn" display="${extraImg.isoLie ? "none" : "inline"}" transform="translate(0 -12) rotate(0) translate(0 40)">${stand.replace("kh-kstand", "kh-klstand")}</g></g>`;   // its own class: ".kh-kstand" must only ever find the real standing picture (the copy used to be found first, so the front picture never switched off and was drawn over the back / sitting ones)
     return `<g class="kh-koala" data-k="0"><ellipse class="kh-kshadow" cx="0" cy="2" rx="24" ry="8" fill="#000" opacity=".16"/><g class="kh-kbody">${lie}<g class="kh-kflip">${stand}${isoStand("kh-kisosf", extraImg.isoStandF, true)}${isoStand("kh-kisosb", extraImg.isoStandB, false, true)}${isoSit("kh-kisotf", extraImg.isoSitF, true)}${isoSit("kh-kisotb", extraImg.isoSitB, false, true)}${back}${standBack}${sit}${readImg}${pose("kh-kwaterimg", extraImg.water)}${book}${can}</g></g></g>`;
@@ -1576,12 +1580,16 @@
     return `<svg class="${cls || "kh-k3d"}" viewBox="${view || "64 130 553 910"}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="3D Koala" focusable="false">${imgs}</svg>`;
   }
   // wall + floor behind the 3D koala: the same room backdrop the 2D koala stands in
-  function wardBackdrop() {
+  function wardBackdrop(S) {
+    try {   // the room the child worked on last (S.cur), drawn as the scene behind the koala
+      const room = H.roomOf(S, S.cur), st = H.stateOf(S, S.cur);
+      if (room && st) return H.roomSvg(room, st, {}).replace(/class="kh-room-svg"/, 'class="kh-ward-bg kh-ward-room" preserveAspectRatio="xMidYMid meet"');
+    } catch (e) { /* fall back to the plain backdrop */ }
     if (!window.KoalaArt || !KoalaArt.room) return "";
     return KoalaArt.room({}, {}, { bare: true }).replace('class="koala-room-svg"', 'class="kh-ward-bg" preserveAspectRatio="xMidYMax slice"');
   }
   let wardSlot = "hat";
-  let wardOwned = false, wardApi = null, wardMsg = "", wardSit = false;
+  let wardOwned = false, wardApi = null, wardMsg = "", wardDir = 0;   // wardDir: 0 = front, 3 = back (the dress-up koala)
   const ID2D_OVR = { glasses: "roundGlasses", scarf: "redScarf", bunnyslippers: "slippers", soccercleats: "soccerBoots", cateye: "catEyeGlasses" };
   const id2d = (n) => ID2D_OVR[n] || (window.KoalaCore ? (KoalaCore.ITEMS.find((i) => i.id.toLowerCase() === n) || {}).id : n) || n;
   // sell a 3D outfit piece back (it is the same purchase as the Sticker one). Returns the "sell" part of a detail popup, or null.
@@ -1668,10 +1676,9 @@
       const wornN = slots.filter((sl) => S.worn[sl]).length;
       root.className = "kh-app kh-embed kh-ward";
       fit(root);
-      const sitT = "translate(5.5 9.2) scale(1.281) translate(-64 -222)", cvw = (n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; };
-      const sitNames = names.filter((n) => n !== "base" && !KSLOT.feet.includes(n) && !KSLOT.legs.includes(n));
-      const sitSvgW = `<svg class="kh-ward-koala kh-ward-sit" viewBox="0 0 720 883" role="img" aria-label="${T("앉은 3D 코알라", "Sitting 3D Koala")}"><ellipse cx="360" cy="860" rx="250" ry="24" fill="#000" opacity=".16"/><g class="kh-wbody"><g transform="${sitT}">${sitNames.filter((n) => KBEHIND.includes(n)).map(cvw).join("")}</g><image href="${extraImg.sit || kimg("sit")}" x="0" y="0" width="720" height="883"/><g transform="${sitT}">${sitNames.filter((n) => !KBEHIND.includes(n)).map(cvw).join("")}</g></g></svg>`;
-      root.innerHTML = `<div class="kh-ward-stage${wardSit ? " is-sit" : ""}" id="kh-wstage">${wardBackdrop()}${sitSvgW}<svg class="kh-ward-koala kh-ward-stand" viewBox="64 20 553 1020" role="img" aria-label="${T("3D 코알라", "3D Koala")}"><ellipse cx="340" cy="962" rx="205" ry="22" fill="#000" opacity=".16"/><g class="kh-wbody">${imgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
+      // the koala of the dress-up window turns round on a tap between the two 3/4 pictures it has with clothes (front-left and back-left; there are no side pictures), wearing what is chosen
+      if (!extraImg.isoStandF) extraImg = Object.assign({}, extraImg, { isoStandF: "/img/koala/iso_stand_f.webp", isoStandB: "/img/koala/iso_stand_b.webp" });
+      root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage">${wardBackdrop(S)}<svg class="kh-ward-koala kh-ward-stand" viewBox="-26 -74 52 88" role="img" aria-label="${T("3D 코알라", "3D Koala")}">${koalaMarkup(S.worn)}</svg><p class="kh-ward-tip">${T("코알라를 눌러 돌려 보세요!", "Tap the koala to turn it!")}</p></div>
         <aside class="kh-panel">${chipsHtml(slots.map((sl) => [sl, `/img/cat/${sl}.webp`, slotName[sl]]), wardOwned ? "" : wardSlot)}
         ${wardOwned ? ownedHtml() : `<div class="kh-grid">${shelfHead(slotName[wardSlot], `${S.worn[wardSlot] ? 1 : 0}/${KSLOT[wardSlot].length}`)}${opts.isAdmin ? `<button type="button" class="kh-admin-add-item" data-kh-admin-add-item="${wardSlot}"><span class="add-ic" aria-hidden="true">+</span>${T("아이템 추가", "Add item")}</button>` : ""}<div class="kh-items-grid">${KSLOT[wardSlot].map((n) => itemBtn(wardSlot, n)).join("")}</div>
         ${wornN ? clearBtn : ""}${wardMsg ? `<p class="kh-empty">${esc(wardMsg)}</p>` : ""}</div>`}</aside>`;
@@ -1693,7 +1700,17 @@
       }; });
       const clr = root.querySelector("[data-clear]"); if (clr) clr.onclick = () => { S.worn = {}; H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); };
       const wst = root.querySelector("#kh-wstage");
-      wst.onclick = () => { wardSit = !wardSit; wst.classList.toggle("is-sit", wardSit); const kb = wst.querySelector(wardSit ? ".kh-ward-sit .kh-wbody" : ".kh-ward-stand .kh-wbody"); if (kb) { kb.classList.remove("hop"); void kb.getBoundingClientRect(); kb.classList.add("hop"); } };
+      const wk = wst.querySelector(".kh-koala");
+      const turn = () => {
+        const away = wardDir > 1;
+        wk.querySelector(".kh-klie")?.setAttribute("display", "none");
+        wk.querySelectorAll(".kh-kflip > *").forEach((e) => e.setAttribute("display", "none"));
+        wk.querySelector(away ? ".kh-kisosb" : ".kh-kisosf")?.setAttribute("display", "inline");
+        wk.querySelector(".kh-kflip").setAttribute("transform", `scale(${[1, -1, -1, 1][wardDir]} 1)`);
+        wk.querySelector(".kh-kshadow")?.setAttribute("opacity", ".16");
+      };
+      turn();
+      wst.onclick = () => { wardDir = wardDir === 0 ? 3 : 0; turn(); const kb = wk.querySelector(".kh-kbody"); if (kb) { kb.classList.remove("hop"); void kb.getBoundingClientRect(); kb.classList.add("hop"); } };
     };
     if (wardApi) { let ch = false; slots.forEach((sl) => { if (S.worn[sl] && !hasIt(S.worn[sl])) { delete S.worn[sl]; ch = true; } }); if (ch) H.persist(S); }
     draw();
