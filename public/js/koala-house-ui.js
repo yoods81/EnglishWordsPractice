@@ -1580,16 +1580,21 @@
     return `<svg class="${cls || "kh-k3d"}" viewBox="${view || "64 130 553 910"}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="3D Koala" focusable="false">${imgs}</svg>`;
   }
   // wall + floor behind the 3D koala: the same room backdrop the 2D koala stands in
-  function wardBackdrop(S) {
-    try {   // the room the child worked on last (S.cur), drawn as the scene behind the koala
-      const room = H.roomOf(S, S.cur), st = H.stateOf(S, S.cur);
-      if (room && st) return H.roomSvg(room, st, {}).replace(/class="kh-room-svg"/, 'class="kh-ward-bg kh-ward-room" preserveAspectRatio="xMidYMid meet"');
-    } catch (e) { /* fall back to the plain backdrop */ }
-    if (!window.KoalaArt || !KoalaArt.room) return "";
-    return KoalaArt.room({}, {}, { bare: true }).replace('class="koala-room-svg"', 'class="kh-ward-bg" preserveAspectRatio="xMidYMax slice"');
+  function wardBackdrop(S) {   // just the wall and floor paper of the room worked on last, filling the card (not the isometric room)
+    const st = (S.slots && S.slots[S.cur]) || {}, W = H.WALLS[st.wall] || H.WALLS.mint, F = H.FLOORS[st.floor] || H.FLOORS.wood;
+    const split = 62;
+    let wall = "", floor = "";
+    if (W.k === "stripes") for (let x = 0; x < 100; x += 20) wall += `<rect x="${x}" y="0" width="10" height="${split}" fill="${W.a}" opacity=".55"/>`;
+    else if (W.k === "planks") for (let x = 0; x < 100; x += 12.5) wall += `<rect x="${x}" y="0" width=".5" height="${split}" fill="${W.a}"/>`;
+    else if (W.k === "diamonds") for (let y = 4; y < split; y += 12) for (let x = (y / 12) % 2 ? 4 : 10; x < 100; x += 12) wall += `<path d="M${x} ${y - 3.5} ${x + 3} ${y} ${x} ${y + 3.5} ${x - 3} ${y}Z" fill="${W.a}" opacity=".7"/>`;
+    else if (W.k === "stars") for (let y = 6; y < split; y += 12) for (let x = (y / 12) % 2 ? 6 : 12; x < 100; x += 12) wall += `<circle cx="${x}" cy="${y}" r="1" fill="${W.a}"/>`;
+    else for (let y = 5; y < split; y += 10) for (let x = (y / 10) % 2 ? 5 : 10; x < 100; x += 10) wall += `<circle cx="${x}" cy="${y}" r="1.3" fill="${W.a}" opacity=".7"/>`;
+    if (F.k === "checker") for (let y = split; y < 100; y += 8) for (let x = ((y - split) / 8) % 2 ? 0 : 8; x < 100; x += 16) floor += `<rect x="${x}" y="${y}" width="8" height="8" fill="${F.a}" opacity=".6"/>`;
+    else if (F.k === "planks") for (let y = split + 6; y < 100; y += 8) floor += `<rect x="0" y="${y}" width="100" height=".5" fill="${F.a}"/>`;
+    return `<svg class="kh-ward-bg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect width="100" height="100" fill="${W.c}"/>${wall}<rect y="${split}" width="100" height="${100 - split}" fill="${F.c}"/>${floor}<rect y="${split}" width="100" height="1.4" fill="#000" opacity=".12"/></svg>`;
   }
   let wardSlot = "hat";
-  let wardOwned = false, wardApi = null, wardMsg = "", wardDir = 0;   // wardDir: 0 = front, 3 = back (the dress-up koala)
+  let wardOwned = false, wardApi = null, wardMsg = "", wardBack = false, wardBackReady = null;   // wardBack: the dress-up koala shows its back
   const ID2D_OVR = { glasses: "roundGlasses", scarf: "redScarf", bunnyslippers: "slippers", soccercleats: "soccerBoots", cateye: "catEyeGlasses" };
   const id2d = (n) => ID2D_OVR[n] || (window.KoalaCore ? (KoalaCore.ITEMS.find((i) => i.id.toLowerCase() === n) || {}).id : n) || n;
   // sell a 3D outfit piece back (it is the same purchase as the Sticker one). Returns the "sell" part of a detail popup, or null.
@@ -1625,6 +1630,7 @@
   }
   function mountWardrobe(root, opts) {
     if (ses) destroy();
+    if (wardBackReady === null) { wardBackReady = false; const pr = new Image(); pr.onload = () => { wardBackReady = true; }; pr.src = "/img/koala/back_base.webp"; }
     syncCustomWard();
     curOpts = opts;
     wardHost = root;
@@ -1676,9 +1682,10 @@
       const wornN = slots.filter((sl) => S.worn[sl]).length;
       root.className = "kh-app kh-embed kh-ward";
       fit(root);
-      // the koala of the dress-up window turns round on a tap between the two 3/4 pictures it has with clothes (front-left and back-left; there are no side pictures), wearing what is chosen
-      if (!extraImg.isoStandF) extraImg = Object.assign({}, extraImg, { isoStandF: "/img/koala/iso_stand_f.webp", isoStandB: "/img/koala/iso_stand_b.webp" });
-      root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage">${wardBackdrop(S)}<svg class="kh-ward-koala kh-ward-stand" viewBox="-26 -74 52 88" role="img" aria-label="${T("3D 코알라", "3D Koala")}">${koalaMarkup(S.worn)}</svg><p class="kh-ward-tip">${T("코알라를 눌러 돌려 보세요!", "Tap the koala to turn it!")}</p></div>
+      // from behind: the plain koala seen from behind plus a picture per worn item (img/back/<item>.webp, all drawn on the same canvas as the koala, so they sit exactly where the koala is). Items without a back picture (glasses, necklaces ...) are not seen from behind.
+      const backOrder = (a) => a.filter((n) => KSLOT.legs.includes(n)).concat(a.filter((n) => KSLOT.feet.includes(n)), a.filter((n) => !KSLOT.legs.includes(n) && !KSLOT.feet.includes(n) && !KBEHIND.includes(n)), a.filter((n) => KBEHIND.includes(n)));
+      const backImgs = backOrder(names.filter((n) => n !== "base" && !CUSTOM_WARD[n])).map((n) => `<image href="/img/koala/back/${n}.webp" x="64" y="222" width="553" height="746"/>`).join("");
+      root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage">${wardBackdrop(S)}<svg class="kh-ward-koala kh-ward-stand" viewBox="64 20 553 1020" role="img" aria-label="${T("3D 코알라", "3D Koala")}"><ellipse cx="340" cy="962" rx="205" ry="22" fill="#000" opacity=".16"/><g class="kh-wfront kh-wbody" ${wardBack ? 'display="none"' : ""}>${imgs}</g><g class="kh-wbackview kh-wbody" ${wardBack ? "" : 'display="none"'}><image href="/img/koala/back_base.webp" x="64" y="222" width="553" height="746"/>${backImgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
         <aside class="kh-panel">${chipsHtml(slots.map((sl) => [sl, `/img/cat/${sl}.webp`, slotName[sl]]), wardOwned ? "" : wardSlot)}
         ${wardOwned ? ownedHtml() : `<div class="kh-grid">${shelfHead(slotName[wardSlot], `${S.worn[wardSlot] ? 1 : 0}/${KSLOT[wardSlot].length}`)}${opts.isAdmin ? `<button type="button" class="kh-admin-add-item" data-kh-admin-add-item="${wardSlot}"><span class="add-ic" aria-hidden="true">+</span>${T("아이템 추가", "Add item")}</button>` : ""}<div class="kh-items-grid">${KSLOT[wardSlot].map((n) => itemBtn(wardSlot, n)).join("")}</div>
         ${wornN ? clearBtn : ""}${wardMsg ? `<p class="kh-empty">${esc(wardMsg)}</p>` : ""}</div>`}</aside>`;
@@ -1700,17 +1707,11 @@
       }; });
       const clr = root.querySelector("[data-clear]"); if (clr) clr.onclick = () => { S.worn = {}; H.persist(S); window.dispatchEvent(new CustomEvent("kh-worn")); draw(); };
       const wst = root.querySelector("#kh-wstage");
-      const wk = wst.querySelector(".kh-koala");
-      const turn = () => {
-        const away = wardDir > 1;
-        wk.querySelector(".kh-klie")?.setAttribute("display", "none");
-        wk.querySelectorAll(".kh-kflip > *").forEach((e) => e.setAttribute("display", "none"));
-        wk.querySelector(away ? ".kh-kisosb" : ".kh-kisosf")?.setAttribute("display", "inline");
-        wk.querySelector(".kh-kflip").setAttribute("transform", `scale(${[1, -1, -1, 1][wardDir]} 1)`);
-        wk.querySelector(".kh-kshadow")?.setAttribute("opacity", ".16");
+      wst.querySelectorAll(".kh-wbackview image").forEach((im) => im.addEventListener("error", () => { if (/back_base/.test(im.getAttribute("href"))) wardBackReady = false; im.remove(); }));
+      wst.onclick = () => {   // tap: turn round (front <-> back); until the back pictures exist, only a little hop
+        if (wardBackReady) { wardBack = !wardBack; wst.querySelector(".kh-wfront").setAttribute("display", wardBack ? "none" : "inline"); wst.querySelector(".kh-wbackview").setAttribute("display", wardBack ? "inline" : "none"); }
+        const kb = wst.querySelector(wardBack ? ".kh-wbackview" : ".kh-wfront"); if (kb) { kb.classList.remove("hop"); void kb.getBoundingClientRect(); kb.classList.add("hop"); }
       };
-      turn();
-      wst.onclick = () => { wardDir = wardDir === 0 ? 3 : 0; turn(); const kb = wk.querySelector(".kh-kbody"); if (kb) { kb.classList.remove("hop"); void kb.getBoundingClientRect(); kb.classList.add("hop"); } };
     };
     if (wardApi) { let ch = false; slots.forEach((sl) => { if (S.worn[sl] && !hasIt(S.worn[sl])) { delete S.worn[sl]; ch = true; } }); if (ch) H.persist(S); }
     draw();
