@@ -10,7 +10,7 @@ from scipy import ndimage
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 REF = "I:/Koala Study Resources/gemini-ref"; OUT = os.path.join(ROOT, "public", "img", "koala", "back"); UI = os.path.join(ROOT, "public", "js", "koala-house-ui.js")
-BX, BY = 64, 222
+BX, BY = 64, 222; BX_C = 276   # BX_C: the centre line of our back koala in the picture's own pixels (back_base.webp is 553 wide)
 item = sys.argv[1]; path = sys.argv[2] if len(sys.argv) > 2 and not sys.argv[2].startswith("--") else None
 if not path:
     for ext in (".png", ".jpg", ".jpeg", ".webp", ".jfif"):
@@ -59,6 +59,18 @@ print("source neck", sy_neck, "feet", sy_bot, " ours neck", dy_neck + BY, "feet"
 def map_y(y):   # source row -> our row
     if y <= sy_neck: return dy_neck - (sy_neck - y) * (dy_neck - dy_top) / max(1, sy_neck - sy_top)
     return dy_neck + (y - sy_neck) * (dy_bot - dy_neck) / max(1, sy_bot - sy_neck)
+if "--rigid" in sys.argv:   # the picture as it is: one uniform scale (neck line to feet), its koala's centre line on ours, no row-by-row fitting (a cape keeps the shape it was drawn with)
+    sc = (dy_bot - dy_neck) / max(1, sy_bot - sy_neck); cx_s = (src_e[sy_neck][0] + src_e[sy_neck][1]) / 2; cx_d = BX_C
+    ys_i, xs_i = np.where(is_item); X0, X1, Y0, Y1 = xs_i.min(), xs_i.max(), ys_i.min(), ys_i.max()
+    crop = Image.fromarray(np.concatenate([np.clip(a, 0, 255).astype(np.uint8), (is_item * 255).astype(np.uint8)[..., None]], 2), "RGBA").crop((X0, Y0, X1 + 1, Y1 + 1))
+    nw, nh = max(1, round(crop.width * sc)), max(1, round(crop.height * sc)); crop = crop.resize((nw, nh), Image.LANCZOS)
+    A = crop.getchannel("A").point(lambda v: 255 if v > 90 else 0).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(0.8)); crop.putalpha(A)
+    left = cx_d + (X0 - cx_s) * sc; top = dy_neck + (Y0 - sy_neck) * sc
+    os.makedirs(OUT, exist_ok=True); crop.save(os.path.join(OUT, item + ".webp"), "WEBP", quality=92, method=6)
+    box = [round(BX + left, 1), round(BY + top, 1), round(BX + left + nw, 1), round(BY + top + nh, 1)]
+    s = open(UI, encoding="utf-8").read(); K = json.loads(re.search(r"  const KBACK = (\{.*?\});", s).group(1)); K[item] = box
+    line = "  const KBACK = %s;   // pictures of the worn items seen from straight behind (img/koala/back/<item>.webp): [x0,y0,x1,y1] in KBOX units (cut-back-worn.py / warp-back-items.py / apply-back-fit.py)" % json.dumps(K, separators=(",", ":"))
+    s = re.sub(r"  const KBACK = \{.*?\};.*", lambda m: line, s, count=1); open(UI, "w", encoding="utf-8").write(s); print(item, "rigid", box, "scale %.3f" % sc); sys.exit(0)
 ys_i, xs_i = np.where(is_item); y0, y1 = ys_i.min(), ys_i.max()
 OH, OW = int(map_y(y1)) - int(map_y(y0)) + 2, base.shape[1]
 out = np.zeros((OH, OW, 4), float); prem = np.concatenate([a, (is_item * 255)[..., None]], 2).astype(float); prem[..., :3] *= prem[..., 3:4] / 255.0

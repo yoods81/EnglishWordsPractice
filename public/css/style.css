@@ -14301,3 +14301,13 @@ html body #view-koala .koala-wallet-stat { padding-left: 4px; padding-right: 4px
 html body .kh-app .kh-managebtn { min-height: 38px; padding: 0 14px; }
 /* portrait tablets: the room shop panel spans the full width under the room (it was stuck at 44vw) */
 @media (max-width: 760px), (orientation: portrait) { html body .kh-app .kh-room-screen .kh-panel { width: 100% !important; } html body .kh-app .kh-room-screen { flex-direction: column; align-items: stretch; } html body .kh-app .kh-room-screen .kh-stage { width: 100%; } }
+
+/* ---- Sticker character page, wide layouts: the item list on the right is two columns (a narrower column), so the character card is wider; the tab bar sits on exactly the same column as the card, so its ends line up with the card's ends ---- */
+@media (min-width: 720px) {
+  html body #view-koala .koala-dimrow.kdt.ctx-2d-char,
+  html body #view-koala .koala-studio:has(.koala-stage.is-character) { grid-template-columns: minmax(0, 1fr) 300px; column-gap: 16px; }
+  html body #view-koala .koala-studio:has(.koala-stage.is-character) .koala-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  html body #view-koala .koala-studio:has(.koala-stage.is-character) .koala-grid .koala-item .koala-item-pic { height: 84px; }
+  html body #view-koala .kdt.ctx-2d-char .kdt-bar { width: 100%; box-sizing: border-box; margin: 0; }
+  html body #view-koala .koala-studio .koala-stage.is-character { width: 100%; box-sizing: border-box; margin-left: 0; margin-right: 0; }
+}
