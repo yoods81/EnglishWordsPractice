@@ -37,14 +37,16 @@ for sh in META:
     tall = sh.get("layout") == "tall"; ox0 = BASE_XY[0] - (sh["koala"][0] if tall else 0); oy0 = BASE_XY[1] - (sh["koala"][1] if tall else 0)
     for c in sh["cells"]:
         item = c["item"]; q = tuple(round(v * k) for v in (c["x"] - (0), c["y"] - (51 if not tall else 0), c["x"] + c["w"], c["y"] + c["h"]))
-        lab = (51 if not tall else 60) / (q[3] - q[1]) * k
+        lab = (0.075 if sh["file"].startswith(("backview-01", "backview-02", "backview-05", "backview-06")) else 0.0)   # the labels of these four sheets sit INSIDE the green panel (top-left), on the others above it
         src_img = out
         if sh["file"].startswith("backview-08"):   # this sheet came back with a green koala silhouette in each cell: the shoes are the non-green things in the lowest strip of the green panel
             arr = np.array(out).astype(int); Wq, Hq = out.size; i_ = sh["cells"].index(c)
             qq = (Wq // 2 * (i_ % 2), Hq // 2 * (i_ // 2), Wq // 2 * (i_ % 2 + 1), Hq // 2 * (i_ // 2 + 1)); sub = arr[qq[1]:qq[3], qq[0]:qq[2]]
             dom = sub[..., 1] - np.maximum(sub[..., 0], sub[..., 2]); green = dom > 140
             bgc = np.median(sub[:6].reshape(-1, 3), axis=0)           # the cell is not green here, only the koala silhouette is: the light sheet colour round it is the background too
-            plain = np.sqrt(((sub - bgc) ** 2).sum(2)) < 45
+            plain0 = np.sqrt(((sub - bgc) ** 2).sum(2)) < 45
+            lp, npl = ndimage.label(plain0); edge = set(np.unique(np.concatenate([lp[0], lp[-1], lp[:, 0], lp[:, -1]]))) - {0}
+            plain = np.isin(lp, list(edge))                          # only the light sheet colour that reaches the cell border is background: white shoes keep their white (heels were see-through)
             ng = (~green) & (~plain) & (dom < 90); H8 = ng.shape[0]
             ng[: round(H8 * 0.62)] = False; ng[round(H8 * 0.985):] = False; ng = ndimage.binary_opening(ng, iterations=2); ng = ndimage.binary_closing(ng, iterations=12); ng = ndimage.binary_fill_holes(ng)   # white shoes look like the light background: close the gaps
             lab2, n2 = ndimage.label(ndimage.binary_dilation(ng, iterations=3)); sz = ndimage.sum(ng, lab2, range(1, n2 + 1)); ng = np.isin(lab2, [j + 1 for j, v in enumerate(sz) if v > 250]) & ng
@@ -58,6 +60,11 @@ for sh in META:
             box = [round(cx - nw / 2, 1), round(cy - nh / 2, 1), round(cx + nw / 2, 1), round(cy + nh / 2, 1)]
             im.save(os.path.join(IMG, "back", item + ".webp"), "WEBP", quality=92, method=6); kback[item] = box; print("%-14s feet box %s" % (item, box)); continue
         got = cut(src_img, q, lab, item)
+        if got:   # keep only the pieces that belong to the item: whatever is much smaller than the biggest piece is label text or a stray speck
+            g_im, g_bb, g_sq = got; ga = np.array(g_im.getchannel("A")) > 40; gl, gk = ndimage.label(ndimage.binary_dilation(ga, iterations=6))
+            if gk > 1:
+                gs = ndimage.sum(ga, gl, range(1, gk + 1)); keepl = [j + 1 for j, v in enumerate(gs) if v >= 0.06 * gs.max()]
+                gm = np.isin(gl, keepl) & ga; arr_ = np.array(g_im); arr_[..., 3] = np.where(gm, arr_[..., 3], 0); g_im = Image.fromarray(arr_, "RGBA"); got = (g_im, g_bb, g_sq)
         if not got: print("nothing for", item); continue
         im, bb, sq = got
         # where the cell's own koala canvas starts (canvas units = sheet px)
