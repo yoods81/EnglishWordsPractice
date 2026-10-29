@@ -28,6 +28,7 @@ npm run shots -- http://127.0.0.1:4179/ shots   # 스크린샷(Playwright + 설�
 | `/koala.html?design=climber` | 한 종만. `plush` `forest` `explorer` `cuddle` `climber` `joey` |
 | `&debug=1` | 파란 선 = 머리 윤곽, 분홍 점 = 보이는 얼굴 부품, 빨간 점 = 기준점 |
 | `&still=1` | 걷기 순환 애니메이션을 멈춤(스크린샷용) |
+| `/koala-soft.html?design=plush` | 그리기 방식 개선 시안: 현재 / ① 바깥 윤곽선만 / ①+② 이음새 메우기 / ①~③ 빛 통일 / ①~④ 털 디테일 |
 
 포트 4178/4179는 고정이다(`strictPort`). 원본 프로젝트의 개발 서버가 같은 포트로 떠 있으면 실행되지 않으니 그쪽을 먼저 끈다.
 
@@ -45,6 +46,8 @@ npm run shots -- http://127.0.0.1:4179/ shots   # 스크린샷(Playwright + 설�
 | `src/engine/compile.ts` | 레시피 → 표시 목록. 화풍(`Look`)에 따라 명암·그라데이션·하이라이트·윤곽선을 정하고, 보는 쪽 반대를 향한 얼굴 부품을 뺀다 |
 | `src/engine/depth.ts` | 도형 상자 기준 깊이 정렬(겹치는 쌍만 비교, 가를 수 없는 쌍은 입력 순서) |
 | `src/engine/display.ts` | 2D 표시 목록 타입(`poly` `ell` `line` `text`), 화면 범위 계산 |
+| `src/render/soft.ts` | 코알라 전용 개선 그리기(시안). `koalaParts()` 결과를 받아 단계(1~4)별로 SVG를 만든다. 데이터·자세·위치·그리는 순서는 그대로 |
+| `src/pages/koala-soft.ts` | 개선 시안 페이지(`koala-soft.html`) |
 | `src/render/painter.ts` | 표시 목록을 그린다. `drawList(ctx, dl)` = Canvas, `toSvg(dl, rect, size)` = SVG 문자열, `bake`/`stamp` = 오프스크린 캐시 |
 | `src/art/styles.ts`, `palette.ts`, `color.ts` | 화풍 A/B/C(시안 페이지는 C), 색 이름표(`fur`, `eye`, `nose` …), 색 계산 |
 | `src/style.css` | 공용 기본 스타일 |
