@@ -29,12 +29,12 @@
     // Coins for a learning round: every `correctPerReward` correct answers in a mode earn that mode's
     // coins. Free accounts get `dailyRewardsPerMode` rounds a day, then `bonusRounds` smaller rounds of
     // `bonusCoins`; paid (premium) accounts have no daily cap and no bonus tier. Wrong answers never cost coins.
-    learning: { correctPerReward: 10, dailyRewardsPerMode: 3, bonusRounds: 3, bonusCoins: 3 },
+    learning: { correctPerReward: 10, dailyRewardsPerMode: 3, bonusRounds: 3, bonusCoins: 5 },
     // Flashcards pay for correct answers in the quiz that follows every flashcard round.
     // Typing / times-table are easy to farm, so a round needs 50 correct answers.
     learningByMode: {
-      tt: { correctPerReward: 50, dailyRewardsPerMode: 2, bonusRounds: 2, bonusCoins: 3 },
-      typing: { correctPerReward: 50, dailyRewardsPerMode: 2, bonusRounds: 2, bonusCoins: 3 },
+      tt: { correctPerReward: 50, dailyRewardsPerMode: 2, bonusRounds: 2, bonusCoins: 5 },
+      typing: { correctPerReward: 50, dailyRewardsPerMode: 2, bonusRounds: 2, bonusCoins: 5 },
     },
     // Typing / times-table: coins per round are scaled by a multiplier (locked speed = half; everyone else 1x).
     game: { lockedMult: 0.5 },
@@ -43,20 +43,23 @@
     // A review session pays only when it has at least `minQuestions` questions and `minRightPct` of them are right,
     // and only the first `maxPaidPerDay` sessions of a day pay.
     reviewRule: { minQuestions: 10, minRightPct: 0.5, maxPaidPerDay: 2 },
+    // Pace target: a child who only finishes Today's Mission every day earns ~90 coins a day
+    // (3 tasks x 15 correct = 1 round each, plus the mission), so a room's core set
+    // (wallpaper, rug, desk, lamp, shelf, poster, plant ~ 620 coins) takes about a week.
     coins: {
-      quiz: 5,
-      spelling: 5,
-      flashcards: 5,
-      timesTable: 5,
-      typing: 5,
-      review: 10,
-      dailyMission: 5,
-      missionRetry: 5,
+      quiz: 15,
+      spelling: 15,
+      flashcards: 15,
+      timesTable: 15,
+      typing: 15,
+      review: 25,
+      dailyMission: 50,
+      missionRetry: 10,
     },
     // Bonus coins when a badge is earned (badge id -> coins).
     // Unlisted badges use badgeDefault.
     badgeBonus: {},
-    badgeDefault: 25,
+    badgeDefault: 50,
     // Lifetime coins earned needed to reach each Koala level (index 0 = Lv.1).
     // Past the last entry every further level costs levelStepAfter more.
     levelThresholds: [0, 50, 120, 220, 350, 520, 730, 980, 1270, 1600],

@@ -330,41 +330,58 @@ test("mergeRewards: nothing earned on either device is lost", () => {
 test("reward loop: rounds of correct answers pay coins once; free = 3 rounds + 3 bonus, paid = unlimited", () => {
   const p = {};
   assert.deepEqual(K.awardLearning(p, "quiz", 9, "2026-10-02"), []);
-  assert.deepEqual(K.awardLearning(p, "quiz", 10, "2026-10-02"), [{ why: "quiz", n: 5 }]);
+  assert.deepEqual(K.awardLearning(p, "quiz", 10, "2026-10-02"), [{ why: "quiz", n: 15 }]);
   assert.deepEqual(K.awardLearning(p, "quiz", 10, "2026-10-02"), [], "same round is never paid twice");
   assert.equal(K.awardLearning(p, "quiz", 25, "2026-10-02").length, 1, "second round only");
   assert.equal(K.awardLearning(p, "quiz", 35, "2026-10-02").length, 1, "third round");
   const bonus = K.awardLearning(p, "quiz", 500, "2026-10-02");
-  assert.deepEqual(bonus.map((r) => r.n), [3, 3, 3], "three bonus rounds of 3 coins, then nothing more");
+  assert.deepEqual(bonus.map((r) => r.n), [5, 5, 5], "three bonus rounds of 5 coins, then nothing more");
   assert.equal(K.awardLearning(p, "quiz", 900, "2026-10-02").length, 0);
-  assert.equal(p.koala.coins, 15 + 9, "free max 24 a day");
+  assert.equal(p.koala.coins, 45 + 15, "free max 60 a day");
   assert.equal(K.awardLearning(p, "quiz", 10, "2026-10-03").length, 1, "new day, new rounds");
   const q = {};
   assert.equal(K.awardLearning(q, "quiz", 100, "d", { unlimited: true }).length, 10, "paid: no daily cap, no bonus tier");
-  assert.equal(q.koala.coins, 50);
+  assert.equal(q.koala.coins, 150);
   assert.deepEqual(K.awardLearning(p, "flash", 9, "d"), [], "flashcards (quiz answers) pay every 10");
   assert.equal(K.awardLearning(p, "flash", 10, "d")[0].why, "flashcards");
   assert.equal(K.awardLearning(p, "tt", 49, "d").length, 0, "times table needs 50");
   assert.equal(K.awardLearning(p, "tt", 50, "d")[0].why, "timesTable");
   const t = {};
-  assert.deepEqual(K.awardLearning(t, "typing", 900, "d").map((r) => r.n), [5, 5, 3, 3], "typing/times table: 2 rounds + 2 bonus = 16");
+  assert.deepEqual(K.awardLearning(t, "typing", 900, "d").map((r) => r.n), [15, 15, 5, 5], "typing/times table: 2 rounds + 2 bonus = 40");
   assert.deepEqual(K.awardLearning(p, "bogus", 99, "d"), []);
 });
 
 test("reward loop: mission, badge and review coins are one-time and wrong answers never cost", () => {
   const p = {};
-  assert.equal(K.awardMission(p, "2026-10-02"), 5);
+  assert.equal(K.awardMission(p, "2026-10-02"), 50);
   assert.equal(K.awardMission(p, "2026-10-02"), 0);
-  assert.equal(K.awardBadge(p, "tt3"), 25);
+  assert.equal(K.awardBadge(p, "tt3"), 50);
   assert.equal(K.awardBadge(p, "tt3"), 0);
-  assert.equal(K.awardReview(p, "2026-10-02:1"), 10);
+  assert.equal(K.awardReview(p, "2026-10-02:1"), 25);
   assert.equal(K.awardReview(p, "2026-10-02:1"), 0);
-  assert.equal(p.koala.coins, 40);
+  assert.equal(p.koala.coins, 125);
   const lp = K.learningProgress("quiz", 13);
   assert.deepEqual([lp.have, lp.goal, lp.roundsDone, lp.capped], [3, 10, 1, false]);
   assert.equal(K.learningProgress("quiz", 30).capped, true);
   assert.equal(K.learningProgress("quiz", 30, { unlimited: true }).capped, false);
   assert.equal(K.learningProgress("typing", 120).goal, 50);
+});
+
+test("coin pace: finishing only Today's Mission every day furnishes a room's core set in about a week", () => {
+  // Mission = 3 tasks of 15 correct (flashcards, spelling, then quiz or times table on alternate days).
+  const day = (third, d) => {
+    const p = {};
+    ["flash", "spelling", third].forEach((m) => K.awardLearning(p, m, K.REWARD_CONFIG.mission.goal, d));
+    K.awardMission(p, d);
+    return p.koala.coins;
+  };
+  const week = [0, 1, 2, 3, 4, 5, 6].reduce((s, i) => s + day(i % 2 ? "quiz" : "tt", "2026-11-0" + (i + 1)), 0);
+  const median = (slot) => {
+    const a = K.ITEMS.filter((i) => i.kind === "room" && i.slot === slot && i.unlock.coins && !i.season).map((i) => i.unlock.coins).sort((x, y) => x - y);
+    return a[Math.floor(a.length / 2)];
+  };
+  const coreSet = ["wallpaper", "rug", "desk", "lamp", "shelf", "poster", "plant"].reduce((s, slot) => s + median(slot), 0);
+  assert.ok(week >= coreSet * 0.85 && week <= coreSet * 1.25, `a week of missions (${week}) ~ a room's core set (${coreSet})`);
 });
 
 test("Study Room: room items follow the same rules and never mix with character items", () => {
@@ -569,7 +586,7 @@ test("gameCoinMultiplier: locked = half, everyone else 1", () => {
 
 test("awardLearning scales a game round by opts.mult (rounded down, never 0) and stays idempotent", () => {
   const p = {};
-  assert.deepEqual(K.awardLearning(p, "typing", 50, "2026-10-02", { mult: 0.5 }), [{ why: "typing", n: 2 }]);
+  assert.deepEqual(K.awardLearning(p, "typing", 50, "2026-10-02", { mult: 0.5 }), [{ why: "typing", n: 7 }]);
   assert.deepEqual(K.awardLearning(p, "typing", 50, "2026-10-02", { mult: 0.5 }), [], "same round never paid twice");
   assert.deepEqual(K.awardLearning(p, "tt", 100, "2026-10-02", { mult: 0.01 }), [{ why: "timesTable", n: 1 }, { why: "timesTable", n: 1 }]);
 });
