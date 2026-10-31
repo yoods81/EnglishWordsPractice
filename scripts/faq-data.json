@@ -285,8 +285,8 @@
             "ko": "오늘의 미션은 뭐예요?"
           },
           "a": {
-            "en": "Each day's mission is a few small tasks of 15 correct answers each. Finishing earns 50 coins. If you want another go, a retry earns 10 more (Free accounts can retry up to 3 times a day; Premium has no limit).",
-            "ko": "미션은 정답 15개를 맞히는 작은 과제들로 이루어져 있어요. 완료하면 50코인을 받아요. 한 번 더 도전하면 재도전 보상으로 10코인을 더 받아요(무료 계정은 하루 3번까지, 프리미엄은 제한 없음)."
+            "en": "Each day's mission is a few small tasks of 15 questions each. Finishing earns 50 coins. If you want another go, a retry earns 10 more (Free accounts can retry up to 3 times a day; Premium has no limit).",
+            "ko": "미션은 15문제씩 푸는 작은 과제들로 이루어져 있어요. 완료하면 50코인을 받아요. 한 번 더 도전하면 재도전 보상으로 10코인을 더 받아요(무료 계정은 하루 3번까지, 프리미엄은 제한 없음)."
           },
           "appOnly": true
         },

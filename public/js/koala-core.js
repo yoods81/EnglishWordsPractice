@@ -38,13 +38,13 @@
     },
     // Typing / times-table: coins per round are scaled by a multiplier (locked speed = half; everyone else 1x).
     game: { lockedMult: 0.5 },
-    // Today's Mission: every task needs `goal` correct answers; finishing pays dailyMission (retry: missionRetry).
+    // Today's Mission: every task needs `goal` questions answered (right or wrong); finishing pays dailyMission (retry: missionRetry).
     mission: { goal: 15, retryMaxFree: 3 },
     // A review session pays only when it has at least `minQuestions` questions and `minRightPct` of them are right,
     // and only the first `maxPaidPerDay` sessions of a day pay.
     reviewRule: { minQuestions: 10, minRightPct: 0.5, maxPaidPerDay: 2 },
     // Pace target: a child who only finishes Today's Mission every day earns ~90 coins a day
-    // (3 tasks x 15 correct = 1 round each, plus the mission), so a room's core set
+    // (3 tasks x 15 questions answered — mostly right, so ~1 round each — plus the mission), so a room's core set
     // (wallpaper, rug, desk, lamp, shelf, poster, plant ~ 620 coins) takes about a week.
     coins: {
       quiz: 15,
