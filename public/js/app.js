@@ -2100,6 +2100,7 @@ function recordResult(word, isCorrect, mode) {
   const stats = progress.wordStats[word] || { correct: 0, incorrect: 0 };
   if (isCorrect) stats.correct++;
   else stats.incorrect++;
+  KoalaCore.stampWordResult(stats, isCorrect);
   progress.wordStats[word] = stats;
   trackActivity(word, isCorrect, mode);
   const streakChanged = bumpDailyStreak();
@@ -4169,9 +4170,11 @@ async function syncProgressOnLogin() {
   try {
     const { progress: serverProgress, updatedAt } = await api("/progress");
     const localDone = progress.doneToday; // words done today on either device stay done on both
+    const localMissionLog = progress.missionLog; // mission days from either device stay on both
     if (serverProgress && typeof updatedAt === "number" && updatedAt > (progress.updatedAt || 0)) {
       progress = serverProgress;
       progress.doneToday = unionDoneToday(localDone, serverProgress.doneToday);
+      progress.missionLog = KoalaCore.unionMissionLog(localMissionLog, serverProgress.missionLog);
       if (!progress.srs) progress.srs = {};
       if (!progress.spellingStatus) progress.spellingStatus = {};
       if (!progress.updatedAt) progress.updatedAt = updatedAt;
@@ -4180,7 +4183,10 @@ async function syncProgressOnLogin() {
       renderStats();
       renderWordList();
     } else {
-      if (serverProgress) { progress.doneToday = unionDoneToday(progress.doneToday, serverProgress.doneToday); }
+      if (serverProgress) {
+        progress.doneToday = unionDoneToday(progress.doneToday, serverProgress.doneToday);
+        progress.missionLog = KoalaCore.unionMissionLog(progress.missionLog, serverProgress.missionLog);
+      }
       pushProgressToServer();
     }
   } catch (e) {
@@ -15611,6 +15617,7 @@ function ensureRewardData() {
   if (!progress.badges) progress.badges = {};
   if (!progress.counters) progress.counters = { spellPerfect: 0, quizPerfect: 0, wrongCleared: 0 };
   if (!Array.isArray(progress.recent)) progress.recent = []; // [{ t, m, w, ok }] last answers, newest last
+  KoalaCore.ensureMissionLog(progress); // older saves only have missionDone (the latest day)
 }
 
 const WRONG_TRIAL_MAX = 10;
@@ -18605,6 +18612,7 @@ function checkMissionComplete() {
   if (all && !already) {
     progress.missionPaid = tag;
     progress.missionDone = today;
+    KoalaCore.recordMissionDay(progress, today);
     ensureRewardData();
     progress.counters.missions = (progress.counters.missions || 0) + 1;
     let coins = 0;

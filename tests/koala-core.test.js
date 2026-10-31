@@ -628,3 +628,35 @@ test("toys category: both toy boxes live in Toys and can be bought in every indo
   assert.equal(H.D.asmrBox.subKind, "asmr");
   assert.ok(K.SUB_ITEMS.filter((x) => x.kind === "asmr").length > 0);
 });
+
+test("missionLog: mission days are kept for Koala House, older saves fold in missionDone, 60-day window", () => {
+  const old = { missionDone: "2026-10-20" }; // a save from before missionLog existed
+  assert.deepEqual(K.ensureMissionLog(old), ["2026-10-20"]);
+  assert.deepEqual(K.ensureMissionLog({}), [], "no mission yet");
+  assert.deepEqual(K.ensureMissionLog({ missionDone: null, missionLog: "bad" }), [], "junk is ignored");
+  const p = { missionDone: "2026-10-20" };
+  K.recordMissionDay(p, "2026-10-22");
+  K.recordMissionDay(p, "2026-10-21");
+  K.recordMissionDay(p, "2026-10-22");
+  assert.deepEqual(p.missionLog, ["2026-10-20", "2026-10-21", "2026-10-22"], "sorted, no duplicates");
+  const q = {};
+  for (let i = 0; i < 70; i++) K.recordMissionDay(q, K.shiftDay("2026-01-01", i));
+  assert.equal(q.missionLog.length, K.MISSION_LOG_DAYS);
+  assert.equal(q.missionLog[0], K.shiftDay("2026-01-01", 10), "oldest days drop off");
+  assert.deepEqual(K.unionMissionLog(["2026-10-01", "2026-10-03"], ["2026-10-02", "2026-10-03"]), ["2026-10-01", "2026-10-02", "2026-10-03"], "both devices' days survive a sync");
+  assert.deepEqual(K.unionMissionLog(undefined, ["2026-10-02"]), ["2026-10-02"]);
+});
+
+test("wordStats times: firstAt stays, lastAt moves, wrong answers and older entries keep working", () => {
+  const s = { correct: 0, incorrect: 0 };
+  K.stampWordResult(s, false, 1000);
+  assert.equal(s.firstAt, undefined, "a wrong answer sets no time");
+  K.stampWordResult(s, true, 2000);
+  K.stampWordResult(s, true, 5000);
+  assert.deepEqual([s.firstAt, s.lastAt], [2000, 5000]);
+  K.stampWordResult(s, false, 9000);
+  assert.equal(s.lastAt, 5000, "lastAt = last RIGHT answer");
+  const old = { correct: 4, incorrect: 1 }; // saved before times existed
+  K.stampWordResult(old, true, 7000);
+  assert.deepEqual(old, { correct: 4, incorrect: 1, firstAt: 7000, lastAt: 7000 }, "older entry gets times from its next right answer");
+});

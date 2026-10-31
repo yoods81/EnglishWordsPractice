@@ -1,0 +1,3657 @@
+{
+ "wordStats": {
+  "ancient": {
+   "correct": 5,
+   "incorrect": 0,
+   "firstAt": 1792308871373,
+   "lastAt": 1793432071960
+  },
+  "enormous": {
+   "correct": 4,
+   "incorrect": 1,
+   "firstAt": 1792308871376,
+   "lastAt": 1793086471760
+  },
+  "fragile": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871377,
+   "lastAt": 1793086471761
+  },
+  "curious": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792308871377,
+   "lastAt": 1793086471762
+  },
+  "delicate": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871378,
+   "lastAt": 1793086471763
+  },
+  "vanish": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871378,
+   "lastAt": 1793086471764
+  },
+  "glimpse": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871379,
+   "lastAt": 1793172871777
+  },
+  "explore": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871380,
+   "lastAt": 1793172871778
+  },
+  "habitat": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871380,
+   "lastAt": 1793172871779
+  },
+  "migrate": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871381,
+   "lastAt": 1793172871780
+  },
+  "nocturnal": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792308871382,
+   "lastAt": 1793172871780
+  },
+  "predator": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792308871383,
+   "lastAt": 1793172871781
+  },
+  "survive": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792308871383,
+   "lastAt": 1793172871782
+  },
+  "drought": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871383,
+   "lastAt": 1793172871783
+  },
+  "erosion": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871384,
+   "lastAt": 1793172871784
+  },
+  "temperature": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792568071503,
+   "lastAt": 1793172871785
+  },
+  "container": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792308871385,
+   "lastAt": 1793172871786
+  },
+  "vehicle": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792308871385,
+   "lastAt": 1793172871787
+  },
+  "structure": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792308871385,
+   "lastAt": 1793172871788
+  },
+  "material": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792308871386,
+   "lastAt": 1793172871789
+  },
+  "device": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871386,
+   "lastAt": 1793172871791
+  },
+  "invention": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871386,
+   "lastAt": 1793172871793
+  },
+  "energy": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792308871387,
+   "lastAt": 1793172871795
+  },
+  "resource": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871387,
+   "lastAt": 1793172871795
+  },
+  "environment": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871387,
+   "lastAt": 1793259271802
+  },
+  "pollution": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871388,
+   "lastAt": 1793259271803
+  },
+  "recycle": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871388,
+   "lastAt": 1793259271804
+  },
+  "community": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871389,
+   "lastAt": 1793259271805
+  },
+  "culture": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871389,
+   "lastAt": 1793259271806
+  },
+  "tradition": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871390,
+   "lastAt": 1793259271807
+  },
+  "celebration": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871392,
+   "lastAt": 1793259271808
+  },
+  "ceremony": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871393,
+   "lastAt": 1793259271808
+  },
+  "continent": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792654471521,
+   "lastAt": 1793259271809
+  },
+  "territory": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871394,
+   "lastAt": 1793259271810
+  },
+  "landmark": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871394,
+   "lastAt": 1793259271812
+  },
+  "expedition": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871395,
+   "lastAt": 1793259271812
+  },
+  "navigate": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871395,
+   "lastAt": 1793259271813
+  },
+  "compass": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792654471526,
+   "lastAt": 1793259271814
+  },
+  "boundary": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871397,
+   "lastAt": 1793259271815
+  },
+  "region": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871397,
+   "lastAt": 1793259271815
+  },
+  "opinion": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792308871398,
+   "lastAt": 1792913671660
+  },
+  "evidence": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871398,
+   "lastAt": 1793259271817
+  },
+  "conclude": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792308871399,
+   "lastAt": 1792913671661
+  },
+  "predict": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871400,
+   "lastAt": 1793259271819
+  },
+  "compare": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792308871400,
+   "lastAt": 1793259271819
+  },
+  "4×4": {
+   "correct": 2,
+   "incorrect": 0,
+   "firstAt": 1792308871401,
+   "lastAt": 1792308871406
+  },
+  "4×3": {
+   "correct": 1,
+   "incorrect": 0,
+   "firstAt": 1792308871401,
+   "lastAt": 1792308871401
+  },
+  "5×4": {
+   "correct": 1,
+   "incorrect": 0,
+   "firstAt": 1792308871402,
+   "lastAt": 1792308871402
+  },
+  "6×7": {
+   "correct": 5,
+   "incorrect": 0,
+   "firstAt": 1792308871402,
+   "lastAt": 1793000071713
+  },
+  "2×4": {
+   "correct": 6,
+   "incorrect": 1,
+   "firstAt": 1792308871403,
+   "lastAt": 1793345671888
+  },
+  "6×5": {
+   "correct": 3,
+   "incorrect": 0,
+   "firstAt": 1792308871404,
+   "lastAt": 1793432071978
+  },
+  "9×2": {
+   "correct": 8,
+   "incorrect": 0,
+   "firstAt": 1792308871405,
+   "lastAt": 1793259271852
+  },
+  "4×7": {
+   "correct": 1,
+   "incorrect": 1,
+   "firstAt": 1792308871405,
+   "lastAt": 1792308871405
+  },
+  "6×3": {
+   "correct": 5,
+   "incorrect": 0,
+   "firstAt": 1792308871406,
+   "lastAt": 1793345671890
+  },
+  "4×6": {
+   "correct": 3,
+   "incorrect": 0,
+   "firstAt": 1792308871407,
+   "lastAt": 1793086471772
+  },
+  "3×9": {
+   "correct": 5,
+   "incorrect": 0,
+   "firstAt": 1792308871407,
+   "lastAt": 1793345671889
+  },
+  "8×7": {
+   "correct": 5,
+   "incorrect": 0,
+   "firstAt": 1792308871407,
+   "lastAt": 1793432071984
+  },
+  "6×6": {
+   "correct": 3,
+   "incorrect": 0,
+   "firstAt": 1792308871408,
+   "lastAt": 1792913671668
+  },
+  "9×5": {
+   "correct": 1,
+   "incorrect": 0,
+   "firstAt": 1792308871408,
+   "lastAt": 1792308871408
+  },
+  "contrast": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271410,
+   "lastAt": 1793259271820
+  },
+  "summarise": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271411,
+   "lastAt": 1793259271821
+  },
+  "identify": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271412,
+   "lastAt": 1793259271822
+  },
+  "investigate": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271412,
+   "lastAt": 1793259271823
+  },
+  "observe": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271413,
+   "lastAt": 1793259271824
+  },
+  "diagram": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271413,
+   "lastAt": 1793259271825
+  },
+  "sequence": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271414,
+   "lastAt": 1793259271827
+  },
+  "narrator": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792395271415,
+   "lastAt": 1793000071677
+  },
+  "character": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792395271415,
+   "lastAt": 1793000071678
+  },
+  "setting": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792395271416,
+   "lastAt": 1793000071678
+  },
+  "dialogue": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792395271416,
+   "lastAt": 1793000071679
+  },
+  "paragraph": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271417,
+   "lastAt": 1793259271831
+  },
+  "punctuation": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792395271418,
+   "lastAt": 1793000071682
+  },
+  "vocabulary": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271418,
+   "lastAt": 1793259271832
+  },
+  "definition": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271419,
+   "lastAt": 1793259271833
+  },
+  "generous": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271419,
+   "lastAt": 1793259271834
+  },
+  "honest": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271420,
+   "lastAt": 1793259271834
+  },
+  "responsible": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271420,
+   "lastAt": 1793259271835
+  },
+  "confident": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271420,
+   "lastAt": 1793259271836
+  },
+  "anxious": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792395271421,
+   "lastAt": 1793259271837
+  },
+  "furious": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271421,
+   "lastAt": 1793259271838
+  },
+  "exhausted": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792395271422,
+   "lastAt": 1793259271838
+  },
+  "astonished": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792654471544,
+   "lastAt": 1793259271839
+  },
+  "reluctant": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792395271423,
+   "lastAt": 1793259271840
+  },
+  "cautious": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792740871556,
+   "lastAt": 1793345671854
+  },
+  "adequate": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271424,
+   "lastAt": 1793345671855
+  },
+  "ambiguous": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792395271425,
+   "lastAt": 1793345671856
+  },
+  "anticipate": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792740871558,
+   "lastAt": 1793345671856
+  },
+  "apparent": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271427,
+   "lastAt": 1793345671857
+  },
+  "articulate": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271427,
+   "lastAt": 1793345671876
+  },
+  "authentic": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792395271428,
+   "lastAt": 1793345671877
+  },
+  "benevolent": {
+   "correct": 2,
+   "incorrect": 2,
+   "firstAt": 1792740871560,
+   "lastAt": 1793000071699
+  },
+  "coincide": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271431,
+   "lastAt": 1793345671879
+  },
+  "collaborate": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271431,
+   "lastAt": 1793345671880
+  },
+  "commence": {
+   "correct": 2,
+   "incorrect": 2,
+   "firstAt": 1792740871562,
+   "lastAt": 1793345671880
+  },
+  "comprehend": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271432,
+   "lastAt": 1793345671881
+  },
+  "consequence": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792395271433,
+   "lastAt": 1793000071703
+  },
+  "considerable": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271433,
+   "lastAt": 1793345671883
+  },
+  "contradict": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271434,
+   "lastAt": 1793345671884
+  },
+  "controversy": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271434,
+   "lastAt": 1793345671884
+  },
+  "convey": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271435,
+   "lastAt": 1793345671885
+  },
+  "deduce": {
+   "correct": 2,
+   "incorrect": 2,
+   "firstAt": 1792395271435,
+   "lastAt": 1793000071709
+  },
+  "deteriorate": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792740871568,
+   "lastAt": 1793432071891
+  },
+  "diminish": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792395271436,
+   "lastAt": 1793432071892
+  },
+  "distinct": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792740871569,
+   "lastAt": 1793432071892
+  },
+  "2×6": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792395271438,
+   "lastAt": 1793259271850
+  },
+  "7×5": {
+   "correct": 3,
+   "incorrect": 2,
+   "firstAt": 1792395271439,
+   "lastAt": 1793086471766
+  },
+  "4×9": {
+   "correct": 3,
+   "incorrect": 0,
+   "firstAt": 1792395271440,
+   "lastAt": 1793432071971
+  },
+  "5×2": {
+   "correct": 3,
+   "incorrect": 0,
+   "firstAt": 1792395271441,
+   "lastAt": 1792654471552
+  },
+  "7×9": {
+   "correct": 2,
+   "incorrect": 2,
+   "firstAt": 1792654471545,
+   "lastAt": 1793000071722
+  },
+  "9×3": {
+   "correct": 3,
+   "incorrect": 0,
+   "firstAt": 1792395271442,
+   "lastAt": 1793259271846
+  },
+  "3×3": {
+   "correct": 3,
+   "incorrect": 0,
+   "firstAt": 1792395271443,
+   "lastAt": 1792654471545
+  },
+  "2×8": {
+   "correct": 3,
+   "incorrect": 0,
+   "firstAt": 1792395271444,
+   "lastAt": 1793000071724
+  },
+  "2×9": {
+   "correct": 5,
+   "incorrect": 0,
+   "firstAt": 1792395271445,
+   "lastAt": 1793259271851
+  },
+  "9×8": {
+   "correct": 3,
+   "incorrect": 0,
+   "firstAt": 1792395271446,
+   "lastAt": 1792740871592
+  },
+  "elaborate": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792481671448,
+   "lastAt": 1793432071893
+  },
+  "eloquent": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671448,
+   "lastAt": 1793432071894
+  },
+  "emphasise": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671449,
+   "lastAt": 1793432071909
+  },
+  "endure": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671450,
+   "lastAt": 1793432071910
+  },
+  "enthusiastic": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671450,
+   "lastAt": 1793432071912
+  },
+  "exaggerate": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671451,
+   "lastAt": 1793432071913
+  },
+  "feasible": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792481671452,
+   "lastAt": 1793432071913
+  },
+  "fluctuate": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792481671452,
+   "lastAt": 1793432071915
+  },
+  "hypothesis": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671453,
+   "lastAt": 1793432071916
+  },
+  "inevitable": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671454,
+   "lastAt": 1793432071918
+  },
+  "illustrate": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671454,
+   "lastAt": 1793432071919
+  },
+  "immense": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671455,
+   "lastAt": 1793432071920
+  },
+  "inference": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671456,
+   "lastAt": 1793432071922
+  },
+  "ingenious": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671456,
+   "lastAt": 1793432071923
+  },
+  "integrate": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671457,
+   "lastAt": 1793432071924
+  },
+  "interpret": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792481671458,
+   "lastAt": 1793086471740
+  },
+  "intricate": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671459,
+   "lastAt": 1793432071927
+  },
+  "justify": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671460,
+   "lastAt": 1793432071929
+  },
+  "legitimate": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792481671460,
+   "lastAt": 1793432071930
+  },
+  "magnificent": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792481671461,
+   "lastAt": 1793086471743
+  },
+  "meticulous": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671462,
+   "lastAt": 1793432071933
+  },
+  "notion": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792481671463,
+   "lastAt": 1793086471745
+  },
+  "obstacle": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792481671464,
+   "lastAt": 1793086471745
+  },
+  "perceive": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792481671464,
+   "lastAt": 1793432071937
+  },
+  "persuade": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671466,
+   "lastAt": 1793432071939
+  },
+  "plausible": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671467,
+   "lastAt": 1793432071940
+  },
+  "precise": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671467,
+   "lastAt": 1793432071941
+  },
+  "priority": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792481671468,
+   "lastAt": 1793432071943
+  },
+  "prominent": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792481671469,
+   "lastAt": 1793086471750
+  },
+  "rigorous": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671470,
+   "lastAt": 1793432071945
+  },
+  "skeptical": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671471,
+   "lastAt": 1793432071947
+  },
+  "speculate": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671471,
+   "lastAt": 1793432071948
+  },
+  "substantial": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671472,
+   "lastAt": 1793432071949
+  },
+  "sufficient": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792481671473,
+   "lastAt": 1793432071951
+  },
+  "superficial": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792481671474,
+   "lastAt": 1793086471754
+  },
+  "tedious": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671475,
+   "lastAt": 1793432071953
+  },
+  "unanimous": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671475,
+   "lastAt": 1793432071954
+  },
+  "underestimate": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671476,
+   "lastAt": 1793432071956
+  },
+  "versatile": {
+   "correct": 3,
+   "incorrect": 1,
+   "firstAt": 1792827271619,
+   "lastAt": 1793432071958
+  },
+  "vivid": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671478,
+   "lastAt": 1793432071959
+  },
+  "5×3": {
+   "correct": 1,
+   "incorrect": 1,
+   "firstAt": 1792481671484,
+   "lastAt": 1792481671484
+  },
+  "8×4": {
+   "correct": 4,
+   "incorrect": 0,
+   "firstAt": 1792481671485,
+   "lastAt": 1793432071975
+  },
+  "3×7": {
+   "correct": 2,
+   "incorrect": 0,
+   "firstAt": 1792481671487,
+   "lastAt": 1792481671488
+  },
+  "9×9": {
+   "correct": 1,
+   "incorrect": 1,
+   "firstAt": 1792481671489,
+   "lastAt": 1792481671489
+  },
+  "2×3": {
+   "correct": 1,
+   "incorrect": 1,
+   "firstAt": 1792568071510,
+   "lastAt": 1792568071510
+  },
+  "2×2": {
+   "correct": 1,
+   "incorrect": 1,
+   "firstAt": 1792740871600,
+   "lastAt": 1792740871600
+  },
+  "6×9": {
+   "correct": 3,
+   "incorrect": 0,
+   "firstAt": 1792481671494,
+   "lastAt": 1793000071714
+  },
+  "3×5": {
+   "correct": 3,
+   "incorrect": 0,
+   "firstAt": 1792481671495,
+   "lastAt": 1793432071979
+  },
+  "3×2": {
+   "correct": 5,
+   "incorrect": 0,
+   "firstAt": 1792568071511,
+   "lastAt": 1793345671888
+  },
+  "7×6": {
+   "correct": 6,
+   "incorrect": 1,
+   "firstAt": 1792568071512,
+   "lastAt": 1793259271846
+  },
+  "4×2": {
+   "correct": 0,
+   "incorrect": 1
+  },
+  "7×7": {
+   "correct": 2,
+   "incorrect": 1,
+   "firstAt": 1792654471547,
+   "lastAt": 1793432071969
+  },
+  "5×8": {
+   "correct": 3,
+   "incorrect": 0,
+   "firstAt": 1792654471547,
+   "lastAt": 1793259271847
+  },
+  "5×5": {
+   "correct": 2,
+   "incorrect": 0,
+   "firstAt": 1792654471549,
+   "lastAt": 1793432071966
+  },
+  "9×7": {
+   "correct": 5,
+   "incorrect": 0,
+   "firstAt": 1792654471553,
+   "lastAt": 1793432071965
+  },
+  "2×7": {
+   "correct": 0,
+   "incorrect": 1
+  },
+  "8×2": {
+   "correct": 3,
+   "incorrect": 0,
+   "firstAt": 1792740871590,
+   "lastAt": 1793086471767
+  },
+  "6×8": {
+   "correct": 4,
+   "incorrect": 1,
+   "firstAt": 1792740871591,
+   "lastAt": 1793259271852
+  },
+  "8×8": {
+   "correct": 2,
+   "incorrect": 0,
+   "firstAt": 1792740871592,
+   "lastAt": 1792827271645
+  },
+  "7×3": {
+   "correct": 2,
+   "incorrect": 0,
+   "firstAt": 1792740871593,
+   "lastAt": 1793086471768
+  },
+  "8×9": {
+   "correct": 2,
+   "incorrect": 0,
+   "firstAt": 1792740871596,
+   "lastAt": 1793086471770
+  },
+  "3×8": {
+   "correct": 5,
+   "incorrect": 0,
+   "firstAt": 1792827271641,
+   "lastAt": 1793172871797
+  },
+  "4×5": {
+   "correct": 1,
+   "incorrect": 0,
+   "firstAt": 1792827271643,
+   "lastAt": 1792827271643
+  },
+  "7×4": {
+   "correct": 2,
+   "incorrect": 0,
+   "firstAt": 1792827271646,
+   "lastAt": 1793345671890
+  },
+  "8×5": {
+   "correct": 2,
+   "incorrect": 0,
+   "firstAt": 1792827271648,
+   "lastAt": 1793259271843
+  },
+  "7×8": {
+   "correct": 2,
+   "incorrect": 1,
+   "firstAt": 1792913671665,
+   "lastAt": 1793432071973
+  },
+  "9×6": {
+   "correct": 2,
+   "incorrect": 0,
+   "firstAt": 1792913671667,
+   "lastAt": 1793172871798
+  },
+  "4×8": {
+   "correct": 2,
+   "incorrect": 0,
+   "firstAt": 1793000071716,
+   "lastAt": 1793259271849
+  },
+  "9×4": {
+   "correct": 1,
+   "incorrect": 1,
+   "firstAt": 1793000071725,
+   "lastAt": 1793000071725
+  },
+  "7×2": {
+   "correct": 1,
+   "incorrect": 0,
+   "firstAt": 1793172871796,
+   "lastAt": 1793172871796
+  },
+  "5×6": {
+   "correct": 2,
+   "incorrect": 1,
+   "firstAt": 1793259271843,
+   "lastAt": 1793345671887
+  },
+  "8×6": {
+   "correct": 1,
+   "incorrect": 1,
+   "firstAt": 1793432071982,
+   "lastAt": 1793432071982
+  },
+  "6×2": {
+   "correct": 0,
+   "incorrect": 1
+  }
+ },
+ "flashKnown": {},
+ "quiz": {
+  "correct": 0,
+  "total": 0
+ },
+ "spelling": {
+  "correct": 0,
+  "total": 0
+ },
+ "spellingStatus": {},
+ "srs": {},
+ "typeGameLevelChallengeShown": {},
+ "timesTableChallengeShown": {},
+ "streak": {
+  "count": 3,
+  "lastDay": "2026-10-31",
+  "best": 3,
+  "restWeek": null
+ },
+ "updatedAt": 1793432071985,
+ "doneToday": {
+  "d": "2026-10-31",
+  "m": {
+   "flash": {
+    "plausible": 1
+   }
+  }
+ },
+ "daily": {
+  "2026-10-18": {
+   "flash": [
+    15,
+    15
+   ],
+   "spelling": [
+    14,
+    15
+   ],
+   "quiz": [
+    13,
+    15
+   ],
+   "tt": [
+    15,
+    15
+   ]
+  },
+  "2026-10-19": {
+   "flash": [
+    15,
+    15
+   ],
+   "spelling": [
+    12,
+    15
+   ],
+   "quiz": [
+    11,
+    15
+   ],
+   "tt": [
+    12,
+    15
+   ]
+  },
+  "2026-10-20": {
+   "flash": [
+    15,
+    15
+   ],
+   "spelling": [
+    15,
+    15
+   ],
+   "quiz": [
+    14,
+    15
+   ],
+   "tt": [
+    13,
+    15
+   ]
+  },
+  "2026-10-21": {
+   "flash": [
+    6,
+    6
+   ],
+   "spelling": [
+    5,
+    6
+   ],
+   "quiz": [
+    6,
+    6
+   ],
+   "tt": [
+    5,
+    6
+   ]
+  },
+  "2026-10-22": {
+   "flash": [
+    15,
+    15
+   ],
+   "spelling": [
+    15,
+    15
+   ],
+   "quiz": [
+    14,
+    15
+   ],
+   "tt": [
+    14,
+    15
+   ]
+  },
+  "2026-10-23": {
+   "flash": [
+    15,
+    15
+   ],
+   "spelling": [
+    12,
+    15
+   ],
+   "quiz": [
+    14,
+    15
+   ],
+   "tt": [
+    13,
+    15
+   ]
+  },
+  "2026-10-24": {
+   "flash": [
+    15,
+    15
+   ],
+   "spelling": [
+    11,
+    15
+   ],
+   "quiz": [
+    11,
+    15
+   ],
+   "tt": [
+    14,
+    15
+   ]
+  },
+  "2026-10-25": {
+   "flash": [
+    6,
+    6
+   ],
+   "spelling": [
+    6,
+    6
+   ],
+   "quiz": [
+    6,
+    6
+   ],
+   "tt": [
+    6,
+    6
+   ]
+  },
+  "2026-10-26": {
+   "flash": [
+    15,
+    15
+   ],
+   "spelling": [
+    11,
+    15
+   ],
+   "quiz": [
+    13,
+    15
+   ],
+   "tt": [
+    13,
+    15
+   ]
+  },
+  "2026-10-27": {
+   "flash": [
+    15,
+    15
+   ],
+   "spelling": [
+    13,
+    15
+   ],
+   "quiz": [
+    14,
+    15
+   ],
+   "tt": [
+    12,
+    15
+   ]
+  },
+  "2026-10-28": {
+   "flash": [
+    6,
+    6
+   ],
+   "spelling": [
+    6,
+    6
+   ],
+   "quiz": [
+    6,
+    6
+   ],
+   "tt": [
+    5,
+    6
+   ]
+  },
+  "2026-10-29": {
+   "flash": [
+    15,
+    15
+   ],
+   "spelling": [
+    11,
+    15
+   ],
+   "quiz": [
+    12,
+    15
+   ],
+   "tt": [
+    13,
+    15
+   ]
+  },
+  "2026-10-30": {
+   "flash": [
+    6,
+    6
+   ],
+   "spelling": [
+    5,
+    6
+   ],
+   "quiz": [
+    4,
+    6
+   ],
+   "tt": [
+    6,
+    6
+   ]
+  },
+  "2026-10-31": {
+   "flash": [
+    15,
+    15
+   ],
+   "spelling": [
+    11,
+    15
+   ],
+   "quiz": [
+    12,
+    15
+   ],
+   "tt": [
+    12,
+    15
+   ]
+  }
+ },
+ "modes": {
+  "flash": [
+   174,
+   174
+  ],
+  "spelling": [
+   147,
+   174
+  ],
+  "quiz": [
+   150,
+   174
+  ],
+  "tt": [
+   153,
+   174
+  ]
+ },
+ "wrong": {
+  "interpret": {
+   "n": 1,
+   "last": 1793432071926,
+   "ok": 0,
+   "mode": "spelling"
+  },
+  "magnificent": {
+   "n": 1,
+   "last": 1793432071931,
+   "ok": 0,
+   "mode": "spelling"
+  },
+  "notion": {
+   "n": 1,
+   "last": 1793432071934,
+   "ok": 0,
+   "mode": "spelling"
+  },
+  "obstacle": {
+   "n": 1,
+   "last": 1793432071936,
+   "ok": 0,
+   "mode": "spelling"
+  },
+  "prominent": {
+   "n": 1,
+   "last": 1793432071944,
+   "ok": 0,
+   "mode": "quiz"
+  },
+  "superficial": {
+   "n": 1,
+   "last": 1793432071952,
+   "ok": 0,
+   "mode": "quiz"
+  },
+  "enormous": {
+   "n": 1,
+   "last": 1793432071961,
+   "ok": 0,
+   "mode": "quiz"
+  },
+  "8×6": {
+   "n": 1,
+   "last": 1793432071970,
+   "ok": 1,
+   "mode": "tt"
+  },
+  "2×6": {
+   "n": 1,
+   "last": 1793432071976,
+   "ok": 0,
+   "mode": "tt"
+  },
+  "6×2": {
+   "n": 1,
+   "last": 1793432071981,
+   "ok": 0,
+   "mode": "tt"
+  }
+ },
+ "ttSolved": {
+  "4×4": 1,
+  "4×3": 1,
+  "5×4": 1,
+  "6×7": 1,
+  "2×4": 1,
+  "6×5": 1,
+  "9×2": 1,
+  "4×7": 1,
+  "6×3": 1,
+  "4×6": 1,
+  "3×9": 1,
+  "8×7": 1,
+  "6×6": 1,
+  "9×5": 1,
+  "2×6": 1,
+  "7×5": 1,
+  "4×9": 1,
+  "5×2": 1,
+  "9×3": 1,
+  "3×3": 1,
+  "2×8": 1,
+  "2×9": 1,
+  "9×8": 1,
+  "5×3": 1,
+  "8×4": 1,
+  "3×7": 1,
+  "9×9": 1,
+  "6×9": 1,
+  "3×5": 1,
+  "2×3": 1,
+  "3×2": 1,
+  "7×6": 1,
+  "7×9": 1,
+  "7×7": 1,
+  "5×8": 1,
+  "5×5": 1,
+  "9×7": 1,
+  "8×2": 1,
+  "6×8": 1,
+  "8×8": 1,
+  "7×3": 1,
+  "8×9": 1,
+  "2×2": 1,
+  "3×8": 1,
+  "4×5": 1,
+  "7×4": 1,
+  "8×5": 1,
+  "7×8": 1,
+  "9×6": 1,
+  "4×8": 1,
+  "9×4": 1,
+  "7×2": 1,
+  "5×6": 1,
+  "8×6": 1
+ },
+ "badges": {
+  "words50": 1792308871403,
+  "level5": 1792654471522,
+  "coins500": 1792740871573,
+  "mission7": 1793000071726,
+  "streak3": 1793432071894
+ },
+ "counters": {
+  "spellPerfect": 0,
+  "quizPerfect": 0,
+  "wrongCleared": 0,
+  "missions": 10
+ },
+ "recent": [
+  {
+   "t": 1792913671660,
+   "m": "quiz",
+   "w": "opinion",
+   "ok": 1
+  },
+  {
+   "t": 1792913671661,
+   "m": "quiz",
+   "w": "evidence",
+   "ok": 1
+  },
+  {
+   "t": 1792913671661,
+   "m": "quiz",
+   "w": "conclude",
+   "ok": 1
+  },
+  {
+   "t": 1792913671662,
+   "m": "quiz",
+   "w": "predict",
+   "ok": 1
+  },
+  {
+   "t": 1792913671663,
+   "m": "quiz",
+   "w": "compare",
+   "ok": 1
+  },
+  {
+   "t": 1792913671664,
+   "m": "quiz",
+   "w": "contrast",
+   "ok": 1
+  },
+  {
+   "t": 1792913671665,
+   "m": "tt",
+   "w": "7×8",
+   "ok": 1
+  },
+  {
+   "t": 1792913671666,
+   "m": "tt",
+   "w": "4×6",
+   "ok": 1
+  },
+  {
+   "t": 1792913671667,
+   "m": "tt",
+   "w": "9×6",
+   "ok": 1
+  },
+  {
+   "t": 1792913671668,
+   "m": "tt",
+   "w": "6×6",
+   "ok": 1
+  },
+  {
+   "t": 1792913671669,
+   "m": "tt",
+   "w": "6×3",
+   "ok": 1
+  },
+  {
+   "t": 1792913671670,
+   "m": "tt",
+   "w": "2×4",
+   "ok": 1
+  },
+  {
+   "t": 1793000071671,
+   "m": "flash",
+   "w": "summarise",
+   "ok": 1
+  },
+  {
+   "t": 1793000071672,
+   "m": "flash",
+   "w": "identify",
+   "ok": 1
+  },
+  {
+   "t": 1793000071673,
+   "m": "flash",
+   "w": "investigate",
+   "ok": 1
+  },
+  {
+   "t": 1793000071674,
+   "m": "flash",
+   "w": "observe",
+   "ok": 1
+  },
+  {
+   "t": 1793000071675,
+   "m": "flash",
+   "w": "diagram",
+   "ok": 1
+  },
+  {
+   "t": 1793000071676,
+   "m": "flash",
+   "w": "sequence",
+   "ok": 1
+  },
+  {
+   "t": 1793000071677,
+   "m": "flash",
+   "w": "narrator",
+   "ok": 1
+  },
+  {
+   "t": 1793000071678,
+   "m": "flash",
+   "w": "character",
+   "ok": 1
+  },
+  {
+   "t": 1793000071678,
+   "m": "flash",
+   "w": "setting",
+   "ok": 1
+  },
+  {
+   "t": 1793000071679,
+   "m": "flash",
+   "w": "dialogue",
+   "ok": 1
+  },
+  {
+   "t": 1793000071681,
+   "m": "flash",
+   "w": "paragraph",
+   "ok": 1
+  },
+  {
+   "t": 1793000071682,
+   "m": "flash",
+   "w": "punctuation",
+   "ok": 1
+  },
+  {
+   "t": 1793000071683,
+   "m": "flash",
+   "w": "vocabulary",
+   "ok": 1
+  },
+  {
+   "t": 1793000071684,
+   "m": "flash",
+   "w": "definition",
+   "ok": 1
+  },
+  {
+   "t": 1793000071685,
+   "m": "flash",
+   "w": "generous",
+   "ok": 1
+  },
+  {
+   "t": 1793000071685,
+   "m": "spelling",
+   "w": "honest",
+   "ok": 1
+  },
+  {
+   "t": 1793000071686,
+   "m": "spelling",
+   "w": "responsible",
+   "ok": 1
+  },
+  {
+   "t": 1793000071687,
+   "m": "spelling",
+   "w": "confident",
+   "ok": 1
+  },
+  {
+   "t": 1793000071688,
+   "m": "spelling",
+   "w": "anxious",
+   "ok": 1
+  },
+  {
+   "t": 1793000071689,
+   "m": "spelling",
+   "w": "furious",
+   "ok": 1
+  },
+  {
+   "t": 1793000071690,
+   "m": "spelling",
+   "w": "exhausted",
+   "ok": 0
+  },
+  {
+   "t": 1793000071691,
+   "m": "spelling",
+   "w": "astonished",
+   "ok": 1
+  },
+  {
+   "t": 1793000071692,
+   "m": "spelling",
+   "w": "reluctant",
+   "ok": 0
+  },
+  {
+   "t": 1793000071693,
+   "m": "spelling",
+   "w": "cautious",
+   "ok": 1
+  },
+  {
+   "t": 1793000071694,
+   "m": "spelling",
+   "w": "adequate",
+   "ok": 1
+  },
+  {
+   "t": 1793000071695,
+   "m": "spelling",
+   "w": "ambiguous",
+   "ok": 0
+  },
+  {
+   "t": 1793000071696,
+   "m": "spelling",
+   "w": "anticipate",
+   "ok": 1
+  },
+  {
+   "t": 1793000071696,
+   "m": "spelling",
+   "w": "apparent",
+   "ok": 1
+  },
+  {
+   "t": 1793000071697,
+   "m": "spelling",
+   "w": "articulate",
+   "ok": 1
+  },
+  {
+   "t": 1793000071698,
+   "m": "spelling",
+   "w": "authentic",
+   "ok": 0
+  },
+  {
+   "t": 1793000071699,
+   "m": "quiz",
+   "w": "benevolent",
+   "ok": 1
+  },
+  {
+   "t": 1793000071700,
+   "m": "quiz",
+   "w": "coincide",
+   "ok": 1
+  },
+  {
+   "t": 1793000071700,
+   "m": "quiz",
+   "w": "collaborate",
+   "ok": 1
+  },
+  {
+   "t": 1793000071701,
+   "m": "quiz",
+   "w": "commence",
+   "ok": 0
+  },
+  {
+   "t": 1793000071702,
+   "m": "quiz",
+   "w": "comprehend",
+   "ok": 1
+  },
+  {
+   "t": 1793000071703,
+   "m": "quiz",
+   "w": "consequence",
+   "ok": 1
+  },
+  {
+   "t": 1793000071704,
+   "m": "quiz",
+   "w": "considerable",
+   "ok": 1
+  },
+  {
+   "t": 1793000071705,
+   "m": "quiz",
+   "w": "contradict",
+   "ok": 1
+  },
+  {
+   "t": 1793000071706,
+   "m": "quiz",
+   "w": "controversy",
+   "ok": 1
+  },
+  {
+   "t": 1793000071708,
+   "m": "quiz",
+   "w": "convey",
+   "ok": 1
+  },
+  {
+   "t": 1793000071709,
+   "m": "quiz",
+   "w": "deduce",
+   "ok": 1
+  },
+  {
+   "t": 1793000071710,
+   "m": "quiz",
+   "w": "deteriorate",
+   "ok": 1
+  },
+  {
+   "t": 1793000071711,
+   "m": "quiz",
+   "w": "diminish",
+   "ok": 1
+  },
+  {
+   "t": 1793000071711,
+   "m": "quiz",
+   "w": "distinct",
+   "ok": 1
+  },
+  {
+   "t": 1793000071712,
+   "m": "quiz",
+   "w": "elaborate",
+   "ok": 0
+  },
+  {
+   "t": 1793000071713,
+   "m": "tt",
+   "w": "6×7",
+   "ok": 1
+  },
+  {
+   "t": 1793000071714,
+   "m": "tt",
+   "w": "6×9",
+   "ok": 1
+  },
+  {
+   "t": 1793000071715,
+   "m": "tt",
+   "w": "9×2",
+   "ok": 1
+  },
+  {
+   "t": 1793000071716,
+   "m": "tt",
+   "w": "4×8",
+   "ok": 1
+  },
+  {
+   "t": 1793000071717,
+   "m": "tt",
+   "w": "7×6",
+   "ok": 1
+  },
+  {
+   "t": 1793000071717,
+   "m": "tt",
+   "w": "6×8",
+   "ok": 1
+  },
+  {
+   "t": 1793000071718,
+   "m": "tt",
+   "w": "8×7",
+   "ok": 1
+  },
+  {
+   "t": 1793000071719,
+   "m": "tt",
+   "w": "9×4",
+   "ok": 0
+  },
+  {
+   "t": 1793000071720,
+   "m": "tt",
+   "w": "7×6",
+   "ok": 1
+  },
+  {
+   "t": 1793000071721,
+   "m": "tt",
+   "w": "7×7",
+   "ok": 0
+  },
+  {
+   "t": 1793000071722,
+   "m": "tt",
+   "w": "7×9",
+   "ok": 1
+  },
+  {
+   "t": 1793000071723,
+   "m": "tt",
+   "w": "7×6",
+   "ok": 1
+  },
+  {
+   "t": 1793000071723,
+   "m": "tt",
+   "w": "7×6",
+   "ok": 1
+  },
+  {
+   "t": 1793000071724,
+   "m": "tt",
+   "w": "2×8",
+   "ok": 1
+  },
+  {
+   "t": 1793000071725,
+   "m": "tt",
+   "w": "9×4",
+   "ok": 1
+  },
+  {
+   "t": 1793086471728,
+   "m": "flash",
+   "w": "eloquent",
+   "ok": 1
+  },
+  {
+   "t": 1793086471728,
+   "m": "flash",
+   "w": "emphasise",
+   "ok": 1
+  },
+  {
+   "t": 1793086471729,
+   "m": "flash",
+   "w": "endure",
+   "ok": 1
+  },
+  {
+   "t": 1793086471730,
+   "m": "flash",
+   "w": "enthusiastic",
+   "ok": 1
+  },
+  {
+   "t": 1793086471731,
+   "m": "flash",
+   "w": "exaggerate",
+   "ok": 1
+  },
+  {
+   "t": 1793086471732,
+   "m": "flash",
+   "w": "feasible",
+   "ok": 1
+  },
+  {
+   "t": 1793086471732,
+   "m": "flash",
+   "w": "fluctuate",
+   "ok": 1
+  },
+  {
+   "t": 1793086471734,
+   "m": "flash",
+   "w": "hypothesis",
+   "ok": 1
+  },
+  {
+   "t": 1793086471735,
+   "m": "flash",
+   "w": "inevitable",
+   "ok": 1
+  },
+  {
+   "t": 1793086471735,
+   "m": "flash",
+   "w": "illustrate",
+   "ok": 1
+  },
+  {
+   "t": 1793086471736,
+   "m": "flash",
+   "w": "immense",
+   "ok": 1
+  },
+  {
+   "t": 1793086471737,
+   "m": "flash",
+   "w": "inference",
+   "ok": 1
+  },
+  {
+   "t": 1793086471738,
+   "m": "flash",
+   "w": "ingenious",
+   "ok": 1
+  },
+  {
+   "t": 1793086471739,
+   "m": "flash",
+   "w": "integrate",
+   "ok": 1
+  },
+  {
+   "t": 1793086471740,
+   "m": "flash",
+   "w": "interpret",
+   "ok": 1
+  },
+  {
+   "t": 1793086471741,
+   "m": "spelling",
+   "w": "intricate",
+   "ok": 1
+  },
+  {
+   "t": 1793086471741,
+   "m": "spelling",
+   "w": "justify",
+   "ok": 1
+  },
+  {
+   "t": 1793086471742,
+   "m": "spelling",
+   "w": "legitimate",
+   "ok": 1
+  },
+  {
+   "t": 1793086471743,
+   "m": "spelling",
+   "w": "magnificent",
+   "ok": 1
+  },
+  {
+   "t": 1793086471744,
+   "m": "spelling",
+   "w": "meticulous",
+   "ok": 1
+  },
+  {
+   "t": 1793086471745,
+   "m": "spelling",
+   "w": "notion",
+   "ok": 1
+  },
+  {
+   "t": 1793086471745,
+   "m": "spelling",
+   "w": "obstacle",
+   "ok": 1
+  },
+  {
+   "t": 1793086471746,
+   "m": "spelling",
+   "w": "perceive",
+   "ok": 0
+  },
+  {
+   "t": 1793086471747,
+   "m": "spelling",
+   "w": "persuade",
+   "ok": 1
+  },
+  {
+   "t": 1793086471748,
+   "m": "spelling",
+   "w": "plausible",
+   "ok": 1
+  },
+  {
+   "t": 1793086471748,
+   "m": "spelling",
+   "w": "precise",
+   "ok": 1
+  },
+  {
+   "t": 1793086471749,
+   "m": "spelling",
+   "w": "priority",
+   "ok": 0
+  },
+  {
+   "t": 1793086471750,
+   "m": "spelling",
+   "w": "prominent",
+   "ok": 1
+  },
+  {
+   "t": 1793086471750,
+   "m": "spelling",
+   "w": "rigorous",
+   "ok": 1
+  },
+  {
+   "t": 1793086471751,
+   "m": "spelling",
+   "w": "skeptical",
+   "ok": 1
+  },
+  {
+   "t": 1793086471752,
+   "m": "quiz",
+   "w": "speculate",
+   "ok": 1
+  },
+  {
+   "t": 1793086471753,
+   "m": "quiz",
+   "w": "substantial",
+   "ok": 1
+  },
+  {
+   "t": 1793086471753,
+   "m": "quiz",
+   "w": "sufficient",
+   "ok": 0
+  },
+  {
+   "t": 1793086471754,
+   "m": "quiz",
+   "w": "superficial",
+   "ok": 1
+  },
+  {
+   "t": 1793086471755,
+   "m": "quiz",
+   "w": "tedious",
+   "ok": 1
+  },
+  {
+   "t": 1793086471756,
+   "m": "quiz",
+   "w": "unanimous",
+   "ok": 1
+  },
+  {
+   "t": 1793086471757,
+   "m": "quiz",
+   "w": "underestimate",
+   "ok": 1
+  },
+  {
+   "t": 1793086471758,
+   "m": "quiz",
+   "w": "versatile",
+   "ok": 1
+  },
+  {
+   "t": 1793086471759,
+   "m": "quiz",
+   "w": "vivid",
+   "ok": 1
+  },
+  {
+   "t": 1793086471760,
+   "m": "quiz",
+   "w": "ancient",
+   "ok": 1
+  },
+  {
+   "t": 1793086471760,
+   "m": "quiz",
+   "w": "enormous",
+   "ok": 1
+  },
+  {
+   "t": 1793086471761,
+   "m": "quiz",
+   "w": "fragile",
+   "ok": 1
+  },
+  {
+   "t": 1793086471762,
+   "m": "quiz",
+   "w": "curious",
+   "ok": 1
+  },
+  {
+   "t": 1793086471763,
+   "m": "quiz",
+   "w": "delicate",
+   "ok": 1
+  },
+  {
+   "t": 1793086471764,
+   "m": "quiz",
+   "w": "vanish",
+   "ok": 1
+  },
+  {
+   "t": 1793086471766,
+   "m": "tt",
+   "w": "7×5",
+   "ok": 1
+  },
+  {
+   "t": 1793086471766,
+   "m": "tt",
+   "w": "2×4",
+   "ok": 0
+  },
+  {
+   "t": 1793086471767,
+   "m": "tt",
+   "w": "8×2",
+   "ok": 1
+  },
+  {
+   "t": 1793086471768,
+   "m": "tt",
+   "w": "7×3",
+   "ok": 1
+  },
+  {
+   "t": 1793086471769,
+   "m": "tt",
+   "w": "3×8",
+   "ok": 1
+  },
+  {
+   "t": 1793086471769,
+   "m": "tt",
+   "w": "6×8",
+   "ok": 0
+  },
+  {
+   "t": 1793086471770,
+   "m": "tt",
+   "w": "8×9",
+   "ok": 1
+  },
+  {
+   "t": 1793086471770,
+   "m": "tt",
+   "w": "9×2",
+   "ok": 1
+  },
+  {
+   "t": 1793086471771,
+   "m": "tt",
+   "w": "2×9",
+   "ok": 1
+  },
+  {
+   "t": 1793086471772,
+   "m": "tt",
+   "w": "4×6",
+   "ok": 1
+  },
+  {
+   "t": 1793086471773,
+   "m": "tt",
+   "w": "7×8",
+   "ok": 0
+  },
+  {
+   "t": 1793086471774,
+   "m": "tt",
+   "w": "2×6",
+   "ok": 1
+  },
+  {
+   "t": 1793086471775,
+   "m": "tt",
+   "w": "2×4",
+   "ok": 1
+  },
+  {
+   "t": 1793086471775,
+   "m": "tt",
+   "w": "8×7",
+   "ok": 1
+  },
+  {
+   "t": 1793086471776,
+   "m": "tt",
+   "w": "3×9",
+   "ok": 1
+  },
+  {
+   "t": 1793172871777,
+   "m": "flash",
+   "w": "glimpse",
+   "ok": 1
+  },
+  {
+   "t": 1793172871778,
+   "m": "flash",
+   "w": "explore",
+   "ok": 1
+  },
+  {
+   "t": 1793172871779,
+   "m": "flash",
+   "w": "habitat",
+   "ok": 1
+  },
+  {
+   "t": 1793172871780,
+   "m": "flash",
+   "w": "migrate",
+   "ok": 1
+  },
+  {
+   "t": 1793172871780,
+   "m": "flash",
+   "w": "nocturnal",
+   "ok": 1
+  },
+  {
+   "t": 1793172871781,
+   "m": "flash",
+   "w": "predator",
+   "ok": 1
+  },
+  {
+   "t": 1793172871782,
+   "m": "spelling",
+   "w": "survive",
+   "ok": 1
+  },
+  {
+   "t": 1793172871783,
+   "m": "spelling",
+   "w": "drought",
+   "ok": 1
+  },
+  {
+   "t": 1793172871784,
+   "m": "spelling",
+   "w": "erosion",
+   "ok": 1
+  },
+  {
+   "t": 1793172871785,
+   "m": "spelling",
+   "w": "temperature",
+   "ok": 1
+  },
+  {
+   "t": 1793172871786,
+   "m": "spelling",
+   "w": "container",
+   "ok": 1
+  },
+  {
+   "t": 1793172871787,
+   "m": "spelling",
+   "w": "vehicle",
+   "ok": 1
+  },
+  {
+   "t": 1793172871788,
+   "m": "quiz",
+   "w": "structure",
+   "ok": 1
+  },
+  {
+   "t": 1793172871789,
+   "m": "quiz",
+   "w": "material",
+   "ok": 1
+  },
+  {
+   "t": 1793172871791,
+   "m": "quiz",
+   "w": "device",
+   "ok": 1
+  },
+  {
+   "t": 1793172871793,
+   "m": "quiz",
+   "w": "invention",
+   "ok": 1
+  },
+  {
+   "t": 1793172871795,
+   "m": "quiz",
+   "w": "energy",
+   "ok": 1
+  },
+  {
+   "t": 1793172871795,
+   "m": "quiz",
+   "w": "resource",
+   "ok": 1
+  },
+  {
+   "t": 1793172871796,
+   "m": "tt",
+   "w": "7×2",
+   "ok": 1
+  },
+  {
+   "t": 1793172871797,
+   "m": "tt",
+   "w": "3×8",
+   "ok": 1
+  },
+  {
+   "t": 1793172871798,
+   "m": "tt",
+   "w": "9×6",
+   "ok": 1
+  },
+  {
+   "t": 1793172871799,
+   "m": "tt",
+   "w": "5×6",
+   "ok": 0
+  },
+  {
+   "t": 1793172871800,
+   "m": "tt",
+   "w": "6×8",
+   "ok": 1
+  },
+  {
+   "t": 1793172871800,
+   "m": "tt",
+   "w": "3×2",
+   "ok": 1
+  },
+  {
+   "t": 1793259271802,
+   "m": "flash",
+   "w": "environment",
+   "ok": 1
+  },
+  {
+   "t": 1793259271803,
+   "m": "flash",
+   "w": "pollution",
+   "ok": 1
+  },
+  {
+   "t": 1793259271804,
+   "m": "flash",
+   "w": "recycle",
+   "ok": 1
+  },
+  {
+   "t": 1793259271805,
+   "m": "flash",
+   "w": "community",
+   "ok": 1
+  },
+  {
+   "t": 1793259271806,
+   "m": "flash",
+   "w": "culture",
+   "ok": 1
+  },
+  {
+   "t": 1793259271807,
+   "m": "flash",
+   "w": "tradition",
+   "ok": 1
+  },
+  {
+   "t": 1793259271808,
+   "m": "flash",
+   "w": "celebration",
+   "ok": 1
+  },
+  {
+   "t": 1793259271808,
+   "m": "flash",
+   "w": "ceremony",
+   "ok": 1
+  },
+  {
+   "t": 1793259271809,
+   "m": "flash",
+   "w": "continent",
+   "ok": 1
+  },
+  {
+   "t": 1793259271810,
+   "m": "flash",
+   "w": "territory",
+   "ok": 1
+  },
+  {
+   "t": 1793259271812,
+   "m": "flash",
+   "w": "landmark",
+   "ok": 1
+  },
+  {
+   "t": 1793259271812,
+   "m": "flash",
+   "w": "expedition",
+   "ok": 1
+  },
+  {
+   "t": 1793259271813,
+   "m": "flash",
+   "w": "navigate",
+   "ok": 1
+  },
+  {
+   "t": 1793259271814,
+   "m": "flash",
+   "w": "compass",
+   "ok": 1
+  },
+  {
+   "t": 1793259271815,
+   "m": "flash",
+   "w": "boundary",
+   "ok": 1
+  },
+  {
+   "t": 1793259271815,
+   "m": "spelling",
+   "w": "region",
+   "ok": 1
+  },
+  {
+   "t": 1793259271816,
+   "m": "spelling",
+   "w": "opinion",
+   "ok": 0
+  },
+  {
+   "t": 1793259271817,
+   "m": "spelling",
+   "w": "evidence",
+   "ok": 1
+  },
+  {
+   "t": 1793259271818,
+   "m": "spelling",
+   "w": "conclude",
+   "ok": 0
+  },
+  {
+   "t": 1793259271819,
+   "m": "spelling",
+   "w": "predict",
+   "ok": 1
+  },
+  {
+   "t": 1793259271819,
+   "m": "spelling",
+   "w": "compare",
+   "ok": 1
+  },
+  {
+   "t": 1793259271820,
+   "m": "spelling",
+   "w": "contrast",
+   "ok": 1
+  },
+  {
+   "t": 1793259271821,
+   "m": "spelling",
+   "w": "summarise",
+   "ok": 1
+  },
+  {
+   "t": 1793259271822,
+   "m": "spelling",
+   "w": "identify",
+   "ok": 1
+  },
+  {
+   "t": 1793259271823,
+   "m": "spelling",
+   "w": "investigate",
+   "ok": 1
+  },
+  {
+   "t": 1793259271824,
+   "m": "spelling",
+   "w": "observe",
+   "ok": 1
+  },
+  {
+   "t": 1793259271825,
+   "m": "spelling",
+   "w": "diagram",
+   "ok": 1
+  },
+  {
+   "t": 1793259271827,
+   "m": "spelling",
+   "w": "sequence",
+   "ok": 1
+  },
+  {
+   "t": 1793259271828,
+   "m": "spelling",
+   "w": "narrator",
+   "ok": 0
+  },
+  {
+   "t": 1793259271828,
+   "m": "spelling",
+   "w": "character",
+   "ok": 0
+  },
+  {
+   "t": 1793259271829,
+   "m": "quiz",
+   "w": "setting",
+   "ok": 0
+  },
+  {
+   "t": 1793259271830,
+   "m": "quiz",
+   "w": "dialogue",
+   "ok": 0
+  },
+  {
+   "t": 1793259271831,
+   "m": "quiz",
+   "w": "paragraph",
+   "ok": 1
+  },
+  {
+   "t": 1793259271831,
+   "m": "quiz",
+   "w": "punctuation",
+   "ok": 0
+  },
+  {
+   "t": 1793259271832,
+   "m": "quiz",
+   "w": "vocabulary",
+   "ok": 1
+  },
+  {
+   "t": 1793259271833,
+   "m": "quiz",
+   "w": "definition",
+   "ok": 1
+  },
+  {
+   "t": 1793259271834,
+   "m": "quiz",
+   "w": "generous",
+   "ok": 1
+  },
+  {
+   "t": 1793259271834,
+   "m": "quiz",
+   "w": "honest",
+   "ok": 1
+  },
+  {
+   "t": 1793259271835,
+   "m": "quiz",
+   "w": "responsible",
+   "ok": 1
+  },
+  {
+   "t": 1793259271836,
+   "m": "quiz",
+   "w": "confident",
+   "ok": 1
+  },
+  {
+   "t": 1793259271837,
+   "m": "quiz",
+   "w": "anxious",
+   "ok": 1
+  },
+  {
+   "t": 1793259271838,
+   "m": "quiz",
+   "w": "furious",
+   "ok": 1
+  },
+  {
+   "t": 1793259271838,
+   "m": "quiz",
+   "w": "exhausted",
+   "ok": 1
+  },
+  {
+   "t": 1793259271839,
+   "m": "quiz",
+   "w": "astonished",
+   "ok": 1
+  },
+  {
+   "t": 1793259271840,
+   "m": "quiz",
+   "w": "reluctant",
+   "ok": 1
+  },
+  {
+   "t": 1793259271842,
+   "m": "tt",
+   "w": "6×5",
+   "ok": 1
+  },
+  {
+   "t": 1793259271843,
+   "m": "tt",
+   "w": "5×6",
+   "ok": 1
+  },
+  {
+   "t": 1793259271843,
+   "m": "tt",
+   "w": "8×5",
+   "ok": 1
+  },
+  {
+   "t": 1793259271844,
+   "m": "tt",
+   "w": "9×7",
+   "ok": 1
+  },
+  {
+   "t": 1793259271845,
+   "m": "tt",
+   "w": "3×9",
+   "ok": 1
+  },
+  {
+   "t": 1793259271846,
+   "m": "tt",
+   "w": "7×6",
+   "ok": 1
+  },
+  {
+   "t": 1793259271846,
+   "m": "tt",
+   "w": "9×3",
+   "ok": 1
+  },
+  {
+   "t": 1793259271847,
+   "m": "tt",
+   "w": "5×8",
+   "ok": 1
+  },
+  {
+   "t": 1793259271848,
+   "m": "tt",
+   "w": "7×6",
+   "ok": 0
+  },
+  {
+   "t": 1793259271849,
+   "m": "tt",
+   "w": "4×8",
+   "ok": 1
+  },
+  {
+   "t": 1793259271850,
+   "m": "tt",
+   "w": "2×6",
+   "ok": 1
+  },
+  {
+   "t": 1793259271851,
+   "m": "tt",
+   "w": "2×9",
+   "ok": 1
+  },
+  {
+   "t": 1793259271852,
+   "m": "tt",
+   "w": "6×8",
+   "ok": 1
+  },
+  {
+   "t": 1793259271852,
+   "m": "tt",
+   "w": "9×2",
+   "ok": 1
+  },
+  {
+   "t": 1793259271853,
+   "m": "tt",
+   "w": "4×7",
+   "ok": 0
+  },
+  {
+   "t": 1793345671854,
+   "m": "flash",
+   "w": "cautious",
+   "ok": 1
+  },
+  {
+   "t": 1793345671855,
+   "m": "flash",
+   "w": "adequate",
+   "ok": 1
+  },
+  {
+   "t": 1793345671856,
+   "m": "flash",
+   "w": "ambiguous",
+   "ok": 1
+  },
+  {
+   "t": 1793345671856,
+   "m": "flash",
+   "w": "anticipate",
+   "ok": 1
+  },
+  {
+   "t": 1793345671857,
+   "m": "flash",
+   "w": "apparent",
+   "ok": 1
+  },
+  {
+   "t": 1793345671876,
+   "m": "flash",
+   "w": "articulate",
+   "ok": 1
+  },
+  {
+   "t": 1793345671877,
+   "m": "spelling",
+   "w": "authentic",
+   "ok": 1
+  },
+  {
+   "t": 1793345671878,
+   "m": "spelling",
+   "w": "benevolent",
+   "ok": 0
+  },
+  {
+   "t": 1793345671879,
+   "m": "spelling",
+   "w": "coincide",
+   "ok": 1
+  },
+  {
+   "t": 1793345671880,
+   "m": "spelling",
+   "w": "collaborate",
+   "ok": 1
+  },
+  {
+   "t": 1793345671880,
+   "m": "spelling",
+   "w": "commence",
+   "ok": 1
+  },
+  {
+   "t": 1793345671881,
+   "m": "spelling",
+   "w": "comprehend",
+   "ok": 1
+  },
+  {
+   "t": 1793345671882,
+   "m": "quiz",
+   "w": "consequence",
+   "ok": 0
+  },
+  {
+   "t": 1793345671883,
+   "m": "quiz",
+   "w": "considerable",
+   "ok": 1
+  },
+  {
+   "t": 1793345671884,
+   "m": "quiz",
+   "w": "contradict",
+   "ok": 1
+  },
+  {
+   "t": 1793345671884,
+   "m": "quiz",
+   "w": "controversy",
+   "ok": 1
+  },
+  {
+   "t": 1793345671885,
+   "m": "quiz",
+   "w": "convey",
+   "ok": 1
+  },
+  {
+   "t": 1793345671886,
+   "m": "quiz",
+   "w": "deduce",
+   "ok": 0
+  },
+  {
+   "t": 1793345671887,
+   "m": "tt",
+   "w": "5×6",
+   "ok": 1
+  },
+  {
+   "t": 1793345671888,
+   "m": "tt",
+   "w": "3×2",
+   "ok": 1
+  },
+  {
+   "t": 1793345671888,
+   "m": "tt",
+   "w": "2×4",
+   "ok": 1
+  },
+  {
+   "t": 1793345671889,
+   "m": "tt",
+   "w": "3×9",
+   "ok": 1
+  },
+  {
+   "t": 1793345671890,
+   "m": "tt",
+   "w": "6×3",
+   "ok": 1
+  },
+  {
+   "t": 1793345671890,
+   "m": "tt",
+   "w": "7×4",
+   "ok": 1
+  },
+  {
+   "t": 1793432071891,
+   "m": "flash",
+   "w": "deteriorate",
+   "ok": 1
+  },
+  {
+   "t": 1793432071892,
+   "m": "flash",
+   "w": "diminish",
+   "ok": 1
+  },
+  {
+   "t": 1793432071892,
+   "m": "flash",
+   "w": "distinct",
+   "ok": 1
+  },
+  {
+   "t": 1793432071893,
+   "m": "flash",
+   "w": "elaborate",
+   "ok": 1
+  },
+  {
+   "t": 1793432071894,
+   "m": "flash",
+   "w": "eloquent",
+   "ok": 1
+  },
+  {
+   "t": 1793432071909,
+   "m": "flash",
+   "w": "emphasise",
+   "ok": 1
+  },
+  {
+   "t": 1793432071910,
+   "m": "flash",
+   "w": "endure",
+   "ok": 1
+  },
+  {
+   "t": 1793432071912,
+   "m": "flash",
+   "w": "enthusiastic",
+   "ok": 1
+  },
+  {
+   "t": 1793432071913,
+   "m": "flash",
+   "w": "exaggerate",
+   "ok": 1
+  },
+  {
+   "t": 1793432071913,
+   "m": "flash",
+   "w": "feasible",
+   "ok": 1
+  },
+  {
+   "t": 1793432071915,
+   "m": "flash",
+   "w": "fluctuate",
+   "ok": 1
+  },
+  {
+   "t": 1793432071916,
+   "m": "flash",
+   "w": "hypothesis",
+   "ok": 1
+  },
+  {
+   "t": 1793432071918,
+   "m": "flash",
+   "w": "inevitable",
+   "ok": 1
+  },
+  {
+   "t": 1793432071919,
+   "m": "flash",
+   "w": "illustrate",
+   "ok": 1
+  },
+  {
+   "t": 1793432071920,
+   "m": "flash",
+   "w": "immense",
+   "ok": 1
+  },
+  {
+   "t": 1793432071922,
+   "m": "spelling",
+   "w": "inference",
+   "ok": 1
+  },
+  {
+   "t": 1793432071923,
+   "m": "spelling",
+   "w": "ingenious",
+   "ok": 1
+  },
+  {
+   "t": 1793432071924,
+   "m": "spelling",
+   "w": "integrate",
+   "ok": 1
+  },
+  {
+   "t": 1793432071926,
+   "m": "spelling",
+   "w": "interpret",
+   "ok": 0
+  },
+  {
+   "t": 1793432071927,
+   "m": "spelling",
+   "w": "intricate",
+   "ok": 1
+  },
+  {
+   "t": 1793432071929,
+   "m": "spelling",
+   "w": "justify",
+   "ok": 1
+  },
+  {
+   "t": 1793432071930,
+   "m": "spelling",
+   "w": "legitimate",
+   "ok": 1
+  },
+  {
+   "t": 1793432071931,
+   "m": "spelling",
+   "w": "magnificent",
+   "ok": 0
+  },
+  {
+   "t": 1793432071933,
+   "m": "spelling",
+   "w": "meticulous",
+   "ok": 1
+  },
+  {
+   "t": 1793432071934,
+   "m": "spelling",
+   "w": "notion",
+   "ok": 0
+  },
+  {
+   "t": 1793432071936,
+   "m": "spelling",
+   "w": "obstacle",
+   "ok": 0
+  },
+  {
+   "t": 1793432071937,
+   "m": "spelling",
+   "w": "perceive",
+   "ok": 1
+  },
+  {
+   "t": 1793432071939,
+   "m": "spelling",
+   "w": "persuade",
+   "ok": 1
+  },
+  {
+   "t": 1793432071940,
+   "m": "spelling",
+   "w": "plausible",
+   "ok": 1
+  },
+  {
+   "t": 1793432071941,
+   "m": "spelling",
+   "w": "precise",
+   "ok": 1
+  },
+  {
+   "t": 1793432071943,
+   "m": "quiz",
+   "w": "priority",
+   "ok": 1
+  },
+  {
+   "t": 1793432071944,
+   "m": "quiz",
+   "w": "prominent",
+   "ok": 0
+  },
+  {
+   "t": 1793432071945,
+   "m": "quiz",
+   "w": "rigorous",
+   "ok": 1
+  },
+  {
+   "t": 1793432071947,
+   "m": "quiz",
+   "w": "skeptical",
+   "ok": 1
+  },
+  {
+   "t": 1793432071948,
+   "m": "quiz",
+   "w": "speculate",
+   "ok": 1
+  },
+  {
+   "t": 1793432071949,
+   "m": "quiz",
+   "w": "substantial",
+   "ok": 1
+  },
+  {
+   "t": 1793432071951,
+   "m": "quiz",
+   "w": "sufficient",
+   "ok": 1
+  },
+  {
+   "t": 1793432071952,
+   "m": "quiz",
+   "w": "superficial",
+   "ok": 0
+  },
+  {
+   "t": 1793432071953,
+   "m": "quiz",
+   "w": "tedious",
+   "ok": 1
+  },
+  {
+   "t": 1793432071954,
+   "m": "quiz",
+   "w": "unanimous",
+   "ok": 1
+  },
+  {
+   "t": 1793432071956,
+   "m": "quiz",
+   "w": "underestimate",
+   "ok": 1
+  },
+  {
+   "t": 1793432071958,
+   "m": "quiz",
+   "w": "versatile",
+   "ok": 1
+  },
+  {
+   "t": 1793432071959,
+   "m": "quiz",
+   "w": "vivid",
+   "ok": 1
+  },
+  {
+   "t": 1793432071960,
+   "m": "quiz",
+   "w": "ancient",
+   "ok": 1
+  },
+  {
+   "t": 1793432071961,
+   "m": "quiz",
+   "w": "enormous",
+   "ok": 0
+  },
+  {
+   "t": 1793432071964,
+   "m": "tt",
+   "w": "9×7",
+   "ok": 1
+  },
+  {
+   "t": 1793432071965,
+   "m": "tt",
+   "w": "9×7",
+   "ok": 1
+  },
+  {
+   "t": 1793432071966,
+   "m": "tt",
+   "w": "5×5",
+   "ok": 1
+  },
+  {
+   "t": 1793432071968,
+   "m": "tt",
+   "w": "3×5",
+   "ok": 1
+  },
+  {
+   "t": 1793432071969,
+   "m": "tt",
+   "w": "7×7",
+   "ok": 1
+  },
+  {
+   "t": 1793432071970,
+   "m": "tt",
+   "w": "8×6",
+   "ok": 0
+  },
+  {
+   "t": 1793432071971,
+   "m": "tt",
+   "w": "4×9",
+   "ok": 1
+  },
+  {
+   "t": 1793432071973,
+   "m": "tt",
+   "w": "7×8",
+   "ok": 1
+  },
+  {
+   "t": 1793432071975,
+   "m": "tt",
+   "w": "8×4",
+   "ok": 1
+  },
+  {
+   "t": 1793432071976,
+   "m": "tt",
+   "w": "2×6",
+   "ok": 0
+  },
+  {
+   "t": 1793432071978,
+   "m": "tt",
+   "w": "6×5",
+   "ok": 1
+  },
+  {
+   "t": 1793432071979,
+   "m": "tt",
+   "w": "3×5",
+   "ok": 1
+  },
+  {
+   "t": 1793432071981,
+   "m": "tt",
+   "w": "6×2",
+   "ok": 0
+  },
+  {
+   "t": 1793432071982,
+   "m": "tt",
+   "w": "8×6",
+   "ok": 1
+  },
+  {
+   "t": 1793432071984,
+   "m": "tt",
+   "w": "8×7",
+   "ok": 1
+  }
+ ],
+ "missionLog": [
+  "2026-10-18",
+  "2026-10-19",
+  "2026-10-20",
+  "2026-10-22",
+  "2026-10-23",
+  "2026-10-24",
+  "2026-10-26",
+  "2026-10-27",
+  "2026-10-29",
+  "2026-10-31"
+ ],
+ "koala": {
+  "v": 1,
+  "coins": 1200,
+  "earned": 1200,
+  "spent": 0,
+  "refunded": 0,
+  "ledger": [
+   {
+    "t": 1792308871381,
+    "n": 15,
+    "why": "flashcards",
+    "key": "learn:flash:2026-10-18:1"
+   },
+   {
+    "t": 1792308871388,
+    "n": 15,
+    "why": "spelling",
+    "key": "learn:spelling:2026-10-18:1"
+   },
+   {
+    "t": 1792308871398,
+    "n": 15,
+    "why": "quiz",
+    "key": "learn:quiz:2026-10-18:1"
+   },
+   {
+    "t": 1792308871403,
+    "n": 50,
+    "why": "badge",
+    "key": "badge:words50"
+   },
+   {
+    "t": 1792308871409,
+    "n": 50,
+    "why": "dailyMission",
+    "key": "mission:2026-10-18"
+   },
+   {
+    "t": 1792395271416,
+    "n": 15,
+    "why": "flashcards",
+    "key": "learn:flash:2026-10-19:1"
+   },
+   {
+    "t": 1792395271425,
+    "n": 15,
+    "why": "spelling",
+    "key": "learn:spelling:2026-10-19:1"
+   },
+   {
+    "t": 1792395271435,
+    "n": 15,
+    "why": "quiz",
+    "key": "learn:quiz:2026-10-19:1"
+   },
+   {
+    "t": 1792395271437,
+    "n": 50,
+    "why": "dailyMission",
+    "key": "mission:2026-10-19"
+   },
+   {
+    "t": 1792481671454,
+    "n": 15,
+    "why": "flashcards",
+    "key": "learn:flash:2026-10-20:1"
+   },
+   {
+    "t": 1792481671466,
+    "n": 15,
+    "why": "spelling",
+    "key": "learn:spelling:2026-10-20:1"
+   },
+   {
+    "t": 1792481671479,
+    "n": 15,
+    "why": "quiz",
+    "key": "learn:quiz:2026-10-20:1"
+   },
+   {
+    "t": 1792481671495,
+    "n": 50,
+    "why": "dailyMission",
+    "key": "mission:2026-10-20"
+   },
+   {
+    "t": 1792654471521,
+    "n": 15,
+    "why": "flashcards",
+    "key": "learn:flash:2026-10-22:1"
+   },
+   {
+    "t": 1792654471522,
+    "n": 50,
+    "why": "badge",
+    "key": "badge:level5"
+   },
+   {
+    "t": 1792654471532,
+    "n": 15,
+    "why": "spelling",
+    "key": "learn:spelling:2026-10-22:1"
+   },
+   {
+    "t": 1792654471541,
+    "n": 15,
+    "why": "quiz",
+    "key": "learn:quiz:2026-10-22:1"
+   },
+   {
+    "t": 1792654471554,
+    "n": 50,
+    "why": "dailyMission",
+    "key": "mission:2026-10-22"
+   },
+   {
+    "t": 1792740871561,
+    "n": 15,
+    "why": "flashcards",
+    "key": "learn:flash:2026-10-23:1"
+   },
+   {
+    "t": 1792740871572,
+    "n": 15,
+    "why": "spelling",
+    "key": "learn:spelling:2026-10-23:1"
+   },
+   {
+    "t": 1792740871573,
+    "n": 50,
+    "why": "badge",
+    "key": "badge:coins500"
+   },
+   {
+    "t": 1792740871584,
+    "n": 15,
+    "why": "quiz",
+    "key": "learn:quiz:2026-10-23:1"
+   },
+   {
+    "t": 1792740871589,
+    "n": 50,
+    "why": "dailyMission",
+    "key": "mission:2026-10-23"
+   },
+   {
+    "t": 1792827271613,
+    "n": 15,
+    "why": "flashcards",
+    "key": "learn:flash:2026-10-24:1"
+   },
+   {
+    "t": 1792827271626,
+    "n": 15,
+    "why": "spelling",
+    "key": "learn:spelling:2026-10-24:1"
+   },
+   {
+    "t": 1792827271639,
+    "n": 15,
+    "why": "quiz",
+    "key": "learn:quiz:2026-10-24:1"
+   },
+   {
+    "t": 1792827271650,
+    "n": 50,
+    "why": "dailyMission",
+    "key": "mission:2026-10-24"
+   },
+   {
+    "t": 1793000071679,
+    "n": 15,
+    "why": "flashcards",
+    "key": "learn:flash:2026-10-26:1"
+   },
+   {
+    "t": 1793000071696,
+    "n": 15,
+    "why": "spelling",
+    "key": "learn:spelling:2026-10-26:1"
+   },
+   {
+    "t": 1793000071709,
+    "n": 15,
+    "why": "quiz",
+    "key": "learn:quiz:2026-10-26:1"
+   },
+   {
+    "t": 1793000071726,
+    "n": 50,
+    "why": "dailyMission",
+    "key": "mission:2026-10-26"
+   },
+   {
+    "t": 1793000071726,
+    "n": 50,
+    "why": "badge",
+    "key": "badge:mission7"
+   },
+   {
+    "t": 1793086471736,
+    "n": 15,
+    "why": "flashcards",
+    "key": "learn:flash:2026-10-27:1"
+   },
+   {
+    "t": 1793086471748,
+    "n": 15,
+    "why": "spelling",
+    "key": "learn:spelling:2026-10-27:1"
+   },
+   {
+    "t": 1793086471761,
+    "n": 15,
+    "why": "quiz",
+    "key": "learn:quiz:2026-10-27:1"
+   },
+   {
+    "t": 1793086471765,
+    "n": 50,
+    "why": "dailyMission",
+    "key": "mission:2026-10-27"
+   },
+   {
+    "t": 1793259271810,
+    "n": 15,
+    "why": "flashcards",
+    "key": "learn:flash:2026-10-29:1"
+   },
+   {
+    "t": 1793259271825,
+    "n": 15,
+    "why": "spelling",
+    "key": "learn:spelling:2026-10-29:1"
+   },
+   {
+    "t": 1793259271838,
+    "n": 15,
+    "why": "quiz",
+    "key": "learn:quiz:2026-10-29:1"
+   },
+   {
+    "t": 1793259271841,
+    "n": 50,
+    "why": "dailyMission",
+    "key": "mission:2026-10-29"
+   },
+   {
+    "t": 1793432071894,
+    "n": 50,
+    "why": "badge",
+    "key": "badge:streak3"
+   },
+   {
+    "t": 1793432071914,
+    "n": 15,
+    "why": "flashcards",
+    "key": "learn:flash:2026-10-31:1"
+   },
+   {
+    "t": 1793432071940,
+    "n": 15,
+    "why": "spelling",
+    "key": "learn:spelling:2026-10-31:1"
+   },
+   {
+    "t": 1793432071958,
+    "n": 15,
+    "why": "quiz",
+    "key": "learn:quiz:2026-10-31:1"
+   },
+   {
+    "t": 1793432071962,
+    "n": 50,
+    "why": "dailyMission",
+    "key": "mission:2026-10-31"
+   }
+  ],
+  "items": {
+   "owned": {
+    "redScarf": 1,
+    "creamWall": 1
+   },
+   "equipped": {},
+   "sub": {},
+   "subOwned": {},
+   "sold": {}
+  },
+  "lvSeen": 8
+ },
+ "missionPaid": "2026-10-31:0",
+ "missionDone": "2026-10-31"
+}

@@ -971,6 +971,38 @@
     return awardCoins(progress, REWARD_CONFIG.coins.review, "review", Object.assign({}, opts, { key: "review:" + sessionKey }));
   }
 
+  /* ---------- Learning record (read by Koala House missions) ----------
+     missionLog: the days Today's Mission was finished (round 0), oldest first, the last
+     MISSION_LOG_DAYS days — the same window progress.daily keeps. Older saves only have
+     progress.missionDone (the latest day), so ensureMissionLog() folds that in.
+     wordStats[word].firstAt / lastAt: when the word was first / last answered right (ms).
+     Words answered before this existed have no times; they get them on their next right answer. */
+  const MISSION_LOG_DAYS = 60;
+  function ensureMissionLog(progress) {
+    const seen = new Set((Array.isArray(progress.missionLog) ? progress.missionLog : []).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)));
+    if (typeof progress.missionDone === "string" && /^\d{4}-\d{2}-\d{2}$/.test(progress.missionDone)) seen.add(progress.missionDone);
+    progress.missionLog = [...seen].sort().slice(-MISSION_LOG_DAYS);
+    return progress.missionLog;
+  }
+  function recordMissionDay(progress, day) {
+    const log = ensureMissionLog(progress);
+    if (!log.includes(day)) { log.push(day); log.sort(); }
+    progress.missionLog = log.slice(-MISSION_LOG_DAYS);
+    return progress.missionLog;
+  }
+  // Both devices' days survive a sync (the rest of progress is last-write-wins).
+  function unionMissionLog(a, b) {
+    return ensureMissionLog({ missionLog: [...(Array.isArray(a) ? a : []), ...(Array.isArray(b) ? b : [])] });
+  }
+  function stampWordResult(stats, isCorrect, now) {
+    if (isCorrect) {
+      const t = Number(now) || Date.now();
+      if (!stats.firstAt) stats.firstAt = t;
+      stats.lastAt = t;
+    }
+    return stats;
+  }
+
   /* ---------- Account sync (every signed-in account) ---------- */
   // The slice of progress that makes up the child's Koala world.
   function rewardSlice(progress) {
@@ -1099,6 +1131,7 @@
     ITEM_SLOTS, ROOM_SLOTS, ITEMS, isSeasonActive, visibleItems, itemById, itemStatus, buyItem, equipItem, unequipSlot, syncStreakUnlocks, nextReward,
     SUB_RULES, SUB_PARENTS, SUB_ITEMS, subKind, subById, subItemsFor, subLimit, subSelection, toggleSub, isSubOwned, buySub, sellItem, sellSub, creditSale, sellValue, SELL_RATE, SUB_COST,
     levelInfo,
+    MISSION_LOG_DAYS, ensureMissionLog, recordMissionDay, unionMissionLog, stampWordResult,
     ensureStreak, advanceStreak, streakStatus,
     loadItems, customImg2d, customImg3d, customFit, customFit2d, customCatLabel, forgetCustomCat,
   };
