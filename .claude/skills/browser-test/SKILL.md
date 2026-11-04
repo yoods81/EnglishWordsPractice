@@ -1,6 +1,6 @@
 ---
 name: browser-test
-description: Run Koala Study Mate locally (wrangler dev + local DB) and drive it in a real headless browser as admin/free/paid user, with screenshots at mobile/tablet/desktop widths. Use after ANY UI or Worker change that needs checking in the browser (My Koala, House, admin item tools, quiz pages, layouts), and keep fixing until the requested result really works.
+description: Run Koala Study Mate locally (wrangler dev + local DB) and drive it in a real headless browser as admin/free/paid/guest (logged-out) user, with screenshots at mobile/tablet/desktop widths. Use after ANY UI or Worker change that needs checking in the browser (My Koala, House, admin item tools, quiz pages, layouts), and keep fixing until the requested result really works.
 ---
 
 # Browser test — Koala Study Mate
@@ -49,6 +49,7 @@ Rules of thumb:
 - Each new browser context has empty localStorage: progress/purchases do not carry over between scripts. Buy → wear in the same script.
 - Native `confirm()` dialogs: `p.on("dialog", d => d.accept())`.
 - File uploads: `p.setInputFiles(selector, path)`. Make test PNGs with a canvas in `p.evaluate` (see lib `makePng`).
+- Always cover the guest case too: `role: "none"` = logged-out visitor (guest limits, device-only saves, e.g. Koala House saves only in localStorage). Account set per check: admin / paid / free / none.
 - Role is re-read from the DB on every request, so `role: "free"` / `"paid"` users in the local DB behave like real ones.
 - Test data only goes into the local DB (`.wrangler/`, gitignored) — but that is the SAME DB the user works in at http://localhost:8787. **Never wipe items/categories wholesale** (no "delete every item" loops). At the start of a test call `const snap = await snapshot(p)` (from lib.mjs), and at the end `await restore(p, snap)`, which deletes only what the test created. A cleanup script that deleted all items once wiped the user's own test items.
 
