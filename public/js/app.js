@@ -10,7 +10,7 @@ const SHARED_WORDS_CACHE_KEY = "ywp_shared_words_cache_v1";
 const MY_DECK_KEY = "ywp_my_deck_v1";
 const GOAL_MIN = 5;
 // Three tiers of question-count ceiling: signed-out visitors are capped at
-// 50 (going further nudges them to sign up), a free account at 100 (going
+// 30 (going further nudges them to sign up), a free account at 100 (going
 // further nudges an upgrade to paid), and a paid or admin account at 200.
 const GOAL_MAX_ANONYMOUS = 30;
 const GOAL_MAX_FREE = 100;
