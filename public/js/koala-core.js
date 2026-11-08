@@ -587,15 +587,19 @@
     if (n > 0) {
       k.coins += n;
       k.refunded += n;
-      k.ledger.push({ t: (opts && opts.now) != null ? opts.now : Date.now(), n, why });
-      if (k.ledger.length > REWARD_CONFIG.ledgerMax) k.ledger.splice(0, k.ledger.length - REWARD_CONFIG.ledgerMax);
+      const entry = { t: (opts && opts.now) != null ? opts.now : Date.now(), n, why };
+      if (opts && opts.key) entry.key = String(opts.key);
+      pushLedger(k, entry);
+      noteKey(k, entry.key, n, entry.t);
     }
   }
   // A sale made outside the 2D shop (the 3D house sells its own furniture): put the money in the wallet and the ledger.
   function creditSale(progress, n, why, opts) {
     const k = ensureKoala(progress);
+    if (opts && opts.key && hasKey(k, String(opts.key))) return 0; // a keyed sale/refund is paid only once
     const refund = (opts && opts.unlimited) ? 0 : Math.max(0, Math.floor(Number(n) || 0));
     recordSale(k, refund, why, opts);
+    if (opts && opts.key && !refund) noteKey(k, String(opts.key), 0, opts.now != null ? opts.now : Date.now()); // admin: 0 coins, the key still counts
     return refund;
   }
   // Sell a bought room / character item back: 80% of its price returns to the coin wallet.
@@ -634,11 +638,33 @@
   function ensureKoala(progress) {
     let k = progress.koala;
     if (!k || typeof k !== "object") k = progress.koala = {};
-    k.v = 1;
+    k.v = 2;
     k.coins = Number.isFinite(k.coins) && k.coins > 0 ? Math.floor(k.coins) : 0;
     k.earned = Number.isFinite(k.earned) && k.earned > 0 ? Math.floor(k.earned) : 0;
-    if (k.earned < k.coins) k.earned = k.coins;
+    k.refunded = Number.isFinite(k.refunded) && k.refunded >= 0 ? Math.floor(k.refunded) : 0;
+    // Lifetime earnings never count coins given back (selling, old-room refunds): coins = earned - spent + refunded,
+    // so earned is at least coins - refunded. (It used to be raised to coins, so a big refund raised the level.)
+    // earned is never lowered — a wallet that was already raised keeps its level.
+    if (k.earned < k.coins - k.refunded) k.earned = k.coins - k.refunded;
     if (!Array.isArray(k.ledger)) k.ledger = [];
+    // keys: every keyed coin move (award, spend, sale, refund, gift) -> [n, t], kept apart from the 100-entry ledger
+    // so "only once" still holds after the ledger is cut and two devices merge (H9 / S1, S2).
+    // A wallet from before keys existed builds them from its ledger; anything older than its newest entry may be
+    // missing (the ledger was cut), so keysSince marks that point and a merge never re-applies older keys.
+    if (!k.keys || typeof k.keys !== "object" || Array.isArray(k.keys)) {
+      k.keys = {};
+      let last = 0;
+      k.ledger.forEach((e) => {
+        if (!e || typeof e !== "object") return;
+        const t = Number(e.t) || 0;
+        if (t > last) last = t;
+        if (e.key && !k.keys[e.key]) k.keys[e.key] = [Math.trunc(Number(e.n) || 0), t];
+      });
+      k.keysSince = last;
+    }
+    k.keysSince = Number.isFinite(k.keysSince) && k.keysSince > 0 ? k.keysSince : 0;
+    // moved: one-time move marks (old rooms refunded, ...) — merged from both sides, never dropped
+    if (!k.moved || typeof k.moved !== "object" || Array.isArray(k.moved)) k.moved = {};
     if (!k.items || typeof k.items !== "object") k.items = {};
     if (!k.items.owned || typeof k.items.owned !== "object") k.items.owned = {};
     if (!k.items.equipped || typeof k.items.equipped !== "object") k.items.equipped = {};
@@ -646,7 +672,6 @@
     ["subOwned", "sold"].forEach((key) => { if (!k.items[key] || typeof k.items[key] !== "object" || Array.isArray(k.items[key])) k.items[key] = {}; });
     // coin wallet totals (spent in the shop / given back by selling)
     k.spent = Number.isFinite(k.spent) && k.spent >= 0 ? Math.floor(k.spent) : Math.max(0, k.earned - k.coins);
-    k.refunded = Number.isFinite(k.refunded) && k.refunded >= 0 ? Math.floor(k.refunded) : 0;
     // Toys used to be single room items; they are toy-box sub-items now. Keep what the child owned.
     Object.keys(LEGACY_TOYS).forEach((old) => {
       const ts = k.items.owned[old];
@@ -671,6 +696,38 @@
     return k;
   }
 
+  /* ---------- Keys: "only once" for every coin move (H9 / S1, S2) ---------- */
+  // Kept forever: one-time refunds/moves. Everything else: the last KEY_DAYS days, at most KEY_MAX keys.
+  const KEY_FOREVER = /^(refund:|move:)/;
+  const KEY_DAYS = 90, KEY_MAX = 600, DAY_MS = 86400000;
+  function hasKey(k, key) { return !!(k.keys && k.keys[key]) || k.ledger.some((e) => e && e.key === key); }
+  function noteKey(k, key, n, t) { if (key) k.keys[String(key)] = [n, t]; }
+  function pushLedger(k, entry) {
+    k.ledger.push(entry);
+    if (k.ledger.length > REWARD_CONFIG.ledgerMax) k.ledger.splice(0, k.ledger.length - REWARD_CONFIG.ledgerMax);
+  }
+  // Drops old keys (never the forever ones). max = how many may stay. Returns how many were dropped.
+  // keysSince moves up to the newest dropped key, so a merge never re-applies a key this wallet may have forgotten.
+  function trimKeys(progressOrKoala, now, max) {
+    const k = progressOrKoala && progressOrKoala.koala ? ensureKoala(progressOrKoala) : progressOrKoala;
+    const limit = max != null ? max : KEY_MAX, cutoff = (now != null ? now : Date.now()) - KEY_DAYS * DAY_MS;
+    const list = Object.keys(k.keys).filter((key) => !KEY_FOREVER.test(key)).map((key) => [key, Number(k.keys[key][1]) || 0]).sort((a, b) => a[1] - b[1]);
+    let drop = list.filter(([, t]) => t < cutoff);
+    const keep = list.length - drop.length;
+    if (keep > limit) drop = drop.concat(list.filter(([, t]) => t >= cutoff).slice(0, keep - limit));
+    drop.forEach(([key, t]) => { delete k.keys[key]; if (t > k.keysSince) k.keysSince = t; });
+    return drop.length;
+  }
+  // Makes the wallet JSON fit in maxChars by trimming keys harder (the server keeps a wallet under 100,000; aim for 80%).
+  // Returns how many keys were dropped.
+  function fitWallet(progress, maxChars, now) {
+    const k = ensureKoala(progress);
+    let dropped = trimKeys(k, now);
+    let max = Object.keys(k.keys).length;
+    while (JSON.stringify(k).length > maxChars && max > 0) { max = Math.floor(max * 0.7); dropped += trimKeys(k, now, max); }
+    return dropped;
+  }
+
   // Adds coins and records why. Coins only ever go up here — a wrong answer,
   // failed quiz or broken streak never takes coins away. `key` makes an award
   // idempotent (e.g. "mission:2026-10-02"): a second call with a key already in
@@ -680,13 +737,13 @@
     const n = Math.floor(Number(amount));
     if (!Number.isFinite(n) || n <= 0) return 0;
     const k = ensureKoala(progress);
-    if (o.key && k.ledger.some((e) => e.key === o.key)) return 0;
+    if (o.key && hasKey(k, String(o.key))) return 0;
     k.coins += n;
     k.earned += n;
     const entry = { t: o.now != null ? o.now : Date.now(), n, why: String(why || "") };
     if (o.key) entry.key = String(o.key);
-    k.ledger.push(entry);
-    if (k.ledger.length > REWARD_CONFIG.ledgerMax) k.ledger.splice(0, k.ledger.length - REWARD_CONFIG.ledgerMax);
+    pushLedger(k, entry);
+    noteKey(k, entry.key, n, entry.t);
     return n;
   }
 
@@ -698,11 +755,19 @@
     const n = Math.floor(Number(amount));
     if (!Number.isFinite(n) || n <= 0) return false;
     const k = ensureKoala(progress);
+    // With a key a purchase is taken only once: the same key again is a no-op success (o.result "dup");
+    // a key that was undone (key + ":undo") can't be spent again (o.result "used").
+    if (o.key) {
+      if (hasKey(k, String(o.key) + ":undo")) { o.result = "used"; return false; }
+      if (hasKey(k, String(o.key))) { o.result = "dup"; return true; }
+    }
     if (k.coins < n) return false;
     k.coins -= n;
     k.spent += n;
-    k.ledger.push({ t: o.now != null ? o.now : Date.now(), n: -n, why: String(why || "") });
-    if (k.ledger.length > REWARD_CONFIG.ledgerMax) k.ledger.splice(0, k.ledger.length - REWARD_CONFIG.ledgerMax);
+    const entry = { t: o.now != null ? o.now : Date.now(), n: -n, why: String(why || "") };
+    if (o.key) entry.key = String(o.key);
+    pushLedger(k, entry);
+    noteKey(k, entry.key, -n, entry.t);
     return true;
   }
 
@@ -715,13 +780,13 @@
     if (!Number.isFinite(n) || n === 0) return 0;
     if (n > 0) return awardCoins(progress, n, why, o);
     const k = ensureKoala(progress);
-    if (o.key && k.ledger.some((e) => e.key === o.key)) return 0;
+    if (o.key && hasKey(k, String(o.key))) return 0;
     const take = Math.min(k.coins, -n);
     k.coins -= take;
     const entry = { t: o.now != null ? o.now : Date.now(), n: -take, why: String(why || "") };
     if (o.key) entry.key = String(o.key);
-    k.ledger.push(entry);
-    if (k.ledger.length > REWARD_CONFIG.ledgerMax) k.ledger.splice(0, k.ledger.length - REWARD_CONFIG.ledgerMax);
+    pushLedger(k, entry);
+    noteKey(k, entry.key, -take, entry.t);
     return -take;
   }
 
@@ -1024,6 +1089,39 @@
     if (v && typeof v === "object") return Object.keys(v).sort().reduce((o, k) => { o[k] = canon(v[k]); return o; }, {});
     return v;
   }
+  // A keyed coin move's kind: a gift taken back only changes coins; a purchase is spent; a sale/refund/undo is refunded;
+  // everything else positive was earned.
+  function moveKind(key, n) {
+    if (n < 0) return /^grant:/.test(key) ? "coins" : "spent";
+    if (/^(refund:|move:|sell:|house3d:sell:|house3d:unroom:)/.test(key) || /:undo$/.test(key)) return "refunded";
+    return "earned";
+  }
+  // What `other` did that `base` never saw (by key). Used by mergeRewards and by the server's check.
+  function otherKeyMoves(base, other) {
+    const r = { coins: 0, earned: 0, spent: 0, refunded: 0, entries: [], keys: [] };
+    const why = {};
+    other.ledger.forEach((e) => { if (e && e.key) why[e.key] = e.why; });
+    Object.keys(other.keys).forEach((key) => {
+      if (hasKey(base, key)) return;
+      const n = Math.trunc(Number(other.keys[key][0]) || 0), t = Number(other.keys[key][1]) || 0;
+      if (t <= base.keysSince) return;
+      const kind = moveKind(key, n);
+      r.coins += n;
+      if (kind === "earned") r.earned += n; else if (kind === "spent") r.spent += -n; else if (kind === "refunded") r.refunded += n;
+      r.entries.push({ t, n, why: why[key] || "sync", key });
+      r.keys.push(key);
+    });
+    return r;
+  }
+  // The coins a merge must give at least: the winner's balance plus the other side's unseen keyed moves (purchases count,
+  // so a normal purchase on either device lowers it too). The server counts a merge whose result is lower (H9).
+  function mergeExpectedCoins(a, b) {
+    const pa = { koala: JSON.parse(JSON.stringify(a)) }, pb = { koala: JSON.parse(JSON.stringify(b)) };
+    const ka = ensureKoala(pa), kb = ensureKoala(pb);
+    const base = kb.earned > ka.earned ? kb : ka, other = base === ka ? kb : ka;
+    return Math.max(0, base.coins + otherKeyMoves(base, other).coins);
+  }
+
   function mergeRewards(progress, remote) {
     const before = JSON.stringify(canon(rewardSlice(progress)));
     if (!remote || typeof remote !== "object") return false;
@@ -1050,12 +1148,18 @@
       subOwned[id] = subOwned[id] ? Math.min(subOwned[id], o[id]) : o[id];
     }));
     [owned, subOwned].forEach((o) => Object.keys(o).forEach((id) => { if (sold[id] && sold[id] >= o[id]) delete o[id]; }));
+    // Coins (H9 / S2): the winner's balance, plus every keyed coin move the other side made that the winner never saw —
+    // purchases, sales, refunds, rewards, gifts — each key once. Unkeyed moves of the other side are not carried over
+    // (as before). Keys older than the winner's keysSince are skipped: the winner may have forgotten them.
+    const add = otherKeyMoves(base, other);
     progress.koala = {
-      v: 1, coins: base.coins, earned: Math.max(base.earned, other.earned), spent: base.spent, refunded: base.refunded,
-      ledger: base.ledger.slice(), items: { owned, equipped, sub, subOwned, sold },
+      v: 2, coins: Math.max(0, base.coins + add.coins), earned: Math.max(base.earned + add.earned, other.earned),
+      spent: base.spent + add.spent, refunded: base.refunded + add.refunded,
+      ledger: base.ledger.concat(add.entries).sort((a, b) => (Number(a.t) || 0) - (Number(b.t) || 0)).slice(-REWARD_CONFIG.ledgerMax),
+      items: { owned, equipped, sub, subOwned, sold },
+      keys: Object.assign({}, other.keys, base.keys), keysSince: Math.max(base.keysSince, other.keysSince),
+      moved: Object.assign({}, other.moved, base.moved),
     };
-    // keep ledger keys from the other side so an applied gift is never applied twice
-    other.ledger.forEach((e) => { if (e.key && !progress.koala.ledger.some((x) => x.key === e.key)) progress.koala.ledger.push(e); });
     ensureKoala(progress);
 
     const a = progress.streak, b = r.streak;
@@ -1127,7 +1231,7 @@
   return {
     REWARD_CONFIG,
     dateKey, daysBetween, shiftDay, weekKey,
-    ensureKoala, awardCoins, spendCoins, adjustCoins, awardLearning, gameCoinMultiplier, learningProgress, awardMission, awardBadge, awardReview, rewardSlice, mergeRewards,
+    ensureKoala, awardCoins, spendCoins, adjustCoins, trimKeys, fitWallet, mergeExpectedCoins, awardLearning, gameCoinMultiplier, learningProgress, awardMission, awardBadge, awardReview, rewardSlice, mergeRewards,
     ITEM_SLOTS, ROOM_SLOTS, ITEMS, isSeasonActive, visibleItems, itemById, itemStatus, buyItem, equipItem, unequipSlot, syncStreakUnlocks, nextReward,
     SUB_RULES, SUB_PARENTS, SUB_ITEMS, subKind, subById, subItemsFor, subLimit, subSelection, toggleSub, isSubOwned, buySub, sellItem, sellSub, creditSale, sellValue, SELL_RATE, SUB_COST,
     levelInfo,

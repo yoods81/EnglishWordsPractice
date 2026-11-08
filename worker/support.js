@@ -83,6 +83,38 @@ async function overviewTrends(env, now, tz) {
   };
 }
 
+/* ---------- Wallet sync watch (Koala House stage 5, A bundle) ----------
+   sync_stats (migrations/0017) holds day/kind counts. The Overview shows the last 7 days while the change is watched
+   (14 days from the first count) and raises a flag when a stop line is crossed:
+   - *_merge_coins_down > 0 in 7 days: a merge gave fewer coins than the winner + the other side's keyed moves -> stop
+   - *_409_stale today >= 5% of today's saves (20+ saves) and not lower than yesterday's (> 0): stale saves keep coming
+   - *_409_loop today > 0: an app keeps getting refused after merging
+   - *_old_app today >= 5% of today's saves, 3+ days after the first count: old cached code isn't going away
+   - *_server_merge today > 3x yesterday (5+ yesterday): sudden jump
+   - *_keys_trimmed today > 30: the key limit is too small */
+async function syncSummary(env, now) {
+  const day = (i) => new Date(now - i * DAY_MS).toISOString().slice(0, 10);
+  const { results } = await env.DB.prepare("SELECT day, kind, n FROM sync_stats WHERE day >= ?").bind(day(7)).all().catch(() => ({ results: [] }));
+  const by = {};
+  (results || []).forEach((r) => { (by[r.day] = by[r.day] || {})[r.kind] = r.n; });
+  const g = (d, k) => (by[d] && by[d][k]) || 0;
+  const first = ((await env.DB.prepare("SELECT MIN(day) AS d FROM sync_stats").first().catch(() => null)) || {}).d || null;
+  const week = {};
+  for (let i = 0; i < 7; i++) Object.entries(by[day(i)] || {}).forEach(([k, n]) => { week[k] = (week[k] || 0) + n; });
+  const daysOn = first ? Math.floor((Date.parse(day(0)) - Date.parse(first)) / DAY_MS) : 0;
+  const flags = [];
+  for (const p of ["wallet", "progress"]) {
+    const t = (k) => g(day(0), `${p}_${k}`), y = (k) => g(day(1), `${p}_${k}`), put = t("put");
+    if (week[`${p}_merge_coins_down`]) flags.push({ kind: `${p}_merge_coins_down`, level: "stop", n: week[`${p}_merge_coins_down`] });
+    if (put >= 20 && t("409_stale") >= put * 0.05 && y("409_stale") > 0 && t("409_stale") >= y("409_stale")) flags.push({ kind: `${p}_409_stale`, level: "warn", n: t("409_stale") });
+    if (t("409_loop")) flags.push({ kind: `${p}_409_loop`, level: "warn", n: t("409_loop") });
+    if (daysOn >= 3 && put >= 20 && t("old_app") >= put * 0.05) flags.push({ kind: `${p}_old_app`, level: "warn", n: t("old_app") });
+    if (y("server_merge") >= 5 && t("server_merge") > 3 * y("server_merge")) flags.push({ kind: `${p}_server_merge`, level: "warn", n: t("server_merge") });
+    if (t("keys_trimmed") > 30) flags.push({ kind: `${p}_keys_trimmed`, level: "warn", n: t("keys_trimmed") });
+  }
+  return { first, watching: !!first && daysOn < 14, week, flags };
+}
+
 export async function handleSupport({ route, request, env, url, h }) {
   const { json, getSessionUser, genId, normalizeEmail, validEmail, hmac, rowToAdminUser } = h;
   const method = request.method;
@@ -247,6 +279,7 @@ export async function handleSupport({ route, request, env, url, h }) {
       unverified: await one("SELECT COUNT(*) AS n FROM users WHERE role != 'admin' AND email IS NOT NULL AND email != '' AND email_verified_at IS NULL"),
       emailConfigured: emailSettings(env).configured,
       announcement: { text: ann.text, active: ann.active },
+      sync: await syncSummary(env, now),
       ...(await overviewTrends(env, now, Number(url && url.searchParams.get("tz")) || 0)),
     });
   }

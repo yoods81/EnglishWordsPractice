@@ -105,7 +105,16 @@ CREATE TABLE IF NOT EXISTS user_koala (
 CREATE TABLE IF NOT EXISTS user_rewards (
   user_id TEXT PRIMARY KEY,
   reward_json TEXT NOT NULL,
-  updated_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL,
+  rev INTEGER NOT NULL DEFAULT 0 -- see migrations/0017_koala_sync_rev.sql
+);
+
+-- Wallet sync counts for the admin Overview (see migrations/0017_koala_sync_rev.sql).
+CREATE TABLE IF NOT EXISTS sync_stats (
+  day TEXT NOT NULL,
+  kind TEXT NOT NULL,
+  n INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (day, kind)
 );
 
 -- Email system (see migrations/0008_email_system.sql).
@@ -186,7 +195,8 @@ CREATE TABLE IF NOT EXISTS weekly_report_prefs (
 CREATE TABLE IF NOT EXISTS user_progress (
   account_key TEXT PRIMARY KEY,
   progress_json TEXT NOT NULL,
-  updated_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL,
+  rev INTEGER NOT NULL DEFAULT 0 -- see migrations/0017_koala_sync_rev.sql
 );
 
 -- Paid subscriptions via Stripe (see migrations/0013_billing.sql).

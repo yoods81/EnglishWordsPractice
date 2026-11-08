@@ -369,6 +369,27 @@
     if (o.pendingUpgrades) items.push(["⭐", L(`${o.pendingUpgrades} upgrade ${n(o.pendingUpgrades, "request", "requests")} waiting`, `업그레이드 요청 ${o.pendingUpgrades}건 대기 중`), () => jump("customers", { usersFilter: "all" })]);
     if (!o.emailConfigured) items.push(["✉️", L("Email sending is not set up", "이메일 발송이 설정되지 않았어요"), () => jump("system")]);
     if (o.failedEmails7d) items.push(["⚠️", L(`${o.failedEmails7d} ${n(o.failedEmails7d, "email", "emails")} failed to send this week`, `이번 주 이메일 ${o.failedEmails7d}건 발송 실패`), () => jump("system")]);
+    // wallet sync watch (Koala House A bundle): stop lines first, then the 7-day numbers while it is watched
+    const sy = o.sync;
+    if (sy) {
+      const SYNC_TEXT = {
+        merge_coins_down: L("a merge lost coins — stop and check", "합친 뒤 코인이 줄어듦 — 멈추고 확인"),
+        "409_stale": L("old wallets keep being refused", "오래된 지갑 거절이 계속 늘어요"),
+        "409_loop": L("an app keeps being refused after merging", "합친 뒤에도 계속 거절되는 앱이 있어요"),
+        old_app: L("old app code is not going away", "예전 앱 코드가 줄지 않아요"),
+        server_merge: L("server merges jumped", "서버 지갑 합치기가 갑자기 늘었어요"),
+        keys_trimmed: L("many wallets hit the key limit", "키 기록 상한에 걸린 지갑이 많아요"),
+      };
+      (sy.flags || []).forEach((f) => {
+        const [part, ...rest] = f.kind.split("_"), what = rest.join("_");
+        items.push([f.level === "stop" ? "🛑" : "⚠️", `${part === "progress" ? L("Child wallets: ", "자녀 지갑: ") : L("Wallets: ", "지갑: ")}${SYNC_TEXT[what] || what} (${f.n})`, () => jump("overview")]);
+      });
+      if (sy.watching) {
+        const w = sy.week || {}, v = (k) => (w["wallet_" + k] || 0) + (w["progress_" + k] || 0);
+        items.push(["📊", L(`Wallet saves, 7 days: ${v("put")} saved · ${v("409_stale")} stale refused · ${v("old_app")} old app · ${v("server_merge")} server merges · ${v("merge_coins_down")} coins lost`,
+          `지갑 저장 7일: 저장 ${v("put")} · 오래된 지갑 거절 ${v("409_stale")} · 예전 앱 ${v("old_app")} · 서버 합치기 ${v("server_merge")} · 코인 줄어듦 ${v("merge_coins_down")}`), () => jump("overview")]);
+      }
+    }
     if (o.unverified) items.push(["📭", L(`${o.unverified} ${n(o.unverified, "account hasn't", "accounts haven't")} confirmed their email`, `이메일 인증을 안 한 계정 ${o.unverified}개`), () => jump("customers", { usersFilter: "unconfirmed" })]);
     list.innerHTML = "";
     if (!items.length) {

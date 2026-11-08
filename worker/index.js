@@ -7,6 +7,7 @@
 import { sendEmail, templates, emailSettings } from "./email.js";
 import { handleSupport } from "./support.js";
 import { handleBilling, closeBillingForUser } from "./billing.js";
+import KoalaCore from "../public/js/koala-core.js";
 
 const SESSION_COOKIE = "ywp_session";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
@@ -122,6 +123,47 @@ export default {
 
 // Which user_progress row a request means: profile 0 (the default) is the
 // account's own row exactly as before; ?p=1..3 picks one of the extra children.
+/* ---------- Wallet sync safety (Koala House stage 5, A bundle) ----------
+   Every saved wallet row has a rev. An app that knows revs (x-app-version >= SYNC_APP_MIN) sends the rev it started
+   from; the server writes only if the row is still at that rev (UPDATE ... WHERE rev = ?), otherwise 409 "stale"
+   with the server copy so the app can merge and send again. Code from before revs (no x-app-version — e.g. a tab left
+   open on v262) is never refused (a refusal makes it resend on every save): the server merges what it sends into the
+   saved wallet with KoalaCore.mergeRewards, so moved marks, keys and the other side's keyed coins are never lost.
+   An app that knows revs but is older than SYNC_APP_REFRESH gets 409 "upgrade" (reload) — used for later versions.
+   sync_stats keeps day/kind counts only (no account, no wallet) for the admin Overview. */
+const SYNC_APP_MIN = 263;
+const SYNC_APP_REFRESH = 263;
+const WALLET_MAX = 100000;
+const WALLET_FIT = 80000;
+async function syncBump(env, kind) {
+  try {
+    await env.DB.prepare("INSERT INTO sync_stats (day, kind, n) VALUES (?, ?, 1) ON CONFLICT(day, kind) DO UPDATE SET n = n + 1")
+      .bind(new Date().toISOString().slice(0, 10), kind).run();
+  } catch (e) { /* counting must never break saving */ }
+}
+const appVersionOf = (request) => { const v = Number(request.headers.get("x-app-version")); return Number.isFinite(v) && v > 0 ? Math.floor(v) : 0; };
+const parseJson = (t) => { try { return JSON.parse(t); } catch (e) { return null; } };
+// Merges a wallet slice an old app sent into the saved one. Returns { slice, merged, coinsDown }.
+function serverMergeWallet(saved, incoming) {
+  const keep = { koala: saved.koala, streak: saved.streak || {}, badges: saved.badges || {} };
+  const before = JSON.stringify(keep);
+  const expected = KoalaCore.mergeExpectedCoins(saved.koala, incoming.koala);
+  KoalaCore.mergeRewards(keep, { koala: incoming.koala, streak: incoming.streak || {}, badges: incoming.badges || {} });
+  return { slice: keep, merged: JSON.stringify(keep) !== before, coinsDown: keep.koala.coins < expected };
+}
+// Keeps a wallet under the size limit by dropping old keys. Returns how many were dropped.
+function fitKoala(holder) { return holder && holder.koala ? KoalaCore.fitWallet(holder, WALLET_FIT) : 0; }
+// UPDATE ... WHERE rev = ? (or INSERT when there is no row yet — rev null). Returns the new rev, or null if someone wrote first.
+// Rows saved before revs existed are at rev 0 and are updated like any other (not inserted).
+async function writeIfRev(env, table, keyCol, key, jsonCol, text, rev, now) {
+  if (rev == null) {
+    const r = await env.DB.prepare(`INSERT INTO ${table} (${keyCol}, ${jsonCol}, updated_at, rev) VALUES (?, ?, ?, 1) ON CONFLICT(${keyCol}) DO NOTHING`).bind(key, text, now).run();
+    return r && r.meta && r.meta.changes ? 1 : null;
+  }
+  const r = await env.DB.prepare(`UPDATE ${table} SET ${jsonCol} = ?, updated_at = ?, rev = rev + 1 WHERE ${keyCol} = ? AND rev = ?`).bind(text, now, key, rev).run();
+  return r && r.meta && r.meta.changes ? rev + 1 : null;
+}
+
 function progressKey(session, url) {
   const p = Number(url.searchParams.get("p"));
   return Number.isInteger(p) && p >= 1 && p <= 3 ? `${session.id}:p${p}` : session.id;
@@ -1273,11 +1315,11 @@ async function handleApi(request, env, url) {
   if (route === "/koala/data" && request.method === "GET") {
     const session = await getSessionUser(request, env);
     if (!session) return json({ error: "unauthorized" }, 401);
-    const row = await env.DB.prepare("SELECT reward_json, updated_at FROM user_rewards WHERE user_id = ?").bind(session.id).first();
-    if (!row) return json({ data: null, updatedAt: null });
+    const row = await env.DB.prepare("SELECT reward_json, updated_at, rev FROM user_rewards WHERE user_id = ?").bind(session.id).first();
+    if (!row) return json({ data: null, updatedAt: null, rev: 0 });
     let data = null;
     try { data = JSON.parse(row.reward_json); } catch (e) { /* treat as empty */ }
-    return json({ data, updatedAt: row.updated_at });
+    return json({ data, updatedAt: row.updated_at, rev: row.rev || 0 });
   }
 
   if (route === "/koala/data" && request.method === "PUT") {
@@ -1297,14 +1339,55 @@ async function handleApi(request, env, url) {
       const v = d.levels && d.levels[l];
       if (typeof v === "string" && /^[a-z_]{2,20}$/.test(v)) levels[l] = v;
     });
-    const text = JSON.stringify({ koala: d.koala, streak: d.streak || {}, badges: d.badges || {}, levels });
-    if (text.length > 100000) return json({ error: "too_large" }, 413);
-    const now = Date.now();
-    await env.DB.prepare(
-      `INSERT INTO user_rewards (user_id, reward_json, updated_at) VALUES (?, ?, ?)
-       ON CONFLICT(user_id) DO UPDATE SET reward_json = excluded.reward_json, updated_at = excluded.updated_at`
-    ).bind(session.id, text, now).run();
-    return json({ ok: true, updatedAt: now });
+    const app = appVersionOf(request), retry = Number(request.headers.get("x-sync-retry")) || 0;
+    await syncBump(env, "wallet_put");
+    // size first (as before): a wallet that can't fit even after dropping old keys is refused
+    {
+      const incoming = { koala: d.koala, streak: d.streak || {}, badges: d.badges || {} };
+      if (JSON.stringify(Object.assign({}, incoming, { levels })).length > WALLET_MAX) {
+        if (fitKoala(incoming)) await syncBump(env, "wallet_keys_trimmed");
+        if (JSON.stringify(Object.assign({}, incoming, { levels })).length > WALLET_MAX) return json({ error: "too_large" }, 413);
+        d.koala = incoming.koala;
+      }
+    }
+    if (app && app < SYNC_APP_REFRESH) { await syncBump(env, "wallet_old_app"); return json({ error: "upgrade" }, 409); }
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const row = await env.DB.prepare("SELECT reward_json, rev FROM user_rewards WHERE user_id = ?").bind(session.id).first();
+      const savedRev = row ? row.rev || 0 : 0;
+      let slice = { koala: d.koala, streak: d.streak || {}, badges: d.badges || {} };
+      if (app < SYNC_APP_MIN) {
+        // an app from before revs: merge into the saved wallet instead of overwriting it
+        if (!attempt) await syncBump(env, "wallet_old_app");
+        const saved = row ? parseJson(row.reward_json) : null;
+        if (saved && saved.koala) {
+          const m = serverMergeWallet(saved, slice);
+          slice = m.slice;
+          if (m.merged && !attempt) await syncBump(env, "wallet_server_merge");
+          if (m.coinsDown) await syncBump(env, "wallet_merge_coins_down");
+        }
+      } else if (Number(body.rev) !== savedRev) {
+        await syncBump(env, retry >= 2 ? "wallet_409_loop" : "wallet_409_stale");
+        return json({ error: "stale", rev: savedRev, data: row ? parseJson(row.reward_json) : null }, 409);
+      }
+      let text = JSON.stringify(Object.assign({}, slice, { levels }));
+      if (text.length > WALLET_FIT) {
+        const dropped = fitKoala(slice);
+        if (dropped) await syncBump(env, "wallet_keys_trimmed");
+        text = JSON.stringify(Object.assign({}, slice, { levels }));
+      }
+      if (text.length > WALLET_MAX) return json({ error: "too_large" }, 413);
+      const now = Date.now();
+      const rev = await writeIfRev(env, "user_rewards", "user_id", session.id, "reward_json", text, row ? savedRev : null, now);
+      if (rev != null) return json({ ok: true, updatedAt: now, rev });
+      if (app >= SYNC_APP_MIN) {
+        // someone wrote between our read and write (two tabs, two devices at the same moment)
+        await syncBump(env, "wallet_409_stale");
+        const fresh = await env.DB.prepare("SELECT reward_json, rev FROM user_rewards WHERE user_id = ?").bind(session.id).first();
+        return json({ error: "stale", rev: fresh ? fresh.rev || 0 : 0, data: fresh ? parseJson(fresh.reward_json) : null }, 409);
+      }
+      // old app: read again and merge again
+    }
+    return json({ error: "busy" }, 503);
   }
 
   // The signed-in child's device asks for gifts it hasn't applied yet.
@@ -1497,17 +1580,17 @@ async function handleApi(request, env, url) {
     if (!session || (session.role !== "admin" && session.role !== "paid")) {
       return json({ error: "unauthorized" }, 401);
     }
-    const row = await env.DB.prepare("SELECT progress_json, updated_at FROM user_progress WHERE account_key = ?")
+    const row = await env.DB.prepare("SELECT progress_json, updated_at, rev FROM user_progress WHERE account_key = ?")
       .bind(progressKey(session, url))
       .first();
-    if (!row) return json({ progress: null, updatedAt: null });
+    if (!row) return json({ progress: null, updatedAt: null, rev: 0 });
     let progress;
     try {
       progress = JSON.parse(row.progress_json);
     } catch (e) {
-      return json({ progress: null, updatedAt: null });
+      return json({ progress: null, updatedAt: null, rev: row.rev || 0 });
     }
-    return json({ progress, updatedAt: row.updated_at });
+    return json({ progress, updatedAt: row.updated_at, rev: row.rev || 0 });
   }
 
   if (route === "/progress" && request.method === "PUT") {
@@ -1524,17 +1607,44 @@ async function handleApi(request, env, url) {
     if (!body || typeof body.progress !== "object" || body.progress === null) {
       return json({ error: "bad_request" }, 400);
     }
-    const progressJson = JSON.stringify(body.progress);
-    if (progressJson.length > MAX_PROGRESS_JSON_LENGTH) return json({ error: "too_large" }, 413);
-
-    const now = Date.now();
-    await env.DB.prepare(
-      `INSERT INTO user_progress (account_key, progress_json, updated_at) VALUES (?, ?, ?)
-       ON CONFLICT(account_key) DO UPDATE SET progress_json = excluded.progress_json, updated_at = excluded.updated_at`
-    )
-      .bind(progressKey(session, url), progressJson, now)
-      .run();
-    return json({ ok: true, updatedAt: now });
+    // Same wallet safety as /koala/data: a child 1-3's Koala wallet lives inside this row (and child 0's copy too).
+    const app = appVersionOf(request), retry = Number(request.headers.get("x-sync-retry")) || 0, key = progressKey(session, url);
+    await syncBump(env, "progress_put");
+    if (app && app < SYNC_APP_REFRESH) { await syncBump(env, "progress_old_app"); return json({ error: "upgrade" }, 409); }
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const row = await env.DB.prepare("SELECT progress_json, rev FROM user_progress WHERE account_key = ?").bind(key).first();
+      const savedRev = row ? row.rev || 0 : 0;
+      const progress = attempt ? JSON.parse(JSON.stringify(body.progress)) : body.progress;
+      if (app < SYNC_APP_MIN) {
+        // old app: the rest of progress is last-write-wins as before, but the Koala wallet is merged, never overwritten
+        if (!attempt) await syncBump(env, "progress_old_app");
+        const saved = row ? parseJson(row.progress_json) : null;
+        if (saved && saved.koala && progress.koala) {
+          const m = serverMergeWallet({ koala: saved.koala, streak: saved.streak, badges: saved.badges }, { koala: progress.koala, streak: progress.streak, badges: progress.badges });
+          progress.koala = m.slice.koala; progress.streak = m.slice.streak; progress.badges = m.slice.badges;
+          if (m.merged && !attempt) await syncBump(env, "progress_server_merge");
+          if (m.coinsDown) await syncBump(env, "progress_merge_coins_down");
+        } else if (saved && saved.koala && !progress.koala) progress.koala = saved.koala;
+      } else if (Number(body.rev) !== savedRev) {
+        await syncBump(env, retry >= 2 ? "progress_409_loop" : "progress_409_stale");
+        return json({ error: "stale", rev: savedRev, progress: row ? parseJson(row.progress_json) : null }, 409);
+      }
+      let progressJson = JSON.stringify(progress);
+      if (progressJson.length > MAX_PROGRESS_JSON_LENGTH) return json({ error: "too_large" }, 413);
+      if (progress.koala && JSON.stringify(progress.koala).length > WALLET_FIT) {
+        if (fitKoala(progress)) await syncBump(env, "progress_keys_trimmed");
+        progressJson = JSON.stringify(progress);
+      }
+      const now = Date.now();
+      const rev = await writeIfRev(env, "user_progress", "account_key", key, "progress_json", progressJson, row ? savedRev : null, now);
+      if (rev != null) return json({ ok: true, updatedAt: now, rev });
+      if (app >= SYNC_APP_MIN) {
+        await syncBump(env, "progress_409_stale");
+        const fresh = await env.DB.prepare("SELECT progress_json, rev FROM user_progress WHERE account_key = ?").bind(key).first();
+        return json({ error: "stale", rev: fresh ? fresh.rev || 0 : 0, progress: fresh ? parseJson(fresh.progress_json) : null }, 409);
+      }
+    }
+    return json({ error: "busy" }, 503);
   }
   // Photo -> vocabulary words using a vision model. Paid/admin only (same gate
   // as the other premium routes), with a per-user daily cap to bound API cost.

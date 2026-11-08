@@ -4000,13 +4000,37 @@ function scheduleProgressSync() {
   }, PROGRESS_SYNC_DEBOUNCE_MS);
 }
 
-async function pushProgressToServer() {
+// The server row's rev this device last saw (0 = none yet). A save sends it; if someone else saved first the server
+// answers 409 with its copy — the Koala wallet is merged (nothing earned, spent or refunded is lost), the rest of
+// this device's progress is the newer one, and the save is sent again (at most twice, then the next change retries).
+let progressRev = null;
+async function pushProgressToServer(retry) {
   if (activeProfileNum() > 0) progress.levels = Object.assign({}, savedLevels); // study level is per child
   try {
-    await api("/progress", { method: "PUT", body: JSON.stringify({ progress }) });
+    KoalaCore.fitWallet(progress, 80000);
+    const res = await api("/progress", { method: "PUT", body: JSON.stringify({ progress, rev: progressRev }), headers: retry ? { "x-sync-retry": String(retry) } : undefined });
+    if (res && typeof res.rev === "number") progressRev = res.rev;
   } catch (e) {
+    if (e && e.status === 409 && e.data && e.data.error === "stale") {
+      progressRev = typeof e.data.rev === "number" ? e.data.rev : progressRev;
+      const server = e.data.progress;
+      if (server && server.koala && KoalaCore.mergeRewards(progress, server)) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+        if (typeof renderStreakChip === "function") renderStreakChip();
+      }
+      if ((retry || 0) < 2) return pushProgressToServer((retry || 0) + 1);
+      return;
+    }
+    if (e && e.status === 409 && e.data && e.data.error === "upgrade") { askToReload(); return; }
     console.warn("Could not sync progress to server", e);
   }
+}
+// The server says this page's code is too old to save: ask once to reload (the service worker brings the new code).
+let reloadAsked = false;
+function askToReload() {
+  if (reloadAsked) return;
+  reloadAsked = true;
+  showNotice("warn", rwL("A new version is ready", "새 버전이 있어요"), rwL("Please reload the page so your coins and progress keep saving.", "코인과 학습 기록이 계속 저장되도록 페이지를 새로 고침해 주세요."));
 }
 
 // After a sign-in / page load: pull the server copy of progress (paid/admin),
@@ -4074,7 +4098,8 @@ async function koalaAfterLogin() {
 async function pullKoalaData() {
   if (!currentUser || activeProfileNum() > 0) return;
   try {
-    const { data } = await api("/koala/data");
+    const { data, rev } = await api("/koala/data");
+    if (typeof rev === "number") koalaRev = rev;
     if (data && data.levels) applyServerLevels(data.levels);
     if (data && KoalaCore.mergeRewards(progress, data)) {
       saveProgress();
@@ -4107,12 +4132,33 @@ function applyServerLevels(lv) {
 }
 
 var koalaDataSent = "";
-function pushKoalaData() {
+let koalaRev = null; // the server wallet's rev this device last saw (see pushProgressToServer)
+function pushKoalaData(retry) {
   if (!currentUser || !progress || activeProfileNum() > 0) return Promise.resolve(); // an extra child's Koala world lives in their own progress row
-  const body = JSON.stringify({ data: Object.assign({}, KoalaCore.rewardSlice(progress), { levels: Object.assign({}, savedLevels) }) });
+  KoalaCore.fitWallet(progress, 80000);
+  const slice = Object.assign({}, KoalaCore.rewardSlice(progress), { levels: Object.assign({}, savedLevels) });
+  const body = JSON.stringify({ data: slice, rev: koalaRev });
   if (body === koalaDataSent) return Promise.resolve();
   koalaDataSent = body;
-  return api("/koala/data", { method: "PUT", body }).catch(() => { koalaDataSent = ""; });
+  return api("/koala/data", { method: "PUT", body, headers: retry ? { "x-sync-retry": String(retry) } : undefined })
+    .then((res) => { if (res && typeof res.rev === "number") { koalaRev = res.rev; koalaDataSent = JSON.stringify({ data: slice, rev: koalaRev }); } })
+    .catch((e) => {
+      koalaDataSent = "";
+      if (e && e.status === 409 && e.data && e.data.error === "stale") {
+        // someone saved first (another device or tab): merge their copy, then send again — at most twice
+        koalaRev = typeof e.data.rev === "number" ? e.data.rev : koalaRev;
+        if (e.data.data && KoalaCore.mergeRewards(progress, e.data.data)) {
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); } catch (x) { /* ignore */ }
+          announceKoalaUnlocks();
+          const kv = document.getElementById("view-koala");
+          if (kv && kv.classList.contains("active")) renderKoala();
+          renderStreakChip();
+        }
+        if ((retry || 0) < 2) return pushKoalaData((retry || 0) + 1);
+        return;
+      }
+      if (e && e.status === 409 && e.data && e.data.error === "upgrade") askToReload();
+    });
 }
 
 // Coins the admin gave or took are waiting on the server. Apply each exactly
@@ -4168,11 +4214,15 @@ function pushKoalaSummary() {
 // isn't asked again from scratch after signing back in somewhere else.
 async function syncProgressOnLogin() {
   try {
-    const { progress: serverProgress, updatedAt } = await api("/progress");
+    const { progress: serverProgress, updatedAt, rev } = await api("/progress");
+    if (typeof rev === "number") progressRev = rev;
     const localDone = progress.doneToday; // words done today on either device stay done on both
     const localMissionLog = progress.missionLog; // mission days from either device stay on both
     if (serverProgress && typeof updatedAt === "number" && updatedAt > (progress.updatedAt || 0)) {
+      // the server copy is newer, but this device's Koala wallet is merged in, never dropped (a child 1-3's wallet lives only here)
+      const localWallet = { koala: progress.koala, streak: progress.streak, badges: progress.badges };
       progress = serverProgress;
+      if (localWallet.koala) KoalaCore.mergeRewards(progress, localWallet);
       progress.doneToday = unionDoneToday(localDone, serverProgress.doneToday);
       progress.missionLog = KoalaCore.unionMissionLog(localMissionLog, serverProgress.missionLog);
       if (!progress.srs) progress.srs = {};
@@ -4186,6 +4236,12 @@ async function syncProgressOnLogin() {
       if (serverProgress) {
         progress.doneToday = unionDoneToday(progress.doneToday, serverProgress.doneToday);
         progress.missionLog = KoalaCore.unionMissionLog(progress.missionLog, serverProgress.missionLog);
+        // this device looks newer (a fresh device saves at once), but the server's Koala wallet is merged in first —
+        // otherwise opening a child on a new device would send an empty wallet over theirs (child 1-3 wallets live only here)
+        if (serverProgress.koala && KoalaCore.mergeRewards(progress, serverProgress)) {
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); } catch (e) { /* ignore */ }
+          renderStreakChip();
+        }
       }
       pushProgressToServer();
     }
@@ -4434,6 +4490,9 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeChildPicker();
 });
 
+// The sync rules this code knows (worker SYNC_APP_MIN): saves send the rev they started from and merge on 409.
+// Keep it equal to the service worker version number (sw.js CACHE koala-study-vNNN).
+const APP_SYNC_VERSION = 263;
 async function api(path, options = {}) {
   // A child other than the account's first one keeps their progress in their
   // own server row — same endpoint, picked by ?p=<slot>.
@@ -4441,10 +4500,11 @@ async function api(path, options = {}) {
     const slot = activeProfileNum();
     if (slot > 0) path += `?p=${slot}`;
   }
+  const headers = Object.assign({ "x-app-version": String(APP_SYNC_VERSION) }, options.body ? { "content-type": "application/json" } : {}, options.headers || {});
   const res = await fetch(`/api${path}`, {
     credentials: "same-origin",
-    headers: options.body ? { "content-type": "application/json" } : undefined,
     ...options,
+    headers,
   });
   if (!res.ok) {
     const error = new Error(`api ${path} failed: ${res.status}`);

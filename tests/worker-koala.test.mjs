@@ -14,7 +14,7 @@ const wrap = (sql) => {
     bind: (...a) => { args = a; return st; },
     first: async () => db.prepare(sql).get(...args) ?? null,
     all: async () => ({ results: db.prepare(sql).all(...args) }),
-    run: async () => { db.prepare(sql).run(...args); return {}; },
+    run: async () => { const r = db.prepare(sql).run(...args); return { meta: { changes: Number(r.changes) } }; }, // like D1 (rev-checked saves read it)
     _exec: () => db.prepare(sql).run(...args),
   };
   return st;
