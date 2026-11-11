@@ -2307,6 +2307,24 @@ to Flip!</span></div>
 
       <!-- System -->
       <div class="admin-pane" data-admin-pane="system" hidden>
+        <!-- Koala House public switches (stage 5 S12): who sees the new house, trial accounts, refunds/move. Emergency stop = Off. -->
+        <div class="card" id="admin-house-card">
+          <h3 id="admin-house-title">🏠 Koala House</h3>
+          <p class="muted" id="admin-house-desc"></p>
+          <p class="admin-house-now" id="admin-house-now"></p>
+          <div class="admin-house-choices" id="admin-house-choices" role="radiogroup"></div>
+          <p class="muted admin-house-hint" id="admin-house-hint"></p>
+          <label class="admin-house-lbl" for="admin-house-trial" id="admin-house-trial-lbl"></label>
+          <textarea id="admin-house-trial" class="admin-textarea" rows="3" maxlength="2000" spellcheck="false"></textarea>
+          <div class="auth-actions auth-actions-start">
+            <button type="button" class="pill accent" id="admin-house-save-btn"></button>
+          </div>
+          <div class="admin-house-move">
+            <p class="admin-house-now" id="admin-house-move-now"></p>
+            <button type="button" class="pill accent" id="admin-house-move-btn"></button>
+          </div>
+          <p id="admin-house-result" class="auth-hint" hidden></p>
+        </div>
         <div class="card" id="admin-notice-card">
           <h3 id="admin-notice-title">📢 Announcement banner</h3>
           <p class="muted" id="admin-notice-desc"></p>

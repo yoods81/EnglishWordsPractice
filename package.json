@@ -5,7 +5,7 @@
   "description": "Aussie English Word Practice — static app plus a small Cloudflare Worker API for the shared word list.",
   "scripts": {
     "dev": "wrangler dev",
-    "test": "node --test tests/koala-core.test.js tests/koala-sync.test.js tests/quiz-core.test.js && node --experimental-sqlite --test tests/worker-koala.test.mjs tests/worker-sync.test.mjs tests/worker-support.test.mjs tests/worker-word-ownership.test.mjs tests/worker-billing.test.mjs",
+    "test": "node --test tests/koala-core.test.js tests/koala-sync.test.js tests/quiz-core.test.js && node --experimental-sqlite --test tests/worker-koala.test.mjs tests/worker-sync.test.mjs tests/worker-house.test.mjs tests/worker-support.test.mjs tests/worker-word-ownership.test.mjs tests/worker-billing.test.mjs",
     "gen:faq": "node scripts/gen-faq.mjs",
     "gen:learn": "node scripts/gen-learn-pages.mjs",
     "deploy": "node scripts/gen-faq.mjs && node scripts/gen-learn-pages.mjs && wrangler deploy",
@@ -30,6 +30,8 @@
     "db:migrate:items:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0014_koala_items.sql",
     "db:migrate:sync": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0017_koala_sync_rev.sql",
     "db:sync:bump-rev": "wrangler d1 execute englishwordspractice --remote --command \"UPDATE user_rewards SET rev = rev + 1; UPDATE user_progress SET rev = rev + 1;\"",
+    "db:migrate:house": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0018_koala_house.sql",
+    "db:migrate:house:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0018_koala_house.sql",
     "db:migrate:sync:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0017_koala_sync_rev.sql",
     "db:migrate:item-fit": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0015_item_fit.sql",
     "db:migrate:item-fit:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0015_item_fit.sql",

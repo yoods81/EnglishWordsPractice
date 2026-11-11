@@ -8,6 +8,7 @@ import { sendEmail, templates, emailSettings } from "./email.js";
 import { handleSupport } from "./support.js";
 import { handleBilling, closeBillingForUser } from "./billing.js";
 import KoalaCore from "../public/js/koala-core.js";
+import { handleHouse, houseRowKey, houseRowKeys } from "./house.js";
 
 const SESSION_COOKIE = "ywp_session";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
@@ -458,6 +459,7 @@ async function purgeUser(env, userId) {
     env.DB.prepare("DELETE FROM user_koala WHERE user_id = ?").bind(userId),
     env.DB.prepare("DELETE FROM user_rewards WHERE user_id = ?").bind(userId),
     env.DB.prepare("DELETE FROM user_progress WHERE account_key IN (?, ?, ?, ?, ?)").bind(userId, `${userId}:p1`, `${userId}:p2`, `${userId}:p3`, `${userId}:profiles`),
+    env.DB.prepare("DELETE FROM house_saves WHERE account_key IN (?, ?, ?, ?)").bind(...houseRowKeys(userId)), // Koala House saves (S3)
     env.DB.prepare("DELETE FROM email_tokens WHERE user_id = ?").bind(userId),
     env.DB.prepare("DELETE FROM weekly_report_prefs WHERE user_id = ?").bind(userId),
     env.DB.prepare("DELETE FROM subscriptions WHERE user_id = ?").bind(userId),
@@ -487,6 +489,12 @@ async function handleApi(request, env, url) {
   }
 
   // Customer support: inquiries, admin inbox, customer notes, announcement.
+  // Koala House settings (S12) and house saves (S3) — worker/house.js
+  if (route === "/house" || route === "/house/config" || route.startsWith("/admin/config") || route.startsWith("/admin/house/") || route === "/admin/badges") {
+    const res = await handleHouse(route, request, env, url, getSessionUser);
+    if (res) return res;
+  }
+
   if (route.startsWith("/support/") || route.startsWith("/admin/support/") || route.startsWith("/admin/customer") || route === "/admin/overview" || route === "/admin/announcement" || route === "/announcement") {
     const res = await handleSupport({
       route, request, env, url,
@@ -1807,6 +1815,7 @@ async function handleApi(request, env, url) {
     const n = Number(url.searchParams.get("p"));
     if (!Number.isInteger(n) || n < 1 || n > 3) return json({ error: "bad_request" }, 400);
     await env.DB.prepare("DELETE FROM user_progress WHERE account_key = ?").bind(`${session.id}:p${n}`).run();
+    await env.DB.prepare("DELETE FROM house_saves WHERE account_key = ?").bind(houseRowKey(session.id, n)).run(); // the removed child's Koala House
     return json({ ok: true });
   }
 

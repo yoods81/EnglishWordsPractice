@@ -106,7 +106,7 @@
     });
     document.querySelectorAll("[data-admin-pane]").forEach((p) => (p.hidden = p.dataset.adminPane !== name));
     if (name === "inbox") loadInbox();
-    if (name === "system") fillNoticeCard();
+    if (name === "system") { fillNoticeCard(); loadHouseCard(); }
   }
 
   function jump(name, opts = {}) {
@@ -141,6 +141,11 @@
       "'문의하기'로 들어온 메시지예요. 여기서 답장하면 로그인한 고객은 내 계정에서 보고, 이메일로도 보낼 수 있어요."
     );
     $("admin-inbox-search").placeholder = L("Search subject, name or email", "제목, 이름, 이메일 검색");
+    $("admin-house-title").textContent = L("🏠 Koala House", "🏠 코알라 하우스");
+    $("admin-house-desc").textContent = L("Who opens the new Koala House. Saved with the house settings and their change log.", "새 코알라 하우스를 누가 여는지 정해요. 집 설정·변경 기록에 같이 남아요.");
+    $("admin-house-trial-lbl").textContent = L("Trial accounts (login email, one per line)", "체험 계정(로그인 이메일, 한 줄에 하나)");
+    $("admin-house-save-btn").textContent = L("Save", "저장");
+    paintHouseCard();
     $("admin-notice-title").textContent = L("📢 Announcement banner", "📢 공지 배너");
     $("admin-notice-desc").textContent = L(
       "Show a short notice at the top of the app for everyone (maintenance, new feature, holiday hours). Visitors can close it.",
@@ -929,6 +934,83 @@
       res.textContent = (e && e.data && e.data.error === "text_required") ? L("Write the notice text first.", "공지 내용을 먼저 적어 주세요.") : failMsg();
     }
     res.hidden = false;
+  });
+
+  /* ---------- Koala House switches (stage 5 S12) ---------- */
+  // Saved into the same settings as the house admin screen (/house/admin/) — same checks, same change log (source: site).
+  // Off is the emergency stop: it works even if the house build is broken. MOVE (refund old rooms + move) can't be undone:
+  // off -> on asks twice (the second time type MOVE), on -> off asks once.
+  let house = null, houseChoice = "off";
+  const HOUSE_OPTS = () => [
+    ["off", L("Off", "끄기"), L("Saving stops the new house for everyone (emergency stop).", "저장하면 아무도 새 집을 볼 수 없어요(비상 정지)")],
+    ["admin", L("Admins", "관리자만"), L("Only admin accounts open the new house.", "관리자 계정만 새 집을 열어요.")],
+    ["trial", L("Trial", "체험 계정"), L("Admins and the trial accounts below (they get the draft settings).", "관리자와 아래 체험 계정(초안 설정을 받아요).")],
+    ["all", L("Everyone", "모두"), L("Everyone opens the new house.", "모두 새 집을 열어요.")],
+  ];
+  const houseTop = () => Math.max(house.live.version, house.draft ? house.draft.version : 0);
+  function paintHouseCard() {
+    if (!house) return;
+    const sw = house.live.switches, opts = HOUSE_OPTS(), name = (v) => (opts.find((o) => o[0] === v) || opts[0])[1];
+    $("admin-house-now").textContent = L(`Now: ${name(sw.HOUSE3D)} · settings v${houseTop()}`, `지금: ${name(sw.HOUSE3D)} · 설정 v${houseTop()}`);
+    const box = $("admin-house-choices");
+    box.innerHTML = "";
+    opts.forEach(([v, label]) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "admin-house-choice" + (v === houseChoice ? " on" : "");
+      b.setAttribute("role", "radio");
+      b.setAttribute("aria-checked", v === houseChoice ? "true" : "false");
+      b.dataset.house = v;
+      b.textContent = label;
+      b.addEventListener("click", () => { houseChoice = v; paintHouseCard(); });
+      box.appendChild(b);
+    });
+    const hint = $("admin-house-hint");
+    hint.textContent = (opts.find((o) => o[0] === houseChoice) || opts[0])[2];
+    hint.classList.toggle("is-stop", houseChoice === "off"); // red: Off is the emergency stop
+    $("admin-house-move-now").textContent = sw.MOVE === "on" ? L("Refund & move (MOVE): on", "환불·이사(MOVE): 켜짐") : L("Refund & move (MOVE): off", "환불·이사(MOVE): 꺼짐");
+    $("admin-house-move-btn").textContent = sw.MOVE === "on" ? L("Turn off…", "끄기…") : L("Turn on…", "켜기…");
+  }
+  async function loadHouseCard() {
+    try { house = await api("/admin/config"); } catch (e) { house = null; $("admin-house-now").textContent = failMsg(); return; }
+    houseChoice = house.live.switches.HOUSE3D;
+    const t = $("admin-house-trial");
+    if (document.activeElement !== t) t.value = (house.live.switches.trialAccounts || []).join("\n");
+    paintHouseCard();
+  }
+  async function saveHouse(switches, extra) {
+    const res = $("admin-house-result");
+    try {
+      house = await api2("/admin/config/switches", Object.assign({ base: houseTop(), switches }, extra || {}));
+      houseChoice = house.live.switches.HOUSE3D;
+      const unknown = house.trialUnknown || [];
+      res.textContent = L("Saved ✓ (in the change log)", "저장했어요 ✓ (변경 기록에 남아요)")
+        + (unknown.length ? L(` — not a signed-up account: ${unknown.join(", ")}`, ` — 가입한 계정이 아니에요: ${unknown.join(", ")}`) : "");
+      res.classList.toggle("admin-house-warn", unknown.length > 0);
+      paintHouseCard();
+    } catch (e) {
+      const d = e && e.data;
+      res.textContent = d && d.error === "conflict" ? L("Someone changed the settings just now — loaded the latest, try again.", "방금 다른 곳에서 설정이 바뀌었어요 — 최신 값을 불러왔어요. 다시 해 주세요.")
+        : d && d.error === "invalid" ? L(`Check: ${(d.fields || []).join(", ")}`, `확인할 칸: ${(d.fields || []).join(", ")}`) : failMsg();
+      if (d && d.error === "conflict") await loadHouseCard();
+    }
+    res.hidden = false;
+  }
+  $("admin-house-save-btn").addEventListener("click", () => {
+    if (!house) return;
+    const trial = $("admin-house-trial").value.split(/[\n,]+/).map((x) => x.trim()).filter(Boolean);
+    saveHouse({ HOUSE3D: houseChoice, trialAccounts: trial });
+  });
+  $("admin-house-move-btn").addEventListener("click", async () => {
+    if (!house) return;
+    if (house.live.switches.MOVE === "on") {
+      if (await kidConfirm(L("Turn refunds & move off? Refunds already given stay.", "환불·이사를 끌까요? 이미 준 환불은 그대로예요."), L("Turn off", "끄기"), L("Cancel", "취소"))) saveHouse({ MOVE: "off" });
+      return;
+    }
+    if (!(await kidConfirm(L("Refunds will really happen and can't be undone. Turn on refunds & move?", "환불이 실제로 일어나 되돌릴 수 없어요. 환불·이사를 켤까요?"), L("Next", "다음"), L("Cancel", "취소"), { danger: true }))) return;
+    const typed = window.prompt(L("Type MOVE to turn it on.", "켜려면 MOVE를 입력하세요."));
+    if (typed !== "MOVE") { const res = $("admin-house-result"); res.textContent = L("Not turned on.", "켜지 않았어요."); res.hidden = false; return; }
+    saveHouse({ MOVE: "on" }, { confirm: "MOVE" });
   });
 
   /* ---------- hooks ---------- */
