@@ -4349,6 +4349,7 @@ function saveChildProfiles() {
 
 async function switchChild(slot) {
   if (!currentUser || slot === activeProfileNum()) return;
+  houseRequestClose();
   // Save the child who is leaving, then hand the device to the next one.
   clearTimeout(progressSyncTimer);
   progressSyncTimer = null;
@@ -4492,7 +4493,7 @@ document.addEventListener("keydown", (e) => {
 
 // The sync rules this code knows (worker SYNC_APP_MIN): saves send the rev they started from and merge on 409.
 // Keep it equal to the service worker version number (sw.js CACHE koala-study-vNNN).
-const APP_SYNC_VERSION = 263;
+const APP_SYNC_VERSION = 264;
 async function api(path, options = {}) {
   // A child other than the account's first one keeps their progress in their
   // own server row — same endpoint, picked by ?p=<slot>.
@@ -4889,6 +4890,7 @@ function restoreUserData(id) {
 }
 
 async function logOut() {
+  houseRequestClose();
   // Save the Koala world one last time while the session can still write it.
   const stashId = currentUser && currentUser.id;
   if (currentUser) {
@@ -4954,6 +4956,7 @@ async function logOut() {
   }
   // Put this account's learning data away and reload, so no mission, streak,
   // report or stat from the account stays on screen or in memory.
+  if (stashId) clearHouseCopies(stashId);
   if (stashId) {
     stashUserData(stashId, stashBox);
     wipeUserData();
@@ -16856,6 +16859,139 @@ function koalaHouseOpts() {
   };
 }
 
+// New Koala House link (stage 5 S4): what public/js/koala-house-bridge.js needs from the site.
+// tier: admin (unlimited, 0 coins) · paid · free · none (guest — device save only). Free and guest always open child 0.
+function houseTier() { return serverAdmin ? "admin" : currentUser ? (currentUser.role === "paid" ? "paid" : "free") : "none"; }
+function houseLinkCtx() {
+  const ls = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => localStorage.setItem(k, v), remove: (k) => { try { localStorage.removeItem(k); } catch (e) { /* */ } }, keys: () => { try { return Object.keys(localStorage); } catch (e) { return []; } } };
+  return {
+    tier: houseTier(), lang: currentLang === "ko" ? "ko" : "en", n: activeProfileNum(), account: currentUser ? currentUser.id : null,
+    core: KoalaCore, progress: () => progress, saveProgress,
+    kv: ls, fetch: (u, i) => fetch(u, i),
+    badges: Object.keys(progress.badges || {}).filter((b) => progress.badges[b]),
+    asmr: window.ASMR,
+    // the house app turns the site record into its learning record itself (koala-house-3d siteRecord.ts)
+    siteEnv: { get: ls.get, builtIn: (system) => (((SYSTEMS[system] || SYSTEMS.en).bank || {}).vocabulary || []).map((w) => ({ word: w.word, level: w.level, definition: w.definition, pos: w.pos || null })) },
+  };
+}
+/* ---------- New Koala House entry (stage 5 S5) ----------
+   The room tab asks the server once each time it is opened (GET /api/house/config -> open). Until the answer comes, and
+   whenever the answer is "no" or can't be had (offline, error), the room tab stays exactly the old room tab. For who
+   it opens (HOUSE3D: admin / trial accounts / everyone) the room tab shows the house card (draft A, 2026-11-11), and the
+   button opens the house full screen in an iframe (/house/?embed=1) with window.KoalaHouseBridge (koala-house-bridge.js). */
+const houseEntry = { open: false, cfg: null, at: 0, busy: false };
+function houseEntryCheck() {
+  if (houseEntry.busy || !canUseAccountFeatures()) return;   // guests: only with HOUSE3D=all, which comes with E
+  houseEntry.busy = true;
+  fetch("/api/house/config", { credentials: "same-origin", cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : null)).catch(() => null)
+    .then((cfg) => {
+      houseEntry.busy = false; houseEntry.at = Date.now();
+      const open = !!(cfg && cfg.open);
+      const changed = open !== houseEntry.open;
+      houseEntry.open = open; houseEntry.cfg = cfg;
+      if (changed && koalaTab === "room" && !houseFrameOpen()) renderKoala();
+    });
+}
+function houseCardHtml() {
+  return `<div class="khc">
+    <img class="khc-pic" src="/img/house3d/card.webp" width="960" height="600" alt="${rwL("Koala House", "코알라 하우스")}">
+    <div class="khc-body">
+      <h3 class="khc-title">🏠 ${rwL("Koala House", "코알라 하우스")}</h3>
+      <p class="khc-line">${rwL("Use the coins you earn by studying to furnish your own house.", "공부해서 모은 코인으로 가구를 사서 내 집을 꾸며요.")}</p>
+      <button type="button" class="khc-open" data-house-open>${rwL("Open house", "집 열기")}</button>
+      <p class="khc-off" data-house-off${navigator.onLine === false ? "" : " hidden"}>${rwL("You need the internet to open Koala House.", "인터넷이 연결되어 있어야 열려요.")}</p>
+    </div></div>`;
+}
+const houseOffNote = (show) => document.querySelectorAll("[data-house-off]").forEach((el) => { el.hidden = !show; });
+window.addEventListener("online", () => houseOffNote(false));
+window.addEventListener("offline", () => houseOffNote(true));
+const houseFrameOpen = () => !!document.getElementById("kh-house-wrap");
+let houseOpening = false;
+async function openHouseFrame() {
+  if (houseOpening || houseFrameOpen()) return;
+  if (navigator.onLine === false) { houseOffNote(true); return; }
+  houseOpening = true;
+  try {
+    if (!window.KoalaHouseLink) await new Promise((ok, no) => { const s = document.createElement("script"); s.src = "/js/koala-house-bridge.js"; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
+    // ask again: an emergency stop since the card was drawn must win
+    const cfg = await fetch("/api/house/config", { credentials: "same-origin", cache: "no-store" }).then((r) => (r.ok ? r.json() : null));
+    if (!cfg || !cfg.open) { houseEntry.open = false; houseOpening = false; renderKoala(); return; }
+    houseEntry.cfg = cfg;
+    // S6 moving in: only with MOVE on — refunds for the old rooms, then bridge.moving for the house app. MOVE off: nothing.
+    let moving;
+    if (cfg.switches && cfg.switches.MOVE === "on" && currentUser) {
+      if (!window.KoalaLegacyRooms) await new Promise((ok, no) => { const s = document.createElement("script"); s.src = "/js/koala-legacy-rooms.js"; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
+      const lc = houseLinkCtx();
+      const r = KoalaLegacyRooms.move({ moveOn: true, core: KoalaCore, progress, kv: lc.kv, n: lc.tier === "paid" || lc.tier === "admin" ? lc.n : 0, account: currentUser.id, unlimited: !!serverAdmin, liveItem: KoalaCore.itemById });
+      if (r.changed) saveProgress();
+      moving = r.moving;
+    }
+    const bridge = await KoalaHouseLink.prepare(Object.assign(houseLinkCtx(), {
+      moving,
+      config: (({ open, ...rest }) => rest)(cfg),   // 'open' is the site's own answer, not a house setting
+      close: () => closeHouseFrame(),
+      requestProfile: (n) => { closeHouseFrame(); switchChild(n); },
+    }));
+    window.KoalaHouseBridge = bridge;
+    const wrap = document.createElement("div");
+    wrap.id = "kh-house-wrap";
+    wrap.innerHTML = `<iframe id="kh-house-frame" src="/house/?embed=1" title="${rwL("Koala House", "코알라 하우스")}" allow="autoplay"></iframe>
+      <div class="kh-house-fail" hidden><p>${rwL("You need the internet to open Koala House.", "인터넷이 연결되어 있어야 열려요.")}</p>
+      <button type="button" class="khc-open" data-house-fail-close>${rwL("Close", "닫기")}</button></div>`;
+    document.body.appendChild(wrap);
+    document.body.classList.add("kh-house-on");
+    history.pushState({ house: 1 }, "");
+    // the house did not start (no network for its files, server error): say so, with a way back
+    const frame = wrap.querySelector("iframe");
+    const t0 = Date.now();
+    const watch = setInterval(() => {
+      if (!houseFrameOpen()) { clearInterval(watch); return; }
+      let ready = false; try { ready = frame.contentWindow && frame.contentWindow.__khReady === true; } catch (e) { /* */ }
+      if (ready) { clearInterval(watch); return; }
+      if (Date.now() - t0 > 25000) { clearInterval(watch); wrap.querySelector(".kh-house-fail").hidden = false; }
+    }, 500);
+  } catch (e) {
+    houseOffNote(true);
+  }
+  houseOpening = false;
+}
+// Removes the house frame (called by the bridge's close, i.e. after the house saved and stopped its sound).
+function closeHouseFrame() {
+  const wrap = document.getElementById("kh-house-wrap");
+  if (!wrap) return;
+  wrap.remove();
+  document.body.classList.remove("kh-house-on");
+  window.KoalaHouseBridge = null;
+  try { if (window.ASMR) ASMR.stop(); } catch (e) { /* */ }
+  if (history.state && history.state.house) history.back();   // its popstate finds no frame and does nothing
+  if (typeof renderAuthMenuKoala === "function") renderAuthMenuKoala();
+  if (koalaTab === "room") renderKoala();
+}
+// Phone back button / swipe = the house's own '‹ Close' (it saves first), or close at once when the house is not up.
+function houseRequestClose() {
+  if (!houseFrameOpen()) return;
+  if (window.KoalaHouseBridge && window.KoalaHouseBridge.requestClose) window.KoalaHouseBridge.requestClose();
+  else closeHouseFrame();
+}
+window.addEventListener("popstate", () => { if (houseFrameOpen()) houseRequestClose(); });
+document.addEventListener("click", (e) => {
+  if (e.target.closest("[data-house-open]")) { openHouseFrame(); return; }
+  if (e.target.closest("[data-house-fail-close]")) closeHouseFrame();
+});
+
+// Log out: this account's uploaded house copies leave the device (a copy not uploaded yet stays until that account
+// signs in and opens the house again — another account never reads it: the key carries the account id).
+function clearHouseCopies(accountId) {
+  const pre = `kh3:house:u:${encodeURIComponent(accountId)}:`;
+  try {
+    Object.keys(localStorage).filter((k) => k.startsWith(pre)).forEach((k) => {
+      let dirty = false; try { dirty = !!(JSON.parse(localStorage.getItem(k) || "null") || {}).dirty; } catch (e) { /* */ }
+      if (!dirty) localStorage.removeItem(k);
+    });
+  } catch (e) { /* storage blocked */ }
+}
+
 // 2D / 3D switch above the character and room tabs. 3D is a premium feature.
 function koalaHeroAvatarHtml(k) {
   if (koalaDim === "3d" && window.KoalaHouse && KoalaHouse.koala3d) {
@@ -17023,7 +17159,11 @@ function renderKoala() {
 
   // Shop tabs (Character / Room): tabs, then the studio (live preview on top, items below), level + streak last.
   // Coins / Badges: tabs, panel, then the level + streak card at the very bottom.
-  const page = studio
+  if (koalaTab === "room" && Date.now() - houseEntry.at > 5000) houseEntryCheck();
+  const houseCard = koalaTab === "room" && houseEntry.open;
+  const page = houseCard
+    ? `${tabs}${houseCardHtml()}`
+    : studio
     ? `${tabs}${koalaDimBarHtml()}${koalaDim === "3d" ? koalaDim3dHtml() : koalaStudioHtml(k, koalaTab)}${koalaTab === "room" ? "" : hero}`
     : `${tabs}<div class="koala-panel">${koalaTab === "badges" ? badgesPanel : koalaCoinsHtml(k)}</div>${hero}`;
 
@@ -17032,8 +17172,8 @@ function renderKoala() {
   const catsLeft = prevCats ? prevCats.scrollLeft : 0;
   const scrollY = window.scrollY;
   if (window.KoalaHouse && KoalaHouse.unmount) KoalaHouse.unmount();
-  box.innerHTML = `<div class="koala-view${studio ? " is-studio" : ""}">${page}</div>`;
-  if (studio && koalaDim === "3d" && canUsePaidFeatures()) koalaMountDim3d();
+  box.innerHTML = `<div class="koala-view${studio ? " is-studio" : ""}${houseCard ? " is-house" : ""}">${page}</div>`;
+  if (!houseCard && studio && koalaDim === "3d" && canUsePaidFeatures()) koalaMountDim3d();
   const cats = box.querySelector(".koala-cats");
   if (cats) {
     cats.scrollLeft = catsLeft;
@@ -17447,7 +17587,7 @@ function koalaTap(id) {
 
 document.addEventListener("click", (e) => {
   const tab = e.target.closest("[data-koala-tab]");
-  if (tab) { koalaTab = ["badges", "room", "coins"].includes(tab.dataset.koalaTab) ? tab.dataset.koalaTab : "character"; koalaTry = null; koalaPick = null; koalaOwnedView = false; renderKoala(); return; }
+  if (tab) { koalaTab = ["badges", "room", "coins"].includes(tab.dataset.koalaTab) ? tab.dataset.koalaTab : "character"; if (koalaTab === "room") houseEntry.at = 0; koalaTry = null; koalaPick = null; koalaOwnedView = false; renderKoala(); return; }
   const cat = e.target.closest("[data-koala-cat]");
   if (cat) {
     koalaSlotPick[koalaTab === "room" ? "room" : "character"] = cat.dataset.koalaCat; koalaTry = null; koalaOwnedView = false; renderKoala();

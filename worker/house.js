@@ -12,6 +12,8 @@
 //      GET  /api/house/config                 (anyone) -> the public settings: draft for a trial account, live otherwise
 // S3   GET  /api/house?p=n                    -> { json, rev, updatedAt }   (signed in; n = site child slot, 1-3 premium only)
 //      PUT  /api/house?p=n                    { json, rev } -> { ok, rev } | 409 { rev, json } | 413
+// C2   POST /api/house/report             { type, level?, reason?, size?, tries?, count? } -> counted in sync_stats as house_*
+//      (anyone; numbers only — no house content, name, e-mail or account id is kept)
 // "base" is the version the screen loaded (max of live/draft). Any save makes a new version, so a screen opened before
 // someone else's save (or before an emergency HOUSE3D=off) gets 409 instead of writing over it.
 import { validateConfig, guestLimitIssues, diffConfig, bundledItems } from "./house-config.mjs";
@@ -57,6 +59,86 @@ async function readState(env) {
   const norm = (c, ch) => { const x = validateConfig(c).config; x.version = Number(c && c.version) || 0; x.channel = ch; return x; };
   return { raw: row.value, state: { live: v && v.live ? norm(v.live, "live") : freshLive(), draft: v && v.draft ? norm(v.draft, "draft") : null } };
 }
+// A signed-in account named in the trial list (login email, username or id — case ignored).
+async function isTrialUser(env, s, state) {
+  const trial = state.live.switches.trialAccounts || [];
+  if (!s || !trial.length) return false;
+  const u = await env.DB.prepare("SELECT username, email FROM users WHERE id = ?").bind(s.id).first();
+  const names = [s.id, u && u.username, u && u.email].filter(Boolean).map((x) => String(x).toLowerCase());
+  return trial.some((t) => names.includes(String(t).toLowerCase()));
+}
+// Who the new house opens for (live HOUSE3D switch + who is signed in):
+//   off = nobody (emergency stop) · admin = admin accounts · trial = admins + trial accounts · all = everyone (guests too)
+export async function houseOpenFor(request, env, getSessionUser) {
+  const { state } = await readState(env);
+  const mode = state.live.switches.HOUSE3D;
+  if (mode === "off") return false;
+  if (mode === "all") return true;
+  const s = await getSessionUser(request, env);
+  if (!s) return false;
+  if (s.role === "admin") return true;
+  return mode === "trial" && await isTrialUser(env, s, state);
+}
+
+// Static /house/* (stage 5 S10; runs before the asset server — wrangler.jsonc run_worker_first):
+//  - /house/admin/*  admins only (others get 404), never cached, never indexed
+//  - /house/ page    only for who houseOpenFor lets in; everyone else is sent to the site home. Never cached, so an
+//                    emergency stop (HOUSE3D=off) works on the next open.
+//  - other files     (hashed scripts/styles, version.json) as they are — useless without the page
+export async function houseGate(request, env, url, getSessionUser) {
+  const p = url.pathname;
+  const withHeaders = (res, extra) => { const r = new Response(res.body, res); Object.entries(extra).forEach(([k, v]) => r.headers.set(k, v)); return r; };
+  const noStore = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" };
+  if (p === "/house/admin" || p.startsWith("/house/admin/")) {
+    const s = await getSessionUser(request, env);
+    if (!s || s.role !== "admin") return new Response("Not found", { status: 404, headers: noStore });
+    return withHeaders(await env.ASSETS.fetch(request), noStore);
+  }
+  if (p === "/house" || p === "/house/" || p === "/house/index.html") {
+    if (!(await houseOpenFor(request, env, getSessionUser))) return new Response(null, { status: 302, headers: Object.assign({ Location: "/" }, noStore) });
+    return withHeaders(await env.ASSETS.fetch(request), noStore);
+  }
+  return env.ASSETS.fetch(request);
+}
+
+// House problem reports (C2, house app makeReporter): the kind of problem only. Limits: 5 a day per kind for each browser
+// (a signed counter cookie — the server keeps no id), and REPORT_SITE_MAX a day per kind for the whole site.
+const REPORT_PER_DAY = 5, REPORT_SITE_MAX = 2000, REPORT_COOKIE = "khr";
+function reportKind(b) {
+  if (!b || typeof b !== "object") return null;
+  if (b.type === "saveSize" && (b.level === "warn" || b.level === "over")) return `house_save_size_${b.level}`;
+  if (b.type === "saveFail" && (b.reason === "network" || b.reason === "rejected")) return `house_save_fail_${b.reason}`;
+  if (b.type === "saveFull") return "house_save_full";
+  if (b.type === "configError") return "house_config_error";
+  return null;
+}
+async function sign(env, text) {
+  const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(String(env.SESSION_SECRET || "")), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return [...new Uint8Array(await crypto.subtle.sign("HMAC", k, new TextEncoder().encode("khr." + text)))].map((x) => x.toString(16).padStart(2, "0")).join("").slice(0, 32);
+}
+async function reportCounts(request, env, day) {
+  const m = (request.headers.get("cookie") || "").match(new RegExp(`(?:^|;\\s*)${REPORT_COOKIE}=([^;]+)`));
+  if (!m) return {};
+  const [d, body, sig] = decodeURIComponent(m[1]).split("|");
+  if (d !== day || !body || sig !== (await sign(env, d + "|" + body))) return {};
+  try { const c = JSON.parse(body); return c && typeof c === "object" ? c : {}; } catch (e) { return {}; }
+}
+async function handleReport(request, env) {
+  const b = await request.json().catch(() => null), kind = reportKind(b);
+  if (!kind) return json({ error: "bad_report" }, 400);
+  const day = new Date().toISOString().slice(0, 10);
+  const counts = await reportCounts(request, env, day);
+  if ((counts[b.type] || 0) >= REPORT_PER_DAY) return json({ ok: true, counted: false });
+  const row = await env.DB.prepare("SELECT n FROM sync_stats WHERE day = ? AND kind = ?").bind(day, kind).first().catch(() => null);
+  if (row && row.n >= REPORT_SITE_MAX) return json({ ok: true, counted: false });
+  await env.DB.prepare("INSERT INTO sync_stats (day, kind, n) VALUES (?, ?, 1) ON CONFLICT(day, kind) DO UPDATE SET n = n + 1").bind(day, kind).run();
+  counts[b.type] = (counts[b.type] || 0) + 1;
+  const body = JSON.stringify(counts), val = encodeURIComponent(`${day}|${body}|${await sign(env, day + "|" + body)}`);
+  const res = json({ ok: true, counted: true });
+  res.headers.set("set-cookie", `${REPORT_COOKIE}=${val}; Path=/api/house/report; HttpOnly; Secure; SameSite=Lax; Max-Age=172800`);
+  return res;
+}
+
 const top = (s) => Math.max(s.live.version, s.draft ? s.draft.version : 0);
 // Writes only if nobody changed the row since we read it (raw). Returns false on a race.
 async function writeState(env, raw, state) {
@@ -213,20 +295,15 @@ export async function handleHouse(route, request, env, url, getSessionUser) {
     await env.ITEM_IMAGES.put(key, bytes, { httpMetadata: { contentType: "image/webp" } });
     return json({ img: `r2:${key}` });
   }
+  if (route === "/house/report" && method === "POST") return handleReport(request, env);
   if (route === "/house/config" && method === "GET") {
     const { state } = await readState(env);
     let c = state.live;
     const s = await getSessionUser(request, env);
-    if (s && state.draft) {
-      const trial = state.live.switches.trialAccounts || [];
-      if (trial.length) {
-        const u = await env.DB.prepare("SELECT username, email FROM users WHERE id = ?").bind(s.id).first();
-        const names = [s.id, u && u.username, u && u.email].filter(Boolean).map((x) => String(x).toLowerCase());
-        if (trial.some((t) => names.includes(String(t).toLowerCase()))) c = state.draft;
-      }
-    }
+    if (s && state.draft && await isTrialUser(env, s, state)) c = state.draft;
     // public copy: who is a trial account is not for children's browsers
-    return json(Object.assign({}, c, { switches: Object.assign({}, c.switches, { trialAccounts: [] }) }));
+    // open: whether the new house opens for this visitor — the same rule as the /house/ page gate (houseOpenFor)
+    return json(Object.assign({}, c, { switches: Object.assign({}, c.switches, { trialAccounts: [] }), open: await houseOpenFor(request, env, getSessionUser) }));
   }
 
   // ---------- S3 house saves ----------

@@ -5,7 +5,8 @@
   "description": "Aussie English Word Practice — static app plus a small Cloudflare Worker API for the shared word list.",
   "scripts": {
     "dev": "wrangler dev",
-    "test": "node --test tests/koala-core.test.js tests/koala-sync.test.js tests/quiz-core.test.js && node --experimental-sqlite --test tests/worker-koala.test.mjs tests/worker-sync.test.mjs tests/worker-house.test.mjs tests/worker-support.test.mjs tests/worker-word-ownership.test.mjs tests/worker-billing.test.mjs",
+    "test": "node --test tests/koala-core.test.js tests/koala-sync.test.js tests/quiz-core.test.js tests/house-bridge.test.mjs tests/house-move.test.mjs && node --experimental-sqlite --test tests/worker-koala.test.mjs tests/worker-sync.test.mjs tests/worker-house.test.mjs tests/worker-support.test.mjs tests/worker-word-ownership.test.mjs tests/worker-billing.test.mjs",
+    "house:sync": "node scripts/house-sync.mjs",
     "gen:faq": "node scripts/gen-faq.mjs",
     "gen:learn": "node scripts/gen-learn-pages.mjs",
     "deploy": "node scripts/gen-faq.mjs && node scripts/gen-learn-pages.mjs && wrangler deploy",

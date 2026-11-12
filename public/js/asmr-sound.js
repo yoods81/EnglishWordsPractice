@@ -352,6 +352,18 @@
     if (live.ctx.state !== "running") live.ctx.resume().catch(() => {});
     return live;
   }
+  // unlock (stage 5 S4): make the audio ready inside a touch. If resuming does not bring it back (closed / interrupted
+  // after the phone was locked), start a fresh audio context with its own master bus. Playing a toy still resumes by itself.
+  function unlock() {
+    const l = ensure();
+    if (!l) return;
+    const st = l.ctx.state;
+    if (st === "closed" || st === "interrupted") {
+      try { stop(); } catch (e) { /* */ }
+      try { if (st !== "closed") l.ctx.close(); } catch (e) { /* */ }
+      live = null; ensure();
+    }
+  }
   const listeners = [];
   const emit = () => listeners.slice().forEach((f) => { try { f(live ? live.playing : null); } catch (e) { /* a listener must not break the sound */ } });
   function stop() {
@@ -426,5 +438,5 @@
   const onChange = (f) => { listeners.push(f); return () => { const i = listeners.indexOf(f); if (i >= 0) listeners.splice(i, 1); }; };
   const has = (id) => !!TOYS[id];
 
-  return { GROUPS, TOYS, RECIPES, FILES, bus, schedule, play, stop, toggle, isPlaying, onChange, has };
+  return { GROUPS, TOYS, RECIPES, FILES, bus, schedule, play, stop, toggle, isPlaying, onChange, has, unlock };
 });

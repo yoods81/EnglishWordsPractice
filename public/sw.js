@@ -3,10 +3,10 @@
      shows up immediately; the cached copy is used only when offline.
    - /api/* is never cached (logins, shared words, sync always go to the server).
    - Google Fonts: stale-while-revalidate. Bump CACHE when the list changes. */
-const CACHE = "koala-study-v263";
+const CACHE = "koala-study-v264";
 const PRECACHE = [
   "/", "/index.html", "/css/style.css", "/css/themes.css", "/css/admin.css", "/js/app.js", "/js/support.js",
-  "/js/faq-data.js", "/js/faq.js", "/js/admin-cs.js", "/js/koala-core.js", "/js/quiz-core.js", "/js/koala-art.js", "/js/asmr-sound.js", "/js/koala-house.js", "/js/koala-house-ui.js", "/js/koala-admin-items.js", "/css/koala-house.css", "/js/words.js", "/js/words_ko.js",
+  "/js/faq-data.js", "/js/faq.js", "/js/admin-cs.js", "/js/koala-core.js", "/js/quiz-core.js", "/js/koala-art.js", "/js/asmr-sound.js", "/js/koala-house.js", "/js/koala-house-ui.js", "/js/koala-wardrobe.js", "/js/koala-admin-items.js", "/css/koala-house.css", "/js/words.js", "/js/words_ko.js",
   "/favicon.svg?v=4", "/icon-192.png?v=4", "/icon-512.png?v=4", "/apple-touch-icon.png?v=4", "/manifest.webmanifest", "/screenshots/home.png",
 ];
 
@@ -35,6 +35,10 @@ self.addEventListener("fetch", (event) => {
 
   if (url.origin === self.location.origin) {
     if (url.pathname.startsWith("/api/")) return;
+    // Koala House: the admin screen is never cached, and the house page itself always asks the server
+    // (the server decides per HOUSE3D switch who may open it — a cached copy must not get round an emergency stop).
+    if (url.pathname.startsWith("/house/admin/")) return;
+    if (url.pathname === "/house" || url.pathname === "/house/" || url.pathname === "/house/index.html") return;
     event.respondWith(
       fetch(req, { cache: "no-cache" })
         .then((res) => {

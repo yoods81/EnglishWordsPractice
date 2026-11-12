@@ -8,7 +8,7 @@ import { sendEmail, templates, emailSettings } from "./email.js";
 import { handleSupport } from "./support.js";
 import { handleBilling, closeBillingForUser } from "./billing.js";
 import KoalaCore from "../public/js/koala-core.js";
-import { handleHouse, houseRowKey, houseRowKeys } from "./house.js";
+import { handleHouse, houseRowKey, houseRowKeys, houseGate } from "./house.js";
 
 const SESSION_COOKIE = "ywp_session";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
@@ -116,6 +116,7 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) return handleApi(request, env, url);
+    if (url.pathname === "/house" || url.pathname.startsWith("/house/")) return houseGate(request, env, url, getSessionUser);
     return env.ASSETS.fetch(request);
   },
 };
@@ -490,7 +491,7 @@ async function handleApi(request, env, url) {
 
   // Customer support: inquiries, admin inbox, customer notes, announcement.
   // Koala House settings (S12) and house saves (S3) — worker/house.js
-  if (route === "/house" || route === "/house/config" || route.startsWith("/admin/config") || route.startsWith("/admin/house/") || route === "/admin/badges") {
+  if (route === "/house" || route === "/house/config" || route === "/house/report" || route.startsWith("/admin/config") || route.startsWith("/admin/house/") || route === "/admin/badges") {
     const res = await handleHouse(route, request, env, url, getSessionUser);
     if (res) return res;
   }

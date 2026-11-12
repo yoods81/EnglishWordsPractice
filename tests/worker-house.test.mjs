@@ -173,3 +173,77 @@ test("B10 removing a child or deleting the account removes their Koala House row
   assert.equal((await call(admin, "POST", "/admin/users/delete", { userId: "p1" })).status, 200);
   assert.ok(!db.prepare("SELECT 1 FROM house_saves WHERE account_key LIKE 'p1:%'").get());
 });
+
+// C bundle (stage 5 S10): /house/* goes through the Worker first (wrangler.jsonc run_worker_first).
+test("C1 /house/ opens only for who HOUSE3D lets in (4 values x 5 accounts); /house/admin/ admins only; never cached", async () => {
+  env.ASSETS = { fetch: async (req) => new Response("asset " + new URL(req.url).pathname, { status: 200, headers: { "content-type": "text/html" } }) };
+  const page = async (who, path) => {
+    const h = {}; if (who) h.cookie = `${cookieName}=${encodeURIComponent(await cookie(who.id, who.role))}`;
+    return worker.fetch(new Request("https://x.test" + path, { headers: h }), env);
+  };
+  const setSw = async (HOUSE3D, trialAccounts) => { const s = await live(); return call(admin, "POST", "/admin/config/switches", { base: topOf(s), switches: { HOUSE3D, trialAccounts } }); };
+  const who = { admin, paid, free, trial, guest: null };
+  const want = { off: [], admin: ["admin"], trial: ["admin", "trial"], all: ["admin", "paid", "free", "trial", "guest"] };
+  for (const mode of ["off", "admin", "trial", "all"]) {
+    assert.equal((await setSw(mode, ["TRIAL@x.au"])).status, 200);
+    for (const [name, acc] of Object.entries(who)) for (const path of ["/house", "/house/", "/house/index.html"]) {
+      const r = await page(acc, path);
+      assert.match(r.headers.get("cache-control") || "", /no-store/, `${mode} ${name} ${path}`);
+      if (want[mode].includes(name)) assert.equal(r.status, 200, `${mode} ${name} ${path} opens`);
+      else { assert.equal(r.status, 302, `${mode} ${name} ${path} blocked`); assert.equal(r.headers.get("location"), "/"); }
+    }
+  }
+  for (const [name, acc] of Object.entries(who)) {
+    const r = await page(acc, "/house/admin/");
+    assert.equal(r.status, name === "admin" ? 200 : 404, `admin screen ${name}`);
+    assert.match(r.headers.get("x-robots-tag") || "", /noindex/); assert.match(r.headers.get("cache-control") || "", /no-store/);
+  }
+  assert.equal((await page(free, "/house/assets/game.js")).status, 200, "hashed files are plain assets");
+  await setSw("off", []);
+  delete env.ASSETS;
+});
+
+test("C2 /api/house/report: counts only in sync_stats (house_*), 5 a day per kind per browser (signed cookie), bad input 400, no account kept", async () => {
+  const send = async (body, cookie) => {
+    const h = { "content-type": "application/json" }; if (cookie) h.cookie = cookie;
+    const res = await worker.fetch(new Request("https://x.test/api/house/report", { method: "POST", headers: h, body: JSON.stringify(body) }), env);
+    return { status: res.status, data: await res.json().catch(() => null), set: res.headers.get("set-cookie") };
+  };
+  const today = new Date().toISOString().slice(0, 10);
+  const count = (kind) => (db.prepare("SELECT n FROM sync_stats WHERE day = ? AND kind = ?").get(today, kind) || {}).n || 0;
+  assert.equal((await send({ type: "nope" })).status, 400);
+  assert.equal((await send({ type: "saveFail", reason: "boom" })).status, 400);
+  let jar = "";
+  for (let i = 0; i < 7; i++) {
+    const r = await send({ type: "saveFail", reason: "network", size: 1234, tries: 3, house: "{secret}" }, jar);
+    assert.equal(r.status, 200);
+    assert.equal(r.data.counted, i < 5, `report ${i + 1}`);
+    if (r.set) jar = r.set.split(";")[0];
+  }
+  assert.equal(count("house_save_fail_network"), 5);
+  // a different kind has its own 5; a browser without the cookie starts again (the server keeps no id)
+  assert.equal((await send({ type: "saveSize", level: "warn", size: 120000 }, jar)).data.counted, true);
+  assert.equal(count("house_save_size_warn"), 1);
+  assert.equal((await send({ type: "saveFail", reason: "network" })).data.counted, true);
+  // a forged cookie (count edited) is ignored, not trusted
+  const forged = "khr=" + encodeURIComponent(`${today}|{"saveFull":0}|0000`);
+  assert.equal((await send({ type: "saveFull", size: 9 }, forged)).data.counted, true);
+  const rows = db.prepare("SELECT * FROM sync_stats WHERE kind LIKE 'house_%'").all();
+  assert.ok(rows.every((r) => Object.keys(r).join() === "day,kind,n"), "only day/kind/n");
+  assert.ok(!JSON.stringify(rows).includes("secret"));
+});
+
+test("C3 /api/house/config tells each visitor whether the house opens for them (same rule as the /house/ gate)", async () => {
+  const setSw = async (HOUSE3D, trialAccounts) => { const s = await live(); return call(admin, "POST", "/admin/config/switches", { base: topOf(s), switches: { HOUSE3D, trialAccounts } }); };
+  const who = { admin, paid, free, trial, guest: null };
+  const want = { off: [], admin: ["admin"], trial: ["admin", "trial"], all: ["admin", "paid", "free", "trial", "guest"] };
+  for (const mode of ["off", "admin", "trial", "all"]) {
+    await setSw(mode, ["trial@x.au"]);
+    for (const [name, acc] of Object.entries(who)) {
+      const r = await call(acc, "GET", "/house/config");
+      assert.equal(r.data.open, want[mode].includes(name), `${mode} ${name}`);
+      assert.deepEqual(r.data.switches.trialAccounts, [], "the trial list never reaches a browser");
+    }
+  }
+  await setSw("off", []);
+});

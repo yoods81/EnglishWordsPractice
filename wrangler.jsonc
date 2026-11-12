@@ -18,7 +18,10 @@
 	],
 	"assets": {
 		"directory": "./public",
-		"binding": "ASSETS"
+		"binding": "ASSETS",
+		// Koala House (stage 5): /house/* goes through the Worker first, so the page only opens for who the
+		// HOUSE3D switch lets in and /house/admin/ only for admins (worker/house.js houseGate).
+		"run_worker_first": ["/house", "/house/*"]
 	},
 	// Outgoing email (verification, password reset, username reminders) goes
 	// through Cloudflare Email Service. Needs a Workers Paid plan and the
