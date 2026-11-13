@@ -18,19 +18,14 @@
     const imgs = names.map((n) => { const b = KBOX[n]; return `<image href="${kimg(n)}" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}"/>`; }).join("");
     return `<svg class="${cls || "kh-k3d"}" viewBox="${view || "64 130 553 910"}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="3D Koala" focusable="false">${imgs}</svg>`;
   }
-  // wall + floor behind the 3D koala: the same room backdrop the 2D koala stands in
-  function wardBackdrop(S) {   // just the wall and floor paper of the room worked on last, filling the card (not the isometric room)
-    const st = (S.slots && S.slots[S.cur]) || {}, W = H.WALLS[st.wall] || H.WALLS.mint, F = H.FLOORS[st.floor] || H.FLOORS.wood;
+  // wall + floor behind the 3D koala — E (2026-11, backdrop A): the fixed cream wall + wood floor, the same as the 2D
+  // Character scene (the old Pop-out rooms it used to copy are gone). Dots kept off the edges.
+  function wardBackdrop() {
     const split = 62;
     let wall = "", floor = "";
-    if (W.k === "stripes") for (let x = 0; x < 100; x += 20) wall += `<rect x="${x}" y="0" width="10" height="${split}" fill="${W.a}" opacity=".55"/>`;
-    else if (W.k === "planks") for (let x = 0; x < 100; x += 12.5) wall += `<rect x="${x}" y="0" width=".5" height="${split}" fill="${W.a}"/>`;
-    else if (W.k === "diamonds") for (let y = 4; y < split; y += 12) for (let x = (y / 12) % 2 ? 4 : 10; x < 100; x += 12) wall += `<path d="M${x} ${y - 3.5} ${x + 3} ${y} ${x} ${y + 3.5} ${x - 3} ${y}Z" fill="${W.a}" opacity=".7"/>`;
-    else if (W.k === "stars") for (let y = 6; y < split; y += 12) for (let x = (y / 12) % 2 ? 6 : 12; x < 100; x += 12) wall += `<circle cx="${x}" cy="${y}" r="1" fill="${W.a}"/>`;
-    else for (let y = 5; y < split; y += 10) for (let x = (y / 10) % 2 ? 5 : 10; x < 100; x += 10) wall += `<circle cx="${x}" cy="${y}" r="1.3" fill="${W.a}" opacity=".7"/>`;
-    if (F.k === "checker") for (let y = split; y < 100; y += 8) for (let x = ((y - split) / 8) % 2 ? 0 : 8; x < 100; x += 16) floor += `<rect x="${x}" y="${y}" width="8" height="8" fill="${F.a}" opacity=".6"/>`;
-    else if (F.k === "planks") for (let y = split + 6; y < 100; y += 8) floor += `<rect x="0" y="${y}" width="100" height=".5" fill="${F.a}"/>`;
-    return `<svg class="kh-ward-bg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect width="100" height="100" fill="${W.c}"/>${wall}<rect y="${split}" width="100" height="${100 - split}" fill="${F.c}"/>${floor}<rect y="${split}" width="100" height="1.4" fill="#000" opacity=".12"/></svg>`;
+    for (let y = 6; y < split - 4; y += 10) for (let x = (y / 10) % 2 < 1 ? 8 : 14; x < 94; x += 12) wall += `<circle cx="${x}" cy="${y}" r="1.1" fill="#f3e2bd"/>`;
+    for (let y = split + 8; y < 100; y += 8) floor += `<rect x="0" y="${y}" width="100" height=".5" fill="#cda973"/>`;
+    return `<svg class="kh-ward-bg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect width="100" height="100" fill="#fbf1dc"/>${wall}<rect y="${split}" width="100" height="${100 - split}" fill="#dcbd8c"/>${floor}<rect y="${split}" width="100" height="1.4" fill="#000" opacity=".12"/></svg>`;
   }
   let wardSlot = "hat";
   let wardOwned = false, wardApi = null, wardMsg = "", wardBack = false, wardBackReady = null;   // wardBack: the dress-up koala shows its back
@@ -127,7 +122,7 @@
       const TALLBOOT = ["rainboots", "cowboyboots", "rollerskates"], PANTS = ["jeans", "khakishorts", "cargopants", "sweatpants"], tallBoot = TALLBOOT.includes(S.worn.feet);
       const backOrder = (a) => { const rest = a.filter((n) => !KSLOT.legs.includes(n) && !KSLOT.feet.includes(n) && !KBEHIND.includes(n)), legs = a.filter((n) => KSLOT.legs.includes(n)), feet = a.filter((n) => KSLOT.feet.includes(n)); return (tallBoot ? feet.concat(legs) : legs.concat(feet)).concat(rest, a.filter((n) => KBEHIND.includes(n))); };   // with tall boots / roller skates the trousers hang over the boot tops, down to the ankles
       const backImgs = backOrder(names.filter((n) => n !== "base" && !CUSTOM_WARD[n])).filter((n) => KBACK[n]).map((n) => { const b = KBACK[n].slice(); if (tallBoot && PANTS.includes(n)) b[3] = Math.max(b[3], 944); return `<image href="/img/koala/back/${n}.webp" x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}" preserveAspectRatio="none"/>`; }).join("");
-      root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage">${wardBackdrop(S)}<svg class="kh-ward-koala kh-ward-stand" viewBox="64 20 553 1020" role="img" aria-label="${T("3D 코알라", "3D Koala")}">${bootDefs}<ellipse cx="340" cy="962" rx="205" ry="22" fill="#000" opacity=".16"/><g class="kh-wfront kh-wbody" ${wardBack ? 'display="none"' : ""}>${imgs}</g><g class="kh-wbackview kh-wbody" ${wardBack ? "" : 'display="none"'}><image href="/img/koala/back_base.webp" x="64" y="222" width="553" height="746"/>${backImgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
+      root.innerHTML = `<div class="kh-ward-stage" id="kh-wstage">${wardBackdrop()}<svg class="kh-ward-koala kh-ward-stand" viewBox="64 20 553 1020" role="img" aria-label="${T("3D 코알라", "3D Koala")}">${bootDefs}<ellipse cx="340" cy="962" rx="205" ry="22" fill="#000" opacity=".16"/><g class="kh-wfront kh-wbody" ${wardBack ? 'display="none"' : ""}>${imgs}</g><g class="kh-wbackview kh-wbody" ${wardBack ? "" : 'display="none"'}><image href="/img/koala/back_base.webp" x="64" y="222" width="553" height="746"/>${backImgs}</g></svg><p class="kh-ward-tip">${T("코알라를 눌러 보세요!", "Tap the koala!")}</p></div>
         <aside class="kh-panel">${chipsHtml(slots.map((sl) => [sl, `/img/cat/${sl}.webp`, slotName[sl]]), wardOwned ? "" : wardSlot)}
         ${wardOwned ? ownedHtml() : `<div class="kh-grid">${shelfHead(slotName[wardSlot], `${S.worn[wardSlot] ? 1 : 0}/${KSLOT[wardSlot].length}`)}${opts.isAdmin ? `<button type="button" class="kh-admin-add-item" data-kh-admin-add-item="${wardSlot}"><span class="add-ic" aria-hidden="true">+</span>${T("아이템 추가", "Add item")}</button>` : ""}<div class="kh-items-grid">${KSLOT[wardSlot].map((n) => itemBtn(wardSlot, n)).join("")}</div>
         ${wornN ? clearBtn : ""}${wardMsg ? `<p class="kh-empty">${esc(wardMsg)}</p>` : ""}</div>`}</aside>`;

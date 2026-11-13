@@ -77,15 +77,21 @@ test("C4-2 frozen prices = the live catalogue, and the amounts match the H9 refu
   for (const n of [0]) assert.equal(Legacy.room2d(progressOf(pick(priced.slice(20, 24).map((i) => i.id))).koala).total, row("가짜4 무료 계정 자녀 0").now);
 });
 
-test("C4-2 MOVE on: refunds once per wallet and once per device, marks, tidies the old room, passes bridge.moving", () => {
+test("E MOVE on (REFUND_RATE 0): 0 coins, original amounts kept in moved, keys once per wallet / device, tidies the old room, passes bridge.moving", () => {
+  assert.equal(Legacy.REFUND_RATE, 0, "2026-11 E decision: no refunds (all members are one family)");
   const kv = memKV({ "koalaHouse:v2": popRich }), p = progressOf(many, { ...subs2d, mochiSquish: 1 }, { coins: 100, earned: 1000, spent: 900 });
   const want2d = Legacy.room2d(p.koala).total, wantHouse = Legacy.houseV2(popRich).total;
   const lvBefore = KoalaCore.levelInfo(1000).level;
   const r = run(p, kv);
-  assert.equal(p.koala.coins, 100 + want2d + wantHouse);
-  assert.equal(p.koala.refunded, want2d + wantHouse);
+  assert.ok(want2d > 0 && wantHouse > 0);
+  assert.equal(p.koala.coins, 100, "coins stay the same");
+  assert.equal(p.koala.refunded || 0, 0);
+  assert.equal(p.koala.moved.room2dItems.orig, want2d, "the worked-out amount is kept for support");
+  assert.equal(p.koala.moved.houseV2Orig[r.moving.deviceId], wantHouse);
+  assert.deepEqual(p.koala.keys["refund:room2d"].slice(0, 1), [0], "the key is written (0 coins)");
+  assert.equal(r.moving.refundRate, 0, "the house app gets the rate too (extra ASMR boxes)");
   KoalaCore.ensureKoala(p);
-  assert.equal(p.koala.earned, 1000, "③ the level stays: a refund is not earning");
+  assert.equal(p.koala.earned, 1000, "③ earned and the level stay");
   assert.equal(KoalaCore.levelInfo(p.koala.earned).level, lvBefore);
   assert.ok(p.koala.moved.room2d && p.koala.moved.houseV2[r.moving.deviceId]);
   // priced old room items left the wallet (free room items come back by themselves until S8 removes them from the catalogue)
@@ -93,7 +99,7 @@ test("C4-2 MOVE on: refunds once per wallet and once per device, marks, tidies t
   assert.ok(p.koala.items.subOwned.mochiSquish, "ASMR toys stay");
   assert.deepEqual(p.koala.moved.room2dItems.ids.length, Object.keys(many).length + Object.keys(subs2d).length);
   assert.deepEqual(r.moving.asmrToys, ["mochiSquish"]);
-  assert.deepEqual(r.moving.refunded.sort((a, b) => a.key.localeCompare(b.key)), [{ key: `house-v2:${r.moving.deviceId}`, amount: wantHouse }, { key: "room2d", amount: want2d }]);
+  assert.deepEqual(r.moving.refunded.sort((a, b) => a.key.localeCompare(b.key)), [{ key: `house-v2:${r.moving.deviceId}`, amount: 0 }, { key: "room2d", amount: 0 }], "no coin line on the move card");
   assert.equal(r.moving.house.owned.asmrBox, 3, "the device's old house goes to the house app (it moves one ASMR box)");
   // again: nothing more
   const coins = p.koala.coins, r2 = run(p, kv);
@@ -101,7 +107,7 @@ test("C4-2 MOVE on: refunds once per wallet and once per device, marks, tidies t
   // another child on the same device: no device refund, no house contents; their own 2D room once
   const p2 = progressOf(pick(priced.slice(30, 33).map((i) => i.id)));
   const r3 = run(p2, kv, { n: 1 });
-  assert.equal(p2.koala.coins, Legacy.room2d(progressOf(pick(priced.slice(30, 33).map((i) => i.id))).koala).total);
+  assert.equal(p2.koala.coins, 0); assert.ok(p2.koala.moved.room2d, "child 1: the same rule (moved once, 0 coins)");
   assert.equal(r3.moving.house, undefined);
   assert.ok(!r3.moving.refunded.some((x) => x.key.startsWith("house-v2:")));
   // admin: 0 coins, marks and keys the same
@@ -118,21 +124,21 @@ test("C4-2 ① broken Pop-out save: 0 coins, raw text kept on the device", () =>
   assert.equal(b.raw, "{ not json"); assert.equal(b.deviceId, r.moving.deviceId);
 });
 
-test("C4-2 ② two devices merged: the refund is counted once (moved and the refund key travel with the merge)", () => {
-  const R = Legacy.room2d(progressOf(many).koala).total;
-  const A = progressOf(many, {}, { coins: 1500, earned: 1500, spent: 0 });       // device A, not refunded yet
+test("E ② two devices merged: moved once — no coins, no second move, the key travels with the merge", () => {
+  const A = progressOf(many, {}, { coins: 1500, earned: 1500, spent: 0 });       // device A, not moved yet
   const B = progressOf(many, {}, { coins: 1500, earned: 1500 });                 // device B opens the house first
   B.koala.keys = {}; run(B, memKV());
   KoalaCore.houseWallet(B, "spend", 200, { key: "house3d:buy:p-1", why: "house3d:buy:sofa" }, {});
-  assert.equal(B.koala.coins, 1500 + R - 200);
+  assert.equal(B.koala.coins, 1300);
   KoalaCore.mergeRewards(A, B);
-  const before = A.koala.coins;
-  assert.equal(before, 1500 + R - 200, "merged: B's refund and purchase on top of A");
-  run(A, memKV());
-  assert.equal(A.koala.coins, before, "opening again on A: no second refund");
+  assert.equal(A.koala.coins, 1300, "merged: B's purchase on top of A, no refund");
+  assert.ok(A.koala.moved.room2d);
+  const r = run(A, memKV());
+  assert.equal(A.koala.coins, 1300, "opening again on A: nothing more");
+  assert.equal(r.changed, false);
 });
 
-test("C4-2 'after S8': the catalogue no longer has the old room items — an un-refunded wallet keeps them and is refunded once", () => {
+test("E 'after S8': the catalogue no longer has the old room items — an un-moved wallet keeps them until it moves (0 coins), once", () => {
   const { C } = freshSite();
   const roomIds = C.ITEMS.filter((i) => i.kind === "room").map((i) => i.id);
   for (let i = C.ITEMS.length - 1; i >= 0; i--) if (C.ITEMS[i].kind === "room") C.ITEMS.splice(i, 1);   // S8 removed them
@@ -143,7 +149,7 @@ test("C4-2 'after S8': the catalogue no longer has the old room items — an un-
   const want = Legacy.room2d(p.koala).total;
   assert.ok(want > 0);
   Legacy.move({ moveOn: true, core: C, progress: p, kv: memKV(), n: 0, account: "u1", now: 1 });
-  assert.equal(p.koala.coins, 10 + want);
+  assert.equal(p.koala.coins, 10, "0 coins (REFUND_RATE 0)"); assert.equal(p.koala.moved.room2dItems.orig, want);
   C.ensureKoala(p);
   assert.ok(!Object.keys(p.koala.items.owned).some((id) => roomIds.includes(id)), "refunded: the old ids may go now");
   const coins = p.koala.coins; Legacy.move({ moveOn: true, core: C, progress: p, kv: memKV(), n: 0, account: "u1", now: 2 });

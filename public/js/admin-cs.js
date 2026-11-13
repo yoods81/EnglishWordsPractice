@@ -826,7 +826,7 @@
       apply.addEventListener("click", async () => {
         const newRole = roleSel.value;
         if (newRole === u.role) return;
-        const ok = await kidConfirm(t("adminUserConfirmRoleChange", u.username, roleLabelSafe(newRole)), t("deleteConfirmYesBtn"), t("deleteConfirmNoBtn"));
+        const ok = await kidConfirm(t("adminUserConfirmRoleChange", u.username, roleLabelSafe(newRole)), L("Change", "바꾸기"), t("deleteConfirmNoBtn"));
         if (!ok) return;
         apply.disabled = true;
         try {

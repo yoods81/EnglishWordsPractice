@@ -686,6 +686,7 @@
   // Draw order inside the room: back to front.
   const ROOM_ORDER = ["wall", "garland", "window", "poster", "shelf", "lamp", "rug", "desk", "toy"];
   const ROOM_SLOT_LAYER = { wallpaper: "wall", rug: "rug", poster: "poster", desk: "desk", lamp: "lamp", shelf: "shelf", plant: "plant", window: "window", garland: "garland", pet: "pet", toy: "toy" };
+  const BACKDROP_A_WALL = `<rect width="320" height="150" fill="#fbf1dc"/><g fill="#f3e2bd">${[[110, 60], [212, 56], [160, 50], [120, 118], [204, 112], [134, 88], [188, 86]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3"/>`).join("")}</g>`;
   const ROOM_BASE_FLOOR = `<rect y="150" width="320" height="70" fill="#dcbd8c"/><path d="M0 172H320M0 194H320" stroke="#cda973" stroke-width="2"/><rect y="146" width="320" height="6" fill="#c9a36b"/>`;
 
   // opts.sub: { parentId: [subIds] } drawn on / in their parent item.
@@ -717,6 +718,9 @@
       if (ROOM_ART[id] && ROOM_SLOT_LAYER[slot] === ROOM_ART[id].layer) byLayer[ROOM_ART[id].layer] = id;
     });
     if (!byLayer.wall) byLayer.wall = "creamWall";
+    // E (2026-11, backdrop A): the Character tab's fixed backdrop — cream wall + wood floor, no room items. The wall dots sit
+    // inside x 104-216 so none is cut at the edge of the cropped character view (390 / 1280 wide).
+    const fixedA = o.backdrop === "A";
     // Items that hold sub-items get a class so the studio can make them tappable / highlight the picked one.
     // Free placement. o.layout = { over: { itemId: {dx,dy,rot,s,f,z,hide} }, extra: [{uid,id,dx,dy,rot,s,f,z}] }.
     // Equipped items sit at their default spot plus an optional override; "extra" are additional
@@ -745,7 +749,7 @@
     // opts.bare: just the wall and floor (the 3D koala page draws its own koala on top of this backdrop)
     if (!o.bare) stack.push({ order: 10000 + ((kst && kst.z) || 0) * 100 + 50, svg: `<g data-item="koala" data-key="koala"${o.pick === "koala" ? ' class="koala-picked"' : ""}${layoutTransform(over, "koala", 160, 140)}>${shadow}${koala}</g>` });
     stack.sort((a, b) => a.order - b.order);
-    const parts = [grp(byLayer.wall, byLayer.wall, null), ROOM_BASE_FLOOR].concat(stack.map((x) => x.svg));
+    const parts = [fixedA ? BACKDROP_A_WALL : grp(byLayer.wall, byLayer.wall, null), ROOM_BASE_FLOOR].concat(stack.map((x) => x.svg));
     const label = o.label ? ` role="img" aria-label="${String(o.label).replace(/"/g, "&quot;")}"` : ` aria-hidden="true"`;
     // opts.view crops the scene (e.g. zoom in on the koala); default: the whole room.
     return `<svg class="koala-room-svg" viewBox="${o.view || ROOM_VIEW}" xmlns="http://www.w3.org/2000/svg"${label} focusable="false">${parts.join("")}</svg>`;

@@ -14323,6 +14323,8 @@ html body .kh-app .kh-managebtn { min-height: 38px; padding: 0 14px; }
   background: var(--accent, #22c9a3); color: #fff; font: inherit; font-family: var(--font-display, inherit); font-weight: 800; font-size: 1.2rem; }
 .khc-open:hover { filter: brightness(1.05); }
 .khc-open:active { transform: translateY(1px); }
+.khc-open:disabled { opacity: .55; cursor: default; filter: none; transform: none; }
+.khc-closed .khc-pic { filter: saturate(.75); }
 .khc-open:focus-visible { outline: 3px solid var(--accent-dark, #0e9c7d); outline-offset: 3px; }
 .khc-off { margin: 10px 2px 0; font-size: 0.92rem; color: #b5531f; }
 @media (min-width: 900px) {

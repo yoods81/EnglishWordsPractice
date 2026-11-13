@@ -4493,7 +4493,7 @@ document.addEventListener("keydown", (e) => {
 
 // The sync rules this code knows (worker SYNC_APP_MIN): saves send the rev they started from and merge on 409.
 // Keep it equal to the service worker version number (sw.js CACHE koala-study-vNNN).
-const APP_SYNC_VERSION = 264;
+const APP_SYNC_VERSION = 265;
 async function api(path, options = {}) {
   // A child other than the account's first one keeps their progress in their
   // own server row — same endpoint, picked by ?p=<slot>.
@@ -15761,10 +15761,9 @@ function koalaItemsUnlocked() {
   const k = KoalaCore.ensureKoala(progress);
   return Object.keys(k.items.owned).filter((id) => { const it = KoalaCore.itemById(id); return it && !it.unlock.free; }).length;
 }
-function koalaRoomItems() {
-  const k = KoalaCore.ensureKoala(progress);
-  return KoalaCore.ROOM_SLOTS.filter((sl) => k.items.equipped[sl]).length;
-}
+// Room Designer (E, 2026-11): furniture the child has placed in the new Koala House (bought or taken out of storage —
+// the starter furniture does not count). The house link reports it on every save (koala-house-bridge.js placedCount).
+function koalaHousePlaced() { return Math.max(0, Number(progress.counters && progress.counters.housePlaced) || 0); }
 // Each badge has its own icon (no repeated medals) so a child can tell them
 // apart at a glance. `prog` returns [have, goal] for the "next goal" bar on
 // My Progress; it never changes whether a badge is earned (`test` does).
@@ -15822,11 +15821,11 @@ function buildBadgeCatalog() {
     { id: "level5", emoji: "⭐", group: "koala", name: rwL("Level 5 Koala", "레벨 5 코알라"),
       desc: rwL("Reach Koala Level 5", "코알라 레벨 5 달성"), test: () => KoalaCore.levelInfo(KoalaCore.ensureKoala(progress).earned).level >= 5, prog: () => [Math.min(KoalaCore.levelInfo(KoalaCore.ensureKoala(progress).earned).level, 5), 5] },
     { id: "items5", emoji: "🎩", group: "koala", name: rwL("Dress-up Fan", "패션 코알라"),
-      desc: rwL("Unlock 5 items for your Koala or room", "코알라나 방 아이템 5개 해금"),
+      desc: rwL("Unlock 5 items for your Koala", "코알라 아이템 5개 해금"),
       test: () => koalaItemsUnlocked() >= 5, prog: () => [Math.min(koalaItemsUnlocked(), 5), 5] },
     { id: "roomDecor", emoji: "🏠", group: "koala", name: rwL("Room Designer", "방 꾸미기 달인"),
-      desc: rwL("Put 5 items in your Study Room", "공부방에 아이템 5개를 놓아요"),
-      test: () => koalaRoomItems() >= 5, prog: () => [Math.min(koalaRoomItems(), 5), 5] },
+      desc: rwL("Place 5 pieces of furniture in your Koala House", "코알라 하우스에 가구 5개를 놓아요"),
+      test: () => koalaHousePlaced() >= 5, prog: () => [Math.min(koalaHousePlaced(), 5), 5] },
     { id: "fix5", emoji: "🔧", group: "habit", paidOnly: true, name: rwL("Mistake Fixer", "오답 해결사"),
       desc: rwL("Clear 5 words from your Mistakes list", "오답 노트에서 5개 졸업"),
       test: () => progress.counters.wrongCleared >= 5, prog: () => [Math.min(progress.counters.wrongCleared || 0, 5), 5] },
@@ -16571,7 +16570,7 @@ function koalaStudioTopHtml(k, mode) {
   const eq = koalaPreviewEq(k);
   // The character tab zooms in on the koala; the room tab shows the whole room.
   if (koalaPick && !Object.values(k.items.equipped).includes(koalaPick)) koalaPick = null;
-  const scene = KoalaArt.room(eq, eq, {
+  const scene = KoalaArt.room({}, eq, { backdrop: "A",
     label: mode === "room" ? rwL("Your Koala's Study Room", "나의 코알라 공부방") : rwL("Your Koala", "나의 코알라"),
     shadow: true,
     view: mode === "room" ? undefined : "80 48 160 172",
@@ -16870,6 +16869,11 @@ function houseLinkCtx() {
     kv: ls, fetch: (u, i) => fetch(u, i),
     badges: Object.keys(progress.badges || {}).filter((b) => progress.badges[b]),
     asmr: window.ASMR,
+    // Room Designer badge: the most furniture this child has had placed in the new house (kept, never lowered)
+    onHouseSaved: (info) => {
+      const c = progress.counters || (progress.counters = {}), n = Math.max(0, Number(info && info.placed) || 0);
+      if (n > (Number(c.housePlaced) || 0)) { c.housePlaced = n; saveProgress(); if (typeof checkBadges === "function") checkBadges(); }
+    },
     // the house app turns the site record into its learning record itself (koala-house-3d siteRecord.ts)
     siteEnv: { get: ls.get, builtIn: (system) => (((SYSTEMS[system] || SYSTEMS.en).bank || {}).vocabulary || []).map((w) => ({ word: w.word, level: w.level, definition: w.definition, pos: w.pos || null })) },
   };
@@ -16886,9 +16890,10 @@ function houseEntryCheck() {
   fetch("/api/house/config", { credentials: "same-origin", cache: "no-store" })
     .then((r) => (r.ok ? r.json() : null)).catch(() => null)
     .then((cfg) => {
+      const first = !houseEntry.at;   // the loading card waits for this first answer even when it is "not open"
       houseEntry.busy = false; houseEntry.at = Date.now();
       const open = !!(cfg && cfg.open);
-      const changed = open !== houseEntry.open;
+      const changed = open !== houseEntry.open || first;
       houseEntry.open = open; houseEntry.cfg = cfg;
       if (changed && koalaTab === "room" && !houseFrameOpen()) renderKoala();
     });
@@ -16901,6 +16906,17 @@ function houseCardHtml() {
       <p class="khc-line">${rwL("Use the coins you earn by studying to furnish your own house.", "공부해서 모은 코인으로 가구를 사서 내 집을 꾸며요.")}</p>
       <button type="button" class="khc-open" data-house-open>${rwL("Open house", "집 열기")}</button>
       <p class="khc-off" data-house-off${navigator.onLine === false ? "" : " hidden"}>${rwL("You need the internet to open Koala House.", "인터넷이 연결되어 있어야 열려요.")}</p>
+    </div></div>`;
+}
+// The Room tab while the house is not open for this child (HOUSE3D off / not yet for everyone) or before the server's
+// first answer (loading: the same card, button not ready yet). There is no old room to fall back to after E.
+function houseClosedHtml(loading) {
+  if (loading) return houseCardHtml().replace("data-house-open>", 'data-house-open disabled aria-busy="true">');
+  return `<div class="khc khc-closed">
+    <img class="khc-pic" src="/img/house3d/card.webp" width="960" height="600" alt="${rwL("Koala House", "코알라 하우스")}">
+    <div class="khc-body">
+      <h3 class="khc-title">🏠 ${rwL("Koala House", "코알라 하우스")}</h3>
+      <p class="khc-line">${rwL("Koala House is getting ready. Please come back a little later!", "코알라 하우스를 준비하고 있어요. 조금 뒤에 다시 와 주세요!")}</p>
     </div></div>`;
 }
 const houseOffNote = (show) => document.querySelectorAll("[data-house-off]").forEach((el) => { el.hidden = !show; });
@@ -17086,8 +17102,8 @@ function koalaMountDim3d() {
   const host = document.getElementById("kh-host");
   if (!host || !window.KoalaHouse || !KoalaHouse.mount) return;
   try {
-    if (koalaTab === "room") { koalaSetWardApi(); if (KoalaHouse.setRoomOwned) KoalaHouse.setRoomOwned(koalaOwnedView); KoalaHouse.mount(host, koalaHouseOpts()); }
-    else { koalaSetWardApi(); if (KoalaHouse.setWardOwned) KoalaHouse.setWardOwned(koalaOwnedView); KoalaHouse.mountWardrobe(host, koalaHouseOpts()); }
+    // E (S8): only the 3D wardrobe mounts here now — the old Pop-out house is gone (the Room tab opens the new Koala House)
+    koalaSetWardApi(); if (KoalaHouse.setWardOwned) KoalaHouse.setWardOwned(koalaOwnedView); KoalaHouse.mountWardrobe(host, koalaHouseOpts());
   } catch (err) { host.textContent = ""; console.error(err); }
 }
 
@@ -17130,7 +17146,8 @@ function renderKoala() {
     st.restAvailable ? rwL("🌙 1 rest day — your leaf keeps growing!", "🌙 쉬는 날 1번! 쉬어도 잎은 그대로!") : "",
   ].filter(Boolean).map((c) => `<span class="koala-streak-chip">${c}</span>`).join("");
 
-  const studio = koalaTab === "character" || koalaTab === "room";
+  // E (S8): the Room tab is only the Koala House entrance now — the old 2D room / Pop-out house are gone.
+  const studio = koalaTab === "character";
   // The status card shows the Koala that matches the 2D / 3D switch (3D is a premium look: free accounts get the plain 3D Koala as a preview).
   const heroAvatar = koalaHeroAvatarHtml(k);
   const hero = `<div class="koala-hero"><div class="koala-hero-top">${koalaTab === "room" ? "" : heroAvatar}
@@ -17160,9 +17177,9 @@ function renderKoala() {
   // Shop tabs (Character / Room): tabs, then the studio (live preview on top, items below), level + streak last.
   // Coins / Badges: tabs, panel, then the level + streak card at the very bottom.
   if (koalaTab === "room" && Date.now() - houseEntry.at > 5000) houseEntryCheck();
-  const houseCard = koalaTab === "room" && houseEntry.open;
+  const houseCard = koalaTab === "room";
   const page = houseCard
-    ? `${tabs}${houseCardHtml()}`
+    ? `${tabs}${houseEntry.open ? houseCardHtml() : houseClosedHtml(!houseEntry.at)}`
     : studio
     ? `${tabs}${koalaDimBarHtml()}${koalaDim === "3d" ? koalaDim3dHtml() : koalaStudioHtml(k, koalaTab)}${koalaTab === "room" ? "" : hero}`
     : `${tabs}<div class="koala-panel">${koalaTab === "badges" ? badgesPanel : koalaCoinsHtml(k)}</div>${hero}`;
@@ -17293,7 +17310,7 @@ function handleKoalaItem(id) {
 function koalaZoomScene(view) {
   const k = KoalaCore.ensureKoala(progress);
   const eq = koalaPreviewEq(k);
-  return KoalaArt.room(eq, eq, {
+  return KoalaArt.room({}, eq, { backdrop: "A",
     label: view === "room" ? rwL("Your Koala's Study Room", "나의 코알라 공부방") : rwL("Your Koala", "나의 코알라"),
     shadow: true,
     view: view === "room" ? undefined : "60 78 200 137.5",
@@ -17618,7 +17635,7 @@ document.addEventListener("click", (e) => {
     const old = sitStage.querySelector(":scope > svg"), k = KoalaCore.ensureKoala(progress);
     if (old) { // swap the standing and sitting drawings
       const eq = koalaPreviewEq(k);
-      const sc = KoalaArt.room(eq, eq, { label: rwL("Your Koala", "나의 코알라"), shadow: true, view: "80 48 160 172", pose: koalaSit ? undefined : "stand", sub: k.items.sub || {} }).replace('class="koala-room-svg"', 'class="koala-room-svg" preserveAspectRatio="xMidYMax slice"');
+      const sc = KoalaArt.room({}, eq, { backdrop: "A", label: rwL("Your Koala", "나의 코알라"), shadow: true, view: "80 48 160 172", pose: koalaSit ? undefined : "stand", sub: k.items.sub || {} }).replace('class="koala-room-svg"', 'class="koala-room-svg" preserveAspectRatio="xMidYMax slice"');
       old.outerHTML = sc;
     }
     return;

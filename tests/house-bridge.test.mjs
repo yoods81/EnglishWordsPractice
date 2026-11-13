@@ -146,3 +146,15 @@ test("C3 D6 a guest house on this device becomes a new account's house; an accou
   assert.equal(b.save.load(), '{"mine":1}');
   assert.equal(JSON.parse(kv.get("kh3:house:guest:p0")).json, '{"guest":1}');
 });
+
+test("E Room Designer: placedCount counts placed furniture with an item name (starter pieces don't), save reports it", async () => {
+  const save = (rooms, owned) => JSON.stringify({ v: 1, owned, rooms, storage: [] });
+  assert.equal(Link.placedCount(save({ living: [{ uid: "p1" }, { uid: "p2" }] }, { p1: { paid: 0 }, p2: { paid: 0 } })), 0, "starter furniture");
+  assert.equal(Link.placedCount(save({ living: [{ uid: "b1" }, { uid: "p2" }], bedroom: [{ uid: "s-floorlamp" }, { uid: "b2", parent: { uid: "b1" } }] },
+    { b1: { item: "desk-oak", paid: 60 }, p2: { paid: 0 }, "s-floorlamp": { item: "floorlamp-butter", paid: 0 }, b2: { item: "lamp", paid: 20 } })), 3, "bought, stacked and taken out of storage");
+  assert.equal(Link.placedCount("{ not json"), null);
+  const s = fakeServer(), seen = [], c = ctxOf({ fetch: s.fetch, onHouseSaved: (i) => seen.push(i.placed) });
+  const b = await Link.prepare(c);
+  b.save.store(save({ living: [{ uid: "b1" }] }, { b1: { item: "sofa", paid: 70 } }));
+  assert.deepEqual(seen, [1]);
+});

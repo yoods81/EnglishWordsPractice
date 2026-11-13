@@ -164,8 +164,8 @@
             "ko": "학습 기록은 저장되나요?"
           },
           "a": {
-            "en": "Yes, in two parts. Your koala world — coins, items, room, streak, badges and study level — is saved to your account, so it is the same on any phone or computer. Which words you have already practised is remembered in this browser on this device (Premium remembers it on every device). If you're not signed in, everything stays in this browser only.",
-            "ko": "네, 두 가지로 나뉘어요. 코알라 세계(코인, 아이템, 방, 연속 학습일, 배지, 학습 레벨)는 계정에 저장돼서 어느 기기에서든 똑같아요. 이미 푼 단어 기록은 이 기기의 이 브라우저에 기억돼요(프리미엄은 모든 기기에서 기억해요). 로그인하지 않으면 모든 기록이 이 브라우저에만 남아요."
+            "en": "Yes, in two parts. Your koala world — coins, items, Koala House, streak, badges and study level — is saved to your account, so it is the same on any phone or computer. Which words you have already practised is remembered in this browser on this device (Premium remembers it on every device). If you're not signed in, everything stays in this browser only.",
+            "ko": "네, 두 가지로 나뉘어요. 코알라 세계(코인, 아이템, 코알라 하우스, 연속 학습일, 배지, 학습 레벨)는 계정에 저장돼서 어느 기기에서든 똑같아요. 이미 푼 단어 기록은 이 기기의 이 브라우저에 기억돼요(프리미엄은 모든 기기에서 기억해요). 로그인하지 않으면 모든 기록이 이 브라우저에만 남아요."
           }
         },
         {
@@ -174,8 +174,8 @@
             "ko": "다른 휴대폰에서 써도 코인과 아이템이 그대로인가요?"
           },
           "a": {
-            "en": "Yes. Log in with your account and your coins, items, koala and room appear as you left them. Only the list of words you have already practised stays on the device where you practised (Premium follows you everywhere).",
-            "ko": "네. 같은 계정으로 로그인하면 코인, 아이템, 코알라, 방이 그대로 나타나요. 이미 푼 단어 목록만 푼 기기에 남아요(프리미엄은 어디서나 따라와요)."
+            "en": "Yes. Log in with your account and your coins, items, koala and Koala House appear as you left them. Only the list of words you have already practised stays on the device where you practised (Premium follows you everywhere).",
+            "ko": "네. 같은 계정으로 로그인하면 코인, 아이템, 코알라, 코알라 하우스가 그대로 나타나요. 이미 푼 단어 목록만 푼 기기에 남아요(프리미엄은 어디서나 따라와요)."
           }
         },
         {
@@ -242,8 +242,28 @@
             "ko": "코알라 코인이 뭐예요?"
           },
           "a": {
-            "en": "Coins are rewards you earn as you practise. Spend them in My Koala on items for your koala. Wrong answers never cost coins.",
-            "ko": "연습하면서 모으는 보상이에요. '마이 코알라'에서 코알라를 꾸밀 아이템을 살 수 있어요. 틀려도 코인이 줄어들지 않아요."
+            "en": "Coins are rewards you earn as you practise. Spend them in My Koala on outfits for your koala and furniture for your Koala House. Wrong answers never cost coins.",
+            "ko": "연습하면서 모으는 보상이에요. '마이 코알라'에서 코알라 옷과 코알라 하우스 가구를 살 수 있어요. 틀려도 코인이 줄어들지 않아요."
+          }
+        },
+        {
+          "q": {
+            "en": "What is Koala House?",
+            "ko": "코알라 하우스가 뭐예요?"
+          },
+          "a": {
+            "en": "Koala House is your own 3D house in My Koala → Room. Buy furniture with your coins, put it anywhere you like and walk around the village. Everyone can decorate. Premium can build new rooms, grow the garden and keep a separate house for each child. You need the internet to open it.",
+            "ko": "마이 코알라 → 방에서 여는 나만의 3D 집이에요. 코인으로 가구를 사서 원하는 곳에 놓고, 마을을 산책할 수도 있어요. 꾸미기는 누구나 할 수 있고, 프리미엄은 새 방을 짓고 정원을 넓히고 자녀마다 집을 따로 가질 수 있어요. 인터넷이 연결되어 있어야 열려요."
+          }
+        },
+        {
+          "q": {
+            "en": "What happened to the old room?",
+            "ko": "예전 방은 어떻게 되었나요?"
+          },
+          "a": {
+            "en": "The old study room and Pop-out house have been replaced by Koala House. ASMR boxes and toys move into your new house, and your coins and level stay the same.",
+            "ko": "예전 공부방과 팝아웃 집은 새 코알라 하우스로 바뀌었어요. ASMR 상자와 장난감은 새 집으로 그대로 옮겨지고, 코인과 레벨은 그대로예요."
           }
         },
         {

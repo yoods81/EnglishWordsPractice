@@ -25,6 +25,16 @@
 
   const copyKey = (account, n) => (account ? `kh3:house:u:${encodeURIComponent(account)}:p${n}` : "kh3:house:guest:p0");
   const unlocked = (tier) => tier === "paid" || tier === "admin";
+  // Furniture the child has placed in the house (Room Designer badge): pieces in any room whose ownership record names an
+  // item — bought, moved in or taken out of storage. The starter furniture (no item name) does not count. null = unreadable.
+  function placedCount(json) {
+    let s; try { s = JSON.parse(json); } catch (e) { return null; }
+    if (!s || typeof s !== "object" || !s.rooms || typeof s.rooms !== "object") return null;
+    const own = s.owned && typeof s.owned === "object" ? s.owned : {};
+    let c = 0;
+    Object.keys(s.rooms).forEach((r) => { const list = s.rooms[r]; if (Array.isArray(list)) list.forEach((p) => { if (p && own[p.uid] && own[p.uid].item) c++; }); });
+    return c;
+  }
 
   async function prepare(ctx) {
     const n = unlocked(ctx.tier) ? ctx.n | 0 : 0;
@@ -75,6 +85,7 @@
       if (!alive) return false;
       if (typeof json !== "string") return false;
       if (!storeLocal(json)) return { ok: false, reason: "full", size: json.length };
+      if (ctx.onHouseSaved) { const c = placedCount(json); if (c != null) { try { ctx.onHouseSaved({ placed: c }); } catch (e) { /* the badge waits for the next save */ } } }
       if (!account) return true;
       if (json.length > SAVE_LIMIT) { report({ type: "saveFull", size: json.length }); return true; }   // kept on the device; the server would say 413
       again = true; tries = 0; stopped = false; clearTimeout(retryT); upload();
@@ -178,5 +189,5 @@
     return bridge;
   }
 
-  return { prepare, create, copyKey, SAVE_LIMIT };
+  return { prepare, create, copyKey, placedCount, SAVE_LIMIT };
 });
