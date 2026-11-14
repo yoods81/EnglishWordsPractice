@@ -2778,6 +2778,18 @@ kidConfirmCancelBtn.addEventListener("click", () => closeKidConfirm(false));
 kidConfirmOverlay.addEventListener("click", (e) => {
   if (e.target === kidConfirmOverlay) closeKidConfirm(false);
 });
+// Popups (kid confirm, My Koala zoom/sell/detail cards, reason card) close on an outside tap, and that tap is always "cancel".
+// It only counts when the press also started on the dark backdrop: a press inside the card that slides out is not an outside tap.
+(function () {
+  let downEl = null;
+  document.addEventListener("pointerdown", (e) => { downEl = e.target; }, true);
+  document.addEventListener("click", (e) => {
+    const el = e.target;
+    if (!el || !el.classList) return;
+    const backdrop = el === kidConfirmOverlay || el.id === "koala-reason-overlay" || el.classList.contains("koala-zoom-overlay");
+    if (backdrop && downEl !== el) e.stopPropagation();
+  }, true);
+})();
 // Enter confirms, Escape cancels — captured ahead of whatever's focused
 // underneath (e.g. a falling-game input, which has its own Enter handling)
 // so the modal always gets first say while it's open.

@@ -1,12 +1,8 @@
-// 만든 곳: koala-house-3d f00b63a — npm run build:config-lib (src/server/config-lib.ts). 손으로 고치지 않음: 집 앱과 같은 설정 검증(사이트 S12).
+// 만든 곳: koala-house-3d db11eb4 — npm run build:config-lib (src/server/config-lib.ts). 손으로 고치지 않음: 집 앱과 같은 설정 검증(사이트 S12).
 // src/data/prices.ts
 var PRICES = {
-	/** 새 방: 크기별 고정(작은 40칸 이하 · 중간 41~60칸 · 큰 61칸 이상) */
-	room: {
-		small: 240,
-		medium: 360,
-		large: 480
-	},
+	/** 새 방: 12×12 하나, 값 하나(2026-11-14 결정 — 예전 작은 240·중간 360·큰 480은 없앰) */
+	room: 380,
 	/** 정원 넓히기(앞으로 3줄씩): 한 번에 고정, 최대 max번 */
 	garden: {
 		each: 120,
@@ -25,12 +21,7 @@ var PRICES = {
 			stone: 150,
 			timber: 180
 		},
-		roofKind: {
-			tile: 120,
-			dormer: 150,
-			thatch: 150,
-			tower: 200
-		},
+		roofKind: { tower: 200 },
 		fenceKind: {
 			iron: 120,
 			flower: 100,
@@ -12716,7 +12707,8 @@ def$2({
 		rh: 0,
 		shed: "",
 		towers: "",
-		doorC: "teal"
+		doorC: "teal",
+		uroof: ""
 	},
 	size: (p) => ({
 		w: num$1(p, "w"),
@@ -12860,6 +12852,11 @@ def$2({
 		const chimney = () => {
 			if (num$1(p, "chimney")) r.push(box(w * .72, d * .18, h + rh * .2, w * .72 + .9, d * .18 + .9, ridge + .7, "brick", { mat: "paint" }));
 		};
+		const ur = String(p.uroof ?? "");
+		if (ur && kind !== "flat" && kind !== "tower") {
+			unifiedRoof(r, ur, w, d, h, kind === "thatch" ? "#e8c97e" : roof, kind === "thatch" ? "#8f6a33" : trim, num$1(p, "chimney") > 0);
+			return r;
+		}
 		const shed = str(p, "shed");
 		if (shed && kind !== "flat" && kind !== "tower") {
 			shedRoof(r, shed, kind, w, d, h, m, fx, fy, roof, wall, trim);
@@ -13212,6 +13209,328 @@ def$2({
 		return r;
 	}
 });
+/**
+* 한 지붕(2026-11-14 B1): 집 동들을 합친 모양 전체에 같은 기울기의 모임지붕을 씌운다.
+* 높이 = 처마 h + 기울기 × (합친 모양 바깥까지의 L∞ 거리) — 직사각형이면 보통 모임지붕, ㄱ자·계단 모양이면 골(골짜기)이 저절로 생긴다.
+* 동마다 자기 땅 몫만 그린다(같은 높이 함수라 이웃 동과 틈 없이 이어짐). 기울기(0.5)가 보는 각보다 낮아 지붕 면끼리 가리지 않으므로 그리는 순서와 상관없다.
+* spec = "x0,y0,x1,y1|…"(이 동 기준 좌표)
+*/
+function unifiedRoof(r, spec, w, d, h, rc, edge, chimney) {
+	const rects = spec.split("|").map((q) => q.split(",").map(Number));
+	const inside = (x, y) => rects.some(([a, b, c, e]) => x > a && x < c && y > b && y < e);
+	const segs = [];
+	const cutsX = [...new Set(rects.flatMap(([a, , c]) => [a, c]))].sort((p, q) => p - q), cutsY = [...new Set(rects.flatMap(([, b, , e]) => [b, e]))].sort((p, q) => p - q);
+	for (const [a, b, c, e] of rects) {
+		for (const [y, out] of [[b, -.01], [e, .01]]) {
+			const xs = [
+				a,
+				...cutsX.filter((x) => x > a && x < c),
+				c
+			];
+			for (let i = 0; i + 1 < xs.length; i++) if (!inside((xs[i] + xs[i + 1]) / 2, y + out)) segs.push([
+				xs[i],
+				y,
+				xs[i + 1],
+				y
+			]);
+		}
+		for (const [x, out] of [[a, -.01], [c, .01]]) {
+			const ys = [
+				b,
+				...cutsY.filter((y) => y > b && y < e),
+				e
+			];
+			for (let i = 0; i + 1 < ys.length; i++) {
+				const m = (ys[i] + ys[i + 1]) / 2;
+				if (!inside(x + out, m)) segs.push([
+					x,
+					ys[i],
+					x,
+					ys[i + 1]
+				]);
+			}
+		}
+	}
+	const S = .5;
+	const hf = (x, y) => {
+		let m = Infinity;
+		for (const [x0, y0, x1, y1] of segs) {
+			const dd = x0 === x1 ? Math.max(Math.abs(x - x0), y0 - y, y - y1, 0) : Math.max(Math.abs(y - y0), x0 - x, x - x1, 0);
+			if (dd < m) m = dd;
+		}
+		return h + S * Math.min(6.4, Number.isFinite(m) ? m : 0);
+	};
+	const nx = Math.max(1, Math.ceil(w / .5)), ny = Math.max(1, Math.ceil(d / .5)), sx = w / nx, sy = d / ny, E = .012;
+	const H = [];
+	for (let j = 0; j <= ny; j++) {
+		const row = [];
+		for (let i = 0; i <= nx; i++) row.push(hf(i * sx, j * sy));
+		H.push(row);
+	}
+	const Ks = {
+		x: [...new Set(segs.flatMap(([x0, , x1]) => [x0, x1]))],
+		y: [...new Set(segs.flatMap(([, y0, , y1]) => [y0, y1]))]
+	};
+	const plAt = (q, x, y) => q[0] * x + q[1] * y + q[2];
+	const ridgeSeen = /* @__PURE__ */ new Set(), ridgeLines = [];
+	const ridgeCell = (x0, y0, x1, y1, hs, hc) => {
+		const sm = [];
+		for (const fx of [
+			0,
+			.5,
+			1
+		]) for (const fy of [
+			0,
+			.5,
+			1
+		]) {
+			const x = x0 + (x1 - x0) * fx, y = y0 + (y1 - y0) * fy;
+			sm.push([
+				x,
+				y,
+				hf(x, y)
+			]);
+		}
+		const cands = [];
+		const add = (q) => {
+			if (!cands.some((c) => Math.abs(c[0] - q[0]) < 1e-9 && Math.abs(c[1] - q[1]) < 1e-9 && Math.abs(c[2] - q[2]) < 1e-6)) cands.push(q);
+		};
+		for (const [x, y, z] of sm) {
+			for (const k of Ks.x) for (const sg of [1, -1]) {
+				const q = [
+					S * sg,
+					0,
+					h - S * sg * k
+				];
+				if (Math.abs(plAt(q, x, y) - z) < 1e-6) add(q);
+			}
+			for (const k of Ks.y) for (const sg of [1, -1]) {
+				const q = [
+					0,
+					S * sg,
+					h - S * sg * k
+				];
+				if (Math.abs(plAt(q, x, y) - z) < 1e-6) add(q);
+			}
+			if (Math.abs(z - (h + S * 6.4)) < 1e-6) add([
+				0,
+				0,
+				h + S * 6.4
+			]);
+		}
+		for (const mode of ["min", "max"]) {
+			const ok = cands.filter((q) => sm.every(([x, y, z]) => mode === "min" ? plAt(q, x, y) >= z - 1e-6 : plAt(q, x, y) <= z + 1e-6));
+			if (ok.length < 2 || !sm.every(([x, y, z]) => ok.some((q) => Math.abs(plAt(q, x, y) - z) < 1e-6))) continue;
+			for (const q of ok) {
+				let pg = [
+					[x0, y0],
+					[x1, y0],
+					[x1, y1],
+					[x0, y1]
+				];
+				for (const o of ok) {
+					if (o === q) continue;
+					const f = (x, y) => mode === "min" ? plAt(o, x, y) - plAt(q, x, y) : plAt(q, x, y) - plAt(o, x, y);
+					const next = [];
+					for (let t = 0; t < pg.length; t++) {
+						const A = pg[t], B = pg[(t + 1) % pg.length], fa = f(A[0], A[1]), fb = f(B[0], B[1]);
+						if (fa >= -1e-9) next.push(A);
+						if (fa >= -1e-9 !== fb >= -1e-9) {
+							const u = fa / (fa - fb);
+							next.push([A[0] + (B[0] - A[0]) * u, A[1] + (B[1] - A[1]) * u]);
+						}
+					}
+					pg = next;
+					if (pg.length < 3) break;
+				}
+				if (pg.length < 3) continue;
+				const area = pg.reduce((acc, P, t) => {
+					const Q = pg[(t + 1) % pg.length];
+					return acc + P[0] * Q[1] - Q[0] * P[1];
+				}, 0) / 2;
+				if (Math.abs(area) < 1e-5) continue;
+				for (let t = 0; t < pg.length; t++) {
+					const A = pg[t], B = pg[(t + 1) % pg.length], on = (v, e) => Math.abs(v - e) < 1e-6;
+					if (on(A[0], x0) && on(B[0], x0) || on(A[0], x1) && on(B[0], x1) || on(A[1], y0) && on(B[1], y0) || on(A[1], y1) && on(B[1], y1)) continue;
+					if (Math.hypot(B[0] - A[0], B[1] - A[1]) < 1e-4) continue;
+					const k = [A, B].map((P) => `${P[0].toFixed(3)},${P[1].toFixed(3)}`).sort().join("|");
+					if (ridgeSeen.has(k)) continue;
+					ridgeSeen.add(k);
+					ridgeLines.push(line([[
+						A[0],
+						A[1],
+						plAt(q, A[0], A[1]) + .02
+					], [
+						B[0],
+						B[1],
+						plAt(q, B[0], B[1]) + .02
+					]], edge, 1.6, .55));
+				}
+				const gx = pg.reduce((a2, P) => a2 + P[0], 0) / pg.length, gy = pg.reduce((a2, P) => a2 + P[1], 0) / pg.length;
+				r.push(poly(pg.map(([x, y]) => {
+					const len = Math.hypot(x - gx, y - gy) || 1, X = Math.max(0, Math.min(w, x + (x - gx) / len * E)), Y = Math.max(0, Math.min(d, y + (y - gy) / len * E));
+					return [
+						X,
+						Y,
+						plAt(q, X, Y)
+					];
+				}), rc, {
+					noLine: true,
+					seal: true
+				}));
+			}
+			return;
+		}
+		const C = [
+			(x0 + x1) / 2,
+			(y0 + y1) / 2,
+			hc
+		];
+		const tri = (A, B) => r.push(poly([
+			A,
+			B,
+			C
+		], rc, {
+			noLine: true,
+			seal: true
+		}));
+		tri([
+			x0,
+			y0,
+			hs[0]
+		], [
+			x1,
+			y0,
+			hs[1]
+		]);
+		tri([
+			x1,
+			y0,
+			hs[1]
+		], [
+			x1,
+			y1,
+			hs[2]
+		]);
+		tri([
+			x1,
+			y1,
+			hs[2]
+		], [
+			x0,
+			y1,
+			hs[3]
+		]);
+		tri([
+			x0,
+			y1,
+			hs[3]
+		], [
+			x0,
+			y0,
+			hs[0]
+		]);
+	};
+	const key = (q) => `${q.i0}|${q.i1}|${q.gx.toFixed(3)}|${q.gy.toFixed(3)}|${q.c.toFixed(3)}`;
+	let open = /* @__PURE__ */ new Map();
+	const done = [];
+	for (let j = 0; j < ny; j++) {
+		const runs = [];
+		for (let i = 0; i < nx; i++) {
+			const h00 = H[j][i], h10 = H[j][i + 1], h01 = H[j + 1][i], h11 = H[j + 1][i + 1];
+			const hc = hf((i + .5) * sx, (j + .5) * sy);
+			if (Math.abs(h00 + h11 - h01 - h10) < 1e-6 && Math.abs(hc - (h00 + h11) / 2) < 1e-6) {
+				const gx = (h10 - h00) / sx, gy = (h01 - h00) / sy, c = h00 - gx * i * sx - gy * j * sy, last = runs[runs.length - 1];
+				if (last && last.i1 === i && Math.abs(last.gx - gx) < 1e-6 && Math.abs(last.gy - gy) < 1e-6 && Math.abs(last.c - c) < 1e-6) last.i1 = i + 1;
+				else runs.push({
+					i0: i,
+					i1: i + 1,
+					j0: j,
+					j1: j + 1,
+					gx,
+					gy,
+					c
+				});
+			} else ridgeCell(i * sx, j * sy, (i + 1) * sx, (j + 1) * sy, [
+				h00,
+				h10,
+				h11,
+				h01
+			], hc);
+		}
+		const next = /* @__PURE__ */ new Map();
+		for (const q of runs) {
+			const k = key(q), prev = open.get(k);
+			if (prev) {
+				prev.j1 = j + 1;
+				next.set(k, prev);
+				open.delete(k);
+			} else next.set(k, q);
+		}
+		for (const q of open.values()) done.push(q);
+		open = next;
+	}
+	done.push(...open.values());
+	for (const q of done) {
+		const x0 = Math.max(0, q.i0 * sx - E), x1 = Math.min(w, q.i1 * sx + E), y0 = Math.max(0, q.j0 * sy - E), y1 = Math.min(d, q.j1 * sy + E), z = (x, y) => q.c + q.gx * x + q.gy * y;
+		r.push(poly([
+			[
+				x0,
+				y0,
+				z(x0, y0)
+			],
+			[
+				x1,
+				y0,
+				z(x1, y0)
+			],
+			[
+				x1,
+				y1,
+				z(x1, y1)
+			],
+			[
+				x0,
+				y1,
+				z(x0, y1)
+			]
+		], rc, {
+			noLine: true,
+			seal: true
+		}));
+	}
+	r.push(...ridgeLines);
+	if (chimney) {
+		const cx = w * .72, cy = d * .18, z0 = hf(cx + .45, cy + .45);
+		r.push(box(cx, cy, z0 - .4, cx + .9, cy + .9, z0 + 1.1, "brick", { mat: "paint" }));
+	}
+	for (const [x0, y0, x1, y1] of segs) {
+		if (y0 === y1 && Math.abs(y0 - d) < 1e-6) {
+			const a = Math.max(0, x0), b = Math.min(w, x1);
+			if (b > a) r.push(line([[
+				a,
+				d,
+				h
+			], [
+				b,
+				d,
+				h
+			]], edge, 2.5));
+		}
+		if (x0 === x1 && Math.abs(x0 - w) < 1e-6) {
+			const a = Math.max(0, y0), b = Math.min(d, y1);
+			if (b > a) r.push(line([[
+				w,
+				a,
+				h
+			], [
+				w,
+				b,
+				h
+			]], edge, 2.5));
+		}
+	}
+}
 /**
 * 외쪽 지붕(지붕 합치기 시안 B): 붙은 방 쪽이 높고(본채 처마 높이) 반대쪽(low)으로 기운다.
 * 고른 지붕 모양을 따라: 기와 = 기와 줄, 초가 = 짚 색 + 처마 짚 단면, 그 밖(박공·모임·다락 창) = 고른 색 판
@@ -18876,15 +19195,30 @@ def$1({
 				return r;
 			}
 			case "waterBeads": {
-				const r = [cyl(.3, .3, 0, .15, .2, .27, "white", { mat: "ceramic" })];
-				for (let i = 0; i < 10; i++) r.push(ell(.18 + i % 4 * .08, .2 + Math.floor(i / 4) * .09, .17, .045, .045, .04, [
-					"sky",
-					"pink",
-					"mint",
-					"lilac",
-					"butter"
-				][i % 5], { a: .85 }));
-				return r;
+				const jShine = (x, y, z, r) => ell(x - r * .35, y + r * .6, z + r * .55, r * .24, r * .11, r * .15, "#ffffff", {
+					noLine: true,
+					a: .85
+				});
+				const jFace = (x, y, z, r) => {
+					const fx = x + r * .7, fy = y + r * .7, d = r * .24, e = r * .075;
+					return [
+						ell(fx + d, fy - d, z + r * .12, e, e, e * 1.3, "#3d2c22", { noLine: true }),
+						ell(fx - d, fy + d, z + r * .12, e, e, e * 1.3, "#3d2c22", { noLine: true }),
+						ell(fx + d * 1.7, fy - d * 1.7 + .01, z - r * .1, e * 1.4, e * 1.4, e * .8, "#ff7f9e", { noLine: true }),
+						ell(fx - d * 1.7 + .01, fy + d * 1.7, z - r * .1, e * 1.4, e * 1.4, e * .8, "#ff7f9e", { noLine: true })
+					];
+				};
+				const ball = (x, y, z, r, c) => [
+					ell(x, y, z, r, r, r * .92, c),
+					jShine(x, y, z, r),
+					...jFace(x, y, z, r)
+				];
+				return [
+					cyl(.3, .3, 0, .05, .3, .3, "white", { mat: "ceramic" }),
+					...ball(.17, .2, .18, .13, "#2ff0a0"),
+					...ball(.43, .2, .18, .13, "#ffe23a"),
+					...ball(.3, .4, .2, .15, "#ff4fb4")
+				];
 			}
 			case "kineticSand": return [
 				box(.03, .03, 0, .57, .57, .08, "sky", { mat: "paint" }),
@@ -21640,7 +21974,7 @@ var DEFAULT_CONFIG = Object.freeze(clone({
 	version: 0,
 	channel: "live",
 	prices: {
-		room: { ...PRICES.room },
+		room: PRICES.room,
 		garden: PRICES.garden.each,
 		lot: PRICES.lot.each,
 		garage: PRICES.garage,
@@ -21780,7 +22114,7 @@ var DEFAULT_CONFIG = Object.freeze(clone({
 /** 입력 범위(관리자 화면·서버·앱 모두 같음) */
 var RANGES = {
 	item: [0, 200],
-	room: [0, 600],
+	room: [0, 1e3],
 	plot: [0, 500],
 	exterior: [0, 300],
 	asmrToy: [0, 100],
@@ -21922,7 +22256,7 @@ function validateConfig(raw) {
 		return v;
 	};
 	const P = o(raw, "prices", ""), R = o(raw, "rewards", ""), M = o(raw, "missions", ""), S = o(raw, "switches", ""), L = o(raw, "limits", "");
-	const room = o(P, "room", "prices."), ext = o(P, "exterior", "prices."), site = o(R, "site", "rewards.");
+	const roomRaw = P?.room, ext = o(P, "exterior", "prices."), site = o(R, "site", "rewards.");
 	const sl = o(site, "learning", "rewards.site."), lbm = o(site, "learningByMode", "rewards.site."), sc = o(site, "coins", "rewards.site."), sm = o(site, "mission", "rewards.site.");
 	const letters = o(M, "letters", "missions."), rm = o(L, "roundMax", "limits."), dm = o(L, "dailyMax", "limits.");
 	let seasons = clone(d.seasons);
@@ -22002,11 +22336,7 @@ function validateConfig(raw) {
 			version: num(raw.version, 0, [0, 1e9], "version", issues),
 			channel: pick(raw.channel, ["live", "draft"], "live", "channel"),
 			prices: {
-				room: {
-					small: num(room?.small, d.prices.room.small, RANGES.room, "prices.room.small", issues),
-					medium: num(room?.medium, d.prices.room.medium, RANGES.room, "prices.room.medium", issues),
-					large: num(room?.large, d.prices.room.large, RANGES.room, "prices.room.large", issues)
-				},
+				room: isObj$1(roomRaw) ? d.prices.room : num(roomRaw, d.prices.room, RANGES.room, "prices.room", issues),
 				garden: num(P?.garden, d.prices.garden, RANGES.plot, "prices.garden", issues),
 				lot: num(P?.lot, d.prices.lot, RANGES.plot, "prices.lot", issues),
 				garage: num(P?.garage, d.prices.garage, RANGES.plot, "prices.garage", issues),
