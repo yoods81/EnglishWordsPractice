@@ -14319,6 +14319,8 @@ html body .kh-app .kh-managebtn { min-height: 38px; padding: 0 14px; }
 .khc-body { padding: 12px 4px 4px; }
 #view-koala .khc .khc-title { margin: 0; font-family: var(--font-display, inherit); font-size: 1.35rem; color: var(--text, #26332f); }
 .khc-line { margin: 6px 0 0; color: var(--muted, #5c6f69); font-size: 1rem; line-height: 1.5; }
+.khc-note { margin: 8px 0 0; color: var(--muted, #5c6f69); font-size: .9rem; line-height: 1.45; }
+.khc-guestwrap { margin-top: 18px; }
 .khc-open { display: block; width: 100%; margin-top: 14px; min-height: 56px; border: 0; border-radius: 16px; cursor: pointer;
   background: var(--accent, #22c9a3); color: #fff; font: inherit; font-family: var(--font-display, inherit); font-weight: 800; font-size: 1.2rem; }
 .khc-open:hover { filter: brightness(1.05); }
