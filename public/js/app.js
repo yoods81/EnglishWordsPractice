@@ -15776,6 +15776,8 @@ function koalaItemsUnlocked() {
 // Room Designer (E, 2026-11): furniture the child has placed in the new Koala House (bought or taken out of storage —
 // the starter furniture does not count). The house link reports it on every save (koala-house-bridge.js placedCount).
 function koalaHousePlaced() { return Math.max(0, Number(progress.counters && progress.counters.housePlaced) || 0); }
+// Town Mayor / Shop Owner (2026-11-15): kinds of town buildings (9) and festival shops (10) built in the Koala House town.
+function koalaTownBuilt(kind) { return Math.max(0, Number(progress.counters && progress.counters[kind === "shop" ? "townShops" : "townCivic"]) || 0); }
 // Each badge has its own icon (no repeated medals) so a child can tell them
 // apart at a glance. `prog` returns [have, goal] for the "next goal" bar on
 // My Progress; it never changes whether a badge is earned (`test` does).
@@ -15838,6 +15840,12 @@ function buildBadgeCatalog() {
     { id: "roomDecor", emoji: "🏠", group: "koala", name: rwL("Room Designer", "방 꾸미기 달인"),
       desc: rwL("Place 5 pieces of furniture in your Koala House", "코알라 하우스에 가구 5개를 놓아요"),
       test: () => koalaHousePlaced() >= 5, prog: () => [Math.min(koalaHousePlaced(), 5), 5] },
+    { id: "townMayor", emoji: "🏛️", group: "koala", name: rwL("Town Mayor", "마을 시장님"),
+      desc: rwL("Build all 9 town buildings in Koala House", "코알라 하우스 마을에 건물 9개를 모두 지어요"),
+      test: () => koalaTownBuilt("civic") >= 9, prog: () => [Math.min(koalaTownBuilt("civic"), 9), 9] },
+    { id: "shopOwner", emoji: "🏪", group: "koala", name: rwL("Shop Owner", "상점가 사장님"),
+      desc: rwL("Build all 10 festival shops in Koala House", "코알라 하우스 축제 마당에 상점 10개를 모두 지어요"),
+      test: () => koalaTownBuilt("shop") >= 10, prog: () => [Math.min(koalaTownBuilt("shop"), 10), 10] },
     { id: "fix5", emoji: "🔧", group: "habit", paidOnly: true, name: rwL("Mistake Fixer", "오답 해결사"),
       desc: rwL("Clear 5 words from your Mistakes list", "오답 노트에서 5개 졸업"),
       test: () => progress.counters.wrongCleared >= 5, prog: () => [Math.min(progress.counters.wrongCleared || 0, 5), 5] },
@@ -16884,7 +16892,13 @@ function houseLinkCtx() {
     // Room Designer badge: the most furniture this child has had placed in the new house (kept, never lowered)
     onHouseSaved: (info) => {
       const c = progress.counters || (progress.counters = {}), n = Math.max(0, Number(info && info.placed) || 0);
-      if (n > (Number(c.housePlaced) || 0)) { c.housePlaced = n; saveProgress(); if (typeof checkBadges === "function") checkBadges(); }
+      let changed = false;
+      if (n > (Number(c.housePlaced) || 0)) { c.housePlaced = n; changed = true; }
+      // Town Mayor / Shop Owner: most building and shop kinds built (kept, never lowered)
+      const tc = Math.max(0, Number(info && info.civic) || 0), ts = Math.max(0, Number(info && info.shop) || 0);
+      if (tc > (Number(c.townCivic) || 0)) { c.townCivic = tc; changed = true; }
+      if (ts > (Number(c.townShops) || 0)) { c.townShops = ts; changed = true; }
+      if (changed) { saveProgress(); if (typeof checkBadges === "function") checkBadges(); }
     },
     // the house app turns the site record into its learning record itself (koala-house-3d siteRecord.ts)
     siteEnv: { get: ls.get, builtIn: (system) => (((SYSTEMS[system] || SYSTEMS.en).bank || {}).vocabulary || []).map((w) => ({ word: w.word, level: w.level, definition: w.definition, pos: w.pos || null })) },
@@ -16915,7 +16929,7 @@ function houseCardHtml() {
     <img class="khc-pic" src="/img/house3d/card.webp" width="960" height="600" alt="${rwL("Koala House", "코알라 하우스")}">
     <div class="khc-body">
       <h3 class="khc-title">🏠 ${rwL("Koala House", "코알라 하우스")}</h3>
-      <p class="khc-line">${rwL("Use the coins you earn by studying to furnish your own house.", "공부해서 모은 코인으로 가구를 사서 내 집을 꾸며요.")}</p>
+      <p class="khc-line">${rwL("Furnish your room with coins, and learn words to build a school, library, bakery and more in your town.", "코인으로 내 방을 꾸미고, 단어를 배워 마을에 학교·도서관·빵집을 지어요.")}</p>
       <button type="button" class="khc-open" data-house-open>${rwL("Open house", "집 열기")}</button>
       <p class="khc-off" data-house-off${navigator.onLine === false ? "" : " hidden"}>${rwL("You need the internet to open Koala House.", "인터넷이 연결되어 있어야 열려요.")}</p>
     </div></div>`;

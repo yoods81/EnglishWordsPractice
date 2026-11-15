@@ -39,6 +39,8 @@ export const BADGES = [
   { id: "level5", emoji: "⭐", name: { en: "Level 5 Koala", ko: "레벨 5 코알라" } },
   { id: "items5", emoji: "🎩", name: { en: "Dress-up Fan", ko: "패션 코알라" } },
   { id: "roomDecor", emoji: "🏠", name: { en: "Room Designer", ko: "방 꾸미기 달인" } },
+  { id: "townMayor", emoji: "🏛️", name: { en: "Town Mayor", ko: "마을 시장님" } },
+  { id: "shopOwner", emoji: "🏪", name: { en: "Shop Owner", ko: "상점가 사장님" } },
   { id: "fix5", emoji: "🔧", name: { en: "Mistake Fixer", ko: "오답 해결사" } },
   { id: "fix20", emoji: "🏅", name: { en: "Mistake Master", ko: "오답 마스터" } },
 ];

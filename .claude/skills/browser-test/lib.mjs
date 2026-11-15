@@ -12,6 +12,7 @@ const BROWSERS = [
   "C:/Program Files/Microsoft/Edge/Application/msedge.exe",
   "C:/Program Files/Google/Chrome/Application/chrome.exe",
   "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
+  "/opt/pw-browsers/chromium",
 ];
 
 // role: "admin" | "paid" | "free" | "none" (logged out). The session cookie is stateless + HMAC-signed.

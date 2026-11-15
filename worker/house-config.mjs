@@ -1,4 +1,4 @@
-// 만든 곳: koala-house-3d db11eb4 — npm run build:config-lib (src/server/config-lib.ts). 손으로 고치지 않음: 집 앱과 같은 설정 검증(사이트 S12).
+// 만든 곳: koala-house-3d bbaffae — npm run build:config-lib (src/server/config-lib.ts). 손으로 고치지 않음: 집 앱과 같은 설정 검증(사이트 S12).
 // src/data/prices.ts
 var PRICES = {
 	/** 새 방: 12×12 하나, 값 하나(2026-11-14 결정 — 예전 작은 240·중간 360·큰 480은 없앰) */
@@ -61,6 +61,13 @@ var PRICES = {
 	},
 	/** 방 벽지·바닥 선택지(5단계 H5): 한 번 사면 어느 방에나 계속 무료. 방 종류 기본은 0 */
 	roomDecor: 60,
+	/** 2026-11-15 마을 꾸미기: 큰 건물(학교·병원 …) 하나, 축제 마당 작은 상점 하나. 단어 시험을 다 통과하면 코인 없이(프리미엄) */
+	town: {
+		civic: 1e3,
+		shop: 500
+	},
+	/** 건물 '오늘의 부탁'(단어 5개) 보상 */
+	townAsk: 5,
 	/** 되팔기·방 지우기 때 돌려주는 비율(수수료 20%). 관리자는 0 */
 	resale: .8
 };
@@ -10339,10 +10346,10 @@ function koala(pose = "sit", o = {}) {
 }
 // src/data/templates-extra.ts
 var EXTRA = [];
-var def$2 = (t) => {
+var def$3 = (t) => {
 	EXTRA.push(t);
 };
-def$2({
+def$3({
 	id: "bed",
 	cat: "seat",
 	name: {
@@ -10377,7 +10384,7 @@ def$2({
 		facing: "-y"
 	}]
 });
-def$2({
+def$3({
 	id: "wardrobe",
 	cat: "storage",
 	name: {
@@ -10433,7 +10440,7 @@ def$2({
 		box(0, 0, 4.3, 2, 1, 4.4, str(p, "top"), { mat: "wood" })
 	]
 });
-def$2({
+def$3({
 	id: "gumTree",
 	shadow: "round",
 	cat: "outdoor",
@@ -10527,7 +10534,7 @@ def$2({
 		return scaled(r, num$1(p, "k"));
 	}
 });
-def$2({
+def$3({
 	id: "roundTree",
 	shadow: "round",
 	cat: "outdoor",
@@ -10579,7 +10586,7 @@ def$2({
 		].map(([x, y, z]) => ell(x, y, z, .1, .1, .1, "red", { noLine: true })) : []
 	], num$1(p, "k"))
 });
-def$2({
+def$3({
 	id: "bush",
 	shadow: "round",
 	cat: "outdoor",
@@ -10623,7 +10630,7 @@ def$2({
 		return r;
 	}
 });
-def$2({
+def$3({
 	id: "flowerBed",
 	cat: "outdoor",
 	name: {
@@ -10674,7 +10681,7 @@ def$2({
 	}
 });
 /** 4단계 ② 축제: 장터 가판대(줄무늬 차양 + 물건) */
-def$2({
+def$3({
 	id: "stall",
 	cat: "outdoor",
 	name: {
@@ -10739,7 +10746,7 @@ def$2({
 	}
 });
 /** 4단계 미션 보상 전용 새 그림(시안): 우표 액자 */
-def$2({
+def$3({
 	id: "stampFrame",
 	cat: "wall",
 	name: {
@@ -10840,7 +10847,7 @@ def$2({
 	}
 });
 /** 미션 보상 새 그림(시안): 편지 머그(봉투 무늬 + 하트 실링) */
-def$2({
+def$3({
 	id: "letterMug",
 	cat: "small",
 	name: {
@@ -10905,7 +10912,7 @@ def$2({
 	}
 });
 /** 미션 보상 새 그림(시안): 빨간 우체통 모양 편지 상자(바닥) */
-def$2({
+def$3({
 	id: "letterBox",
 	cat: "box",
 	name: {
@@ -10952,7 +10959,7 @@ def$2({
 	}
 });
 /** 미션 보상 새 그림(시안): 우체부 등(봉투 모양 갓) */
-def$2({
+def$3({
 	id: "postieLamp",
 	cat: "light",
 	name: {
@@ -10993,7 +11000,7 @@ def$2({
 	}
 });
 /** 미션 보상 새 그림(시안): 펠리컨 우체부 인형 */
-def$2({
+def$3({
 	id: "pelicanFigure",
 	cat: "small",
 	name: {
@@ -11104,7 +11111,7 @@ def$2({
 	}
 });
 /** 미션 보상 새 그림(시안): 뻐꾸기 벽시계 */
-def$2({
+def$3({
 	id: "cuckooClock",
 	cat: "wall",
 	name: {
@@ -11182,7 +11189,7 @@ def$2({
 	}
 });
 /** 미션 보상 새 그림(시안): 지구본과 책 */
-def$2({
+def$3({
 	id: "globeBooks",
 	cat: "small",
 	name: {
@@ -11209,7 +11216,7 @@ def$2({
 	}
 });
 /** 미션 보상 새 그림(시안): 3단 케이크 접시 */
-def$2({
+def$3({
 	id: "cakeStand",
 	cat: "small",
 	name: {
@@ -11245,7 +11252,7 @@ def$2({
 	}
 });
 /** 4단계 ⑥ 방 테마 전용 새 그림: 공부방 — 코알라 연필꽂이 */
-def$2({
+def$3({
 	id: "koalaPencilCup",
 	cat: "small",
 	name: {
@@ -11274,7 +11281,7 @@ def$2({
 	}
 });
 /** 놀이방 — 무지개 고리 쌓기 */
-def$2({
+def$3({
 	id: "ringStacker",
 	cat: "toy",
 	name: {
@@ -11306,7 +11313,7 @@ def$2({
 	}
 });
 /** 부엌 — 코알라 쿠키 병 */
-def$2({
+def$3({
 	id: "cookieJar",
 	cat: "small",
 	name: {
@@ -11335,7 +11342,7 @@ def$2({
 	}
 });
 /** 욕실 — 고무 오리 셋 */
-def$2({
+def$3({
 	id: "rubberDucks",
 	cat: "small",
 	name: {
@@ -11379,7 +11386,7 @@ def$2({
 	}
 });
 /** 침실 — 달과 별 무드등 */
-def$2({
+def$3({
 	id: "moonLamp",
 	cat: "light",
 	name: {
@@ -11425,7 +11432,7 @@ def$2({
 	}
 });
 /** 거실 — 코알라 쿠션 */
-def$2({
+def$3({
 	id: "koalaCushion",
 	cat: "small",
 	name: {
@@ -11453,7 +11460,7 @@ def$2({
 	}
 });
 /** 화장실 — 선인장 화분 */
-def$2({
+def$3({
 	id: "cactusPot",
 	cat: "plant",
 	name: {
@@ -11483,7 +11490,7 @@ def$2({
 	}
 });
 /** 서재 — 펼친 그림책 받침대 */
-def$2({
+def$3({
 	id: "bookStand",
 	cat: "small",
 	name: {
@@ -11594,7 +11601,7 @@ def$2({
 	}
 });
 /** 작업실 — 공구 벽판 */
-def$2({
+def$3({
 	id: "toolBoard",
 	cat: "wall",
 	name: {
@@ -11640,7 +11647,7 @@ def$2({
 	}
 });
 /** 세탁실 — 양말 빨랫줄 */
-def$2({
+def$3({
 	id: "sockLine",
 	cat: "wall",
 	name: {
@@ -11730,7 +11737,7 @@ def$2({
 	}
 });
 /** 시네마룸 — 팝콘 기계 */
-def$2({
+def$3({
 	id: "popcornCart",
 	cat: "box",
 	name: {
@@ -11769,7 +11776,7 @@ def$2({
 	}
 });
 /** 4단계 ⑤ 마을 게시판(주민 부탁 시안 b) */
-def$2({
+def$3({
 	id: "noticeBoard",
 	cat: "outdoor",
 	name: {
@@ -11842,7 +11849,7 @@ def$2({
 	}
 });
 /** 4단계 ④ 도감 트로피(선반·탁자 위에 올리는 소품). c = 금·은·동 */
-def$2({
+def$3({
 	id: "trophy",
 	cat: "small",
 	name: {
@@ -11874,7 +11881,7 @@ def$2({
 	}
 });
 /** 4단계 ② 축제: 무대(단 + 뒤판 + 깃발) */
-def$2({
+def$3({
 	id: "festStage",
 	cat: "outdoor",
 	name: {
@@ -11925,7 +11932,7 @@ def$2({
 	}
 });
 /** 4단계 ② 축제: 하늘의 불꽃(그림자 없음) */
-def$2({
+def$3({
 	id: "fireworks",
 	shadow: "none",
 	cat: "outdoor",
@@ -11968,7 +11975,7 @@ def$2({
 	}
 });
 /** 4단계 ② 축제: 두 기둥 사이 등불 줄 */
-def$2({
+def$3({
 	id: "lanternString",
 	cat: "outdoor",
 	name: {
@@ -12015,7 +12022,7 @@ def$2({
 	}
 });
 /** 축제 선물: 서 있는 등불(바닥) */
-def$2({
+def$3({
 	id: "lantern",
 	cat: "light",
 	name: {
@@ -12067,7 +12074,7 @@ def$2({
 	}
 });
 /** 축제 선물: 벽에 거는 연 */
-def$2({
+def$3({
 	id: "kite",
 	cat: "wall",
 	name: {
@@ -12199,7 +12206,7 @@ def$2({
 	}
 });
 /** 4단계 정원 가꾸기: 화분 상자 한 칸에 심은 씨앗. stage 0(심음) ~ 7(다 자람), kind = 씨앗 종류 */
-def$2({
+def$3({
 	id: "gardenPlot",
 	cat: "outdoor",
 	name: {
@@ -12345,7 +12352,7 @@ def$2({
 		return out();
 	}
 });
-def$2({
+def$3({
 	id: "fence",
 	cat: "outdoor",
 	name: {
@@ -12456,7 +12463,7 @@ def$2({
 		return r;
 	}
 });
-def$2({
+def$3({
 	id: "lampPost",
 	shadow: "round",
 	cat: "outdoor",
@@ -12478,7 +12485,7 @@ def$2({
 		cyl(.3, .3, 3.15, 3.4, .26, .06, str(p, "c"), { mat: "metal" })
 	]
 });
-def$2({
+def$3({
 	id: "bench",
 	cat: "outdoor",
 	name: {
@@ -12512,7 +12519,7 @@ def$2({
 		z: .52
 	}]
 });
-def$2({
+def$3({
 	id: "mailbox",
 	shadow: "round",
 	cat: "outdoor",
@@ -12549,7 +12556,7 @@ def$2({
 		], "butter")
 	]
 });
-def$2({
+def$3({
 	id: "fountain",
 	shadow: "round",
 	cat: "outdoor",
@@ -12581,7 +12588,7 @@ def$2({
 		})
 	]
 });
-def$2({
+def$3({
 	id: "slide",
 	cat: "outdoor",
 	name: {
@@ -12650,7 +12657,7 @@ def$2({
 		];
 	}
 });
-def$2({
+def$3({
 	id: "cloud",
 	shadow: "none",
 	cat: "outdoor",
@@ -12679,7 +12686,7 @@ def$2({
 	}
 });
 /** 집 외관(지붕 포함). 실내 방 하나를 감싸는 블록 */
-def$2({
+def$3({
 	id: "houseBlock",
 	sortByFoot: true,
 	cat: "outdoor",
@@ -14098,7 +14105,7 @@ function wallTexture(r, mat, m, fx, fy, h, lv = 1) {
 	}
 }
 /** 차고: 작은 건물 + 말아 올리는 문(앞 +y) */
-def$2({
+def$3({
 	id: "garage",
 	shadow: "none",
 	sortByFoot: true,
@@ -14540,7 +14547,7 @@ function scaled(r, k) {
 		}
 	});
 }
-def$2({
+def$3({
 	id: "friendWombat",
 	shadow: "round",
 	cat: "friend",
@@ -14577,7 +14584,7 @@ function shift(s, dx, dy, dz) {
 		default: return s;
 	}
 }
-def$2({
+def$3({
 	id: "koalaFig",
 	shadow: "round",
 	cat: "friend",
@@ -14605,7 +14612,7 @@ def$2({
 });
 // src/data/templates-h5.ts
 var H5 = [];
-var def$1 = (t) => {
+var def$2 = (t) => {
 	H5.push(t);
 };
 var GOLD = "#e9b949";
@@ -14633,7 +14640,7 @@ var cup = (r, x, y, z, s, c = GOLD) => {
 /** 앞면(y)에 붙은 원 */
 var dotY = (x, y, z, r, c) => disc("y", x, y, z, r, c, { noLine: true });
 var eyes = (x, y, z, dx = .06) => [ell(x - dx, y, z, .025, .01, .03, "eye", { noLine: true }), ell(x + dx, y, z, .025, .01, .03, "eye", { noLine: true })];
-def$1({
+def$2({
 	id: "trophyCabinet",
 	cat: "storage",
 	name: {
@@ -14700,7 +14707,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "xmasTree",
 	shadow: "round",
 	cat: "plant",
@@ -14753,7 +14760,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "beachTowel",
 	shadow: "none",
 	cat: "rug",
@@ -14798,7 +14805,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "fridge",
 	cat: "storage",
 	name: {
@@ -14862,7 +14869,7 @@ def$1({
 		cell: .05
 	}]
 });
-def$1({
+def$2({
 	id: "cubbyShelf",
 	cat: "storage",
 	name: {
@@ -14925,7 +14932,7 @@ def$1({
 		cell: .05
 	}]
 });
-def$1({
+def$2({
 	id: "shoeCabinet",
 	cat: "storage",
 	name: {
@@ -14992,7 +14999,7 @@ def$1({
 		cell: .05
 	}]
 });
-def$1({
+def$2({
 	id: "basin",
 	cat: "storage",
 	name: {
@@ -15067,7 +15074,7 @@ def$1({
 		];
 	}
 });
-def$1({
+def$2({
 	id: "toolbox",
 	cat: "storage",
 	name: {
@@ -15090,7 +15097,7 @@ def$1({
 		box(.45, .55, .3, .55, .58, .42, "steel", { mat: "metal" })
 	]
 });
-def$1({
+def$2({
 	id: "metalShelf",
 	cat: "storage",
 	name: {
@@ -15122,7 +15129,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "toyBox",
 	cat: "toy",
 	name: {
@@ -15170,7 +15177,7 @@ def$1({
 		poly(starY(.7, .901, .45, .22, .09), "butter", { noLine: true })
 	]
 });
-def$1({
+def$2({
 	id: "plush",
 	shadow: "round",
 	cat: "toy",
@@ -15221,7 +15228,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "toyRobot",
 	cat: "toy",
 	name: {
@@ -15249,7 +15256,7 @@ def$1({
 		dotY(.2, .301, .3, .05, "coral")
 	]
 });
-def$1({
+def$2({
 	id: "toyCar",
 	cat: "toy",
 	name: {
@@ -15296,7 +15303,7 @@ def$1({
 		].map(([x, y]) => cyl(x, y, 0, .12, .06, .06, "charcoal"))
 	]
 });
-def$1({
+def$2({
 	id: "toyDino",
 	shadow: "round",
 	cat: "toy",
@@ -15369,7 +15376,7 @@ def$1({
 		];
 	}
 });
-def$1({
+def$2({
 	id: "toyRocket",
 	cat: "toy",
 	name: {
@@ -15424,7 +15431,7 @@ def$1({
 		cyl(.2, .2, 0, .08, .06, .07, "slate")
 	]
 });
-def$1({
+def$2({
 	id: "toyDrum",
 	shadow: "round",
 	cat: "toy",
@@ -15480,7 +15487,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "aquarium",
 	cat: "small",
 	name: {
@@ -15587,7 +15594,7 @@ function tvFace(y0, y1, z0, c) {
 		dotY(1.1, y1 + .003, z0 + .57, .08, "butter")
 	];
 }
-def$1({
+def$2({
 	id: "tv",
 	cat: "small",
 	name: {
@@ -15607,7 +15614,7 @@ def$1({
 		...tvFace(.16, .26, .18, str(p, "c"))
 	]
 });
-def$1({
+def$2({
 	id: "tvWall",
 	cat: "wall",
 	name: {
@@ -15623,7 +15630,7 @@ def$1({
 	}),
 	recipe: (p) => tvFace(0, .1, 0, str(p, "c"))
 });
-def$1({
+def$2({
 	id: "computer",
 	cat: "small",
 	name: {
@@ -15745,7 +15752,7 @@ def$1({
 		];
 	}
 });
-def$1({
+def$2({
 	id: "food",
 	shadow: "round",
 	cat: "small",
@@ -15838,7 +15845,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "drink",
 	cat: "small",
 	name: {
@@ -15925,7 +15932,7 @@ def$1({
 		];
 	}
 });
-def$1({
+def$2({
 	id: "bathBottles",
 	cat: "small",
 	name: {
@@ -15953,7 +15960,7 @@ def$1({
 		box(.46, .1, .36, .58, .14, .38, "white")
 	]
 });
-def$1({
+def$2({
 	id: "soap",
 	cat: "small",
 	name: {
@@ -15974,7 +15981,7 @@ def$1({
 		ell(.34, .16, .13, .025, .025, .02, "white", { noLine: true })
 	]
 });
-def$1({
+def$2({
 	id: "toothSet",
 	cat: "small",
 	name: {
@@ -16020,7 +16027,7 @@ def$1({
 		]], "white", 4)
 	]
 });
-def$1({
+def$2({
 	id: "deskClock",
 	cat: "small",
 	name: {
@@ -16064,7 +16071,7 @@ def$1({
 		];
 	}
 });
-def$1({
+def$2({
 	id: "crayonBox",
 	cat: "small",
 	name: {
@@ -16113,7 +16120,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "marbleBag",
 	shadow: "round",
 	cat: "small",
@@ -16144,7 +16151,7 @@ def$1({
 		ell(.4, .2, .04, .035, .035, .035, "coral", { mat: "glass" })
 	]
 });
-def$1({
+def$2({
 	id: "toolSet",
 	cat: "small",
 	name: {
@@ -16231,7 +16238,7 @@ def$1({
 		}
 	}
 });
-def$1({
+def$2({
 	id: "paintCan",
 	cat: "small",
 	name: {
@@ -16291,7 +16298,7 @@ def$1({
 		], "slate", 1.5)
 	]
 });
-def$1({
+def$2({
 	id: "shoes",
 	cat: "small",
 	name: {
@@ -16327,7 +16334,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "piano",
 	cat: "seat",
 	name: {
@@ -16376,7 +16383,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "bathtub",
 	cat: "seat",
 	name: {
@@ -16459,7 +16466,7 @@ def$1({
 		facing: "+x"
 	}]
 });
-def$1({
+def$2({
 	id: "toilet",
 	cat: "seat",
 	name: {
@@ -16492,7 +16499,7 @@ def$1({
 		facing: "+y"
 	}]
 });
-def$1({
+def$2({
 	id: "armchair",
 	cat: "seat",
 	name: {
@@ -16527,7 +16534,7 @@ def$1({
 		facing: "+y"
 	}]
 });
-def$1({
+def$2({
 	id: "counter",
 	cat: "table",
 	name: {
@@ -16589,7 +16596,7 @@ def$1({
 		cell: .05
 	}]
 });
-def$1({
+def$2({
 	id: "stove",
 	cat: "table",
 	name: {
@@ -16684,7 +16691,7 @@ var VIEW_SKY = {
 	tree: "skyDay",
 	day: "skyDay"
 };
-def$1({
+def$2({
 	id: "window",
 	cat: "wall",
 	name: {
@@ -16846,7 +16853,7 @@ var POSTER_BG = {
 	math: "white",
 	music: "pink"
 };
-def$1({
+def$2({
 	id: "poster",
 	cat: "wall",
 	name: {
@@ -17151,7 +17158,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "mirror",
 	cat: "wall",
 	name: {
@@ -17215,7 +17222,7 @@ var PHOTO = {
 	snow: ["white", "sky"],
 	grad: ["navy", "black"]
 };
-def$1({
+def$2({
 	id: "collageFrame",
 	cat: "wall",
 	name: {
@@ -17290,7 +17297,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "mobile",
 	cat: "wall",
 	name: {
@@ -17392,7 +17399,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "fairyLights",
 	cat: "wall",
 	name: {
@@ -17435,7 +17442,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "pendantLamp",
 	shadow: "none",
 	cat: "light",
@@ -17558,7 +17565,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "chandelier",
 	shadow: "none",
 	cat: "light",
@@ -17611,7 +17618,7 @@ var heartPts = (cx, cy, s, z) => Array.from({ length: 36 }, (_, i) => {
 		z
 	];
 });
-def$1({
+def$2({
 	id: "shapeRug",
 	shadow: "none",
 	cat: "rug",
@@ -17685,7 +17692,7 @@ def$1({
 		];
 	}
 });
-def$1({
+def$2({
 	id: "bonsai",
 	shadow: "round",
 	cat: "plant",
@@ -17740,7 +17747,7 @@ def$1({
 		ell(.36, .25, .62, .12, .1, .06, "leaf", { mat: "plant" })
 	]
 });
-def$1({
+def$2({
 	id: "palmPot",
 	shadow: "round",
 	cat: "plant",
@@ -17795,7 +17802,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "bambooPot",
 	shadow: "round",
 	cat: "plant",
@@ -17836,7 +17843,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "storageBin",
 	cat: "box",
 	name: {
@@ -17963,7 +17970,7 @@ function wear(r, w, a) {
 	}
 }
 function pet(id, ko, en, c0, size, place, draw, anchor) {
-	def$1({
+	def$2({
 		id,
 		shadow: "round",
 		cat: "pet",
@@ -18497,7 +18504,7 @@ pet("petJoey", "아기 캥거루", "Baby kangaroo", "terracotta", [
 	],
 	feet: [[.32, .5], [.48, .5]]
 });
-def$1({
+def$2({
 	id: "swing",
 	cat: "outdoor",
 	name: {
@@ -18578,7 +18585,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "pond",
 	shadow: "none",
 	cat: "outdoor",
@@ -18603,7 +18610,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "doghouse",
 	cat: "outdoor",
 	name: {
@@ -18726,7 +18733,7 @@ def$1({
 		];
 	}
 });
-def$1({
+def$2({
 	id: "sandbox",
 	cat: "outdoor",
 	name: {
@@ -18762,7 +18769,7 @@ def$1({
 		];
 	}
 });
-def$1({
+def$2({
 	id: "snowman",
 	shadow: "round",
 	cat: "outdoor",
@@ -18804,7 +18811,7 @@ def$1({
 		cyl(.6, .6, 1.45, 1.55, .3, .3, "red", { mat: "knit" })
 	]
 });
-def$1({
+def$2({
 	id: "rock",
 	shadow: "round",
 	cat: "outdoor",
@@ -18825,7 +18832,7 @@ def$1({
 		ell(.5, .75, .62, .15, .1, .05, "leafLight", { noLine: true })
 	]
 });
-def$1({
+def$2({
 	id: "steppingStones",
 	shadow: "none",
 	cat: "outdoor",
@@ -18847,7 +18854,7 @@ def$1({
 		2.7
 	].map((y, i) => ell(.5 + (i % 2 ? .1 : -.1), y, .04, .32, .26, .04, str(p, "c"), { mat: "paint" }))
 });
-def$1({
+def$2({
 	id: "gate",
 	cat: "outdoor",
 	name: {
@@ -18868,7 +18875,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "car",
 	cat: "outdoor",
 	name: {
@@ -18922,7 +18929,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "meadowPatch",
 	shadow: "none",
 	cat: "outdoor",
@@ -18952,7 +18959,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "snowPatch",
 	shadow: "none",
 	cat: "outdoor",
@@ -18990,7 +18997,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "asmrBox",
 	cat: "toy",
 	name: {
@@ -19105,7 +19112,7 @@ def$1({
 		return r;
 	}
 });
-def$1({
+def$2({
 	id: "asmrToy",
 	shadow: "round",
 	cat: "toy",
@@ -19304,6 +19311,1617 @@ def$1({
 			}
 		}
 		return [];
+	}
+});
+// src/data/templates-town.ts
+var TOWN_TPL = [];
+var def$1 = (t) => {
+	TOWN_TPL.push(t);
+};
+var E = .012;
+/** 앞면(y = Y) 위 사각형 */
+var fr = (Y, x0, z0, x1, z1, c, o = {}) => poly([
+	[
+		x0,
+		Y + E,
+		z0
+	],
+	[
+		x1,
+		Y + E,
+		z0
+	],
+	[
+		x1,
+		Y + E,
+		z1
+	],
+	[
+		x0,
+		Y + E,
+		z1
+	]
+], c, o);
+/** 옆면(x = X) 위 사각형 */
+var sr = (X, y0, z0, y1, z1, c, o = {}) => poly([
+	[
+		X + E,
+		y0,
+		z0
+	],
+	[
+		X + E,
+		y1,
+		z0
+	],
+	[
+		X + E,
+		y1,
+		z1
+	],
+	[
+		X + E,
+		y0,
+		z1
+	]
+], c, o);
+/** 앞면 창(유리 + 십자 창살 + 창턱) */
+function winF(r, Y, x, z, w = 1.4, h = 1.6, trim = "white") {
+	r.push(fr(Y, x, z, x + w, z + h, "skyDay"), line([[
+		x + w / 2,
+		Y + 2 * E,
+		z
+	], [
+		x + w / 2,
+		Y + 2 * E,
+		z + h
+	]], trim, 2), line([[
+		x,
+		Y + 2 * E,
+		z + h / 2
+	], [
+		x + w,
+		Y + 2 * E,
+		z + h / 2
+	]], trim, 1.6));
+	r.push(box(x - .1, Y, z - .18, x + w + .1, Y + .12, z, trim, { mat: "paint" }));
+}
+function winS(r, X, y, z, w = 1.4, h = 1.6, trim = "white") {
+	r.push(sr(X, y, z, y + w, z + h, "skyDay"), line([[
+		X + 2 * E,
+		y + w / 2,
+		z
+	], [
+		X + 2 * E,
+		y + w / 2,
+		z + h
+	]], trim, 2));
+}
+/** 앞면 문 */
+function doorF(r, Y, x, w = 1.4, h = 2.5, c = "glass", step = "paving") {
+	r.push(fr(Y, x, 0, x + w, h, c));
+	if (c === "glass") r.push(line([[
+		x + w / 2,
+		Y + 2 * E,
+		0
+	], [
+		x + w / 2,
+		Y + 2 * E,
+		h
+	]], "white", 2));
+	else r.push(ell(x + w - .25, Y + .03, h * .48, .06, .02, .06, "brass", { noLine: true }));
+	r.push(box(x - .3, Y, 0, x + w + .3, Y + .6, .14, step, { mat: "paint" }));
+}
+/** 몸체 + 박공 지붕(용마루는 x 방향) */
+function gableBody(r, w, d, h, wall, roof, trim = "white", o = .35) {
+	r.push(box(0, 0, 0, w, d, h, wall, { mat: "paint" }));
+	const ridge = h + Math.min(3, d * .32);
+	r.push(poly([
+		[
+			-o,
+			-o,
+			h - .1
+		],
+		[
+			w + o,
+			-o,
+			h - .1
+		],
+		[
+			w + o,
+			d / 2,
+			ridge
+		],
+		[
+			-o,
+			d / 2,
+			ridge
+		]
+	], roof));
+	r.push(poly([
+		[
+			w,
+			0,
+			h
+		],
+		[
+			w,
+			d,
+			h
+		],
+		[
+			w,
+			d / 2,
+			ridge
+		]
+	], wall));
+	r.push(poly([
+		[
+			-o,
+			d / 2,
+			ridge
+		],
+		[
+			w + o,
+			d / 2,
+			ridge
+		],
+		[
+			w + o,
+			d + o,
+			h - .1
+		],
+		[
+			-o,
+			d + o,
+			h - .1
+		]
+	], roof));
+	r.push(line([[
+		-o,
+		d + o,
+		h - .1
+	], [
+		w + o,
+		d + o,
+		h - .1
+	]], trim, 2.5));
+	return ridge;
+}
+/** 몸체 + 평지붕(난간) */
+function flatBody(r, w, d, h, wall, cap) {
+	r.push(box(0, 0, 0, w, d, h, wall, { mat: "paint" }));
+	r.push(box(-.1, -.1, h, w + .1, d + .1, h + .35, cap, { mat: "paint" }));
+	return h + .35;
+}
+/** 앞면 간판 판(가운데 cx, 높이 z) + 그림 */
+function signF(r, Y, cx, z, w, h, bg, icon, rim = "white") {
+	r.push(box(cx - w / 2 - .08, Y, z - .08, cx + w / 2 + .08, Y + .14, z + h + .08, rim, { mat: "paint" }));
+	r.push(fr(Y + .14, cx - w / 2, z, cx + w / 2, z + h, bg, { noLine: true }));
+	iconF(r, Y + .14 + E, cx, z + h / 2, Math.min(w, h) * .42, icon);
+}
+/** 앞면에 그리는 그림(가운데 cx·cz, 반지름 s). 아이들이 바로 알아보는 기호만 */
+function iconF(r, Y, cx, cz, s, icon) {
+	const P = (u, v) => [
+		cx + u * s,
+		Y + E,
+		cz + v * s
+	];
+	const pg = (pts, c, o = { noLine: true }) => r.push(poly(pts.map(([u, v]) => P(u, v)), c, o));
+	const ln = (pts, c, w = 2) => r.push(line(pts.map(([u, v]) => P(u, v)), c, w));
+	const dc = (u, v, rr, c) => r.push(disc("y", cx + u * s, Y + 2 * E, cz + v * s, rr * s, c, { noLine: true }));
+	switch (icon) {
+		case "cross":
+			pg([
+				[-.3, -.9],
+				[.3, -.9],
+				[.3, .9],
+				[-.3, .9]
+			], "#e0483a");
+			pg([
+				[-.9, -.3],
+				[.9, -.3],
+				[.9, .3],
+				[-.9, .3]
+			], "#e0483a");
+			break;
+		case "greenCross":
+			pg([
+				[-.3, -.9],
+				[.3, -.9],
+				[.3, .9],
+				[-.3, .9]
+			], "#3faa6a");
+			pg([
+				[-.9, -.3],
+				[.9, -.3],
+				[.9, .3],
+				[-.9, .3]
+			], "#3faa6a");
+			break;
+		case "envelope":
+			pg([
+				[-.95, -.6],
+				[.95, -.6],
+				[.95, .6],
+				[-.95, .6]
+			], "#fbfaf6", {});
+			ln([
+				[-.95, .6],
+				[0, -.05],
+				[.95, .6]
+			], "#cf5a48", 2.4);
+			break;
+		case "book":
+			pg([
+				[-.95, -.7],
+				[0, -.85],
+				[0, .75],
+				[-.95, .9]
+			], "#fbfaf6", {});
+			pg([
+				[0, -.85],
+				[.95, -.7],
+				[.95, .9],
+				[0, .75]
+			], "#f6ecd6", {});
+			ln([[-.7, .4], [-.2, .32]], "#7f8a96", 1.4);
+			ln([[-.7, .05], [-.2, -.03]], "#7f8a96", 1.4);
+			ln([[.2, .32], [.7, .4]], "#7f8a96", 1.4);
+			break;
+		case "coin":
+			dc(0, 0, .92, "#d8a53a");
+			dc(0, 0, .7, "#f2cf5e");
+			pg([
+				[-.12, -.45],
+				[.12, -.45],
+				[.12, .45],
+				[-.12, .45]
+			], "#c9922c");
+			break;
+		case "cart":
+			ln([
+				[-.95, .7],
+				[-.65, .7],
+				[-.4, -.35],
+				[.7, -.35],
+				[.9, .4],
+				[-.55, .4]
+			], "#2d2b30", 2.6);
+			dc(-.3, -.65, .16, "#2d2b30");
+			dc(.55, -.65, .16, "#2d2b30");
+			break;
+		case "fork":
+			ln([[-.45, -.95], [-.45, .9]], "#7f8a96", 3);
+			for (const u of [
+				-.65,
+				-.45,
+				-.25
+			]) ln([[u, .35], [u, .9]], "#7f8a96", 1.6);
+			ln([[-.65, .35], [-.25, .35]], "#7f8a96", 2);
+			pg([
+				[.35, -.95],
+				[.55, -.95],
+				[.55, .9],
+				[.35, .3]
+			], "#7f8a96");
+			break;
+		case "flame":
+			pg([
+				[0, .95],
+				[.55, .15],
+				[.6, -.4],
+				[.3, -.85],
+				[-.3, -.85],
+				[-.6, -.4],
+				[-.45, .25],
+				[-.2, .05]
+			], "#ee7f3a");
+			pg([
+				[0, .25],
+				[.28, -.25],
+				[.15, -.75],
+				[-.15, -.75],
+				[-.28, -.3]
+			], "#f7d77c");
+			break;
+		case "star": {
+			const pts = [];
+			for (let i = 0; i < 10; i++) {
+				const a = Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? .42 : .95;
+				pts.push([Math.cos(a) * rr, Math.sin(a) * rr]);
+			}
+			pg(pts, "#e9b949", {});
+			dc(0, 0, .28, "#3d5b8c");
+			break;
+		}
+		case "abc":
+			for (const [u, c] of [
+				[-.62, "#ee7f6a"],
+				[0, "#5d9ad6"],
+				[.62, "#6fb36a"]
+			]) pg([
+				[u - .28, -.3],
+				[u + .28, -.3],
+				[u + .28, .26],
+				[u - .28, .26]
+			], c, {});
+			break;
+		case "bread":
+			dc(0, -.05, .85, "#d79a4e");
+			pg([
+				[-.85, -.05],
+				[.85, -.05],
+				[.85, -.8],
+				[-.85, -.8]
+			], "#d79a4e");
+			for (const u of [
+				-.45,
+				0,
+				.45
+			]) ln([[u - .15, .25], [u + .15, .55]], "#f3d9a4", 2);
+			break;
+		case "cup":
+			pg([
+				[-.65, .45],
+				[.45, .45],
+				[.35, -.75],
+				[-.55, -.75]
+			], "#fbfaf6", {});
+			dc(.62, -.05, .28, "#fbfaf6");
+			dc(.62, -.05, .14, "#9c6a45");
+			ln([[-.3, .6], [-.2, .9]], "#b9b8b4", 1.6);
+			ln([[.05, .6], [.15, .9]], "#b9b8b4", 1.6);
+			break;
+		case "shirt":
+			pg([
+				[-.35, .85],
+				[-.95, .5],
+				[-.75, .1],
+				[-.5, .25],
+				[-.5, -.9],
+				[.5, -.9],
+				[.5, .25],
+				[.75, .1],
+				[.95, .5],
+				[.35, .85],
+				[0, .6]
+			], "#5d9ad6", {});
+			break;
+		case "pencil":
+			pg([
+				[-.9, -.25],
+				[.45, -.25],
+				[.45, .25],
+				[-.9, .25]
+			], "#f7d77c", {});
+			pg([
+				[.45, -.25],
+				[.95, 0],
+				[.45, .25]
+			], "#ead3a2", {});
+			pg([
+				[.8, -.08],
+				[.95, 0],
+				[.8, .08]
+			], "#2d2b30");
+			pg([
+				[-.9, -.25],
+				[-.7, -.25],
+				[-.7, .25],
+				[-.9, .25]
+			], "#f3a9b9");
+			break;
+		case "flower":
+			for (let i = 0; i < 5; i++) {
+				const a = i * 2 * Math.PI / 5 + Math.PI / 2;
+				dc(Math.cos(a) * .48, Math.sin(a) * .48 + .15, .36, "#f3a9b9");
+			}
+			dc(0, .15, .28, "#f7d77c");
+			ln([[0, -.3], [0, -.95]], "#5e8a3c", 2.4);
+			break;
+		case "shoe":
+			pg([
+				[-.9, -.55],
+				[.9, -.55],
+				[.9, -.2],
+				[.35, .05],
+				[-.15, .6],
+				[-.75, .6],
+				[-.9, .3]
+			], "#ee7f6a", {});
+			pg([
+				[-.9, -.55],
+				[.9, -.55],
+				[.9, -.75],
+				[-.9, -.75]
+			], "#fbfaf6", {});
+			break;
+		case "basket":
+			pg([
+				[-.85, .15],
+				[.85, .15],
+				[.6, -.8],
+				[-.6, -.8]
+			], "#4fb3a5", {});
+			ln([
+				[-.55, .15],
+				[-.4, .8],
+				[.4, .8],
+				[.55, .15]
+			], "#2d2b30", 2.4);
+			break;
+		case "bear":
+			dc(-.55, .55, .3, "#c9965f");
+			dc(.55, .55, .3, "#c9965f");
+			dc(0, 0, .75, "#c9965f");
+			dc(0, -.2, .32, "#ead3a2");
+			dc(-.27, .15, .09, "#2d2b30");
+			dc(.27, .15, .09, "#2d2b30");
+			dc(0, -.12, .1, "#2d2b30");
+	}
+}
+/** 둥근 기둥 줄(앞) */
+function columns(r, x0, x1, y, h, n, c = "white") {
+	for (let i = 0; i < n; i++) {
+		const x = x0 + (x1 - x0) * i / (n - 1);
+		r.push(cyl(x, y, .3, h, .28, .28, c, { mat: "paint" }));
+	}
+}
+/** 박공 머리(페디먼트) — 앞면에서 튀어나온 삼각 지붕 */
+function pediment(r, x0, x1, y0, y1, z, hh, c, roof) {
+	r.push(box(x0, y0, z, x1, y1, z + .4, c, { mat: "paint" }));
+	r.push(poly([
+		[
+			x0,
+			y1,
+			z + .4
+		],
+		[
+			x1,
+			y1,
+			z + .4
+		],
+		[
+			(x0 + x1) / 2,
+			y1,
+			z + .4 + hh
+		]
+	], c));
+	r.push(poly([
+		[
+			x0,
+			y0,
+			z + .4
+		],
+		[
+			(x0 + x1) / 2,
+			y0,
+			z + .4 + hh
+		],
+		[
+			(x0 + x1) / 2,
+			y1,
+			z + .4 + hh
+		],
+		[
+			x0,
+			y1,
+			z + .4
+		]
+	], roof));
+	r.push(poly([
+		[
+			(x0 + x1) / 2,
+			y0,
+			z + .4 + hh
+		],
+		[
+			x1,
+			y0,
+			z + .4
+		],
+		[
+			x1,
+			y1,
+			z + .4
+		],
+		[
+			(x0 + x1) / 2,
+			y1,
+			z + .4 + hh
+		]
+	], roof, { mat: "dark" }));
+}
+/** 작은 차(구급차·소방차·경찰차·버스) — 앞이 +x */
+function vehicle(r, x, y, kind) {
+	const L = kind === "bus" ? 4.6 : kind === "fire" ? 4.2 : 3.4, Wd = kind === "bus" || kind === "fire" ? 1.9 : 1.7, H = kind === "bus" ? 2 : kind === "fire" || kind === "ambulance" ? 1.9 : 1.4;
+	const body = kind === "fire" ? "#d9443a" : kind === "bus" ? "#f2c53d" : kind === "police" ? "#fbfaf6" : kind === "van" ? "#e9b949" : "#fbfaf6";
+	for (const [dx, dy] of [
+		[.7, 0],
+		[L - .7, 0],
+		[.7, Wd],
+		[L - .7, Wd]
+	]) r.push(cyl(x + dx, y + dy, 0, .55, .28, .28, "charcoal"));
+	r.push(box(x, y + .05, .25, x + L, y + Wd - .05, H, body, { mat: "paint" }));
+	if (kind === "police") r.push(box(x + .9, y + .15, H, x + 2.6, y + Wd - .15, H + .45, body, { mat: "paint" }), box(x, y + Wd - .04, .55, x + L, y + Wd - .02, .85, "#3d5b8c", { noLine: true }));
+	const cab = kind === "bus" ? [.3, L - .3] : [L - 1, L - .15];
+	r.push(poly([
+		[
+			x + cab[0],
+			y + Wd - .04,
+			H - .75
+		],
+		[
+			x + cab[1],
+			y + Wd - .04,
+			H - .75
+		],
+		[
+			x + cab[1],
+			y + Wd - .04,
+			H - .15
+		],
+		[
+			x + cab[0],
+			y + Wd - .04,
+			H - .15
+		]
+	], "glass", { noLine: true }));
+	if (kind === "bus") for (let k = 0; k < 4; k++) r.push(poly([
+		[
+			x + .4 + k * 1,
+			y + Wd - .03,
+			H - .8
+		],
+		[
+			x + 1.2 + k * 1,
+			y + Wd - .03,
+			H - .8
+		],
+		[
+			x + 1.2 + k * 1,
+			y + Wd - .03,
+			H - .2
+		],
+		[
+			x + .4 + k * 1,
+			y + Wd - .03,
+			H - .2
+		]
+	], "glass", { noLine: true }));
+	if (kind === "ambulance") {
+		r.push(box(x, y + Wd - .04, .85, x + L - 1.1, y + Wd - .02, 1.05, "#e0483a", { noLine: true }));
+		iconF(r, y + Wd - .04, x + 1.1, 1.45, .32, "cross");
+		r.push(ell(x + 1.4, y + Wd / 2, H + .12, .2, .2, .12, "#5d9ad6"));
+	}
+	if (kind === "fire") {
+		r.push(box(x + .2, y + .4, H, x + L - 1.2, y + Wd - .4, H + .12, "steel", { mat: "metal" }));
+		for (let k = 0; k < 6; k++) r.push(line([[
+			x + .4 + k * .45,
+			y + .5,
+			H + .15
+		], [
+			x + .4 + k * .45,
+			y + Wd - .5,
+			H + .15
+		]], "white", 1.6));
+		r.push(ell(x + L - .6, y + Wd / 2, H + .12, .18, .3, .12, "#5d9ad6"));
+	}
+	if (kind === "police") r.push(ell(x + 1.6, y + .5, H + .55, .22, .2, .12, "#e0483a"), ell(x + 1.6, y + Wd - .5, H + .55, .22, .2, .12, "#5d9ad6"));
+	r.push(ell(x + L + .01, y + .4, .75, .02, .12, .1, "butter", { noLine: true }), ell(x + L + .01, y + Wd - .4, .75, .02, .12, .1, "butter", { noLine: true }));
+}
+/** 깃대 */
+function flagPole(r, x, y, h, c) {
+	r.push(cyl(x, y, 0, h, .07, .06, "steel", { mat: "metal" }), poly([
+		[
+			x,
+			y,
+			h - 1.1
+		],
+		[
+			x + 1.3,
+			y,
+			h - .75
+		],
+		[
+			x,
+			y,
+			h - .4
+		]
+	], c));
+}
+function civicA(kind) {
+	const [roof, bg, icon] = {
+		school: [
+			"#cf7058",
+			"#fff6e0",
+			"abc"
+		],
+		library: [
+			"#6f9d69",
+			"#fff6e0",
+			"book"
+		],
+		hospital: [
+			"#7fb4d8",
+			"#ffffff",
+			"cross"
+		],
+		post: [
+			"#d9534f",
+			"#fff6e0",
+			"envelope"
+		],
+		bank: [
+			"#7f8a96",
+			"#fff6e0",
+			"coin"
+		],
+		mart: [
+			"#4fb3a5",
+			"#ffffff",
+			"cart"
+		],
+		restaurant: [
+			"#e08a4a",
+			"#fff6e0",
+			"fork"
+		],
+		fire: [
+			"#c8443a",
+			"#ffffff",
+			"flame"
+		],
+		police: [
+			"#3d5b8c",
+			"#ffffff",
+			"star"
+		]
+	}[kind], w = 12, d = 8, h = 4.6, r = [];
+	gableBody(r, w, d, h, "cream", roof);
+	for (const x of [
+		1,
+		3,
+		8.6,
+		10.6
+	]) winF(r, d, x, 1.7, 1.3, 1.5);
+	for (const y of [1.5, 5]) winS(r, w, y, 1.7, 1.4, 1.5);
+	doorF(r, d, 5.3, 1.4, 2.5);
+	signF(r, d, 6, 2.9, 2.6, 1.4, bg, icon, roof);
+	return r;
+}
+function civicB(kind) {
+	const r = [], d = 8, w = 12;
+	switch (kind) {
+		case "school":
+			gableBody(r, w, d, 6.4, "#d98a6a", "#8a5a48");
+			for (const x of [
+				.8,
+				2.6,
+				8.4,
+				10.2
+			]) for (const z of [.9, 3.7]) winF(r, d, x, z, 1.2, 1.7);
+			for (const y of [
+				1.2,
+				3.4,
+				5.6
+			]) for (const z of [.9, 3.7]) winS(r, w, y, z, 1.2, 1.7);
+			r.push(box(4.3, 3, 0, 7.7, 8.4, 9.2, "#f6ecd6", { mat: "paint" }));
+			r.push(poly([
+				[
+					4.1,
+					2.8,
+					9.2
+				],
+				[
+					7.9,
+					2.8,
+					9.2
+				],
+				[
+					6,
+					5.7,
+					10.9
+				]
+			], "#8a5a48"), poly([
+				[
+					4.1,
+					8.6,
+					9.2
+				],
+				[
+					7.9,
+					8.6,
+					9.2
+				],
+				[
+					6,
+					5.7,
+					10.9
+				]
+			], "#8a5a48"), poly([
+				[
+					7.9,
+					2.8,
+					9.2
+				],
+				[
+					7.9,
+					8.6,
+					9.2
+				],
+				[
+					6,
+					5.7,
+					10.9
+				]
+			], "#8a5a48", { mat: "dark" }));
+			r.push(disc("y", 6, 8.41, 7.6, .85, "#fbfaf6"), line([[
+				6,
+				8.43,
+				7.6
+			], [
+				6,
+				8.43,
+				8.2
+			]], "#2d2b30", 2), line([[
+				6,
+				8.43,
+				7.6
+			], [
+				6.4,
+				8.43,
+				7.6
+			]], "#2d2b30", 2));
+			doorF(r, 8.4, 5.2, 1.6, 2.6, "#8a5a48");
+			signF(r, 8.4, 6, 3.6, 2.6, 1.2, "#fff6e0", "abc", "#8a5a48");
+			flagPole(r, .6, 10.4, 6.5, "#5d9ad6");
+			vehicle(r, 7.6, 9.8, "bus");
+			break;
+		case "library":
+			flatBody(r, w, d, 5.6, "#ead9bf", "#c9b593");
+			for (const x of [
+				.8,
+				2.4,
+				9.2,
+				10.8
+			]) winF(r, d, x, 1.4, 1, 2.6);
+			for (const y of [
+				1.2,
+				3.4,
+				5.6
+			]) winS(r, w, y, 1.4, 1, 2.6);
+			r.push(box(3.6, d, 0, 8.4, 9.9, .3, "#efe6d2", { mat: "paint" }), box(3.9, 9.9, 0, 8.1, 10.4, .15, "#efe6d2", { mat: "paint" }));
+			columns(r, 4.1, 7.9, 9.4, 4.6, 4);
+			pediment(r, 3.6, 8.4, d, 9.9, 4.6, 1.6, "#fbfaf6", "#6f9d69");
+			doorF(r, d, 5.4, 1.2, 2.6, "#9c6a45");
+			iconF(r, 9.91, 6, 5.55, .55, "book");
+			for (const [x, c] of [
+				[.9, "#ee7f6a"],
+				[1.3, "#5d9ad6"],
+				[1.7, "#6fb36a"]
+			]) r.push(box(x, 9.2, 0, x + .32, 9.6, 1.1, c, { mat: "paint" }));
+			break;
+		case "hospital":
+			flatBody(r, w, d, 7.6, "#fbfaf6", "#9fd0ee");
+			for (const z of [
+				1.2,
+				3.7,
+				6
+			]) for (const x of [
+				.7,
+				2.4,
+				9,
+				10.6
+			]) winF(r, d, x, z, 1.1, 1.3, "#9fd0ee");
+			for (const z of [
+				1.2,
+				3.7,
+				6
+			]) for (const y of [
+				1,
+				3.3,
+				5.6
+			]) winS(r, w, y, z, 1.1, 1.3, "#9fd0ee");
+			r.push(fr(d, 4.4, 0, 7.6, 2.8, "glass"), line([[
+				6,
+				8.024,
+				0
+			], [
+				6,
+				8.024,
+				2.8
+			]], "white", 2));
+			r.push(box(3.9, d, 2.8, 8.1, 9.6, 3.05, "#e0483a", { mat: "paint" }), cyl(4.1, 9.4, 0, 2.8, .12, .12, "white"), cyl(7.9, 9.4, 0, 2.8, .12, .12, "white"));
+			signF(r, d, 6, 4.2, 2.6, 2.6, "#ffffff", "cross", "#e0483a");
+			r.push(disc("z", 6, 4, 7.96, 1.5, "#e0483a", { noLine: true }), disc("z", 6, 4, 7.97, 1.25, "#5d9ad6", { noLine: true }));
+			r.push(line([[
+				5.5,
+				3.5,
+				7.98
+			], [
+				5.5,
+				4.5,
+				7.98
+			]], "white", 3), line([[
+				6.5,
+				3.5,
+				7.98
+			], [
+				6.5,
+				4.5,
+				7.98
+			]], "white", 3), line([[
+				5.5,
+				4,
+				7.98
+			], [
+				6.5,
+				4,
+				7.98
+			]], "white", 3));
+			vehicle(r, 8.4, 10.2, "ambulance");
+			break;
+		case "post":
+			gableBody(r, w, d, 5, "#f6ecd6", "#d9534f");
+			r.push(fr(d, 0, 3.4, w, 3.8, "#d9534f", { noLine: true }), sr(w, 0, 3.4, d, 3.8, "#d9534f", { noLine: true }));
+			for (const x of [
+				.9,
+				2.7,
+				8.6,
+				10.2
+			]) winF(r, d, x, 1.3, 1.2, 1.7);
+			for (const y of [1.3, 4.9]) winS(r, w, y, 1.3, 1.4, 1.7);
+			doorF(r, d, 5.3, 1.4, 2.6);
+			signF(r, d, 6, 4.1, 2.8, 1.6, "#fff6e0", "envelope", "#d9534f");
+			r.push(cyl(1.5, 9.8, 0, 1.6, .42, .42, "#d9534f", {
+				mat: "paint",
+				top: "#b8443e"
+			}), ell(1.5, 9.8, 1.6, .42, .42, .26, "#d9534f"), box(1.25, 10.21, 1.05, 1.75, 10.23, 1.15, "charcoal", { noLine: true }));
+			for (const [x, y, s] of [
+				[
+					9.4,
+					9.3,
+					.8
+				],
+				[
+					10.4,
+					9.5,
+					.6
+				],
+				[
+					9.8,
+					9.4,
+					.5
+				]
+			]) r.push(box(x, y, s === .5 ? .8 : 0, x + s, y + s, (s === .5 ? .8 : 0) + s * .9, "card", { mat: "card" }));
+			break;
+		case "bank":
+			flatBody(r, w, d, 5.8, "#d9d6cf", "#b9b8b4");
+			r.push(box(1, d, 0, 11, 10.2, .3, "#efe6d2", { mat: "paint" }));
+			columns(r, 1.6, 10.4, 9.6, 4.8, 6, "#fbfaf6");
+			pediment(r, 1, 11, d, 10.2, 4.8, 1.9, "#fbfaf6", "#7f8a96");
+			r.push(box(1, 10.19, 5, 11, 10.21, 5.15, "#d8b25a", { noLine: true }));
+			doorF(r, d, 5.2, 1.6, 2.8, "#9c6a45");
+			iconF(r, 10.2 + .01, 6, 5.85, .62, "coin");
+			for (const y of [
+				1.3,
+				3.5,
+				5.7
+			]) winS(r, w, y, 1.4, 1, 2.6);
+			break;
+		case "mart":
+			flatBody(r, w, d, 4.2, "#fbfaf6", "#4fb3a5");
+			r.push(fr(d, .6, .15, 11.4, 2.8, "glass"));
+			for (let x = 1.9; x < 11.4; x += 1.3) r.push(line([[
+				x,
+				8.024,
+				.15
+			], [
+				x,
+				8.024,
+				2.8
+			]], "white", 2));
+			for (let x = .4, i = 0; x < 11.59; x += .7, i++) r.push(poly([
+				[
+					x,
+					d,
+					3.2
+				],
+				[
+					x + .7,
+					d,
+					3.2
+				],
+				[
+					x + .7,
+					9.1,
+					2.75
+				],
+				[
+					x,
+					9.1,
+					2.75
+				]
+			], i % 2 ? "white" : "#3f9a74"));
+			r.push(box(2.6, d, 4.2, 9.4, 8.2, 5.6, "#3f9a74", { mat: "paint" }));
+			iconF(r, 8.212, 6, 4.9, .55, "cart");
+			for (const x of [3, 3.7]) iconF(r, 8.212, x, 4.9, .35, "basket");
+			for (const [x, y] of [
+				[1.2, 9.8],
+				[2.2, 9.9],
+				[10, 9.8]
+			]) {
+				r.push(box(x, y, .5, x + .8, y + .55, 1.1, "steel", {
+					mat: "metal",
+					a: .9
+				}));
+				for (const dx of [.1, .7]) r.push(cyl(x + dx, y + .27, 0, .18, .09, .09, "charcoal"));
+			}
+			for (const [x, c] of [
+				[6.7, "#e0483a"],
+				[7.6, "#f2a33a"],
+				[8.5, "#7fb35a"]
+			]) {
+				r.push(box(x, 9.4, 0, x + .8, 10, .6, "oak", { mat: "wood" }));
+				for (let k = 0; k < 3; k++) r.push(ell(x + .18 + k * .22, 9.7, .7, .12, .12, .1, c));
+			}
+			break;
+		case "restaurant":
+			gableBody(r, w, d, 4.6, "#f6e2c4", "#e08a4a");
+			for (const x of [
+				.8,
+				2.8,
+				8.6,
+				10.4
+			]) winF(r, d, x, 1, 1.4, 1.9);
+			for (const y of [1.4, 5]) winS(r, w, y, 1, 1.4, 1.9);
+			for (let x = 0, i = 0; x < 11.99; x += .75, i++) r.push(poly([
+				[
+					x,
+					d,
+					3.4
+				],
+				[
+					x + .75,
+					d,
+					3.4
+				],
+				[
+					x + .75,
+					9.2,
+					2.9
+				],
+				[
+					x,
+					9.2,
+					2.9
+				]
+			], i % 2 ? "white" : "#d9534f"));
+			doorF(r, d, 5.3, 1.4, 2.5, "#9c6a45");
+			signF(r, d, 6, 3.8, 2.4, 1.1, "#fff6e0", "fork", "#e08a4a");
+			for (const x of [1.6, 9.6]) {
+				r.push(cyl(x + .6, 10.4, 0, .9, .08, .08, "walnut"), cyl(x + .6, 10.4, .9, 1, .6, .6, "white", { top: "#fbfaf6" }));
+				r.push(cyl(x + .6, 10.4, 1, 2.6, .05, .05, "walnut"), cyl(x + .6, 10.4, 2.4, 2.9, 1.2, .05, x < 5 ? "#ee7f6a" : "#4fb3a5"));
+				for (const dx of [-.5, 1.7]) r.push(box(x + dx, 10.2, 0, x + dx + .4, 10.6, .5, "oak", { mat: "wood" }));
+			}
+			break;
+		case "fire":
+			flatBody(r, 9.4, d, 5.6, "#d9443a", "#a8352e");
+			r.push(box(9.4, 1, 0, 12, 3.6, 9.4, "#c8443a", { mat: "paint" }), box(9.3, .9, 9.4, 12.1, 3.7, 9.7, "#a8352e", { mat: "paint" }));
+			for (const z of [
+				3.2,
+				5.4,
+				7.6
+			]) winF(r, 3.6, 10.1, z, 1.2, 1.2);
+			for (const [x0, open] of [[.6, true], [4.8, false]]) {
+				r.push(fr(d, x0, 0, x0 + 3.8, 3.7, open ? "#4b4f57" : "#fbfaf6"));
+				if (!open) for (let z = .6; z < 3.7; z += .6) r.push(line([[
+					x0,
+					8.024,
+					z
+				], [
+					x0 + 3.8,
+					8.024,
+					z
+				]], "#b9b8b4", 1.4));
+				r.push(box(x0 - .15, d, 3.7, x0 + 3.95, 8.15, 3.9, "white", { mat: "paint" }));
+			}
+			signF(r, d, 4.7, 4.4, 2.2, 1, "#ffffff", "flame", "white");
+			for (const y of [1.4, 4.6]) winS(r, 9.4, y, 4, 1.4, 1.2);
+			vehicle(r, .4, 8.3, "fire");
+			r.push(cyl(11.2, 9.6, 0, .9, .22, .22, "#e9b949", { top: "#d9443a" }), ell(11.2, 9.6, .95, .22, .22, .12, "#e9b949"));
+			break;
+		case "police":
+			flatBody(r, w, d, 5.4, "#5f7fb0", "#3d5b8c");
+			r.push(fr(d, 0, 2.9, w, 3.2, "#fbfaf6", { noLine: true }), sr(w, 0, 2.9, d, 3.2, "#fbfaf6", { noLine: true }));
+			for (const x of [
+				.8,
+				2.6,
+				8.6,
+				10.4
+			]) {
+				winF(r, d, x, .9, 1.2, 1.6);
+				winF(r, d, x, 3.5, 1.2, 1.4);
+			}
+			for (const y of [
+				1.3,
+				3.4,
+				5.5
+			]) {
+				winS(r, w, y, .9, 1.2, 1.6);
+				winS(r, w, y, 3.5, 1.2, 1.4);
+			}
+			doorF(r, d, 5.2, 1.6, 2.6);
+			r.push(box(4.4, d, 3.25, 7.6, 8.18, 5.3, "#fbfaf6", { mat: "paint" }));
+			iconF(r, 8.192, 6, 4.25, .85, "star");
+			r.push(box(5.3, 3.6, 5.75, 6.7, 4.4, 6.1, "charcoal", { mat: "paint" }), ell(5.65, 4, 6.3, .35, .35, .3, "#e0483a"), ell(6.35, 4, 6.3, .35, .35, .3, "#5d9ad6"));
+			vehicle(r, 8.2, 10, "police");
+	}
+	return r;
+}
+def$1({
+	id: "civic",
+	sortByFoot: true,
+	cat: "outdoor",
+	name: {
+		ko: "마을 건물",
+		en: "Town building"
+	},
+	place: "outdoor",
+	defaults: {
+		kind: "school",
+		v: "b"
+	},
+	size: () => ({
+		w: 13,
+		d: 12,
+		h: 11
+	}),
+	recipe: (p) => str(p, "v") === "a" ? civicA(str(p, "kind")) : civicB(str(p, "kind"))
+});
+var SHOP_W = 4.6;
+var SHOP_D = 5.4;
+var SHOP_SPEC = {
+	bakery: {
+		wall: "#f6e2c4",
+		roof: "#cf7b55",
+		aw: "#ee7f6a",
+		icon: "bread"
+	},
+	cafe: {
+		wall: "#efe0cf",
+		roof: "#6e4a33",
+		aw: "#4fb3a5",
+		icon: "cup"
+	},
+	pharmacy: {
+		wall: "#fbfaf6",
+		roof: "#3faa6a",
+		aw: "#3faa6a",
+		icon: "greenCross",
+		flat: true
+	},
+	bookshop: {
+		wall: "#e6efe0",
+		roof: "#3d5b8c",
+		aw: "#5d9ad6",
+		icon: "book"
+	},
+	clothes: {
+		wall: "#f8e6ec",
+		roof: "#d9748c",
+		aw: "#f3a9b9",
+		icon: "shirt"
+	},
+	stationery: {
+		wall: "#fff6d8",
+		roof: "#e0a83e",
+		aw: "#f7d77c",
+		icon: "pencil"
+	},
+	florist: {
+		wall: "#f1f7e8",
+		roof: "#6fae5c",
+		aw: "#f3a9b9",
+		icon: "flower"
+	},
+	shoes: {
+		wall: "#f3ebe1",
+		roof: "#9c6a45",
+		aw: "#ee7f6a",
+		icon: "shoe"
+	},
+	convenience: {
+		wall: "#fbfaf6",
+		roof: "#5d9ad6",
+		aw: "#4fb3a5",
+		icon: "basket",
+		flat: true
+	},
+	toyshop: {
+		wall: "#fff1e6",
+		roof: "#8a6aa6",
+		aw: "#f7d77c",
+		icon: "bear"
+	}
+};
+function shopRecipe(kind, v) {
+	const S = SHOP_SPEC[kind], r = [], w = SHOP_W, d = 3.6, h = 3.4;
+	if (v === "a") {
+		gableBody(r, w, d, h, "cream", S.roof, "white", .25);
+		winF(r, d, .4, 1, 1.1, 1.3);
+		doorF(r, d, 2.6, 1.1, 2.2);
+		signF(r, d, w / 2, 2.55, 1.5, .75, "#fff6e0", S.icon, S.roof);
+		return r;
+	}
+	if (S.flat) flatBody(r, w, d, h, S.wall, S.roof);
+	else gableBody(r, w, d, h, S.wall, S.roof, "white", .25);
+	r.push(fr(d, .3, .2, 2.2, 2.1, "glass"), line([[
+		1.25,
+		3.624,
+		.2
+	], [
+		1.25,
+		3.624,
+		2.1
+	]], "white", 1.6));
+	doorF(r, d, 2.7, 1.1, 2.2, S.flat ? "glass" : "#fbfaf6");
+	for (let x = 0, i = 0; x < 4.59; x += .46, i++) r.push(poly([
+		[
+			x,
+			d,
+			2.55
+		],
+		[
+			x + .46,
+			d,
+			2.55
+		],
+		[
+			x + .46,
+			4.4,
+			2.2
+		],
+		[
+			x,
+			4.4,
+			2.2
+		]
+	], i % 2 ? "white" : S.aw));
+	r.push(box(w / 2 - .9, 3.62, 3.1999999999999997, 3.1999999999999997, 3.8000000000000003, 4.8, S.roof, { mat: "paint" }));
+	r.push(fr(3.8000000000000003, w / 2 - .75, 3.35, 3.05, 4.65, "#fffaf0", { noLine: true }));
+	iconF(r, 3.8120000000000003, w / 2, 4, .55, S.icon);
+	const Y = 4.5;
+	switch (kind) {
+		case "bakery":
+			r.push(box(.3, Y, 0, 1.5, 5.1, .8, "oak", { mat: "wood" }));
+			for (let k = 0; k < 3; k++) r.push(ell(.5 + k * .38, 4.8, .9, .17, .12, .1, "#d79a4e"));
+			break;
+		case "cafe":
+			r.push(cyl(1, 5.1, 0, .75, .05, .05, "charcoal"), cyl(1, 5.1, .75, .8, .4, .4, "white"), cyl(1, 5.1, .8, .95, .09, .08, "white"));
+			r.push(box(3.5, Y, 0, 4.2, 4.62, 1.1, "charcoal", { mat: "paint" }));
+			break;
+		case "pharmacy":
+			r.push(box(.4, Y, 0, 1.4, 5, .9, "#fbfaf6", { mat: "paint" }));
+			for (let k = 0; k < 3; k++) r.push(cyl(.6 + k * .3, 4.75, .9, 1.15, .09, .09, [
+				"#9fdcc4",
+				"#f3a9b9",
+				"#f7d77c"
+			][k]));
+			break;
+		case "bookshop":
+			r.push(box(.3, Y, 0, 1.6, 5, .9, "walnut", { mat: "wood" }));
+			for (let k = 0; k < 5; k++) r.push(box(.4 + k * .24, 4.58, .9, .58 + k * .24, 4.92, 1.25 + k % 2 * .1, [
+				"#ee7f6a",
+				"#5d9ad6",
+				"#f7d77c",
+				"#6fb36a",
+				"#b9a6dd"
+			][k], { mat: "paint" }));
+			break;
+		case "clothes":
+			r.push(cyl(1, 4.8, 0, 1, .06, .06, "steel"), poly([
+				[
+					.55,
+					4.8,
+					1
+				],
+				[
+					1.45,
+					4.8,
+					1
+				],
+				[
+					1.35,
+					4.8,
+					1.8
+				],
+				[
+					.65,
+					4.8,
+					1.8
+				]
+			], "#5d9ad6"), ell(1, 4.8, 1.95, .15, .15, .15, "#efe6d2"));
+			break;
+		case "stationery":
+			r.push(box(.4, Y, 0, 1.4, 5, .9, "#fbfaf6", { mat: "paint" }));
+			for (let k = 0; k < 4; k++) r.push(cyl(.55 + k * .25, 4.75, .9, 1.4, .05, .05, [
+				"#ee7f6a",
+				"#5d9ad6",
+				"#f7d77c",
+				"#6fb36a"
+			][k]));
+			break;
+		case "florist":
+			for (let k = 0; k < 3; k++) {
+				const x = .5 + k * .6;
+				r.push(cyl(x, 4.8, 0, .45, .22, .2, "terracotta"));
+				for (let j = 0; j < 3; j++) r.push(ell(x - .12 + j * .12, 4.8, .6 + j % 2 * .1, .12, .12, .1, [
+					"#f3a9b9",
+					"#f7d77c",
+					"#e0483a"
+				][(j + k) % 3]));
+			}
+			break;
+		case "shoes":
+			r.push(box(.3, Y, 0, 1.6, 5, .7, "oak", { mat: "wood" }));
+			for (let k = 0; k < 3; k++) r.push(box(.4 + k * .4, 4.62, .7, .7 + k * .4, 4.92, .88, [
+				"#ee7f6a",
+				"#5d9ad6",
+				"#fbfaf6"
+			][k], { mat: "paint" }));
+			break;
+		case "convenience":
+			r.push(box(.4, Y, 0, 1.2, 5, 1.2, "#e0483a", { mat: "paint" }), poly([
+				[
+					.5,
+					5.012,
+					.6
+				],
+				[
+					1.1,
+					5.012,
+					.6
+				],
+				[
+					1.1,
+					5.012,
+					1.1
+				],
+				[
+					.5,
+					5.012,
+					1.1
+				]
+			], "glass"));
+			break;
+		case "toyshop":
+			r.push(ell(.9, 4.8, .35, .35, .3, .35, "#c9965f"), ell(.9, 4.8, .85, .25, .22, .24, "#c9965f"), ell(.72, 4.8, 1.05, .09, .08, .09, "#c9965f"), ell(1.08, 4.8, 1.05, .09, .08, .09, "#c9965f"));
+			r.push(ell(3.8, 4.8, .3, .3, .3, .3, "#ee7f6a"), line([[
+				3.8,
+				4.8,
+				.6
+			], [
+				3.8,
+				4.8,
+				1.8
+			]], "#b9b8b4", 1), ell(3.8, 4.8, 2, .3, .3, .35, "#f3a9b9"));
+	}
+	return r;
+}
+def$1({
+	id: "townShop",
+	sortByFoot: true,
+	cat: "outdoor",
+	name: {
+		ko: "마을 상점",
+		en: "Town shop"
+	},
+	place: "outdoor",
+	defaults: {
+		kind: "bakery",
+		v: "b"
+	},
+	size: () => ({
+		w: SHOP_W,
+		d: SHOP_D,
+		h: 5
+	}),
+	recipe: (p) => shopRecipe(str(p, "kind"), str(p, "v"))
+});
+/** 빈 터: 낮은 말뚝 + 줄, 흙바닥, 가운데 '세울 자리' 팻말(간판 그림 없음) */
+def$1({
+	id: "emptyLot",
+	shadow: "none",
+	sortByFoot: true,
+	cat: "outdoor",
+	name: {
+		ko: "빈 터",
+		en: "Empty lot"
+	},
+	place: "outdoor",
+	defaults: {
+		w: 13,
+		d: 12,
+		plus: 1
+	},
+	size: (p) => ({
+		w: num$1(p, "w"),
+		d: num$1(p, "d"),
+		h: 1.6
+	}),
+	recipe(p) {
+		const w = num$1(p, "w"), d = num$1(p, "d"), r = [poly([
+			[
+				.2,
+				.2,
+				.01
+			],
+			[
+				w - .2,
+				.2,
+				.01
+			],
+			[
+				w - .2,
+				d - .2,
+				.01
+			],
+			[
+				.2,
+				d - .2,
+				.01
+			]
+		], "#e3c99c", { noLine: true })];
+		const post = (x, y) => r.push(box(x - .1, y - .1, 0, x + .1, y + .1, .8, "oak", { mat: "wood" }));
+		const step = Math.max(1.8, Math.min(w, d) / 4);
+		for (let x = .3; x <= w - .3 + 1e-6; x += (w - .6) / Math.round((w - .6) / step)) {
+			post(x, .3);
+			post(x, d - .3);
+		}
+		for (let y = .3 + (d - .6) / Math.round((d - .6) / step); y < d - .3 - 1e-6; y += (d - .6) / Math.round((d - .6) / step)) {
+			post(.3, y);
+			post(w - .3, y);
+		}
+		r.push(line([
+			[
+				.3,
+				.3,
+				.65
+			],
+			[
+				w - .3,
+				.3,
+				.65
+			],
+			[
+				w - .3,
+				d - .3,
+				.65
+			],
+			[
+				.3,
+				d - .3,
+				.65
+			],
+			[
+				.3,
+				.3,
+				.65
+			]
+		], "#ee7f6a", 1.6));
+		if (num$1(p, "plus")) {
+			const cx = w / 2, cy = d / 2;
+			r.push(box(cx - .08, cy - .08, 0, cx + .08, cy + .08, 1.2, "walnut", { mat: "wood" }), box(cx - .7, cy + .08, .8, cx + .7, cy + .2, 1.6, "#fffaf0", { mat: "paint" }));
+			r.push(poly([
+				[
+					cx - .1,
+					cy + .21,
+					.95
+				],
+				[
+					cx + .1,
+					cy + .21,
+					.95
+				],
+				[
+					cx + .1,
+					cy + .21,
+					1.45
+				],
+				[
+					cx - .1,
+					cy + .21,
+					1.45
+				]
+			], "#4fb3a5", { noLine: true }), poly([
+				[
+					cx - .35,
+					cy + .21,
+					1.1
+				],
+				[
+					cx + .35,
+					cy + .21,
+					1.1
+				],
+				[
+					cx + .35,
+					cy + .21,
+					1.3
+				],
+				[
+					cx - .35,
+					cy + .21,
+					1.3
+				]
+			], "#4fb3a5", { noLine: true }));
+		}
+		return r;
+	}
+});
+var HAT = {
+	school: ["mortar", "#2d2b30"],
+	library: ["beret", "#8a6aa6"],
+	hospital: ["nurse", "#ffffff"],
+	post: ["cap", "#d9534f"],
+	bank: ["cap", "#3f9a74"],
+	mart: ["cap", "#4fb3a5"],
+	restaurant: ["toque", "#ffffff"],
+	fire: ["helmet", "#d9443a"],
+	police: ["police", "#3d5b8c"],
+	bakery: ["toque", "#ffffff"],
+	cafe: ["beret", "#6e4a33"],
+	pharmacy: ["cap", "#3faa6a"],
+	bookshop: ["beret", "#3d5b8c"],
+	clothes: ["beret", "#d9748c"],
+	stationery: ["cap", "#e0a83e"],
+	florist: ["flowers", "#f3a9b9"],
+	shoes: ["cap", "#9c6a45"],
+	convenience: ["cap", "#5d9ad6"],
+	toyshop: ["cap", "#f7d77c"]
+};
+def$1({
+	id: "townFolk",
+	shadow: "round",
+	cat: "friend",
+	name: {
+		ko: "마을 주민",
+		en: "Townsperson"
+	},
+	place: "outdoor",
+	defaults: { kind: "fire" },
+	size: () => ({
+		w: 1.2,
+		d: 1.2,
+		h: 1.9
+	}),
+	recipe(p) {
+		const [hat, c] = HAT[str(p, "kind")] ?? ["cap", "#5d9ad6"], X = .6, Y = .62, Z = 1.3;
+		const r = wombat().map((s) => s.t === "ell" ? {
+			...s,
+			cx: s.cx + .6,
+			cy: s.cy + .5
+		} : s.t === "line" ? {
+			...s,
+			pts: s.pts.map(([a, b, z]) => [
+				a + .6,
+				b + .5,
+				z
+			])
+		} : s);
+		switch (hat) {
+			case "helmet":
+				r.push(ell(X, Y, Z, .42, .42, .24, c), ell(.74, .87, 1.2, .32, .32, .05, c), ell(.7, .9199999999999999, 1.36, .12, .04, .12, "#e9b949", { noLine: true }));
+				break;
+			case "police":
+				r.push(cyl(X, Y, 1.24, 1.48, .36, .4, c), ell(.72, .86, 1.24, .26, .26, .04, "#2d2b30"), ell(.72, .95, 1.36, .08, .03, .08, "#e9b949", { noLine: true }));
+				break;
+			case "toque":
+				r.push(cyl(X, Y, 1.22, 1.7000000000000002, .3, .32, c), ell(X, Y, 1.75, .4, .4, .2, c));
+				break;
+			case "nurse":
+				r.push(box(.3, .5, 1.26, .8999999999999999, .8, 1.48, c, { mat: "paint" }), poly([
+					[
+						.5499999999999999,
+						.81,
+						1.32
+					],
+					[
+						.65,
+						.81,
+						1.32
+					],
+					[
+						.65,
+						.81,
+						1.44
+					],
+					[
+						.5499999999999999,
+						.81,
+						1.44
+					]
+				], "#e0483a", { noLine: true }));
+				break;
+			case "mortar":
+				r.push(cyl(X, Y, 1.24, 1.4000000000000001, .3, .3, c), box(.18, .2, 1.4000000000000001, 1.02, 1.04, 1.45, c), line([[
+					X,
+					Y,
+					1.46
+				], [
+					.8999999999999999,
+					.96,
+					1.2
+				]], "#e9b949", 2));
+				break;
+			case "beret":
+				r.push(ell(.5499999999999999, Y, 1.34, .42, .4, .13, c));
+				break;
+			case "flowers":
+				for (let i = 0; i < 6; i++) {
+					const a = i / 6 * Math.PI * 2;
+					r.push(ell(X + Math.cos(a) * .32, Y + Math.sin(a) * .3, 1.28, .09, .09, .08, [
+						"#f3a9b9",
+						"#f7d77c",
+						"#fbfaf6"
+					][i % 3]));
+				}
+				break;
+			default: r.push(ell(X, Y, 1.28, .38, .38, .17, c), ell(.72, .88, 1.2, .24, .24, .04, c));
+		}
+		return r;
+	}
+});
+/** 공사 중 터(단어 시험 중): 벽이 진행만큼 올라가고 비계·크레인 */
+def$1({
+	id: "scaffold",
+	sortByFoot: true,
+	cat: "outdoor",
+	name: {
+		ko: "공사 중",
+		en: "Under construction"
+	},
+	place: "outdoor",
+	defaults: {
+		w: 12,
+		d: 8,
+		k: .3,
+		wall: "#f6ecd6"
+	},
+	size: (p) => ({
+		w: num$1(p, "w"),
+		d: num$1(p, "d"),
+		h: 7
+	}),
+	recipe(p) {
+		const w = num$1(p, "w"), d = num$1(p, "d"), k = Math.max(.05, Math.min(1, num$1(p, "k"))), top = Math.max(.3, 5.5 * k), r = [];
+		r.push(box(.6, .6, 0, w - .6, d - .6, top, str(p, "wall"), { mat: "paint" }));
+		for (let z = .8; z < top - .3; z += 1.1) r.push(fr(d - .6, .6, z, w - .6, z + .05, "#c9b593", { noLine: true }));
+		const pole = (x, y) => r.push(box(x - .06, y - .06, 0, x + .06, y + .06, 5.9, "#d8a53a", { mat: "metal" }));
+		for (const x of [
+			.2,
+			w / 2,
+			w - .2
+		]) {
+			pole(x, .2);
+			pole(x, d - .2);
+		}
+		for (let z = 1.5; z <= 5.6; z += 1.5) r.push(box(.1, d - .35, z, w - .1, d - .05, z + .1, "#b98457", { mat: "wood" }), box(w - .35, .1, z, w - .05, d - .1, z + .1, "#b98457", { mat: "wood" }));
+		r.push(box(w - 1.6, .6, 0, w - 1.2, 1, 7.7, "#e9b949", { mat: "metal" }), box(1, .65, 7.7, w - 1, .95, 7.95, "#e9b949", { mat: "metal" }));
+		r.push(line([[
+			2.2,
+			.8,
+			7.7
+		], [
+			2.2,
+			.8,
+			top + 1.2
+		]], "#4b4f57", 1.4), box(1.9, .5, top + .8, 2.5, 1.1, top + 1.2, "#ee7f6a", { mat: "paint" }));
+		for (const x of [1, w - 1]) r.push(cyl(x, d + .5, 0, .6, .22, .03, "#ee7f3a"));
+		return r;
 	}
 });
 // src/data/templates.ts
@@ -21486,6 +23104,7 @@ def({
 });
 for (const t of EXTRA) def(t);
 for (const t of H5) def(t);
+for (const t of TOWN_TPL) def(t);
 var TEMPLATES = Object.fromEntries(T.map((t) => [t.id, t]));
 function tpl(id) {
 	const t = TEMPLATES[id];
@@ -22004,11 +23623,13 @@ var DEFAULT_CONFIG = Object.freeze(clone({
 			scratchPad: 15
 		},
 		asmrBox: 60,
-		roomDecor: PRICES.roomDecor
+		roomDecor: PRICES.roomDecor,
+		town: { ...PRICES.town }
 	},
 	rewards: {
 		quest: REWARDS.quest,
 		walk: REWARDS.walk,
+		townAsk: PRICES.townAsk,
 		site: {
 			learning: {
 				correctPerReward: 10,
@@ -22115,6 +23736,8 @@ var DEFAULT_CONFIG = Object.freeze(clone({
 var RANGES = {
 	item: [0, 200],
 	room: [0, 1e3],
+	townCivic: [0, 5e3],
+	townShop: [0, 3e3],
 	plot: [0, 500],
 	exterior: [0, 300],
 	asmrToy: [0, 100],
@@ -22349,11 +23972,16 @@ function validateConfig(raw) {
 				},
 				asmrToy: table(P?.asmrToy, d.prices.asmrToy, RANGES.asmrToy, "prices.asmrToy", issues),
 				asmrBox: num(P?.asmrBox, d.prices.asmrBox, RANGES.asmrBox, "prices.asmrBox", issues),
-				roomDecor: num(P?.roomDecor, d.prices.roomDecor, RANGES.exterior, "prices.roomDecor", issues)
+				roomDecor: num(P?.roomDecor, d.prices.roomDecor, RANGES.exterior, "prices.roomDecor", issues),
+				town: {
+					civic: num(o(P, "town", "prices.")?.civic, d.prices.town.civic, RANGES.townCivic, "prices.town.civic", issues),
+					shop: num(o(P, "town", "prices.")?.shop, d.prices.town.shop, RANGES.townShop, "prices.town.shop", issues)
+				}
 			},
 			rewards: {
 				quest: num(R?.quest, d.rewards.quest, RANGES.houseReward, "rewards.quest", issues),
 				walk: num(R?.walk, d.rewards.walk, RANGES.houseReward, "rewards.walk", issues),
+				townAsk: num(R?.townAsk, d.rewards.townAsk, RANGES.houseReward, "rewards.townAsk", issues),
 				site: {
 					learning: learnRule(sl, d.rewards.site.learning, "rewards.site.learning", issues),
 					learningByMode: {

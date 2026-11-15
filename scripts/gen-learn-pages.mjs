@@ -100,6 +100,28 @@ PAGES.push({
 <section class="wl-sec"><h2>Tricks for each table</h2><ul class="wl">${TIPS.map(([t, d]) => `<li><b>${t}</b> <span>${esc(d)}</span></li>`).join("")}</ul></section>`,
 });
 
+// ---- town words (Koala House town buildings and shops, 2026-11-15) ----
+// Built by the house app (koala-house-3d src/data/townWords.ts → public/house/town-words.json via npm run house:sync).
+{
+  let TW = null;
+  try { TW = JSON.parse(readFileSync(join(root, "public", "house", "town-words.json"), "utf8")); } catch (e) { console.warn("town-words.json missing — run npm run house:sync"); }
+  if (TW && Array.isArray(TW.places)) {
+    const POS = { n: "noun", v: "verb", adj: "adjective", phr: "phrase" };
+    const sec = (p) => `<section class="wl-sec" id="${esc(p.id)}"><h2>${esc(p.name.en)} <small lang="ko">${esc(p.name.ko)}</small> (${p.words.length} words)</h2><ul class="wl">${p.words.map((w) =>
+      `<li><b>${esc(w.en)}</b> <span lang="ko">${esc(w.ko)}</span><em>${POS[w.pos] || "noun"}</em></li>`).join("")}</ul></section>`;
+    const toc = (list) => list.map((p) => `<a href="#${esc(p.id)}">${esc(p.name.en)}</a>`).join(" · ");
+    const buildings = TW.places.filter((p) => p.kind === "building"), shops = TW.places.filter((p) => p.kind === "shop");
+    PAGES.push({
+      slug: "town-words", name: "Town words",
+      title: "Town Words: Places Around Town Vocabulary with Korean Meanings",
+      desc: "Everyday English words for places around town — school, library, hospital, post office, bakery, café and more — with Korean meanings. Build each place in the Koala House town by learning its words.",
+      h1: "Town words: places around town",
+      intro: "Every building in the Koala House town has 50 words to learn. Read the words for a place, then build it in your town by passing its word quiz and spelling test in the app.",
+      body: `<p class="more-lists">Buildings: ${toc(buildings)}</p><p class="more-lists">Shops: ${toc(shops)}</p>\n${TW.places.map(sec).join("\n")}`,
+    });
+  }
+}
+
 // ---- hub ----
 const hubItems = PAGES.map((p) => `<a class="hub-card" href="/${p.slug}"><b>${esc(p.name)}</b><span>${esc(p.h1)}</span></a>`).join("");
 

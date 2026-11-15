@@ -36,6 +36,17 @@
     return c;
   }
 
+  // Town buildings and shops the child has built (Town Mayor / Shop Owner badges, 2026-11-15). null = unreadable.
+  function townCount(json) {
+    let s; try { s = JSON.parse(json); } catch (e) { return null; }
+    const b = s && s.town && s.town.built && typeof s.town.built === "object" ? s.town.built : {};
+    const kinds = new Set(Object.values(b).map((x) => x && x.kind).filter(Boolean));
+    const SHOPS = ["bakery", "cafe", "pharmacy", "bookshop", "clothes", "stationery", "florist", "shoes", "convenience", "toyshop"];
+    let civic = 0, shop = 0;
+    kinds.forEach((k) => { if (SHOPS.indexOf(k) >= 0) shop++; else civic++; });
+    return { civic, shop };
+  }
+
   async function prepare(ctx) {
     const n = unlocked(ctx.tier) ? ctx.n | 0 : 0;
     let server = null;   // { json, rev } — null when the account has no saved house yet (or a guest)
@@ -85,7 +96,7 @@
       if (!alive) return false;
       if (typeof json !== "string") return false;
       if (!storeLocal(json)) return { ok: false, reason: "full", size: json.length };
-      if (ctx.onHouseSaved) { const c = placedCount(json); if (c != null) { try { ctx.onHouseSaved({ placed: c }); } catch (e) { /* the badge waits for the next save */ } } }
+      if (ctx.onHouseSaved) { const c = placedCount(json), tc = townCount(json); if (c != null) { try { ctx.onHouseSaved(Object.assign({ placed: c }, tc || {})); } catch (e) { /* the badge waits for the next save */ } } }
       if (!account) return true;
       if (json.length > SAVE_LIMIT) { report({ type: "saveFull", size: json.length }); return true; }   // kept on the device; the server would say 413
       again = true; tries = 0; stopped = false; clearTimeout(retryT); upload();
@@ -189,5 +200,5 @@
     return bridge;
   }
 
-  return { prepare, create, copyKey, placedCount, SAVE_LIMIT };
+  return { prepare, create, copyKey, placedCount, townCount, SAVE_LIMIT };
 });
