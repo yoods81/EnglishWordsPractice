@@ -137,7 +137,6 @@ test("streakStatus shows 0 once a streak can no longer be saved, keeps best", ()
 });
 
 /* ---------------- Phase 2: character items ---------------- */
-const A = require("../public/js/koala-art.js");
 
 test("free items are owned from the start; others are not", () => {
   const p = {};
@@ -242,35 +241,15 @@ test("saved data with removed or mismatched items is repaired", () => {
   assert.deepEqual(k.items.equipped, {}, "ghost, wrong-slot and unowned items are dropped");
 });
 
-test("catalogue is consistent: every item has art, a valid slot and a requirement", () => {
+test("catalogue is consistent: every item has a valid slot and a requirement (2D art is gone — stage 5 S8)", () => {
   const ids = new Set();
   K.ITEMS.forEach((it) => {
     assert.ok(!ids.has(it.id), "unique id " + it.id); ids.add(it.id);
     assert.ok(K.ITEM_SLOTS.includes(it.slot) || K.ROOM_SLOTS.includes(it.slot), "slot " + it.slot);
     assert.ok(it.name.en && it.name.ko);
     assert.ok(it.unlock.free || it.unlock.coins > 0 || it.unlock.streak > 0 || it.unlock.badge);
-    assert.ok(A.hasArt(it.id), "art for " + it.id);
   });
   assert.ok(K.ITEMS.length >= 5 && K.ITEMS.length <= 400, "catalogue");
-});
-
-test("avatar draws only what is equipped, in the right layers", () => {
-  const bare = A.avatar({});
-  assert.ok(!bare.includes("data-item"));
-  const dressed = A.avatar({ headwear: "gradHat", clothing: "heroCape", accessory: "backpack" });
-  assert.ok(dressed.includes('data-item="gradHat"'));
-  assert.ok(dressed.includes('data-item="heroCape" data-layer="back"'));
-  assert.ok(dressed.includes('data-item="backpack" data-layer="back"'));
-  assert.ok(dressed.includes('data-item="backpack" data-layer="front"'));
-  // back layers come before the koala's body, front layers after it
-  assert.ok(dressed.indexOf('data-layer="back"') < dressed.indexOf('rx="46" ry="40"'));
-  assert.ok(dressed.lastIndexOf('data-item="gradHat"') > dressed.indexOf('rx="46" ry="40"'));
-  // an item in the wrong slot is ignored
-  assert.ok(!A.avatar({ face: "gradHat" }).includes("data-item"));
-  assert.ok(A.avatar({}, { label: 'My "Koala"' }).includes('aria-label="My &quot;Koala&quot;"'));
-  assert.ok(A.itemPicture("blueCap").includes("26 2 148 134"), "head crop for headwear");
-  assert.ok(A.itemIcon("blueCap").includes("koala-icon-svg") && !A.itemIcon("blueCap").includes('rx="46" ry="40"'), "item-only icon has no koala");
-  assert.ok(A.previewFor("beanie", { clothing: "tshirt" }, {}, "headwear").includes('data-item="tshirt"'), "preview keeps what is worn");
 });
 
 test("adjustCoins: gifts add, corrections take (never below 0), keys make it idempotent", () => {
@@ -367,55 +346,6 @@ test("reward loop: mission, badge and review coins are one-time and wrong answer
   assert.equal(K.learningProgress("typing", 120).goal, 50);
 });
 
-test("coin pace: finishing only Today's Mission every day furnishes a room's core set in about a week", () => {
-  // Mission = 3 tasks of 15 correct (flashcards, spelling, then quiz or times table on alternate days).
-  const day = (third, d) => {
-    const p = {};
-    ["flash", "spelling", third].forEach((m) => K.awardLearning(p, m, K.REWARD_CONFIG.mission.goal, d));
-    K.awardMission(p, d);
-    return p.koala.coins;
-  };
-  const week = [0, 1, 2, 3, 4, 5, 6].reduce((s, i) => s + day(i % 2 ? "quiz" : "tt", "2026-11-0" + (i + 1)), 0);
-  const median = (slot) => {
-    const a = K.ITEMS.filter((i) => i.kind === "room" && i.slot === slot && i.unlock.coins && !i.season).map((i) => i.unlock.coins).sort((x, y) => x - y);
-    return a[Math.floor(a.length / 2)];
-  };
-  const coreSet = ["wallpaper", "rug", "desk", "lamp", "shelf", "poster", "plant"].reduce((s, slot) => s + median(slot), 0);
-  assert.ok(week >= coreSet * 0.85 && week <= coreSet * 1.25, `a week of missions (${week}) ~ a room's core set (${coreSet})`);
-});
-
-test("Study Room: room items follow the same rules and never mix with character items", () => {
-  const roomItems = K.ITEMS.filter((i) => i.kind === "room");
-  assert.ok(roomItems.length >= 8);
-  assert.ok(roomItems.every((i) => K.ROOM_SLOTS.includes(i.slot)), "every room item has a room slot");
-  assert.ok(K.ITEMS.filter((i) => i.kind !== "room").every((i) => K.ITEM_SLOTS.includes(i.slot)));
-  assert.equal(new Set(K.ITEMS.map((i) => i.id)).size, K.ITEMS.length, "unique ids");
-  const p = {};
-  assert.ok(p.koala === undefined);
-  assert.equal(K.nextReward(p).item.slot === "wallpaper", false, "character next reward is a character item");
-  assert.equal(K.nextReward(p, { kind: "room" }).item.id, "blueRug");
-  K.awardCoins(p, 100, "quiz");
-  assert.equal(K.buyItem(p, "blueRug").ok, true);
-  assert.equal(p.koala.items.equipped.rug, "blueRug");
-  assert.equal(p.koala.items.equipped.headwear, undefined);
-  assert.equal(K.buyItem(p, "studyDesk").reason, "notEnoughCoins");
-  assert.equal(K.unequipSlot(p, "rug"), true);
-  assert.equal(K.equipItem(p, "blueRug"), true);
-  assert.equal(K.equipItem(p, "mintWall"), false, "not owned");
-  assert.equal(K.equipItem(p, "creamWall"), true, "free wallpaper");
-});
-
-test("Study Room art: every room item has a picture and renders in the scene", () => {
-  const A = require("../public/js/koala-art.js");
-  K.ITEMS.forEach((it) => assert.ok(A.hasArt(it.id) && A.itemPicture(it.id).includes("<svg"), it.id));
-  const eq = { wallpaper: "nightWall", rug: "starRug", desk: "studyDesk", lamp: "deskLamp", shelf: "bookshelf", plant: "pottedPlant", poster: "mapPoster", headwear: "crown" };
-  const room = A.room(eq, eq);
-  Object.values(eq).forEach((id) => assert.ok(room.includes(`data-item="${id}"`) || room.includes(id), id));
-  assert.ok(room.includes('data-item="crown"'), "koala still wears its hat in the room");
-  assert.ok(A.room({}, {}).includes("#fbf1dc"), "default cream wall");
-  assert.ok(!A.room({ rug: "mapPoster" }, {}).includes('data-item="mapPoster"'), "wrong slot ignored");
-});
-
 test("Phase 6: badge-gated items open by themselves when the badge is earned", () => {
   const p = { badges: {} };
   assert.deepEqual(K.syncStreakUnlocks(p), []);
@@ -423,7 +353,7 @@ test("Phase 6: badge-gated items open by themselves when the badge is earned", (
   assert.deepEqual(K.itemStatus(p, it), { state: "locked", need: "badge", badge: "words200" });
   assert.equal(K.buyItem(p, "wizardHat").reason, "notForSale");
   p.badges.words200 = 1; p.badges.ttAll = 2; p.badges.quiz100 = 3;
-  assert.deepEqual(K.syncStreakUnlocks(p).sort(), ["goldMedal", "trophyCabinet", "wizardHat"]);
+  assert.deepEqual(K.syncStreakUnlocks(p).sort(), ["goldMedal", "wizardHat"]);
   assert.equal(K.itemStatus(p, it).state, "owned");
   assert.deepEqual(K.syncStreakUnlocks(p), [], "only announced once");
   assert.equal(K.equipItem(p, "wizardHat"), true);
@@ -447,8 +377,8 @@ test("Phase 6: seasonal items are on sale only in their window, kept forever onc
   assert.equal(K.buyItem(p, "santaHat", { date: summer }).ok, true);
   assert.ok(ids(spring).includes("santaHat"), "owned items stay visible all year");
   assert.equal(K.buyItem({ koala: undefined }, "santaHat", { date: spring, unlimited: true }).ok, true, "admin can buy any time");
-  const nr = K.nextReward({}, { kind: "room", date: spring });
-  assert.ok(!["xmasTree", "beachTowel"].includes(nr.item.id), "next reward never a seasonal item that is not on sale");
+  const nr = K.nextReward({}, { date: spring });
+  assert.ok(!nr || !nr.item.season || K.isSeasonActive(nr.item, spring), "next reward never a seasonal item that is not on sale");
 });
 
 test("shop expansion: Jewelry and Shoes exist and every character category has 10+ items", () => {
@@ -457,125 +387,46 @@ test("shop expansion: Jewelry and Shoes exist and every character category has 1
     const n = K.ITEMS.filter((i) => i.slot === slot && !i.season).length;
     assert.ok(n >= (slot === "bottoms" ? 8 : 10), slot + " has " + n);
   });
-  K.ITEMS.forEach((i) => assert.ok(A.itemIcon(i.id).includes("<svg"), "icon " + i.id));
-});
-
-test("shop expansion: every Study Room category has 10+ items with art", () => {
-  K.ROOM_SLOTS.forEach((slot) => {
-    const n = K.ITEMS.filter((i) => i.slot === slot && !i.season).length;
-    // toys live in toy boxes now (as sub-items), so that slot only lists the boxes
-    assert.ok(n >= (slot === "toy" ? 3 : 10), slot + " has " + n);
-  });
-  assert.ok(K.ROOM_SLOTS.length >= 11);
-  K.ITEMS.filter((i) => i.kind === "room").forEach((i) => assert.ok(A.hasArt(i.id), i.id));
 });
 
 const bag = (coins) => ({ koala: { coins, earned: coins, ledger: [], items: { owned: {}, equipped: {} } } });
 
-test("sub-items: every one costs coins, and less than the cheapest parent it goes with", () => {
-  K.SUB_ITEMS.forEach((sub) => {
-    const parents = Object.keys(K.SUB_PARENTS).filter((p) => K.SUB_PARENTS[p] === sub.kind);
-    if (!parents.length) { assert.ok(["sink", "fridge", "tools", "shoes", "asmr"].includes(sub.kind), sub.id); return; }   // the sink / fridge of the 3D house have no Sticker parent
-    const cheapest = Math.min(...parents.map((p) => K.itemById(p).unlock.coins));
-    assert.ok(sub.cost < cheapest, sub.id + " " + sub.cost + " vs " + cheapest);
-    if (!sub.cost) assert.equal(sub.id, "picMeadow");
-  });
-  // all toys are sub-items of the toy boxes; pets get outfits
-  assert.equal(K.ITEMS.filter((i) => i.slot === "toy").every((i) => K.subKind(i.id) === "toys"), true);
-  assert.equal(K.subKind("catPet"), "petwear");
-  assert.equal(K.subKind("fishBowlPet"), null);
+test("sub-items: only the ASMR toys are left (stage 5 S8), each costs coins, and no room item is a parent any more", () => {
+  assert.ok(K.SUB_ITEMS.length > 0);
+  K.SUB_ITEMS.forEach((sub) => { assert.equal(sub.kind, "asmr", sub.id); assert.ok(sub.cost > 0, sub.id); });
+  assert.deepEqual(Object.keys(K.SUB_PARENTS), []);
+  assert.equal(K.ITEMS.some((i) => i.kind === "room"), false);
+  assert.equal(K.subKind("catPet"), null);
 });
 
-test("sub-items: owning the parent gives nothing; buying costs coins; limits and swaps", () => {
-  const p = bag(3000);
-  K.buyItem(p, "woodToyBox");
-  assert.deepEqual(K.subSelection(p, "woodToyBox"), []);
-  assert.equal(K.toggleSub(p, "woodToyBox", "toyBall").reason, "notOwned");
-  assert.equal(K.toggleSub(p, "cozyRug", "toyBall").reason, "notParent");
-  assert.equal(K.buySub(p, "woodToyBox", "toyBall").ok, true);
-  assert.equal(p.koala.coins, 3000 - 90 - 20);
-  assert.equal(K.buySub(p, "woodToyBox", "toyBall").reason, "owned");
-  assert.deepEqual(K.subSelection(p, "woodToyBox"), ["toyBall"]);
-  assert.equal(K.toggleSub(p, "woodToyBox", "toyBall").on, false); // take out, still owned
-  assert.equal(K.isSubOwned(p, "toyBall"), true);
-  assert.equal(K.buySub(bag(5), "woodToyBox", "toyBall").reason, "notEnoughCoins");
-  assert.equal(K.buySub(p, "bookshelf", "toyBall").reason, "unknown");
-  // toys: at most 4
-  ["toyTeddy", "toyCar", "toyRobot", "toyDino"].forEach((s) => assert.ok(K.buySub(p, "woodToyBox", s).placed));
-  K.buySub(p, "woodToyBox", "toyBall"); // owned already -> reason owned
-  K.toggleSub(p, "woodToyBox", "toyBall");
-  assert.equal(K.subSelection(p, "woodToyBox").length, 4);
-  // a frame holds one picture, starts with the free one
-  assert.deepEqual(K.subSelection(p, "goldFrame"), ["picMeadow"]);
-  K.buySub(p, "goldFrame", "picSea");
-  assert.deepEqual(K.subSelection(p, "goldFrame"), ["picSea"]);
-  // pet outfit swaps within its group
-  K.buySub(p, "catPet", "pwBow"); K.buySub(p, "catPet", "pwTopHat");
-  assert.deepEqual(K.subSelection(p, "catPet"), ["pwTopHat"]);
-  K.buySub(p, "catPet", "pwCollar");
-  assert.deepEqual(K.subSelection(p, "catPet").sort(), ["pwCollar", "pwTopHat"]);
-  // admin: free, but still has to "buy" it before it goes in
-  const adm = bag(0);
-  assert.equal(K.toggleSub(adm, "catPet", "pwCape", { unlimited: true }).reason, "notOwned");
-  assert.equal(K.buySub(adm, "catPet", "pwCape", { unlimited: true }).ok, true);
-  assert.equal(adm.koala.coins, 0);
-  // family frame holds up to 3 photos
-  K.buyItem(p, "familyFrame");
-  ["photoPicnic", "photoBeach", "photoPark", "photoZoo"].forEach((x) => K.buySub(p, "familyFrame", x));
-  assert.equal(K.subSelection(p, "familyFrame").length, 3);
-  assert.equal(K.subKind("smallFrame"), "frame");
-  assert.ok(K.subItemsFor("bigFrame").length >= 20);
-});
+
 
 test("selling back: 80% returns to the wallet, the item is gone, history records it", () => {
   const p = bag(300);
-  K.buyItem(p, "bookshelf"); // 100
-  K.buySub(p, "bookshelf", "spaceBook"); // 35
-  assert.equal(p.koala.coins, 165);
-  const r = K.sellSub(p, "spaceBook");
-  assert.equal(r.refund, 28);
-  assert.equal(r.fee, 7);
-  assert.equal(p.koala.coins, 193);
-  assert.equal(K.isSubOwned(p, "spaceBook"), false);
-  assert.deepEqual(K.subSelection(p, "bookshelf"), []);
-  const s = K.sellItem(p, "bookshelf");
-  assert.equal(s.refund, 80);
-  assert.equal(p.koala.coins, 273);
-  assert.equal(p.koala.items.owned.bookshelf, undefined);
-  assert.equal(p.koala.items.equipped.shelf, undefined);
-  assert.equal(p.koala.refunded, 108);
-  assert.equal(p.koala.spent, 135);
-  assert.deepEqual(p.koala.ledger.map((e) => e.why), ["item:bookshelf", "sub:spaceBook", "sellsub:spaceBook", "sell:bookshelf"]);
+  const it = K.ITEMS.find((i) => !i.kind && i.unlock && i.unlock.coins >= 50 && !i.season);
+  K.buyItem(p, it.id);
+  assert.equal(p.koala.coins, 300 - it.unlock.coins);
+  const s = K.sellItem(p, it.id);
+  assert.equal(s.refund, Math.floor(it.unlock.coins * 0.8));
+  assert.equal(p.koala.items.owned[it.id], undefined);
+  assert.equal(p.koala.refunded, s.refund);
+  assert.deepEqual(p.koala.ledger.map((e) => e.why), ["item:" + it.id, "sell:" + it.id]);
   assert.ok(p.koala.coins <= p.koala.earned);
-  assert.equal(K.sellItem(p, "bookshelf").reason, "notOwned");
-  assert.equal(K.sellItem(p, "creamWall").reason, "notForSale");
-  assert.equal(K.sellSub(p, "picMeadow").reason, "notForSale");
-  // buy it again: works, and nothing is free
-  assert.equal(K.buyItem(p, "bookshelf").ok, true);
-  // admin gets nothing back
+  assert.equal(K.sellItem(p, it.id).reason, "notOwned");
+  assert.equal(K.buyItem(p, it.id).ok, true, "buy it again");
   const adm = bag(0);
-  K.buyItem(adm, "bookshelf", { unlimited: true });
-  assert.equal(K.sellItem(adm, "bookshelf", { unlimited: true }).refund, 0);
+  K.buyItem(adm, it.id, { unlimited: true });
+  assert.equal(K.sellItem(adm, it.id, { unlimited: true }).refund, 0, "admin gets nothing back");
   assert.equal(adm.koala.coins, 0);
 });
 
-test("sub-items: old floor toys become owned toy-box toys; bad data is cleaned; sold items stay sold after sync", () => {
+test("sub-items: old floor toys become owned toy-box toys and stay in a wallet that has not moved yet (legacy ids); bad data is cleaned", () => {
   const p = { koala: { coins: 0, earned: 0, ledger: [], items: { owned: { teddyToy: 5, ballToy: 6 }, equipped: { toy: "teddyToy" }, sub: { bookshelf: ["koalaBook", "koalaBook", "nope"], cozyRug: ["x"] } } } };
   const k = K.ensureKoala(p);
   assert.deepEqual(Object.keys(k.items.subOwned).sort(), ["toyBall", "toyTeddy"]);
   assert.equal(k.items.owned.teddyToy, undefined);
   assert.equal(k.items.equipped.toy, undefined);
   assert.deepEqual(k.items.sub, {}); // koalaBook is not owned
-  K.SUB_ITEMS.forEach((s) => assert.ok(A.subIcon(s.id).includes("<svg"), s.id));
-  // sold on one device, still owned on the other
-  const a = bag(500);
-  K.buySub(a, "woodToyBox", "toyCar", { unlimited: true });
-  const b = JSON.parse(JSON.stringify(a));
-  K.sellSub(a, "toyCar", { unlimited: true, now: Date.now() + 10 });
-  K.mergeRewards(b, a);
-  assert.equal(K.isSubOwned(b, "toyCar"), false);
-  K.mergeRewards(a, b);
-  assert.equal(K.isSubOwned(a, "toyCar"), false);
 });
 
 test("gameCoinMultiplier: locked = half, everyone else 1", () => {
@@ -602,9 +453,8 @@ test("unlimited (admin): badge / streak locked items can be taken too, and spend
   assert.equal(K.buyItem({}, it.id, {}).reason, "notForSale");
 });
 
-test("asmr toys: every ASMR sub-item has a sound recipe and a drawn picture, and the groups match", () => {
+test("asmr toys: every ASMR sub-item has a sound recipe, and the groups match", () => {
   const A = require("../public/js/asmr-sound.js");
-  const Art = require("../public/js/koala-art.js");
   const list = K.SUB_ITEMS.filter((x) => x.kind === "asmr");
   assert.equal(list.length, Object.keys(A.TOYS).length);
   list.forEach((x) => {
@@ -612,21 +462,8 @@ test("asmr toys: every ASMR sub-item has a sound recipe and a drawn picture, and
     assert.equal(A.TOYS[x.id].group, x.group, x.id);
     assert.ok(A.GROUPS[x.group], x.group);
     assert.equal(typeof A.RECIPES[A.TOYS[x.id].recipe], "function", x.id);
-    assert.ok(Art.subIcon(x.id).includes("<svg"), "picture for " + x.id);
     assert.ok(K.subLimit("asmr", x.group) > 0, x.group);
   });
-});
-
-test("toys category: both toy boxes live in Toys and can be bought in every indoor room (the garage too)", () => {
-  const H = require("../public/js/koala-house.js");
-  ["toybox", "asmrBox"].forEach((id) => {
-    const d = H.D[id];
-    assert.equal(d.cat, "toys", id);
-    assert.equal(d.where, "in", id);
-    assert.ok(!d.only, id + " must not be limited to one kind of room");
-  });
-  assert.equal(H.D.asmrBox.subKind, "asmr");
-  assert.ok(K.SUB_ITEMS.filter((x) => x.kind === "asmr").length > 0);
 });
 
 test("missionLog: mission days are kept for Koala House, older saves fold in missionDone, 60-day window", () => {
