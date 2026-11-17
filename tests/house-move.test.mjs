@@ -14,14 +14,17 @@ function freshSite() {
   const win = { localStorage: { getItem: (k) => store.get(k) ?? null, setItem: (k, v) => store.set(k, String(v)), removeItem: (k) => store.delete(k) }, addEventListener() {}, location: { search: "" }, navigator: {}, matchMedia: () => ({ matches: false, addEventListener() {} }) };
   win.window = win; win.self = win; win.document = { addEventListener() {}, querySelector: () => null, createElement: () => ({ style: {}, getContext: () => null }), documentElement: { lang: "en" } };
   const ctx = vm.createContext(win);
-  for (const f of ["public/js/koala-core.js", "public/js/koala-house.js"]) vm.runInContext(read(f), ctx, { filename: f });
-  return { C: win.KoalaCore, H: win.KoalaHouse };
+  for (const f of ["public/js/koala-core.js"]) vm.runInContext(read(f), ctx, { filename: f });
+  return { C: win.KoalaCore };
 }
-const { C: CS, H } = freshSite();
+// The old Pop-out house code (koala-house.js) and the old room items are gone since stage 5 S8 (2026-11-17):
+// their starter save, item prices and room catalogue were frozen into tests/fixtures/old-rooms.json to build the samples.
+const OLD = JSON.parse(read("tests/fixtures/old-rooms.json"));
+const H = { starter: () => JSON.parse(JSON.stringify(OLD.starter)), D: Object.fromEntries(OLD.houseItems.map((d) => [d.id, d])) };
 const memKV = (init = {}) => { const m = new Map(Object.entries(init)); return { m, get: (k) => (m.has(k) ? m.get(k) : null), set: (k, v) => m.set(k, String(v)), remove: (k) => m.delete(k) }; };
 const clone = (x) => JSON.parse(JSON.stringify(x));
 const pick = (ids) => Object.fromEntries(ids.map((id) => [id, 1]));
-const priced = KoalaCore.ITEMS.filter((i) => i.kind === "room" && i.unlock && i.unlock.coins);
+const priced = Object.entries(OLD.roomCatalog).filter(([, c]) => c > 0).map(([id, coins]) => ({ id, unlock: { coins } }));
 const progressOf = (owned = {}, subOwned = {}, extra = {}) => { const p = { koala: { coins: 0, earned: 0, items: { owned: clone(owned), subOwned: clone(subOwned), equipped: {}, sub: {}, sold: {} }, ledger: [] }, streak: {}, badges: {} }; KoalaCore.ensureKoala(p); Object.assign(p.koala, extra); return p; };
 const many = pick([...priced.slice(0, 12).map((i) => i.id), "creamWall", "trophyCabinet"]);
 const subs2d = pick(["koalaBook", "photoPicnic", "photoGrad", "toyTeddy", "pwScarf"]);
@@ -62,7 +65,7 @@ test("C4-0 the old 3D wardrobe's 'worn' stays: moving never changes or removes k
 
 test("C4-2 frozen prices = the live catalogue, and the amounts match the H9 refund rehearsal table", () => {
   // frozen table equals the catalogue it was made from
-  for (const it of KoalaCore.ITEMS.filter((i) => i.kind === "room")) assert.equal(Legacy.DATA.room[it.id], (it.unlock && it.unlock.coins) || 0, it.id);
+  for (const [id, price] of Object.entries(OLD.roomCatalog)) assert.equal(Legacy.DATA.room[id], price, id);
   const r2 = Legacy.room2d(progressOf({ redScarf: 1 }, subsMix).koala);
   assert.equal(r2.total, 137, "fake wallet 2: book 20 + robot 55 + chocolate 12 + drill 25 + boots 25; ASMR toys not refunded");
   const rehearsal = "I:/koala-house-3d/docs/review-2026-11-06/h9/refund-rehearsal.json";
@@ -140,7 +143,7 @@ test("E ② two devices merged: moved once — no coins, no second move, the key
 
 test("E 'after S8': the catalogue no longer has the old room items — an un-moved wallet keeps them until it moves (0 coins), once", () => {
   const { C } = freshSite();
-  const roomIds = C.ITEMS.filter((i) => i.kind === "room").map((i) => i.id);
+  const roomIds = Object.keys(OLD.roomCatalog);
   for (let i = C.ITEMS.length - 1; i >= 0; i--) if (C.ITEMS[i].kind === "room") C.ITEMS.splice(i, 1);   // S8 removed them
   const owned = pick(priced.slice(0, 5).map((i) => i.id));
   const p = { koala: { coins: 10, earned: 10, items: { owned: clone(owned), subOwned: { koalaBook: 1 }, equipped: {}, sub: {}, sold: {} }, ledger: [] }, streak: {}, badges: {} };

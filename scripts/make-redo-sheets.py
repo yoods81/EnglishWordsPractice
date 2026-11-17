@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 IMG = os.path.join(ROOT, "public", "img", "koala")
 OUT = os.path.join(ROOT, "Koala Images", "item-sheets")
-src = open(os.path.join(ROOT, "public", "js", "koala-house-ui.js"), encoding="utf-8").read()
+src = open(os.path.join(ROOT, "public", "js", "koala-wardrobe.js"), encoding="utf-8").read()
 KBOX = {"base": [64, 222, 617, 968], "hoodie": [122, 528, 562, 819], "backpack": [131, 545, 560, 832], "scarf": [185, 531, 497, 780], "glasses": [162, 362, 520, 500], "bushhat": [108, 188, 574, 441], "partyhat": [259, 100, 422, 290], "crown": [249, 190, 433, 295]}
 for k, v in re.findall(r'"(\w+)": \[(\d+, \d+, \d+, \d+)\]', src.split("const K3")[0].split("const KBOX")[1]): KBOX[k] = [int(x) for x in v.split(",")]
 NAME = dict(re.findall(r'(\w+): \["[^"]*", "([^"]+)"\]', src.split("const KNAME = ")[1].split("// Admin-added")[0]))

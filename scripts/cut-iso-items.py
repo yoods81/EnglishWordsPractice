@@ -1,5 +1,5 @@
 """Cut the Gemini sheets (item on flat green, 3/4 view) apart into public/img/koala/<item>_iso.webp and
-write where each sits (canvas coords, same system as KBOX) into the `const KISO = ...` line of public/js/koala-house-ui.js.
+write where each sits (canvas coords, same system as KBOX) into the `const KISO = ...` line of public/js/koala-wardrobe.js.
 Inputs: <gemini-ref>/sheet-NN-<group>-out.jfif and redo-NN-out.jfif (+ sheets.json / redo.json from the make-*-sheets scripts).
 Usage: python scripts/cut-iso-items.py [gemini-ref folder]"""
 import glob, json, math, os, re, sys
@@ -11,7 +11,7 @@ ROOT = os.path.join(os.path.dirname(__file__), "..")
 REF = sys.argv[1] if len(sys.argv) > 1 else "I:/Koala Study Resources/gemini-ref"
 SHEETS = os.path.join(ROOT, "Koala Images", "item-sheets")
 IMG = os.path.join(ROOT, "public", "img", "koala")
-UI = os.path.join(ROOT, "public", "js", "koala-house-ui.js")
+UI = os.path.join(ROOT, "public", "js", "koala-wardrobe.js")
 src = open(UI, encoding="utf-8").read()
 KBOX = {"hoodie": [122, 528, 562, 819], "backpack": [131, 545, 560, 832], "scarf": [185, 531, 497, 780], "glasses": [162, 362, 520, 500], "bushhat": [108, 188, 574, 441], "partyhat": [259, 100, 422, 290], "crown": [249, 190, 433, 295]}
 for k, v in re.findall(r'"(\w+)": \[(\d+, \d+, \d+, \d+)\]', src.split("const K3")[0].split("const KBOX")[1]): KBOX[k] = [int(x) for x in v.split(",")]

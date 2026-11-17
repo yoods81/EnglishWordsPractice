@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 IMG = os.path.join(ROOT, "public", "img", "koala")
 OUT = os.path.join(ROOT, "Koala Images", "item-sheets")
-src = open(os.path.join(ROOT, "public", "js", "koala-house-ui.js"), encoding="utf-8").read()
+src = open(os.path.join(ROOT, "public", "js", "koala-wardrobe.js"), encoding="utf-8").read()
 KSLOT = {k: re.findall(r'"(\w+)"', v) for k, v in re.findall(r"(\w+): \[([^\]]*)\]", re.search(r"const KSLOT = \{(.*?)\};", src, re.S).group(1))}
 NAME = dict(re.findall(r'(\w+): \["[^"]*", "([^"]+)"\]', src.split("const KNAME = ")[1].split("// Admin-added")[0]))
 KBOX = {}

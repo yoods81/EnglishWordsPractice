@@ -3,7 +3,7 @@
 For every cell: the koala silhouette of img/koala/back_base.webp is registered onto the cell (scale + shift, best overlap), the cell is warped
 into the koala's own coordinates, and the item is whatever differs from the plain koala (or lies outside it). Each item is saved as
 img/koala/back/<item>.webp, cropped, with its box in canvas units (the same units as KBOX: back_base sits at [64, 222, 617, 968]) written to
-`const KBACK = {...}` in public/js/koala-house-ui.js.
+`const KBACK = {...}` in public/js/koala-wardrobe.js.
 Usage: python scripts/cut-back-items.py [gemini-ref folder] [only-sheet-number]"""
 import json, os, re, sys
 import numpy as np
@@ -15,7 +15,7 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 REF = sys.argv[1] if len(sys.argv) > 1 else "I:/Koala Study Resources/gemini-ref"
 ONLY = int(sys.argv[2]) if len(sys.argv) > 2 else None
 IMG = os.path.join(ROOT, "public", "img", "koala")
-UI = os.path.join(ROOT, "public", "js", "koala-house-ui.js")
+UI = os.path.join(ROOT, "public", "js", "koala-wardrobe.js")
 SHEETS = os.path.join(ROOT, "Koala Images", "item-sheets")
 META = json.load(open(os.path.join(SHEETS, "backviews.json")))
 if os.path.exists(os.path.join(SHEETS, "backtall.json")): META += json.load(open(os.path.join(SHEETS, "backtall.json")))   # backtall-NN: cells with room above / beside the koala (tall hats, wings, capes)

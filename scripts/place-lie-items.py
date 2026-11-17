@@ -1,7 +1,7 @@
 """Lying pictures for the items Gemini could not draw on the lying koala (thin / low-contrast ones).
 The face / neck items that DID come out well tell how the iso (3/4 front) picture maps onto the lying picture
 (scale, rotation, shift, measured on the alpha masks); the same map is applied to the iso pictures of the missing items.
-Writes img/koala/<item>_isol.webp and adds the boxes to `const KISOL` in public/js/koala-house-ui.js.
+Writes img/koala/<item>_isol.webp and adds the boxes to `const KISOL` in public/js/koala-wardrobe.js.
 Usage: python scripts/place-lie-items.py"""
 import json, math, os, re
 import numpy as np
@@ -9,7 +9,7 @@ from PIL import Image
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 IMG = os.path.join(ROOT, "public", "img", "koala")
-UI = os.path.join(ROOT, "public", "js", "koala-house-ui.js")
+UI = os.path.join(ROOT, "public", "js", "koala-wardrobe.js")
 src = open(UI, encoding="utf-8").read()
 KISO = json.loads(re.search(r"const KISO = (\{.*?\});", src).group(1))
 KISOL = json.loads(re.search(r"const KISOL = (\{.*?\});", src).group(1))

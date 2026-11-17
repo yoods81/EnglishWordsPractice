@@ -6,7 +6,7 @@
 const CACHE = "koala-study-v269";
 const PRECACHE = [
   "/", "/index.html", "/css/style.css", "/css/themes.css", "/css/admin.css", "/js/app.js", "/js/support.js",
-  "/js/faq-data.js", "/js/faq.js", "/js/admin-cs.js", "/js/koala-core.js", "/js/quiz-core.js", "/js/koala-art.js", "/js/asmr-sound.js", "/js/koala-house.js", "/js/koala-house-ui.js", "/js/koala-wardrobe.js", "/js/koala-admin-items.js", "/css/koala-house.css", "/js/words.js", "/js/words_ko.js",
+  "/js/faq-data.js", "/js/faq.js", "/js/admin-cs.js", "/js/koala-core.js", "/js/quiz-core.js", "/js/koala-art.js", "/js/asmr-sound.js", "/js/koala-wardrobe.js", "/js/koala-admin-items.js", "/css/koala-house.css", "/js/words.js", "/js/words_ko.js",
   "/favicon.svg?v=4", "/icon-192.png?v=4", "/icon-512.png?v=4", "/apple-touch-icon.png?v=4", "/manifest.webmanifest", "/screenshots/home.png",
 ];
 

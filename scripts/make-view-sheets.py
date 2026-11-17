@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 IMG = os.path.join(ROOT, "public", "img", "koala")
 OUT = os.path.join(ROOT, "Koala Images", "item-sheets")
-src = open(os.path.join(ROOT, "public", "js", "koala-house-ui.js"), encoding="utf-8").read()
+src = open(os.path.join(ROOT, "public", "js", "koala-wardrobe.js"), encoding="utf-8").read()
 KSLOT = {k: re.findall(r'"(\w+)"', v) for k, v in re.findall(r"(\w+): \[([^\]]*)\]", src.split("const KSLOT = ")[1].split("const KNAME")[0])}
 NAME = dict(re.findall(r'(\w+): \["[^"]*", "([^"]+)"\]', src.split("const KNAME = ")[1].split("// Admin-added")[0]))
 BASE = (64, 222, 617, 968)   # where the standing body picture sits in the canvas

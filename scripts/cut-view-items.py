@@ -1,7 +1,7 @@
 """Back-view and lying-view item pictures from the Gemini sheets made by make-view-sheets.py.
  back  (view-01..11): the item alone on green  -> img/koala/<item>_isob.webp, placed from the front item's box mapped onto the back body
  lying (view-21..25): the koala is kept, background green -> diff against iso_lie.webp -> img/koala/<item>_isol.webp, box in iso_lie pixels
-Writes `const KISOB = ...` and `const KISOL = ...` into public/js/koala-house-ui.js.
+Writes `const KISOB = ...` and `const KISOL = ...` into public/js/koala-wardrobe.js.
 Usage: python scripts/cut-view-items.py [gemini-ref folder]"""
 import json, os, re, sys, math
 import numpy as np

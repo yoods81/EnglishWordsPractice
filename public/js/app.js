@@ -17122,7 +17122,7 @@ function koalaSetWardApi() {
 
 function koalaMountDim3d() {
   const host = document.getElementById("kh-host");
-  if (!host || !window.KoalaHouse || !KoalaHouse.mount) return;
+  if (!host || !window.KoalaHouse || !KoalaHouse.mountWardrobe) return;
   try {
     // E (S8): only the 3D wardrobe mounts here now — the old Pop-out house is gone (the Room tab opens the new Koala House)
     koalaSetWardApi(); if (KoalaHouse.setWardOwned) KoalaHouse.setWardOwned(koalaOwnedView); KoalaHouse.mountWardrobe(host, koalaHouseOpts());

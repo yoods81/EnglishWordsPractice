@@ -1,12 +1,12 @@
 """Where each worn item sits on the straight back koala (img/koala/back_base.webp), measured on the koala's own body (canvas units, the same as KBOX):
 head dome top y~262, neck y~555, shoulders y~575, arms to y~710 (x 100..580), torso x 182..497, hips y~730, legs split y~840, ankles y~940, floor y~968; centre x=340.
 Each entry: (width, top, bottom) - the picture is stretched to that box, centred on x=340 -  or (width, None, bottom)/(width, top, None) to keep the aspect.
-Writes `const KBACK` in public/js/koala-house-ui.js.   Usage: python scripts/apply-back-fit.py"""
+Writes `const KBACK` in public/js/koala-wardrobe.js.   Usage: python scripts/apply-back-fit.py"""
 import json, os, re
 from PIL import Image
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-IMG = os.path.join(ROOT, "public", "img", "koala", "back"); UI = os.path.join(ROOT, "public", "js", "koala-house-ui.js")
+IMG = os.path.join(ROOT, "public", "img", "koala", "back"); UI = os.path.join(ROOT, "public", "js", "koala-wardrobe.js")
 CX = 340
 FIT = {
     # hats: the base sits on the head dome

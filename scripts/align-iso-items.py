@@ -4,7 +4,7 @@ head and different proportions, so shirts started in the chin, trousers hung und
 Here each picture (front: <item>_iso.webp on iso_stand_f.webp, back: <item>_isob.webp on iso_stand_b.webp) is registered onto the part of the
 body it covers (torso+arms for tops, legs for trousers / skirts, feet for shoes, the strip under the chin for the scarf):
 scale and shift are searched so that the picture's silhouette and the body part overlap best (intersection over union).
-Writes `const KISO` / `const KISOB` in public/js/koala-house-ui.js. Hats, glasses, necklaces ... keep the places they have.
+Writes `const KISO` / `const KISOB` in public/js/koala-wardrobe.js. Hats, glasses, necklaces ... keep the places they have.
 Usage: python scripts/align-iso-items.py [front|back|both]"""
 import json, os, re, sys
 import numpy as np
@@ -13,7 +13,7 @@ from scipy.signal import fftconvolve
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 IMG = os.path.join(ROOT, "public", "img", "koala")
-UI = os.path.join(ROOT, "public", "js", "koala-house-ui.js")
+UI = os.path.join(ROOT, "public", "js", "koala-wardrobe.js")
 src = open(UI, encoding="utf-8").read()
 KSLOT = {k: re.findall(r'"(\w+)"', v) for k, v in re.findall(r"(\w+): \[([^\]]*)\]", re.search(r"const KSLOT = \{(.*?)\};", src, re.S).group(1))}
 BASE = (64, 222)

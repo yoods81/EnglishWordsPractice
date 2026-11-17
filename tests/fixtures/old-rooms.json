@@ -1,0 +1,720 @@
+{
+ "note": "Frozen 2026-11-17 (stage 5 S8) from the deleted public/js/koala-house.js and the old room items of koala-core.js — test samples only.",
+ "starter": {
+  "v": 2,
+  "cur": "s7",
+  "owned": {
+   "bedBlue": 1,
+   "sofaRed": 1,
+   "deskWood": 1,
+   "stoolBlue": 1,
+   "shelfWood": 1,
+   "wardrobeWood": 1,
+   "tableRound": 1,
+   "rugBlue": 1,
+   "lampDesk": 1,
+   "vase": 1,
+   "bookStack": 1,
+   "plantBig": 1,
+   "dresser": 1,
+   "toybox": 1,
+   "tvStand": 1,
+   "fridge": 1,
+   "counter": 1,
+   "stove": 1,
+   "bathtub": 1,
+   "toilet": 1,
+   "vanity": 1,
+   "treeApple": 1,
+   "bush": 1,
+   "flowerBed": 1,
+   "bench": 1,
+   "fence": 1,
+   "stones": 1,
+   "pottedSmall": 1,
+   "winDay": 1,
+   "frameSun": 1
+  },
+  "worn": {},
+  "walls": {
+   "cream": 1,
+   "mint": 1
+  },
+  "floors": {
+   "wood": 1,
+   "grass": 1
+  },
+  "houseStyles": {
+   "cottage": 1
+  },
+  "yardSizes": {
+   "normal": 1
+  },
+  "slots": {
+   "s7": {
+    "type": "study",
+    "wall": "mint",
+    "floor": "wood",
+    "items": [
+     {
+      "uid": "mwk1rrv5e3p",
+      "id": "rugBlue",
+      "c": 1,
+      "r": 2,
+      "m": 0,
+      "z": 0
+     },
+     {
+      "uid": "mwk1rrv5fmy",
+      "id": "deskWood",
+      "c": 3,
+      "r": 0,
+      "m": 0,
+      "z": 0
+     },
+     {
+      "uid": "mwk1rrv5gfv",
+      "id": "stoolBlue",
+      "c": 3,
+      "r": 1,
+      "m": 2,
+      "z": 0
+     },
+     {
+      "uid": "mwk1rrv5h5h",
+      "id": "shelfWood",
+      "c": 0,
+      "r": 1,
+      "m": 1,
+      "z": 0
+     },
+     {
+      "uid": "mwk1rrv5i1s",
+      "id": "plantBig",
+      "c": 5,
+      "r": 5,
+      "m": 0,
+      "z": 0
+     },
+     {
+      "uid": "mwk1rrv5j99",
+      "id": "lampDesk",
+      "c": 4,
+      "r": 0,
+      "m": 0,
+      "z": 38
+     },
+     {
+      "uid": "mwk1rrv5kqh",
+      "id": "bookStack",
+      "c": 3,
+      "r": 0,
+      "m": 0,
+      "z": 38
+     },
+     {
+      "uid": "mwk1rrv5lfc",
+      "id": "winDay",
+      "side": "R",
+      "u": 1.5,
+      "h": 56
+     },
+     {
+      "uid": "mwk1rrv5mdo",
+      "id": "frameSun",
+      "side": "L",
+      "u": 3.5,
+      "h": 70
+     }
+    ]
+   }
+  },
+  "yard": {
+   "size": "normal",
+   "floor": "grass",
+   "border": "fence",
+   "path": "stones",
+   "house": {
+    "style": "cottage",
+    "wall": "cream",
+    "roof": "red",
+    "door": "wood",
+    "rot": 0,
+    "shift": 0
+   },
+   "items": [
+    {
+     "uid": "mwk1rrv5n42",
+     "id": "treeApple",
+     "c": 1,
+     "r": 5,
+     "m": 0,
+     "z": 0
+    },
+    {
+     "uid": "mwk1rrv5ox9",
+     "id": "flowerBed",
+     "c": 9,
+     "r": 6,
+     "m": 0,
+     "z": 0
+    },
+    {
+     "uid": "mwk1rrv5p03",
+     "id": "bench",
+     "c": 3,
+     "r": 9,
+     "m": 0,
+     "z": 0
+    },
+    {
+     "uid": "mwk1rrv5qwo",
+     "id": "bush",
+     "c": 0,
+     "r": 8,
+     "m": 0,
+     "z": 0
+    }
+   ]
+  }
+ },
+ "houseItems": [
+  {
+   "id": "bedBlue",
+   "price": 0
+  },
+  {
+   "id": "bedPink",
+   "price": 90
+  },
+  {
+   "id": "bedMint",
+   "price": 90
+  },
+  {
+   "id": "sofaRed",
+   "price": 0
+  },
+  {
+   "id": "sofaBlue",
+   "price": 70
+  },
+  {
+   "id": "sofaGreen",
+   "price": 70
+  },
+  {
+   "id": "chairPurple",
+   "price": 40
+  },
+  {
+   "id": "chairYellow",
+   "price": 40
+  },
+  {
+   "id": "tableRound",
+   "price": 0
+  },
+  {
+   "id": "tableSquare",
+   "price": 50
+  },
+  {
+   "id": "deskWood",
+   "price": 0
+  },
+  {
+   "id": "deskWhite",
+   "price": 60
+  },
+  {
+   "id": "deskBlue",
+   "price": 90
+  },
+  {
+   "id": "stoolBlue",
+   "price": 0
+  },
+  {
+   "id": "stoolRed",
+   "price": 20
+  },
+  {
+   "id": "shelfWood",
+   "price": 0
+  },
+  {
+   "id": "shelfWhite",
+   "price": 80
+  },
+  {
+   "id": "wardrobeWood",
+   "price": 0
+  },
+  {
+   "id": "wardrobeMint",
+   "price": 90
+  },
+  {
+   "id": "dresser",
+   "price": 0
+  },
+  {
+   "id": "tvStand",
+   "price": 100
+  },
+  {
+   "id": "fridge",
+   "price": 120
+  },
+  {
+   "id": "counter",
+   "price": 110
+  },
+  {
+   "id": "stove",
+   "price": 100
+  },
+  {
+   "id": "bathtub",
+   "price": 100
+  },
+  {
+   "id": "toilet",
+   "price": 60
+  },
+  {
+   "id": "vanity",
+   "price": 70
+  },
+  {
+   "id": "toybox",
+   "price": 0
+  },
+  {
+   "id": "asmrBox",
+   "price": 60
+  },
+  {
+   "id": "piano",
+   "price": 200
+  },
+  {
+   "id": "rugBlue",
+   "price": 0
+  },
+  {
+   "id": "rugRed",
+   "price": 40
+  },
+  {
+   "id": "rugGreen",
+   "price": 40
+  },
+  {
+   "id": "rugPinkSq",
+   "price": 30
+  },
+  {
+   "id": "rugYellowSq",
+   "price": 30
+  },
+  {
+   "id": "rugRunner",
+   "price": 30
+  },
+  {
+   "id": "lampDesk",
+   "price": 0
+  },
+  {
+   "id": "lampPink",
+   "price": 30
+  },
+  {
+   "id": "vase",
+   "price": 0
+  },
+  {
+   "id": "bookStack",
+   "price": 0
+  },
+  {
+   "id": "laptop",
+   "price": 60
+  },
+  {
+   "id": "teddy",
+   "price": 30
+  },
+  {
+   "id": "cake",
+   "price": 30
+  },
+  {
+   "id": "fruitBowl",
+   "price": 25
+  },
+  {
+   "id": "blocks",
+   "price": 20
+  },
+  {
+   "id": "ball",
+   "price": 15
+  },
+  {
+   "id": "clockDesk",
+   "price": 20
+  },
+  {
+   "id": "pottedSmall",
+   "price": 0
+  },
+  {
+   "id": "plantBig",
+   "price": 0
+  },
+  {
+   "id": "cactus",
+   "price": 30
+  },
+  {
+   "id": "palm",
+   "price": 60
+  },
+  {
+   "id": "lampFloor",
+   "price": 50
+  },
+  {
+   "id": "treeApple",
+   "price": 0
+  },
+  {
+   "id": "treeCherry",
+   "price": 70
+  },
+  {
+   "id": "treeMaple",
+   "price": 70
+  },
+  {
+   "id": "bush",
+   "price": 0
+  },
+  {
+   "id": "flowerBed",
+   "price": 0
+  },
+  {
+   "id": "pond",
+   "price": 100
+  },
+  {
+   "id": "bench",
+   "price": 60
+  },
+  {
+   "id": "swing",
+   "price": 100
+  },
+  {
+   "id": "fence",
+   "price": 0
+  },
+  {
+   "id": "gardenLamp",
+   "price": 50
+  },
+  {
+   "id": "mailbox",
+   "price": 30
+  },
+  {
+   "id": "sandbox",
+   "price": 80
+  },
+  {
+   "id": "doghouse",
+   "price": 90
+  },
+  {
+   "id": "fountain",
+   "price": 160
+  },
+  {
+   "id": "stones",
+   "price": 0
+  },
+  {
+   "id": "hedge",
+   "price": 40
+  },
+  {
+   "id": "snowman",
+   "price": 50
+  },
+  {
+   "id": "car",
+   "price": 200
+  },
+  {
+   "id": "treePine",
+   "price": 70
+  },
+  {
+   "id": "rock",
+   "price": 20
+  },
+  {
+   "id": "tulips",
+   "price": 40
+  },
+  {
+   "id": "gate",
+   "price": 40
+  },
+  {
+   "id": "hedge1",
+   "price": 0
+  },
+  {
+   "id": "stoneWall1",
+   "price": 0
+  },
+  {
+   "id": "carCompactRed",
+   "price": 150
+  },
+  {
+   "id": "carCompactYellow",
+   "price": 150
+  },
+  {
+   "id": "carSedanBlue",
+   "price": 240
+  },
+  {
+   "id": "carSedanSilver",
+   "price": 240
+  },
+  {
+   "id": "carSuvGreen",
+   "price": 260
+  },
+  {
+   "id": "carSuvWhite",
+   "price": 340
+  },
+  {
+   "id": "carUteOrange",
+   "price": 320
+  },
+  {
+   "id": "carUteGrey",
+   "price": 320
+  },
+  {
+   "id": "garageShelf",
+   "price": 80
+  },
+  {
+   "id": "toolbox",
+   "price": 45
+  },
+  {
+   "id": "contL",
+   "price": 30
+  },
+  {
+   "id": "contM",
+   "price": 22
+  },
+  {
+   "id": "contS",
+   "price": 15
+  },
+  {
+   "id": "shoeCabinet",
+   "price": 55
+  },
+  {
+   "id": "winDay",
+   "price": 0
+  },
+  {
+   "id": "winSunset",
+   "price": 50
+  },
+  {
+   "id": "winNight",
+   "price": 70
+  },
+  {
+   "id": "frameSun",
+   "price": 0
+  },
+  {
+   "id": "frameCat",
+   "price": 30
+  },
+  {
+   "id": "frameRainbow",
+   "price": 40
+  },
+  {
+   "id": "posterRocket",
+   "price": 50
+  },
+  {
+   "id": "posterMap",
+   "price": 60
+  },
+  {
+   "id": "clockWall",
+   "price": 20
+  },
+  {
+   "id": "wallShelf",
+   "price": 30
+  },
+  {
+   "id": "garland",
+   "price": 20
+  },
+  {
+   "id": "tvWall",
+   "price": 110
+  },
+  {
+   "id": "mirror",
+   "price": 40
+  },
+  {
+   "id": "_house",
+   "price": 0
+  }
+ ],
+ "roomCatalog": {
+  "creamWall": 0,
+  "mintWall": 60,
+  "nightWall": 130,
+  "blueRug": 40,
+  "starRug": 90,
+  "mapPoster": 70,
+  "rocketPoster": 110,
+  "studyDesk": 80,
+  "deskLamp": 60,
+  "bookshelf": 100,
+  "pottedPlant": 50,
+  "skyWall": 90,
+  "greenRug": 50,
+  "rainbowPoster": 80,
+  "scienceDesk": 140,
+  "starLamp": 90,
+  "trophyCabinet": 0,
+  "xmasTree": 90,
+  "beachTowel": 70,
+  "pinkWall": 60,
+  "blueDotWall": 70,
+  "ginghamWall": 80,
+  "forestWall": 110,
+  "oceanWall": 120,
+  "spaceWall": 150,
+  "sunsetWall": 140,
+  "redRug": 45,
+  "heartRug": 70,
+  "rainbowRug": 100,
+  "stripeRug": 60,
+  "flowerRug": 80,
+  "pawRug": 75,
+  "cloudRug": 90,
+  "purpleRug": 55,
+  "kangarooPoster": 90,
+  "dinoPoster": 85,
+  "abcPoster": 60,
+  "solarPoster": 110,
+  "fishPoster": 75,
+  "mountainPoster": 80,
+  "mathPoster": 65,
+  "musicPoster": 70,
+  "computerDesk": 150,
+  "artDesk": 110,
+  "globeDesk": 120,
+  "pinkDesk": 90,
+  "pianoDesk": 130,
+  "bookDesk": 100,
+  "craftDesk": 95,
+  "snackDesk": 85,
+  "lanternLamp": 70,
+  "moonLamp": 100,
+  "cloudLamp": 95,
+  "sunLamp": 85,
+  "chandelier": 160,
+  "flowerLamp": 80,
+  "bulbLamp": 75,
+  "rainbowLamp": 110,
+  "jellyLamp": 120,
+  "toyShelf": 90,
+  "plantShelf": 100,
+  "cubbyShelf": 85,
+  "rainbowShelf": 120,
+  "globeShelf": 110,
+  "aquariumShelf": 150,
+  "craftShelf": 95,
+  "floatShelf": 105,
+  "gameShelf": 100,
+  "cactus": 45,
+  "sunflower": 60,
+  "bonsai": 90,
+  "fern": 50,
+  "palmTree": 80,
+  "tulips": 55,
+  "bambooPlant": 65,
+  "monstera": 75,
+  "succulents": 50,
+  "lavender": 60,
+  "skyWindow": 70,
+  "nightWindow": 100,
+  "rainWindow": 80,
+  "snowWindow": 90,
+  "sunsetWindow": 110,
+  "curtainWindow": 95,
+  "portholeWindow": 120,
+  "treeWindow": 85,
+  "cityWindow": 130,
+  "seaWindow": 100,
+  "buntingDecor": 60,
+  "heartDecor": 70,
+  "starDecor": 80,
+  "lightDecor": 100,
+  "chainDecor": 50,
+  "leafDecor": 75,
+  "pomDecor": 65,
+  "craneDecor": 110,
+  "snowDecor": 90,
+  "streamerDecor": 55,
+  "catPet": 120,
+  "dogPet": 120,
+  "bunnyPet": 110,
+  "fishBowlPet": 90,
+  "turtlePet": 100,
+  "parrotPet": 130,
+  "hedgehogPet": 115,
+  "ducklingPet": 85,
+  "frogPet": 95,
+  "joeyPet": 150,
+  "woodFrame": 70,
+  "goldFrame": 120,
+  "candyFrame": 100,
+  "aluminumFrame": 80,
+  "smallFrame": 50,
+  "bigFrame": 130,
+  "roundFrame": 90,
+  "familyFrame": 150,
+  "woodToyBox": 90,
+  "rainbowToyBox": 120,
+  "starToyBox": 140
+ }
+}

@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 IMG = os.path.join(ROOT, "public", "img", "koala")
 OUT = os.path.join(ROOT, "Koala Images", "item-sheets")
-src = open(os.path.join(ROOT, "public", "js", "koala-house-ui.js"), encoding="utf-8").read()
+src = open(os.path.join(ROOT, "public", "js", "koala-wardrobe.js"), encoding="utf-8").read()
 
 def grab(name):
     m = re.search(r"const %s = (\{.*?\});" % name, src, re.S)

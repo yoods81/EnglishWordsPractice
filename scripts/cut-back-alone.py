@@ -1,7 +1,7 @@
 """Straight-back item pictures from Gemini sheets where ONLY the item is redrawn (no koala) on flat green, at the place it sits on the koala.
 Sheets: make-back-sheets.py (backview-NN, backtall-NN); results: <gemini-ref>/backview-NN-out.* / backtall-NN-out.*  (same grid as the input).
 Each cell is cut with the same green-key code as the 3/4 pictures (cut-iso-items.py); Gemini keeps the place and scale of the item from the input cell, so the box where it drew the item is used as it is.
-Writes img/koala/back/<item>.webp and `const KBACK` (box in KBOX units) into public/js/koala-house-ui.js.
+Writes img/koala/back/<item>.webp and `const KBACK` (box in KBOX units) into public/js/koala-wardrobe.js.
 Usage: python scripts/cut-back-alone.py [gemini-ref folder] [file stem e.g. backview-04]"""
 import json, math, os, re, sys
 import numpy as np

@@ -10,7 +10,7 @@ from PIL import Image
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 SRC = os.path.join(ROOT, "Koala Images", "back-src"); OUT = os.path.join(ROOT, "public", "img", "koala", "back")
-UI = os.path.join(ROOT, "public", "js", "koala-house-ui.js")
+UI = os.path.join(ROOT, "public", "js", "koala-wardrobe.js")
 BX, BY = 64, 222; CX = 340
 body = np.array(Image.open(os.path.join(ROOT, "public", "img", "koala", "back_base.webp")).convert("RGBA").getchannel("A")) > 128
 

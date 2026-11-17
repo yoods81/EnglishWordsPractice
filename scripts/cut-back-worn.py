@@ -9,7 +9,7 @@ from PIL import Image, ImageFilter
 from scipy import ndimage
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-REF = "I:/Koala Study Resources/gemini-ref"; OUT = os.path.join(ROOT, "public", "img", "koala", "back"); UI = os.path.join(ROOT, "public", "js", "koala-house-ui.js")
+REF = "I:/Koala Study Resources/gemini-ref"; OUT = os.path.join(ROOT, "public", "img", "koala", "back"); UI = os.path.join(ROOT, "public", "js", "koala-wardrobe.js")
 BX, BY = 64, 222; BX_C = 276   # BX_C: the centre line of our back koala in the picture's own pixels (back_base.webp is 553 wide)
 item = sys.argv[1]; path = sys.argv[2] if len(sys.argv) > 2 and not sys.argv[2].startswith("--") else None
 if not path:

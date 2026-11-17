@@ -11,7 +11,7 @@ from scipy.signal import fftconvolve
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 IMG = os.path.join(ROOT, "public", "img", "koala")
-UI = os.path.join(ROOT, "public", "js", "koala-house-ui.js")
+UI = os.path.join(ROOT, "public", "js", "koala-wardrobe.js")
 HATS = ["bushhat", "bluecap", "crown", "partyhat"]
 HAT_AT = {"bushhat": (340, 345), "bluecap": (340, 335), "crown": (345, 322), "partyhat": (345, 345)}   # centre x, bottom y on the back head (KBOX units; the head dome top is about y=300)
 BASE = (64, 222)                       # iso_stand_b.webp covers BASE (553x746 units, 2 px per unit)
