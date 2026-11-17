@@ -187,6 +187,10 @@
     return ITEMS.filter((it) => it.slot === slot && !it.no2d && (!it.season || k.items.owned[it.id] || o.showAll || isSeasonActive(it, o.date)));
   }
   const itemById = (id) => ITEMS.find((i) => i.id === id) || null;
+  // Admin-added items arrive later (loadItems). Until that list has loaded, a wallet id the catalogue doesn't know may be
+  // one of them, so ensureKoala keeps it instead of dropping it (a bought admin item used to vanish on reload). Node
+  // tests have no fetch and never load the list: there the catalogue is complete from the start.
+  let customPending = typeof window !== "undefined" && typeof fetch === "function";
 
   /* ---------- Dates (local calendar days as "YYYY-MM-DD") ---------- */
   function dateKey(date) {
@@ -437,9 +441,10 @@
     // Free items are owned from the start; drop anything the catalogue no
     // longer knows about so a removed item can never stay equipped.
     ITEMS.forEach((it) => { if (it.unlock.free && !k.items.owned[it.id]) k.items.owned[it.id] = 1; });
-    Object.keys(k.items.owned).forEach((id) => { if (!itemById(id) && !(keepLegacy && LEGACY_ROOM_IDS.has(id))) delete k.items.owned[id]; });
+    Object.keys(k.items.owned).forEach((id) => { if (!itemById(id) && !customPending && !(keepLegacy && LEGACY_ROOM_IDS.has(id))) delete k.items.owned[id]; });
     Object.keys(k.items.equipped).forEach((slot) => {
       const it = itemById(k.items.equipped[slot]);
+      if (!it && customPending && k.items.owned[k.items.equipped[slot]]) return;   // an admin item not loaded yet
       if (!it || it.slot !== slot || !k.items.owned[it.id]) delete k.items.equipped[slot];
     });
     return k;
@@ -964,7 +969,8 @@
     if (itemsLoaded && !force) return [];
     const added = [];
     try {
-      const getJson = (url, fallback) => fetch(url).then((r) => (r.ok ? r.json() : fallback)).catch(() => fallback);
+      let failed = false;   // offline / API error: keep unknown wallet ids (customPending) until a later load works
+      const getJson = (url, fallback) => fetch(url).then((r) => (r.ok ? r.json() : Promise.reject(r.status))).catch(() => { failed = true; return fallback; });
       const [charRes, roomRes, charCats, roomCats] = await Promise.all([
         getJson("/api/items?kind=character", { items: [] }),
         getJson("/api/items?kind=studyroom", { items: [] }),
@@ -985,7 +991,7 @@
         CUSTOM_IMG[row.id] = { img2d: row.imageUrl2d || null, img3d: row.imageUrl || null, fit: row.fit || null, fit2d: row.fit2d || null };
         added.push({ id: row.id, kind: it.kind || "character", slot: row.cat, img2d: row.imageUrl2d || null, img3d: row.imageUrl || null, fit2d: row.fit2d || null });
       });
-      itemsLoaded = true;
+      if (!failed) { itemsLoaded = true; customPending = false; }
     } catch (e) { /* offline or API error: built-in items still work fine */ }
     return added;
   }
