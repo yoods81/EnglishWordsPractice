@@ -1906,10 +1906,13 @@ async function handleApi(request, env, url) {
   }
 
   // My Koala item management (admin-added items only — see migrations/0014_koala_items.sql
-  // for why the ~250 built-in items stay hardcoded in public/js/koala-core.js and
-  // koala-house.js instead of living here too). The client merges these additively
-  // on top of its built-in catalogs; it never replaces them.
+  // for why the built-in items stay hardcoded in public/js/koala-core.js instead of living
+  // here too). The client merges these additively on top of its built-in catalog.
+  // Stage 5 S9 (2026-11-17): the old Study Room and Pop-out house are gone, so only the 3D
+  // wardrobe's clothing ('character') can be created or edited. Old 'studyroom' / 'house'
+  // rows can still be read (wallets that own them keep them) and deleted.
   const KOALA_ITEM_KINDS = ["character", "studyroom", "house"];
+  const KOALA_ITEM_WRITE_KINDS = ["character"];
   const KOALA_UNLOCK_TYPES = ["free", "coins", "streak", "badge"];
   function itemRowToJson(r) {
     return {
@@ -2009,7 +2012,7 @@ async function handleApi(request, env, url) {
     if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
     let body;
     try { body = await request.json(); } catch (e) { return json({ error: "bad_request" }, 400); }
-    const kind = KOALA_ITEM_KINDS.includes(body?.kind) ? body.kind : "";
+    const kind = KOALA_ITEM_WRITE_KINDS.includes(body?.kind) ? body.kind : "";
     const id = typeof body?.id === "string" ? body.id.trim().slice(0, 40) : "";
     const labelKo = typeof body?.label?.ko === "string" ? body.label.ko.trim().slice(0, 40) : "";
     const labelEn = typeof body?.label?.en === "string" ? body.label.en.trim().slice(0, 40) : "";
@@ -2029,7 +2032,7 @@ async function handleApi(request, env, url) {
     if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
     const parts = route.slice("/admin/item-categories/".length).split("/");
     const kind = parts[0], id = decodeURIComponent(parts[1] || "");
-    if (!KOALA_ITEM_KINDS.includes(kind) || !id) return json({ error: "bad_request" }, 400);
+    if (!KOALA_ITEM_WRITE_KINDS.includes(kind) || !id) return json({ error: "bad_request" }, 400);
     let body;
     try { body = await request.json(); } catch (e) { return json({ error: "bad_request" }, 400); }
     const row = await env.DB.prepare("SELECT * FROM item_categories WHERE kind = ? AND id = ?").bind(kind, id).first();
@@ -2085,7 +2088,7 @@ async function handleApi(request, env, url) {
     if (!session || session.role !== "admin") return json({ error: "unauthorized" }, 401);
     let body;
     try { body = await request.json(); } catch (e) { return json({ error: "bad_request" }, 400); }
-    const kind = KOALA_ITEM_KINDS.includes(body?.kind) ? body.kind : "";
+    const kind = KOALA_ITEM_WRITE_KINDS.includes(body?.kind) ? body.kind : "";
     const id = typeof body?.id === "string" ? body.id.trim().slice(0, 40) : "";
     const cat = typeof body?.cat === "string" ? body.cat.trim().slice(0, 40) : "";
     const nameKo = typeof body?.name?.ko === "string" ? body.name.ko.trim().slice(0, 60) : "";
