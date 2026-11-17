@@ -5772,20 +5772,20 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
 /* ===== My Koala (Phase 1: reward foundation) ===== */
 .koala-hero { display: flex; align-items: center; gap: 14px; background: #f3faf7; border: 2px solid var(--outline, #cfe7df); border-radius: 18px; padding: 14px; margin-bottom: 12px; }
 .koala-hero-avatar { flex: 0 0 auto; width: 104px; height: 106px; border-radius: 22px; background: #d9f6ee; border: 3px solid var(--accent); overflow: hidden; }
-.koala-avatar-svg { display: block; width: 100%; height: 100%; }
+
 .koala-hero-main { flex: 1; min-width: 0; }
 .koala-hero-level { font-family: var(--font-heading); font-weight: 700; font-size: 1.25rem; color: var(--accent-dark); }
 .koala-level-bar { height: 12px; background: #e6f1ed; border-radius: 6px; overflow: hidden; margin: 6px 0 4px; }
 .koala-level-bar > span { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
 .koala-hero-next { font-size: 0.85rem; color: var(--text); }
-.koala-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
-.koala-stat { display: flex; flex-direction: column; align-items: center; gap: 2px; background: #fff; border: 1px solid var(--outline, #cfe7df); border-radius: 14px; padding: 10px 4px; box-shadow: 0 2px 0 var(--outline, #cfe7df); text-align: center; }
-.koala-stat-ico { font-size: 1.5rem; line-height: 1; }
-.koala-stat-val { font-family: var(--font-heading); font-weight: 700; font-size: 1.4rem; color: var(--text); line-height: 1.1; }
-.koala-stat-lbl { font-size: 0.78rem; color: var(--muted); }
-.koala-stat-sub { font-size: 0.72rem; color: var(--accent-dark); font-weight: 600; line-height: 1.2; }
+
+
+
+
+
+
 .koala-note { font-size: 0.85rem; color: var(--text); margin: 6px 0 4px; line-height: 1.4; }
-.koala-h { margin: 18px 0 8px; font-family: var(--font-heading); color: var(--text); }
+
 .koala-history { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
 .koala-history li { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--outline, #cfe7df); border-radius: 12px; padding: 8px 10px; font-size: 0.9rem; }
 .koala-history-n { font-family: var(--font-heading); font-weight: 700; color: var(--accent-dark); flex: 0 0 auto; }
@@ -5794,31 +5794,30 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
 .badge-premium { font-weight: 700; color: var(--accent-dark); }
 .dash-badges + .dash-btn { margin-right: 6px; }
 .koala-coin { vertical-align: -0.18em; }
-.koala-stat-ico .koala-coin { width: 1.5rem; height: 1.5rem; vertical-align: baseline; }
-.koala-h { display: flex; align-items: center; gap: 6px; }
+
+
 .koala-history-n { display: inline-flex; align-items: center; gap: 4px; }
 
 /* ----- Character tab (Phase 2) ----- */
 .koala-tabs { margin-top: 14px; }
 .koala-view.is-studio .koala-tabs { margin-top: 0; }
-.koala-next { display: flex; align-items: center; gap: 12px; background: #fff8e6; border: 2px solid #f0d28a; border-radius: 16px; padding: 10px 12px; margin: 4px 0 6px; }
-.koala-next-pic { flex: 0 0 auto; width: 72px; height: 66px; background: #fff; border-radius: 12px; border: 1px solid #f0d28a; overflow: hidden; }
-.koala-next-main { flex: 1; min-width: 0; }
-.koala-next-title { font-family: var(--font-heading); font-weight: 700; color: var(--text); }
-.koala-next-sub { font-size: 0.85rem; color: var(--text); margin-top: 2px; }
-.koala-next-btn { margin-top: 6px; }
-.koala-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 10px; }
-.koala-item { display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 44px; padding: 8px 6px 10px; text-align: center; cursor: pointer; font: inherit; color: var(--text);
-  background: #fff; border: 2px solid var(--outline, #cfe7df); border-radius: 14px; box-shadow: 0 2px 0 var(--outline, #cfe7df); }
-.koala-item:focus-visible { outline: 3px solid var(--accent-dark); outline-offset: 2px; }
-.koala-item-pic { width: 100%; height: 92px; background: #f3faf7; border-radius: 10px; overflow: hidden; }
-.koala-item-name { font-family: var(--font-heading); font-weight: 700; font-size: 0.9rem; line-height: 1.2; }
-.koala-item-status { font-size: 0.78rem; line-height: 1.3; color: var(--muted); display: block; }
-.koala-item.is-equipped { border-color: var(--accent-dark); background: #effaf6; }
-.koala-item.is-equipped .koala-item-status { color: var(--accent-dark); font-weight: 700; }
-.koala-item.is-owned .koala-item-status, .koala-item.is-buyable .koala-item-status { color: var(--accent-dark); font-weight: 600; }
-.koala-item.is-locked { cursor: default; background: #f6f8f7; }
-.koala-item.is-locked .koala-item-pic { filter: grayscale(1); opacity: .55; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .koala-history-n.spent { color: var(--muted); }
 .koala-panel { min-height: 40px; }
 
@@ -6095,12 +6094,12 @@ header h1 { font-size: clamp(1.7rem, 7.6vw, 2.7rem); }
 .koala-earn-done { flex: 0 0 auto; min-height: 36px; }
 
 /* Phase 4: Study Room */
-.koala-room-svg { display: block; width: 100%; height: 100%; }
-.koala-room { border-radius: 16px; overflow: hidden; border: 2px solid #e6e9e7; background: #fff; max-width: 520px; margin: 6px auto 4px; aspect-ratio: 320 / 220; }
-.koala-trophy-wall { display: flex; flex-wrap: wrap; gap: 8px; background: #fbf1dc; border: 2px solid #e8d4a6; border-radius: 14px; padding: 10px; border-bottom: 8px solid #b9824f; }
-.koala-trophy { display: flex; flex-direction: column; align-items: center; width: 74px; text-align: center; gap: 2px; }
-.koala-trophy-ico { font-size: 1.7rem; line-height: 1; }
-.koala-trophy-name { font-size: 0.68rem; line-height: 1.15; color: var(--text); }
+
+
+
+
+
+
 
 
 /* Phase 5: Koala popover on the account button */
@@ -6132,18 +6131,18 @@ html[lang="ko"] .auth-koala-level > span { flex: 0 0 auto; white-space: nowrap; 
 html[lang="ko"] .auth-koala-level select { flex: 0 0 auto; width: auto; white-space: nowrap; }
 
 /* Phase 6: polish */
-.koala-item-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; color: #b45309; background: #fff3c4; border: 1px solid #f0d28a; border-radius: 999px; padding: 0 7px; margin-top: 2px; }
+
 /* Blink + gentle breathing (My Koala, the room, the account popup). */
 @keyframes koala-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.08); } }
 @keyframes koala-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
-.koala-hero-avatar .koala-eyes, .koala-room .koala-eyes, .auth-koala-pic .koala-eyes { transform-box: fill-box; transform-origin: center; animation: koala-blink 5s infinite; }
-.koala-hero-avatar .koala-avatar-svg, .auth-koala-pic .koala-avatar-svg { animation: koala-bob 3.4s ease-in-out infinite; }
-.koala-room > svg > svg { animation: koala-bob 3.4s ease-in-out infinite; }
+
+
+
 /* Coins pop when earned */
 @keyframes coin-pop { 0% { transform: scale(.3) rotateY(0); } 55% { transform: scale(1.35) rotateY(360deg); } 100% { transform: scale(1) rotateY(360deg); } }
 .badge-toast-emoji .koala-coin { width: 2rem; height: 2rem; animation: coin-pop .7s ease-out; }
 /* Sparkles after an item goes on */
-.koala-hero-avatar, .koala-room { position: relative; }
+.koala-hero-avatar { position: relative; }
 @keyframes koala-sparkle { 0% { transform: scale(0) rotate(0); opacity: 0; } 40% { opacity: 1; } 100% { transform: scale(1.4) rotate(90deg); opacity: 0; } }
 .koala-sparkle { position: absolute; left: var(--sx); top: var(--sy); color: #f6c343; font-size: 1.2rem; pointer-events: none; animation: koala-sparkle .9s ease-out both; text-shadow: 0 0 6px #fff; }
 /* Level-up celebration */
@@ -6158,35 +6157,35 @@ html[lang="ko"] .auth-koala-level select { flex: 0 0 auto; width: auto; white-sp
 @keyframes levelup-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes levelup-fall { from { transform: translateY(0) rotate(0); opacity: 1; } to { transform: translateY(260px) rotate(200deg); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
-  .koala-eyes, .koala-avatar-svg, .koala-room > svg > svg, .koala-sparkle, .badge-toast-emoji .koala-coin, .levelup-card, .levelup-koala, .levelup-confetti span { animation: none !important; }
+   .koala-sparkle, .badge-toast-emoji .koala-coin, .levelup-card, .levelup-koala, .levelup-confetti span{ animation: none !important; }
   .koala-sparkle, .levelup-confetti { display: none; }
 }
 
 /* ---- My Koala: compact item cards, Netflix-style rows, item popup, Coins tab ---- */
 .koala-hero-streak { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--outline, #cfe7df); font-size: 0.88rem; }
-.koala-hero-streak-main b { font-family: var(--font-heading); font-size: 1.05rem; }
+
 .koala-hero-streak small { display: block; margin-top: 3px; color: var(--muted); font-size: 0.75rem; line-height: 1.35; }
-.koala-balance { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: #fff8e1; border: 2px solid #f0d28a; border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
-.koala-balance-ico { font-size: 2rem; line-height: 1; display: inline-flex; }
-.koala-balance-ico .koala-coin { width: 2.2rem; height: 2.2rem; }
-.koala-balance-val { font-family: var(--font-heading); font-weight: 700; font-size: 1.8rem; line-height: 1.05; }
-.koala-balance-lbl { font-size: 0.85rem; color: var(--muted); }
-.koala-balance-earned { margin-left: auto; text-align: right; display: flex; flex-direction: column; font-size: 0.78rem; color: var(--muted); }
-.koala-balance-earned b { font-family: var(--font-heading); font-size: 1.2rem; color: var(--text); }
-.koala-badge-sum { background: #f3faf7; border-color: var(--outline, #cfe7df); }
-.koala-badge-sum .koala-level-bar { margin-top: 6px; min-width: 160px; }
 
-.koala-item-pic .koala-icon-svg { width: 100%; height: 100%; display: block; }
-.koala-item-badge { position: absolute; right: -2px; bottom: -2px; font-size: 0.62rem; line-height: 1; background: #fff; border: 1px solid var(--outline, #cfe7df); border-radius: 999px; padding: 1px 4px; display: inline-flex; align-items: center; gap: 1px; font-weight: 700; color: var(--text); }
-.koala-item-badge .koala-coin { width: .8rem; height: .8rem; }
-.koala-item-badge.on { background: var(--accent-dark); color: #fff; border-color: var(--accent-dark); }
-.koala-item-badge.season { right: auto; left: -2px; top: -2px; bottom: auto; }
-.koala-item.is-locked .koala-item-badge { filter: none; }
-.koala-item-pic .koala-item-badge { filter: none; }
-.koala-next-pic .koala-icon-svg { width: 100%; height: 100%; padding: 6px; box-sizing: border-box; }
 
-.koala-item.is-locked .koala-item-pic { filter: none; opacity: 1; }
-.koala-item.is-locked .koala-icon-svg { filter: grayscale(.75); opacity: .7; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ---- Quiz/Spelling combo popup + sound toggle ---- */
 .sfx-toggle { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--outline); background: #fff; font-size: 1rem; line-height: 1; cursor: pointer; padding: 0; box-shadow: 0 2px 0 var(--outline); flex: 0 0 auto; }
@@ -6276,8 +6275,7 @@ html[lang="ko"] .auth-koala-level select { flex: 0 0 auto; width: auto; white-sp
   #spelling-practice .sp-backspace-chip { font-size: 1.05rem; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-}
+
 
 /* =====================================================================
    Spelling game — play feel (round 3): mascot, leaf bar, tactile chips,
@@ -9099,72 +9097,67 @@ html body .sp-start-row .qz-dd-btn[aria-expanded="true"]::after { margin-top: -2
 .wl-tag--level    { background: #eef2fb; color: var(--primary-dark); font-weight: 600; }
 
 /* ---- My Koala shop: 2-split studio — live preview on top, items below ---- */
-.koala-studio-top { position: sticky; top: 6px; z-index: 25; background: var(--card-bg); border: 2px solid var(--outline, #cfe7df); border-radius: 18px; padding: 6px 8px 4px; margin: 0 0 10px; box-shadow: 0 6px 14px rgba(0, 0, 0, .12); }
-.koala-studio-bar { display: flex; align-items: center; gap: 8px; padding: 0 2px 6px; }
-.koala-back { min-height: 38px; padding: 0 14px; border-radius: 999px; border: 2px solid var(--outline, #cfe7df); background: var(--card-bg); color: var(--text); font: inherit; font-weight: 700; font-size: .95rem; cursor: pointer; }
-.koala-studio-lv { margin-left: auto; font-family: var(--font-heading); font-weight: 700; font-size: 1.1rem; color: var(--accent-dark); }
-.koala-studio-coins { display: inline-flex; align-items: center; gap: 5px; background: #fff8e1; border: 2px solid #f0d28a; border-radius: 999px; padding: 2px 12px; }
-.koala-studio-coins b { font-family: var(--font-heading); font-size: 1.2rem; }
-.koala-studio-coins .koala-coin { width: 1.2rem; height: 1.2rem; }
+
+
+
+
+
+
+
 /* The stage is a floor-and-wall scene: the koala stands on the floor (with a soft shadow), nothing floats. */
 .koala-stage { position: relative; width: min(100%, calc(30vh * 320 / 220)); aspect-ratio: 320 / 220; margin: 0 auto; border-radius: 14px; overflow: hidden; border: 2px solid #e6e9e7; background: #fff; }
 .koala-stage > svg { display: block; width: 100%; height: 100%; }
 .koala-stage > svg > svg { animation: none; }
-.koala-stage .koala-eyes { transform-box: fill-box; transform-origin: center; animation: koala-blink 5s infinite; }
-.koala-try-bar { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; margin-top: 4px; padding: 3px 8px; border-radius: 12px; background: transparent; border: 2px solid transparent; font-size: .9rem; color: var(--text); text-align: center; line-height: 1.25; }
-.koala-try-bar.is-idle { color: var(--muted); font-size: .85rem; }
-.koala-try-bar:not(.is-idle) { background: #fff8e6; border: 2px solid #f0d28a; }
-.koala-try-name { flex: 1 1 auto; min-width: 0; text-align: left; font-family: var(--font-heading); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.koala-try-bar.is-locked .koala-try-name { flex: 0 0 auto; max-width: 38%; }
-.koala-try-price { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; }
-.koala-try-bar .pill { min-height: 34px; flex: 0 0 auto; }
-.koala-cats { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 6px 2px 4px; -webkit-overflow-scrolling: touch; }
-.koala-cats::-webkit-scrollbar { display: none; }
-.koala-cat { flex: 0 0 auto; min-height: 42px; padding: 0 14px; border-radius: 999px; border: 2px solid var(--outline, #cfe7df); background: var(--card-bg); color: var(--text); font: inherit; font-weight: 700; font-size: .95rem; white-space: nowrap; cursor: pointer; }
-.koala-cat.on { background: var(--accent); border-color: var(--accent-dark); color: #fff; }
-.koala-cat:focus-visible, .koala-back:focus-visible { outline: 3px solid var(--accent-dark); outline-offset: 2px; }
-.koala-shelf-head { display: flex; align-items: baseline; margin: 2px 2px 8px; }
-.koala-shelf-title { font-family: var(--font-heading); font-weight: 700; font-size: 1.05rem; }
-.koala-shelf-title small { color: var(--muted); font-weight: 600; }
-.koala-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; margin-bottom: 10px; }
-.koala-grid .koala-item { width: auto; min-height: 0; padding: 5px 3px 6px; gap: 3px; border-radius: 12px; }
-.koala-grid .koala-item .koala-item-pic { position: relative; display: block; width: 100%; height: 66px; border-radius: 8px; padding: 3px; box-sizing: border-box; }
-.koala-grid .koala-item-name { font-size: .82rem; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: keep-all; min-height: 2.3em; }
-.koala-grid .koala-item-status { display: inline-flex; align-items: center; justify-content: center; gap: 3px; font-size: .82rem; font-weight: 700; color: var(--muted); }
-.koala-grid .koala-item-status .koala-coin { width: 1rem; height: 1rem; }
-.koala-grid .koala-item-status.on, .koala-grid .koala-item-status.own { color: var(--accent-dark); }
-.koala-grid .koala-item-status.cost { color: #a86f0c; }
-.koala-grid .koala-item.is-locked { cursor: pointer; }
-.koala-item.is-trying { border-color: #f0a31a; background: #fff8e6; box-shadow: 0 0 0 2px #f6c343; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .koala-view.is-studio .koala-hero { margin-top: 12px; }
 .koala-stage { position: relative; }
-.koala-try-bar.is-locked .koala-try-name { max-width: 34%; }
-.koala-try-bar.is-locked .koala-try-price { flex: 1 1 0; min-width: 0; justify-content: flex-start; text-align: left; font-size: .78rem; }
+
+
 /* Badges sit inside the picture (they were clipped by the card edge); locked state shows in the status line. */
-.koala-grid .koala-item-badge { right: 4px; bottom: 4px; font-size: .75rem; }
-.koala-grid .koala-item-badge.season { right: auto; left: 4px; top: 4px; bottom: auto; }
+
+
 
 /* Wide screens: left/right split — preview stays on the left, the whole shop fills the right. */
 @media (min-width: 720px) {
-  .koala-studio { display: grid; grid-template-columns: minmax(280px, 330px) minmax(0, 1fr); column-gap: 16px; align-items: start; }
-  .koala-studio-top { display: contents; }
-  .koala-studio-preview { grid-column: 1; grid-row: 1 / span 99; position: sticky; top: 6px; z-index: 25; align-self: start; background: var(--card-bg); border: 2px solid var(--outline, #cfe7df); border-radius: 18px; padding: 6px 8px 4px; box-shadow: 0 6px 14px rgba(0, 0, 0, .12); }
-  .koala-studio > :not(.koala-studio-top), .koala-studio-top > .koala-cats { grid-column: 2; }
+  
+  
+  
+  
   .koala-stage { width: 100%; }
-  .koala-cats { flex-wrap: wrap; overflow: visible; padding-top: 0; }
-  .koala-cat { min-height: 38px; padding: 0 12px; font-size: .88rem; }
+  
+  
 }
 /* Phones: 3 item columns and a one-line hint (the bigger sizes above are for wide screens). */
-.koala-grid { grid-template-columns: repeat(auto-fill, minmax(82px, 1fr)); gap: 8px; }
-.koala-grid .koala-item-name { font-size: .76rem; }
-.koala-grid .koala-item .koala-item-pic { height: 58px; }
-.koala-try-bar.is-idle { font-size: .74rem; }
-@media (min-width: 720px) {
-  .koala-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
-  .koala-grid .koala-item-name { font-size: .82rem; }
-  .koala-grid .koala-item .koala-item-pic { height: 66px; }
-  .koala-try-bar.is-idle { font-size: .85rem; }
-}
+
+
+
+
+
 
 /* ---- My Koala: playful backdrop for the whole page card ---- */
 #view-koala > .card { background: url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%27150%27%20height=%27150%27%3E%3Cg%20opacity=%27.9%27%3E%3Cellipse%20cx=%2728%27%20cy=%2732%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%28-35%2028%2032%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cellipse%20cx=%27112%27%20cy=%2796%27%20rx=%2713%27%20ry=%276%27%20transform=%27rotate%2830%20112%2096%29%27%20fill=%27%233fb984%27%20opacity=%27.16%27/%3E%3Cpolygon%20points=%27100%2C20%20103%2C28%20112%2C28%20105%2C33%20108%2C42%20100%2C37%2092%2C42%2095%2C33%2088%2C28%2097%2C28%27%20fill=%27%23f6c343%27%20opacity=%27.3%27/%3E%3Cpolygon%20points=%2740%2C108%2042%2C114%2049%2C114%2043%2C118%2045%2C125%2040%2C121%2035%2C125%2037%2C118%2031%2C114%2038%2C114%27%20fill=%27%23f6c343%27%20opacity=%27.25%27/%3E%3Ccircle%20cx=%2770%27%20cy=%2760%27%20r=%273%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%27136%27%20cy=%2750%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3Ccircle%20cx=%2714%27%20cy=%2788%27%20r=%272.5%27%20fill=%27%23ffffff%27%20opacity=%27.7%27/%3E%3C/g%3E%3C/svg%3E") 0 0 / 150px 150px, radial-gradient(circle at 10% 6%, rgba(255, 226, 140, .55) 0 70px, transparent 71px), radial-gradient(circle at 94% 20%, rgba(168, 230, 207, .65) 0 80px, transparent 81px), linear-gradient(180deg, #d9f6ea 0%, #eefaea 55%, #fff3cf 100%); }
@@ -9191,104 +9184,101 @@ html body .sp-start-row .qz-dd-btn[aria-expanded="true"]::after { margin-top: -2
 /* ---- My Koala: big preview popup ---- */
 .koala-stage[data-koala-zoom] { cursor: zoom-in; }
 .koala-stage[data-koala-zoom]:focus-visible { outline: 3px solid var(--accent-dark); outline-offset: 2px; }
-.koala-zoom-tag { position: absolute; right: 6px; top: 6px; background: rgba(38, 51, 47, .72); color: #fff; font-size: .72rem; font-weight: 700; border-radius: 999px; padding: 3px 9px; pointer-events: none; }
+
 .koala-zoom-overlay { position: fixed; inset: 0; z-index: 9500; background: rgba(20, 30, 27, .6); display: flex; align-items: center; justify-content: center; padding: 12px; animation: koala-zoom-fade .15s ease-out; }
 .koala-zoom-card { width: min(96vw, 820px); max-height: 96vh; overflow: auto; background: var(--card-bg); border: 3px solid var(--accent-dark); border-radius: 22px; padding: 12px 14px 14px; box-shadow: 0 14px 44px rgba(0, 0, 0, .35); }
 .koala-zoom-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-.koala-zoom-views { display: flex; gap: 6px; flex-wrap: wrap; }
+
 .koala-zoom-close { min-height: 44px; padding: 0 18px; border-radius: 999px; border: 2px solid var(--accent-dark); background: var(--accent); color: #fff; font: inherit; font-weight: 700; font-size: 1rem; cursor: pointer; }
 .koala-zoom-close:focus-visible { outline: 3px solid var(--accent-dark); outline-offset: 2px; }
-.koala-zoom-stage { width: min(100%, calc(72vh * 320 / 220)); aspect-ratio: 320 / 220; margin: 0 auto; border-radius: 16px; overflow: hidden; border: 2px solid #e6e9e7; background: #fff; }
-.koala-zoom-stage > svg { display: block; width: 100%; height: 100%; }
-.koala-zoom-stage .koala-eyes { transform-box: fill-box; transform-origin: center; animation: koala-blink 5s infinite; }
-.koala-zoom-stage > svg > svg { animation: none; }
-.koala-zoom-caption { text-align: center; margin-top: 8px; font-weight: 700; color: var(--accent-dark); }
+
+
+
+
+
 @keyframes koala-zoom-fade { from { opacity: 0; } to { opacity: 1; } }
 /* Popup header stays on one row on phones */
 @media (max-width: 520px) {
   .koala-zoom-head { flex-wrap: nowrap; }
-  .koala-zoom-views { flex-wrap: nowrap; min-width: 0; }
-  .koala-zoom-views .koala-cat { min-height: 40px; padding: 0 9px; font-size: .8rem; }
+  
+  
   .koala-zoom-close { min-height: 40px; padding: 0 12px; font-size: .85rem; flex: 0 0 auto; }
 }
 
 /* ---- My Koala: sub-item box (what is inside the bookshelf / desk / frame / toy box) ---- */
-.koala-stage.is-room svg g.koala-hit { cursor: pointer; transition: filter .15s; }
-.koala-stage.is-room svg g.koala-hit:hover { filter: drop-shadow(0 0 3px rgba(255, 200, 0, .95)); }
-.koala-stage.is-room svg g.koala-picked { filter: drop-shadow(0 0 3px #ff9f1c) drop-shadow(0 0 1px #ff9f1c); }
-.koala-zoom-tag { border: 0; font-family: inherit; }
-button.koala-zoom-tag { pointer-events: auto; cursor: zoom-in; min-height: 28px; }
-button.koala-zoom-tag:focus-visible { outline: 3px solid var(--accent-dark); outline-offset: 2px; }
-.koala-nosub { position: absolute; left: 8px; right: 8px; bottom: 8px; background: rgba(38, 51, 47, .88); color: #fff; font-size: .8rem; font-weight: 600; text-align: center; border-radius: 12px; padding: 6px 10px; pointer-events: none; animation: koala-zoom-fade .15s ease-out; }
 
-.koala-subbox { width: min(100%, calc(30vh * 320 / 220)); aspect-ratio: 320 / 220; margin: 0 auto 10px; border-radius: 14px; border: 2px solid #f0d28a; background: #fffaf0; overflow-y: auto; overflow-x: hidden; padding: 8px; box-sizing: border-box; }
-.koala-subbox.is-in-preview { display: none; }
-.koala-subbox.is-in-preview { margin: 8px 0 4px; width: 100%; }
-@media (min-width: 720px) {
-  .koala-subbox.is-flow { display: none; }
-  .koala-subbox.is-in-preview { display: block; }
-}
-.koala-subbox.is-idle { display: flex; flex-direction: column; justify-content: center; gap: 8px; text-align: center; }
-@media (max-width: 719px) { .koala-subbox.is-idle.is-in-preview { display: none; } }
-@media (min-width: 720px) { .koala-subbox.is-idle.is-flow { display: none; } .koala-subbox.is-idle.is-in-preview { display: flex; } }
-.koala-subbox-hint { font-size: .85rem; font-weight: 600; color: var(--text); line-height: 1.35; }
-.koala-subbox-hint.is-sub { color: var(--muted); font-weight: 500; font-size: .8rem; }
-.koala-subchips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
-.koala-subchip { display: inline-flex; align-items: center; gap: 4px; min-height: 40px; padding: 2px 12px 2px 4px; border-radius: 999px; border: 2px solid #f0d28a; background: #fff; font: inherit; font-size: .82rem; font-weight: 700; color: var(--text); cursor: pointer; }
-.koala-subchip:focus-visible, .koala-sub:focus-visible, .koala-subbox-x:focus-visible { outline: 3px solid var(--accent-dark); outline-offset: 2px; }
-.koala-subchip-pic { width: 32px; height: 32px; display: inline-flex; }
-.koala-subchip-pic > svg { width: 100%; height: 100%; }
-.koala-subbox-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; position: sticky; top: -8px; background: inherit; padding: 2px 0; z-index: 1; }
-.koala-subbox-icon { width: 30px; height: 30px; display: inline-flex; flex: 0 0 auto; }
-.koala-subbox-icon > svg { width: 100%; height: 100%; }
-.koala-subbox-title { font-family: var(--font-heading); font-weight: 700; font-size: 1rem; flex: 1 1 auto; min-width: 0; }
-.koala-subbox-x { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%; border: 2px solid #e0d2ad; background: #fff; font: inherit; font-weight: 700; cursor: pointer; color: var(--text); }
-.koala-subgroup { margin-bottom: 8px; }
-.koala-subgroup-title { font-size: .8rem; font-weight: 700; color: var(--accent-dark); margin-bottom: 4px; }
-.koala-subgroup-title small { color: var(--muted); font-weight: 600; }
-.koala-subgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 6px; }
-.koala-sub { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px 3px; border-radius: 12px; border: 2px solid #eadfc2; background: #fff; font: inherit; color: var(--text); cursor: pointer; min-width: 0; }
-.koala-sub.is-on { border-color: var(--accent); background: #eefaf4; }
-.koala-sub-pic { position: relative; display: block; width: 100%; height: 40px; }
-.koala-sub-pic > svg { width: 100%; height: 100%; }
-.koala-sub-pic .koala-item-badge { right: 0; bottom: 0; font-size: .7rem; }
-.koala-sub-name { font-size: .68rem; font-weight: 600; line-height: 1.15; text-align: center; max-width: 100%; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Detail popup */
 .koala-subd-card { width: min(92vw, 420px); text-align: center; }
 .koala-subd-from { font-weight: 700; color: var(--accent-dark); }
-.koala-subd-stage { width: min(70%, 240px); aspect-ratio: 1; margin: 6px auto; border-radius: 18px; background: radial-gradient(circle at 50% 40%, #fffdf3, #ffeec2); border: 2px solid #f0d28a; padding: 12px; box-sizing: border-box; }
-.koala-subd-stage.is-wide { width: min(92%, 340px); aspect-ratio: 56 / 40; }
-.koala-subd-stage > svg { width: 100%; height: 100%; display: block; }
-.koala-itemd-stage > svg, .koala-itemd-stage > img { width: 100%; height: 100%; display: block; object-fit: contain; }
-.koala-itemd-stage.is-locked { filter: grayscale(.55); opacity: .8; }
-.koala-itemd-price { font-weight: 800; color: #8a5a00; display: flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 6px; }
-.koala-itemd-act { gap: 10px; flex-wrap: wrap; }
-.koala-subd-name { font-family: var(--font-heading); font-weight: 700; font-size: 1.3rem; margin-top: 6px; }
-.koala-subd-desc { margin: 4px 8px 10px; color: var(--text); font-size: 1rem; line-height: 1.4; }
-.koala-subd-act { display: flex; justify-content: center; min-height: 44px; }
-.koala-subd-act .pill { min-height: 44px; }
-.koala-subd-state { font-weight: 700; color: var(--accent-dark); align-self: center; }
-.koala-subd-msg { min-height: 1.3em; margin-top: 6px; font-weight: 700; color: #c2410c; font-size: .9rem; }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ---- My Koala: sub-item prices, selling back, coin wallet ---- */
-.koala-sub-st { font-size: .66rem; font-weight: 700; display: inline-flex; align-items: center; gap: 2px; line-height: 1.1; color: var(--muted); }
-.koala-sub-st.on { color: var(--accent-dark); }
-.koala-sub-st.cost { color: #8a5a00; }
-.koala-sub-st .koala-coin { width: .8rem; height: .8rem; }
-.koala-sub.is-locked .koala-sub-pic { opacity: .72; }
-.koala-sub.is-locked { border-style: dashed; }
+
+
+
+
+
+
 .pill.warn { background: #e8590c; border-color: #c2410c; color: #fff; }
-.koala-sell-link { display: block; margin: 6px auto 0; background: none; border: 0; font: inherit; font-size: .85rem; font-weight: 700; color: #b45309; text-decoration: underline; cursor: pointer; min-height: 36px; }
-.koala-sell-box { margin: 8px auto 0; padding: 8px 10px; border-radius: 12px; background: #fff4e0; border: 2px solid #f0c27a; font-size: .9rem; }
-.koala-sell-btns { display: flex; justify-content: center; gap: 8px; margin-top: 8px; }
-.koala-sell-btns .pill { min-height: 44px; }
-.koala-sell-math { margin: 8px auto 4px; max-width: 300px; display: grid; gap: 4px; text-align: left; }
+
+
+
+
+
 
 /* ---- My Koala admin: add/edit item + add category (admin-only, not shown to kids) ---- */
-.koala-cat-admin-add { border: 2px dashed var(--outline, #cfe7df) !important; background: transparent !important; color: var(--muted) !important; font-weight: 800; font-size: 1.1rem; padding: 0 16px !important; }
-.koala-shelf-head { flex-wrap: wrap; gap: 8px; }
-.koala-admin-add-item-btn { margin-left: auto; }
+
+
+
 .koala-admin-card { width: min(94vw, 460px); text-align: left; }
 .koala-admin-body { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
 .koala-admin-field { display: flex; flex-direction: column; gap: 4px; font-size: .88rem; font-weight: 700; color: var(--text); }
@@ -9300,18 +9290,18 @@ button.koala-zoom-tag:focus-visible { outline: 3px solid var(--accent-dark); out
 .koala-admin-note { font-size: .78rem; color: var(--muted); margin: 0; }
 .koala-admin-actions { display: flex; gap: 8px; margin-top: 4px; }
 .koala-admin-err { color: #c2410c; font-weight: 700; font-size: .85rem; margin: 0; }
-.koala-sell-math > div { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 10px; border-radius: 10px; background: #fff8e6; }
-.koala-sell-math b { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-heading); }
-.koala-sell-math .koala-coin { width: 1rem; height: 1rem; }
-.koala-sell-math .total { background: #e8f8ee; border: 2px solid var(--accent); font-size: 1.05rem; }
-.koala-sell-note { margin: 4px 8px; font-size: .85rem; color: var(--muted); }
-.koala-sellmode { margin-left: auto; }
-.koala-sellmode.on { background: #fff4e0; border-color: #f0c27a; }
-.koala-shelf-head { display: flex; align-items: center; gap: 8px; }
-.koala-sell-hint { margin: 2px 0 8px; font-size: .85rem; font-weight: 600; color: #b45309; }
-.koala-item.is-sell { border-color: #f0c27a; background: #fffaf0; }
-.koala-item.is-dim { opacity: .45; }
-.koala-item-status.sell { color: #b45309; font-weight: 700; }
+
+
+
+
+
+
+
+
+
+
+
+
 
 .koala-wallet { margin: 0 0 14px; padding: 14px; border-radius: 20px; border: 3px solid #e0b64a; background: linear-gradient(160deg, #fff6d8 0%, #ffe9a8 100%); box-shadow: 0 4px 0 #cfa233, 0 8px 18px rgba(160, 110, 0, .18); position: relative; overflow: hidden; }
 .koala-wallet::after { content: ""; position: absolute; right: -18px; top: -18px; width: 90px; height: 90px; border-radius: 50%; background: rgba(255, 255, 255, .35); pointer-events: none; }
@@ -12000,23 +11990,19 @@ html[data-theme="dark"] .hbar-track { background: #26382f; }
   html body #view-stats .dash-sum, html body #view-stats .dash-cat, html body #view-stats .dash-badge-card,
   html body #view-stats .stat-box, html body #view-stats .pr-tile, html body #view-stats .badge-card,
   html body #view-stats .dash-rec, html body #view-stats .pr-range,
-  html body #view-koala .koala-studio-top, html body #view-koala .koala-item, html body #view-koala .koala-next,
-  html body #view-koala .koala-hero, html body #view-koala .koala-subbox, html body #view-koala .koala-trophy-wall,
-  html body #view-koala .koala-stage, html body #view-koala .koala-streak-chip, html body #view-koala .koala-studio-coins,
-  html body #view-koala .koala-next-pic, html body #view-koala .koala-hero-streak {
+  html body #view-koala .koala-hero,
+  html body #view-koala .koala-stage, html body #view-koala .koala-streak-chip, html body #view-koala .koala-hero-streak{
     border: 0 !important; box-shadow: 0 1px 4px rgba(10, 60, 50, .10) !important;
   }
   html body #view-stats .dash-rec { box-shadow: 0 2px 8px rgba(190, 130, 20, .18) !important; }
   html body #view-stats .dash-cat-focus { box-shadow: 0 1px 4px rgba(10, 60, 50, .10), inset 0 0 0 2px #f0b44c !important; }
   /* flat pills in My Koala */
-  html body #view-koala .koala-cat, html body #view-koala .koala-back {
-    border: 0 !important; box-shadow: none !important; background: #e3f5ee; color: var(--accent-dark); font-weight: 800;
-  }
-  html body #view-koala .koala-cat.on { background: var(--accent); color: #fff; }
+  
+  
   html body #view-stats .reset-btn { border: 0 !important; background: #fdecec; box-shadow: none !important; }
   html body #view-stats .more-stats > summary { border: 0 !important; box-shadow: none !important; }
-  html[data-theme="dark"] body #view-koala .koala-cat, html[data-theme="dark"] body #view-koala .koala-back { background: #1e2f29; color: #6ff0cf; }
-  html[data-theme="dark"] body #view-koala .koala-cat.on { background: var(--accent); color: #04281f; }
+  
+  
   html[data-theme="dark"] body #view-stats .reset-btn { background: #3a2222; }
   html[data-theme="dark"] body #view-stats > .card, html[data-theme="dark"] body #view-koala > .card { box-shadow: none !important; }
 
@@ -12282,35 +12268,35 @@ html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on {
 }
 
 /* Trophy wall: same medals as the Badges tab, filling the whole shelf */
-.koala-trophy-wall { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 8px; justify-items: center; padding: 14px 10px 12px; }
-.koala-trophy-wall > .koala-note { grid-column: 1 / -1; margin: 0; text-align: center; }
-.koala-trophy { width: 100%; align-items: center; gap: 6px; }
-.koala-trophy .medal { font-size: 14px; }
-.koala-trophy-name { font-size: .74rem; font-weight: 700; }
+
+
+
+
+
 
 /* "Inside your furniture" box: a titled panel that grows with what is in it */
-html body #view-koala .koala-subbox { aspect-ratio: auto; width: 100%; max-width: none; height: auto; min-height: 0; overflow: visible; padding: 14px; margin: 12px 0; text-align: left; }
-html body #view-koala .koala-subbox.is-idle { align-items: stretch; text-align: center; gap: 10px; }
-.koala-subbox-label { font-family: var(--font-heading); font-weight: 800; font-size: 1.02rem; color: var(--text); text-align: left; margin-bottom: 4px; }
-html body #view-koala .koala-subbox-head { position: static; padding: 0; margin-bottom: 10px; }
-.koala-subbox-shop { display: block; width: 100%; margin-top: 12px; padding: 12px; border: 0; border-radius: 12px; background: #e1f3ec; color: var(--accent-dark); font: inherit; font-weight: 800; cursor: pointer; }
-.koala-subbox-shop:active { background: rgba(46, 204, 160, .3); }
-.koala-subgrid-shop { margin-top: 8px; }
-.koala-cat-sub { position: relative; }
-html[data-theme="dark"] .koala-subbox-shop { background: #1e2f29; color: #6ff0cf; }
-html body #view-koala .koala-subbox.is-in-preview { max-height: 38vh; overflow-y: auto; }
+
+
+
+
+
+
+
+
+
+
 
 /* Koala: shop box = category strip + My items + grid */
-.koala-shop-bar{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
-.koala-shop-bar .koala-cats{padding:0}
-.koala-shop-bar .koala-sellmode{align-self:flex-start}
-html body #view-koala .koala-studio-top > .koala-cats{display:none}
-html body #view-koala .koala-subbox.is-in-preview{display:block}
-html body #view-koala .koala-studio-top:has(.koala-subbox),html body #view-koala .koala-studio-preview:has(.koala-subbox){position:static}
-html body #view-koala .koala-subbox.is-in-preview{max-height:none;overflow:visible}
-.koala-own-group{margin:10px 0 14px}
-.koala-own-title{font-weight:800;font-size:1rem;color:#17463c;margin:0 2px 6px;padding-bottom:4px;border-bottom:2px dashed rgba(23,70,60,.18)}
-.koala-own-title small{font-weight:700;opacity:.6}
+
+
+
+
+
+
+
+
+
+
 
 /* Flashcards: "Know it? Prove it!" check + info note */
 .flash-info-btn{border:0;background:#e3f6ef;color:#0e7a63;font-weight:800;font-size:1.05rem;width:34px;height:34px;border-radius:50%;cursor:pointer;margin-left:auto}
@@ -13326,32 +13312,25 @@ html[data-theme] body #quiz-start-screen .fs-settings-body .qz-pick-note { backg
   html body #view-stats #stats-insights-card { border: 0 !important; }
 
   /* My Koala (Character + Room): category buttons, My items button, preview box */
-  html body #view-koala .koala-cat,
-  html body #view-koala .koala-back {
-    border: 0 !important; box-shadow: none !important;
-    background: #e3f5ee; color: var(--accent-dark); font-weight: 800;
-  }
-  html body #view-koala .koala-cat.on { background: var(--accent); color: #fff; }
-  html body #view-koala .koala-back { background: #ffe9b8; color: #7a4d00; }
-  html body #view-koala .koala-back.on { background: #f6c343; color: #4a3000; }
-  html[data-theme="dark"] body #view-koala .koala-cat { background: #1e2f29; color: #6ff0cf; }
-  html[data-theme="dark"] body #view-koala .koala-cat.on { background: var(--accent); color: #04281f; }
-  html[data-theme="dark"] body #view-koala .koala-back { background: #3a3220; color: #ffd98a; }
-  html[data-theme="dark"] body #view-koala .koala-back.on { background: #b88a1c; color: #1d1500; }
+  
+  
+  
+  
+  
+  
+  
+  
 
-  html body #view-koala .koala-studio-top,
-  html body #view-koala .koala-studio-preview { border: 0 !important; }
+  
   html body #view-koala .koala-stage { border: 0 !important; box-shadow: 0 1px 4px rgba(10, 60, 50, .10) !important; }
 
   /* Items: no outline and no shadow; only the worn item keeps a mint outline */
-  html body #view-koala .koala-item {
-    border: 2px solid transparent !important; box-shadow: none !important; background: #f2f9f6;
-  }
-  html body #view-koala .koala-item .koala-item-pic { background: #fff; }
-  html body #view-koala .koala-item.is-equipped { border-color: var(--accent) !important; background: #effaf6; }
-  html body #view-koala .koala-item.is-trying { border-color: #f0a31a !important; box-shadow: none !important; background: #fff8e6; }
-  html body #view-koala .koala-item.is-locked { background: #f6f8f7; }
-  html body #view-koala .koala-item.is-sell { border-color: transparent !important; background: #fffaf0; }
+  
+  
+  
+  
+  
+  
 
 }
 @media all {
@@ -13386,7 +13365,7 @@ html[data-theme] body #quiz-start-screen .fs-settings-body .qz-pick-note { backg
   html[data-theme="dark"] body #view-koala .koala-earn-done:disabled { background: #2b3b35; color: #9bb8ad; }
 
   /* Badges: "Collected x of y" box without outline */
-  html body #view-koala .koala-balance { border: 0 !important; box-shadow: 0 1px 6px rgba(160, 110, 0, .14); }
+  
 
   /* Badges: summary line, progress bar and hint stand out from the background */
   html body #stats-panel-badges .badge-summary,
@@ -13397,14 +13376,14 @@ html[data-theme] body #quiz-start-screen .fs-settings-body .qz-pick-note { backg
   }
   html body #stats-panel-badges .badge-meter > i,
   html body #view-koala .badge-meter > i { background: linear-gradient(90deg, #2ecca0, var(--accent-dark)); }
-  html body #view-koala .koala-badge-sum .koala-level-bar { height: 14px; background: #e6d49c; box-shadow: inset 0 1px 3px rgba(122, 82, 0, .3); }
+  
   html body #stats-panel-badges .badge-hint,
   html body #view-koala .badge-hint { color: #3e564e; font-size: .9rem; font-weight: 700; }
   html[data-theme="dark"] body #stats-panel-badges .badge-summary,
   html[data-theme="dark"] body #view-koala .badge-summary { color: #6ff0cf; }
   html[data-theme="dark"] body #stats-panel-badges .badge-meter,
   html[data-theme="dark"] body #view-koala .badge-meter { background: #3a5248; box-shadow: inset 0 1px 3px rgba(0, 0, 0, .5); }
-  html[data-theme="dark"] body #view-koala .koala-badge-sum .koala-level-bar { background: #4a4328; }
+  
   html[data-theme="dark"] body #stats-panel-badges .badge-hint,
   html[data-theme="dark"] body #view-koala .badge-hint { color: #b9d6cb; }
 
@@ -13686,43 +13665,43 @@ select.admin-role-select { align-items: center; }
 #ocr-review .setting-row #ocr-add-btn { margin-top: 2px; }
 
 /* Room edit mode (drag & drop decorating) */
-.koala-zoom-stage.is-editing { touch-action: none; cursor: grab; outline: 3px dashed var(--accent); outline-offset: -3px; }
-.koala-zoom-stage.is-editing svg g[data-item]:not(:first-child) { cursor: move; }
-.koala-zoom-stage.is-editing svg g.koala-picked, .koala-zoom-stage.is-editing svg g[data-item]:hover { filter: drop-shadow(0 0 3px #ff9f1c); }
-.koala-zoom-stage.is-editing .koala-eyes { animation: none; }
-[data-room-bar] .koala-cat[disabled] { opacity: .45; }
 
-.room-menu { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; margin: 8px 0 4px; }
-.room-menu b { flex-basis: 100%; text-align: center; color: var(--accent-dark); }
-.room-menu .koala-cat { min-width: 44px; min-height: 44px; padding: 0 10px; font-size: 1.1rem; }
-.room-inv { display: flex; gap: 8px; overflow-x: auto; padding: 8px 2px; margin-top: 6px; border-top: 2px dashed #e6e9e7; touch-action: pan-x; -webkit-overflow-scrolling: touch; }
-.room-inv-card { flex: 0 0 74px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px; border: 2px solid var(--accent); border-radius: 14px; background: var(--card-bg); font: inherit; font-size: .68rem; cursor: grab; touch-action: none; user-select: none; }
-.room-inv-card .koala-icon-svg { width: 52px; height: 44px; pointer-events: none; }
-.room-inv-card span { max-width: 68px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
-.room-ghost { position: fixed; z-index: 10000; width: 72px; height: 60px; transform: translate(-50%, -50%); pointer-events: none; opacity: .85; filter: drop-shadow(0 4px 6px rgba(0,0,0,.3)); }
-.room-ghost .koala-icon-svg { width: 100%; height: 100%; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ---- My Koala > Character: big card like the Pop-out one, item panel in the same 3-column layout ---- */
-.koala-studio-top.is-char { position: static; }
+
 .koala-stage.is-character { width: min(100%, calc(46vh * 144 / 172)); aspect-ratio: 144 / 172; cursor: pointer; }
 .koala-stage.is-character:focus-visible { outline: 3px solid var(--accent-dark); outline-offset: 2px; }
-.koala-stage-tip { position: absolute; left: 0; right: 0; bottom: 8px; margin: 0; text-align: center; z-index: 2; pointer-events: none; }
-.koala-stage-tip, .kh-ward-tip { font-family: var(--font-heading, inherit); font-weight: 800; font-size: 1.15rem; color: #2b3f39; text-shadow: 0 0 4px #fff, 0 0 8px #fff, 0 1px 0 #fff; }
-.koala-studio:has(.koala-stage.is-character) .koala-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.koala-studio:has(.koala-stage.is-character) .koala-grid .koala-item .koala-item-pic { height: 78px; }
-.koala-studio:has(.koala-stage.is-character) .koala-grid .koala-item-name { font-size: .88rem; }
+
+ .kh-ward-tip{ font-family: var(--font-heading, inherit); font-weight: 800; font-size: 1.15rem; color: #2b3f39; text-shadow: 0 0 4px #fff, 0 0 8px #fff, 0 1px 0 #fff; }
+
+
+
 @media (min-width: 720px) {
-  .koala-studio:has(.koala-stage.is-character) { grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); }
+  
   .koala-stage.is-character { width: min(100%, calc(62vh * 144 / 172)); }
 }
 /* sitting pose (tap the koala) */
-.koala-stage .kp-footL, .koala-stage .kp-footR, .koala-stage .kp-thighL, .koala-stage .kp-thighR, .koala-stage .kp-armL, .koala-stage .kp-armR { transform-box: fill-box; transform-origin: center; transition: transform .35s cubic-bezier(.3, 1.5, .5, 1); }
-.koala-stage.is-sit .kp-footL { transform: translate(-16px, -6px) rotate(-18deg) scale(1.08); }
-.koala-stage.is-sit .kp-footR { transform: translate(16px, -6px) rotate(18deg) scale(1.08); }
-.koala-stage.is-sit .kp-thighL { transform: translate(-12px, 4px) scale(1.12, 1.05); }
-.koala-stage.is-sit .kp-thighR { transform: translate(12px, 4px) scale(1.12, 1.05); }
-.koala-stage.is-sit .kp-armL { transform: translate(8px, 10px) rotate(8deg); }
-.koala-stage.is-sit .kp-armR { transform: translate(-8px, 10px) rotate(-8deg); }
+
+
+
+
+
+
+
 .koala-stage.is-sit g[data-slot="shoes"] { opacity: 0; }
 /* Pop-out: category buttons look like the Sticker ones (one swipeable row of white chips) */
 .kh-ward .kh-cats { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 8px 10px 8px; }
@@ -13733,24 +13712,24 @@ select.admin-role-select { align-items: center; }
 
 /* ---- Character page, round 3 ---- */
 .koala-dimrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 10px 0 8px; }
-.koala-dimrow .koala-dim { margin: 0; }
-html body #view-koala .koala-dimrow .koala-own-btn { min-height: 40px; background: #fff; color: var(--accent-dark); border: 0 !important; box-shadow: 0 1px 3px rgba(10, 60, 50, .22) !important; }
-html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent); color: #fff; }
+
+
+
 /* Sticker card = Pop-out card: no white frame, the scene fills the card, level + coins float on top */
-.koala-studio-top.is-char { background: none; border: 0; box-shadow: none; padding: 0; margin: 0 0 10px; }
-.koala-studio-top.is-char .koala-studio-preview { position: relative; }
-.koala-studio-top.is-char .koala-studio-bar { position: absolute; top: 10px; left: 10px; right: 10px; z-index: 3; padding: 0; pointer-events: none; }
-.koala-studio-top.is-char .koala-studio-lv { background: rgba(255, 255, 255, .92); border-radius: 999px; padding: 2px 12px; margin-left: 0; }
-.koala-studio-top.is-char .koala-studio-coins { margin-left: auto; }
+
+
+
+
+
 .koala-stage.is-character { width: 100%; height: 46vh; min-height: 330px; aspect-ratio: auto; border: 0; border-radius: 18px; }
 .koala-stage.is-character > svg { width: 100%; height: 100%; }
 @media (min-width: 720px) {
   .koala-stage.is-character { width: 100%; height: min(70vh, 640px); }
-  .koala-studio:has(.koala-stage.is-character) { grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); }
+  
 }
 /* Pop-out panel: wider so the categories are not cut off, arrows like the Sticker row, no scrollbar */
 .kh-ward .kh-panel { width: min(400px, 46vw); }
-.kh-narrow.kh-ward .kh-panel, .kh-ward .kh-panel.kh-pn { width: 100%; }
+.kh-narrow.kh-ward .kh-panel { width: 100%; }
 @media (max-width: 760px), (orientation: portrait) { .kh-ward .kh-panel { width: 100%; } }
 .kh-ward .kh-grid { scrollbar-width: none; -ms-overflow-style: none; }
 .kh-ward .kh-grid::-webkit-scrollbar { display: none; }
@@ -13767,60 +13746,60 @@ html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent
 .kh-empty { margin: 14px 4px; color: #4e6b63; font-weight: 600; }
 .auth-koala-pic.is-3d { background: #fbf1dc; }
 .auth-koala-pic .kh-k3d { display: block; width: 100%; height: 100%; }
-.koala-studio-top.is-char .koala-studio-preview { background: none; border: 0; box-shadow: none; padding: 0; }
+
 
 /* ---- Round 4 ---- */
 .kh-cats { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
 .kh-cats::-webkit-scrollbar { display: none; }
 .kh-cat { flex: 0 0 auto; }
-.kh-pillbtn span, .kh-title.pill { white-space: nowrap; }
-.kh-pillbtn { flex: 0 0 auto; }
+
+
 .auth-menu .auth-koala-pic.is-3d { width: 112px; height: 168px; border-radius: 18px; }
 .auth-koala-pic.is-3d .kh-k3d { width: 100%; height: 100%; }
 .auth-menu .auth-koala-avatar .koala-level-bar { width: 112px; }
 
 /* ---- Design 3: sliding switch + one white dock ---- */
-.koala-dim { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 14px; background: #cfe9df; gap: 0; }
-.koala-dim::before { content: ""; position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 11px; background: #fff; box-shadow: 0 1px 4px rgba(20, 90, 70, .3); transition: transform .25s cubic-bezier(.3, 1.3, .5, 1); }
-.koala-dim.r::before { transform: translateX(100%); }
-.koala-dim-btn { position: relative; z-index: 1; border-radius: 11px; padding: 8px 22px; white-space: nowrap; }
-.koala-dim-btn.on { background: transparent; box-shadow: none; color: #1f3a33; }
-@media (prefers-reduced-motion: reduce) { .koala-dim::before { transition: none; } }
-html body #view-koala .koala-dimrow .koala-own-btn { background: transparent; color: var(--accent-dark); border: 1.5px solid var(--accent-dark) !important; box-shadow: none !important; border-radius: 14px; }
-html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent); color: #fff; border-color: var(--accent) !important; }
-.kh-top.over { left: 10px; right: 10px; top: 10px; width: auto; padding: 6px; gap: 0; background: #fff; border-radius: 16px; box-shadow: 0 6px 18px rgba(20, 90, 70, .16); }
-.kh-top.over .kh-ibtn, .kh-top.over .kh-pillbtn { height: 40px; border: 0; background: none; box-shadow: none; backdrop-filter: none; border-radius: 11px; color: #27403a; }
-.kh-top.over .kh-ibtn { width: 40px; }
-.kh-top.over .kh-ibtn:hover, .kh-top.over .kh-pillbtn:hover { background: #eaf6f1; box-shadow: none; }
-.kh-top.over .kh-title.pill { background: none; border: 0; box-shadow: none; backdrop-filter: none; padding: 0 12px; font-size: 1rem; height: 40px; display: inline-flex; align-items: center; }
-.kh-top.over .kh-coins { background: none; border: 0; box-shadow: none; padding: 0 10px; height: 40px; }
-.kh-top.over .kh-pillbtn.done { background: var(--accent, #22b98c); color: #fff; margin-left: 6px; }
-.kh-top.over .kh-pillbtn.done:hover { background: var(--accent-dark, #16a085); }
-.kh-vr { width: 1px; height: 22px; background: #d3e6de; margin: 0 6px; flex: 0 0 auto; }
-.kh-narrow .kh-top.over { padding: 4px; gap: 0; top: 8px; left: 8px; right: 8px; }
-.kh-narrow .kh-top.over .kh-ibtn, .kh-narrow .kh-top.over .kh-pillbtn, .kh-narrow .kh-top.over .kh-coins { height: 36px; }
-.kh-narrow .kh-top.over .kh-ibtn { width: 34px; }
-.kh-narrow .kh-top.over .kh-title.pill { padding: 0 8px; font-size: .9rem; }
-.kh-narrow .kh-vr { margin: 0 3px; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ---- Design 1: frosted glass (replaces design 3) ---- */
-.koala-dim { display: inline-flex; padding: 4px; border-radius: 999px; background: rgba(255, 255, 255, .55); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .8); }
-.koala-dim::before { display: none; }
-.koala-dim-btn { border-radius: 999px; padding: 8px 20px; color: #4d6a61; }
-.koala-dim-btn.on { background: #fff; color: var(--accent-dark, #16906d); box-shadow: 0 2px 8px rgba(20, 90, 70, .18); }
-html body #view-koala .koala-dimrow .koala-own-btn { background: rgba(255, 255, 255, .85); color: var(--accent-dark, #16906d); border: 0 !important; border-radius: 999px; padding: 0 16px; box-shadow: 0 2px 8px rgba(20, 90, 70, .14) !important; }
-html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent); color: #fff; }
-.kh-top.over { left: 10px; right: 10px; top: 10px; padding: 8px; gap: 8px; background: rgba(255, 255, 255, .6); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-radius: 20px; box-shadow: 0 4px 16px rgba(20, 90, 70, .14), inset 0 0 0 1px rgba(255, 255, 255, .9); }
-.kh-top.over .kh-ibtn, .kh-top.over .kh-pillbtn { background: rgba(255, 255, 255, .9); border: 0; border-radius: 999px; height: 38px; }
-.kh-top.over .kh-ibtn { width: 38px; }
-.kh-top.over .kh-ibtn:hover, .kh-top.over .kh-pillbtn:hover { background: #fff; box-shadow: 0 2px 8px rgba(20, 90, 70, .18); }
-.kh-top.over .kh-title.pill, .kh-top.over .kh-coins { background: rgba(255, 255, 255, .9); border-radius: 999px; height: 38px; padding: 0 14px; box-shadow: none; }
-.kh-top.over .kh-pillbtn.done { background: linear-gradient(180deg, #3fd3a6, #22b98c); color: #fff; margin-left: 0; box-shadow: 0 3px 10px rgba(34, 185, 140, .4); }
-.kh-top.over .kh-pillbtn.done:hover { background: linear-gradient(180deg, #46dbae, #25c294); }
-.kh-vr { display: none; }
-.kh-narrow .kh-top.over { padding: 6px; gap: 6px; top: 8px; left: 8px; right: 8px; }
-.kh-narrow .kh-top.over .kh-ibtn, .kh-narrow .kh-top.over .kh-pillbtn, .kh-narrow .kh-top.over .kh-coins { height: 34px; }
-.kh-narrow .kh-top.over .kh-ibtn { width: 34px; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Category rows (room panel included) never wrap: koala-house.css loads after this file, so out-rank it */
 .kh-app .kh-cats { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 8px 10px; }
 .kh-app .kh-cats::-webkit-scrollbar { display: none; }
@@ -13828,133 +13807,130 @@ html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent
 .kh-app .kh-cat.on { background: var(--accent, #2ec7a0); color: #fff; box-shadow: 0 2px 6px rgba(20, 160, 130, .35); }
 
 /* ---- Pop-out locked preview (free members): shows what Premium looks like ---- */
-.kt-teaser { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 22px; align-items: center; text-align: left; padding: 22px; border: 0; border-radius: 26px; color: #fff; overflow: hidden;
-  background: radial-gradient(circle at 20% 15%, #3a8f86 0%, rgba(58, 143, 134, 0) 45%), linear-gradient(135deg, #173f4f 0%, #1c5a63 50%, #226e69 100%); box-shadow: 0 10px 28px rgba(15, 70, 70, .35), inset 0 0 0 1.5px rgba(255, 215, 120, .55); }
-.kt-teaser::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(255, 255, 255, .55) 1.2px, transparent 1.6px), radial-gradient(circle, rgba(255, 224, 140, .6) 1px, transparent 1.4px); background-size: 46px 46px, 71px 71px; background-position: 6px 10px, 30px 34px; opacity: .35; pointer-events: none; }
-.kt-visual { position: relative; display: grid; place-items: center; min-height: 270px; padding: 10px; }
-.kt-glow { position: absolute; width: 86%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgba(255, 226, 150, .55) 0%, rgba(255, 226, 150, 0) 68%); }
-.kt-koala { position: relative; max-height: 300px; width: auto; max-width: 100%; filter: drop-shadow(0 12px 14px rgba(0, 0, 0, .35)); animation: kt-float 3.4s ease-in-out infinite; }
+
+
+
+
+
 @keyframes kt-float { 50% { transform: translateY(-7px); } }
-.kt-chip { position: absolute; width: 58px; height: 58px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 5px 12px rgba(0, 0, 0, .3), 0 0 0 3px rgba(255, 215, 120, .9); animation: kt-float 3s ease-in-out infinite; }
-.kt-chip img { width: 40px; height: 40px; object-fit: contain; }
-.kt-chip.c1 { top: 30%; left: 0; } .kt-chip.c2 { top: 14%; right: 0; animation-delay: -.8s; } .kt-chip.c3 { bottom: 8%; left: 0; animation-delay: -1.6s; } .kt-chip.c4 { bottom: 16%; right: 1%; animation-delay: -2.2s; }
-.kt-rooms { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
-.kt-rooms img { width: 100%; aspect-ratio: 1; object-fit: contain; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, .35)); }
-.kt-eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; max-width: 280px; color: #f7d676; font-weight: 700; font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; }
-.kt-eyebrow::before, .kt-eyebrow::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #f7d676); }
-.kt-eyebrow::after { transform: scaleX(-1); }
-.kt-eyebrow .kt-crown { width: 14px; height: 14px; }
-.kt-crown { width: 18px; height: 18px; flex: none; }
-.kt-body { position: relative; }
-.kt-title { font-family: var(--font-heading, inherit); font-size: 1.45rem; font-weight: 800; line-height: 1.2; margin: 0 0 18px; color: #fff; text-shadow: 0 2px 6px rgba(0, 0, 0, .25); }
-.kt-perks { list-style: none; margin: 0 0 26px; padding: 0; display: grid; gap: 12px; }
-.kt-perks li { display: flex; align-items: center; gap: 14px; padding: 11px 14px; border-radius: 18px; background: rgba(255, 255, 255, .11); border: 1px solid rgba(255, 255, 255, .2); }
-.kt-ic { flex: none; width: 46px; height: 46px; border-radius: 14px; background: #fff; display: grid; place-items: center; box-shadow: 0 3px 8px rgba(0, 0, 0, .25); overflow: hidden; }
-.kt-ic img { width: 36px; height: 36px; object-fit: contain; }
-.kt-coin svg { width: 30px; height: 30px; }
-.kt-tx { display: grid; gap: 1px; min-width: 0; }
-.kt-tx b { font-size: .98rem; color: #fff; }
-.kt-tx small { font-size: .8rem; color: rgba(255, 255, 255, .8); font-weight: 600; }
-.kt-cta { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; cursor: pointer; font-family: var(--font-heading, inherit); font-weight: 700; font-size: 1rem; letter-spacing: .02em; color: #3d2a05; padding: 14px 20px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, .55); background: linear-gradient(180deg, #f9e3a0 0%, #e2b24a 100%); box-shadow: 0 6px 16px rgba(0, 0, 0, .28), inset 0 1px 0 rgba(255, 255, 255, .7); transition: transform .12s, box-shadow .12s, filter .12s; }
-.kt-cta:hover { filter: brightness(1.05); transform: translateY(-1px); }
-.kt-cta:active { transform: translateY(1px); box-shadow: 0 2px 6px rgba(0, 0, 0, .3), inset 0 1px 0 rgba(255, 255, 255, .6); }
-.kt-cta .kt-crown { width: 17px; height: 17px; }
-.kt-cta:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
-.kt-note { margin: 10px 0 0; text-align: center; font-size: .8rem; color: rgba(255, 255, 255, .92); font-weight: 700; }
-@media (max-width: 620px) { .kt-teaser { grid-template-columns: 1fr; padding: 16px; } .kt-koala { max-height: 240px; } .kt-visual { min-height: 250px; } .kt-title { font-size: 1.3rem; } }
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Character-page buttons use the same type size as the top navigation menu */
-html body #view-koala .koala-dim-btn,
-html body #view-koala .koala-dimrow .koala-own-btn,
-html body #view-koala .koala-cat,
-html body #view-koala .kh-app .kh-cat { font-size: 0.72rem; font-weight: 600; font-family: var(--font-heading); }
+
+html body #view-koala .kh-app .kh-cat{ font-size: 0.72rem; font-weight: 600; font-family: var(--font-heading); }
 
 /* ---- Sticker room tab: "My House" flat floor plan card (same structure as Pop-out) ---- */
-.koala-studio:has(.koala-studio-top.is-plan) { display: block; }
-.koala-studio-top.is-plan { display: block; position: static; background: none; border: 0; box-shadow: none; padding: 0; margin: 0 0 12px; }
-.koala-studio-top.is-plan .koala-studio-preview { position: static; display: block; background: none; border: 0; box-shadow: none; padding: 0; }
-.koala-plan-card { background: linear-gradient(180deg, #ffffff 0%, #f1fbf6 100%); border-radius: 22px; padding: 14px 16px 16px; box-shadow: 0 2px 10px rgba(20, 110, 85, .14), inset 0 0 0 1.5px #d6efe4; }
-.kp-head { display: flex; align-items: center; gap: 10px; }
-.kp-title { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-family: var(--font-heading, inherit); font-size: 1.3rem; color: #27403a; }
-.kp-ic { width: 26px; height: 26px; color: #b9823f; flex: none; }
-.kp-sp { flex: 1; }
-.kp-expand { width: 44px; height: 44px; border-radius: 14px; border: 0; cursor: pointer; background: #fff; color: #27403a; display: grid; place-items: center; box-shadow: 0 1px 4px rgba(10, 60, 50, .22); }
-.kp-expand:active { transform: translateY(1px); }
-.kp-hint { margin: 8px 0 10px; font-size: .88rem; color: #4d6a61; font-weight: 600; }
-.kp-plan-svg { display: block; width: 100%; height: auto; max-width: 760px; margin: 0 auto; }
-.kp-locked { cursor: pointer; }
-.kp-locked:hover rect { fill: #e2f4ec; }
-.kp-door { display: flex; align-items: center; gap: 10px; width: min(100%, 520px); margin: 12px auto 0; padding: 10px 14px; border: 2px solid #cfe7c4; border-radius: 16px; background: #f1f9e8; color: #3d5a2f; font-weight: 700; font-size: .92rem; cursor: pointer; }
-.kp-door span:nth-child(2) { flex: 1; text-align: left; }
-.kp-door-tag { font-size: .72rem; background: #e8c875; color: #5a3a00; padding: 2px 9px; border-radius: 999px; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* The expand button opens the room as a full page (same idea as Pop-out's full screen) */
 #koala-zoom.koala-zoom-overlay { padding: 0; background: linear-gradient(180deg, #e3f6ee 0%, #fdf4dc 100%); align-items: stretch; }
 #koala-zoom .koala-zoom-card { width: 100vw; max-width: none; height: 100vh; height: 100dvh; max-height: none; border: 0; border-radius: 0; box-shadow: none; background: transparent; padding: 14px 16px 18px; display: flex; flex-direction: column; overflow: auto; }
-#koala-zoom .koala-zoom-stage { width: min(100%, calc((100vh - 240px) * 320 / 220), 1100px); width: min(100%, calc((100dvh - 240px) * 320 / 220), 1100px); min-width: min(100%, 300px); box-shadow: 0 6px 22px rgba(20, 110, 85, .2); border: 3px solid #fff; border-radius: 20px; flex: none; }
+
 
 /* ---- Sticker / Pop-out toggle: folder tabs growing out of the card below (option 5) ---- */
 html body #view-koala .koala-dimrow { --tabc: #fff; display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin: 10px 0 0; padding: 0 8px; border: 0; position: relative; z-index: 3; }
-html body #view-koala .koala-dimrow .koala-dim { display: inline-flex; align-items: flex-end; gap: 4px; padding: 0; margin: 0; background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; border-radius: 0; }
-html body #view-koala .koala-dim-btn { display: inline-flex; align-items: center; gap: 7px; border: 0; border-radius: 14px 14px 0 0; padding: 9px 20px 8px; background: rgba(255, 255, 255, .5); color: #4d6a61; box-shadow: none; margin: 0; position: relative; }
-html body #view-koala .koala-dim-btn.on { background: var(--tabc); color: var(--accent-dark, #16906d); padding-bottom: 12px; margin-bottom: -2px; z-index: 2; }
+
+
+
 html body #view-koala .koala-dimrow.ctx-2d-char { --tabc: #fbf1dc; }
 html body #view-koala .koala-dimrow.ctx-3d-char, html body #view-koala .koala-dimrow.ctx-3d-room { --tabc: #2d7373; }
-html body #view-koala .koala-dimrow.ctx-3d-char .koala-dim-btn.on, html body #view-koala .koala-dimrow.ctx-3d-room .koala-dim-btn.on { color: #fff; }
+
 html body #view-koala .koala-dimrow.ctx-3d-char.is-paid { --tabc: #fbf1dc; }
 html body #view-koala .koala-dimrow.ctx-3d-room.is-paid { --tabc: #eaf6f1; }
-html body #view-koala .koala-dimrow.ctx-3d-char.is-paid .koala-dim-btn.on, html body #view-koala .koala-dimrow.ctx-3d-room.is-paid .koala-dim-btn.on { color: var(--accent-dark, #16906d); }
+
 /* the card under the Sticker tab squares its top-left corner so the tab grows out of it */
-.koala-dimrow.ctx-2d-char + .koala-studio .koala-stage.is-character, .koala-dimrow.ctx-2d-room + .koala-studio .koala-plan-card { border-top-left-radius: 0; }
-.koala-dim-btn .kd-ic { width: 15px; height: 15px; flex: none; }
-.koala-dim-btn .kd-crown { color: #d9a238; }
-html body #view-koala .koala-dimrow .koala-own-btn { margin: 0 0 6px; border: 0 !important; border-radius: 10px; background: #fff; color: var(--accent-dark, #16906d); box-shadow: 0 1px 3px rgba(10, 60, 50, .18) !important; padding: 0 14px; min-height: 36px; }
-html body #view-koala .koala-dimrow .koala-own-btn.on { background: var(--accent); color: #fff; }
-.koala-dimrow.ctx-2d-char + .koala-studio { margin-top: -5px; }
+
+
+
+
+
+
 
 /* Tabs flush with the card below (3D contexts, free teaser + paid wardrobe/room) */
 html body #view-koala .koala-dimrow + .koala-dim3d { margin-top: -3px; position: relative; z-index: 1; }
-html body #view-koala .koala-dimrow + .koala-dim3d > .kt-teaser,
-html body #view-koala .koala-dimrow + .koala-dim3d > #kh-host { border-top-left-radius: 0; }
+
+html body #view-koala .koala-dimrow + .koala-dim3d > #kh-host{ border-top-left-radius: 0; }
 html body #view-koala .koala-dimrow.ctx-3d-char.is-paid + .koala-dim3d #kh-host,
 html body #view-koala .koala-dimrow.ctx-3d-room.is-paid + .koala-dim3d #kh-host { border-top-left-radius: 0; }
-html body #view-koala .koala-dimrow + .kt-teaser { margin-top: -3px; border-top-left-radius: 0; position: relative; z-index: 1; }
+
 
 .app-ver { font-size: .6rem; font-weight: 600; opacity: .6; letter-spacing: .02em; margin-left: 2px; vertical-align: baseline; font-family: var(--font-body, inherit); }
 
 /* My items button icon + House & Garden button (2D plan card) */
-html body #view-koala .koala-own-btn { display: inline-flex; align-items: center; gap: 6px; }
-html body #view-koala .koala-own-btn .koala-own-ic { width: 22px; height: 22px; object-fit: contain; filter: drop-shadow(0 1px 1px rgba(0, 60, 40, .25)); }
-html body #view-koala .kp-door { display: flex; align-items: center; justify-content: center; gap: 12px; width: min(100%, 420px); margin: 12px auto 0; padding: 8px 16px 8px 10px; border: 0; border-radius: 20px; background: #fff; color: #27403a; font-weight: 800; font-size: .95rem; box-shadow: 0 3px 0 #bfe0c9, 0 8px 18px rgba(40, 110, 80, .14); }
-html body #view-koala .kp-door:active { transform: translateY(2px); box-shadow: 0 1px 0 #bfe0c9; }
-html body #view-koala .kp-door .kp-door-ic { width: 48px; height: 48px; object-fit: contain; flex: none; filter: drop-shadow(0 2px 2px rgba(0, 60, 40, .22)); }
-html body #view-koala .kp-door span:nth-of-type(1) { flex: 1; text-align: left; }
-html body #view-koala .kp-door-tag { background: #f3e2b0; color: #6a4600; border-radius: 999px; padding: 2px 10px; font-size: .7rem; }
-.koala-shelf-title .koala-own-ic { width: 26px; height: 26px; object-fit: contain; vertical-align: -6px; }
+
+
+
+
+
+
+
+
 
 /* No sideways / inner scrolling in My Koala (2D): category chips wrap, the "inside your furniture" box grows */
-html body #view-koala .koala-subbox { aspect-ratio: auto; min-height: 96px; overflow: visible; }
-html:root body #view-koala .koala-cats-wrap .koala-cat { flex: 0 0 auto; white-space: nowrap; }
+
+
 
 /* Category chips (2D): Canva toy icon + label, always one line */
-.koala-cat { display: inline-flex; align-items: center; gap: 6px; }
-.koala-cat .koala-cat-ic { width: 26px; height: 26px; object-fit: contain; flex: none; margin-left: -4px; filter: drop-shadow(0 1px 1px rgba(0, 60, 50, .25)); }
-html body #view-koala .koala-cats-wrap .koala-cat { display: inline-flex; }
+
+
+
 
 /* "My items" button: cloud bubble (design J) */
-html:root body #view-koala .koala-dimrow .koala-own-btn { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; height: 44px; padding: 0 20px 0 12px; margin: 0 0 6px; border: 0 !important; border-radius: 24px 24px 24px 8px; background: linear-gradient(135deg, #ffd9ec, #d9e6ff); color: #5a2a6e; font-weight: 900; box-shadow: 0 4px 12px rgba(150, 110, 220, .3); transition: transform .12s; }
-html:root body #view-koala .koala-dimrow .koala-own-btn::after { content: "\2726"; position: absolute; top: -2px; right: 2px; color: #ffb830; font-size: 1.1rem; animation: koalaTw 1.8s ease-in-out infinite; pointer-events: none; }
-html:root body #view-koala .koala-dimrow .koala-own-btn:active { transform: scale(.96); }
-html:root body #view-koala .koala-dimrow .koala-own-btn.on { background: linear-gradient(135deg, #b98cf0, #7aa7ff); color: #fff; box-shadow: 0 4px 12px rgba(122, 100, 220, .45); }
-html:root body #view-koala .koala-dimrow .koala-own-btn .koala-own-ic { width: 26px; height: 26px; }
-html:root[data-theme="dark"] body #view-koala .koala-dimrow .koala-own-btn:not(.on) { background: linear-gradient(135deg, #5a3a6e, #35508a); color: #fff; }
+
+
+
+
+
+
 @keyframes koalaTw { 50% { transform: scale(1.35) rotate(20deg); opacity: .7; } }
-@media (prefers-reduced-motion: reduce) { html:root body #view-koala .koala-dimrow .koala-own-btn::after { animation: none; } }
+
 
 /* Compact 2D category chips */
-html:root body #view-koala .koala-cats-wrap .koala-cat { min-height: 34px; padding: 0 10px; gap: 4px; font-size: .8rem; }
-html:root body #view-koala .koala-cats-wrap .koala-cat .koala-cat-ic { width: 18px; height: 18px; margin-left: -2px; }
-html:root body #view-koala .koala-cats-wrap .koala-cats { gap: 5px; }
+
+
+
 
 /* Close-my-account dialog: the password field sits inside a kid-modal card,
    so give it the same left-aligned form look as the other account forms. */
@@ -14009,7 +13985,7 @@ html:root body #view-koala .koala-cats-wrap .koala-cats { gap: 5px; }
 .spp-x { display: block; }
 .spp-stage { display: grid; place-items: center; width: min(70%, 220px); height: min(26vh, 26dvh, 190px); width: auto; margin: 2px auto 0; padding: 4px; box-sizing: border-box; }
 .spp-stage > svg, .spp-stage > img { display: block; width: auto; height: 100%; max-width: 100%; object-fit: contain; }
-.spp-stage .kh-subic { width: 100%; height: 100%; max-width: 190px; max-height: 190px; }
+
 .spp-name { margin: 4px 0 8px; font-family: var(--font-heading, inherit); font-size: 1.2rem; font-weight: 800; color: #4a3322; }
 .spp-rows { display: grid; gap: 6px; max-width: 360px; margin: 0 auto; text-align: left; }
 .spp-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 12px; border-radius: 16px; background: #fffdf8; box-shadow: 0 2px 6px rgba(120, 90, 40, .14); font-weight: 700; }
@@ -14030,13 +14006,13 @@ html:root body #view-koala .koala-cats-wrap .koala-cats { gap: 5px; }
 @media (max-width: 420px) { .spp-card { padding: 14px 14px 18px; } .spp-title { font-size: 1.25rem; } .spp-btn { font-size: 1rem; padding: 0 8px; } }
 
 /* ---- admin "+ Add item": a flat teal button with a centred plus ---- */
-.koala-admin-add-item-btn, .kh-admin-add-item { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 18px; border: 0; border-radius: 12px; font: inherit; font-weight: 800; font-size: .95rem; line-height: 1; color: #fff; cursor: pointer; background: #1f9e8a; box-shadow: none; }
+ .kh-admin-add-item{ display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 18px; border: 0; border-radius: 12px; font: inherit; font-weight: 800; font-size: .95rem; line-height: 1; color: #fff; cursor: pointer; background: #1f9e8a; box-shadow: none; }
 .kh-admin-add-item { margin: 0 0 10px; }
-.koala-admin-add-item-btn .add-ic, .kh-admin-add-item .add-ic { display: inline-block; font-size: 1.35rem; font-weight: 800; line-height: 1; margin-top: -2px; }
-.koala-admin-add-item-btn:hover, .kh-admin-add-item:hover { background: #188877; }
-.koala-admin-add-item-btn:focus-visible, .kh-admin-add-item:focus-visible { outline: 3px solid #0f6e55; outline-offset: 2px; }
+ .kh-admin-add-item .add-ic{ display: inline-block; font-size: 1.35rem; font-weight: 800; line-height: 1; margin-top: -2px; }
+ .kh-admin-add-item:hover{ background: #188877; }
+ .kh-admin-add-item:focus-visible{ outline: 3px solid #0f6e55; outline-offset: 2px; }
 
-@media (min-width: 720px) { html body #view-koala .koala-studio-top > .koala-cats { margin-top: 12px; } }
+
 .spp-stage.is-locked { filter: grayscale(.45); opacity: .85; }
 .spp-btns { flex-wrap: wrap; }
 .spp-admin { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
@@ -14051,11 +14027,11 @@ html body #view-koala .kdt-tab.on { background: var(--tabc); color: var(--accent
 html body #view-koala .kdt.ctx-3d-char:not(.is-paid) .kdt-tab.on, html body #view-koala .kdt.ctx-3d-room:not(.is-paid) .kdt-tab.on { color: #fff; }
 html body #view-koala .kdt-tab:focus-visible { outline: 3px solid #fff; outline-offset: -3px; }
 html body #view-koala .kdt-tab .kd-ic { width: 17px; height: 17px; flex: none; }
-html body #view-koala .kdt-tab .kd-crown { color: #ffd34d; }
+
 html body #view-koala .kdt-tab .kdt-ic-img { width: 22px; height: 22px; object-fit: contain; flex: none; }
 @media (max-width: 380px) { html body #view-koala .kdt-tab { font-size: .84rem; gap: 4px; } html body #view-koala .kdt-tab .kdt-ic-img { width: 20px; height: 20px; } }
 /* the card under the bar squares its top corners so the bar and card form one piece */
-html body #view-koala .koala-dimrow.kdt + .koala-studio .koala-stage.is-character, html body #view-koala .koala-dimrow.kdt + .koala-studio .koala-plan-card, html body #view-koala .koala-dimrow.kdt + .koala-dim3d > .kt-teaser, html body #view-koala .koala-dimrow.kdt + .koala-dim3d > #kh-host, html body #view-koala .koala-dimrow.kdt + .kt-teaser { border-top-left-radius: 0; border-top-right-radius: 0; }
+ html body #view-koala .koala-dimrow.kdt + .koala-dim3d > #kh-host { border-top-left-radius: 0; border-top-right-radius: 0; }
 @media (min-width: 720px) {
   html body #view-koala .koala-dimrow.kdt.ctx-2d-char { display: grid; grid-template-columns: minmax(280px, 330px) minmax(0, 1fr); column-gap: 16px; }
 }
@@ -14089,15 +14065,15 @@ html body .kh-app .kh-sheet > .kh-btn { width: 100%; margin-top: 8px; flex: none
 html body .kh-app .kh-sheet .kh-navbtn { border: 0; background: #fff; box-shadow: 0 2px 6px rgba(30, 70, 60, .25); }
 
 /* ---- the little menu over a placed item: same family, flat colourful buttons ---- */
-html body .kh-app .kh-menu { background: linear-gradient(180deg, #fffaf0, #fbf1da); border: 3px solid #6cc4ad; border-radius: 20px; box-shadow: 0 0 0 2px #d5f0e7, 0 12px 28px rgba(30, 70, 60, .3); }
-html body .kh-app .kh-mhead b { color: #4a3322; font-size: .9rem; }
-html body .kh-app .kh-menu .kh-mclose { background: #22b98c; color: #fff; border-radius: 9px; width: 28px; height: 28px; }
-html body .kh-app .kh-menu .kh-mclose:hover { background: #1fa97f; }
-html body .kh-app .kh-menu .kh-mbtn { background: #fff; color: #2a8f72; border-radius: 12px; box-shadow: 0 1px 4px rgba(120, 90, 40, .15); font-weight: 800; }
-html body .kh-app .kh-menu .kh-mbtn:hover { background: #e9f8f2; }
-html body .kh-app .kh-menu .kh-mbtn.accent { background: #22b98c; color: #fff; }
-html body .kh-app .kh-menu .kh-mbtn.danger { background: #ffe9dc; color: #d4572a; }
-html body .kh-app .kh-menu .kh-mbtn.danger:hover { background: #ffdcc9; }
+
+
+
+
+
+
+
+
+
 
 /* ---- the 2D sub-item / other card popups use the same look ---- */
 html body .koala-subd-card { background: linear-gradient(180deg, #fffaf0, #fbf1da); border: 4px solid #6cc4ad; border-radius: 28px; box-shadow: 0 0 0 3px #d5f0e7, 0 22px 50px rgba(30, 70, 60, .35); color: #4a3322; }
@@ -14107,117 +14083,116 @@ html body .koala-subd-card .pill.accent { background: #22b98c; color: #fff; }
 html body .koala-subd-card .pill.warn { background: #f07a3c; color: #fff; }
 
 /* ---- Pop-out Room tab: the floor plan fills the top (full width), the room shop / My items list sits below it ---- */
-html body .kh-app.kh-planmode:not(.kh-full) .kh-plan-screen { flex-direction: column; align-items: stretch; }
-html body .kh-app.kh-planmode:not(.kh-full) .kh-planmain { flex: none; width: 100%; }
-html body .kh-app.kh-planmode:not(.kh-full) .kh-plan-screen .kh-panel { width: 100%; max-height: none; flex: none; border-left: 0; border-top: 3px solid #cfe6dd; }
-html body .kh-app.kh-planmode:not(.kh-full) .kh-plan-svg { flex: none; width: 100%; height: auto; }
-html body .kh-app.kh-planmode:not(.kh-full) .kh-plan-screen .kh-items-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+
+
+
+
+
 html body .kh-app .kh-navbtn { border: 2px solid #6cc4ad; }
-html body #view-koala .koala-dimrow.kdt + .koala-studio, html body #view-koala .koala-dimrow.kdt + .koala-dim3d, html body #view-koala .koala-dimrow.kdt + .kt-teaser { margin-top: -2px; }
+ html body #view-koala .koala-dimrow.kdt + .koala-dim3d { margin-top: -2px; }
 @media (min-width: 720px) { html body #view-koala .koala-dimrow.kdt.ctx-2d-char { grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); } }
 html body #view-koala .kdt-bar { padding: 6px 0 0; }
 html body #view-koala .kdt-tab:first-child { border-top-left-radius: 18px; }
 html body #view-koala .kdt-tab:last-child { border-top-right-radius: 18px; }
 @media (min-width: 720px) {
   html body #view-koala .koala-dimrow.kdt.ctx-2d-char { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); column-gap: 16px; container-type: normal; }
-  html body #view-koala .koala-dimrow.kdt.ctx-2d-char + .koala-studio { margin-top: 0; }
-  html body #view-koala .koala-dimrow.kdt + .koala-studio .koala-stage.is-character { margin-top: -6px; }
+  
+  
 }
 
 /* ---- popup polish (mobile audit): picture never overlaps the name; no heavy focus ring on popup buttons ---- */
 .spp-stage { overflow: hidden; }
-.spp-stage > img, .spp-stage > svg, .spp-stage .kh-subic, .spp-stage .kh-subic img, .spp-stage .kh-subic svg { max-height: 100%; }
+.spp-stage > img, .spp-stage > svg { max-height: 100%; }
 .spp-stage > img { height: 100%; width: auto; max-width: 100%; }
 html body .kh-app .kh-sheet .kh-btn:focus, html body .kh-app .kh-sheet .kh-btn:focus-visible { outline: none; }
 .spp-btn:focus-visible, .spp-close:focus-visible { outline: 3px solid #0f6e55; outline-offset: 2px; }
 
 /* ---- Pop-out room (mobile): the sticky room stays on top; the item list scrolls underneath it, never over it ---- */
-html body .kh-app .kh-room-screen .kh-stage { z-index: 4; }
-html body .kh-app .kh-room-screen .kh-panel { position: relative; z-index: 1; }
-@media (max-width: 720px) and (orientation: portrait) { #koala-zoom .koala-zoom-stage { margin-top: 10vh; margin-top: 10dvh; } }
+
+
+
 
 /* ---- touch targets (mobile audit) ---- */
 @media (max-width: 720px) {
   .footer-link { display: inline-flex; align-items: center; min-height: 40px; padding: 0 6px; }
-  html body .kh-app .kh-managebtn { min-height: 38px; padding: 0 14px; }
+  
 }
-@media (max-width: 720px) { html body #view-koala .koala-next-btn { min-height: 40px; padding: 0 16px; } }
+
 
 /* ======== UX pass 1 (readability for kids): nothing under 12px, darker secondary text, roomier rows ======== */
 html body #view-koala { --muted: #52695f; }
-html body #view-koala .progress-sub, html body #view-koala .koala-try-bar, html body #view-koala .koala-wallet-note, html body #view-koala .koala-note,
-html body #view-koala .badge-hint, html body #view-koala .badge-summary, html body #view-koala .koala-streak-sub, html body #view-koala .koala-history-day,
-html body #view-koala .koala-studio-lv small, html body #view-koala .koala-shelf-title small, html body #view-koala .kh-subnote { color: #47625a; }
-html body #view-koala .koala-try-bar { font-size: .85rem; }
-html body #view-koala .koala-item-name { font-size: .85rem; line-height: 1.25; }
-html body #view-koala .koala-item-status { font-size: .8rem; font-weight: 800; }
-html body #view-koala .koala-item-status.own, html body #view-koala .koala-item-status.cost { color: #3f564e; }
+html body #view-koala .progress-sub, html body #view-koala .koala-wallet-note, html body #view-koala .koala-note,
+html body #view-koala .badge-hint, html body #view-koala .badge-summary, html body #view-koala .koala-streak-sub, html body #view-koala .koala-history-day { color: #47625a; }
+
+
+
+
 html body #view-koala .badge-name { font-size: .82rem; line-height: 1.25; }
 html body #view-koala .badge-desc { font-size: .78rem; line-height: 1.3; color: #47625a; }
 html body #view-koala .koala-wallet-note, html body #view-koala .koala-note { font-size: .88rem; line-height: 1.45; }
-html body #view-koala .koala-hero-next, html body #view-koala .koala-streak-goal-lbl, html body #view-koala .koala-streak-chip, html body #view-koala .koala-next-sub { font-size: .88rem; line-height: 1.4; }
+html body #view-koala .koala-hero-next, html body #view-koala .koala-streak-goal-lbl, html body #view-koala .koala-streak-chip { font-size: .88rem; line-height: 1.4; }
 html body #view-koala .koala-earn-go { font-size: .9rem; min-height: 40px; }
-html body #view-koala .koala-next-btn { font-size: .88rem; }
-html body #view-koala .kp-door-tag { font-size: .75rem; }
+
+
 html body #view-koala .stats-tab { font-size: .82rem; }
 html body .kh-app .kh-nm { font-size: .78rem; line-height: 1.2; }
 html body .kh-app .kh-pr { font-size: .8rem; }
-html body .kh-app .kh-subtxt { font-size: .75rem; color: #47625a; }
-html body .kh-app .kh-subnote { font-size: .85rem; line-height: 1.4; }
+
+
 html body .kh-app .kh-cats-wrap .kh-cat { font-size: .85rem; min-height: 38px; }
 html body .kh-app .kh-cats-wrap .kh-cat span { font-size: inherit; }
 /* items inside lists: breathing room */
-html body #view-koala .koala-grid, html body .kh-app .kh-items-grid { gap: 10px; }
-html body #view-koala .koala-shelf-title, html body .kh-app .kh-panel h3 { margin-top: 14px; margin-bottom: 8px; }
+ html body .kh-app .kh-items-grid{ gap: 10px; }
+ html body .kh-app .kh-panel h3{ margin-top: 14px; margin-bottom: 8px; }
 
 /* ======== UX pass 2: bigger finger targets for category rows / arrows, clearer "can't place" footprint ======== */
 html body .kh-app .kh-cats-nav { width: 40px; height: 40px; }
 html body .kh-app .kh-cats-wrap .kh-cat { min-height: 42px; padding: 0 12px; }
-html body #view-koala .koala-cat { min-height: 42px; }
-html body .kh-app .kh-foot.bad { fill: rgba(240, 70, 60, .28); stroke: #e5483c; stroke-width: 2.5; stroke-dasharray: 5 4; }
-html body .kh-app .kh-foot.ok { fill: rgba(60, 200, 140, .22); stroke: #1f9e6e; stroke-width: 2.5; }
+
+
+
 html body .kh-app .kh-modal .kh-sheet h2 { text-align: center; }
 
 /* rem is small on phones: use px so nothing is under 12px */
 html body #view-koala .stats-tab { font-size: 13px; }
-html body #view-koala .koala-try-bar { font-size: 13px; }
-html body #view-koala .koala-item-name { font-size: 13px; }
-html body #view-koala .koala-item-status { font-size: 12.5px; }
-html body #view-koala .koala-cat > span, html body #view-koala .koala-cats .koala-cat { font-size: 13px; }
+
+
+
+
 html body #view-koala .badge-name { font-size: 12.5px; }
 html body #view-koala .badge-desc { font-size: 12px; }
-html body #view-koala .kp-door-tag { font-size: 12px; }
+
 html body #view-koala .koala-wallet-stat span, html body #view-koala .koala-history-day, html body #view-koala .koala-earn-row small { font-size: 12.5px; }
-html body #view-koala .koala-next-btn, html body #view-koala .koala-earn-go { font-size: 13px; }
+ html body #view-koala .koala-earn-go{ font-size: 13px; }
 html body .kh-app .kh-nm { font-size: 12.5px; }
 html body .kh-app .kh-pr { font-size: 12.5px; }
-html body .kh-app .kh-subtxt { font-size: 12px; }
-html body .kh-app .kh-subnote { font-size: 13px; }
+
+
 html body .kh-app .kh-cats-wrap .kh-cat, html body .kh-app .kh-cats-wrap .kh-cat span { font-size: 13px; }
 
 /* ---- contrast: white text needs a deeper teal / orange behind it (was ~2:1) ---- */
 html body #view-koala .kdt-bar { background: #129c78; }
 html body #view-koala .kdt-tab { text-shadow: none; }
-html body #view-koala .stats-tab.on, html body #view-koala .koala-cat.on, html body #view-koala .pill.accent, html body #view-koala .koala-earn-go, html body #view-koala .koala-next-btn { background: #129c78; background-image: none; color: #fff; }
+html body #view-koala .stats-tab.on, html body #view-koala .pill.accent, html body #view-koala .koala-earn-go { background: #129c78; background-image: none; color: #fff; }
 html body #view-koala .kh-cat.on, html body .kh-app .kh-cat.on { background: #129c78; color: #fff; }
 .spp-btn.teal, .spp-close, html body .kh-app .kh-sheet .kh-btns .kh-btn, html body .kh-app .kh-sheet > .kh-btn { background: #13a07c; }
 .spp-btn.orange, html body .kh-app .kh-sheet .kh-btns .kh-btn.sell { background: #dd5f1f; }
 .spp-btn.sand, html body .kh-app .kh-sheet .kh-btns .kh-btn.alt, html body .kh-app .kh-sheet > .kh-btn.alt { background: #efe3c8; color: #6a4a22; }
-html body #view-koala .koala-admin-add-item-btn, html body .kh-app .kh-admin-add-item { background: #0f8a73; }
+ html body .kh-app .kh-admin-add-item{ background: #0f8a73; }
 html body #view-koala .koala-history-n { color: #0f6e55; }
 html body #view-koala .koala-history-n.spent { color: #9a3b12; }
-html body #view-koala .koala-studio-lv, html body #view-koala .koala-studio-lv span { color: #0f6e55; }
+
 html body #view-koala .stats-tab:not(.on) { color: #0b5f49; }
-html body #view-koala .koala-studio-lv small, html body #view-koala .koala-shelf-title small { color: #3d564d; }
+
 html body #view-koala .kdt-tab { font-weight: 800; letter-spacing: .01em; }
 
 /* ======== Korean / narrow-phone fit (360px): nothing wraps inside a button, nothing slides off screen ======== */
 @media (max-width: 400px) {
-  html body .kh-app .kh-top.over { left: 6px; right: 6px; top: 6px; padding: 4px; }
-  html body .kh-app .kh-top.over .kh-title.pill { padding: 0 6px; font-size: .88rem; max-width: 96px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  html body .kh-app .kh-top.over .kh-coins { padding: 0 4px; }
-  html body .kh-app .kh-top.over .kh-ibtn { width: 34px; }
-  html body .kh-app .kh-top.over .kh-pillbtn.done { margin-left: 2px; padding: 0 10px; }
+  
+  
+  
+  
+  
   html body .kh-app .kh-sheet .kh-btns .kh-btn { padding: 0 4px; font-size: .88rem; }
   html body .kh-app .kh-sheet .kh-btns .kh-btn.sell { flex: 1.35 1 0; }
 }
@@ -14234,34 +14209,31 @@ html body #view-koala .kdt-tab.on { background: var(--tabc); }
 html body #view-koala .kdt-tab:first-child.on { border-top-left-radius: 18px; }
 html body #view-koala .kdt-tab:last-child.on { border-top-right-radius: 18px; }
 html body #view-koala .kdt-tab:not(:first-child):not(:last-child).on { border-radius: 14px 14px 0 0; }
-html body #view-koala .stats-tab.on, html body #view-koala .koala-cat.on, html body #view-koala .pill.accent, html body #view-koala .koala-earn-go, html body #view-koala .koala-next-btn,
-html body #view-koala .kh-cat.on, html body .kh-app .kh-cat.on { background: var(--kmint); background-image: none; color: #fff; }
-.spp-btn.teal, .spp-close, html body .kh-app .kh-sheet .kh-btns .kh-btn, html body .kh-app .kh-sheet > .kh-btn, html body .koala-subd-card .koala-zoom-close, html body .koala-subd-card .pill.accent,
-html body #view-koala .koala-admin-add-item-btn, html body .kh-app .kh-admin-add-item, .kh-top.over .kh-pillbtn.done, html body .kh-app .kh-top.over .kh-pillbtn.done, html body .kh-app .kh-menu .kh-mclose, html body .kh-app .kh-menu .kh-mbtn.accent { background: var(--kmint); background-image: none; color: #fff; }
+html body #view-koala .stats-tab.on, html body #view-koala .pill.accent, html body #view-koala .koala-earn-go,
+html body #view-koala .kh-cat.on, html body .kh-app .kh-cat.on{ background: var(--kmint); background-image: none; color: #fff; }
+.spp-btn.teal, .spp-close, html body .kh-app .kh-sheet .kh-btns .kh-btn, html body .kh-app .kh-sheet > .kh-btn, html body .koala-subd-card .koala-zoom-close, html body .koala-subd-card .pill.accent, html body .kh-app .kh-admin-add-item { background: var(--kmint); background-image: none; color: #fff; }
 html body .kh-app .kh-sheet .kh-btns .kh-btn.alt, html body .kh-app .kh-sheet > .kh-btn.alt, .spp-btn.sand { background: #efe3c8; color: #6a4a22; }
 html body .kh-app .kh-sheet .kh-btns .kh-btn.sell, .spp-btn.orange { background: #f07a3c; color: #fff; }
-.spp-btn.teal:hover, .spp-close:hover, html body #view-koala .koala-admin-add-item-btn:hover, html body .kh-app .kh-admin-add-item:hover { background: var(--kmint-d); filter: none; }
+.spp-btn.teal:hover, .spp-close:hover, html body .kh-app .kh-admin-add-item:hover{ background: var(--kmint-d); filter: none; }
 html body #view-koala .koala-history-n { color: #0e9c7d; }
 /* the ▶ Listen button is purple so it can't be mistaken for the green "Put in" button */
 html body .kh-app .kh-sheet > .kh-btn.kh-play { background: #8b6cf0; color: #fff; width: 100%; min-width: 0; }
 html body .kh-app .kh-sheet > .kh-btn.kh-play.is-on { background: #f0577f; }
 
 /* ---- tab bar ↔ category row on the same line (desktop, character pages) ---- */
-@media (min-width: 720px) {
-  html body #view-koala .koala-dimrow.kdt.ctx-2d-char + .koala-studio > .koala-shelf { margin-top: -47px; }
-}
+
 
 /* ---- hint text sits at the TOP of the stage so it never covers the Koala ---- */
-.koala-stage-tip { top: 12px; bottom: auto; }
-.koala-stage-tip { background: none; text-shadow: 0 1px 2px rgba(255, 255, 255, .8); }
+
+
 .kh-ward-tip { top: 12px; bottom: auto; }
-.kh-ward-sit, .kh-ward-stage.is-sit .kh-ward-stand { display: none; }
-.kh-ward-stage.is-sit .kh-ward-sit { display: block; height: 80%; width: auto; max-width: 100%; position: relative; z-index: 1; }
+ .kh-ward-stage.is-sit .kh-ward-stand{ display: none; }
+
 
 /* ---- breathing room between a heading, the "add item" button and the cards ---- */
 html body .kh-app .kh-panel .kh-admin-add-item { margin: 4px 0 14px; }
-html body .kh-app .kh-panel .kh-subnote { margin: 4px 0 14px; }
-html body .kh-app .kh-panel .kh-grid > h3, html body .kh-app .kh-panel .kh-shelfhead { margin-top: 18px; }
+
+html body .kh-app .kh-panel .kh-grid > h3 { margin-top: 18px; }
 html body .kh-app .kh-panel .kh-items-grid + * { margin-top: 18px; }
 html body .kh-app .kh-panel .kh-items-grid { margin-bottom: 8px; }
 
@@ -14284,32 +14256,27 @@ html body .kh-app .kh-panel .kh-cats-wrap + .kh-grid .kh-shelf-head:first-child,
 .koala-admin-field input[type="text"], .koala-admin-field input[type="number"] { height: 46px; }
 
 /* ---- room screen: "my items only" button in the top bar ---- */
-html body .kh-app .kh-top.over .kh-ownbtn img { width: 26px; height: 26px; object-fit: contain; }
-html body .kh-app .kh-top.over .kh-ownbtn.on { background: var(--kmint); }
-@media (max-width: 400px) { html body .kh-app .kh-top.over .kh-ownbtn img { width: 22px; height: 22px; } html body .kh-app .kh-top.over .kh-ibtn { width: 31px; } html body .kh-app .kh-top.over .kh-title.pill, html body .kh-app .kh-top.over .kh-roomtitle { max-width: 78px; } }
+
+
+
 
 /* ---- 360px fixes: room top bar fits (title shows as an icon only), wallet labels stay on one line ---- */
-@media (max-width: 400px) {
-  html body .kh-app .kh-top.over .kh-roomtitle > span, html body .kh-app .kh-top.over .kh-title.pill > span:not(.kh-roomtitle-ic) { display: none; }
-  html body .kh-app .kh-top.over .kh-title.pill { max-width: 40px; padding: 0 2px; }
-  html body .kh-app .kh-top.over .kh-coins b { font-size: .9rem; }
-}
+
 html body #view-koala .koala-wallet-stat > span { flex-direction: row; flex-wrap: nowrap; white-space: nowrap; font-size: 12px; gap: 3px; }
 html body #view-koala .koala-wallet-stat { padding-left: 4px; padding-right: 4px; }
-.koala-stage-tip { top: 56px; }
+
 .kh-ward-tip { top: 14px; }
-html body .kh-app .kh-managebtn { min-height: 38px; padding: 0 14px; }
+
 /* portrait tablets: the room shop panel spans the full width under the room (it was stuck at 44vw) */
-@media (max-width: 760px), (orientation: portrait) { html body .kh-app .kh-room-screen .kh-panel { width: 100% !important; } html body .kh-app .kh-room-screen { flex-direction: column; align-items: stretch; } html body .kh-app .kh-room-screen .kh-stage { width: 100%; } }
+
 
 /* ---- Sticker character page, wide layouts: the item list on the right is two columns (a narrower column), so the character card is wider; the tab bar sits on exactly the same column as the card, so its ends line up with the card's ends ---- */
 @media (min-width: 720px) {
-  html body #view-koala .koala-dimrow.kdt.ctx-2d-char,
-  html body #view-koala .koala-studio:has(.koala-stage.is-character) { grid-template-columns: minmax(0, 1fr) 300px; column-gap: 16px; }
-  html body #view-koala .koala-studio:has(.koala-stage.is-character) .koala-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  html body #view-koala .koala-studio:has(.koala-stage.is-character) .koala-grid .koala-item .koala-item-pic { height: 84px; }
+  html body #view-koala .koala-dimrow.kdt.ctx-2d-char { grid-template-columns: minmax(0, 1fr) 300px; column-gap: 16px; }
+  
+  
   html body #view-koala .kdt.ctx-2d-char .kdt-bar { width: 100%; box-sizing: border-box; margin: 0; }
-  html body #view-koala .koala-studio .koala-stage.is-character { width: 100%; box-sizing: border-box; margin-left: 0; margin-right: 0; }
+  
 }
 
 /* ---------- New Koala House entry card (stage 5 S5, draft A 2026-11-11) ----------
