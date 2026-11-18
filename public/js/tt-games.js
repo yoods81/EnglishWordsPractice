@@ -30,13 +30,20 @@
   // Settings → each game. Slow / Normal / Fast changes time, never the sums themselves.
   const SPEED = {
     calc: { slow: 15, normal: 10, fast: 6 }, // seconds per question
-    toss: { slow: 90, normal: 60, fast: 45 }, // seconds per round
+    whack: { slow: 90, normal: 60, fast: 45 }, // seconds per round
+    whackStay: { slow: 2.8, normal: 2.1, fast: 1.6 }, // seconds a wombat stays up
+    whackGap: { slow: 1.1, normal: 0.85, fast: 0.65 }, // seconds between pops
+    match: { slow: 100, normal: 75, fast: 55 }, // seconds per round (boards keep coming)
+    claw: { slow: 25, normal: 18, fast: 12 }, // seconds per prize
     cafe: { slow: 60, normal: 45, fast: 35 }, // seconds per café level
     cafeQuick: { slow: 6, normal: 4, fast: 3 }, // answer within this many seconds = tip
   };
   const CALC_ROUND = 20; // questions in one calculator round
-  const TOSS_PENALTY = 3; // seconds lost for hitting a wrong target
-  const CHOICES = { toss: 4, cafe: 5 };
+  const WHACK_PENALTY = 2; // seconds lost for bonking a wrong wombat
+  const WHACK_HOLES = 6;
+  const MATCH_PAIRS = 6; // 12 cards a board
+  const CLAW_ROUND = 10; // prizes in one claw round
+  const CHOICES = { cafe: 5, claw: 4 };
 
   let last = "balloon";
   let G = null; // the running round
@@ -321,85 +328,88 @@
     },
   };
 
-  /* ================= Gumnut Toss ================= */
-  const TOSS_BG = `<svg class="ttg-toss-bg" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0 150 L60 105 L120 140 L200 85 L280 135 L340 95 L400 125 V300 H0Z" fill="#e7a678" opacity=".55"/>
-    <path d="M0 180 C80 150 160 165 240 175 S360 160 400 168 V300 H0Z" fill="#b9d98a"/>
-    <rect y="215" width="400" height="85" fill="#93c867"/><rect y="215" width="400" height="6" fill="#7db553"/>
-  </svg>`;
-  const TARGET_SVG = `<svg viewBox="-20 -20 40 74" aria-hidden="true"><path d="M-7 14l-7 38M7 14l7 38M0 16v36" stroke="#b07a45" stroke-width="3.4" stroke-linecap="round"/><circle r="19" fill="#fff"/><circle r="15" fill="#2e6fb5"/><circle r="10.5" fill="#5cc3f0"/><circle r="7" fill="#ff8a3d"/></svg>`;
-  const toss = {
+  /* ================= Wombat Whack ================= */
+  // Six burrows; wombats pop up holding a number. Bonk the one holding the answer.
+  const whack = {
     init() {
-      G.total = SPEED.toss[G.mode] || 60;
+      G.total = SPEED.whack[G.mode] || 60;
       G.left = G.total;
-      layer.innerHTML = hudHtml(t("ttgToss")) + `
-        <div class="ttg-toss ttg-move-${G.mode}">
-          ${TOSS_BG}
+      G.stay = SPEED.whackStay[G.mode] || 2.1;
+      G.gap = SPEED.whackGap[G.mode] || 0.85;
+      G.holes = [];
+      layer.innerHTML = hudHtml(t("ttgWhack")) + `
+        <div class="ttg-whack">
           <div class="ttg-timebar"><i data-bar></i><span data-time></span></div>
           <div class="ttg-plate" data-q></div>
-          <div class="ttg-targets" data-targets></div>
-          <div class="ttg-toss-koala" data-koala aria-hidden="true">${KOALA_SVG}</div>
+          <div class="ttg-holes" data-holes>${Array.from({ length: WHACK_HOLES }, (_, i) => `
+            <div class="ttg-hole" data-hole="${i}">
+              <div class="ttg-hole-pit"></div>
+              <div class="ttg-hole-win"><button type="button" class="ttg-wombat" tabindex="-1" aria-hidden="true">${animalSvg("wombat", "")}<b class="ttg-sign"></b></button></div>
+              <div class="ttg-hole-front"></div>
+            </div>`).join("")}
+          </div>
         </div>`;
-      layer.querySelector("[data-targets]").addEventListener("click", (e) => {
-        const b = e.target.closest("[data-v]");
-        if (b) toss.throwAt(b);
+      layer.querySelectorAll("[data-hole]").forEach((el, i) => {
+        G.holes.push({ el, btn: el.querySelector(".ttg-wombat"), up: false, v: 0, until: 0 });
+        el.querySelector(".ttg-wombat").addEventListener("pointerdown", (e) => { e.preventDefault(); whack.bonk(i); });
       });
-      toss.next();
+      whack.next();
     },
     next() {
       if (capReached()) { endRound("limit"); return; }
       G.p = nextProblem();
       G.lock = false;
+      G.wrongs = choices(G.p, 7).filter((v) => v !== G.p.product);
+      G.sinceRight = 99; // the answer pops up right away for a new sum
+      G.nextPop = G.clock + 0.3;
       layer.querySelector("[data-q]").textContent = `${G.p.a} × ${G.p.b} = ?`;
-      const wrap = layer.querySelector("[data-targets]");
-      wrap.innerHTML = choices(G.p, CHOICES.toss).map((v, i) =>
-        `<button type="button" class="ttg-target" data-v="${v}" style="--i:${i}" aria-label="${v}">${TARGET_SVG}<b>${v}</b></button>`).join("");
-      toss.stat();
+      // wombats still up keep their old numbers only if they happen to fit; simplest: send them down
+      G.holes.forEach((h) => whack.hide(h));
+      whack.stat();
     },
     stat() { setStat(`${L("Score", "점수")} <b>${G.score}</b>`); },
-    throwAt(btn) {
-      if (G.lock) return;
+    pop() {
+      const free = G.holes.filter((h) => !h.up && !h.busy);
+      if (!free.length || G.holes.filter((h) => h.up).length >= 3) return;
+      const h = free[Math.floor(Math.random() * free.length)];
+      const rightUp = G.holes.some((x) => x.up && x.v === G.p.product);
+      const giveRight = !rightUp && (G.sinceRight >= 2 || Math.random() < 0.45);
+      h.v = giveRight ? G.p.product : G.wrongs[Math.floor(Math.random() * G.wrongs.length)];
+      G.sinceRight = giveRight ? 0 : G.sinceRight + 1;
+      h.btn.querySelector(".ttg-sign").textContent = h.v;
+      h.btn.innerHTML = animalSvg("wombat", "") + `<b class="ttg-sign">${h.v}</b>`;
+      h.up = true;
+      h.until = G.clock + G.stay;
+      h.el.classList.remove("is-bonked", "is-miss");
+      h.el.classList.add("is-up");
+    },
+    hide(h) {
+      h.up = false;
+      h.el.classList.remove("is-up");
+    },
+    bonk(i) {
+      if (!G || G.lock) return;
+      const h = G.holes[i];
+      if (!h.up) return;
+      const ok = h.v === G.p.product;
       G.lock = true;
-      const v = Number(btn.dataset.v);
-      const ok = v === G.p.product;
-      const from = centerOf(layer.querySelector("[data-koala]"));
-      const face = btn.querySelector("svg");
-      const to = centerOf(face);
-      to.y -= face.getBoundingClientRect().height * 0.22; // the ring, not the legs
-      const nut = document.createElement("span");
-      nut.className = "ttg-nut";
-      layer.appendChild(nut);
-      const peak = Math.min(from.y, to.y) - 70;
-      const midX = (from.x + to.x) / 2;
-      const anim = nut.animate([
-        { transform: `translate(${from.x}px, ${from.y - 20}px) rotate(0deg)` },
-        { transform: `translate(${midX}px, ${peak}px) rotate(220deg)`, offset: 0.5 },
-        { transform: `translate(${to.x}px, ${to.y}px) rotate(440deg)` },
-      ], { duration: 420, easing: "linear", fill: "forwards" });
-      const koala = layer.querySelector("[data-koala]");
-      koala.classList.remove("is-throw");
-      void koala.offsetWidth;
-      koala.classList.add("is-throw");
-      anim.onfinish = () => {
-        nut.remove();
-        if (!G) return;
-        scoreAnswer(G.p, ok);
-        if (ok) {
-          G.score += 10;
-          btn.classList.add("is-hit");
-          floatText(to.x, to.y - 20, "+10", "is-good");
-          toss.stat();
-          later(450, toss.next);
-        } else {
-          btn.classList.add("is-miss");
-          G.left = Math.max(0, G.left - TOSS_PENALTY);
-          floatText(to.x, to.y - 20, `−${TOSS_PENALTY}s`, "is-bad");
-          const right = layer.querySelector(`[data-v="${G.p.product}"]`);
-          if (right) right.classList.add("is-answer");
-          layer.querySelector("[data-q]").textContent = `${G.p.a} × ${G.p.b} = ${G.p.product}`;
-          later(1100, toss.next);
-        }
-      };
+      scoreAnswer(G.p, ok);
+      const at = centerOf(h.el);
+      if (ok) {
+        G.score += 10;
+        h.btn.innerHTML = animalSvg("wombat", "happy") + `<b class="ttg-sign">${h.v}</b><i class="ttg-stars" aria-hidden="true">★ ★ ★</i>`;
+        h.el.classList.add("is-bonked");
+        floatText(at.x, at.y - 40, "+10", "is-good");
+        whack.stat();
+        later(650, () => { whack.hide(h); later(250, whack.next); });
+      } else {
+        h.btn.innerHTML = animalSvg("wombat", "sad") + `<b class="ttg-sign">${h.v}</b>`;
+        h.el.classList.add("is-miss");
+        G.left = Math.max(0, G.left - WHACK_PENALTY);
+        floatText(at.x, at.y - 40, `−${WHACK_PENALTY}s`, "is-bad");
+        layer.querySelector("[data-q]").textContent = `${G.p.a} × ${G.p.b} = ${G.p.product}`;
+        later(1100, whack.next);
+      }
     },
     tick(dt) {
       G.left -= dt;
@@ -408,16 +418,273 @@
       if (bar) { bar.style.transform = `scaleX(${f})`; bar.classList.toggle("is-low", G.left < 10); }
       const tm = layer.querySelector("[data-time]");
       if (tm) tm.textContent = fmtTime(G.left);
-      if (G.left <= 0) endRound("time");
+      if (G.left <= 0) { endRound("time"); return; }
+      if (G.lock) return;
+      G.holes.forEach((h) => { if (h.up && G.clock >= h.until) whack.hide(h); });
+      if (G.clock >= G.nextPop) { whack.pop(); G.nextPop = G.clock + G.gap * (0.7 + Math.random() * 0.6); }
     },
     key(e) {
       const n = Number(e.key);
-      if (n >= 1 && n <= CHOICES.toss) {
-        const b = layer.querySelectorAll("[data-v]")[n - 1];
-        if (b) toss.throwAt(b);
-        return true;
-      }
+      if (n >= 1 && n <= WHACK_HOLES) { whack.bonk(n - 1); return true; }
       return false;
+    },
+  };
+
+  /* ================= Memory Match ================= */
+  // 12 face-down cards: six sums and their six answers. Flip two; a sum and its answer stay open.
+  const match = {
+    init() {
+      G.total = SPEED.match[G.mode] || 75;
+      G.left = G.total;
+      G.boards = 0;
+      layer.innerHTML = hudHtml(t("ttgMatch")) + `
+        <div class="ttg-match">
+          <div class="ttg-timebar"><i data-bar></i><span data-time></span></div>
+          <div class="ttg-cards" data-cards></div>
+          <div class="ttg-banner" data-banner hidden></div>
+        </div>`;
+      layer.querySelector("[data-cards]").addEventListener("click", (e) => {
+        const c = e.target.closest("[data-card]");
+        if (c) match.flip(Number(c.dataset.card));
+      });
+      match.deal();
+    },
+    deal() {
+      // six sums with six different answers
+      const picked = [];
+      const used = new Set();
+      let guard = 0;
+      while (picked.length < MATCH_PAIRS && guard++ < 60) {
+        if (capReached()) break;
+        if (!G.queue.length) G.queue = pickWordsForSession(G.pool, G.pool.length, (q) => timesTableKey(q));
+        const q = G.queue[0];
+        if (used.has(q.product)) { G.queue.push(G.queue.shift()); continue; }
+        const p = nextProblem();
+        if (used.has(p.product)) continue; // (rare) a swap in nextProblem brought a repeat answer
+        used.add(p.product);
+        picked.push(p);
+      }
+      if (picked.length < 2) { endRound("limit"); return; }
+      G.cards = shuffle(picked.flatMap((p, i) => [{ pair: i, kind: "q", p }, { pair: i, kind: "a", p }]));
+      G.open = [];
+      G.found = 0;
+      G.pairs = picked.length;
+      G.missedPair = new Set();
+      G.lock = false;
+      const wrap = layer.querySelector("[data-cards]");
+      wrap.innerHTML = G.cards.map((c, i) => `
+        <button type="button" class="ttg-card" data-card="${i}" style="--d:${i * 40}ms" aria-label="${esc(L("Card", "카드"))} ${i + 1}">
+          <span class="ttg-card-back" aria-hidden="true"></span>
+          <span class="ttg-card-face ${c.kind === "q" ? "is-q" : "is-a"}">${c.kind === "q" ? `${c.p.a} × ${c.p.b}` : c.p.product}</span>
+        </button>`).join("");
+      match.stat();
+    },
+    stat() { setStat(`${L("Pairs", "짝")} <b>${G.found}</b>/${G.pairs} · ${L("Score", "점수")} <b>${G.score}</b>`); },
+    flip(i) {
+      if (!G || G.lock) return;
+      const c = G.cards[i];
+      const el = layer.querySelector(`[data-card="${i}"]`);
+      if (!c || c.done || G.open.includes(i)) return;
+      el.classList.add("is-open");
+      G.open.push(i);
+      if (G.open.length < 2) return;
+      const [x, y] = G.open.map((k) => G.cards[k]);
+      const els = G.open.map((k) => layer.querySelector(`[data-card="${k}"]`));
+      G.open = [];
+      if (x.pair === y.pair && x.kind !== y.kind) {
+        x.done = y.done = true;
+        G.found++;
+        G.score += 10;
+        // a sum counts as answered right when its pair is found (wrong flips are memory, not maths)
+        scoreAnswer(x.p, true);
+        els.forEach((e) => e.classList.add("is-done"));
+        const at = centerOf(els[1]);
+        floatText(at.x, at.y - 24, "+10", "is-good");
+        match.stat();
+        if (G.found >= G.pairs) {
+          G.lock = true;
+          G.score += 20;
+          G.boards++;
+          const ban = layer.querySelector("[data-banner]");
+          ban.textContent = L("All pairs! +20", "모두 찾았어요! +20");
+          ban.hidden = false;
+          match.stat();
+          later(1300, () => { ban.hidden = true; match.deal(); });
+        }
+      } else {
+        G.lock = true;
+        playTimesTableWrongSfx();
+        els.forEach((e) => e.classList.add("is-wrong"));
+        later(850, () => { els.forEach((e) => e.classList.remove("is-open", "is-wrong")); G.lock = false; });
+      }
+    },
+    tick(dt) {
+      if (G.lock && !layer.querySelector("[data-banner]").hidden) return; // clock rests during "All pairs!"
+      G.left -= dt;
+      const f = Math.max(0, G.left / G.total);
+      const bar = layer.querySelector("[data-bar]");
+      if (bar) { bar.style.transform = `scaleX(${f})`; bar.classList.toggle("is-low", G.left < 10); }
+      const tm = layer.querySelector("[data-time]");
+      if (tm) tm.textContent = fmtTime(G.left);
+      if (G.left <= 0) endRound("time");
+    },
+    key() { return false; },
+  };
+
+  /* ================= Koala Claw (claw machine) ================= */
+  // Five plushies sit in the machine, each with a number tag. Move the claw over the one
+  // with the answer and press GRAB. A wrong plush slips out of the claw.
+  const PLUSH = ["koala", "wombat", "kangaroo", "possum", "platypus", "echidna"];
+  const CLAW_SVG = `<svg viewBox="-30 -10 60 60" aria-hidden="true">
+    <rect x="-13" y="-10" width="26" height="14" rx="5" fill="#e8476a"/><rect x="-9" y="3" width="18" height="12" rx="3" fill="#c9d3da"/>
+    <circle cy="17" r="5" fill="#9aa7b0"/>
+    <g class="ttg-claw-l"><path d="M-3 17 Q-20 22 -20 38 Q-20 46 -12 50" stroke="#9aa7b0" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+    <g class="ttg-claw-r"><path d="M3 17 Q20 22 20 38 Q20 46 12 50" stroke="#9aa7b0" stroke-width="5" fill="none" stroke-linecap="round"/></g></svg>`;
+  const claw = {
+    init() {
+      G.total = Math.min(CLAW_ROUND, G.cap);
+      G.limit = SPEED.claw[G.mode] || 18;
+      G.won = 0;
+      G.col = 1;
+      layer.innerHTML = hudHtml(t("ttgClaw")) + `
+        <div class="ttg-claw">
+          <div class="ttg-machine">
+            <div class="ttg-marquee"><span data-q></span></div>
+            <div class="ttg-qbar ttg-claw-bar"><i data-bar></i></div>
+            <div class="ttg-glass" data-glass>
+              <div class="ttg-rail"></div>
+              <div class="ttg-clawhead" data-claw><i class="ttg-cable" data-cable></i><div class="ttg-clawgrip">${CLAW_SVG}<div class="ttg-carry" data-carry></div></div></div>
+              <div class="ttg-chute"><span>${esc(L("PRIZE", "상품"))}</span></div>
+              <div class="ttg-plushies" data-plush></div>
+            </div>
+            <div class="ttg-controls">
+              <button type="button" class="ttg-ctl" data-move="-1" aria-label="${esc(L("Left", "왼쪽"))}">◀</button>
+              <button type="button" class="ttg-ctl" data-move="1" aria-label="${esc(L("Right", "오른쪽"))}">▶</button>
+              <button type="button" class="ttg-grab" data-grab>${esc(L("GRAB", "뽑기"))}</button>
+            </div>
+          </div>
+        </div>`;
+      layer.querySelector(".ttg-controls").addEventListener("click", (e) => {
+        const m = e.target.closest("[data-move]");
+        if (m) claw.move(Number(m.dataset.move));
+        else if (e.target.closest("[data-grab]")) claw.grab();
+      });
+      // tapping a plush moves the claw over it (no grab — the child still presses GRAB)
+      layer.querySelector("[data-plush]").addEventListener("click", (e) => {
+        const p = e.target.closest("[data-col]");
+        if (p && !G.lock) { G.col = Number(p.dataset.col); claw.place(); }
+      });
+      claw.next();
+    },
+    next() {
+      if (G.shown >= G.total || capReached()) { endRound(capReached() && G.cap < CLAW_ROUND ? "limit" : "done"); return; }
+      G.p = nextProblem();
+      G.left = G.limit;
+      G.lock = false;
+      layer.querySelector("[data-q]").textContent = `${G.p.a} × ${G.p.b}`;
+      const nums = choices(G.p, CHOICES.claw);
+      const kinds = shuffle(PLUSH);
+      layer.querySelector("[data-plush]").innerHTML = nums.map((v, i) => `
+        <button type="button" class="ttg-plush" data-col="${i}" data-v="${v}" style="--i:${i}" aria-label="${v}">${animalSvg(kinds[i % kinds.length], "")}<b>${v}</b></button>`).join("");
+      layer.querySelector("[data-carry]").innerHTML = "";
+      claw.place();
+      setStat(`🧸 <b>${G.won}</b> · ${Math.min(G.shown, G.total)}/${G.total}`);
+    },
+    colX(i) {
+      const p = layer.querySelector(`[data-col="${i}"]`);
+      const glass = layer.querySelector("[data-glass]");
+      if (!p || !glass) return 0;
+      const a = p.getBoundingClientRect(), g = glass.getBoundingClientRect();
+      return a.left - g.left + a.width / 2;
+    },
+    place() {
+      const h = layer.querySelector("[data-claw]");
+      h.style.transform = `translateX(${claw.colX(G.col)}px)`;
+    },
+    move(d) {
+      if (!G || G.lock) return;
+      G.col = Math.max(0, Math.min(CHOICES.claw - 1, G.col + d));
+      claw.place();
+    },
+    grab(timeout) {
+      if (!G || G.lock) return;
+      G.lock = true;
+      const plush = layer.querySelector(`[data-col="${G.col}"]`);
+      const v = Number(plush.dataset.v);
+      const ok = !timeout && v === G.p.product;
+      const head = layer.querySelector("[data-claw]");
+      const glass = layer.querySelector("[data-glass]");
+      const drop = Math.max(40, plush.getBoundingClientRect().top - glass.getBoundingClientRect().top - 46);
+      const carry = layer.querySelector("[data-carry]");
+      if (timeout) {
+        scoreAnswer(G.p, false);
+        layer.querySelector("[data-q]").textContent = `${G.p.a} × ${G.p.b} = ${G.p.product}`;
+        const right = layer.querySelector(`[data-v="${G.p.product}"]`);
+        if (right) right.classList.add("is-answer");
+        later(1500, claw.next);
+        return;
+      }
+      head.style.setProperty("--drop", `${drop}px`);
+      head.classList.add("is-down");
+      later(650, () => {
+        head.classList.add("is-shut");
+        // the plush rides up with the claw
+        carry.innerHTML = plush.innerHTML;
+        plush.classList.add("is-taken");
+        later(250, () => {
+          head.classList.remove("is-down");
+          later(650, () => {
+            scoreAnswer(G.p, ok);
+            const at = centerOf(head);
+            if (ok) {
+              G.won++;
+              G.score += 10;
+              // carry it over the chute and let go
+              head.style.transform = `translateX(${layer.querySelector(".ttg-chute").offsetLeft + 24}px)`;
+              later(650, () => {
+                head.classList.remove("is-shut");
+                carry.classList.add("is-drop");
+                floatText(at.x, at.y + 30, "+10", "is-good");
+                layer.querySelector("[data-q]").textContent = L("Nice one!", "뽑았다!");
+                later(800, () => { carry.classList.remove("is-drop"); head.classList.remove("is-shut"); claw.next(); });
+              });
+            } else {
+              // it slips and drops back down
+              carry.classList.add("is-slip");
+              later(500, () => {
+                head.classList.remove("is-shut");
+                carry.innerHTML = "";
+                carry.classList.remove("is-slip");
+                plush.classList.remove("is-taken");
+                plush.classList.add("is-miss");
+                layer.querySelector("[data-q]").textContent = `${G.p.a} × ${G.p.b} = ${G.p.product}`;
+                const right = layer.querySelector(`[data-v="${G.p.product}"]`);
+                if (right) right.classList.add("is-answer");
+                later(1300, claw.next);
+              });
+            }
+            setStat(`🧸 <b>${G.won}</b> · ${Math.min(G.shown, G.total)}/${G.total}`);
+          });
+        });
+      });
+    },
+    tick(dt) {
+      if (G.lock) return;
+      G.left -= dt;
+      const bar = layer.querySelector("[data-bar]");
+      if (bar) {
+        const f = Math.max(0, G.left / G.limit);
+        bar.style.transform = `scaleX(${f})`;
+        bar.classList.toggle("is-low", f < 0.3);
+      }
+      if (G.left <= 0) claw.grab(true);
+    },
+    key(e) {
+      if (e.key === "ArrowLeft") claw.move(-1);
+      else if (e.key === "ArrowRight") claw.move(1);
+      else if (e.key === "Enter" || e.key === " ") claw.grab();
+      else return false;
+      return true;
     },
   };
 
@@ -430,11 +697,13 @@
     possum: { fur: "#9aa2ae", dark: "#5e6672", light: "#eef0f3" },
     echidna: { fur: "#c8a07a", dark: "#4f3a2c", light: "#ead2b8" },
     platypus: { fur: "#8a5a3a", dark: "#3f3a37", light: "#c79a73" },
+    koala: { fur: "#b4bec5", dark: "#33414a", light: "#e3e8eb" },
   };
   function animalEars(id, a, k) {
     if (id === "wombat") return `<circle cx="${-20 * k}" cy="${-24 * k}" r="${8 * k}" fill="${a.fur}"/><circle cx="${20 * k}" cy="${-24 * k}" r="${8 * k}" fill="${a.fur}"/><circle cx="${-20 * k}" cy="${-24 * k}" r="${4 * k}" fill="${a.dark}"/><circle cx="${20 * k}" cy="${-24 * k}" r="${4 * k}" fill="${a.dark}"/>`;
     if (id === "kangaroo") return `<ellipse cx="${-13 * k}" cy="${-34 * k}" rx="${7 * k}" ry="${17 * k}" fill="${a.fur}" transform="rotate(-14 ${-13 * k} ${-34 * k})"/><ellipse cx="${13 * k}" cy="${-34 * k}" rx="${7 * k}" ry="${17 * k}" fill="${a.fur}" transform="rotate(14 ${13 * k} ${-34 * k})"/><ellipse cx="${-13 * k}" cy="${-33 * k}" rx="${3.5 * k}" ry="${11 * k}" fill="#f2b5a8" transform="rotate(-14 ${-13 * k} ${-33 * k})"/><ellipse cx="${13 * k}" cy="${-33 * k}" rx="${3.5 * k}" ry="${11 * k}" fill="#f2b5a8" transform="rotate(14 ${13 * k} ${-33 * k})"/>`;
     if (id === "possum") return `<ellipse cx="${-23 * k}" cy="${-22 * k}" rx="${11 * k}" ry="${13 * k}" fill="${a.fur}"/><ellipse cx="${23 * k}" cy="${-22 * k}" rx="${11 * k}" ry="${13 * k}" fill="${a.fur}"/><ellipse cx="${-23 * k}" cy="${-21 * k}" rx="${6.5 * k}" ry="${8.5 * k}" fill="#f3b9c6"/><ellipse cx="${23 * k}" cy="${-21 * k}" rx="${6.5 * k}" ry="${8.5 * k}" fill="#f3b9c6"/>`;
+    if (id === "koala") return `<circle cx="${-27 * k}" cy="${-22 * k}" r="${14 * k}" fill="${a.fur}"/><circle cx="${27 * k}" cy="${-22 * k}" r="${14 * k}" fill="${a.fur}"/><circle cx="${-27 * k}" cy="${-21 * k}" r="${8 * k}" fill="#f3c9d2"/><circle cx="${27 * k}" cy="${-21 * k}" r="${8 * k}" fill="#f3c9d2"/>`;
     if (id === "echidna") {
       let out = "";
       for (let i = 0; i < 11; i++) {
@@ -450,6 +719,7 @@
     if (id === "wombat") return `<ellipse cx="0" cy="${9 * k}" rx="${11 * k}" ry="${8 * k}" fill="${a.dark}"/><ellipse cx="${-3 * k}" cy="${6 * k}" rx="${3 * k}" ry="${1.6 * k}" fill="#fff" opacity=".35"/>`;
     if (id === "kangaroo") return `<ellipse cx="0" cy="${11 * k}" rx="${13 * k}" ry="${10 * k}" fill="${a.light}"/><ellipse cx="0" cy="${6 * k}" rx="${4.5 * k}" ry="${3.2 * k}" fill="#4a2f20"/>`;
     if (id === "possum") return `<ellipse cx="0" cy="${10 * k}" rx="${12 * k}" ry="${10 * k}" fill="${a.light}"/><ellipse cx="0" cy="${6 * k}" rx="${4 * k}" ry="${3 * k}" fill="#e57b94"/>`;
+    if (id === "koala") return `<ellipse cx="0" cy="${8 * k}" rx="${8 * k}" ry="${10 * k}" fill="${a.dark}"/><ellipse cx="${-2.5 * k}" cy="${4 * k}" rx="${2.4 * k}" ry="${1.5 * k}" fill="#fff" opacity=".35"/>`;
     if (id === "echidna") return `<path d="M${-5 * k} ${4 * k} Q0 ${26 * k} ${5 * k} ${4 * k}Z" fill="${a.dark}"/>`;
     return `<ellipse cx="0" cy="${15 * k}" rx="${21 * k}" ry="${9 * k}" fill="${a.dark}"/><ellipse cx="0" cy="${12 * k}" rx="${16 * k}" ry="${4 * k}" fill="#5a5450"/><circle cx="${-5 * k}" cy="${12 * k}" r="${1.4 * k}" fill="#222"/><circle cx="${5 * k}" cy="${12 * k}" r="${1.4 * k}" fill="#222"/>`;
   }
@@ -601,9 +871,9 @@
     },
   };
 
-  const GAMES = { calc, toss, cafe };
+  const GAMES = { calc, whack, cafe, match, claw };
 
-  // A small koala (same look as the tile pictures) for the calculator and toss scenes.
+  // A small koala (same look as the tile pictures) for the calculator scene.
   const KOALA_SVG = `<svg viewBox="-32 -32 64 58" aria-hidden="true"><circle cx="-17" cy="-10" r="11" fill="#9aa5ad"/><circle cx="-17" cy="-10" r="6" fill="#f3c9d2"/><circle cx="17" cy="-10" r="11" fill="#9aa5ad"/><circle cx="17" cy="-10" r="6" fill="#f3c9d2"/><ellipse cx="0" cy="2" rx="19" ry="17" fill="#b4bec5"/><circle cx="-7" cy="-1" r="2.6" fill="#22313a"/><circle cx="7" cy="-1" r="2.6" fill="#22313a"/><circle cx="-6.2" cy="-1.8" r=".9" fill="#fff"/><circle cx="7.8" cy="-1.8" r=".9" fill="#fff"/><ellipse cx="0" cy="7" rx="5.5" ry="6.5" fill="#33414a"/><circle cx="-12" cy="8" r="3" fill="#f6a7b6" opacity=".7"/><circle cx="12" cy="8" r="3" fill="#f6a7b6" opacity=".7"/><ellipse cx="0" cy="22" rx="14" ry="6" fill="#b4bec5"/></svg>`;
 
   /* ---------- wiring ---------- */

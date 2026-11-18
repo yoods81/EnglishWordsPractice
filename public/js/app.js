@@ -304,8 +304,12 @@ const TRANSLATIONS = {
     ttgBalloonDesc: "Type before it lands",
     ttgCalc: "Koala Calculator",
     ttgCalcDesc: "Tap the answer on the pad",
-    ttgToss: "Target Shot",
-    ttgTossDesc: "Hit the right target",
+    ttgWhack: "Wombat Whack",
+    ttgWhackDesc: "Bonk the wombat with the answer",
+    ttgMatch: "Memory Match",
+    ttgMatchDesc: "Pair each sum with its answer",
+    ttgClaw: "Koala Claw",
+    ttgClawDesc: "Grab the plush with the answer",
     ttgCafe: "Koala Café",
     ttgCafeDesc: "Serve the right treat",
     ttgChooseGame: "Games",
@@ -1278,8 +1282,12 @@ const TRANSLATIONS = {
     ttgBalloonDesc: "떨어지기 전에 입력해요",
     ttgCalc: "코알라 계산기",
     ttgCalcDesc: "숫자 키로 답을 눌러요",
-    ttgToss: "과녁 맞히기",
-    ttgTossDesc: "정답 과녁을 맞혀요",
+    ttgWhack: "웜뱃 두더지 잡기",
+    ttgWhackDesc: "정답 든 웜뱃을 톡!",
+    ttgMatch: "짝 맞추기",
+    ttgMatchDesc: "문제와 답 카드를 짝지어요",
+    ttgClaw: "인형뽑기",
+    ttgClawDesc: "정답 인형을 뽑아요",
     ttgCafe: "코알라 카페",
     ttgCafeDesc: "정답 간식을 대접해요",
     ttgChooseGame: "게임 고르기",
@@ -10778,7 +10786,7 @@ let timesTableManuallyPaused = false;
 // by switching tabs, or — if there's no round in progress — shows a fresh
 // start screen. A manual pause is left exactly as the player left it either way.
 function enterTimesTableTab() {
-  if (window.TTGames && TTGames.active()) return; // a tile game (calculator / toss / café) is mid-round
+  if (window.TTGames && TTGames.active()) return; // a tile game (calculator, wombat, café, match, claw) is mid-round
   if (timesTableManuallyPaused) return;
   if (timesTablePaused) {
     resumeTimesTable();
