@@ -41,6 +41,10 @@
   let last = "balloon";
   let G = null; // the running round
 
+  // Lifetime coins earned (not the balance, so spending mid-round can't hide what this round paid).
+  function koalaEarned() {
+    try { return canUseAccountFeatures() ? (KoalaCore.ensureKoala(progress).earned || 0) : 0; } catch (e) { return 0; }
+  }
   function loadBest() { try { return JSON.parse(localStorage.getItem(BEST_KEY)) || {}; } catch (e) { return {}; } }
   function saveBest(b) { try { localStorage.setItem(BEST_KEY, JSON.stringify(b)); } catch (e) { /* private mode */ } }
 
@@ -147,7 +151,7 @@
   function start(id) {
     if (id === "balloon") { last = "balloon"; startTimesTable(); return; }
     if (!GAMES[id]) return;
-    if (G) stopRound();
+    clearScene();
     const pool = buildTimesTableProblemPool();
     if (!pool.length) {
       // nothing selected: open the tables picker in Settings
@@ -162,6 +166,7 @@
       correct: 0, score: 0, missed: new Set(), timers: [], mode: timesTableSpeedMode || "slow",
       clock: 0, askedAt: 0, lastTs: null, raf: 0, lock: false,
     };
+    G.coinsAtStart = koalaEarned();
     gameSpeedLocked.tt = false; // full coins: the tile games have no speed lock
     if (typeof setTimesTableGuideOpen === "function") setTimesTableGuideOpen(false);
     startOverlay.hidden = true;
@@ -175,20 +180,29 @@
   }
 
   // Tear down without showing anything (used before a restart).
-  function stopRound() {
+  // Stop the clock and timers; the scene stays on screen (frozen) under the result card.
+  function freezeRound() {
     if (!G) return;
     cancelAnimationFrame(G.raf);
     G.timers.forEach(clearTimeout);
     G = null;
+  }
+  // Remove the tile-game scene entirely (back to the picker, or before another game starts).
+  function clearScene() {
+    freezeRound();
     layer.hidden = true;
     layer.innerHTML = "";
     card.classList.remove("ttg-on");
   }
+  function stopRound() { clearScene(); }
 
   function endRound(reason) {
     if (!G) return;
     const g = G;
-    stopRound();
+    // Quitting (✕ / Esc) goes straight back to the game picker — no result card.
+    if (reason === "manual") { clearScene(); resetTimesTable(); return; }
+    freezeRound();
+    layer.querySelectorAll("button").forEach((b) => { b.disabled = true; });
     const best = loadBest();
     const key = `${g.id}_${currentLang}_${timesTableSelectionKey()}`;
     const prevBest = best[key] || 0;
@@ -207,6 +221,7 @@
       lim.hidden = true;
     }
     showGameOverScreen("timestable", {
+      coins: g.coinsAtStart == null ? 0 : Math.max(0, koalaEarned() - g.coinsAtStart),
       correct: g.correct,
       isNewBest,
       best: Math.max(prevBest, g.score),
@@ -574,8 +589,9 @@
       e.target.closest(".ttg-mute").textContent = timesTableMuted ? "🔇" : "🔊";
     }
   });
-  const homeBtn = document.getElementById("ttg-home-btn");
-  if (homeBtn) homeBtn.addEventListener("click", () => {
+  // The ✕ in the corner of the result card: back to the game picker.
+  const closeBtn = document.getElementById("timestable-over-close");
+  if (closeBtn) closeBtn.addEventListener("click", () => {
     overOverlay.hidden = true;
     resetTimesTable();
   });
@@ -593,6 +609,7 @@
     start,
     active: () => !!G,
     last: () => last,
-    markBalloon: () => { last = "balloon"; if (G) stopRound(); },
+    markBalloon: () => { last = "balloon"; clearScene(); },
+    clear: clearScene, // called by resetTimesTable() when the picker comes back
   };
 })();

@@ -1704,7 +1704,7 @@ to Flip!</span></div>
                 </button>
                 <button type="button" class="ttg-tile" data-ttg="toss">
                   <svg class="ttg-thumb" viewBox="0 0 160 120" aria-hidden="true"><rect width="160" height="120" fill="url(#ttg-sky3)"/><path d="M0 60 L30 40 L55 58 L85 34 L120 56 L160 38 V120 H0Z" fill="#e39a6a" opacity=".55"/><rect y="88" width="160" height="32" fill="#9ccf6e"/><rect y="88" width="160" height="5" fill="#7fbf55"/><g font-size="8" font-weight="900" text-anchor="middle" fill="#fff"><use href="#ttg-target" transform="translate(32 64)"/><text x="32" y="67">24</text><use href="#ttg-target" transform="translate(80 58)"/><text x="80" y="61">18</text><use href="#ttg-target" transform="translate(128 64)"/><text x="128" y="67">21</text></g><rect x="56" y="6" width="48" height="16" rx="8" fill="#6b3f1f"/><text x="80" y="18" font-size="10" font-weight="800" text-anchor="middle" fill="#fff">3 × 7 =</text><path d="M30 112 Q80 80 122 70" stroke="#6b3f1f" stroke-dasharray="3 4" stroke-width="1.6" fill="none"/><circle cx="122" cy="70" r="4" fill="#7a5230"/><use href="#ttg-koala" transform="translate(22 108) scale(.55)"/></svg>
-                  <b class="ttg-tile-name" data-i18n="ttgToss">Gumnut Toss</b><span class="ttg-tile-desc" data-i18n="ttgTossDesc">Hit the right target</span>
+                  <b class="ttg-tile-name" data-i18n="ttgToss">Target Shot</b><span class="ttg-tile-desc" data-i18n="ttgTossDesc">Hit the right target</span>
                 </button>
                 <button type="button" class="ttg-tile" data-ttg="cafe">
                   <svg class="ttg-thumb" viewBox="0 0 160 120" aria-hidden="true"><rect width="160" height="120" fill="#fde2e4"/><g fill="#f7c4ca"><circle cx="20" cy="20" r="3"/><circle cx="60" cy="12" r="3"/><circle cx="140" cy="22" r="3"/><circle cx="100" cy="8" r="3"/></g><path d="M0 6 Q20 16 40 6 T80 6 T120 6 T160 6 V0 H0Z" fill="#ff8fa3"/><rect x="8" y="30" width="62" height="30" rx="14" fill="#fff"/><path d="M60 56 l10 8 -2-10z" fill="#fff"/><text x="39" y="50" font-size="13" font-weight="900" text-anchor="middle" fill="#e8476a">4 × 6</text><g transform="translate(112 58)"><circle cx="-14" cy="-14" r="6" fill="#8a6a50"/><circle cx="14" cy="-14" r="6" fill="#8a6a50"/><ellipse rx="22" ry="19" fill="#a98466"/><ellipse cy="6" rx="10" ry="7" fill="#6b4c36"/><circle cx="-7" cy="-3" r="2.4" fill="#222"/><circle cx="7" cy="-3" r="2.4" fill="#222"/></g><rect y="80" width="160" height="40" fill="#8fd6c8"/><rect y="80" width="160" height="5" fill="#6cc3b2"/><g font-size="8" font-weight="900" text-anchor="middle" fill="#1f4d43"><g transform="translate(24 96)"><ellipse rx="16" ry="5" fill="#fff"/><path d="M-10 -1 a10 9 0 0 1 20 0z" fill="#f2b8d1"/><circle cy="-11" r="3" fill="#e8476a"/><rect x="-11" y="5" width="22" height="11" rx="5" fill="#fff"/><text y="14">18</text></g><g transform="translate(62 96)"><ellipse rx="16" ry="5" fill="#fff"/><rect x="-10" y="-11" width="20" height="10" rx="3" fill="#8b5a3c"/><rect x="-10" y="-11" width="20" height="3" fill="#fff4"/><rect x="-11" y="5" width="22" height="11" rx="5" fill="#fff"/><text y="14">24</text></g><g transform="translate(100 96)"><ellipse rx="16" ry="5" fill="#fff"/><circle cx="-5" cy="-5" r="5" fill="#f4c46b"/><circle cx="5" cy="-5" r="5" fill="#f4c46b"/><circle cy="-10" r="5" fill="#f7d58a"/><rect x="-11" y="5" width="22" height="11" rx="5" fill="#fff"/><text y="14">28</text></g><g transform="translate(138 96)"><ellipse rx="16" ry="5" fill="#fff"/><path d="M-8 -2 l8 -12 8 12z" fill="#ffd166"/><circle cx="-2" cy="-6" r="1.5" fill="#e8476a"/><rect x="-11" y="5" width="22" height="11" rx="5" fill="#fff"/><text y="14">32</text></g></g></svg>
@@ -1722,6 +1722,7 @@ to Flip!</span></div>
           <div class="typegame-overlay tg-over-overlay" id="timestable-over-overlay" hidden>
             <div class="tg-confetti" aria-hidden="true"></div>
             <div class="tg-over-card">
+              <button type="button" class="tg-over-close" id="timestable-over-close" data-i18n-aria-label="ttgChooseGame" aria-label="Games">✕</button>
               <div class="tg-over-koala" aria-hidden="true"></div>
               <h3 class="tg-over-title" id="timestable-over-title"></h3>
               <div class="tg-stars" id="timestable-stars" role="img">
@@ -1742,7 +1743,6 @@ to Flip!</span></div>
                   <span data-i18n="timesTableRestartBtn">Play Again</span>
                 </button>
                 <button type="button" class="pill tg-review-btn" id="timestable-review-btn" hidden>📝 <span data-i18n="gameOverReview">Review</span></button>
-                <button type="button" class="pill tg-review-btn ttg-home-btn" id="ttg-home-btn">🎮 <span data-i18n="ttgChooseGame">Games</span></button>
               </div>
             </div>
             <!-- Round recap: the facts/words missed this round, opened by the Review button -->

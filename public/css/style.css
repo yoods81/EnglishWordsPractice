@@ -14347,16 +14347,28 @@ body.kh-house-on { overflow: hidden; }
 .ttg-thumb { display: block; width: 100%; height: auto; border-radius: 11px; }
 .ttg-tile-name { margin: 7px 3px 1px; font-family: var(--font-heading); font-size: 0.98rem; line-height: 1.15; color: #0f6b52; }
 .ttg-tile-desc { margin: 0 3px; font-size: 0.74rem; line-height: 1.25; color: #5b7f76; }
-@media (max-width: 480px) {
-  #view-timestable .card:has(#timestable-start-overlay:not([hidden])) #timestable-stage { height: 540px; }
-  #view-timestable .typegame-overlay.tg-start-overlay { padding: 56px 10px 12px; }
-  #view-timestable .tg-start-card { width: min(100%, 340px); }
-  .ttg-tile-name { font-size: 0.9rem; }
+/* Game picker page: roomy, top-down layout (title → settings → 2×2 tiles) instead of
+   everything bunched in the middle. Beats the "3 — Game start screens" rules above. */
+html body #view-timestable #timestable-start-overlay .tg-start-card {
+  justify-content: flex-start;
+  gap: 0;
+  padding: 26px 16px 30px !important;
 }
-@media (min-width: 700px) {
-  #view-timestable .tg-start-card { width: min(100%, 640px); }
-  #view-timestable .card:has(#timestable-start-overlay:not([hidden])) #timestable-stage:not(.typegame-stage-expanded) { min-height: 470px; }
-  .ttg-tiles { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+html body #view-timestable #timestable-start-overlay .tg-start-card h3 { margin: 6px 0 18px; }
+html body #view-timestable #timestable-start-overlay .fs-settings { width: min(100%, 560px); margin: 0 0 22px; }
+html body #view-timestable #timestable-start-overlay .tg-start-chips:has(> :not([hidden])) { margin: -8px 0 14px; }
+html body #view-timestable #timestable-start-overlay .tg-start-chips:not(:has(> :not([hidden]))) { display: none; }
+.ttg-tiles { grid-template-columns: 1fr 1fr; gap: 14px; width: min(100%, 640px); margin: 0 auto; }
+.ttg-tile { padding: 8px 8px 12px; border-radius: 20px; }
+.ttg-thumb { border-radius: 14px; }
+.ttg-tile-name { margin: 10px 4px 2px; font-size: 1.05rem; }
+.ttg-tile-desc { margin: 0 4px; font-size: 0.8rem; }
+@media (min-width: 600px) {
+  html body #view-timestable #timestable-start-overlay .tg-start-card { padding: 34px 28px 40px !important; }
+  .ttg-tiles { gap: 22px; }
+  .ttg-tile { padding: 10px 10px 16px; }
+  .ttg-tile-name { margin: 12px 6px 4px; font-size: 1.3rem; }
+  .ttg-tile-desc { margin: 0 6px; font-size: 0.95rem; }
 }
 
 /* While a tile game runs, Balloon Pop's score row and answer box are not used */
@@ -14601,4 +14613,25 @@ body.kh-house-on { overflow: hidden; }
   animation: ttg-pop 0.5s ease;
 }
 .ttg-banner[hidden] { display: none; }
-#timestable-over-overlay .tg-over-actions { flex-wrap: wrap; justify-content: center; }
+#timestable-over-overlay { z-index: 50; } /* above a frozen tile-game scene */
+#timestable-over-overlay .tg-over-card { position: relative; }
+.tg-over-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  color: #0f6b52;
+  font-size: 1rem;
+  box-shadow: 0 2px 0 #bfeedd;
+  cursor: pointer;
+}
+.tg-over-close:active { transform: translateY(2px); box-shadow: none; }
+.tg-over-coins { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 2px 0 0; font-size: 1.15rem; font-weight: 800; color: #a86f0c; }
+.tg-over-coins[hidden] { display: none; }
+.tg-over-coins .koala-coin { width: 1.4em; height: 1.4em; }
+#view-timestable .tg-over-card .tg-over-stat { display: block !important; font-family: var(--font-heading); font-size: 1.25rem; color: #0f6b52; }

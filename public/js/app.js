@@ -304,7 +304,7 @@ const TRANSLATIONS = {
     ttgBalloonDesc: "Type before it lands",
     ttgCalc: "Koala Calculator",
     ttgCalcDesc: "Tap the answer on the pad",
-    ttgToss: "Gumnut Toss",
+    ttgToss: "Target Shot",
     ttgTossDesc: "Hit the right target",
     ttgCafe: "Koala Café",
     ttgCafeDesc: "Serve the right treat",
@@ -1278,7 +1278,7 @@ const TRANSLATIONS = {
     ttgBalloonDesc: "떨어지기 전에 입력해요",
     ttgCalc: "코알라 계산기",
     ttgCalcDesc: "숫자 키로 답을 눌러요",
-    ttgToss: "검넛 던지기",
+    ttgToss: "과녁 맞히기",
     ttgTossDesc: "정답 과녁을 맞혀요",
     ttgCafe: "코알라 카페",
     ttgCafeDesc: "정답 간식을 대접해요",
@@ -10672,6 +10672,7 @@ function timesTableKey(p) {
 // same numbers Quiz/Spelling already nudge signup/upgrade at); Premium and
 // admin have no ceiling here — their round only ends by running out of
 // lives, the same as Typing Game.
+let timesTableCoinsAtStart = 0; // lifetime coins earned when the round began (for "N Koala Coins" on the result card)
 let timesTableRoundCap = Infinity; // this round's ceiling = per-round cap, shortened to what is left of today's quota
 function timesTableMaxProblems() {
   if (!currentUser) return Math.min(GOAL_MAX_ANONYMOUS, timesTableRoundCap);
@@ -10787,6 +10788,7 @@ function enterTimesTableTab() {
 }
 
 function resetTimesTable() {
+  if (window.TTGames) TTGames.clear(); // a frozen tile-game scene goes away with the picker
   ttKb((b) => b.reset());
   resetTimesTableCombo();
   timesTableActive.forEach((w) => w.el.remove());
@@ -10824,6 +10826,7 @@ function resetTimesTable() {
 
 function startTimesTable() {
   if (window.TTGames) TTGames.markBalloon();
+  timesTableCoinsAtStart = canUseAccountFeatures() ? (KoalaCore.ensureKoala(progress).earned || 0) : 0;
   timesTableProblemPool = buildTimesTableProblemPool();
   if (timesTableProblemPool.length === 0) {
     // nothing selected: open the picker (after the click finishes bubbling)
@@ -11207,6 +11210,7 @@ function endTimesTableRound(reason) {
   }
 
   showGameOverScreen("timestable", {
+    coins: canUseAccountFeatures() ? Math.max(0, (KoalaCore.ensureKoala(progress).earned || 0) - timesTableCoinsAtStart) : 0,
     correct: timesTableCorrectCount,
     isNewBest,
     best: Math.max(prevBest, timesTableScore),
@@ -11522,9 +11526,12 @@ timesTableRestartBtn.addEventListener("click", () => {
 });
 timesTablePauseBtn.addEventListener("click", pauseTimesTableManual);
 timesTableResumeBtn.addEventListener("click", resumeTimesTableManual);
+// Ending a round by hand goes straight back to the game picker (no result card).
 timesTableEndBtn.addEventListener("click", () => {
   if (!timesTableRunning && !timesTableManuallyPaused) return;
   endTimesTableRound("manual");
+  timesTableOverOverlay.hidden = true;
+  resetTimesTable();
 });
 
 // Same display-only toggle as Typing Game's — see there for why it doesn't
@@ -11735,6 +11742,26 @@ function showGameOverScreen(prefix, opts) {
     panel.hidden = true;
     card.hidden = false;
   };
+
+  // Times Table (all four games): a short, simple result card — koala, title, stars,
+  // how many were solved and the Koala Coins this round paid. Nothing else.
+  if (prefix === "timestable") {
+    $("final-score").hidden = true;
+    $("high-score").hidden = true;
+    goal.hidden = true;
+    enc.hidden = true;
+    stat.textContent = currentLang === "ko" ? `✅ ${opts.correct || 0}개 맞혔어요` : `✅ ${opts.correct || 0} correct`;
+    let coinEl = $("coin-line");
+    if (!coinEl) {
+      coinEl = document.createElement("p");
+      coinEl.id = `${prefix}-coin-line`;
+      coinEl.className = "tg-over-coins";
+      stat.insertAdjacentElement("afterend", coinEl);
+    }
+    const n = opts.coins || 0;
+    coinEl.hidden = n <= 0;
+    coinEl.innerHTML = `${COIN_SVG} ${currentLang === "ko" ? `${n} 코알라 코인 획득` : `${n} Koala Coins earned`}`;
+  }
 }
 
 // While a Game Over popup is up, the card drops the answer box + tip line so the
