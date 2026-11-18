@@ -300,6 +300,15 @@ const TRANSLATIONS = {
     timesTableLabelAll: "All",
     timesTableNone: "Pick tables",
     timesTableStartBtn: "Start Game",
+    ttgBalloon: "Balloon Pop",
+    ttgBalloonDesc: "Type before it lands",
+    ttgCalc: "Koala Calculator",
+    ttgCalcDesc: "Tap the answer on the pad",
+    ttgToss: "Gumnut Toss",
+    ttgTossDesc: "Hit the right target",
+    ttgCafe: "Koala Café",
+    ttgCafeDesc: "Serve the right treat",
+    ttgChooseGame: "Games",
     timesTableHint: "How to answer when the problem is 8 × 2: enter one of 8216 / 82 16 / 8 2 16",
     timesTableTypoMsg: "❌ No matching fact — try again!",
     timesTableMute: "Mute music",
@@ -311,7 +320,7 @@ const TRANSLATIONS = {
     timesTableHighScore: (score) => `Best score: ${score}`,
     timesTableNewHighScore: "🎉 New best score!",
     timesTableRestartBtn: "Play Again",
-    timesTableLimitReachedAnonymous: "You've reached the 50-problem limit for visitors — sign up (it's free!) to keep going.",
+    timesTableLimitReachedAnonymous: "You've reached the 30-problem daily limit for visitors — sign up (it's free!) to keep going.",
     timesTableLimitReachedFree: "You've reached the 100-problem limit for General accounts — upgrade to Premium for unlimited play.",
     timesTablePauseLabel: "Pause",
     timesTableEndLabel: "End game",
@@ -1265,6 +1274,15 @@ const TRANSLATIONS = {
     timesTableLabelAll: "전체",
     timesTableNone: "단 고르기",
     timesTableStartBtn: "게임 시작",
+    ttgBalloon: "풍선 팡팡",
+    ttgBalloonDesc: "떨어지기 전에 입력해요",
+    ttgCalc: "코알라 계산기",
+    ttgCalcDesc: "숫자 키로 답을 눌러요",
+    ttgToss: "검넛 던지기",
+    ttgTossDesc: "정답 과녁을 맞혀요",
+    ttgCafe: "코알라 카페",
+    ttgCafeDesc: "정답 간식을 대접해요",
+    ttgChooseGame: "게임 고르기",
     timesTableHint: "문제가 8 × 2 일 때 정답 입력 방법: 8216 / 82 16 / 8 2 16 셋 중 하나를 입력 — 계속 입력하면 돼요, Enter는 필요 없어요.",
     timesTableTypoMsg: "❌ 일치하는 식이 없어요 — 다시 시도해보세요!",
     timesTableMute: "음악 끄기",
@@ -1276,7 +1294,7 @@ const TRANSLATIONS = {
     timesTableHighScore: (score) => `최고 점수: ${score}`,
     timesTableNewHighScore: "🎉 최고 기록 달성!",
     timesTableRestartBtn: "다시 하기",
-    timesTableLimitReachedAnonymous: "비회원은 50문제까지 풀 수 있어요 — 가입하면(무료예요!) 계속 할 수 있어요.",
+    timesTableLimitReachedAnonymous: "비회원은 하루 30문제까지 풀 수 있어요 — 가입하면(무료예요!) 계속 할 수 있어요.",
     timesTableLimitReachedFree: "일반 계정은 100문제까지 풀 수 있어요 — 프리미엄으로 업그레이드하면 무제한으로 할 수 있어요.",
     timesTablePauseLabel: "일시정지",
     timesTableEndLabel: "게임 종료",
@@ -10759,6 +10777,7 @@ let timesTableManuallyPaused = false;
 // by switching tabs, or — if there's no round in progress — shows a fresh
 // start screen. A manual pause is left exactly as the player left it either way.
 function enterTimesTableTab() {
+  if (window.TTGames && TTGames.active()) return; // a tile game (calculator / toss / café) is mid-round
   if (timesTableManuallyPaused) return;
   if (timesTablePaused) {
     resumeTimesTable();
@@ -10804,6 +10823,7 @@ function resetTimesTable() {
 }
 
 function startTimesTable() {
+  if (window.TTGames) TTGames.markBalloon();
   timesTableProblemPool = buildTimesTableProblemPool();
   if (timesTableProblemPool.length === 0) {
     // nothing selected: open the picker (after the click finishes bubbling)
@@ -11495,7 +11515,11 @@ function celebrateTimesTableAnswer(item, fast) {
 }
 
 timesTableStartBtn.addEventListener("click", startTimesTable);
-timesTableRestartBtn.addEventListener("click", startTimesTable);
+// "Play Again" replays whichever game was just played (Balloon Pop or one of the tile games in js/tt-games.js).
+timesTableRestartBtn.addEventListener("click", () => {
+  if (window.TTGames && TTGames.last() !== "balloon") TTGames.start(TTGames.last());
+  else startTimesTable();
+});
 timesTablePauseBtn.addEventListener("click", pauseTimesTableManual);
 timesTableResumeBtn.addEventListener("click", resumeTimesTableManual);
 timesTableEndBtn.addEventListener("click", () => {

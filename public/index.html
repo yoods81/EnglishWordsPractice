@@ -1686,19 +1686,38 @@ to Flip!</span></div>
               <div class="tg-start-chips">
                 <span class="tg-start-chip tg-start-best" id="timestable-start-best" hidden></span>
               </div>
-              <div class="tg-hero" id="timestable-hero">
-                <div class="tg-slides">
-                  <div class="tg-slide tg-slide1">
-                    <span class="tg-hero-slot" aria-hidden="true"></span>
-                    <div id="timestable-start-demo" class="timestable-instructions tt-start-demo"></div>
-                  </div>
-                  <div class="tg-slide tg-slide2" aria-live="polite"><b class="tg-mode-title"></b><p class="tg-mode-desc"></p><span class="tg-mode-stats"></span></div>
-                </div>
-                <div class="tg-dots" aria-hidden="true"><i></i><i></i></div>
+              <!-- Game picker: four tiles, tapping one starts that game (settings above apply to all four). -->
+              <div class="ttg-tiles" id="ttg-tiles">
+                <svg width="0" height="0" class="ttg-defs" aria-hidden="true" focusable="false"><defs>
+                  <g id="ttg-koala"><circle cx="-17" cy="-10" r="11" fill="#9aa5ad"/><circle cx="-17" cy="-10" r="6" fill="#f3c9d2"/><circle cx="17" cy="-10" r="11" fill="#9aa5ad"/><circle cx="17" cy="-10" r="6" fill="#f3c9d2"/><ellipse cx="0" cy="2" rx="19" ry="17" fill="#b4bec5"/><circle cx="-7" cy="-1" r="2.6" fill="#22313a"/><circle cx="7" cy="-1" r="2.6" fill="#22313a"/><circle cx="-6.2" cy="-1.8" r=".9" fill="#fff"/><circle cx="7.8" cy="-1.8" r=".9" fill="#fff"/><ellipse cx="0" cy="7" rx="5.5" ry="6.5" fill="#33414a"/><circle cx="-12" cy="8" r="3" fill="#f6a7b6" opacity=".7"/><circle cx="12" cy="8" r="3" fill="#f6a7b6" opacity=".7"/></g>
+                  <g id="ttg-target"><path d="M-6 30l-6 22M6 30l6 22M0 30v22" stroke="#b07a45" stroke-width="3"/><circle r="17" fill="#fff"/><circle r="13" fill="#2e6fb5"/><circle r="9" fill="#5cc3f0"/><circle r="6" fill="#ff8a3d"/></g>
+                  <linearGradient id="ttg-sky1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fdcff"/><stop offset="1" stop-color="#e5f7ff"/></linearGradient>
+                  <linearGradient id="ttg-sky3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd59e"/><stop offset="1" stop-color="#ffefd6"/></linearGradient>
+                </defs></svg>
+                <button type="button" class="ttg-tile" data-ttg="balloon">
+                  <svg class="ttg-thumb" viewBox="0 0 160 120" aria-hidden="true"><rect width="160" height="120" fill="url(#ttg-sky1)"/><path d="M0 92 C40 76 80 82 120 90 S150 84 160 86 V120 H0Z" fill="#8ed9a8"/><path d="M0 104 C50 92 100 100 160 96 V120 H0Z" fill="#5cc38a"/><g><ellipse cx="44" cy="34" rx="20" ry="23" fill="#ff7f98"/><ellipse cx="38" cy="25" rx="5" ry="8" fill="#fff" opacity=".45"/><path d="M44 57 l-3 5h6z" fill="#e8476a"/><path d="M44 62 q-4 10 2 20" stroke="#fff" stroke-width="1.5" fill="none"/><text x="44" y="39" font-size="12" font-weight="800" text-anchor="middle" fill="#fff">7×8</text></g><g><ellipse cx="112" cy="46" rx="19" ry="22" fill="#5aaef0"/><ellipse cx="106" cy="37" rx="5" ry="8" fill="#fff" opacity=".45"/><path d="M112 68 l-3 5h6z" fill="#3a86e0"/><text x="112" y="51" font-size="12" font-weight="800" text-anchor="middle" fill="#fff">6×4</text></g><g><ellipse cx="80" cy="18" rx="13" ry="15" fill="#ffc94d"/><text x="80" y="22" font-size="9" font-weight="800" text-anchor="middle" fill="#7a5200">3×9</text></g><use href="#ttg-koala" transform="translate(80 98) scale(.75)"/></svg>
+                  <b class="ttg-tile-name" data-i18n="ttgBalloon">Balloon Pop</b><span class="ttg-tile-desc" data-i18n="ttgBalloonDesc">Type before it lands</span>
+                </button>
+                <button type="button" class="ttg-tile" data-ttg="calc">
+                  <svg class="ttg-thumb" viewBox="0 0 160 120" aria-hidden="true"><rect width="160" height="120" fill="#ffe9c7"/><g opacity=".25" stroke="#d9a35c" stroke-width="1"><path d="M0 20H160M0 45H160M0 70H160M0 95H160"/></g><rect x="38" y="8" width="84" height="108" rx="12" fill="#2f6b5e"/><rect x="38" y="8" width="84" height="104" rx="12" fill="#3f8a79"/><rect x="46" y="15" width="68" height="18" rx="5" fill="#1f4d43"/><text x="80" y="28" font-size="11" font-weight="800" text-anchor="middle" fill="#fff">9 × 7 =</text><rect x="46" y="37" width="68" height="16" rx="5" fill="#c9f3e6"/><text x="110" y="49" font-size="11" font-weight="800" text-anchor="end" fill="#1f4d43">63</text><g font-size="9" font-weight="800" text-anchor="middle" fill="#1f4d43"><rect x="46" y="58" width="15" height="13" rx="3" fill="#fff8ec"/><text x="53.5" y="68">1</text><rect x="64" y="58" width="15" height="13" rx="3" fill="#fff8ec"/><text x="71.5" y="68">2</text><rect x="82" y="58" width="15" height="13" rx="3" fill="#fff8ec"/><text x="89.5" y="68">3</text><rect x="100" y="58" width="14" height="13" rx="3" fill="#7fe0a8"/><path d="M103 64l3 3 5-6" stroke="#1d7a4c" stroke-width="2" fill="none"/><rect x="46" y="74" width="15" height="13" rx="3" fill="#fff8ec"/><text x="53.5" y="84">4</text><rect x="64" y="74" width="15" height="13" rx="3" fill="#fff8ec"/><text x="71.5" y="84">5</text><rect x="82" y="74" width="15" height="13" rx="3" fill="#fff8ec"/><text x="89.5" y="84">6</text><rect x="100" y="74" width="14" height="13" rx="3" fill="#ff9a8a"/><path d="M110 80.5h-6m2-3-3 3 3 3" stroke="#a33" stroke-width="1.6" fill="none"/><rect x="46" y="90" width="15" height="13" rx="3" fill="#fff8ec"/><text x="53.5" y="100">7</text><rect x="64" y="90" width="15" height="13" rx="3" fill="#fff8ec"/><text x="71.5" y="100">8</text><rect x="82" y="90" width="15" height="13" rx="3" fill="#fff8ec"/><text x="89.5" y="100">9</text><rect x="100" y="90" width="14" height="13" rx="3" fill="#fff8ec"/><text x="107" y="100">0</text></g><use href="#ttg-koala" transform="translate(136 90) scale(.62)"/></svg>
+                  <b class="ttg-tile-name" data-i18n="ttgCalc">Koala Calculator</b><span class="ttg-tile-desc" data-i18n="ttgCalcDesc">Tap the answer on the pad</span>
+                </button>
+                <button type="button" class="ttg-tile" data-ttg="toss">
+                  <svg class="ttg-thumb" viewBox="0 0 160 120" aria-hidden="true"><rect width="160" height="120" fill="url(#ttg-sky3)"/><path d="M0 60 L30 40 L55 58 L85 34 L120 56 L160 38 V120 H0Z" fill="#e39a6a" opacity=".55"/><rect y="88" width="160" height="32" fill="#9ccf6e"/><rect y="88" width="160" height="5" fill="#7fbf55"/><g font-size="8" font-weight="900" text-anchor="middle" fill="#fff"><use href="#ttg-target" transform="translate(32 64)"/><text x="32" y="67">24</text><use href="#ttg-target" transform="translate(80 58)"/><text x="80" y="61">18</text><use href="#ttg-target" transform="translate(128 64)"/><text x="128" y="67">21</text></g><rect x="56" y="6" width="48" height="16" rx="8" fill="#6b3f1f"/><text x="80" y="18" font-size="10" font-weight="800" text-anchor="middle" fill="#fff">3 × 7 =</text><path d="M30 112 Q80 80 122 70" stroke="#6b3f1f" stroke-dasharray="3 4" stroke-width="1.6" fill="none"/><circle cx="122" cy="70" r="4" fill="#7a5230"/><use href="#ttg-koala" transform="translate(22 108) scale(.55)"/></svg>
+                  <b class="ttg-tile-name" data-i18n="ttgToss">Gumnut Toss</b><span class="ttg-tile-desc" data-i18n="ttgTossDesc">Hit the right target</span>
+                </button>
+                <button type="button" class="ttg-tile" data-ttg="cafe">
+                  <svg class="ttg-thumb" viewBox="0 0 160 120" aria-hidden="true"><rect width="160" height="120" fill="#fde2e4"/><g fill="#f7c4ca"><circle cx="20" cy="20" r="3"/><circle cx="60" cy="12" r="3"/><circle cx="140" cy="22" r="3"/><circle cx="100" cy="8" r="3"/></g><path d="M0 6 Q20 16 40 6 T80 6 T120 6 T160 6 V0 H0Z" fill="#ff8fa3"/><rect x="8" y="30" width="62" height="30" rx="14" fill="#fff"/><path d="M60 56 l10 8 -2-10z" fill="#fff"/><text x="39" y="50" font-size="13" font-weight="900" text-anchor="middle" fill="#e8476a">4 × 6</text><g transform="translate(112 58)"><circle cx="-14" cy="-14" r="6" fill="#8a6a50"/><circle cx="14" cy="-14" r="6" fill="#8a6a50"/><ellipse rx="22" ry="19" fill="#a98466"/><ellipse cy="6" rx="10" ry="7" fill="#6b4c36"/><circle cx="-7" cy="-3" r="2.4" fill="#222"/><circle cx="7" cy="-3" r="2.4" fill="#222"/></g><rect y="80" width="160" height="40" fill="#8fd6c8"/><rect y="80" width="160" height="5" fill="#6cc3b2"/><g font-size="8" font-weight="900" text-anchor="middle" fill="#1f4d43"><g transform="translate(24 96)"><ellipse rx="16" ry="5" fill="#fff"/><path d="M-10 -1 a10 9 0 0 1 20 0z" fill="#f2b8d1"/><circle cy="-11" r="3" fill="#e8476a"/><rect x="-11" y="5" width="22" height="11" rx="5" fill="#fff"/><text y="14">18</text></g><g transform="translate(62 96)"><ellipse rx="16" ry="5" fill="#fff"/><rect x="-10" y="-11" width="20" height="10" rx="3" fill="#8b5a3c"/><rect x="-10" y="-11" width="20" height="3" fill="#fff4"/><rect x="-11" y="5" width="22" height="11" rx="5" fill="#fff"/><text y="14">24</text></g><g transform="translate(100 96)"><ellipse rx="16" ry="5" fill="#fff"/><circle cx="-5" cy="-5" r="5" fill="#f4c46b"/><circle cx="5" cy="-5" r="5" fill="#f4c46b"/><circle cy="-10" r="5" fill="#f7d58a"/><rect x="-11" y="5" width="22" height="11" rx="5" fill="#fff"/><text y="14">28</text></g><g transform="translate(138 96)"><ellipse rx="16" ry="5" fill="#fff"/><path d="M-8 -2 l8 -12 8 12z" fill="#ffd166"/><circle cx="-2" cy="-6" r="1.5" fill="#e8476a"/><rect x="-11" y="5" width="22" height="11" rx="5" fill="#fff"/><text y="14">32</text></g></g></svg>
+                  <b class="ttg-tile-name" data-i18n="ttgCafe">Koala Café</b><span class="ttg-tile-desc" data-i18n="ttgCafeDesc">Serve the right treat</span>
+                </button>
               </div>
-              <button class="pill accent tg-start-btn" id="timestable-start-btn" data-i18n="timesTableStartBtn">Start Game</button>
+              <!-- The old Start button stays (hidden) so Enter on the start screen still starts Balloon Pop. -->
+              <button class="pill accent tg-start-btn" id="timestable-start-btn" data-i18n="timesTableStartBtn" hidden>Start Game</button>
             </div>
           </div>
+
+          <!-- Koala Calculator / Gumnut Toss / Koala Café play here (js/tt-games.js) -->
+          <div class="ttg-layer" id="ttg-layer" hidden></div>
 
           <div class="typegame-overlay tg-over-overlay" id="timestable-over-overlay" hidden>
             <div class="tg-confetti" aria-hidden="true"></div>
@@ -1723,6 +1742,7 @@ to Flip!</span></div>
                   <span data-i18n="timesTableRestartBtn">Play Again</span>
                 </button>
                 <button type="button" class="pill tg-review-btn" id="timestable-review-btn" hidden>📝 <span data-i18n="gameOverReview">Review</span></button>
+                <button type="button" class="pill tg-review-btn ttg-home-btn" id="ttg-home-btn">🎮 <span data-i18n="ttgChooseGame">Games</span></button>
               </div>
             </div>
             <!-- Round recap: the facts/words missed this round, opened by the Review button -->
@@ -2584,6 +2604,7 @@ to Flip!</span></div>
   <script src="js/koala-wardrobe.js"></script>
   <script src="js/koala-admin-items.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/tt-games.js"></script>
   <script src="js/support.js"></script>
   <script src="js/faq-data.js"></script>
   <script src="js/faq.js"></script>
