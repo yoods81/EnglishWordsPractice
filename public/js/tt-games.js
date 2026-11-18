@@ -422,24 +422,54 @@
   };
 
   /* ================= Koala Café ================= */
+  // Café customers: round "mochi" plush style (chosen design A) — one soft body, big shiny eyes, blush, tiny feet.
   const ANIMALS = ["wombat", "kangaroo", "possum", "echidna", "platypus"];
-  function animalSvg(kind, mood) {
-    const mouth = mood === "happy" ? '<path d="M-6 13 q6 6 12 0" stroke="#3a2a20" stroke-width="2.2" fill="none" stroke-linecap="round"/>'
-      : mood === "sad" ? '<path d="M-6 16 q6 -5 12 0" stroke="#3a2a20" stroke-width="2.2" fill="none" stroke-linecap="round"/>'
-      : '<path d="M-4 14 h8" stroke="#3a2a20" stroke-width="2.2" stroke-linecap="round"/>';
+  const PAL = {
+    wombat: { fur: "#a98466", dark: "#6f5038", light: "#d6bea6" },
+    kangaroo: { fur: "#d9a06a", dark: "#9c6a3c", light: "#f3d9bb" },
+    possum: { fur: "#9aa2ae", dark: "#5e6672", light: "#eef0f3" },
+    echidna: { fur: "#c8a07a", dark: "#4f3a2c", light: "#ead2b8" },
+    platypus: { fur: "#8a5a3a", dark: "#3f3a37", light: "#c79a73" },
+  };
+  function animalEars(id, a, k) {
+    if (id === "wombat") return `<circle cx="${-20 * k}" cy="${-24 * k}" r="${8 * k}" fill="${a.fur}"/><circle cx="${20 * k}" cy="${-24 * k}" r="${8 * k}" fill="${a.fur}"/><circle cx="${-20 * k}" cy="${-24 * k}" r="${4 * k}" fill="${a.dark}"/><circle cx="${20 * k}" cy="${-24 * k}" r="${4 * k}" fill="${a.dark}"/>`;
+    if (id === "kangaroo") return `<ellipse cx="${-13 * k}" cy="${-34 * k}" rx="${7 * k}" ry="${17 * k}" fill="${a.fur}" transform="rotate(-14 ${-13 * k} ${-34 * k})"/><ellipse cx="${13 * k}" cy="${-34 * k}" rx="${7 * k}" ry="${17 * k}" fill="${a.fur}" transform="rotate(14 ${13 * k} ${-34 * k})"/><ellipse cx="${-13 * k}" cy="${-33 * k}" rx="${3.5 * k}" ry="${11 * k}" fill="#f2b5a8" transform="rotate(-14 ${-13 * k} ${-33 * k})"/><ellipse cx="${13 * k}" cy="${-33 * k}" rx="${3.5 * k}" ry="${11 * k}" fill="#f2b5a8" transform="rotate(14 ${13 * k} ${-33 * k})"/>`;
+    if (id === "possum") return `<ellipse cx="${-23 * k}" cy="${-22 * k}" rx="${11 * k}" ry="${13 * k}" fill="${a.fur}"/><ellipse cx="${23 * k}" cy="${-22 * k}" rx="${11 * k}" ry="${13 * k}" fill="${a.fur}"/><ellipse cx="${-23 * k}" cy="${-21 * k}" rx="${6.5 * k}" ry="${8.5 * k}" fill="#f3b9c6"/><ellipse cx="${23 * k}" cy="${-21 * k}" rx="${6.5 * k}" ry="${8.5 * k}" fill="#f3b9c6"/>`;
+    if (id === "echidna") {
+      let out = "";
+      for (let i = 0; i < 11; i++) {
+        const ang = ((-170 + i * 16) * Math.PI) / 180, w = 0.13;
+        const p = (r, d) => `${(Math.cos(ang + d) * r * k).toFixed(1)} ${(Math.sin(ang + d) * r * k).toFixed(1)}`;
+        out += `<path d="M${p(24, -w)} L${p(44, 0)} L${p(24, w)}Z" fill="${a.dark}"/><path d="M${p(36, -0.03)} L${p(44, 0)} L${p(36, 0.03)}Z" fill="#f4e6d2"/>`;
+      }
+      return out;
+    }
+    return "";
+  }
+  function animalSnout(id, a, k) {
+    if (id === "wombat") return `<ellipse cx="0" cy="${9 * k}" rx="${11 * k}" ry="${8 * k}" fill="${a.dark}"/><ellipse cx="${-3 * k}" cy="${6 * k}" rx="${3 * k}" ry="${1.6 * k}" fill="#fff" opacity=".35"/>`;
+    if (id === "kangaroo") return `<ellipse cx="0" cy="${11 * k}" rx="${13 * k}" ry="${10 * k}" fill="${a.light}"/><ellipse cx="0" cy="${6 * k}" rx="${4.5 * k}" ry="${3.2 * k}" fill="#4a2f20"/>`;
+    if (id === "possum") return `<ellipse cx="0" cy="${10 * k}" rx="${12 * k}" ry="${10 * k}" fill="${a.light}"/><ellipse cx="0" cy="${6 * k}" rx="${4 * k}" ry="${3 * k}" fill="#e57b94"/>`;
+    if (id === "echidna") return `<path d="M${-5 * k} ${4 * k} Q0 ${26 * k} ${5 * k} ${4 * k}Z" fill="${a.dark}"/>`;
+    return `<ellipse cx="0" cy="${15 * k}" rx="${21 * k}" ry="${9 * k}" fill="${a.dark}"/><ellipse cx="0" cy="${12 * k}" rx="${16 * k}" ry="${4 * k}" fill="#5a5450"/><circle cx="${-5 * k}" cy="${12 * k}" r="${1.4 * k}" fill="#222"/><circle cx="${5 * k}" cy="${12 * k}" r="${1.4 * k}" fill="#222"/>`;
+  }
+  function animalSvg(id, mood) {
+    const a = PAL[id] || PAL.wombat;
     const eyes = mood === "happy"
-      ? '<path d="M-12 -2 q4 -5 8 0 M4 -2 q4 -5 8 0" stroke="#222" stroke-width="2.4" fill="none" stroke-linecap="round"/>'
-      : '<circle cx="-8" cy="-2" r="3.2" fill="#222"/><circle cx="8" cy="-2" r="3.2" fill="#222"/><circle cx="-7" cy="-3" r="1.1" fill="#fff"/><circle cx="9" cy="-3" r="1.1" fill="#fff"/>';
-    const cheeks = '<circle cx="-15" cy="8" r="3.6" fill="#f6a7b6" opacity=".7"/><circle cx="15" cy="8" r="3.6" fill="#f6a7b6" opacity=".7"/>';
-    const P = {
-      wombat: `<circle cx="-18" cy="-20" r="8" fill="#8a6a50"/><circle cx="18" cy="-20" r="8" fill="#8a6a50"/><ellipse rx="30" ry="27" fill="#a98466"/><ellipse cy="6" rx="12" ry="8" fill="#5e4230"/>`,
-      kangaroo: `<ellipse cx="-13" cy="-30" rx="6" ry="15" fill="#c98b55" transform="rotate(-12 -13 -30)"/><ellipse cx="13" cy="-30" rx="6" ry="15" fill="#c98b55" transform="rotate(12 13 -30)"/><ellipse rx="25" ry="27" fill="#d9a06a"/><ellipse cy="9" rx="13" ry="10" fill="#f0cfa8"/><ellipse cy="4" rx="4" ry="3" fill="#4a2f20"/>`,
-      possum: `<ellipse cx="-20" cy="-18" rx="9" ry="11" fill="#8f96a3"/><ellipse cx="-20" cy="-18" rx="5" ry="7" fill="#f3b9c6"/><ellipse cx="20" cy="-18" rx="9" ry="11" fill="#8f96a3"/><ellipse cx="20" cy="-18" rx="5" ry="7" fill="#f3b9c6"/><ellipse rx="27" ry="25" fill="#a7aeba"/><ellipse cy="8" rx="11" ry="9" fill="#eef0f3"/><ellipse cy="5" rx="4" ry="3" fill="#e57b94"/>`,
-      echidna: `<g fill="#5b4334">${[...Array(9)].map((_, i) => { const a = -150 + i * 15; const r = (a * Math.PI) / 180; return `<path d="M${(Math.cos(r) * 22).toFixed(1)} ${(Math.sin(r) * 22).toFixed(1)} L${(Math.cos(r) * 38).toFixed(1)} ${(Math.sin(r) * 38).toFixed(1)} L${(Math.cos(r + 0.2) * 22).toFixed(1)} ${(Math.sin(r + 0.2) * 22).toFixed(1)}Z"/>`; }).join("")}</g><ellipse rx="26" ry="24" fill="#c8a07a"/><ellipse cy="10" rx="5" ry="9" fill="#4a3428"/>`,
-      platypus: `<ellipse rx="27" ry="25" fill="#9b6b44"/><ellipse cy="14" rx="18" ry="9" fill="#3d3b3a"/><circle cx="-5" cy="12" r="1.5" fill="#666"/><circle cx="5" cy="12" r="1.5" fill="#666"/>`,
-    };
-    const m = kind === "platypus" ? "" : mouth;
-    return `<svg viewBox="-42 -48 84 84" aria-hidden="true">${P[kind] || P.wombat}${eyes}${kind === "platypus" ? "" : cheeks}${m}</svg>`;
+      ? '<path d="M-17 -4 q6 -8 12 0 M5 -4 q6 -8 12 0" stroke="#222" stroke-width="3" fill="none" stroke-linecap="round"/>'
+      : '<circle cx="-11" cy="-4" r="7" fill="#222"/><circle cx="11" cy="-4" r="7" fill="#222"/><circle cx="-8.5" cy="-7" r="2.8" fill="#fff"/><circle cx="13.5" cy="-7" r="2.8" fill="#fff"/><circle cx="-13" cy="-1" r="1.2" fill="#fff"/><circle cx="9" cy="-1" r="1.2" fill="#fff"/>'
+        + (mood === "sad" ? '<path d="M-19 -13 l9 -3 M19 -13 l-9 -3" stroke="#3a2a20" stroke-width="2.2" stroke-linecap="round"/>' : "");
+    const blush = '<ellipse cx="-21" cy="8" rx="5.5" ry="3.4" fill="#ff9fb4" opacity=".75"/><ellipse cx="21" cy="8" rx="5.5" ry="3.4" fill="#ff9fb4" opacity=".75"/>';
+    const hasMouth = id !== "platypus" && id !== "echidna";
+    const mouth = !hasMouth ? "" : mood === "happy" ? '<path d="M-6 17 q6 8 12 0z" fill="#c2405e"/>'
+      : mood === "sad" ? '<path d="M-5 22 q5 -5 10 0" stroke="#3a2a20" stroke-width="1.8" fill="none" stroke-linecap="round"/>'
+      : '<path d="M-4 19 q2 3 4 0 q2 3 4 0" stroke="#3a2a20" stroke-width="1.8" fill="none" stroke-linecap="round"/>';
+    const k = 26 / 30;
+    return `<svg viewBox="-50 -58 100 108" aria-hidden="true"><g transform="translate(0 6)">${animalEars(id, a, 32 / 30)}
+      <ellipse cx="0" cy="8" rx="36" ry="34" fill="${a.fur}"/><ellipse cx="-10" cy="-14" rx="12" ry="7" fill="#fff" opacity=".18"/>
+      <ellipse cx="0" cy="24" rx="20" ry="13" fill="${a.light}" opacity=".7"/>
+      ${animalSnout(id, a, k)}${eyes}${blush}${mouth}
+      <ellipse cx="-14" cy="41" rx="9" ry="5" fill="${a.dark}"/><ellipse cx="14" cy="41" rx="9" ry="5" fill="${a.dark}"/></g></svg>`;
   }
   const TREATS = [
     // lamington, fairy bread, pavlova, Anzac biscuit, cupcake
