@@ -10312,6 +10312,28 @@ const TIMESTABLE_SPEED_MODES = {
 };
 let timesTableSpeedMode = "slow";
 try { const m = localStorage.getItem(TIMESTABLE_SPEEDMODE_KEY); if (TIMESTABLE_SPEED_MODES[m]) timesTableSpeedMode = m; } catch (e) { /* default */ }
+// Settings → "Questions": how many sums one round asks (every times-table game, Balloon Pop included).
+// The − / + buttons step by 10; the number in the middle can be typed by hand.
+const TIMESTABLE_COUNT_KEY = "ywp_timestable_count_v1";
+const TIMESTABLE_COUNT_DEFAULT = 20;
+const TIMESTABLE_COUNT_MIN = 1;
+const TIMESTABLE_COUNT_MAX = 200;
+const TIMESTABLE_COUNT_STEP = 10;
+let timesTableRoundCount = TIMESTABLE_COUNT_DEFAULT;
+try {
+  const c = parseInt(localStorage.getItem(TIMESTABLE_COUNT_KEY), 10);
+  if (c >= TIMESTABLE_COUNT_MIN && c <= TIMESTABLE_COUNT_MAX) timesTableRoundCount = c;
+} catch (e) { /* default */ }
+function clampTimesTableCount(n) {
+  n = Math.round(Number(n));
+  if (!Number.isFinite(n)) return timesTableRoundCount;
+  return Math.max(TIMESTABLE_COUNT_MIN, Math.min(TIMESTABLE_COUNT_MAX, n));
+}
+function setTimesTableRoundCount(n) {
+  timesTableRoundCount = clampTimesTableCount(n);
+  try { localStorage.setItem(TIMESTABLE_COUNT_KEY, String(timesTableRoundCount)); } catch (e) { /* ignore */ }
+  renderTimesTableSpeedModes();
+}
 
 const timesTableScoreEl = document.getElementById("timestable-score");
 const timesTableLivesEl = document.getElementById("timestable-lives");
@@ -10532,8 +10554,14 @@ function renderTimesTableSpeedModes() {
   const nowEl = document.getElementById("timestable-settings-now");
   if (nowEl) {
     const lab = TIMESTABLE_SPEED_LABELS[timesTableSpeedMode];
-    nowEl.textContent = `${timesTableRangeLabel()} · ${lab ? startL(lab[1], lab[2]) : ""}`;
+    nowEl.textContent = `${timesTableRangeLabel()} · ${lab ? startL(lab[1], lab[2]) : ""} · ${startL(`${timesTableRoundCount} Qs`, `${timesTableRoundCount}문제`)}`;
   }
+  const cnt = document.getElementById("timestable-count-input");
+  if (cnt && document.activeElement !== cnt) cnt.value = String(timesTableRoundCount);
+  const minus = document.getElementById("timestable-count-minus");
+  const plus = document.getElementById("timestable-count-plus");
+  if (minus) minus.disabled = timesTableRoundCount <= TIMESTABLE_COUNT_MIN;
+  if (plus) plus.disabled = timesTableRoundCount >= TIMESTABLE_COUNT_MAX;
 }
 // The tables picker on the start card (same selection as the in-game one).
 function renderTimesTableStartPicker() {
@@ -10649,6 +10677,30 @@ document.getElementById("timestable-mode-seg")?.addEventListener("click", (e) =>
   renderTimesTableSpeedModes();
 });
 
+// − / + snap to the next multiple of 10 (15 → 10 or 20); the box takes any number 1–200.
+document.getElementById("timestable-count-minus")?.addEventListener("click", () => {
+  if (timesTableRunning) return;
+  const n = timesTableRoundCount;
+  setTimesTableRoundCount(n % TIMESTABLE_COUNT_STEP ? n - (n % TIMESTABLE_COUNT_STEP) : Math.max(TIMESTABLE_COUNT_STEP, n - TIMESTABLE_COUNT_STEP));
+});
+document.getElementById("timestable-count-plus")?.addEventListener("click", () => {
+  if (timesTableRunning) return;
+  const n = timesTableRoundCount;
+  setTimesTableRoundCount(n - (n % TIMESTABLE_COUNT_STEP) + TIMESTABLE_COUNT_STEP);
+});
+(function () {
+  const inp = document.getElementById("timestable-count-input");
+  if (!inp) return;
+  inp.addEventListener("input", () => {
+    inp.value = inp.value.replace(/\D/g, "").slice(0, 3);
+    if (inp.value) setTimesTableRoundCount(inp.value);
+  });
+  inp.addEventListener("change", () => { setTimesTableRoundCount(inp.value || timesTableRoundCount); inp.value = String(timesTableRoundCount); });
+  inp.addEventListener("blur", () => { inp.value = String(timesTableRoundCount); });
+  // Enter just confirms the number (it must not reach the start screen's "Enter = start game" shortcut).
+  inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); inp.blur(); } });
+})();
+
 function changeTimesTableMaxTable() {
   /* keyboard shortcut no longer used */
 }
@@ -10683,9 +10735,55 @@ function timesTableKey(p) {
 let timesTableCoinsAtStart = 0; // lifetime coins earned when the round began (for "N Koala Coins" on the result card)
 let timesTableRoundCap = Infinity; // this round's ceiling = per-round cap, shortened to what is left of today's quota
 function timesTableMaxProblems() {
-  if (!currentUser) return Math.min(GOAL_MAX_ANONYMOUS, timesTableRoundCap);
-  if (currentUser.role === "free") return Math.min(GOAL_MAX_FREE, timesTableRoundCap);
-  return Infinity;
+  if (!currentUser) return Math.min(GOAL_MAX_ANONYMOUS, timesTableRoundCap, timesTableRoundCount);
+  if (currentUser.role === "free") return Math.min(GOAL_MAX_FREE, timesTableRoundCap, timesTableRoundCount);
+  return Math.min(timesTableRoundCap, timesTableRoundCount);
+}
+// The round ran out of sums: "done" when the Settings count was reached, "limit" when today's quota cut it short.
+function timesTableOutReason() {
+  return timesTableProblemsShown >= timesTableRoundCount ? "done" : "limit";
+}
+
+/* A wrong answer (here: a sum reaching the ground) shows the right answer big for 1.5 s.
+   The falling sums and new spawns wait while it is up. */
+const TIMESTABLE_REVEAL_MS = 1500;
+let timesTableRevealUntil = 0;
+let timesTableRevealTimer = null;
+let timesTableEndTimer = null;
+function showTimesTableReveal(key) {
+  const [a, b] = String(key).split("x").map(Number);
+  if (!a || !b) return;
+  let el = document.getElementById("timestable-reveal");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "timestable-reveal";
+    el.className = "tt-answer-reveal";
+    el.setAttribute("aria-live", "polite");
+    timesTableStage.appendChild(el);
+  }
+  el.innerHTML = `<span class="tt-answer-reveal-sum">${a} × ${b} =</span><b>${a * b}</b>`;
+  el.hidden = false;
+  el.classList.remove("is-on");
+  void el.offsetWidth;
+  el.classList.add("is-on");
+  timesTableRevealUntil = performance.now() + TIMESTABLE_REVEAL_MS;
+  clearTimeout(timesTableRevealTimer);
+  timesTableRevealTimer = setTimeout(hideTimesTableReveal, TIMESTABLE_REVEAL_MS);
+}
+function hideTimesTableReveal() {
+  clearTimeout(timesTableRevealTimer);
+  timesTableRevealUntil = 0;
+  const el = document.getElementById("timestable-reveal");
+  if (el) { el.hidden = true; el.classList.remove("is-on"); }
+}
+function timesTableRevealing() { return performance.now() < timesTableRevealUntil; }
+// Round over right after a miss: let the child read the answer first.
+function endTimesTableRoundAfterReveal(reason) {
+  if (!timesTableRevealing()) { endTimesTableRound(reason); return; }
+  timesTableInput.disabled = true;
+  clearTimeout(timesTableSpawnTimer);
+  clearTimeout(timesTableEndTimer);
+  timesTableEndTimer = setTimeout(() => { timesTableEndTimer = null; endTimesTableRound(reason); }, Math.max(0, timesTableRevealUntil - performance.now()));
 }
 
 let timesTableHeartsRendered = -1;
@@ -10797,6 +10895,9 @@ function enterTimesTableTab() {
 
 function resetTimesTable() {
   if (window.TTGames) TTGames.clear(); // a frozen tile-game scene goes away with the picker
+  clearTimeout(timesTableEndTimer);
+  timesTableEndTimer = null;
+  hideTimesTableReveal();
   ttKb((b) => b.reset());
   resetTimesTableCombo();
   timesTableActive.forEach((w) => w.el.remove());
@@ -10848,6 +10949,9 @@ function startTimesTable() {
   }
   if (dailyQuotaLeft("tt") <= 0) { promptDailyCap(); return; }
   timesTableRoundCap = dailyQuotaLeft("tt");
+  clearTimeout(timesTableEndTimer);
+  timesTableEndTimer = null;
+  hideTimesTableReveal();
   ttKb((b) => b.reset());
   resetTimesTableCombo();
   setTimesTableGuideOpen(false);
@@ -10936,9 +11040,9 @@ function scheduleTimesTableSpawn() {
   clearTimeout(timesTableSpawnTimer);
   if (timesTableProblemsShown >= timesTableMaxProblems()) return;
   timesTableSpawnTimer = setTimeout(function tick() {
-    if (!timesTableRunning) return;
+    if (!timesTableRunning || timesTableEndTimer) return;
     const maxActive = Math.min(TIMESTABLE_MAX_ACTIVE[timesTableSpeedMode] || 3, timesTableObjectCap());
-    if (!fallingSpawnReady(timesTableActive, timesTableWordsEl, maxActive)) {
+    if (timesTableRevealing() || !fallingSpawnReady(timesTableActive, timesTableWordsEl, maxActive)) {
       timesTableSpawnTimer = setTimeout(tick, 200);
       return;
     }
@@ -11032,7 +11136,7 @@ function timesTableLoop(ts) {
   timesTableLastTs = ts;
 
   const stageHeight = timesTableStage.clientHeight;
-  for (let i = timesTableActive.length - 1; i >= 0; i--) {
+  for (let i = timesTableActive.length - 1; i >= 0 && !timesTableRevealing() && !timesTableEndTimer; i--) {
     const w = timesTableActive[i];
     w.top += timesTableEffectiveSpeed() * gameHeightSpeedScale(stageHeight) * dt;
     w.el.style.top = `${w.top}px`;
@@ -11053,6 +11157,7 @@ function loseTimesTableLife(missedKey) {
     recordResult(missedKey, false, "tt");
   }
   if (missedKey) timesTableMissed.add(missedKey);
+  if (missedKey) showTimesTableReveal(missedKey);
   timesTableLives--;
   resetTimesTableCombo();
   ttKb((b) => b.oops());
@@ -11063,9 +11168,9 @@ function loseTimesTableLife(missedKey) {
   void timesTableStage.offsetWidth; // force reflow so the shake restarts if still playing
   timesTableStage.classList.add("typegame-shake");
   if (timesTableLives <= 0) {
-    endTimesTableRound("lives");
+    endTimesTableRoundAfterReveal("lives");
   } else if (timesTableProblemsShown >= timesTableMaxProblems() && timesTableActive.length === 0) {
-    endTimesTableRound("limit");
+    endTimesTableRoundAfterReveal(timesTableOutReason());
   }
 }
 
@@ -11121,7 +11226,7 @@ function clearTimesTableProblem(item) {
   updateTimesTableHud();
 
   if (timesTableProblemsShown >= timesTableMaxProblems() && timesTableActive.length === 0) {
-    endTimesTableRound("limit");
+    endTimesTableRound(timesTableOutReason());
   } else {
     maybeOfferTimesTableChallenge();
   }
@@ -11175,6 +11280,9 @@ const TIMESTABLE_ENCOURAGE_MESSAGES = {
 };
 
 function endTimesTableRound(reason) {
+  clearTimeout(timesTableEndTimer);
+  timesTableEndTimer = null;
+  hideTimesTableReveal();
   ttKb((b) => b.over());
   resetTimesTableCombo();
   timesTableRunning = false;

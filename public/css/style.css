@@ -14695,3 +14695,58 @@ html body #view-timestable #timestable-start-overlay .tg-start-chips:not(:has(> 
 .tg-over-coins[hidden] { display: none; }
 .tg-over-coins .koala-coin { width: 1.4em; height: 1.4em; }
 #view-timestable .tg-over-card .tg-over-stat { display: block !important; font-family: var(--font-heading); font-size: 1.25rem; color: #0f6b52; }
+
+/* ===== Times Table: Settings → Questions stepper (− 20 +, the number can be typed) ===== */
+.tt-count-stepper { display: inline-flex; align-items: center; gap: 8px; }
+.tt-count-btn {
+  width: 34px; height: 34px; flex: 0 0 auto;
+  border: 0; border-radius: 50%;
+  background: linear-gradient(180deg, #3fd6ab, var(--accent));
+  color: #fff; font-family: var(--font-heading); font-weight: 800; font-size: 1.3rem; line-height: 1;
+  cursor: pointer; box-shadow: 0 3px 0 #0b8a6c, inset 0 2px 0 rgba(255, 255, 255, 0.35);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.tt-count-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #0b8a6c; }
+.tt-count-btn:disabled { opacity: 0.45; cursor: default; transform: none; }
+.tt-count-input {
+  width: 64px; height: 34px; padding: 0 6px;
+  border: 0; border-radius: 10px;
+  background: #e3f6ef; color: #0b6b57;
+  font-family: var(--font-heading); font-weight: 800; font-size: 1.1rem; text-align: center;
+  box-shadow: inset 0 2px 0 rgba(8, 90, 72, 0.12);
+}
+.tt-count-input:focus { outline: 3px solid #ffd166; outline-offset: 1px; }
+
+/* ===== Koala Calculator: "Answer - 56" + Next on the screen after a miss ===== */
+.ttg-calc-arow { display: flex; align-items: stretch; gap: 8px; margin-top: 6px; }
+.ttg-calc-arow .ttg-calc-a { flex: 1 1 auto; min-width: 0; margin-top: 0; }
+.ttg-calc-next {
+  flex: 0 0 auto; padding: 0 14px; border: 0; border-radius: 10px;
+  background: linear-gradient(180deg, #ffe066, #ffab1a); color: #5a3000;
+  font-family: var(--font-heading); font-weight: 800; font-size: 1.05rem; white-space: nowrap;
+  cursor: pointer; box-shadow: 0 3px 0 #c27400; animation: ttg-pop 0.35s ease;
+}
+.ttg-calc-next:active { transform: translateY(2px); box-shadow: 0 1px 0 #c27400; }
+.ttg-calc-next[hidden] { display: none; }
+.ttg-calc-box.is-bad .ttg-calc-a { font-size: clamp(1.3rem, 6vw, 1.8rem); }
+
+/* ===== Every times-table game: a wrong answer shows the right one big for 1.5 s ===== */
+.ttg-reveal,
+.tt-answer-reveal {
+  position: absolute; left: 50%; top: 45%; z-index: 30;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 14px 28px 16px; border-radius: 22px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 6px 0 #2fc79c, 0 14px 30px rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+  animation: ttg-reveal-in 0.3s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+.tt-answer-reveal[hidden] { display: none; }
+.ttg-reveal-row, .tt-answer-reveal { white-space: nowrap; }
+.ttg-reveal-row { display: flex; align-items: baseline; gap: 10px; }
+.ttg-reveal span, .tt-answer-reveal-sum { color: #17463c; font-family: var(--font-heading); font-weight: 800; font-size: clamp(1.6rem, 7vw, 2.3rem); }
+.ttg-reveal b, .tt-answer-reveal b { color: #0e9c7d; font-family: var(--font-heading); font-weight: 900; font-size: clamp(2.8rem, 13vw, 4rem); line-height: 1; text-shadow: 0 3px 0 #c9f3e6; }
+.tt-answer-reveal { flex-direction: row; align-items: baseline; gap: 10px; }
+.ttg-reveal-row + .ttg-reveal-row { margin-top: 2px; }
+@keyframes ttg-reveal-in { from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }

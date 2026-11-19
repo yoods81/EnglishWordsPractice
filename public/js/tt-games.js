@@ -38,11 +38,11 @@
     cafe: { slow: 60, normal: 45, fast: 35 }, // seconds per café level
     cafeQuick: { slow: 6, normal: 4, fast: 3 }, // answer within this many seconds = tip
   };
-  const CALC_ROUND = 20; // questions in one calculator round
+  // Questions per round come from Settings → "Questions" (timesTableRoundCount in app.js, default 20).
+  const REVEAL_MS = 1500; // a wrong answer shows the right one big for this long
   const WHACK_PENALTY = 2; // seconds lost for bonking a wrong wombat
   const WHACK_HOLES = 6;
   const MATCH_PAIRS = 6; // 12 cards a board
-  const CLAW_ROUND = 10; // prizes in one claw round
   const CHOICES = { cafe: 5, claw: 4 };
 
   let last = "balloon";
@@ -71,7 +71,24 @@
     G.askedAt = G.clock;
     return p;
   }
-  function capReached() { return G.shown >= G.cap; }
+  // This round's sums are used up (Settings count, or today's quota if that is smaller).
+  function roundOver() { return G.shown >= G.n; }
+  // "done" = the Settings count was reached; "limit" = today's quota cut the round short.
+  function outReason() { return G.shown >= timesTableRoundCount ? "done" : "limit"; }
+
+  // Wrong answer: the right answer, big, for 1.5 s. Timed games hold their clock meanwhile (G.reveal).
+  function revealAnswer(list) {
+    const ps = (Array.isArray(list) ? list : [list]).filter(Boolean);
+    if (!ps.length) return;
+    layer.querySelectorAll(".ttg-reveal").forEach((el) => el.remove());
+    const el = document.createElement("div");
+    el.className = "ttg-reveal";
+    el.setAttribute("aria-live", "polite");
+    el.innerHTML = ps.map((p) => `<div class="ttg-reveal-row"><span>${p.a} × ${p.b} =</span><b>${p.product}</b></div>`).join("");
+    layer.appendChild(el);
+    G.reveal = true;
+    later(REVEAL_MS, () => { G.reveal = false; el.remove(); });
+  }
 
   function scoreAnswer(p, ok) {
     const key = timesTableKey(p);
@@ -169,10 +186,11 @@
     if (dailyQuotaLeft("tt") <= 0) { promptDailyCap(); return; }
     last = id;
     G = {
-      id, pool, queue: [], prevKey: "", shown: 0, cap: dailyQuotaLeft("tt"),
+      id, pool, queue: [], prevKey: "", shown: 0, cap: dailyQuotaLeft("tt"), reveal: false,
       correct: 0, score: 0, missed: new Set(), timers: [], mode: timesTableSpeedMode || "slow",
       clock: 0, askedAt: 0, lastTs: null, raf: 0, lock: false,
     };
+    G.n = Math.max(1, Math.min(timesTableRoundCount || 20, G.cap));
     G.coinsAtStart = koalaEarned();
     gameSpeedLocked.tt = false; // full coins: the tile games have no speed lock
     if (typeof setTimesTableGuideOpen === "function") setTimesTableGuideOpen(false);
@@ -211,15 +229,15 @@
     freezeRound();
     layer.querySelectorAll("button").forEach((b) => { b.disabled = true; });
     const best = loadBest();
-    const key = `${g.id}_${currentLang}_${timesTableSelectionKey()}`;
+    // Café used to count dollars; its points start a fresh best.
+    const key = `${g.id === "cafe" ? "cafe2" : g.id}_${currentLang}_${timesTableSelectionKey()}`;
     const prevBest = best[key] || 0;
     const isNewBest = g.score > prevBest;
     if (isNewBest) { best[key] = g.score; saveBest(best); }
-    const scoreLabel = g.id === "cafe" ? L(`Earned: $${g.score}`, `번 돈: $${g.score}`) : t("timesTableFinalScore", g.score);
-    document.getElementById("timestable-final-score").textContent = scoreLabel;
+    document.getElementById("timestable-final-score").textContent = t("timesTableFinalScore", g.score);
     document.getElementById("timestable-high-score").textContent = isNewBest
       ? t("timesTableNewHighScore")
-      : (g.id === "cafe" ? L(`Best: $${Math.max(prevBest, g.score)}`, `최고 기록: $${Math.max(prevBest, g.score)}`) : t("timesTableHighScore", Math.max(prevBest, g.score)));
+      : t("timesTableHighScore", Math.max(prevBest, g.score));
     const lim = document.getElementById("timestable-limit-msg");
     if (reason === "limit") {
       lim.textContent = t(currentUser ? "timesTableLimitReachedFree" : "timesTableLimitReachedAnonymous");
@@ -251,14 +269,17 @@
   const KEYS = ["1", "2", "3", "ok", "4", "5", "6", "back", "7", "8", "9", "0"];
   const calc = {
     init() {
-      G.total = Math.min(CALC_ROUND, G.cap);
+      G.total = G.n;
       G.limit = SPEED.calc[G.mode] || 12;
       layer.innerHTML = hudHtml(t("ttgCalc")) + `
         <div class="ttg-calc">
           <div class="ttg-calc-box">
             <div class="ttg-calc-screen">
               <div class="ttg-calc-q" data-q></div>
-              <div class="ttg-calc-a" data-a>0</div>
+              <div class="ttg-calc-arow">
+                <div class="ttg-calc-a" data-a>0</div>
+                <button type="button" class="ttg-calc-next" data-next hidden>${esc(L("Next", "다음"))} ▶</button>
+              </div>
               <div class="ttg-qbar"><i data-bar></i></div>
             </div>
             <div class="ttg-calc-keys">${KEYS.map((k) => `<button type="button" class="ttg-key${k === "ok" ? " ttg-key-ok" : k === "back" ? " ttg-key-back" : ""}" data-key="${k}" aria-label="${k === "ok" ? esc(L("Check", "확인")) : k === "back" ? esc(L("Delete", "지우기")) : k}">${k === "ok" ? "✔" : k === "back" ? "⌫" : k}</button>`).join("")}</div>
@@ -269,11 +290,15 @@
         const b = e.target.closest("[data-key]");
         if (b) calc.press(b.dataset.key);
       });
+      layer.querySelector("[data-next]").addEventListener("click", () => calc.goNext());
       calc.next();
     },
     next() {
-      if (G.shown >= G.total || capReached()) { endRound(capReached() && G.cap < CALC_ROUND ? "limit" : "done"); return; }
+      if (roundOver()) { endRound(outReason()); return; }
       G.p = nextProblem();
+      G.waitNext = false;
+      layer.querySelector("[data-next]").hidden = true;
+      layer.querySelectorAll(".ttg-reveal").forEach((el) => el.remove());
       G.typed = "";
       G.left = G.limit;
       G.lock = false;
@@ -287,7 +312,14 @@
       layer.querySelector("[data-a]").classList.toggle("is-empty", !G.typed);
       setStat(`${L("Score", "점수")} <b>${G.score}</b> · ${Math.min(G.shown, G.total)}/${G.total}`);
     },
+    // After a wrong answer the child moves on with the Next button (or Enter / ✔).
+    goNext() {
+      if (!G || !G.waitNext) return;
+      G.waitNext = false;
+      calc.next();
+    },
     press(k) {
+      if (G && G.waitNext) { if (k === "ok") calc.goNext(); return; }
       if (!G || G.lock) return;
       if (k === "back") G.typed = G.typed.slice(0, -1);
       else if (k === "ok") { if (G.typed) calc.check(false); return; }
@@ -305,8 +337,18 @@
       calc.render();
       const a = layer.querySelector("[data-a]");
       a.classList.remove("is-empty");
-      a.textContent = ok ? L("Nice one!", "정답!") : timeout ? L("Time's up!", "시간 끝!") : `✘ ${G.typed}`;
-      later(ok ? 750 : 1500, calc.next);
+      if (ok) {
+        a.textContent = L("Nice one!", "정답!");
+        later(750, calc.next);
+        return;
+      }
+      // wrong or out of time: "Answer - 56" on the screen, the answer big for 1.5 s, then wait for Next
+      layer.querySelector("[data-q]").textContent = `${G.p.a} × ${G.p.b} =`;
+      a.textContent = `${L("Answer", "정답")} - ${G.p.product}`;
+      revealAnswer(G.p);
+      G.waitNext = true;
+      const nb = layer.querySelector("[data-next]");
+      nb.hidden = false;
     },
     tick(dt) {
       if (G.lock) return;
@@ -356,18 +398,19 @@
       whack.next();
     },
     next() {
-      if (capReached()) { endRound("limit"); return; }
+      if (roundOver()) { endRound(outReason()); return; }
       G.p = nextProblem();
       G.lock = false;
       G.wrongs = choices(G.p, 7).filter((v) => v !== G.p.product);
-      G.sinceRight = 99; // the answer pops up right away for a new sum
+      // The answer is not always the first wombat up: it comes 1st, 2nd or 3rd at random.
+      G.sinceRight = Math.floor(Math.random() * 2);
       G.nextPop = G.clock + 0.3;
       layer.querySelector("[data-q]").textContent = `${G.p.a} × ${G.p.b} = ?`;
       // wombats still up keep their old numbers only if they happen to fit; simplest: send them down
       G.holes.forEach((h) => whack.hide(h));
       whack.stat();
     },
-    stat() { setStat(`${L("Score", "점수")} <b>${G.score}</b>`); },
+    stat() { setStat(`${L("Score", "점수")} <b>${G.score}</b> · ${Math.min(G.shown, G.n)}/${G.n}`); },
     pop() {
       const free = G.holes.filter((h) => !h.up && !h.busy);
       if (!free.length || G.holes.filter((h) => h.up).length >= 3) return;
@@ -408,10 +451,13 @@
         G.left = Math.max(0, G.left - WHACK_PENALTY);
         floatText(at.x, at.y - 40, `−${WHACK_PENALTY}s`, "is-bad");
         layer.querySelector("[data-q]").textContent = `${G.p.a} × ${G.p.b} = ${G.p.product}`;
-        later(1100, whack.next);
+        G.holes.forEach((x) => { if (x !== h) whack.hide(x); });
+        revealAnswer(G.p);
+        later(REVEAL_MS, whack.next);
       }
     },
     tick(dt) {
+      if (G.reveal) return; // the clock waits while the right answer is shown
       G.left -= dt;
       const f = Math.max(0, G.left / G.total);
       const bar = layer.querySelector("[data-bar]");
@@ -455,7 +501,7 @@
       const used = new Set();
       let guard = 0;
       while (picked.length < MATCH_PAIRS && guard++ < 60) {
-        if (capReached()) break;
+        if (roundOver()) break;
         if (!G.queue.length) G.queue = pickWordsForSession(G.pool, G.pool.length, (q) => timesTableKey(q));
         const q = G.queue[0];
         if (used.has(q.product)) { G.queue.push(G.queue.shift()); continue; }
@@ -464,7 +510,7 @@
         used.add(p.product);
         picked.push(p);
       }
-      if (picked.length < 2) { endRound("limit"); return; }
+      if (!picked.length) { endRound(outReason()); return; }
       G.cards = shuffle(picked.flatMap((p, i) => [{ pair: i, kind: "q", p }, { pair: i, kind: "a", p }]));
       G.open = [];
       G.found = 0;
@@ -515,11 +561,14 @@
         G.lock = true;
         playTimesTableWrongSfx();
         els.forEach((e) => e.classList.add("is-wrong"));
-        later(850, () => { els.forEach((e) => e.classList.remove("is-open", "is-wrong")); G.lock = false; });
+        // a sum card that was flipped shows its right answer big
+        const sums = [x, y].filter((c) => c.kind === "q").map((c) => c.p);
+        if (sums.length) revealAnswer(sums);
+        later(sums.length ? REVEAL_MS : 850, () => { els.forEach((e) => e.classList.remove("is-open", "is-wrong")); G.lock = false; });
       }
     },
     tick(dt) {
-      if (G.lock && !layer.querySelector("[data-banner]").hidden) return; // clock rests during "All pairs!"
+      if (G.reveal || (G.lock && !layer.querySelector("[data-banner]").hidden)) return; // clock rests during "All pairs!" / the answer
       G.left -= dt;
       const f = Math.max(0, G.left / G.total);
       const bar = layer.querySelector("[data-bar]");
@@ -542,7 +591,7 @@
     <g class="ttg-claw-r"><path d="M3 17 Q20 22 20 38 Q20 46 12 50" stroke="#9aa7b0" stroke-width="5" fill="none" stroke-linecap="round"/></g></svg>`;
   const claw = {
     init() {
-      G.total = Math.min(CLAW_ROUND, G.cap);
+      G.total = G.n;
       G.limit = SPEED.claw[G.mode] || 18;
       G.won = 0;
       G.col = 1;
@@ -577,7 +626,7 @@
       claw.next();
     },
     next() {
-      if (G.shown >= G.total || capReached()) { endRound(capReached() && G.cap < CLAW_ROUND ? "limit" : "done"); return; }
+      if (roundOver()) { endRound(outReason()); return; }
       G.p = nextProblem();
       G.left = G.limit;
       G.lock = false;
@@ -621,7 +670,8 @@
         layer.querySelector("[data-q]").textContent = `${G.p.a} × ${G.p.b} = ${G.p.product}`;
         const right = layer.querySelector(`[data-v="${G.p.product}"]`);
         if (right) right.classList.add("is-answer");
-        later(1500, claw.next);
+        revealAnswer(G.p);
+        later(REVEAL_MS, claw.next);
         return;
       }
       head.style.setProperty("--drop", `${drop}px`);
@@ -660,7 +710,8 @@
                 layer.querySelector("[data-q]").textContent = `${G.p.a} × ${G.p.b} = ${G.p.product}`;
                 const right = layer.querySelector(`[data-v="${G.p.product}"]`);
                 if (right) right.classList.add("is-answer");
-                later(1300, claw.next);
+                revealAnswer(G.p);
+                later(REVEAL_MS, claw.next);
               });
             }
             setStat(`🧸 <b>${G.won}</b> · ${Math.min(G.shown, G.total)}/${G.total}`);
@@ -759,7 +810,7 @@
           <div class="ttg-cafe-bunting" aria-hidden="true"></div>
           <div class="ttg-cafe-goal">
             <span>${esc(L("Level", "레벨"))} <b data-level>1</b></span>
-            <span class="ttg-cafe-money"><b data-earned>$0</b> / <span data-target>$0</span></span>
+            <span class="ttg-cafe-money">${esc(L("Score", "점수"))} <b data-earned>0</b> / <span data-target>0</span></span>
           </div>
           <div class="ttg-timebar"><i data-bar></i><span data-time></span></div>
           <div class="ttg-cafe-room">
@@ -776,7 +827,7 @@
       cafe.startLevel();
     },
     startLevel() {
-      G.target = 5 + (G.level - 1) * 3;
+      G.target = 50 + (G.level - 1) * 30; // points to clear this level (10 a treat, 20 when served quickly)
       G.levelEarned = 0;
       G.left = G.levelTime;
       layer.querySelector("[data-level]").textContent = G.level;
@@ -784,12 +835,12 @@
       cafe.next();
     },
     money() {
-      layer.querySelector("[data-earned]").textContent = `$${G.levelEarned}`;
-      layer.querySelector("[data-target]").textContent = `$${G.target}`;
-      setStat(`${L("Total", "합계")} <b>$${G.score}</b>`);
+      layer.querySelector("[data-earned]").textContent = String(G.levelEarned);
+      layer.querySelector("[data-target]").textContent = String(G.target);
+      setStat(`${L("Score", "점수")} <b>${G.score}</b> · ${Math.min(G.shown, G.n)}/${G.n}`);
     },
     next() {
-      if (capReached()) { endRound("limit"); return; }
+      if (roundOver()) { endRound(outReason()); return; }
       G.p = nextProblem();
       G.lock = false;
       let kind = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
@@ -806,6 +857,7 @@
       const treats = shuffle(TREATS);
       layer.querySelector("[data-treats]").innerHTML = choices(G.p, CHOICES.cafe).map((v, i) =>
         `<button type="button" class="ttg-treat" data-v="${v}" aria-label="${v}">${treats[i % treats.length]}<b>${v}</b></button>`).join("");
+      cafe.money(); // the HUD's "n/N" counts this sum
     },
     serve(btn) {
       if (G.lock) return;
@@ -816,14 +868,14 @@
       const q = layer.querySelector("[data-q]");
       const at = centerOf(cust);
       if (ok) {
-        const pay = 1 + (G.clock - G.askedAt <= G.quick ? 1 : 0);
+        const pay = 10 + (G.clock - G.askedAt <= G.quick ? 10 : 0);
         G.levelEarned += pay;
         G.score += pay;
         btn.classList.add("is-served");
         cust.innerHTML = animalSvg(G.kind, "happy");
         q.textContent = L("Yum, thanks!", "맛있어요, 고마워요!");
         q.classList.add("is-ok");
-        floatText(at.x, at.y - 30, `+$${pay}`, "is-good");
+        floatText(at.x, at.y - 30, `+${pay}`, "is-good");
         cafe.money();
         if (G.levelEarned >= G.target) { later(700, cafe.levelUp); return; }
         later(750, cafe.next);
@@ -834,7 +886,8 @@
         q.classList.add("is-bad");
         const right = layer.querySelector(`[data-v="${G.p.product}"]`);
         if (right) right.classList.add("is-answer");
-        later(1300, cafe.next);
+        revealAnswer(G.p);
+        later(REVEAL_MS, cafe.next);
       }
     },
     levelUp() {
@@ -851,7 +904,7 @@
       });
     },
     tick(dt) {
-      if (G.pauseClock) return;
+      if (G.pauseClock || G.reveal) return;
       G.left -= dt;
       const f = Math.max(0, G.left / G.levelTime);
       const bar = layer.querySelector("[data-bar]");
