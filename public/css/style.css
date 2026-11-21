@@ -13968,6 +13968,9 @@ html body #view-koala .koala-dimrow.ctx-3d-room.is-paid + .koala-dim3d #kh-host 
 }
 @media (min-width: 1100px) { body.on-landing .start-fab { right: 28px; bottom: 22px; } .start-fab img { width: 200px; } .start-fab-lbl { font-size: 24px; } }
 @keyframes startFabFloat { 50% { transform: translateY(-9px); } }
+/* Would cover a tile → fade away (app.js start-fab check). */
+body.on-landing .start-fab.is-tucked { opacity: 0; pointer-events: none; visibility: hidden; transition: opacity .2s, visibility 0s .2s; }
+body.on-landing .start-fab { transition: opacity .2s; }
 @media (prefers-reduced-motion: reduce) { body.on-landing .start-fab { animation: none; } }
 .faq-group-title { margin: 16px 2px 6px; font-family: var(--font-heading); font-size: .95rem; color: var(--muted); }
 .faq-web-link { color: var(--accent-dark); font-weight: 700; }

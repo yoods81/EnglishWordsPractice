@@ -1000,7 +1000,7 @@ html:root body .acct-level-choice.is-active { background: var(--accent); color: 
 html:root body .acct-level-choice.is-active span { color: rgba(255, 255, 255, .9); }
 html:root[data-theme="dark"] body .acct-level-choice { background: #243730; }
 html:root[data-theme="dark"] body .acct-level-choice.is-active { background: var(--accent); color: #06382d; }
-html:root body #auth-toggle.auth-toggle-active { background: #0e9c7d; color: #fff; }
+html:root body #auth-toggle.auth-toggle-active { background: #0b7a62; color: #fff; } /* 5.3:1 (was #0e9c7d, 3.46:1) — a little deeper than the Log In mint so signed-in still looks different */
 html:root body #auth-toggle.auth-toggle-admin { background: #0b4f41; color: #fff; }
 html:root[data-theme="dark"] body #auth-toggle.auth-toggle-active { background: #1fb28a; color: #06382d; }
 html:root body #review-card-btn { border: 0 !important; box-shadow: none !important; --pill-shadow: transparent; }

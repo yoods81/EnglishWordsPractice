@@ -18954,6 +18954,34 @@ statsPanels.parent.addEventListener("click", async (e) => {
 })();
 
 // Koala start button (tablet/desktop home): jump straight into the Quiz, the same as tapping its tile.
+// The floating koala must never cover a tile or button (tablet / small desktop): when it would, it fades away,
+// and comes back when the space under it is free (wide screens, or scrolled to an empty part of the page).
+(function () {
+  const fab = document.getElementById("start-fab");
+  if (!fab) return;
+  let raf = 0;
+  const check = () => {
+    raf = 0;
+    if (!document.body.classList.contains("on-landing") || getComputedStyle(fab).display === "none") return;
+    fab.classList.remove("is-tucked");
+    // Look under the koala at a grid of points: anything of the home page or footer there (not just the page
+    // background) means it would be covering something.
+    const r = fab.getBoundingClientRect();
+    const view = document.getElementById("view-landing");
+    const footer = document.getElementById("app-footer");
+    let hit = false;
+    for (let i = 1; i <= 4 && !hit; i++) for (let j = 1; j <= 4 && !hit; j++) {
+      const x = r.left + (r.width * i) / 5, y = r.top + (r.height * j) / 5;
+      const under = document.elementsFromPoint(x, y).find((el) => !fab.contains(el));
+      if (under && under !== view && ((view && view.contains(under)) || (footer && footer.contains(under)))) hit = true;
+    }
+    fab.classList.toggle("is-tucked", hit);
+  };
+  const later = () => { if (!raf) raf = requestAnimationFrame(check); };
+  ["scroll", "resize"].forEach((ev) => window.addEventListener(ev, later, { passive: true }));
+  new MutationObserver(later).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  setTimeout(later, 600);
+})();
 document.getElementById("start-fab")?.addEventListener("click", () => {
   document.querySelector('.landing-tile[data-view="quiz"]')?.click();
 });

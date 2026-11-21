@@ -183,7 +183,7 @@
       if (sd) setTimeout(() => { sd.open = true; }, 0);
       return;
     }
-    if (dailyQuotaLeft("tt") <= 0) { promptDailyCap(); return; }
+    if (dailyQuotaLeft("tt") <= 0) { promptDailyCap("tt"); return; }
     last = id;
     G = {
       id, pool, queue: [], prevKey: "", shown: 0, cap: dailyQuotaLeft("tt"), reveal: false,
@@ -525,7 +525,8 @@
         </button>`).join("");
       match.stat();
     },
-    stat() { setStat(`${L("Pairs", "짝")} <b>${G.found}</b>/${G.pairs} · ${L("Score", "점수")} <b>${G.score}</b>`); },
+    // This board's pairs, then the whole round (Settings → Questions, e.g. 10 = two boards: 6 + 4).
+    stat() { setStat(`${L("Pairs", "짝")} <b>${G.found}</b>/${G.pairs} · ${L("Round", "전체")} ${G.matched || 0}/${G.n} · ${L("Score", "점수")} <b>${G.score}</b>`); },
     flip(i) {
       if (!G || G.lock) return;
       const c = G.cards[i];
@@ -540,6 +541,7 @@
       if (x.pair === y.pair && x.kind !== y.kind) {
         x.done = y.done = true;
         G.found++;
+        G.matched = (G.matched || 0) + 1;
         G.score += 10;
         // a sum counts as answered right when its pair is found (wrong flips are memory, not maths)
         scoreAnswer(x.p, true);
@@ -810,7 +812,7 @@
           <div class="ttg-cafe-bunting" aria-hidden="true"></div>
           <div class="ttg-cafe-goal">
             <span>${esc(L("Level", "레벨"))} <b data-level>1</b></span>
-            <span class="ttg-cafe-money">${esc(L("Score", "점수"))} <b data-earned>0</b> / <span data-target>0</span></span>
+            <span class="ttg-cafe-money">${esc(L("Level goal", "레벨 목표"))} <b data-earned>0</b> / <span data-target>0</span></span>
           </div>
           <div class="ttg-timebar"><i data-bar></i><span data-time></span></div>
           <div class="ttg-cafe-room">
