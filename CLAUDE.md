@@ -10,6 +10,8 @@
 - 서비스워커 버전이 바뀔 때마다 사이트 타이틀 옆에 작은 글씨(v122 식)로 버전 표시
 - 사이트 이메일: admin@koalastudymate.com (Cloudflare Email Routing/Sending)
 - **나중에 상기할 것:** 사이트 평소 퀴즈에서 '장소별(마을 건물) 단어 묶음' 고르기 — 사이트가 더 완성되고 My Koala가 안정적으로 도는 걸 확인한 뒤 사용자에게 다시 물어본다(2026-11-15 요청).
+- **다음 할 일 (2026-11-21 요청):** 실제 사이트 DB 공유 단어(shared_words)의 어색한 뜻풀이("This word means … in simple terms." — ago·ahead·alone 등) 다듬기. 순서: ① 원격 DB를 SELECT로만 세고 목록을 `docs/evaluations/odd-definitions.md`로 뽑기 ② Year 4가 읽기 쉬운 뜻풀이로 다시 쓰기 ③ 관리자 화면 엑셀 가져오기로 반영(기록·되돌리기 남게). 코드에는 없는 문장이라 배포로는 안 고쳐진다.
+- **나중 후보 (사이트평가 2차, docs/evaluations/2026-11-21-2.md):** 회색 글자 `#7c8985` 대비(시안 필요), 단어 목록 레벨 선택 이름표·My Koala '내 아이템' 탭 aria-pressed, 44px 미만 터치 버튼, 결과 화면 '+3'·'3/10' 알약 표시, 옷장 'My items' 탭이 선택된 것처럼 보임.
 
 ## 명령어 규칙
 - 사용자가 "작업시작"이라고 하면 명령어를 알려 주지 말고 **직접 실행**한다: `git pull origin claude/au-year4-english-vocab-app-6nw6iz`. 실행 후 마지막 세션에서 한 일을 `git log`와 메모리의 세션 요약(session-log)을 함께 보고 간략하게 요약해 설명한다. 코드 변경이 없는 논의·점검 세션도 포함한다.
