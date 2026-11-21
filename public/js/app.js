@@ -2254,8 +2254,15 @@ function renderNewLeft(mode, total, left, anchor, scopeEn, scopeKo) {
   const rev = due ? ` <button type="button" class="pill small neutral newleft-review" data-start-review>${rwL(`🔁 Review (${due})`, `🔁 복습하기 (${due})`)}</button>` : "";
   el.hidden = false;
   el.classList.toggle("is-empty", left === 0);
-  el.innerHTML = left === 0
+  // Quiz / Spelling also have a daily limit (guest / free). Show ONE number: whichever runs out first.
+  const daily = mode === "quiz" || mode === "spelling" ? dailyQuotaLeft(mode) : Infinity;
+  const canDo = Math.min(left, daily);
+  el.innerHTML = daily === 0
+    ? `${rwL("You've used today's questions. See you tomorrow!", "오늘 풀 수 있는 문제를 다 풀었어요. 내일 또 만나요!")}${rev}`
+    : left === 0
     ? `${rwL(`🎉 You finished all the new ${scopeEn} for today! Try another level or come back tomorrow.`, `🎉 오늘 이 ${scopeKo}의 새 문제를 모두 끝냈어요! 다른 레벨에 도전하거나 내일 다시 만나요.`)}${rev}`
+    : mode === "quiz" || mode === "spelling"
+    ? `${rwL(`You can do <b>${canDo}</b> more question${canDo === 1 ? "" : "s"} today`, `오늘 <b>${canDo}</b>문제 더 풀 수 있어요`)}${rev}`
     : `${rwL(`New today: <b>${left}</b> left`, `오늘 남은 새 문제 <b>${left}</b>개`)}${rev}`;
 }
 document.addEventListener("click", (e) => {
@@ -2594,8 +2601,9 @@ let currentLevel = savedLevels[currentLang] || currentSystem_levels_default();
 
 function currentSystem_levels_default() {
   const lv = (SYSTEMS[currentLang] || SYSTEMS.en).levels;
-  // Upper Primary: where most of this app's learners start.
-  return lv && lv[1] ? lv[1].id : lv && lv[0] ? lv[0].id : "elem_high";
+  // Lower Primary: the app is built around Year 4, and the Year 4 words live there (words.js: year4 -> elem_low).
+  // A first-time learner is also asked to pick a level the first time they press Start (see levelAskBeforeStart).
+  return lv && lv[0] ? lv[0].id : "elem_low";
 }
 
 function levelLabel(levelId) {
@@ -2868,7 +2876,8 @@ function usageRefresh(force) {
     .then((d) => {
       if (d && d.caps && d.used && (d.tier === tier || (d.tier === "unlimited" && tier === "unlimited"))) {
         usageSrv = { date: localDateKey(new Date()), tier, caps: d.caps, used: d.used, at: Date.now() };
-        try { if (typeof renderQuizStart === "function" && document.getElementById("view-quiz").classList.contains("active")) renderQuizStart(); } catch (e) { /* screen not ready */ }
+        try { if (document.getElementById("view-quiz").classList.contains("active")) renderQuizStart(); } catch (e) { /* screen not ready */ }
+        try { if (document.getElementById("view-spelling").classList.contains("active")) renderSpellingNewLeft(); } catch (e) { /* screen not ready */ }
       }
       return usageSrvNow();
     })
@@ -3476,6 +3485,7 @@ function applyLevel(level) {
   levelOverlay.hidden = true;
   populateLevelSelects();
   refreshCurrentView();
+  if (levelPendingStart) { const b = levelPendingStart; levelPendingStart = null; setTimeout(() => { if (!b.disabled) b.click(); }, 50); }
   renderCustomWords();
   // A signed-in account keeps its level on the server so any device picks it up.
   if (currentUser && typeof pushKoalaData === "function") pushKoalaData();
@@ -3549,6 +3559,24 @@ document.addEventListener("keydown", (e) => {
 
 levelOverlayCloseBtn.addEventListener("click", () => {
   levelOverlay.hidden = true;
+  // Closed without choosing: start anyway with the default level, and don't ask again this visit.
+  if (levelPendingStart) { const b = levelPendingStart; levelPendingStart = null; levelAskSkipped = true; setTimeout(() => b.click(), 0); }
+});
+// No level chosen yet: the first Start (Quiz / Spelling / Flashcards / Typing) opens "Choose your level" first,
+// then carries on with the chosen level — so a Year 4 child isn't dropped into words that are too hard.
+let levelPendingStart = null;
+let levelAskSkipped = false;
+["quiz-start-btn", "spelling-start-btn", "flash-start-btn", "typegame-start-btn"].forEach((id) => {
+  const btn = document.getElementById(id);
+  if (!btn) return;
+  btn.addEventListener("click", (e) => {
+    if (savedLevels[currentLang] || levelAskSkipped || btn.disabled) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    levelPendingStart = btn;
+    renderLevelChoices();
+    levelOverlay.hidden = false;
+  }, true);
 });
 
 /* ================= COLOUR THEME (Light / Ivory / Dark) ================= */
@@ -7365,7 +7393,7 @@ function renderQuizStart() {
   const newLeft = freshLeft(quizPoolAll, "quiz", (q) => q.target);
   quizStartWarn.hidden = poolSize > 0;
   quizStartWarn.textContent = poolSize > 0 ? "" : t(isMineScope() ? "quizNotEnoughMine" : "quizNotEnough", levelLabel(currentLevel));
-  { const left = dailyQuotaLeft("quiz"); if (poolSize > 0 && left !== Infinity && left <= effectiveGoal("quiz", poolSize)) { quizStartWarn.hidden = false; quizStartWarn.textContent = t("dailyLeftNote", left); } }
+  // (The daily limit is folded into the one "You can do N more questions today" line — renderNewLeft.)
   quizStartBtn.disabled = poolSize === 0 || newLeft === 0;
   renderNewLeft("quiz", poolSize, newLeft, quizStartBtn.parentElement, "questions here", "설정");
 }
