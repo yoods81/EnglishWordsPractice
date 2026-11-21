@@ -511,6 +511,8 @@ nav.tabs button[data-view="admincodes"].active:active {
   display: none !important;
 }
 
+/* Premium/admin: Add Word is unlocked — no 🔒 on its nav, landing tile or bottom tab. */
+body.can-paid [data-view="addword"] .nav-badge { display: none; }
 .nav-badge {
   display: inline-block;
   margin-left: 3px;
@@ -14759,3 +14761,13 @@ html body #view-timestable #timestable-start-overlay .tg-start-chips:not(:has(> 
 .tt-answer-reveal { flex-direction: row; align-items: baseline; gap: 10px; }
 .ttg-reveal-row + .ttg-reveal-row { margin-top: 2px; }
 @keyframes ttg-reveal-in { from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+
+/* ======== 글자 대비 (2026-11-21 사이트평가, 시안 B): mint stays, text on mint is dark green ========
+   White on #22c9a3 was 2.1:1; #06382d on #22c9a3 is 6.2:1 (WCAG AA 4.5:1). Covers every visible
+   mint-filled button/tab that had white text (found by scanning all views as guest/premium/admin). */
+:root { --on-mint: #06382d; }
+/* :not(#_m):not(#_n) only raises specificity so this beats the older per-screen "#fff !important" rules. */
+html body :is(.pill.accent, #auth-toggle:not(.auth-toggle-admin):not(.auth-toggle-active), .bottom-tab-btn.has-active, .bottom-tab-btn.active,
+  .tab-group-trigger.has-active, .tab-btn.active, .qz-seg-btn.on, .source-btn.on, .tt-count-btn, #timestable-start-default.on,
+  .dash-rec-btn, .kh-admin-add-item, .kh-cat.on, .mode-tab.active, .stats-tab.on, .tt-chip.on, #view-koala .kdt-tab:not(.on)):not(#_m):not(#_n),
+html body :is(.pill.accent, .qz-seg-btn.on, .dash-rec-btn, .tt-chip.on, .stats-tab.on, .tab-btn.active, #view-koala .kdt-tab:not(.on)):not(#_m):not(#_n) :is(span, small, b, strong) { color: var(--on-mint) !important; }

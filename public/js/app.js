@@ -500,7 +500,7 @@ const TRANSLATIONS = {
     dailyRoundGuest: "You've played today's free round. Sign up for free to keep playing without limits!",
     guestCoinTeaser: "Sign up free to turn your hard work into Koala Coins and save your progress! 💰",
     guestCoinTeaserBtn: "Sign up free",
-    wrongTrialNote: "Free accounts keep your 10 latest mistakes. Upgrade to Premium for the full notebook and daily review!",
+    wrongTrialNote: "Free accounts can see your 10 latest mistakes. Upgrade to Premium for the full notebook and daily review!",
     wrongTrialBtn: "Unlock the full notebook",
     wordTrialNote: (n) => `Free trial: ${n} of 10 words. Words added now are kept only while this page is open — Premium keeps them forever.`,
     goalReached: (score, level) => `🎉 ${score} correct — you've hit your target for ${level}!`,
@@ -4652,6 +4652,8 @@ function updateAdminUI() {
   authToggleBtn.classList.toggle("auth-toggle-admin", !!serverAdmin);
   // Signed in: level picker + streak live in the account popover instead.
   document.body.classList.toggle("signed-in", !!currentUser);
+  // Premium/admin: Add Word is fully open, so its 🔒 badges are hidden (style.css).
+  document.body.classList.toggle("can-paid", !!canUsePaidFeatures());
   if (currentUser) levelOverlay.hidden = true;
   if (typeof renderStreakChip === "function") renderStreakChip();
   if (!currentUser) closeAuthMenu();
@@ -12425,6 +12427,7 @@ function buildWordRow(w) {
   const checkbox = document.createElement("input");
   checkbox.type = "checkbox";
   checkbox.className = "cw-select";
+  checkbox.setAttribute("aria-label", rwL(`Select "${w.word}"`, `"${w.word}" 선택`));
   checkbox.checked = selectedWordlistWords.has(w.word);
   checkbox.addEventListener("change", () => {
     if (checkbox.checked) selectedWordlistWords.set(w.word, w);
@@ -13602,6 +13605,7 @@ function renderCustomWords({ resetPaging = true } = {}) {
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.className = "cw-select";
+      checkbox.setAttribute("aria-label", rwL(`Select "${w.word}"`, `"${w.word}" 선택`));
       checkbox.checked = selectedCustomWordIds.has(w.id);
       checkbox.addEventListener("change", () => {
         if (checkbox.checked) selectedCustomWordIds.add(w.id);
@@ -15839,7 +15843,7 @@ function ensureRewardData() {
   KoalaCore.ensureMissionLog(progress); // older saves only have missionDone (the latest day)
 }
 
-const WRONG_TRIAL_MAX = 10;
+const WRONG_TRIAL_MAX = QuizCore.WRONG_TRIAL_MAX;
 function trackActivity(word, isCorrect, mode) {
   ensureRewardData();
   mode = mode || "flash";
@@ -15884,13 +15888,8 @@ function trackActivity(word, isCorrect, mode) {
     w.ok = 0;
     w.last = Date.now();
     w.mode = mode;
-    if (trial) {
-      const keys = Object.keys(progress.wrong);
-      if (keys.length > WRONG_TRIAL_MAX) {
-        keys.sort((a, b) => (progress.wrong[b].last || 0) - (progress.wrong[a].last || 0));
-        keys.slice(WRONG_TRIAL_MAX).forEach((k) => { delete progress.wrong[k]; });
-      }
-    }
+    // Free accounts only SEE their latest WRONG_TRIAL_MAX mistakes (renderWrongPanel);
+    // older ones stay saved, locked, so nothing is lost when Premium ends or returns.
   }
   checkBadges();
 }
@@ -16146,7 +16145,8 @@ function escapeHtml(s) {
 
 function renderRewardPanels() {
   ensureRewardData();
-  const wrongCount = canUseAccountFeatures() ? Object.keys(progress.wrong).length : 0;
+  const wrongCount = canUseAccountFeatures()
+    ? QuizCore.wrongNotebookView(progress.wrong, !canUsePaidFeatures(), WRONG_TRIAL_MAX).visible.length : 0;
   const wrongTab = document.querySelector('.stats-tab[data-stats-tab="wrong"]');
   if (wrongTab) {
     wrongTab.querySelector(".stats-tab-count").textContent = wrongCount ? String(wrongCount) : "";
@@ -17148,7 +17148,8 @@ function renderWrongPanel() {
     el.innerHTML = premiumLockHtml();
     return;
   }
-  const all = wrongEntries();
+  const view = QuizCore.wrongNotebookView(progress.wrong, wrongTrial, WRONG_TRIAL_MAX);
+  const all = view.visible;
   if (!all.length) {
     el.innerHTML = `<div class="wrong-empty"><div class="wrong-empty-koala"><span class="kface" aria-hidden="true"></span>✨</div><p>${rwL(
       "No mistakes to review. Great job!", "복습할 오답이 없어요. 잘했어요!")}</p></div>`;
@@ -17194,7 +17195,7 @@ function renderWrongPanel() {
       <button type="button" class="wrong-remove" data-remove="${escapeHtml(it.key)}" aria-label="${rwL("Remove", "삭제")}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></li>`;
   });
   html += `</ul>
-    ${wrongTrial ? `<p class="wrong-hint wrong-trial-note">${t("wrongTrialNote")}</p><div class="wrong-actions wrong-actions-static"><button type="button" class="pill accent small wrong-unlock-btn" data-rw-upgrade><svg class="wt-lock" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2.5" fill="currentColor" stroke="none"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>${t("wrongTrialBtn")}</span></button></div>` : `<div class="wrong-actions">${studyBtn}<button type="button" class="pill accent small" id="wrong-review-btn"><span class="go-label">${rwL("Start review", "복습 시작")}</span><span class="go-disc"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span></button></div>`}`;
+    ${wrongTrial ? `<p class="wrong-hint wrong-trial-note">${t("wrongTrialNote")}${view.locked ? ` ${rwL(`${view.locked} older mistakes are saved and locked.`, `예전 오답 ${view.locked}개는 지우지 않고 잠가 두었어요.`)}` : ""}</p><div class="wrong-actions wrong-actions-static"><button type="button" class="pill accent small wrong-unlock-btn" data-rw-upgrade><svg class="wt-lock" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2.5" fill="currentColor" stroke="none"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>${t("wrongTrialBtn")}</span></button></div>` : `<div class="wrong-actions">${studyBtn}<button type="button" class="pill accent small" id="wrong-review-btn"><span class="go-label">${rwL("Start review", "복습 시작")}</span><span class="go-disc"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span></button></div>`}`;
   el.innerHTML = html;
 }
 
@@ -17680,7 +17681,7 @@ function statDetailContent(kind) {
     const total = (typeof flashDeckFull !== "undefined" && flashDeckFull && flashDeckFull.length) || 0;
     const pct = total ? Math.min(100, Math.round((known / total) * 100)) : 0;
     const bars = week.map((x) => { const r = x.rec.flash || [0, 0]; return { label: x.label, a: r[0], b: r[1] - r[0] }; });
-    return { ico: "🃏", title: rwL("Flashcards known", "아는 플래시카드"), big: known, bigSub: total ? rwL(`of ${total} cards in this level`, `이 레벨 ${total}장 중`) : "",
+    return { ico: FLASH_ICON_SVG, title: rwL("Flashcards known", "아는 플래시카드"), big: known, bigSub: total ? rwL(`of ${total} cards in this level`, `이 레벨 ${total}장 중`) : "",
       html: `${total ? `<div class="dash-bar dash-bar-ok stat-meter" role="presentation"><i style="width:${pct}%"></i></div>` : ""}<h4 class="chart-title">${rwL("Cards practised (last 7 days)", "최근 7일 카드 연습")}</h4>${statLegend()}${bars.some((b) => b.a || b.b) ? statBarsSvg(bars, { aria: rwL("Flashcards per day", "하루 카드 수") }) : statEmpty()}` };
   }
   return null;
@@ -17775,7 +17776,7 @@ function renderStats() {
 
   const stats = [
     { key: "words", ico: "📚", num: wordsPracticed, lbl: t("statWordsPracticed") },
-    { key: "flash", ico: "🃏", num: flashKnownCount, lbl: t("statFlashKnown") },
+    { key: "flash", ico: FLASH_ICON_SVG, num: flashKnownCount, lbl: t("statFlashKnown") },
     { key: "quiz", ico: "💡", num: `${quizPct}%`, lbl: rwL("Quiz accuracy", "퀴즈 정답률"),
       sub: progress.quiz.total ? rwL(`${progress.quiz.correct} of ${progress.quiz.total} right`, `${progress.quiz.total}문제 중 ${progress.quiz.correct}개 정답`) : rwL("No answers yet", "아직 푼 문제 없음") },
     { key: "spelling", ico: "✏️", num: `${spellPct}%`, lbl: rwL("Spelling accuracy", "스펠링 정답률"),
@@ -18506,7 +18507,7 @@ function renderParentPanel() {
   const learned = Object.values(progress.srs || {}).filter((e) => e.box >= 3).length;
   const mastered = `<button type="button" class="pr-tile" data-pr-detail="known"><span class="pr-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="1.25em" height="1.25em"><path d="M8.2 13.6L6.5 22l5.5-3 5.5 3-1.7-8.4" fill="#ff8f6b"/><circle cx="12" cy="9" r="7.2" fill="#ffc93c"/><circle cx="12" cy="9" r="5.4" fill="#ffdf6e"/><path d="M8.9 9.2l2.2 2.2 4-4.3" fill="none" stroke="#f08a00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div class="pr-num">${learned}</div><div class="pr-lbl">${rwL("words mastered", "완료 단어")}</div></button>`;
   let modes = "";
-  const modeIco = { quiz: "💡", spelling: "✏️", typing: "⌨️", tt: "🧮", flash: "🃏" };
+  const modeIco = { quiz: "💡", spelling: "✏️", typing: "⌨️", tt: "🧮", flash: FLASH_ICON_SVG };
   PARENT_MODES.forEach(([m, name]) => {
     const [c, tot] = w.perMode[m];
     const pct = tot ? Math.round((c / tot) * 100) : 0;

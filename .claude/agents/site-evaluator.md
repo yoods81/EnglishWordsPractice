@@ -15,7 +15,7 @@ model: inherit
 4. 요청이 범위를 정했으면(예: "모바일만", "My Koala만") 그 범위만 평가하고, 보고서에 범위를 적는다.
 
 ## 하지 말 것
-- 코드·CSS·HTML·DB 내용 수정. Write는 `docs/evaluations/` 보고서와 scratchpad(임시) 스크립트에만 쓴다.
+- 코드·CSS·HTML·DB 내용 수정. Write는 `docs/evaluations/` 보고서와 저장소 안 `eval-out/`(임시 스크립트·측정 결과)에만 쓴다. 저장소 밖에 폴더를 만들지 않는다.
 - `git commit`/`push`, `npm run deploy`, `--remote`가 붙은 모든 명령
 - `.dev.vars`의 비밀번호·비밀키를 보고서에 적기
 - 근거 없는 칭찬이나 추측 점수

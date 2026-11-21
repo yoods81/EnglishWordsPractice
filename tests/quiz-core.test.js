@@ -159,3 +159,17 @@ test("daily goal and result summary", () => {
   assert.equal(Q.formatSeconds(45000), "45s");
   assert.equal(Q.formatSeconds(125000), "2:05");
 });
+
+test("wrong notebook: free accounts see the latest 10 but nothing is deleted", () => {
+  const wrong = {};
+  for (let i = 0; i < 15; i++) wrong["w" + i] = { n: 1, last: 1000 + i, ok: 0, mode: "quiz" };
+  const free = Q.wrongNotebookView(wrong, true);
+  assert.equal(free.visible.length, 10);
+  assert.equal(free.locked, 5);
+  assert.equal(free.visible[0].key, "w14"); // newest first
+  assert.equal(Object.keys(wrong).length, 15); // input untouched
+  const premium = Q.wrongNotebookView(wrong, false);
+  assert.equal(premium.visible.length, 15);
+  assert.equal(premium.locked, 0);
+  assert.deepEqual(Q.wrongNotebookView(null, true), { visible: [], locked: 0 });
+});

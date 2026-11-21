@@ -323,8 +323,23 @@
     return m ? `${m}:${String(s % 60).padStart(2, "0")}` : `${s}s`;
   }
 
+  /* ---------- Wrong-answer notebook view ---------- */
+  // Free accounts SEE only their `max` latest mistakes, but nothing is deleted:
+  // older ones are kept (locked) so they come back when the account is Premium
+  // again (CLAUDE.md: "무료 전환 시 지우지 않고 잠금").
+  // wrong = { key: { n, last, ok, mode } } → { visible: [{ key, ...v }] newest first, locked: count }
+  const WRONG_TRIAL_MAX = 10;
+  function wrongNotebookView(wrong, trial, max = WRONG_TRIAL_MAX) {
+    const all = Object.entries(wrong || {})
+      .map(([key, v]) => ({ key, ...v }))
+      .sort((a, b) => (b.last || 0) - (a.last || 0));
+    if (!trial) return { visible: all, locked: 0 };
+    return { visible: all.slice(0, max), locked: Math.max(0, all.length - max) };
+  }
+
   return {
     CATEGORIES, MIXED_TYPES, MIN_CHOICES,
+    WRONG_TRIAL_MAX, wrongNotebookView,
     norm, maskWord, maskExactWord, wrapWord, uniqueOptions, dedupeByTarget,
     buildQuestions, retryQuestions,
     LEAVES_START, LEAVES_MAX, COMBO_LEAF_EVERY, leavesAfterCombo, fiftyFiftyRemovals, letterPattern,
