@@ -1,2 +1,6 @@
+# Every text file is stored with LF. On Windows the page generators (gen:faq, gen:learn) write CRLF; with this, git
+# compares the content only, so a deploy no longer leaves 10 "changed" files that differ just in line endings.
+* text=auto eol=lf
 *.sh text eol=lf
+# The built house app is copied as-is (npm run house:sync) — never touch its bytes.
 public/house/** -text
