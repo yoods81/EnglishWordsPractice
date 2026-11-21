@@ -4231,3 +4231,13 @@ html[data-theme="ivory"] .datanote-row {
 html[data-theme="ivory"] .datanote-ico {
   background: #fdfaf4 !important;
 }
+
+/* ======== 다크 테마 글자 대비 (2026-11-21, v283) ========
+   Bottom bar on phones: the chosen tab keeps its dark tile (above), so its text must be light — it was #06382d (1.1:1).
+   My Koala / Progress tab row: the tabs that are not chosen were #0b5f49 on #131b19 (2.2:1). */
+@media (max-width: 480px) {
+  html[data-theme="dark"] body :is(.bottom-tab-btn.active, .bottom-tab-btn.has-active, .bottom-tab-btn-highlight.active, .bottom-tab-btn-highlight.has-active),
+  html[data-theme="dark"] body :is(.bottom-tab-btn.active, .bottom-tab-btn.has-active, .bottom-tab-btn-highlight.active, .bottom-tab-btn-highlight.has-active) span { color: #3ee6c6 !important; }
+}
+html[data-theme="dark"] body :is(#view-koala, #view-stats) .stats-tab:not(.on) { color: #9fb1aa !important; }
+html[data-theme="dark"][data-theme="dark"] body :is(#view-koala, #view-stats) .stats-tab.on { color: #3ee6c6 !important; }
