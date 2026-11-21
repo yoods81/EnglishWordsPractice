@@ -12,13 +12,13 @@
   --primary: #2d6cff;
   --primary-dark: #1e4fcc;
   --accent: #22c9a3;
-  --accent-dark: #0e9c7d;
+  --accent-dark: #0b7a62;
   --success: #22c55e;
   --success-dark: #159647;
   --error: #ff4b4b;
   --error-dark: #d93434;
   --text: #333a37;
-  --muted: #7c8985;
+  --muted: #5c6965;
   --radius: 16px;
   --shadow: 0 8px 24px rgba(14, 156, 125, 0.16);
   /* The "bold outline cartoon" pass: every card/button/tab now gets a real
@@ -6423,7 +6423,7 @@ html[lang="ko"] .auth-koala-level select { flex: 0 0 auto; width: auto; white-sp
 
 /* Utility row: clear labels, and Quit reads as a real (but gentle) button */
 #spelling-practice .sp-footer .sfx-toggle { font-size: 0.8rem; }
-#spelling-practice .sp-footer .sfx-toggle.is-off { color: #7c8985; background: #f4f6f5; }
+#spelling-practice .sp-footer .sfx-toggle.is-off { color: #5c6965; background: #f4f6f5; }
 #spelling-practice .sp-footer .sp-finish-btn {
   padding: 6px 14px; font-size: 0.8rem; font-weight: 700;
   color: #d9591a; background: #fff1ea; border: 2px solid #ffb48a; box-shadow: 0 2px 0 #ffb48a;
@@ -8364,7 +8364,7 @@ html body #spelling-start-screen.sp-start { position: relative; overflow: hidden
 #quiz-practice .quiz-footer { margin-top: 14px; }
 #quiz-practice .quiz-footer .qz-end-btn { margin-left: auto; white-space: nowrap; font-family: var(--font-heading); font-weight: 800; }
 #quiz-practice .quiz-footer .sfx-toggle { width: auto; height: 32px; padding: 0 12px; border-radius: 999px; font-family: var(--font-heading); font-weight: 700; font-size: 0.8rem; color: var(--accent-dark); white-space: nowrap; }
-#quiz-practice .quiz-footer .sfx-toggle.is-off { color: #7c8985; background: #f4f6f5; border-color: #cfd8d5; box-shadow: 0 2px 0 #cfd8d5; }
+#quiz-practice .quiz-footer .sfx-toggle.is-off { color: #5c6965; background: #f4f6f5; border-color: #cfd8d5; box-shadow: 0 2px 0 #cfd8d5; }
 #quiz-next { padding: 10px 18px; font-size: 1rem; }
 #quiz-next, #quiz-count { scroll-margin: 12px 0 96px; }
 
@@ -12475,7 +12475,7 @@ html body #quiz-start-screen .fs-settings[open] .fs-settings-now,
 html body #timestable-start-overlay .fs-settings[open] .fs-settings-now,
 html body #typegame-start-overlay .fs-settings[open] .fs-settings-now,
 html body #spelling-start-screen .fs-settings[open] .fs-settings-now {
-  display: block !important; flex: 1 1 0; min-width: 0; text-align: right; font-size: 0.85rem !important; font-weight: 700; color: #0b8a6e !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: block !important; flex: 1 1 0; min-width: 0; text-align: right; font-size: 0.85rem !important; font-weight: 700; color: #0b7a62 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 html body #flash-start-screen .fs-settings-sum::after,
 html body #quiz-start-screen .fs-settings-sum::after,
@@ -12530,7 +12530,7 @@ html body #timestable-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.o
 html body #typegame-start-overlay .fs-settings-body .qz-seg .qz-seg-btn:not(.on),
 html body #spelling-start-screen .fs-settings-body .qz-seg .qz-seg-btn:not(.on) {
   flex: 1 1 auto !important; min-width: 0; min-height: 2.4rem !important; padding: 0.2rem 0.5rem !important; white-space: nowrap; font-size: 0.82rem !important;
-  background: transparent !important; border: 0 !important; box-shadow: none !important; color: #0b8a6e !important; border-radius: 999px !important; text-shadow: none !important;
+  background: transparent !important; border: 0 !important; box-shadow: none !important; color: #0b7a62 !important; border-radius: 999px !important; text-shadow: none !important;
 }
 html body #flash-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
 html body #quiz-start-screen .fs-settings-body .qz-seg .qz-seg-btn.on,
@@ -12582,14 +12582,14 @@ html body .tg-start-card .tg-hero {
 }
 html body .tg-start-card .tg-hero .kb-strip { margin: 0; min-height: 0; width: 100%; justify-content: center; }
 html body .tg-start-card .tg-hero p { margin: 0; text-align: center; color: #17463c; font-weight: 800; font-size: 1rem; line-height: 1.35; }
-html body .tg-start-card .tg-hero .tg-start-tip { color: #0b8a6e; font-size: 0.85rem; }
+html body .tg-start-card .tg-hero .tg-start-tip { color: #0b7a62; font-size: 0.85rem; }
 html body .tg-start-card .tg-hero .tt-start-demo { margin: 0; width: 100%; }
 html body .tg-start-card .tg-modes {
   display: flex; flex-wrap: nowrap; gap: 0.25rem; width: 100%; padding: 0.25rem; background: #d4efe4; border: 0; border-radius: 999px;
 }
 html body .tg-start-card .tg-modes .qz-seg-btn {
   flex: 1 1 0; min-width: 0; min-height: 2.8rem; padding: 0.2rem 0.4rem; white-space: nowrap; font-size: 0.92rem;
-  background: transparent; border: 0; box-shadow: none; color: #0b8a6e; border-radius: 999px; text-shadow: none; cursor: pointer; font-family: var(--font-heading); font-weight: 800;
+  background: transparent; border: 0; box-shadow: none; color: #0b7a62; border-radius: 999px; text-shadow: none; cursor: pointer; font-family: var(--font-heading); font-weight: 800;
 }
 html body .tg-start-card .tg-modes .qz-seg-btn.on { background: var(--accent); color: #fff; }
 html body .tg-start-card .tg-modes .qz-seg-btn.on::before { content: none; }
@@ -14360,7 +14360,7 @@ body.kh-house-on { overflow: hidden; }
 .ttg-tile:focus-visible { outline: 3px solid #2fc79c; outline-offset: 2px; }
 .ttg-thumb { display: block; width: 100%; height: auto; border-radius: 11px; }
 .ttg-tile-name { margin: 7px 3px 1px; font-family: var(--font-heading); font-size: 0.98rem; line-height: 1.15; color: #0f6b52; }
-.ttg-tile-desc { margin: 0 3px; font-size: 0.74rem; line-height: 1.25; color: #5b7f76; }
+.ttg-tile-desc { margin: 0 3px; font-size: 0.74rem; line-height: 1.25; color: #4f6f66; }
 /* Game picker page: roomy, top-down layout (title → settings → 2×2 tiles) instead of
    everything bunched in the middle. Beats the "3 — Game start screens" rules above. */
 html body #view-timestable #timestable-start-overlay .tg-start-card {
@@ -14770,7 +14770,28 @@ html body #view-timestable #timestable-start-overlay .tg-start-chips:not(:has(> 
    mint-filled button/tab that had white text (found by scanning all views as guest/premium/admin). */
 :root { --on-mint: #06382d; }
 /* :not(#_m):not(#_n) only raises specificity so this beats the older per-screen "#fff !important" rules. */
-html body :is(.pill.accent, #auth-toggle:not(.auth-toggle-admin):not(.auth-toggle-active), .bottom-tab-btn.has-active, .bottom-tab-btn.active,
+html:not([data-theme="dark"]) body :is(.pill.accent, #auth-toggle:not(.auth-toggle-admin):not(.auth-toggle-active), .bottom-tab-btn.has-active, .bottom-tab-btn.active,
   .tab-group-trigger.has-active, .tab-btn.active, .qz-seg-btn.on, .source-btn.on, .tt-count-btn, #timestable-start-default.on,
-  .dash-rec-btn, .kh-admin-add-item, .kh-cat.on, .mode-tab.active, .stats-tab.on, .tt-chip.on, #view-koala .kdt-tab:not(.on)):not(#_m):not(#_n),
-html body :is(.pill.accent, .qz-seg-btn.on, .dash-rec-btn, .tt-chip.on, .stats-tab.on, .tab-btn.active, #view-koala .kdt-tab:not(.on)):not(#_m):not(#_n) :is(span, small, b, strong) { color: var(--on-mint) !important; }
+  .dash-rec-btn, .kh-admin-add-item, .kh-cat.on, .mode-tab.active, .stats-tab.on, .tt-chip.on):not(#_m):not(#_n),
+html:not([data-theme="dark"]) body :is(.pill.accent, .qz-seg-btn.on, .dash-rec-btn, .tt-chip.on, .stats-tab.on, .tab-btn.active):not(#_m):not(#_n) :is(span, small, b, strong) { color: var(--on-mint) !important; }
+
+/* ======== Bigger touch areas without changing the look (사이트평가 2차, 2026-11-21) ========
+   Small round buttons on the word list and Times Table get an invisible ring, so a child's finger
+   that lands just outside still counts. Word-list checkboxes grow 22 → 24px (WCAG 2.5.8 minimum). */
+html body :is(.wl-speak, .wl-chip, .tt-chip, .tt-count-btn, #view-timestable .qz-seg-btn) { position: relative; }
+html body :is(.wl-speak, .wl-chip, .tt-chip, .tt-count-btn, #view-timestable .qz-seg-btn)::after { content: ""; position: absolute; inset: -6px; border-radius: inherit; }
+html body .wl-speak--example::after { inset: -10px; }
+html body :is(#wordlist-grid, #custom-words-grid) .wordlist-item .cw-select, html body .wl-check { min-width: 24px; min-height: 24px; }
+
+/* ======== 결과 화면 (사이트평가 2차, 시안 B): '⭐ +3' and '3/10 · 30%' are results, not buttons → no pill/border, bigger text ======== */
+html body :is(.sp-report-star, .sp-report-stats .score-tag) { background: none !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; }
+html body .sp-report-star { font-size: 2rem !important; text-shadow: 0 2px 0 #ffe7a3; }
+html body .sp-report-stats .score-tag { color: #0b7a62 !important; font-size: 1.25rem !important; font-weight: 800; }
+html[data-theme="dark"] body .sp-report-stats .score-tag { color: var(--accent) !important; }
+html[data-theme="dark"] body .sp-report-star { text-shadow: none; }
+
+/* ======== 옷장 탭 (시안 A): the tab that is NOT chosen is pale mint, so the chosen (cream) tab clearly stands in front ======== */
+html body #view-koala .kdt-tab:not(.on):not(#_m):not(#_n) { background: #e3f5ee !important; color: #0b7a62 !important; box-shadow: none; }
+html body #view-koala .kdt-tab:not(.on):not(#_m):not(#_n) :is(span, small, b, strong) { color: #0b7a62 !important; }
+html[data-theme="dark"] body #view-koala .kdt-tab:not(.on):not(#_m):not(#_n) { background: #243730 !important; color: #9fe8d4 !important; }
+html[data-theme="dark"] body #view-koala .kdt-tab:not(.on):not(#_m):not(#_n) :is(span, small, b, strong) { color: #9fe8d4 !important; }

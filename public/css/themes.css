@@ -2759,7 +2759,7 @@ html[data-theme="dark"] .datanote-row {
 html[data-theme="dark"] .datanote-ico {
   background: #131b19 !important;
 }
-html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; }
+html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; --accent-dark: #0e9c7d !important; }
 html[data-theme="dark"] img, html[data-theme="dark"] video { filter: brightness(.92); }
 html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea { color-scheme: dark; }
 html[data-theme="dark"] .koala-avatar-svg, html[data-theme="dark"] .koala-room-svg, html[data-theme="dark"] .koala-icon-svg { filter: none; }

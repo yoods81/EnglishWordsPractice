@@ -497,6 +497,7 @@ const TRANSLATIONS = {
     dailyCapGuest: (n) => `You've used today's ${n} free questions. Sign up for free to keep going!`,
     dailyCapFree: (n) => `You've used today's ${n} questions. Upgrade to Premium for unlimited practice!`,
     dailyLeftNote: (n) => `Today: ${n} questions left`,
+    wordlistLevelAria: "Word level",
     dailyRoundGuest: "You've played today's free round. Sign up for free to keep playing without limits!",
     guestCoinTeaser: "Sign up free to turn your hard work into Koala Coins and save your progress! 💰",
     guestCoinTeaserBtn: "Sign up free",
@@ -1478,6 +1479,7 @@ const TRANSLATIONS = {
     dailyCapGuest: (n) => `오늘의 무료 문제 ${n}개를 모두 풀었어요. 무료로 가입하면 계속 풀 수 있어요!`,
     dailyCapFree: (n) => `오늘의 문제 ${n}개를 모두 풀었어요. 프리미엄으로 업그레이드하면 제한 없이 풀 수 있어요!`,
     dailyLeftNote: (n) => `오늘 남은 문제 ${n}개`,
+    wordlistLevelAria: "단어 레벨",
     dailyRoundGuest: "오늘의 무료 1판을 모두 했어요. 무료로 가입하면 제한 없이 계속 할 수 있어요!",
     guestCoinTeaser: "무료로 가입하면 열심히 푼 만큼 코알라 코인을 모으고 기록도 저장할 수 있어요! 💰",
     guestCoinTeaserBtn: "무료 가입",
@@ -16786,7 +16788,7 @@ window.addEventListener("kh-owned-off", () => {
   if (!koalaOwnedView) return;
   koalaOwnedView = false;
   const btn = document.querySelector("[data-koala-owned]");
-  if (koalaTab === "room" && btn) { btn.classList.remove("on"); btn.setAttribute("aria-pressed", "false"); btn.setAttribute("aria-selected", "false"); const dt = document.querySelector(`.kdt-tab[data-koala-dim="${koalaDim}"]`); if (dt) { dt.classList.add("on"); dt.setAttribute("aria-selected", "true"); } return; }
+  if (koalaTab === "room" && btn) { btn.classList.remove("on"); btn.setAttribute("aria-selected", "false"); const dt = document.querySelector(`.kdt-tab[data-koala-dim="${koalaDim}"]`); if (dt) { dt.classList.add("on"); dt.setAttribute("aria-selected", "true"); } return; }
   renderKoala();
 });
 window.addEventListener("kh-worn", () => {
@@ -16798,7 +16800,7 @@ window.addEventListener("kh-worn", () => {
 function koalaDimBarHtml() {
   const cube = '<svg class="kd-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8.5 4.7v9.6L12 21.5l-8.5-4.7V7.2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3.5 7.2L12 12l8.5-4.8M12 12v9.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
   const b = (id, label) => `<button type="button" class="kdt-tab${!koalaOwnedView ? " on" : ""}" role="tab" aria-selected="${!koalaOwnedView}" data-koala-dim="${id}">${cube}<span>${label}</span></button>`;
-  const own = `<button type="button" class="kdt-tab kdt-own${koalaOwnedView ? " on" : ""}" role="tab" data-koala-owned aria-pressed="${koalaOwnedView}" aria-selected="${koalaOwnedView}"><img class="kdt-ic-img" src="img/cat/items.webp" alt="" draggable="false"><span>${rwL("My items", "내 아이템")}</span></button>`;
+  const own = `<button type="button" class="kdt-tab kdt-own${koalaOwnedView ? " on" : ""}" role="tab" data-koala-owned aria-selected="${koalaOwnedView}"><img class="kdt-ic-img" src="img/cat/items.webp" alt="" draggable="false"><span>${rwL("My items", "내 아이템")}</span></button>`;
   return `<div class="koala-dimrow kdt ctx-${koalaDim}-${koalaTab === "room" ? "room" : "char"} is-paid"><div class="kdt-bar" role="tablist" aria-label="${rwL("Wardrobe or My items", "옷장 / 내 아이템")}">${b("3d", rwL("Wardrobe", "옷장"))}${own}</div></div>`;
 }
 

@@ -1,5 +1,5 @@
 /* Shared styles for the static About / Privacy / Terms pages. */
-:root{--bg:#eef9f5;--card:#fff;--accent:#22c9a3;--accent-dark:#0e9c7d;--text:#333a37;--muted:#7c8985;--mint:#cdeee3}
+:root{--bg:#eef9f5;--card:#fff;--accent:#22c9a3;--accent-dark:#0b7a62;--text:#333a37;--muted:#5c6965;--mint:#cdeee3}
 @media (prefers-color-scheme: dark){:root{--bg:#14211d;--card:#1d2d28;--text:#e6efec;--muted:#9db0aa;--mint:#2a4a41;--accent-dark:#3ee6c6}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI","Trebuchet MS",Verdana,sans-serif;line-height:1.65}
