@@ -55,6 +55,97 @@
   function loadBest() { try { return JSON.parse(localStorage.getItem(BEST_KEY)) || {}; } catch (e) { return {}; } }
   function saveBest(b) { try { localStorage.setItem(BEST_KEY, JSON.stringify(b)); } catch (e) { /* private mode */ } }
 
+  /* ---------- background music ----------
+     Each tile game has its own tunes, synthesised the same way as Balloon Pop's
+     (Web Audio, shared timesTableAudioCtx, the same 🔊 switch). Like Balloon Pop,
+     the tune changes every TIMESTABLE_PROBLEMS_PER_STAGE correct answers and cycles
+     back after the last one. Notes are MIDI numbers, 0 = rest; bass is optional. */
+  const MUSIC = {
+    // Koala Calculator — tidy "thinking" tunes, soft square tone
+    calc: { wave: "square", vol: 0.45, step: 0.2, stages: [
+      { mel: [72, 76, 79, 76, 74, 77, 81, 77, 72, 76, 79, 84, 83, 79, 74, 0], bass: [48, 0, 55, 0, 50, 0, 57, 0, 48, 0, 55, 0, 55, 0, 43, 0] },
+      { mel: [69, 72, 76, 72, 71, 74, 77, 74, 72, 76, 79, 76, 74, 71, 67, 0], bass: [45, 0, 52, 0, 47, 0, 53, 0, 48, 0, 55, 0, 43, 0, 50, 0] },
+      { mel: [74, 78, 81, 86, 81, 78, 74, 0, 76, 79, 83, 79, 78, 74, 69, 0], bass: [50, 0, 57, 0, 50, 0, 57, 0, 52, 0, 59, 0, 45, 0, 57, 0] },
+    ] },
+    // Gumnut Toss — bouncy and quick
+    whack: { wave: "triangle", vol: 1, step: 0.16, stages: [
+      { mel: [67, 0, 71, 74, 0, 71, 67, 0, 69, 0, 72, 76, 0, 74, 71, 0], bass: [43, 55, 43, 55, 43, 55, 43, 55, 45, 57, 45, 57, 50, 62, 50, 62] },
+      { mel: [79, 79, 76, 0, 74, 74, 71, 0, 72, 74, 76, 79, 81, 0, 79, 0], bass: [48, 55, 48, 55, 43, 50, 43, 50, 45, 52, 45, 52, 50, 57, 50, 57] },
+      { mel: [72, 74, 76, 72, 79, 0, 79, 0, 77, 76, 74, 71, 72, 0, 67, 0], bass: [48, 0, 48, 0, 52, 0, 52, 0, 53, 0, 55, 0, 48, 0, 43, 0] },
+    ] },
+    // Koala Café — relaxed little waltzes
+    cafe: { wave: "sine", vol: 1.15, step: 0.26, stages: [
+      { mel: [65, 69, 72, 70, 69, 67, 65, 67, 69, 72, 0, 0], bass: [41, 0, 0, 46, 0, 0, 41, 0, 0, 48, 0, 0] },
+      { mel: [69, 72, 77, 76, 74, 72, 70, 72, 74, 72, 0, 0], bass: [41, 0, 0, 48, 0, 0, 46, 0, 0, 48, 0, 0] },
+      { mel: [72, 74, 76, 77, 0, 74, 72, 70, 69, 65, 0, 0], bass: [48, 0, 0, 41, 0, 0, 46, 0, 0, 41, 0, 0] },
+    ] },
+    // Match — high, gentle music-box tunes
+    match: { wave: "sine", vol: 1.1, step: 0.22, stages: [
+      { mel: [84, 79, 76, 79, 84, 0, 86, 84, 83, 79, 74, 79, 83, 0, 0, 0], bass: [60, 0, 64, 0, 60, 0, 65, 0, 59, 0, 62, 0, 55, 0, 0, 0] },
+      { mel: [88, 86, 84, 83, 81, 83, 84, 0, 86, 84, 83, 81, 79, 0, 0, 0], bass: [57, 0, 60, 0, 53, 0, 57, 0, 55, 0, 59, 0, 60, 0, 0, 0] },
+      { mel: [76, 79, 84, 88, 86, 84, 81, 0, 77, 81, 84, 86, 84, 0, 0, 0], bass: [60, 0, 0, 0, 53, 0, 0, 0, 53, 0, 0, 0, 60, 0, 0, 0] },
+    ] },
+    // Claw machine — arcade chiptunes
+    claw: { wave: "square", vol: 0.4, step: 0.15, stages: [
+      { mel: [72, 76, 79, 76, 81, 79, 76, 0, 77, 74, 71, 74, 72, 0, 67, 0], bass: [48, 60, 48, 60, 53, 65, 48, 60, 50, 62, 43, 55, 48, 60, 43, 55] },
+      { mel: [76, 0, 76, 79, 0, 76, 74, 72, 74, 0, 74, 77, 0, 74, 72, 71], bass: [45, 57, 45, 57, 45, 57, 45, 57, 50, 62, 50, 62, 43, 55, 43, 55] },
+      { mel: [84, 83, 81, 79, 77, 76, 74, 72, 74, 76, 77, 79, 81, 83, 84, 0], bass: [48, 55, 48, 55, 53, 60, 53, 60, 50, 57, 50, 57, 55, 62, 55, 0] },
+    ] },
+  };
+  const BASS_VOL = 0.55;
+  const music = { timer: 0, next: 0, i: 0, on: false };
+
+  function midiHz(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  function musicNote(ctx, m, when, dur, wave, peak) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = wave;
+    osc.frequency.value = midiHz(m);
+    gain.gain.setValueAtTime(0, when);
+    gain.gain.linearRampToValueAtTime(peak, when + 0.02);
+    gain.gain.linearRampToValueAtTime(0, when + dur);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(when);
+    osc.stop(when + dur + 0.02);
+  }
+  function scheduleMusic() {
+    const ctx = typeof timesTableAudioCtx !== "undefined" ? timesTableAudioCtx : null;
+    if (!G || !music.on || !ctx || !MUSIC[G.id]) return;
+    const song = MUSIC[G.id];
+    const st = song.stages[(G.stage || 0) % song.stages.length];
+    const peak = GAME_MUSIC_PEAK_GAIN * song.vol;
+    while (music.next < ctx.currentTime + 0.5) {
+      const k = music.i % st.mel.length;
+      if (st.mel[k]) musicNote(ctx, st.mel[k], music.next, song.step, song.wave, peak);
+      if (st.bass && st.bass[k]) musicNote(ctx, st.bass[k], music.next, song.step * 1.6, "triangle", GAME_MUSIC_PEAK_GAIN * BASS_VOL);
+      music.i++;
+      music.next += song.step;
+    }
+    music.timer = setTimeout(scheduleMusic, 150);
+  }
+  function startMusic() {
+    stopMusic();
+    if (timesTableMuted || !G || !MUSIC[G.id]) return;
+    const ctx = ensureTimesTableAudioCtx();
+    if (!ctx) return;
+    music.on = true;
+    music.i = 0;
+    music.next = ctx.currentTime + 0.05;
+    scheduleMusic();
+  }
+  function stopMusic() {
+    clearTimeout(music.timer);
+    music.timer = 0;
+    music.on = false;
+  }
+  // A new stage: switch tunes straight away, from the top.
+  function stageCheck() {
+    const stage = Math.floor(G.correct / TIMESTABLE_PROBLEMS_PER_STAGE);
+    if (stage === G.stage) return;
+    G.stage = stage;
+    music.i = 0;
+  }
+
   /* ---------- shared round machinery ---------- */
   function nextProblem() {
     if (!G.queue.length) G.queue = pickWordsForSession(G.pool, G.pool.length, (p) => timesTableKey(p));
@@ -97,6 +188,7 @@
     if (ok) {
       G.correct++;
       playTimesTableCorrectSfx();
+      stageCheck();
     } else {
       G.missed.add(key);
       playTimesTableWrongSfx();
@@ -134,9 +226,16 @@
     const dt = G.lastTs == null ? 0 : Math.min(0.1, (ts - G.lastTs) / 1000);
     G.lastTs = ts;
     // The clock only runs while the child can actually see and play the game.
-    if (view.classList.contains("active") && !document.hidden && !modalOpen()) {
+    const live = view.classList.contains("active") && !document.hidden && !modalOpen();
+    if (live) {
       G.clock += dt;
       GAMES[G.id].tick(dt);
+    }
+    // Music follows the clock (and the 🔊 switch): silent while hidden, behind a pop-up or muted.
+    if (G) {
+      const want = live && !timesTableMuted;
+      if (want && !music.on) startMusic();
+      else if (!want && music.on) stopMusic();
     }
     if (G) G.raf = requestAnimationFrame(loop);
   }
@@ -188,7 +287,7 @@
     G = {
       id, pool, queue: [], prevKey: "", shown: 0, cap: dailyQuotaLeft("tt"), reveal: false,
       correct: 0, score: 0, missed: new Set(), timers: [], mode: timesTableSpeedMode || "slow",
-      clock: 0, askedAt: 0, lastTs: null, raf: 0, lock: false,
+      clock: 0, askedAt: 0, lastTs: null, raf: 0, lock: false, stage: 0,
     };
     G.n = Math.max(1, Math.min(timesTableRoundCount || 20, G.cap));
     G.coinsAtStart = koalaEarned();
@@ -207,6 +306,7 @@
   // Tear down without showing anything (used before a restart).
   // Stop the clock and timers; the scene stays on screen (frozen) under the result card.
   function freezeRound() {
+    stopMusic();
     if (!G) return;
     cancelAnimationFrame(G.raf);
     G.timers.forEach(clearTimeout);
