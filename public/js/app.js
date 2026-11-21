@@ -2365,10 +2365,25 @@ function posTagText(id) {
   if (!p) return "";
   return currentLang === "ko" ? p.ko : p.abbr;
 }
+// Built-in words carry their part of speech in words.js / words_ko.js (homophone pairs have none).
+let builtinPosMap = null;
+function builtinPos(w) {
+  if (!builtinPosMap) {
+    builtinPosMap = new Map();
+    const add = (bank) => Object.values(bank || {}).forEach((list) => (list || []).forEach((e) => {
+      if (e && e.word && e.pos && !builtinPosMap.has(String(e.word).toLowerCase())) builtinPosMap.set(String(e.word).toLowerCase(), e.pos);
+      // homophone pairs: pair: [a, b], pos: [posA, posB] (null for contractions like "it's")
+      if (e && Array.isArray(e.pair) && Array.isArray(e.pos)) e.pair.forEach((w, i) => { if (e.pos[i] && !builtinPosMap.has(String(w).toLowerCase())) builtinPosMap.set(String(w).toLowerCase(), e.pos[i]); });
+    }));
+    try { add(typeof WORD_BANK !== "undefined" ? WORD_BANK : null); } catch (e) { /* not loaded */ }
+    try { add(typeof WORD_BANK_KO !== "undefined" ? WORD_BANK_KO : null); } catch (e) { /* not loaded */ }
+  }
+  return builtinPosMap.get(w) || null;
+}
 function posForWord(word) {
   const w = String(word || "").toLowerCase();
   const hit = customWords.find((c) => c.pos && c.word.toLowerCase() === w);
-  return hit ? hit.pos : null;
+  return hit ? hit.pos : builtinPos(w);
 }
 function makePosTag(pos) {
   if (!pos || !posTagText(pos)) return null;

@@ -173,3 +173,12 @@ test("wrong notebook: free accounts see the latest 10 but nothing is deleted", (
   assert.equal(premium.locked, 0);
   assert.deepEqual(Q.wrongNotebookView(null, true), { visible: [], locked: 0 });
 });
+
+test("every built-in word (not homophone pairs) has a part of speech", () => {
+  const fs = require("fs");
+  const load = (f, name) => new Function(fs.readFileSync(require("path").join(__dirname, "../public/js/" + f), "utf8") + `;return ${name};`)();
+  const ok = new Set(["noun", "verb", "adjective", "adverb", "pronoun", "preposition", "conjunction", "interjection"]);
+  for (const [bank, cats] of [[load("words.js", "WORD_BANK"), ["vocabulary", "spelling", "synonyms"]], [load("words_ko.js", "WORD_BANK_KO"), ["vocabulary"]]]) {
+    for (const c of cats) for (const e of bank[c]) assert.ok(ok.has(e.pos), `${c}: ${e.word} has pos ${e.pos}`);
+  }
+});
