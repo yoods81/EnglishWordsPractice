@@ -1,0 +1,8 @@
+{
+  "name": "site-evaluate",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "axe-core": "^4.10.0"
+  }
+}
