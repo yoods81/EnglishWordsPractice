@@ -117,6 +117,14 @@ CREATE TABLE IF NOT EXISTS sync_stats (
   PRIMARY KEY (day, kind)
 );
 
+-- Site visitor counts for the admin Overview (see migrations/0019_site_visits.sql).
+CREATE TABLE IF NOT EXISTS site_visits (
+  day INTEGER NOT NULL,
+  vid TEXT NOT NULL,
+  member INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (day, vid)
+);
+
 -- Email system (see migrations/0008_email_system.sql).
 CREATE TABLE IF NOT EXISTS email_tokens (
   token_hash TEXT PRIMARY KEY,

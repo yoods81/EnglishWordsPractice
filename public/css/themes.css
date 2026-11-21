@@ -2374,7 +2374,7 @@ html[data-theme="dark"] .adm-delta {
 html[data-theme="dark"] .adm-big {
   color: #26e9c0 !important;
 }
-html[data-theme="dark"] .adm-sub {
+html[data-theme="dark"] :is(.adm-sub, .adm-vis-label) {
   color: #bfcdc9 !important;
 }
 html[data-theme="dark"] .adm-sub b {

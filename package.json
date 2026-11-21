@@ -33,6 +33,8 @@
     "db:sync:bump-rev": "wrangler d1 execute englishwordspractice --remote --command \"UPDATE user_rewards SET rev = rev + 1; UPDATE user_progress SET rev = rev + 1;\"",
     "db:migrate:house": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0018_koala_house.sql",
     "db:migrate:house:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0018_koala_house.sql",
+    "db:migrate:visits": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0019_site_visits.sql",
+    "db:migrate:visits:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0019_site_visits.sql",
     "db:migrate:sync:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0017_koala_sync_rev.sql",
     "db:migrate:item-fit": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0015_item_fit.sql",
     "db:migrate:item-fit:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0015_item_fit.sql",

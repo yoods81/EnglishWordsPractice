@@ -55,6 +55,7 @@ async function overviewTrends(env, now, tz) {
     const r = await env.DB.prepare(sql).first().catch(() => null);
     return r ? Number(r.n) || 0 : 0;
   };
+  const todayIdx = Math.floor((now + off) / DAY_MS);
   const cats = {};
   (await rows("SELECT category AS c, COUNT(*) AS n FROM support_tickets WHERE status != 'resolved' GROUP BY category")).forEach((r) => (cats[r.c] = Number(r.n) || 0));
   return {
@@ -80,6 +81,28 @@ async function overviewTrends(env, now, tz) {
       codesMade: await byDay("special_codes", "created_at"),
       codesUsed: await byDay("special_codes", "redeemed_at", "redeemed_by IS NOT NULL"),
     },
+    visits: await visitTrends(rows, todayIdx),
+  };
+}
+
+/* ---------- Visitors (migrations/0019_site_visits) ----------
+   One row per device per day. A week or month counts each device once (COUNT DISTINCT), so it is not the sum of
+   its days. Weeks start on Monday: day 0 (1970-01-01) was a Thursday, so week = (day + 3) / 7.
+   Returns { days: {dayIdx: [n, members]}, weeks: {weekIdx: [...]}, months: {"YYYY-MM": [...]} }. */
+async function visitTrends(rows, today) {
+  const sel = "COUNT(DISTINCT vid) AS n, COUNT(DISTINCT CASE WHEN member = 1 THEN vid END) AS m";
+  const pack = (list) => {
+    const out = {};
+    list.forEach((r) => (out[r.k] = [Number(r.n) || 0, Number(r.m) || 0]));
+    return out;
+  };
+  const weekNow = Math.floor((today + 3) / 7);
+  const t = new Date(today * DAY_MS);
+  const monthFrom = Math.floor(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() - 11, 1) / DAY_MS);
+  return {
+    days: pack(await rows(`SELECT day AS k, ${sel} FROM site_visits WHERE day > ? GROUP BY day`, today - 31)),
+    weeks: pack(await rows(`SELECT (day + 3) / 7 AS k, ${sel} FROM site_visits WHERE day >= ? GROUP BY k`, (weekNow - 11) * 7 - 3)),
+    months: pack(await rows(`SELECT strftime('%Y-%m', day * 86400, 'unixepoch') AS k, ${sel} FROM site_visits WHERE day >= ? GROUP BY k`, monthFrom)),
   };
 }
 

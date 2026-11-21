@@ -474,6 +474,28 @@ async function purgeUser(env, userId) {
 async function handleApi(request, env, url) {
   const route = url.pathname.slice("/api".length);
 
+  // Visitor count for the admin Overview: the app sends this once a day per device (and again after signing in).
+  // Before the email gate so an account still confirming its email is counted too. Admin sessions are not counted.
+  if (route === "/visit" && request.method === "POST") {
+    let body = null;
+    try { body = await request.json(); } catch (e) { /* bad body */ }
+    const vid = body && typeof body.vid === "string" ? body.vid : "";
+    if (!/^[A-Za-z0-9_-]{8,40}$/.test(vid)) return json({ error: "bad_request" }, 400);
+    const session = await getSessionUser(request, env);
+    if (session && session.role === "admin") return json({ ok: true, counted: false });
+    const tz = Math.max(-840, Math.min(840, Math.round(Number(body.tz) || 0)));
+    const now = Date.now();
+    const day = Math.floor((now - tz * 60000) / 86400000);
+    try {
+      await env.DB.prepare(
+        "INSERT INTO site_visits (day, vid, member) VALUES (?, ?, ?) ON CONFLICT(day, vid) DO UPDATE SET member = MAX(member, excluded.member)"
+      ).bind(day, vid, session ? 1 : 0).run();
+      // Keep about 13 months; tidy up now and then rather than on every visit.
+      if (Math.random() < 0.02) await env.DB.prepare("DELETE FROM site_visits WHERE day < ?").bind(day - 400).run();
+    } catch (e) { /* counting must never break the app */ }
+    return json({ ok: true, counted: true });
+  }
+
   // A signed-in account whose email is on file but not yet confirmed can only
   // use the /auth/* routes (to confirm, resend, change email, or log out) —
   // nothing else on the site works until the link in the email is opened.

@@ -5356,6 +5356,7 @@ loginForm.addEventListener("submit", async (e) => {
   if (currentUser) refreshSharedWords();
   koalaAfterLogin();
   maybeNudgeEmail();
+  countVisit();
 });
 
 const SIGNUP_ERROR_KEYS = {
@@ -5731,6 +5732,7 @@ signupForm.addEventListener("submit", async (e) => {
     updateAdminUI();
     refreshSharedWords();
     koalaAfterLogin();
+    countVisit();
     if (goPay) {
       postSignupNotice = () => { setPremiumSignupPending(false); refreshVerifyGate(); afterNoticeHook = () => maybeShowDataNote(); welcome(); };
       openPlanOverlay();
@@ -18863,3 +18865,37 @@ statsPanels.parent.addEventListener("click", async (e) => {
 document.getElementById("start-fab")?.addEventListener("click", () => {
   document.querySelector('.landing-tile[data-view="quiz"]')?.click();
 });
+
+// Visitor count for the admin Overview: once a day per device, plus once more after signing in that day
+// (so the day is marked as a member visit). Only a random device id is sent — no name, no account details.
+// The server reads the session cookie itself and skips admin sessions.
+const VISIT_KEY = "ksm_visit_v1";
+function countVisit() {
+  try {
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(VISIT_KEY) || "{}") || {}; } catch (e) { saved = {}; }
+    if (!saved.vid) {
+      const bytes = new Uint8Array(12);
+      crypto.getRandomValues(bytes);
+      saved.vid = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+    }
+    const d = new Date();
+    const day = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    const member = !!currentUser;
+    if (saved.day === day && (saved.member || !member)) return;
+    fetch("/api/visit", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ vid: saved.vid, tz: d.getTimezoneOffset() }),
+      keepalive: true,
+    }).then((res) => {
+      if (!res.ok) return;
+      saved.day = day;
+      saved.member = member;
+      try { localStorage.setItem(VISIT_KEY, JSON.stringify(saved)); } catch (e) { /* private mode: counted again next load */ }
+    }).catch(() => { /* offline: try again next load */ });
+  } catch (e) { /* counting must never break the app */ }
+}
+// After the saved session has had a moment to load, so a signed-in device counts as a member right away.
+setTimeout(countVisit, 2500);

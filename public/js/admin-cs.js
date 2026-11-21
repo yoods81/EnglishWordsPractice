@@ -179,6 +179,7 @@
   /* ---------- overview cards with trend charts ---------- */
 
   let ovRange = "days";
+  let visRange = "days"; // visitor card: days (30) / weeks (12) / months (12)
   const fmt = (n) => Number(n || 0).toLocaleString();
 
   // dayIndex (days since 1970, in the admin's own time zone) -> Date whose UTC fields read as local
@@ -263,6 +264,51 @@
     question: ["Question", "질문"], bug: ["Bug", "오류"], account: ["Account", "계정"], payment: ["Payment", "결제"], other: ["Other", "기타"],
   };
 
+  // Visitors card: one device counted once per day / week / month (worker visitTrends).
+  function visitorCard(o) {
+    const V = o.visits || {}, D = V.days || {}, W = V.weeks || {}, M = V.months || {};
+    const today = o.today;
+    const get = (map, k) => map[k] || [0, 0];
+    const monthKey = (y, m) => { const x = new Date(Date.UTC(y, m, 1)); return `${x.getUTCFullYear()}-${String(x.getUTCMonth() + 1).padStart(2, "0")}`; };
+    const t = dayDate(today), ty = t.getUTCFullYear(), tm = t.getUTCMonth();
+    const weekNow = Math.floor((today + 3) / 7);
+    const stats = [
+      [L("Today", "오늘"), get(D, today), L("Yesterday", "어제"), get(D, today - 1)],
+      [L("This week", "이번 주"), get(W, weekNow), L("Last week", "지난주"), get(W, weekNow - 1)],
+      [L("This month", "이번 달"), get(M, monthKey(ty, tm)), L("Last month", "지난달"), get(M, monthKey(ty, tm - 1))],
+    ];
+    let pts = [];
+    if (visRange === "days") {
+      for (let d = today - 29; d <= today; d++) pts.push([dayLabel(d), get(D, d)]);
+    } else if (visRange === "weeks") {
+      for (let w = weekNow - 11; w <= weekNow; w++) pts.push([dayLabel(w * 7 - 3) + L("", "~"), get(W, w)]);
+    } else {
+      for (let i = 11; i >= 0; i--) {
+        const k = monthKey(ty, tm - i), mm = Number(k.slice(5));
+        pts.push([L(`${mm}`, `${mm}월`), get(M, k)]);
+      }
+    }
+    const sum = pts.reduce((a, p) => a + p[1][0], 0);
+    const seg = [["days", L("Daily", "일별")], ["weeks", L("Weekly", "주별")], ["months", L("Monthly", "월별")]]
+      .map(([k, label]) => `<button type="button" class="adm-seg-btn${visRange === k ? " active" : ""}" data-vis-range="${k}">${esc(label)}</button>`).join("");
+    const note = { days: L("last 30 days", "최근 30일"), weeks: L("last 12 weeks (from Monday)", "최근 12주 (월요일 시작)"), months: L("last 12 months", "최근 12개월") }[visRange];
+    return `
+      <section class="adm-card adm-card-visits">
+        <div class="adm-card-head"><h3>👣 ${esc(L("Visitors", "방문자"))}</h3>
+          <div class="adm-seg" role="tablist" aria-label="${esc(L("Visitor range", "방문자 기간"))}">${seg}</div></div>
+        <div class="adm-vis-stats">${stats.map(([label, [n, m], prevLabel, [pn]]) => `
+          <div class="adm-vis-stat">
+            <span class="adm-vis-label">${esc(label)}</span>
+            <div class="adm-big">${fmt(n)}<small>${esc(L("", "명"))}</small></div>
+            <span class="adm-muted">${esc(L(`Signed in ${fmt(m)}`, `회원 ${fmt(m)}명`))}<br>${esc(`${prevLabel} ${fmt(pn)}`)}</span>
+          </div>`).join("")}
+        </div>
+        ${svgBars(pts.map((p) => p[1][0]), pts.map((p) => p[0]), "#5bbfa6", "#f0a21a", pts.map((p) => p[1][1]))}
+        <p class="adm-legend"><span><i class="adm-dot" style="background:#5bbfa6"></i>${esc(L("All visitors", "전체 방문자"))}</span><span><i class="adm-dot" style="background:#f0a21a"></i>${esc(L("Signed in", "로그인 회원"))}</span><span class="adm-muted">${esc(note)}</span></p>
+        <p class="adm-legend"><span class="adm-muted">${esc(L("Each device counts once per day, week or month. Admin visits are not counted.", "기기 하나를 하루·한 주·한 달에 한 번만 셉니다. 관리자 방문은 세지 않아요."))}</span></p>
+      </section>`;
+  }
+
   function renderOverviewCards() {
     const grid = $("adm-ov-grid");
     if (!grid) return;
@@ -298,7 +344,7 @@
 
     const coin = '<svg class="koala-coin" viewBox="0 0 24 24" width="1.1em" height="1.1em" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10.5" fill="#f6c343" stroke="#c98a00" stroke-width="1.5"/><text x="12" y="16.5" text-anchor="middle" font-size="12" font-weight="800" fill="#8a5a00">$</text></svg>';
 
-    grid.innerHTML = `
+    grid.innerHTML = visitorCard(o) + `
       <section class="adm-card adm-card-users">
         <div class="adm-card-head"><h3>👥 ${esc(L("Members", "회원"))}</h3>
           <span class="adm-delta">${esc(L(`Today ${delta(newToday)} · Yesterday ${delta(newYest)}`, `오늘 ${delta(newToday)} · 어제 ${delta(newYest)}`))}</span></div>
@@ -350,6 +396,7 @@
         <p class="adm-legend"><span><i class="adm-dot" style="background:#b8c4cf"></i>${esc(L("Created", "발급"))}</span><span><i class="adm-dot" style="background:#3fb984"></i>${esc(L("Redeemed", "사용"))}</span></p>
       </section>`;
     grid.querySelectorAll("[data-ov-go]").forEach((b) => b.addEventListener("click", () => jump(b.dataset.ovGo)));
+    grid.querySelectorAll("[data-vis-range]").forEach((b) => b.addEventListener("click", () => { visRange = b.dataset.visRange; renderOverviewCards(); }));
   }
 
   $("adm-ov-range").addEventListener("click", (e) => {

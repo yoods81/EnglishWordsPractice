@@ -12736,6 +12736,15 @@ html body .tg-start-card .tg-meter-ico i.on { opacity: 1; filter: none; }
 .adm-chart { width: 100%; height: 110px; display: block; color: #17463c; margin-top: 2px; }
 .adm-axis { display: flex; justify-content: space-between; font-size: .75rem; color: var(--muted); margin-top: -2px; }
 .adm-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; font-size: .8rem; color: #4b6b62; }
+.adm-card-visits { grid-column: 1 / -1; }
+.adm-vis-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.adm-vis-stat { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.adm-vis-label { font-size: .85rem; font-weight: 800; color: #4b6b62; }
+@media (max-width: 520px) {
+  .adm-vis-stats { gap: 8px; }
+  .adm-vis-stat .adm-big { font-size: 1.8rem; }
+  .adm-vis-stat .adm-muted { font-size: .75rem; }
+}
 .adm-meter { height: 8px; border-radius: 999px; background: #e6efec; overflow: hidden; }
 .adm-meter i { display: block; height: 100%; background: linear-gradient(90deg, #5fe0c2, #2fa77f); border-radius: inherit; }
 

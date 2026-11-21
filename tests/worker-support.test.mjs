@@ -225,3 +225,32 @@ test("deleting a ticket and deleting a customer clean up their messages", async 
   assert.equal(db.prepare("SELECT COUNT(*) c FROM support_tickets WHERE user_id = 'u1'").get().c, 0);
   assert.equal(db.prepare("SELECT COUNT(*) c FROM customer_notes WHERE user_id = 'u1'").get().c, 0);
 });
+
+test("visitors: one row per device per day, members marked, admin not counted, overview counts days/weeks/months", async () => {
+  db.exec("DELETE FROM site_visits");
+  assert.equal((await call(null, "POST", "/visit", { vid: "bad id!" })).status, 400);
+  assert.equal((await call(null, "POST", "/visit", { vid: "device-aaaa", tz: 0 })).data.counted, true);
+  await call(null, "POST", "/visit", { vid: "device-aaaa", tz: 0 }); // same device, same day
+  await call(other, "POST", "/visit", { vid: "device-aaaa", tz: 0 }); // signed in later that day
+  await call(stuck, "POST", "/visit", { vid: "device-bbbb", tz: 0 }); // email not confirmed yet: still counted
+  assert.equal((await call(admin, "POST", "/visit", { vid: "device-cccc", tz: 0 })).data.counted, false);
+  const today = Math.floor(Date.now() / 86400000);
+  assert.deepEqual(db.prepare("SELECT vid, member FROM site_visits ORDER BY vid").all().map((r) => [r.vid, r.member]), [["device-aaaa", 1], ["device-bbbb", 1]]);
+  // the same device yesterday and a guest last month
+  db.prepare("INSERT INTO site_visits (day, vid, member) VALUES (?, ?, 0)").run(today - 1, "device-aaaa");
+  db.prepare("INSERT INTO site_visits (day, vid, member) VALUES (?, ?, 0)").run(today - 40, "device-dddd");
+  const o = (await call(admin, "GET", "/admin/overview?tz=0")).data;
+  assert.equal(o.today, today);
+  assert.deepEqual(o.visits.days[today], [2, 2]);
+  assert.deepEqual(o.visits.days[today - 1], [1, 0]);
+  assert.equal(o.visits.days[today - 40], undefined); // only 30 days of days
+  const week = Math.floor((today + 3) / 7);
+  // aaaa visited today and yesterday: counted once for the week when both days are in it
+  const yesterdaySameWeek = Math.floor((today + 2) / 7) === week;
+  assert.equal(o.visits.weeks[week][0], 2);
+  if (!yesterdaySameWeek) assert.equal(o.visits.weeks[week - 1][0], 1);
+  const key = new Date(today * 86400000).toISOString().slice(0, 7);
+  assert.equal(o.visits.months[key][0], 2);
+  const total = Object.values(o.visits.months).reduce((a, v) => a + v[0], 0);
+  assert.equal(total, 3 + (new Date((today - 1) * 86400000).toISOString().slice(0, 7) !== key ? 1 : 0));
+});
