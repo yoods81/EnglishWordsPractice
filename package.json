@@ -5,7 +5,7 @@
   "description": "Aussie English Word Practice — static app plus a small Cloudflare Worker API for the shared word list.",
   "scripts": {
     "dev": "wrangler dev",
-    "test": "node --test tests/koala-core.test.js tests/koala-sync.test.js tests/quiz-core.test.js tests/house-bridge.test.mjs tests/house-move.test.mjs && node --experimental-sqlite --test tests/worker-koala.test.mjs tests/worker-sync.test.mjs tests/worker-house.test.mjs tests/worker-support.test.mjs tests/worker-word-ownership.test.mjs tests/worker-billing.test.mjs",
+    "test": "node --test tests/koala-core.test.js tests/koala-sync.test.js tests/quiz-core.test.js tests/house-bridge.test.mjs tests/house-move.test.mjs && node --experimental-sqlite --test tests/worker-koala.test.mjs tests/worker-sync.test.mjs tests/worker-house.test.mjs tests/worker-support.test.mjs tests/worker-word-ownership.test.mjs tests/worker-billing.test.mjs tests/worker-usage.test.mjs",
     "house:sync": "node scripts/house-sync.mjs",
     "gen:faq": "node scripts/gen-faq.mjs",
     "gen:learn": "node scripts/gen-learn-pages.mjs",
@@ -35,6 +35,8 @@
     "db:migrate:house:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0018_koala_house.sql",
     "db:migrate:visits": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0019_site_visits.sql",
     "db:migrate:visits:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0019_site_visits.sql",
+    "db:migrate:usage": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0020_daily_usage.sql",
+    "db:migrate:usage:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0020_daily_usage.sql",
     "db:migrate:sync:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0017_koala_sync_rev.sql",
     "db:migrate:item-fit": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0015_item_fit.sql",
     "db:migrate:item-fit:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0015_item_fit.sql",

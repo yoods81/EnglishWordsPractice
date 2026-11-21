@@ -61,6 +61,10 @@ async function readState(env) {
   const norm = (c, ch) => { const x = validateConfig(c).config; x.version = Number(c && c.version) || 0; x.channel = ch; return x; };
   return { raw: row.value, state: { live: v && v.live ? norm(v.live, "live") : freshLive(), draft: v && v.draft ? norm(v.draft, "draft") : null } };
 }
+// The live usage limits (admin "이용 제한": dailyMax.guest/free, guestRounds …) — also read by worker/usage.js.
+export async function liveLimits(env) {
+  try { return (await readState(env)).state.live.limits; } catch (e) { return validateConfig({}).config.limits; }
+}
 // A signed-in account named in the trial list (login email, username or id — case ignored).
 async function isTrialUser(env, s, state) {
   const trial = state.live.switches.trialAccounts || [];

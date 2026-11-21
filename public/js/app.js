@@ -2841,17 +2841,72 @@ document.addEventListener(
 // forever, so Quiz / Spelling / Times Table also share a per-day total per mode:
 // signed-out = GOAL_MAX_ANONYMOUS, free = GOAL_MAX_FREE; premium and admin are uncapped.
 const DAILY_QUOTA_KEY = "ywp_daily_quota_v1";
-function dailyQuotaCap() {
-  if (isAdmin || serverAdmin) return Infinity;
-  if (!currentUser) return GOAL_MAX_ANONYMOUS;
-  if (currentUser.role === "free") return GOAL_MAX_FREE;
-  return Infinity;
+// The server keeps the real count (worker/usage.js, GET/POST /api/usage): this browser's own count below still
+// works offline or when the server can't be reached, but whichever is higher wins, so a private window, cleared
+// browser data or a second device no longer starts the day again. Caps come from the admin settings (이용 제한);
+// GOAL_MAX_* are only the fallback when the server hasn't answered.
+function dailyQuotaTier() {
+  if (isAdmin || serverAdmin || (currentUser && currentUser.role !== "free")) return "unlimited";
+  return currentUser ? "free" : "guest";
 }
-// Flashcards and the Typing Game: a signed-out visitor gets one free round a day (a taste);
+let usageSrv = null;      // { date, tier, caps: { mode: number|null }, used: { mode: n }, at }
+let usagePending = {};    // mode -> questions/rounds not yet sent
+let usageFlushTimer = null;
+let usageFetching = null;
+function usageSrvNow() {
+  const s = usageSrv;
+  return s && s.date === localDateKey(new Date()) && s.tier === dailyQuotaTier() ? s : null;
+}
+// Ask the server for today's caps and counts (on load, sign-in/out and when a practice tab opens).
+function usageRefresh(force) {
+  const s = usageSrvNow();
+  if (!force && s && Date.now() - s.at < 30000) return Promise.resolve(s);
+  if (usageFetching) return usageFetching;
+  const tier = dailyQuotaTier();
+  usageFetching = fetch("/api/usage?tz=" + new Date().getTimezoneOffset(), { credentials: "same-origin", cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((d) => {
+      if (d && d.caps && d.used && (d.tier === tier || (d.tier === "unlimited" && tier === "unlimited"))) {
+        usageSrv = { date: localDateKey(new Date()), tier, caps: d.caps, used: d.used, at: Date.now() };
+        try { if (typeof renderQuizStart === "function" && document.getElementById("view-quiz").classList.contains("active")) renderQuizStart(); } catch (e) { /* screen not ready */ }
+      }
+      return usageSrvNow();
+    })
+    .catch(() => null)
+    .finally(() => { usageFetching = null; });
+  return usageFetching;
+}
+function usageSend(mode, n, beacon) {
+  const body = JSON.stringify({ tz: new Date().getTimezoneOffset(), mode, n });
+  if (beacon && navigator.sendBeacon) {
+    try { if (navigator.sendBeacon("/api/usage", new Blob([body], { type: "application/json" }))) return; } catch (e) { /* fall back to fetch */ }
+  }
+  fetch("/api/usage", { method: "POST", credentials: "same-origin", keepalive: true, headers: { "content-type": "application/json" }, body })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((d) => { const s = usageSrvNow(); if (d && s && typeof d.used === "number") s.used[mode] = Math.max(Number(s.used[mode]) || 0, d.used); })
+    .catch(() => { /* offline: the local count still applies; the server catches up next time */ });
+}
+function usageFlush(beacon) {
+  clearTimeout(usageFlushTimer); usageFlushTimer = null;
+  const p = usagePending; usagePending = {};
+  Object.keys(p).forEach((m) => { if (p[m] > 0) usageSend(m, p[m], beacon); });
+}
+window.addEventListener("pagehide", () => usageFlush(true));
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") usageFlush(true); });
+
+function dailyQuotaCap(mode) {
+  const tier = dailyQuotaTier();
+  if (tier === "unlimited") return Infinity;
+  const s = usageSrvNow();
+  if (s && mode && mode in s.caps) return s.caps[mode] === null ? Infinity : Number(s.caps[mode]);
+  if (mode === "flash" || mode === "type") return tier === "guest" ? 1 : Infinity;
+  return tier === "guest" ? GOAL_MAX_ANONYMOUS : GOAL_MAX_FREE;
+}
+// Flashcards and the Typing Game: a signed-out visitor gets one free round a day (a taste, admin setting guestRounds);
 // any signed-in account plays them without limit.
 function dailyRoundsBlocked(mode) {
-  if (isAdmin || serverAdmin || currentUser) return false;
-  return dailyQuotaUsed(mode) >= 1;
+  if (dailyQuotaTier() !== "guest") return false;
+  return dailyQuotaUsed(mode) >= dailyQuotaCap(mode);
 }
 function promptDailyRound() {
   promptSignup(t("dailyRoundGuest"));
@@ -2866,22 +2921,28 @@ function dailyQuotaRead() {
 function dailyQuotaWho() { return currentUser ? "u" + currentUser.id : "anon"; }
 function dailyQuotaUsed(mode) {
   const st = dailyQuotaRead();
-  return Number((st.by[dailyQuotaWho()] || {})[mode]) || 0;
+  const local = Number((st.by[dailyQuotaWho()] || {})[mode]) || 0;
+  const s = usageSrvNow();
+  const server = s ? (Number(s.used[mode]) || 0) + (usagePending[mode] || 0) : 0;
+  return Math.max(local, server);
 }
 function dailyQuotaLeft(mode) {
-  const cap = dailyQuotaCap();
+  const cap = dailyQuotaCap(mode);
   return cap === Infinity ? Infinity : Math.max(0, cap - dailyQuotaUsed(mode));
 }
 function dailyQuotaAdd(mode, n = 1) {
-  if (dailyQuotaCap() === Infinity) return;
+  if (dailyQuotaCap(mode) === Infinity) return;
   const st = dailyQuotaRead();
   const who = dailyQuotaWho();
   st.by[who] = st.by[who] || {};
   st.by[who][mode] = (Number(st.by[who][mode]) || 0) + n;
   try { localStorage.setItem(DAILY_QUOTA_KEY, JSON.stringify(st)); } catch (e) { /* private mode: still enforced per round */ }
+  // Report to the server in small batches (and right away when the page is hidden or closed).
+  usagePending[mode] = (usagePending[mode] || 0) + n;
+  if (!usageFlushTimer) usageFlushTimer = setTimeout(() => usageFlush(false), 2000);
 }
-function promptDailyCap() {
-  const cap = dailyQuotaCap();
+function promptDailyCap(mode) {
+  const cap = dailyQuotaCap(mode || "quiz");
   if (!currentUser) {
     promptSignup(t("dailyCapGuest", cap));
   } else {
@@ -3898,6 +3959,7 @@ document.querySelectorAll(".bottom-tab-btn[data-group]").forEach((btn) => {
 });
 
 function goToTab(view, opts) {
+  if (["quiz", "spelling", "timestable", "flashcards", "typegame"].includes(view)) usageRefresh();
   const previousBtn = document.querySelector(".tab-btn.active");
   const previousView = previousBtn ? previousBtn.dataset.view : null;
   // Browser Back/Forward: every tab change is its own history entry, so Back
@@ -4654,6 +4716,7 @@ function updateAdminUI() {
   document.body.classList.toggle("signed-in", !!currentUser);
   // Premium/admin: Add Word is fully open, so its 🔒 badges are hidden (style.css).
   document.body.classList.toggle("can-paid", !!canUsePaidFeatures());
+  usageRefresh();   // today's server count for this account / device (no-op while fresh)
   if (currentUser) levelOverlay.hidden = true;
   if (typeof renderStreakChip === "function") renderStreakChip();
   if (!currentUser) closeAuthMenu();
@@ -7322,7 +7385,7 @@ function buildQuizQuestions() {
 // Quiz questions already answered today are never served again today (see markDoneToday). Keyed by target word.
 const quizFreshPool = () => buildQuizPool().filter((q) => !isDoneToday("quiz", q.target));
 function startQuizRound(retryList, opts = {}) {
-  if (dailyQuotaLeft("quiz") <= 0) { showQuizStart(); promptDailyCap(); return; }
+  if (dailyQuotaLeft("quiz") <= 0) { showQuizStart(); promptDailyCap("quiz"); return; }
   stopQuizTimer();
   quizGoalBanner.hidden = true;
   quizGoalCelebrated = false;
@@ -8418,7 +8481,7 @@ function spellingConfetti() {
 }
 
 spellingStartBtn.addEventListener("click", () => {
-  if (dailyQuotaLeft("spelling") <= 0) { promptDailyCap(); return; }
+  if (dailyQuotaLeft("spelling") <= 0) { promptDailyCap("spelling"); return; }
   spellingStartScreen.hidden = true;
   spellingPractice.hidden = false;
   loadSpellingWord();
@@ -8724,7 +8787,7 @@ function checkSpellingAnswer() {
     dailyQuotaAdd("spelling", 1);
     if (dailyQuotaLeft("spelling") <= 0) {
       const tok = spellingRoundToken;
-      setTimeout(() => { if (tok === spellingRoundToken && !spellingPractice.hidden) { renderSpellingReport(); promptDailyCap(); } }, 2200);
+      setTimeout(() => { if (tok === spellingRoundToken && !spellingPractice.hidden) { renderSpellingReport(); promptDailyCap("spelling"); } }, 2200);
     }
   }
 
@@ -8928,7 +8991,7 @@ document.getElementById("spelling-report-game")?.addEventListener("click", () =>
 
 // Report buttons start the next round straight away (no detour via the start screen).
 function startSpellingRoundNow(opts) {
-  if (dailyQuotaLeft("spelling") <= 0) { promptDailyCap(); return; }
+  if (dailyQuotaLeft("spelling") <= 0) { promptDailyCap("spelling"); return; }
   if (!opts || !opts.list) { if (freshLeft(getSpellingPool(currentLevel, true), "spelling") === 0) { renderSpellingReport(); return; } }
   buildSpellingDeck(opts);
   if (!spellingDeck.length) return;
@@ -10951,7 +11014,7 @@ function startTimesTable() {
     }, 0);
     return;
   }
-  if (dailyQuotaLeft("tt") <= 0) { promptDailyCap(); return; }
+  if (dailyQuotaLeft("tt") <= 0) { promptDailyCap("tt"); return; }
   timesTableRoundCap = dailyQuotaLeft("tt");
   clearTimeout(timesTableEndTimer);
   timesTableEndTimer = null;

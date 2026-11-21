@@ -9,6 +9,7 @@ import { handleSupport } from "./support.js";
 import { handleBilling, closeBillingForUser } from "./billing.js";
 import KoalaCore from "../public/js/koala-core.js";
 import { handleHouse, houseRowKey, houseRowKeys, houseGate } from "./house.js";
+import { handleUsage } from "./usage.js";
 
 const SESSION_COOKIE = "ywp_session";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
@@ -510,6 +511,9 @@ async function handleApi(request, env, url) {
       if (gateRow && gateRow.email && !gateRow.email_verified_at) return json({ error: "email_not_verified" }, 403);
     }
   }
+
+  // Daily question limits counted on the server (guest / free) — worker/usage.js
+  if (route === "/usage") return handleUsage(request, env, url, { json, getSessionUser });
 
   // Customer support: inquiries, admin inbox, customer notes, announcement.
   // Koala House settings (S12) and house saves (S3) — worker/house.js

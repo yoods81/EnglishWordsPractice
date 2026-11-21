@@ -252,3 +252,12 @@ CREATE TABLE IF NOT EXISTS config_log (
   after_val TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_config_log_batch ON config_log (batch);
+
+-- Daily question limits on the server (see migrations/0020_daily_usage.sql).
+CREATE TABLE IF NOT EXISTS daily_usage (
+  day INTEGER NOT NULL,
+  who TEXT NOT NULL,
+  mode TEXT NOT NULL,
+  n INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (day, who, mode)
+);
