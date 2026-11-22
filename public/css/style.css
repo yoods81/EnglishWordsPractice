@@ -14818,4 +14818,4 @@ html:root:root:root:root body .scope-seg.scope-seg-3 { grid-template-columns: re
 html:root:root:root:root body .scope-seg.scope-seg-3 .qz-seg-btn { padding-left: 3px; padding-right: 3px; font-size: .82rem; }
 html body .scope-pick { flex-wrap: wrap; }
 html body .scope-pick > .scope-seg { flex: 1 1 0; min-width: 0; }
-html body .scope-pick > .town-box { flex: 1 1 100%; min-width: 0; }
+html body .scope-pick > .town-box { flex: 0 0 auto; width: 100%; min-width: 0; }

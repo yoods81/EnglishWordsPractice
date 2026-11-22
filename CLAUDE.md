@@ -10,7 +10,7 @@
 - 서비스워커 버전이 바뀔 때마다 사이트 타이틀 옆에 작은 글씨(v122 식)로 버전 표시
 - 사이트 이메일: admin@koalastudymate.com (Cloudflare Email Routing/Sending)
 - **장소별 단어 묶음 (2026-11-22, sw v287):** 퀴즈·스펠링·플래시카드·타이핑 설정 'Words from'이 **All / My words / Places** 3칸. Places를 고르면 마을 건물 9 + 상점 10 = 19곳 아이콘 격자(휴대폰 8곳 + '더 보기', 태블릿·데스크탑은 전부)에서 하나를 고르고 그 장소 단어 50개만 출제. **누구나** 사용, 하루 문제 수 제한·같은 날 반복 금지는 평소대로, 레벨은 적용 안 함. 데이터 `public/js/town-words-data.js`(단어·한국어 뜻·품사는 집 앱 town-words.json, **영어 뜻풀이 950개는 여기에만** — 뜻풀이에 답 단어가 들어가지 않는지 테스트가 검사). 한국어 화면에서는 한국어 뜻이 문제. 집 앱 단어가 바뀌면 이 파일도 맞춰 고친다.
-- **다음 할 일 (2026-11-21 요청):** 실제 사이트 DB 공유 단어(shared_words)의 어색한 뜻풀이("This word means … in simple terms." — ago·ahead·alone 등) 다듬기. 순서: ① 원격 DB를 SELECT로만 세고 목록을 `docs/evaluations/odd-definitions.md`로 뽑기 ② Year 4가 읽기 쉬운 뜻풀이로 다시 쓰기 ③ 관리자 화면 엑셀 가져오기로 반영(기록·되돌리기 남게). 코드에는 없는 문장이라 배포로는 안 고쳐진다.
+- **다음 할 일 — 어색한 뜻풀이 반영 (2026-11-22):** 실제 사이트 공유 단어 2023개의 "This word means … in simple terms." 뜻풀이를 다듬고, 자리표시 예문("The word “…” appears in this example sentence.") 277개를 실제 문장으로 새로 쓴 가져오기 파일 `docs/evaluations/odd-definitions-fixed.xlsx`(열 Word / Definition (English) / Example — 예문 빈칸은 그대로 둠)를 만들었다. 남은 것: 관리자 화면에서 ① 지금 단어를 엑셀로 내보내 백업 ② 이 파일을 "덮어쓰기"로 가져오기 ③ 몇 단어 확인. 반영 뒤 이 줄을 지운다.
 - **사이트평가 2차 나중 후보는 2026-11-21에 모두 처리함**(sw v282): 회색 글자 #5c6965·민트 글자 #0b7a62(밝은 테마만, 다크는 그대로), 결과 화면 숫자 알약 없앰, 옷장 안 고른 탭 연한 민트, 작은 버튼 보이지 않는 터치 영역, 접근성 이름표 2개.
 
 ## 명령어 규칙
