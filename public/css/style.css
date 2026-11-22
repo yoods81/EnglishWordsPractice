@@ -10246,7 +10246,7 @@ html body #flash-practice .flash-end-row .flash-auto .flash-auto-pill { width: 4
   margin-top: -2px;
   font-size: 0.86rem;
   font-weight: 700;
-  color: #3f7d6b;
+  color: #0b7a62;
 }
 #view-typegame .typegame-overlay .tg-start-card button.tg-start-btn.pill.accent {
   width: auto;
@@ -14795,3 +14795,7 @@ html body #view-koala .kdt-tab:not(.on):not(#_m):not(#_n) { background: #e3f5ee 
 html body #view-koala .kdt-tab:not(.on):not(#_m):not(#_n) :is(span, small, b, strong) { color: #0b7a62 !important; }
 html[data-theme="dark"] body #view-koala .kdt-tab:not(.on):not(#_m):not(#_n) { background: #243730 !important; color: #9fe8d4 !important; }
 html[data-theme="dark"] body #view-koala .kdt-tab:not(.on):not(#_m):not(#_n) :is(span, small, b, strong) { color: #9fe8d4 !important; }
+
+/* ======== Bigger touch areas, top bar & home (사이트평가 3차, 2026-11-22): same invisible ring, look unchanged ======== */
+html body :is(#theme-toggle, #lang-toggle, #auth-toggle, .mission-go, #promo-btn) { position: relative; }
+html body :is(#theme-toggle, #lang-toggle, #auth-toggle, .mission-go, #promo-btn)::before { content: ""; position: absolute; inset: -10px -6px; border-radius: inherit; }

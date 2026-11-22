@@ -2759,7 +2759,7 @@ html[data-theme="dark"] .datanote-row {
 html[data-theme="dark"] .datanote-ico {
   background: #131b19 !important;
 }
-html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #9fb1aa !important; --accent-dark: #0e9c7d !important; }
+html[data-theme="dark"] { color-scheme: dark; --bg: #13211c !important; --card-bg: #1c2d27 !important; --text: #e6eeea !important; --muted: #bccac4 !important; --accent-dark: #0e9c7d !important; }
 html[data-theme="dark"] img, html[data-theme="dark"] video { filter: brightness(.92); }
 html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea { color-scheme: dark; }
 html[data-theme="dark"] .koala-avatar-svg, html[data-theme="dark"] .koala-room-svg, html[data-theme="dark"] .koala-icon-svg { filter: none; }
@@ -4241,3 +4241,19 @@ html[data-theme="ivory"] .datanote-ico {
 }
 html[data-theme="dark"] body :is(#view-koala, #view-stats) .stats-tab:not(.on) { color: #9fb1aa !important; }
 html[data-theme="dark"][data-theme="dark"] body :is(#view-koala, #view-stats) .stats-tab.on { color: #3ee6c6 !important; }
+
+/* ======== 다크 테마 대비 2 (사이트평가 3차, 2026-11-22, v284) ======== */
+/* 1. signed-in account button: the dark tile wins (above), so the text is light */
+html[data-theme="dark"] body #auth-toggle.auth-toggle-active { color: #3ee6c6 !important; }
+/* 2. mint buttons keep mint in dark too → dark text, same as the light theme (6.2:1) */
+html[data-theme="dark"] body :is(.pill.accent, #auth-toggle:not(.auth-toggle-admin):not(.auth-toggle-active), .dash-rec-btn, [data-rw-signup], .kh-cat.on, .tt-chip.on, .tt-count-btn, .qz-seg-btn.on, .source-btn.on):not(#_m):not(#_n),
+html[data-theme="dark"] body :is(.pill.accent, .dash-rec-btn, [data-rw-signup], .kh-cat.on, .tt-chip.on, .qz-seg-btn.on):not(#_m):not(#_n) :is(span, small, b, strong) { color: #06382d !important; }
+/* 3. mint words on dark cards → bright mint; mint words on the white/cream wardrobe chips → deeper mint */
+html[data-theme="dark"] body :is(#mission-count, .dash-badge-count, .dash-goal-top > span, .rw-lock-title, .home-about-feats b, [data-i18n="insightsHint"]) { color: #3ee6c6 !important; }
+html[data-theme="dark"] body #view-koala :is(.kh-cat:not(.on), [data-koala-dim]) :is(span, b) { color: #0b7a62 !important; }
+/*    grey notes in My Koala / Progress were fixed light-theme colours (#view-koala even redefines --muted for light) */
+html[data-theme="dark"] body #view-koala { --muted: #bccac4 !important; }
+html[data-theme="dark"] body #view-koala :is(.badge-hint, .badge-summary, .koala-streak-sub, .koala-history-day, .badge-desc),
+html[data-theme="dark"] body .dash-muted { color: var(--muted) !important; }
+/*    the streak line is a note, not a button: no pill in dark either */
+html[data-theme="dark"] .koala-streak-chip { background: transparent !important; box-shadow: none !important; border-color: transparent !important; }
