@@ -13,8 +13,8 @@
             "ko": "Koala Study Mate는 무료인가요?"
           },
           "a": {
-            "en": "Yes, you can start for free. A free account includes daily quiz, spelling and times-table practice plus unlimited flashcards and typing. Premium adds unlimited practice, adding your own words from photos or spreadsheets, a full review notebook, syncing across devices and up to four child profiles.",
-            "ko": "네, 무료로 시작할 수 있어요. 무료 계정에는 매일 퀴즈·스펠링·구구단 연습과 무제한 플래시카드·타이핑이 포함돼요. 프리미엄은 무제한 연습, 사진·엑셀로 단어 추가, 전체 오답 노트, 기기 간 동기화, 자녀 프로필 4명을 제공해요."
+            "en": "Yes, you can start for free — no card needed. Without an account you can try 30 questions a day in each of Quiz, Spelling and Times Table. A free account raises that to 100 a day in each and adds unlimited flashcards and typing. Premium adds unlimited practice, your own word list (even from a photo of homework), the full mistakes notebook and review, a weekly email report, progress on every device and up to four child profiles. Prices are on the Pricing page (koalastudymate.com/pricing).",
+            "ko": "네, 카드 없이 무료로 시작할 수 있어요. 가입하지 않아도 퀴즈·스펠링·구구단을 하루 각각 30문제까지 해 볼 수 있고, 무료 계정은 하루 각각 100문제에 플래시카드·타이핑이 무제한이에요. 프리미엄은 무제한 연습, 나만의 단어장(숙제 사진으로도 추가), 전체 오답 노트와 복습, 주간 이메일 리포트, 모든 기기에서 이어하기, 자녀 프로필 최대 4명이 더해져요. 가격은 가격 안내 페이지(koalastudymate.com/pricing)에 있어요."
           },
           "featured": true
         },
@@ -46,8 +46,8 @@
             "ko": "아이들이 써도 안전한가요?"
           },
           "a": {
-            "en": "We only ask for a username and a parent's email — please don't use a child's full name as the username. We never show ads or let children chat with others.",
-            "ko": "아이디와 보호자 이메일만 받아요. 아이디에 아이의 실명은 쓰지 말아 주세요. 광고나 다른 사용자와의 채팅은 없어요."
+            "en": "To create an account we only ask for a parent's email and a password — no child's name is needed. We never show ads or let children chat with others.",
+            "ko": "계정을 만들 때는 부모님 이메일과 비밀번호만 받아요. 아이 이름은 필요 없어요. 광고를 보여 주지 않고, 아이들이 다른 사람과 채팅할 수도 없어요."
           },
           "featured": true
         },
@@ -72,12 +72,12 @@
       "items": [
         {
           "q": {
-            "en": "I forgot my username or password.",
-            "ko": "아이디나 비밀번호를 잊어버렸어요."
+            "en": "I forgot my password.",
+            "ko": "비밀번호를 잊어버렸어요."
           },
           "a": {
-            "en": "Tap Log In, then \"Forgot your username or password?\" and enter the email address on your account. We'll email your username or a link to set a new password.",
-            "ko": "로그인 창에서 '아이디 또는 비밀번호를 잊으셨나요?'를 누르고, 계정에 등록한 이메일을 입력해 주세요. 아이디 안내나 새 비밀번호 설정 링크를 이메일로 보내 드려요."
+            "en": "Tap Log In, then \"Forgot your password?\" and enter the email address you log in with. We'll email you a link to set a new password.",
+            "ko": "로그인을 누른 뒤 \"비밀번호를 잊으셨나요?\"를 누르고, 로그인할 때 쓰는 이메일 주소를 입력하세요. 새 비밀번호를 정하는 링크를 이메일로 보내 드려요."
           }
         },
         {
@@ -102,12 +102,12 @@
         },
         {
           "q": {
-            "en": "How do I change my username or close my account?",
-            "ko": "아이디 변경이나 회원 탈퇴는 어떻게 하나요?"
+            "en": "How do I change my email or close my account?",
+            "ko": "이메일을 바꾸거나 계정을 닫으려면 어떻게 하나요?"
           },
           "a": {
-            "en": "To close your account, open My Account and choose \"Close my account…\", then type your password to confirm (cancel any subscription first). To change your username, use Contact us and tell us the new one — we will do it for you.",
-            "ko": "회원 탈퇴는 내 계정에서 \"회원 탈퇴하기…\"를 누르고 비밀번호를 입력해 확인하면 돼요(구독 중이라면 먼저 해지해 주세요). 아이디 변경은 문의하기로 새 아이디를 알려 주시면 저희가 바꿔 드려요."
+            "en": "Your email is also your login. To change it, open My Account → Email → Change email. To close your account, open My Account and choose \"Close my account…\", then type your password to confirm (cancel any subscription first).",
+            "ko": "이메일이 곧 로그인 ID예요. 바꾸려면 내 계정 → 이메일 → 이메일 바꾸기를 이용하세요. 계정을 닫으려면 내 계정에서 \"회원 탈퇴하기…\"를 누르고 비밀번호를 입력해 확인하세요(구독이 있으면 먼저 해지해 주세요)."
           }
         }
       ]
@@ -125,8 +125,8 @@
             "ko": "무료와 프리미엄은 뭐가 다른가요?"
           },
           "a": {
-            "en": "A Free account lets you start learning right away. Premium adds more questions and your own word list (Add Word), including adding words from a photo of a book page.",
-            "ko": "무료 계정은 바로 학습을 시작할 수 있어요. 프리미엄은 더 많은 문제와 나만의 단어장(단어 추가)을 쓸 수 있고, 책 사진으로 단어를 추가하는 기능도 포함돼요."
+            "en": "A Free account gives you 100 questions a day in each of Quiz, Spelling and Times Table, unlimited flashcards and typing, and 10 of your own words to try. Premium adds unlimited questions, your own word list (type it, or add words from a photo, PDF, Word or Excel file), the full mistakes notebook and review, a weekly email report for parents, progress on every device and up to four child profiles.",
+            "ko": "무료 계정은 퀴즈·스펠링·구구단 하루 각각 100문제, 플래시카드·타이핑 무제한, 직접 입력 단어 10개 체험이 돼요. 프리미엄은 무제한 문제, 나만의 단어장(직접 입력하거나 사진·PDF·Word·Excel로 추가), 전체 오답 노트와 복습, 부모님께 보내는 주간 이메일 리포트, 모든 기기에서 이어하기, 자녀 프로필 최대 4명이 더해져요."
           }
         },
         {
@@ -135,8 +135,28 @@
             "ko": "프리미엄으로 업그레이드하려면 어떻게 하나요?"
           },
           "a": {
-            "en": "Go to My Account and use the Upgrade card. Online payment is coming soon; for now you can join with a voucher code. If you asked for an upgrade, we'll send you a code and the card will tell you when it's ready.",
-            "ko": "내 계정의 업그레이드 카드를 이용해 주세요. 온라인 결제는 곧 열릴 예정이고, 지금은 바우처 코드로 가입할 수 있어요. 업그레이드를 요청하셨다면 코드를 보내 드리고, 준비되면 카드에 알려 드려요."
+            "en": "Log in, open My Account and tap \"Join Premium\" on the Upgrade card. You can choose monthly or yearly and pay by card through Stripe — we never see your card details. Prices are on the Pricing page. Have a voucher code? Enter it on the same card.",
+            "ko": "로그인한 뒤 내 계정의 업그레이드 카드에서 \"프리미엄 가입\"을 누르세요. 월간·연간 중에서 골라 Stripe로 카드 결제해요. 카드 정보는 저희가 볼 수 없어요. 가격은 가격 안내 페이지에 있어요. 바우처 코드가 있으면 같은 카드에 입력하면 돼요."
+          }
+        },
+        {
+          "q": {
+            "en": "How much is Premium?",
+            "ko": "프리미엄은 얼마인가요?"
+          },
+          "a": {
+            "en": "Premium is a monthly or yearly subscription in Australian dollars; the yearly plan costs less per month. The current prices are always on the Pricing page (koalastudymate.com/pricing) and on the Upgrade card in My Account. Practising for free stays free.",
+            "ko": "프리미엄은 호주 달러로 내는 월간 또는 연간 구독이고, 연간이 한 달 기준으로 더 저렴해요. 현재 가격은 가격 안내 페이지(koalastudymate.com/pricing)와 내 계정의 업그레이드 카드에 항상 나와 있어요. 무료 연습은 계속 무료예요."
+          }
+        },
+        {
+          "q": {
+            "en": "Can I cancel Premium?",
+            "ko": "프리미엄을 해지할 수 있나요?"
+          },
+          "a": {
+            "en": "Yes, any time in My Account. You keep Premium until the end of the period you paid for. After that your account becomes Free: your own words, child profiles and mistakes notebook are kept (locked, not deleted) and unlock again if you rejoin.",
+            "ko": "네, 내 계정에서 언제든 해지할 수 있어요. 결제한 기간이 끝날 때까지는 프리미엄이 유지돼요. 그 뒤 무료 계정이 되어도 직접 추가한 단어·자녀 프로필·오답 노트는 지우지 않고 잠가 두었다가, 다시 가입하면 열려요."
           }
         },
         {
