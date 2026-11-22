@@ -288,6 +288,26 @@ export async function handleBilling({ route, request, env, url, h }) {
   if (!session) return json({ error: "unauthorized" }, 401);
   const baseUrl = (env.APP_URL || url.origin).replace(/\/$/, "");
 
+  // Admin-only check: can Stripe make the in-site (embedded) checkout for this account?
+  // Creates a throwaway session (no customer, expires unused) and reports Stripe's answer.
+  if (route === "/billing/diag" && request.method === "GET") {
+    if (session.role !== "admin") return json({ error: "forbidden" }, 403);
+    if (!billingConfigured(env)) return json({ configured: false });
+    const r = await stripe(env, "POST", "/checkout/sessions", {
+      mode: "subscription",
+      line_items: [{ price: env.STRIPE_PRICE_MONTHLY, quantity: 1 }],
+      ui_mode: "embedded",
+      return_url: `${baseUrl}/?checkout=success`,
+    });
+    return json({
+      publishableKeySet: !!env.STRIPE_PUBLISHABLE_KEY,
+      embeddedOk: !!(r.ok && r.data?.client_secret),
+      status: r.status,
+      stripeError: r.data?.error ? { type: r.data.error.type, code: r.data.error.code, param: r.data.error.param, message: r.data.error.message } : null,
+      livemode: r.data?.livemode,
+    });
+  }
+
   if (route === "/billing/status" && request.method === "GET") {
     const row = await env.DB.prepare("SELECT * FROM subscriptions WHERE user_id = ?").bind(session.id).first();
     return json({
