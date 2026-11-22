@@ -53,7 +53,7 @@
 
 ## 단어 체계
 - 영어 레벨(영어 네이티브 기준)과 한국어 레벨(한국 학생 기준, 더 쉬움)을 따로 관리. 둘 다 초등 저학년/초등 고학년/중학교/고등학교 4단계.
-- **레벨 이름 (2026-11-22, sw v290):** 영어 화면은 호주 학년 **Years 3–4 / 5–6 / 7–9 / 10–12**, 한국어 화면은 **초등 저학년 / 초등 고학년 / 중학교 / 고등학교**. id(`elem_low`·`elem_high`·`middle`·`high`)는 그대로. 대응표 `docs/level-mapping.md`. 첫 화면 랜딩의 학년 칩은 2개(Years 3–4 / 5–6). 집 앱(단어 도감 `src/game/dex.ts`)도 같은 이름으로 바꿈(집 앱 커밋 8ddc6d0, 브랜치 `claude/compassionate-darwin-7ofyc2`, sw v293).
+- **레벨 이름 (2026-11-22, sw v290):** 영어 화면은 호주 학년 **Years 3–4 / 5–6 / 7–9 / 10–12**, 한국어 화면은 **초등 저학년 / 초등 고학년 / 중학교 / 고등학교**. id(`elem_low`·`elem_high`·`middle`·`high`)는 그대로. 대응표 `docs/level-mapping.md`. 첫 화면 랜딩의 학년 칩은 2개(Years 3–4 / 5–6). 집 앱(단어 도감 `src/game/dex.ts`)도 같은 이름으로 바꿈(집 앱 커밋 8ddc6d0, main에 합침, sw v293).
 - **가격 안내 페이지 `/pricing` (2026-11-22, sw v289):** 비회원·무료·프리미엄 카드 3장, 월간 먼저, 가격은 `/api/billing/prices`(Stripe)에서 읽음. `/?join=free|premium`이 가입창·요금제 선택을 연다. Stripe 결제창·포털 언어는 사이트 언어를 따른다(`locale`). **결제창은 사이트 안 창으로(2026-11-22, sw v291, Stripe Embedded Checkout):** 공개 키 `STRIPE_PUBLISHABLE_KEY`(wrangler vars)가 있으면 `#checkout-overlay` 안에 Stripe 결제 양식을 띄우고, 없으면 예전처럼 Stripe 페이지로 이동. 닫기 = 결제 취소.
 - 단어에 품사 포함, 단어 목록에도 표시. 기본 단어의 품사는 `public/js/words.js`·`words_ko.js`의 `pos`(동음이의어는 `pos: [앞, 뒤]`, it's 같은 줄임말은 null) — 새 기본 단어를 넣을 때 `pos`도 함께 넣는다(테스트가 검사, 2026-11-21).
 - 엑셀 내보내기/가져오기는 관리자 전용.
