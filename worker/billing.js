@@ -296,7 +296,7 @@ export async function handleBilling({ route, request, env, url, h }) {
     const r = await stripe(env, "POST", "/checkout/sessions", {
       mode: "subscription",
       line_items: [{ price: env.STRIPE_PRICE_MONTHLY, quantity: 1 }],
-      ui_mode: "embedded",
+      ui_mode: "embedded_page",
       return_url: `${baseUrl}/?checkout=success`,
     });
     return json({
@@ -369,7 +369,7 @@ export async function handleBilling({ route, request, env, url, h }) {
     };
     const hosted = { success_url: `${baseUrl}/?checkout=success`, cancel_url: `${baseUrl}/?checkout=cancel` };
     if (embedded) {
-      const e = await stripe(env, "POST", "/checkout/sessions", { ...base, ui_mode: "embedded", return_url: `${baseUrl}/?checkout=success` });
+      const e = await stripe(env, "POST", "/checkout/sessions", { ...base, ui_mode: "embedded_page", return_url: `${baseUrl}/?checkout=success` });
       if (e.ok && e.data?.client_secret) return json({ clientSecret: e.data.client_secret });
       // The account may not allow the in-site form: log Stripe's reason and use Stripe's own page instead.
       console.error("embedded checkout failed:", e.status, e.data?.error?.message || "");
