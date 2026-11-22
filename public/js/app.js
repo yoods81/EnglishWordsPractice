@@ -21,7 +21,11 @@ const LANG_KEY = "ywp_lang_v1";
 // Practice scope (Quiz / Spelling / Typing Game / Flashcards): "all" = every word of the level,
 // "mine" = only the words this (premium/admin) account added itself. One setting shared by all four.
 const SCOPE_KEY = "ywp_scope_v1";
-let practiceScope = (() => { try { return localStorage.getItem(SCOPE_KEY) === "mine" ? "mine" : "all"; } catch (e) { return "all"; } })();
+let practiceScope = (() => { try { const v = localStorage.getItem(SCOPE_KEY); return v === "mine" || v === "places" ? v : "all"; } catch (e) { return "all"; } })();
+// "Places": one of the 19 Koala House town places (js/town-words-data.js), 50 words each. Everyone can use it.
+const TOWN_PLACE_KEY = "ywp_town_place_v1";
+let townPlaceId = (() => { try { return localStorage.getItem(TOWN_PLACE_KEY) || "school"; } catch (e) { return "school"; } })();
+let townGridOpen = false;
 const ADMIN_KEY = "ywp_admin_v1";
 const PROFILE_KEY = "ywp_active_profile_v1"; // { uid, n } — which child (slot) is learning on this device
 const PROFILES_CACHE_KEY = "ywp_profiles_v1"; // { uid, list } — last known child list
@@ -617,9 +621,12 @@ const TRANSLATIONS = {
     bulkPreviewDoneFailed: (ok, failed) => `Saved ${ok}, but ${failed} could not be sent to the server — they are kept here; try Upload again.`,
     manualSavedStatus: (w) => `✅ "${w}" saved — add the next one!`,
     scopeTitle: "Words from",
-    scopeAll: "🌏 All words",
-    scopeMine: "⭐ My words only",
-    scopeMineShort: "My words only",
+    scopeAll: "🌏 All",
+    scopeMine: "⭐ My words",
+    scopeMineShort: "My words",
+    scopePlaces: "🏘️ Places",
+    scopePlacesMore: (n) => `+ ${n} more places ▾`,
+    scopePlacesLess: "Show fewer ▴",
     scopeUnit: "",
     scopeNoteMine: "Only the words you added, within the level you picked.",
     scopeNoteEmpty: "You haven't added any words at this level yet — add some in Add Word first!",
@@ -1597,9 +1604,12 @@ const TRANSLATIONS = {
     bulkPreviewDoneFailed: (ok, failed) => `${ok}개는 저장했지만 ${failed}개는 서버로 보내지 못했어요. 이 기기에는 남아 있으니 다시 업로드해 주세요.`,
     manualSavedStatus: (w) => `✅ "${w}" 저장했어요 — 다음 단어를 추가하세요!`,
     scopeTitle: "출제 범위",
-    scopeAll: "🌏 전체 단어",
-    scopeMine: "⭐ 내 단어만",
-    scopeMineShort: "내 단어만",
+    scopeAll: "🌏 전체",
+    scopeMine: "⭐ 내 단어",
+    scopeMineShort: "내 단어",
+    scopePlaces: "🏘️ 장소별",
+    scopePlacesMore: (n) => `+ ${n}곳 더 보기 ▾`,
+    scopePlacesLess: "접기 ▴",
     scopeUnit: "개",
     scopeNoteMine: "선택한 난이도 안에서, 내가 추가한 단어만 출제돼요.",
     scopeNoteEmpty: "이 난이도에 추가한 단어가 아직 없어요 — 단어 추가에서 먼저 추가해 보세요!",
@@ -2379,6 +2389,7 @@ function builtinPos(w) {
     }));
     try { add(typeof WORD_BANK !== "undefined" ? WORD_BANK : null); } catch (e) { /* not loaded */ }
     try { add(typeof WORD_BANK_KO !== "undefined" ? WORD_BANK_KO : null); } catch (e) { /* not loaded */ }
+    try { (typeof TOWN_PLACES !== "undefined" ? TOWN_PLACES : []).forEach((pl) => pl.words.forEach((w) => { if (w.pos && !builtinPosMap.has(w.w.toLowerCase())) builtinPosMap.set(w.w.toLowerCase(), w.pos); })); } catch (e) { /* not loaded */ }
   }
   return builtinPosMap.get(w) || null;
 }
@@ -3243,7 +3254,23 @@ function isMineScope() {
   try { return !!canUsePaidFeatures(); } catch (e) { return false; }
 }
 
+function isPlacesScope() { return practiceScope === "places" && typeof TOWN_PLACES !== "undefined"; }
+function townPlace() {
+  if (typeof TOWN_PLACES === "undefined") return null;
+  return TOWN_PLACES.find((p) => p.id === townPlaceId) || TOWN_PLACES[0];
+}
+function townPlaceName(p) { return p ? (currentLang === "ko" ? p.name.ko : p.name.en) : ""; }
+// The chosen place's 50 words, in the same shape as the level pool (definition = English sentence, or Korean meaning
+// on the Korean track). Levels don't apply to places.
+function getTownPool() {
+  const p = townPlace();
+  if (!p) return [];
+  return p.words.map((w) => ({ word: w.w, definition: currentLang === "ko" ? w.ko : w.d, example: "", pos: w.pos, town: p.id }));
+}
+// Pool-only scope check (Places or My words): synonyms / homophones / antonyms have no place or own-word version.
+function isNarrowScope() { return isMineScope() || isPlacesScope(); }
 function getVocabPool(level, scoped) {
+  if (scoped && isPlacesScope()) return getTownPool();
   const mineOnly = !!scoped && isMineScope();
   const custom = (mineOnly ? myCustomWords() : customWords)
     .filter((w) => cwLevel(w) === level)
@@ -3829,41 +3856,71 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeAllTabGroups();
 });
 window.addEventListener("resize", closeAllTabGroups);
+window.addEventListener("resize", () => { if (typeof renderScopeSegs === "function") renderScopeSegs(); });
 
 /* ---------- Practice scope line ("All words" / "My words only") ---------- */
 function scopeCounts() {
-  return { all: getVocabPool(currentLevel).length, mine: myCustomWords().filter((w) => cwLevel(w) === currentLevel).length };
+  return { all: getVocabPool(currentLevel).length, mine: myCustomWords().filter((w) => cwLevel(w) === currentLevel).length, places: typeof TOWN_PLACES !== "undefined" ? TOWN_PLACES.length : 0 };
 }
-// Fills every ".scope-seg" (first line of the Quiz / Spelling / Flashcards settings and the Typing Game card).
+// Fills every ".scope-seg" (first line of the Quiz / Spelling / Flashcards settings and the Typing Game card):
+// All · My words · Places, and — with Places on — the icon grid of places right under it (8 shown, the rest behind "more").
+const TOWN_GRID_SHOWN = 8;
+function townGridHtml() {
+  if (!isPlacesScope()) return "";
+  const list = TOWN_PLACES;
+  const chosen = townPlace();
+  const idx = list.indexOf(chosen);
+  const wide = window.innerWidth >= 700; // tablet / desktop: room for every place, no "more" link
+  const shown = townGridOpen || wide ? list : list.slice(0, TOWN_GRID_SHOWN).concat(idx >= TOWN_GRID_SHOWN ? [chosen] : []);
+  const cell = (p) => `<button type="button" class="qz-seg-btn town-cell${p === chosen ? " on" : ""}" role="radio" aria-checked="${p === chosen}" data-town="${p.id}" data-now=""><span class="town-ico" aria-hidden="true">${p.emoji}</span><span class="town-name">${escapeHtml(townPlaceName(p))}</span></button>`;
+  const rest = list.length - TOWN_GRID_SHOWN;
+  return `<div class="town-grid" role="radiogroup" aria-label="${escapeHtml(t("scopePlaces"))}">${shown.map(cell).join("")}</div>`
+    + `<p class="town-foot">${wide ? "<span></span>" : `<button type="button" class="town-more" data-town-more>${escapeHtml(townGridOpen ? t("scopePlacesLess") : t("scopePlacesMore", rest))}</button>`}`
+    + `<span class="town-count">${chosen.emoji} ${escapeHtml(townPlaceName(chosen))} · ${chosen.words.length}${escapeHtml(t("scopeUnit"))} ${currentLang === "ko" ? "단어" : "words"}</span></p>`;
+}
 function renderScopeSegs() {
   const segs = document.querySelectorAll(".scope-seg");
   if (!segs.length) return;
-  let counts = { all: 0, mine: 0 };
+  let counts = { all: 0, mine: 0, places: 0 };
   let locked = true;
   try { counts = scopeCounts(); locked = !canUsePaidFeatures(); } catch (e) { /* account state not ready yet */ }
   const mine = isMineScope();
+  const places = isPlacesScope();
   const num = (n) => `${n.toLocaleString()}${t("scopeUnit")}`;
   const btn = (scope, on, label, small, now) =>
     `<button type="button" class="qz-seg-btn${on ? " on" : ""}" role="radio" aria-checked="${on}" data-scope="${scope}" data-now="${escapeHtml(now)}">${label} <small>${small}</small></button>`;
   const html =
-    btn("all", !mine, t("scopeAll"), num(counts.all), "") +
-    btn("mine", mine, t("scopeMine"), locked ? "🔒" : num(counts.mine), t("scopeMineShort"));
-  const note = ""; // the explanatory line was removed on purpose; the tabs say it all
+    btn("all", !mine && !places, t("scopeAll"), num(counts.all), "") +
+    btn("mine", mine, t("scopeMine"), locked ? "🔒" : num(counts.mine), t("scopeMineShort")) +
+    (counts.places ? btn("places", places, t("scopePlaces"), String(counts.places), places ? townPlaceName(townPlace()) : "") : "");
+  const grid = townGridHtml();
   segs.forEach((seg) => {
     if (seg.dataset.sig !== html) { seg.innerHTML = html; seg.dataset.sig = html; }
+    seg.classList.toggle("scope-seg-3", !!counts.places);
+    let box = seg.parentElement.querySelector(".town-box");
+    if (!box) { box = document.createElement("div"); box.className = "town-box"; seg.insertAdjacentElement("afterend", box); }
+    if (box.dataset.sig !== grid) { box.innerHTML = grid; box.dataset.sig = grid; }
+    box.hidden = !grid;
     const noteEl = seg.parentElement.querySelector(".scope-note");
-    if (noteEl) { noteEl.textContent = note; noteEl.hidden = !note; }
+    if (noteEl) { noteEl.textContent = ""; noteEl.hidden = true; }
   });
 }
 function setPracticeScope(scope) {
   if (scope === "mine" && !canUsePaidFeatures()) { promptUpgradeForFeature(); return; }
-  practiceScope = scope === "mine" ? "mine" : "all";
+  practiceScope = scope === "mine" || scope === "places" ? scope : "all";
   try { localStorage.setItem(SCOPE_KEY, practiceScope); } catch (e) { /* private mode */ }
   refreshCurrentView(); // re-enters the open screen, which re-reads its pool and redraws the counts
 }
 document.addEventListener("click", (e) => {
   const b = e.target.closest && e.target.closest(".scope-seg .qz-seg-btn");
   if (b) setPracticeScope(b.dataset.scope);
+  const town = e.target.closest && e.target.closest(".town-box [data-town]");
+  if (town) {
+    townPlaceId = town.dataset.town;
+    try { localStorage.setItem(TOWN_PLACE_KEY, townPlaceId); } catch (err) { /* private mode */ }
+    refreshCurrentView();
+  }
+  if (e.target.closest && e.target.closest(".town-box [data-town-more]")) { townGridOpen = !townGridOpen; renderScopeSegs(); }
 });
 
 function refreshCurrentView() {
@@ -6483,7 +6540,7 @@ let flashDeck = [];
 let flashIndex = 0;
 
 function getFlashItems(category, level) {
-  if (isMineScope() && category !== "vocabulary") return []; // synonyms/antonyms come from the built-in bank only
+  if (isNarrowScope() && category !== "vocabulary") return []; // synonyms/antonyms come from the built-in bank only
   if (category === "synonyms") {
     return getSynonymPool(level)
       .filter((s) => s.synonym)
@@ -7343,7 +7400,7 @@ function saveQuizKoMeaning() {
 function buildQuizPool() {
   return QuizCore.buildQuestions(
     quizCategorySel.value,
-    { vocab: getVocabPool(currentLevel, true), synonyms: isMineScope() ? [] : getSynonymPool(currentLevel), homophones: isMineScope() ? [] : getHomophonePool(currentLevel) },
+    { vocab: getVocabPool(currentLevel, true), synonyms: isNarrowScope() ? [] : getSynonymPool(currentLevel), homophones: isNarrowScope() ? [] : getHomophonePool(currentLevel) },
     { shuffle, prompts: { synonym: (w) => t("quizSynonymPrompt", w), homophone: (w) => t("quizHomophonePrompt", w) } }
   );
 }

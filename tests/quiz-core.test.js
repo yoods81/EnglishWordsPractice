@@ -182,3 +182,22 @@ test("every built-in word (not homophone pairs) has a part of speech", () => {
     for (const c of cats) for (const e of bank[c]) assert.ok(ok.has(e.pos), `${c}: ${e.word} has pos ${e.pos}`);
   }
 });
+
+test("place word sets: 19 places x 50 words, each with an English definition", () => {
+  const { TOWN_PLACES } = require("../public/js/town-words-data.js");
+  const ok = new Set(["noun", "verb", "adjective", "adverb", null]);
+  assert.equal(TOWN_PLACES.length, 19);
+  for (const p of TOWN_PLACES) {
+    assert.equal(p.words.length, 50, p.id);
+    assert.ok(p.emoji && p.name.en && p.name.ko, p.id);
+    for (const w of p.words) {
+      assert.ok(w.w && w.ko, `${p.id}: ${w.w}`);
+      assert.ok(typeof w.d === "string" && w.d.length >= 9 && /[.!?]$/.test(w.d), `${p.id}: ${w.w} definition "${w.d}"`);
+      assert.ok(ok.has(w.pos), `${p.id}: ${w.w} pos ${w.pos}`);
+      // the definition is the quiz question, so it must not contain the answer (any part of it, singular or plural)
+      const toks = w.w.toLowerCase().split(/[\s-]+/).filter((x) => x.length > 3).map((x) => x.replace(/(es|s)$/, ""));
+      const leak = toks.find((x) => new RegExp(`\\b${x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(s|es|ed|ing|er)?\\b`, "i").test(w.d));
+      assert.ok(!leak, `${p.id}: definition of "${w.w}" gives the word away (${leak}): ${w.d}`);
+    }
+  }
+});

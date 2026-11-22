@@ -14800,3 +14800,22 @@ html[data-theme="dark"] body #view-koala .kdt-tab:not(.on):not(#_m):not(#_n) :is
 /* ======== Bigger touch areas, top bar & home (사이트평가 3차, 2026-11-22): same invisible ring, look unchanged ======== */
 html body :is(#theme-toggle, #lang-toggle, #auth-toggle, .mission-go, #promo-btn) { position: relative; }
 html body :is(#theme-toggle, #lang-toggle, #auth-toggle, .mission-go, #promo-btn)::before { content: ""; position: absolute; inset: -10px -6px; border-radius: inherit; }
+
+/* ======== Places (장소별 단어 묶음, 시안 B 아이콘 격자, 2026-11-22) ======== */
+html body .scope-seg.scope-seg-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+html body .scope-seg.scope-seg-3 .qz-seg-btn { min-width: 0; padding-left: 4px; padding-right: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html body .town-box[hidden] { display: none; }
+html body .town-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 6px; margin: 10px 0 4px; }
+html body .town-grid .town-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 58px; padding: 6px 2px; font-size: .72rem; line-height: 1.15; text-align: center; }
+html body .town-grid .town-ico { font-size: 1.45rem; line-height: 1; }
+html body .town-grid .town-name { display: block; max-width: 100%; overflow-wrap: anywhere; }
+html body .town-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; margin: 4px 2px 0; font-size: .82rem; color: var(--muted); }
+html body .town-more { background: none; border: 0; padding: 6px 0; color: #0b7a62; font: inherit; font-weight: 700; cursor: pointer; }
+html[data-theme="dark"] body .town-more { color: #3ee6c6; }
+/* three scope buttons on one row (beats the 2-column admin.css rule), and the place grid on its own full-width line
+   when the settings row is laid out sideways (tablet / desktop) */
+html:root:root:root:root body .scope-seg.scope-seg-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+html:root:root:root:root body .scope-seg.scope-seg-3 .qz-seg-btn { padding-left: 3px; padding-right: 3px; font-size: .82rem; }
+html body .scope-pick { flex-wrap: wrap; }
+html body .scope-pick > .scope-seg { flex: 1 1 0; min-width: 0; }
+html body .scope-pick > .town-box { flex: 1 1 100%; min-width: 0; }

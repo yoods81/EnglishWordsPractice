@@ -4246,8 +4246,9 @@ html[data-theme="dark"][data-theme="dark"] body :is(#view-koala, #view-stats) .s
 /* 1. signed-in account button: the dark tile wins (above), so the text is light */
 html[data-theme="dark"] body #auth-toggle.auth-toggle-active { color: #3ee6c6 !important; }
 /* 2. mint buttons keep mint in dark too → dark text, same as the light theme (6.2:1) */
-html[data-theme="dark"] body :is(.pill.accent, #auth-toggle:not(.auth-toggle-admin):not(.auth-toggle-active), .dash-rec-btn, [data-rw-signup], .kh-cat.on, .tt-chip.on, .tt-count-btn, .qz-seg-btn.on, .source-btn.on):not(#_m):not(#_n),
-html[data-theme="dark"] body :is(.pill.accent, .dash-rec-btn, [data-rw-signup], .kh-cat.on, .tt-chip.on, .qz-seg-btn.on):not(#_m):not(#_n) :is(span, small, b, strong) { color: #06382d !important; }
+/*    (only buttons that stay mint in dark — selected settings buttons, number chips etc. keep their dark tile and light text) */
+html[data-theme="dark"] body :is(.pill.accent, #auth-toggle:not(.auth-toggle-admin):not(.auth-toggle-active), .dash-rec-btn, [data-rw-signup], .kh-cat.on):not(#_m):not(#_n),
+html[data-theme="dark"] body :is(.pill.accent, .dash-rec-btn, [data-rw-signup], .kh-cat.on):not(#_m):not(#_n) :is(span, small, b, strong) { color: #06382d !important; }
 /* 3. mint words on dark cards → bright mint; mint words on the white/cream wardrobe chips → deeper mint */
 html[data-theme="dark"] body :is(#mission-count, .dash-badge-count, .dash-goal-top > span, .rw-lock-title, .home-about-feats b, [data-i18n="insightsHint"]) { color: #3ee6c6 !important; }
 html[data-theme="dark"] body #view-koala :is(.kh-cat:not(.on), [data-koala-dim]) :is(span, b) { color: #0b7a62 !important; }
