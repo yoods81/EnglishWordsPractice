@@ -32,7 +32,10 @@
 	"vars": {
 		"MAIL_FROM": "noreply@koalastudymate.com",
 		"MAIL_REPLY_TO": "admin@koalastudymate.com",
-		"APP_URL": "https://koalastudymate.com"
+		"APP_URL": "https://koalastudymate.com",
+		// Stripe publishable key (public by design, pk_live_...): shows Stripe's checkout inside the site.
+		// The secret key stays a Worker secret (STRIPE_SECRET_KEY) — never put it here.
+		"STRIPE_PUBLISHABLE_KEY": "pk_live_51URpQORseogsMezsteKbMmep2xROVwPAu4oisjZMPEfhlDGBBItjRCB1sz6eYA6FmJtMcYE2II3pYuTJh0AclEVr00h8H9D5Jy"
 	},
 	// Weekly parent report e-mails (for accounts that switched it on): Mondays 00:00 UTC.
 	"triggers": { "crons": ["0 0 * * 1"] },
