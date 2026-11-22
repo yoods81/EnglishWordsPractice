@@ -5,8 +5,8 @@
 // (elementary 6th grade -> middle school 1st/2nd/3rd grade, CEFR A1 -> A2/B1).
 
 const KO_LEVELS = [
-  { id: "elem_low", label: "초등학교 저학년" },
-  { id: "elem_high", label: "초등학교 고학년" },
+  { id: "elem_low", label: "초등 저학년" },
+  { id: "elem_high", label: "초등 고학년" },
   { id: "middle", label: "중학교" },
   { id: "high", label: "고등학교" },
 ];

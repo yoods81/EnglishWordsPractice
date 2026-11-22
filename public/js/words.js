@@ -6,10 +6,10 @@
 // English speakers) and the Korean track (levelKo: words for Korean students,
 // who sit a stage lower on the same scale — see KO_LEVELS in words_ko.js).
 const LEVELS = [
-  { id: "elem_low", label: "Lower Primary" },
-  { id: "elem_high", label: "Upper Primary" },
-  { id: "middle", label: "Middle School" },
-  { id: "high", label: "High School" },
+  { id: "elem_low", label: "Years 3–4" },
+  { id: "elem_high", label: "Years 5–6" },
+  { id: "middle", label: "Years 7–9" },
+  { id: "high", label: "Years 10–12" },
 ];
 // Level ids used before the four-stage scheme, and the stage each one became.
 // Applied to the built-in banks, saved levels and saved/shared words on load.

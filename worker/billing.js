@@ -307,6 +307,8 @@ export async function handleBilling({ route, request, env, url, h }) {
     }
     const interval = body?.interval === "year" ? "year" : body?.interval === "month" ? "month" : null;
     if (!interval) return json({ error: "bad_request" }, 400);
+    // Stripe's page follows the site language (Korean screen -> Korean checkout).
+    const locale = body?.lang === "ko" ? "ko" : "en";
 
     const user = await env.DB.prepare("SELECT id, email FROM users WHERE id = ?").bind(session.id).first();
     if (!user) return json({ error: "unauthorized" }, 401);
@@ -337,6 +339,7 @@ export async function handleBilling({ route, request, env, url, h }) {
       line_items: [{ price: interval === "year" ? env.STRIPE_PRICE_YEARLY : env.STRIPE_PRICE_MONTHLY, quantity: 1 }],
       subscription_data: { metadata: { user_id: user.id } },
       allow_promotion_codes: true,
+      locale,
       success_url: `${baseUrl}/?checkout=success`,
       cancel_url: `${baseUrl}/?checkout=cancel`,
     });
@@ -349,7 +352,9 @@ export async function handleBilling({ route, request, env, url, h }) {
     if (!billingConfigured(env)) return json({ error: "billing_not_configured" }, 503);
     const row = await env.DB.prepare("SELECT stripe_customer_id FROM subscriptions WHERE user_id = ?").bind(session.id).first();
     if (!row?.stripe_customer_id) return json({ error: "no_subscription" }, 400);
-    const portal = await stripe(env, "POST", "/billing_portal/sessions", { customer: row.stripe_customer_id, return_url: `${baseUrl}/` });
+    let pb = null;
+    try { pb = await request.json(); } catch (e) { /* no body: English */ }
+    const portal = await stripe(env, "POST", "/billing_portal/sessions", { customer: row.stripe_customer_id, return_url: `${baseUrl}/`, locale: pb?.lang === "ko" ? "ko" : "en" });
     if (!portal.ok || !portal.data?.url) return json({ error: "billing_unavailable" }, 502);
     return json({ url: portal.data.url });
   }

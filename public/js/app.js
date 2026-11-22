@@ -379,7 +379,7 @@ const TRANSLATIONS = {
     qzNowRelaxed: "Easy",
     qzNowTime: "Time Attack",
     qzShortCat: { vocabulary: "Vocab", meaning: "Meaning", fillblank: "Blank", listening: "Listen", synonyms: "Syn.", homophones: "Homo." },
-    qzShortLevel: { elem_low: "Lower Pri.", elem_high: "Upper Pri.", middle: "Middle", high: "High" },
+    qzShortLevel: { elem_low: "Yr 3–4", elem_high: "Yr 5–6", middle: "Yr 7–9", high: "Yr 10–12" },
     qzModeNoteRelaxed: "Take your time. No clock!",
     qzModeNoteTime: (c, ty) => `Beat the clock: ${c}s a question (${ty}s typing)!`,
     quizStartBtn: "Start Quiz",
@@ -2631,7 +2631,7 @@ let currentLevel = savedLevels[currentLang] || currentSystem_levels_default();
 
 function currentSystem_levels_default() {
   const lv = (SYSTEMS[currentLang] || SYSTEMS.en).levels;
-  // Lower Primary: the app is built around Year 4, and the Year 4 words live there (words.js: year4 -> elem_low).
+  // Years 3–4 (elem_low): the app is built around Year 4, and the Year 4 words live there (words.js: year4 -> elem_low).
   // A first-time learner is also asked to pick a level the first time they press Start (see levelAskBeforeStart).
   return lv && lv[0] ? lv[0].id : "elem_low";
 }
@@ -2756,7 +2756,7 @@ function renderLevelSeg(seg, short) {
   });
 }
 
-// The closed Settings row always shows the current choices, e.g. "Vocabulary · Upper Primary · 10 questions".
+// The closed Settings row always shows the current choices, e.g. "Vocabulary · Years 5–6 · 10 questions".
 // The collapsed Settings row shows the current choices on two tidy lines (one line on wide screens).
 function setSettingsNow(el, items) {
   const half = /^(quiz|spelling|flash|typegame)-settings-now$/.test(el.id) ? items.length : (items.length > 2 ? 2 : items.length); // the quiz summary stays on one line
@@ -3480,10 +3480,10 @@ const streakCountEl = document.getElementById("streak-count");
 const levelChoicesEl = document.getElementById("level-choices");
 const LEVEL_DESCRIPTIONS = {
   en: {
-    elem_low: "Early primary vocabulary",
-    elem_high: "Upper primary vocabulary",
-    middle: "Middle school vocabulary",
-    high: "High school vocabulary",
+    elem_low: "Everyday school words for Years 3 and 4",
+    elem_high: "Harder words for Years 5 and 6",
+    middle: "Secondary school words",
+    high: "Senior school words",
   },
   ko: {
     elem_low: "초등 저학년 필수 어휘",
@@ -5629,7 +5629,7 @@ async function beginCheckout(interval) {
   const btns = [billingEl("plan-month-btn"), billingEl("plan-year-btn"), billingEl("plan-pay-btn")];
   btns.forEach((b) => { b.disabled = true; });
   try {
-    const { url } = await api("/billing/checkout", { method: "POST", body: JSON.stringify({ interval }) });
+    const { url } = await api("/billing/checkout", { method: "POST", body: JSON.stringify({ interval, lang: currentLang === "ko" ? "ko" : "en" }) });
     location.href = url;
     return;
   } catch (e) {
@@ -5756,7 +5756,7 @@ billingEl("my-account-sub-portal-btn").addEventListener("click", async () => {
   const err = billingEl("my-account-sub-error");
   err.hidden = true;
   try {
-    const { url } = await api("/billing/portal", { method: "POST" });
+    const { url } = await api("/billing/portal", { method: "POST", body: JSON.stringify({ lang: currentLang === "ko" ? "ko" : "en" }) });
     location.href = url;
   } catch (e) { billingFail(err, e && e.data && e.data.error); }
 });
@@ -14105,10 +14105,10 @@ function levelLabelIn(levelId, levels) {
 // either "year4" or "Year 4", case-insensitively — so a hand-edited sheet
 // doesn't have to use the exact internal id.
 const LEVEL_ALIASES = {
-  "초등 저학년": "elem_low", "저학년": "elem_low", "lower primary": "elem_low", "lower elementary": "elem_low",
-  "초등 고학년": "elem_high", "고학년": "elem_high", "upper primary": "elem_high", "upper elementary": "elem_high",
-  "중학교": "middle", "중등": "middle", "middle school": "middle", "junior high": "middle", "secondary": "middle",
-  "고등학교": "high", "고등": "high", "high school": "high", "senior high": "high",
+  "초등 저학년": "elem_low", "초등학교 저학년": "elem_low", "저학년": "elem_low", "years 3-4": "elem_low", "years 3–4": "elem_low", "lower primary": "elem_low", "lower elementary": "elem_low",
+  "초등 고학년": "elem_high", "초등학교 고학년": "elem_high", "고학년": "elem_high", "years 5-6": "elem_high", "years 5–6": "elem_high", "upper primary": "elem_high", "upper elementary": "elem_high",
+  "중학교": "middle", "중등": "middle", "years 7-9": "middle", "years 7–9": "middle", "middle school": "middle", "junior high": "middle", "secondary": "middle",
+  "고등학교": "high", "고등": "high", "years 10-12": "high", "years 10–12": "high", "high school": "high", "senior high": "high",
 };
 function parseLevelValue(raw, levels) {
   const s = String(raw == null ? "" : raw).trim();

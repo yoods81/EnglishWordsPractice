@@ -48,7 +48,18 @@
 | 5 | 랜딩 맛보기 | 칩 2개 → `elem_low` / `elem_high`. 칩마다 쉬운 첫 단어를 고정한다(예: because / although — 확정 필요) | 없음 |
 | 6 | 테스트 | 단위 테스트(`npm test`) + 브라우저로 레벨 선택창·설정 줄("Vocabulary · Years 5–6 · 10 questions")이 휴대폰 폭에서 한 줄에 들어가는지 확인 | — |
 
-## 5. 정해야 할 것
+## 5. 결정 (2026-11-22, 사용자) — 적용함 (sw v290)
+
+1. 영어 이름은 **Years 3–4 / Years 5–6 / Years 7–9 / Years 10–12** (`words.js` LEVELS, 설명 `LEVEL_DESCRIPTIONS.en`, 짧은 이름 `qzShortLevel` "Yr 3–4" 등).
+2. 랜딩 칩은 **2개**(Years 3–4 / Years 5–6) — 랜딩을 만들 때 적용.
+3. Year 3에게도 지금 `elem_low` 단어로 괜찮다 — 별도 쉬운 단어 작업 없음.
+4. 한국어 화면은 한국 학년 기준 **초등 저학년 / 초등 고학년 / 중학교 / 고등학교** (`words_ko.js` KO_LEVELS, "초등학교 저학년"에서 짧게).
+5. Middle/High는 Years 7–9 / 10–12.
+
+엑셀 가져오기는 예전 이름(Lower Primary, 초등학교 저학년 등)과 새 이름(Years 3-4 등, 하이픈·대시 모두)을 다 알아듣는다(`LEVEL_ALIASES`).
+**남은 것:** 코알라 하우스(집 앱, 저장소 yoods81/koala-house-3d)에도 예전 이름(Lower Primary / 초등학교 저학년 …)이 따로 들어 있다 — 집 앱에서 같이 바꾸고 다시 빌드해야 한다.
+
+## (원래 질문)
 
 1. 영어 이름: **"Years 3–4" 방식**(제안) / "Lower Primary (Years 3–4)"처럼 둘 다 쓰기 / 지금 그대로.
 2. 랜딩 칩: **2개**(제안) / 뮤즈 안대로 4개.

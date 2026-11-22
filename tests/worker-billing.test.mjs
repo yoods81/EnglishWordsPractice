@@ -143,13 +143,15 @@ test("checkout creates one Stripe customer per account and a subscription sessio
   const a = await call(kid, "POST", "/billing/checkout", { interval: "year" });
   assert.equal(a.status, 200);
   assert.match(a.data.url, /^https:\/\/checkout\.stripe\.test\//);
-  const b = await call(kid, "POST", "/billing/checkout", { interval: "month" });
+  const b = await call(kid, "POST", "/billing/checkout", { interval: "month", lang: "ko" });
   assert.equal(b.status, 200);
   assert.equal(Object.keys(fake.customers).length, 1, "second checkout reuses the customer");
   const sessions = stripeCalls.filter((c) => c.path === "/checkout/sessions");
   assert.equal(sessions[0].params["line_items[0][price]"], "price_year");
   assert.equal(sessions[1].params["line_items[0][price]"], "price_month");
   assert.equal(sessions[0].params.mode, "subscription");
+  assert.equal(sessions[0].params.locale, "en", "checkout page language follows the site (English by default)");
+  assert.equal(sessions[1].params.locale, "ko", "Korean screen -> Korean checkout page");
   assert.equal(sessions[0].params.client_reference_id, "u1");
   assert.equal(sessions[0].params.success_url, "https://koala.test/?checkout=success");
   // paying alone does not make anyone premium — only the webhook does
