@@ -2351,7 +2351,7 @@ html[data-theme="dark"] body .tg-start-card .tg-meter em {
   color: #26e9c0 !important;
 }
 html[data-theme="dark"] .pos-tag {
-  background: #192d26 !important;
+  background: none !important;
   color: #26e9c0 !important;
 }
 html[data-theme="dark"] .adm-seg {
@@ -4038,7 +4038,7 @@ html[data-theme="ivory"] body .tg-start-card .tg-level-opt {
   background: #fdfaf4 !important;
 }
 html[data-theme="ivory"] .pos-tag {
-  background: #f2ecdf !important;
+  background: none !important;
 }
 html[data-theme="ivory"] .adm-seg {
   background: #f2ede0 !important;
