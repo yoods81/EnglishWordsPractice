@@ -1,0 +1,36 @@
+/* /pricing — three plan cards (no account / free / Premium). Prices come live from /api/billing/prices. */
+:root{--soft:#e3f6ef;--soft-shadow:#bfe6d8;--orange:#c85a12}
+@media (prefers-color-scheme: dark){:root{--soft:#24403a;--soft-shadow:#1a302b;--orange:#ffb27a}}
+header.site,footer.site,main.wrap{max-width:980px}
+.p-hero{text-align:center;padding:4px 0}
+.p-hero h1{font-size:1.75rem;margin:26px 0 6px}
+.p-hero p{color:var(--muted);margin:0 auto;max-width:560px}
+.p-toggle{display:flex;margin:22px auto 6px;max-width:340px;border-bottom:3px solid var(--mint)}
+.p-toggle button{flex:1;border:0;background:none;font:inherit;font-weight:700;color:var(--muted);padding:10px 8px;min-height:48px;border-radius:12px 12px 0 0;cursor:pointer}
+.p-toggle button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.p-toggle small{display:block;font-size:.75rem;font-weight:700;color:var(--orange)}
+.p-toggle button[aria-pressed="true"] small{color:#fff4c2}
+.plans{display:grid;gap:16px;margin:18px 0}
+@media (min-width:760px){.plans{grid-template-columns:repeat(3,1fr)}}
+.plan{background:var(--card);border-radius:18px;padding:20px 18px 16px;box-shadow:0 3px 0 var(--mint);display:flex;flex-direction:column}
+.plan h2{margin:0 0 2px;color:var(--text);font-size:1.1rem}
+.plan .who{color:var(--muted);font-size:.85rem;margin:0 0 10px}
+.price{font-size:2rem;font-weight:800;line-height:1.1;margin:4px 0 2px}
+.price .unit{font-size:.95rem;font-weight:600;color:var(--muted)}
+.per{font-size:.82rem;color:var(--muted);margin:0 0 10px;min-height:1.3em}
+.plan ul{list-style:none;padding:0;margin:6px 0 14px;flex:1}
+.plan li{padding:5px 0 5px 26px;position:relative;font-size:.92rem;line-height:1.4}
+.plan li::before{content:"✓";position:absolute;left:4px;color:var(--accent-dark);font-weight:800}
+.plan li.no{color:var(--muted)}
+.plan li.no::before{content:"–";color:var(--muted)}
+.plan .btn{display:block;text-align:center;padding:12px 16px;border-radius:14px;font-weight:700;text-decoration:none;background:var(--soft);color:var(--accent-dark);box-shadow:0 3px 0 var(--soft-shadow)}
+.plan.prem{box-shadow:0 0 0 3px var(--accent),0 5px 0 var(--accent-dark)}
+.plan.prem .btn{background:linear-gradient(#3ee6c6,#0b7a62);color:#fff;box-shadow:0 3px 0 #0b7e65}
+.ribbon{color:var(--orange);font-weight:800;font-size:.8rem;letter-spacing:.03em;margin:0 0 4px}
+.trust{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 22px;font-weight:700;font-size:.9rem;margin:10px 0 4px}
+.p-note{color:var(--muted);font-size:.82rem;text-align:center;margin:6px 0 0}
+.p-faq h2{text-align:center;margin-top:34px}
+.p-faq details{background:var(--card);border-radius:14px;padding:12px 16px;margin:10px 0;box-shadow:0 3px 0 var(--mint)}
+.p-faq summary{font-weight:700;cursor:pointer;min-height:28px}
+.p-faq p{margin:6px 0 0}
+.p-faq .more{text-align:center;margin:14px 0 0}

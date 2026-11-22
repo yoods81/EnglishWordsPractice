@@ -125,7 +125,7 @@ PAGES.push({
 // ---- hub ----
 const hubItems = PAGES.map((p) => `<a class="hub-card" href="/${p.slug}"><b>${esc(p.name)}</b><span>${esc(p.h1)}</span></a>`).join("");
 
-const footer = `<footer class="site"><a href="/">Home</a><a href="/about">About</a><a href="/learn">Free lists</a><a href="/faq">FAQ</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></footer>`;
+const footer = `<footer class="site"><a href="/">Home</a><a href="/about">About</a><a href="/pricing">Pricing</a><a href="/learn">Free lists</a><a href="/faq">FAQ</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></footer>`;
 const head = (slug, title, desc) => `<!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -195,7 +195,7 @@ ${generated}
 `);
 
 const urls = [["", "weekly", "1.0"], ["learn", "monthly", "0.8"], ...PAGES.map((p) => [p.slug, "monthly", "0.7"]),
-  ["about", "monthly", "0.8"], ["faq", "monthly", "0.8"], ["privacy", "yearly", "0.3"], ["terms", "yearly", "0.3"]];
+  ["about", "monthly", "0.8"], ["pricing", "monthly", "0.8"], ["faq", "monthly", "0.8"], ["privacy", "yearly", "0.3"], ["terms", "yearly", "0.3"]];
 writeFileSync(join(root, "public", "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(([s, f, pr]) =>
     `  <url><loc>${SITE}/${s}</loc><changefreq>${f}</changefreq><priority>${pr}</priority></url>`).join("\n")}\n</urlset>\n`);

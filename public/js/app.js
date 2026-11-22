@@ -832,6 +832,7 @@ const TRANSLATIONS = {
     footerText: "Made for Australian primary students. 🇦🇺",
     footerAbout: "About",
     footerFaq: "FAQ",
+    footerPricing: "Pricing",
     footerLearn: "Free lists",
     startFab: "Let's START!",
     footerPrivacy: "Privacy",
@@ -1810,6 +1811,7 @@ const TRANSLATIONS = {
     footerText: "영어 필수 단어를 공부하는 학생들을 위해 만들었어요. 🇰🇷",
     footerAbout: "소개",
     footerFaq: "자주 묻는 질문",
+    footerPricing: "가격 안내",
     footerLearn: "무료 단어 목록",
     startFab: "시작해요!",
     footerPrivacy: "개인정보",
@@ -3428,7 +3430,7 @@ function applyStaticTranslations() {
   document.getElementById("app-subtitle").textContent = t("appSubtitle");
   document.getElementById("app-footer-text").textContent = t("footerText");
   { const fl = document.getElementById("footer-learn-link"), ff = document.getElementById("footer-faq-link"), fa = document.getElementById("footer-about-link"), fp = document.getElementById("footer-privacy-link"), ft = document.getElementById("footer-terms-link");
-    if (fl) fl.textContent = t("footerLearn"); if (ff) ff.textContent = t("footerFaq"); if (fa) fa.textContent = t("footerAbout"); if (fp) fp.textContent = t("footerPrivacy"); if (ft) ft.textContent = t("footerTerms"); }
+    if (fl) fl.textContent = t("footerLearn"); if (ff) ff.textContent = t("footerFaq"); if (fa) fa.textContent = t("footerAbout"); if (fp) fp.textContent = t("footerPrivacy"); if (ft) ft.textContent = t("footerTerms"); const fpr = document.getElementById("footer-pricing-link"); if (fpr) fpr.textContent = t("footerPricing"); }
   {
     // The button shows the flag of the CURRENT language (Windows has no flag
     // emoji, so these are small SVGs) plus a caret; tapping it opens a menu
@@ -6364,6 +6366,22 @@ async function restoreSession() {
   // (No popup any more: the level badge blinks "Please set your level" instead.)
   updateLevelBadge();
   koalaAfterLogin();
+  handleJoinLink();
+}
+
+// The /pricing page links to /?join=free or /?join=premium. Signed out: open
+// sign-up (Premium plan picked for "premium"). A free member asking for
+// Premium gets the plan picker, the same as the account menu's "Join Premium".
+function handleJoinLink() {
+  const join = new URLSearchParams(location.search).get("join");
+  if (join !== "free" && join !== "premium") return;
+  history.replaceState(null, "", location.pathname + location.hash);
+  if (!currentUser) {
+    openAuthOverlay("signup");
+    if (join === "premium") setSignupPlan("premium");
+    return;
+  }
+  if (join === "premium" && currentUser.role === "free") document.getElementById("auth-menu-premium-btn").click();
 }
 
 updateAdminUI();
@@ -14603,7 +14621,8 @@ function toggleInsightsCard() {
   statsInsightsCard.setAttribute("aria-expanded", String(open));
 }
 statsInsightsCard.addEventListener("click", (e) => {
-  if (e.target.closest(".insights-cta")) { if (!canUsePaidFeatures()) promptUpgradeForFeature(); return; }
+  // Signed out: show the plans and prices first (/pricing); a free member gets the upgrade card.
+  if (e.target.closest(".insights-cta, .premium-gate-cta")) { if (!currentUser) location.href = "/pricing"; else if (!canUsePaidFeatures()) promptUpgradeForFeature(); return; }
   toggleInsightsCard();
 });
 statsInsightsCard.addEventListener("keydown", (e) => {
