@@ -10,6 +10,7 @@
 - 서비스워커 버전이 바뀔 때마다 사이트 타이틀 옆에 작은 글씨(v122 식)로 버전 표시
 - 사이트 이메일: admin@koalastudymate.com (Cloudflare Email Routing/Sending)
 - **장소별 단어 묶음 (2026-11-22, sw v287):** 퀴즈·스펠링·플래시카드·타이핑 설정 'Words from'이 **All / My words / Places** 3칸. Places를 고르면 마을 건물 9 + 상점 10 = 19곳 아이콘 격자(휴대폰 8곳 + '더 보기', 태블릿·데스크탑은 전부)에서 하나를 고르고 그 장소 단어 50개만 출제. **누구나** 사용, 하루 문제 수 제한·같은 날 반복 금지는 평소대로, 레벨은 적용 안 함. 데이터 `public/js/town-words-data.js`(단어·한국어 뜻·품사는 집 앱 town-words.json, **영어 뜻풀이 950개는 여기에만** — 뜻풀이에 답 단어가 들어가지 않는지 테스트가 검사). 한국어 화면에서는 한국어 뜻이 문제. 집 앱 단어가 바뀌면 이 파일도 맞춰 고친다.
+- **첫 화면 랜딩 (2026-11-22, sw v294, `docs/landing-plan.md` L2 + A):** 이 기기에서 앱을 써 본 적 없는 비회원에게만 `#intro`(index.html 맨 위, `css/intro.css`, `js/intro.js`)를 보여 준다. `<head>` 스크립트가 판단(`ywp_intro_pending` 있거나 ywp_ 저장값이 theme·lang뿐이면 `html.intro-on`), Start free·맛보기 "Keep playing"·로그인·가입·로그인 세션 중 하나면 `ywp_intro_done`으로 끝. **Start free = 가입 없이 바로 앱.** 맛보기는 한 문제(3~4학년 friend / 5~6학년 grateful, 글자 타일), 고른 학년을 앱 레벨로 넘기고 스펠링 화면으로. 영어·한국어 둘 다. 이메일·결제 링크(?join/verify/reset/checkout)로 오면 랜딩 없이 앱.
 - **사이트평가 2차 나중 후보는 2026-11-21에 모두 처리함**(sw v282): 회색 글자 #5c6965·민트 글자 #0b7a62(밝은 테마만, 다크는 그대로), 결과 화면 숫자 알약 없앰, 옷장 안 고른 탭 연한 민트, 작은 버튼 보이지 않는 터치 영역, 접근성 이름표 2개.
 
 ## 명령어 규칙

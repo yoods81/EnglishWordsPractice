@@ -36,12 +36,92 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Gaegu:wght@700&family=Jua&display=swap" rel="stylesheet" />
   <script>try{var _t=localStorage.getItem("ywp_theme_v1");if(_t==="dark"||_t==="ivory")document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+  <!-- First-visit landing (#intro): show it only to someone who has never used the app on this device and didn't
+       arrive from an email/checkout link. Anything stored by the app (ywp_* besides theme/language) means "been here";
+       ywp_intro_pending keeps showing it to a new visitor until they go in (ywp_intro_done, js/intro.js). -->
+  <script>try{(function(){var L=localStorage,d=document.documentElement;if(L.getItem("ywp_lang_v1")==="ko")d.lang="ko";if(L.getItem("ywp_intro_done"))return;if(/[?&](join|verify|reset|checkout|closed|tts)=/.test(location.search)||location.hash)return;if(!L.getItem("ywp_intro_pending")){for(var i=0;i<L.length;i++){var k=L.key(i);if(/^ywp_/.test(k)&&!/^ywp_(theme|lang)_/.test(k))return;}L.setItem("ywp_intro_pending","1");}d.classList.add("intro-on");})();}catch(e){}</script>
+  <link rel="stylesheet" href="css/intro.css" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/koala-house.css" />
   <link rel="stylesheet" href="css/themes.css" />
   <link rel="stylesheet" href="css/admin.css" />
 </head>
 <body class="on-landing">
+  <!-- First-visit landing (2026-11-22, docs/landing-plan.md, L2 + A): only for a signed-out visitor who has never
+       used the app on this device. The <head> script adds html.intro-on; js/intro.js removes it for good. -->
+  <div id="intro" class="intro">
+    <div class="intro-top">
+      <a class="intro-brand" href="/"><img src="favicon.svg?v=4" alt="" width="34" height="34"> Koala Study Mate</a>
+      <nav class="intro-nav" aria-label="Site">
+        <a class="intro-navlink" href="/about"><span class="t-en">About</span><span class="t-ko">소개</span></a>
+        <a class="intro-navlink" href="/pricing"><span class="t-en">Pricing</span><span class="t-ko">가격</span></a>
+        <a class="intro-navlink" href="/faq"><span class="t-en">FAQ</span><span class="t-ko">FAQ</span></a>
+        <button type="button" class="intro-lang" id="intro-lang"><span class="t-en">한국어</span><span class="t-ko">English</span></button>
+        <button type="button" class="intro-login" id="intro-login"><span class="t-en">Log in</span><span class="t-ko">로그인</span></button>
+      </nav>
+    </div>
+    <div class="intro-wrap">
+      <div class="intro-split">
+        <section class="intro-hero">
+          <h1><span class="t-en">English words, spelling and times tables for Years 3–6</span><span class="t-ko">호주 초등 3~6학년을 위한 영어 단어·스펠링·구구단</span></h1>
+          <p><span class="t-en">10 minutes a day. 2,096 Australian English words, spelling practice and six times-table games — all in one safe place.</span><span class="t-ko">하루 10분. 호주 영어 단어 2,096개, 스펠링 연습, 구구단 게임 6가지를 안전한 한곳에서.</span></p>
+          <button type="button" class="intro-cta" data-intro-start><span class="t-en">Start free — no card needed</span><span class="t-ko">무료로 시작하기 — 카드 필요 없음</span></button>
+          <div class="intro-safe"><span><span class="t-en">No ads</span><span class="t-ko">광고 없음</span></span><span><span class="t-en">No chat</span><span class="t-ko">채팅 없음</span></span><span><span class="t-en">No strangers</span><span class="t-ko">낯선 사람 없음</span></span><span><span class="t-en">Parent email only</span><span class="t-ko">부모 이메일만</span></span></div>
+        </section>
+        <section class="intro-card intro-try" aria-labelledby="intro-try-title">
+          <h2 id="intro-try-title"><span class="t-en">Try one question — no sign-up</span><span class="t-ko">가입 없이 한 문제 풀어 보기</span></h2>
+          <p class="intro-sub"><span class="t-en">Pick your child's year. This is what they practise every day.</span><span class="t-ko">아이 학년을 고르세요. 매일 하는 연습이 바로 이거예요.</span></p>
+          <div class="intro-tabs" role="tablist">
+            <button type="button" role="tab" aria-selected="true" data-intro-year="elem_low"><span class="t-en">Years 3–4</span><span class="t-ko">3~4학년</span></button>
+            <button type="button" role="tab" aria-selected="false" data-intro-year="elem_high"><span class="t-en">Years 5–6</span><span class="t-ko">5~6학년</span></button>
+          </div>
+          <div class="intro-q">
+            <span><span class="t-en">Spelling — listen and build the word</span><span class="t-ko">스펠링 — 듣고 단어를 만들어요</span></span>
+            <button type="button" class="intro-hear" id="intro-hear">🔊 <span class="t-en">Hear it</span><span class="t-ko">듣기</span></button>
+          </div>
+          <p class="intro-hint" id="intro-hint"></p>
+          <div class="intro-slots" id="intro-slots" aria-live="polite"></div>
+          <div class="intro-tiles" id="intro-tiles"></div>
+          <div class="intro-row">
+            <button type="button" class="intro-undo" id="intro-undo">⌫ <span class="t-en">Undo</span><span class="t-ko">지우기</span></button>
+            <p class="intro-msg" id="intro-msg" role="status"></p>
+          </div>
+          <div class="intro-after" id="intro-after" hidden>
+            <button type="button" class="intro-cta intro-cta-sm" id="intro-keep"><span class="t-en">Keep playing free</span><span class="t-ko">무료로 계속하기</span></button>
+          </div>
+          <p class="intro-nudge"><span class="t-en">Free without an account: 30 questions a day. </span><span class="t-ko">가입 없이 하루 30문제 무료. </span><button type="button" class="intro-link" id="intro-signup"><span class="t-en">Create a free account</span><span class="t-ko">무료 가입</span></button><span class="t-en"> to save progress, streaks and badges.</span><span class="t-ko">하면 기록·연속 학습·배지가 저장돼요.</span></p>
+        </section>
+      </div>
+
+      <div class="intro-mini">
+        <div class="intro-card"><div class="intro-ico" aria-hidden="true">🎯</div><h3><span class="t-en">New words every day</span><span class="t-ko">매일 새로운 단어</span></h3><p><span class="t-en">Never the same word twice in a day, always at your child's level.</span><span class="t-ko">하루에 같은 단어는 다시 안 나오고, 아이 레벨에 맞춰 나와요.</span></p></div>
+        <div class="intro-card"><div class="intro-ico" aria-hidden="true">📧</div><h3><span class="t-en">Weekly parent report</span><span class="t-ko">부모님 주간 리포트</span></h3><p><span class="t-en">Study days, accuracy and tricky words, every Monday. </span><span class="t-ko">공부한 날·정답률·어려운 단어를 매주 월요일에. </span><button type="button" class="intro-link" id="intro-sample-btn" aria-expanded="false" aria-controls="intro-sample"><span class="t-en">See a sample</span><span class="t-ko">샘플 보기</span></button></p></div>
+        <div class="intro-card"><div class="intro-ico" aria-hidden="true">🐨</div><h3><span class="t-en">A koala that grows</span><span class="t-ko">함께 크는 코알라</span></h3><p><span class="t-en">Coins, badges, outfits and a Koala House to build — for every word learned.</span><span class="t-ko">단어를 배울 때마다 코인·배지·옷, 그리고 지을 수 있는 코알라 하우스.</span></p></div>
+      </div>
+
+      <section class="intro-card intro-sample" id="intro-sample" hidden>
+        <span class="intro-tag"><span class="t-en">SAMPLE · WEEKLY PARENT REPORT (PREMIUM)</span><span class="t-ko">샘플 · 부모님 주간 리포트 (프리미엄)</span></span>
+        <div class="intro-stats">
+          <div><b>5/7</b><span><span class="t-en">study days</span><span class="t-ko">학습한 날</span></span></div>
+          <div><b>186</b><span><span class="t-en">questions</span><span class="t-ko">문제</span></span></div>
+          <div><b>84%</b><span><span class="t-en">accuracy</span><span class="t-ko">정답률</span></span></div>
+          <div><b>5</b><span><span class="t-en">day streak</span><span class="t-ko">연속 학습</span></span></div>
+          <div><b>24</b><span><span class="t-en">mastered</span><span class="t-ko">완료 단어</span></span></div>
+        </div>
+        <ul class="intro-modes"><li><span><span class="t-en">Quiz</span><span class="t-ko">퀴즈</span></span><b>52/60</b></li><li><span><span class="t-en">Spelling</span><span class="t-ko">스펠링</span></span><b>38/48</b></li><li><span><span class="t-en">Times Table</span><span class="t-ko">구구단</span></span><b>70/78</b></li></ul>
+        <p class="intro-tricky"><b><span class="t-en">Tricky words:</span><span class="t-ko">어려운 단어:</span></b> because, February, separate</p>
+        <p class="intro-fine"><span class="t-en">Sample report with example numbers. Your report uses your child's real practice.</span><span class="t-ko">예시 숫자로 만든 샘플이에요. 실제 리포트는 아이의 실제 연습으로 만들어져요.</span></p>
+      </section>
+
+      <div class="intro-price">
+        <div class="intro-card"><h3><span class="t-en">Free</span><span class="t-ko">무료</span></h3><div class="intro-amt">$0</div><p><span class="t-en">Up to 100 questions a day, unlimited flashcards, 10 of your own words to try. No card needed.</span><span class="t-ko">하루 100문제까지, 플래시카드 무제한, 직접 입력 단어 10개 체험. 카드 필요 없음.</span></p></div>
+        <div class="intro-card intro-prem"><h3><span class="t-en">Premium</span><span class="t-ko">프리미엄</span></h3><div class="intro-amt"><span id="intro-price-m">AU$5.99</span> <small><span class="t-en">/ month</span><span class="t-ko">/ 월</span></small></div><p><span class="t-en">or <span class="intro-price-y">AU$59.99</span> a year. Unlimited questions, your own word lists (even from a homework photo), mistakes notebook, weekly report, up to 4 children.</span><span class="t-ko">연간 <span class="intro-price-y">AU$59.99</span>. 무제한 문제, 나만의 단어장(숙제 사진으로도), 오답 노트, 주간 리포트, 자녀 최대 4명.</span></p></div>
+      </div>
+      <p class="intro-more"><a href="/pricing"><span class="t-en">Compare all plans →</span><span class="t-ko">요금제 자세히 보기 →</span></a></p>
+      <div class="intro-end"><button type="button" class="intro-cta" data-intro-start><span class="t-en">Start free — no card needed</span><span class="t-ko">무료로 시작하기 — 카드 필요 없음</span></button></div>
+      <footer class="intro-foot"><a href="/about">About</a><a href="/pricing">Pricing</a><a href="/learn">Free lists</a><a href="/faq">FAQ</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></footer>
+    </div>
+  </div>
   <noscript>
     <div style="max-width:640px;margin:24px auto;padding:16px;font-family:sans-serif;line-height:1.6">
       <h1>Koala Study Mate</h1>
@@ -2634,6 +2714,7 @@ to Flip!</span></div>
   <script src="js/koala-wardrobe.js"></script>
   <script src="js/koala-admin-items.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/intro.js"></script>
   <script src="js/tt-games.js"></script>
   <script src="js/support.js"></script>
   <script src="js/faq-data.js"></script>

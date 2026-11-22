@@ -4790,6 +4790,8 @@ const signupCancelBtn = document.getElementById("signup-cancel-btn");
 
 function updateAdminUI() {
   if (window.koalaSupportUI) koalaSupportUI.onAuthChange();
+  // Signed in -> the first-visit landing (js/intro.js) is never needed on this device again.
+  if (currentUser && window.introHide) window.introHide();
   clampGoalsForRole();
   // Flashcards/Word List/Add Word/My Progress stay visible even signed out —
   // tapping one prompts to sign up instead of the tab just disappearing (see
