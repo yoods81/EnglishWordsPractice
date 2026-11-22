@@ -204,7 +204,7 @@ header {
      itself sits in the top-right corner — a left-anchored menu would hang
      off the edge of the viewport. */
   right: 0;
-  z-index: 20;
+  z-index: 45; /* above the floating "Let's START!" koala (.start-fab, 40) */
   background: #fff;
   border-radius: 12px;
   box-shadow: var(--shadow);

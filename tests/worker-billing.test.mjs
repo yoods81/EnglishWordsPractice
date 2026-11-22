@@ -52,7 +52,7 @@ globalThis.fetch = async (url, init = {}) => {
     fake.customers[id] = { id, email: params.email };
     return reply(200, fake.customers[id]);
   }
-  if (method === "POST" && path === "/checkout/sessions") return reply(200, { id: "cs_1", url: `https://checkout.stripe.test/${params.customer}` });
+  if (method === "POST" && path === "/checkout/sessions") return reply(200, params.ui_mode === "embedded" ? { id: "cs_e", client_secret: "cs_e_secret" } : { id: "cs_1", url: `https://checkout.stripe.test/${params.customer}` });
   if (method === "POST" && path === "/billing_portal/sessions") return reply(200, { url: "https://portal.stripe.test/x" });
   const sub = path.match(/^\/subscriptions\/(.+)$/);
   if (sub) {
@@ -121,7 +121,7 @@ const codePaid = addUser("u4", "codepaid", "paid"); // premium via special code,
 
 test("prices are public, read from Stripe, and say when billing isn't set up yet", async () => {
   const p = await call(null, "GET", "/billing/prices");
-  assert.deepEqual(p.data, { configured: true, prices: { month: { amount: 599, currency: "aud" }, year: { amount: 5900, currency: "aud" } } });
+  assert.deepEqual(p.data, { configured: true, publishableKey: null, prices: { month: { amount: 599, currency: "aud" }, year: { amount: 5900, currency: "aud" } } });
   const saved = env.STRIPE_SECRET_KEY;
   delete env.STRIPE_SECRET_KEY;
   assert.deepEqual((await call(null, "GET", "/billing/prices")).data, { configured: false });
@@ -156,6 +156,26 @@ test("checkout creates one Stripe customer per account and a subscription sessio
   assert.equal(sessions[0].params.success_url, "https://koala.test/?checkout=success");
   // paying alone does not make anyone premium — only the webhook does
   assert.equal(roleOf("u1"), "free");
+});
+
+test("embedded checkout: with a publishable key the form opens inside the site", async () => {
+  // Without the key the request falls back to Stripe's own page.
+  const plain = await call(kid, "POST", "/billing/checkout", { interval: "month", embedded: true });
+  assert.ok(plain.data.url && !plain.data.clientSecret);
+  env.STRIPE_PUBLISHABLE_KEY = "pk_test_x";
+  try {
+    const prices = await call(kid, "GET", "/billing/prices");
+    assert.equal(prices.data.publishableKey, "pk_test_x");
+    const r = await call(kid, "POST", "/billing/checkout", { interval: "month", embedded: true });
+    assert.equal(r.status, 200);
+    assert.equal(r.data.clientSecret, "cs_e_secret");
+    const last = stripeCalls.filter((c) => c.path === "/checkout/sessions").pop();
+    assert.equal(last.params.ui_mode, "embedded");
+    assert.equal(last.params.return_url, "https://koala.test/?checkout=success");
+    assert.equal(last.params.success_url, undefined, "embedded mode takes return_url only");
+  } finally {
+    delete env.STRIPE_PUBLISHABLE_KEY;
+  }
 });
 
 test("webhook rejects a bad signature, a stale timestamp and a wrong secret", async () => {

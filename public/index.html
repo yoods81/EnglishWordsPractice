@@ -348,6 +348,18 @@
     </div>
   </div>
 
+  <!-- Stripe's checkout form inside the site (Embedded Checkout) — see openEmbeddedCheckout(). -->
+  <div id="checkout-overlay" class="pay-overlay" hidden>
+    <div class="checkout-card" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+      <div class="checkout-head">
+        <img src="favicon.svg?v=4" alt="" width="36" height="36">
+        <div class="checkout-head-text"><h2 id="checkout-title">Koala Study Mate</h2><p id="checkout-sub"></p></div>
+        <button type="button" class="checkout-close" id="checkout-close-btn" aria-label="Close">✕</button>
+      </div>
+      <div id="checkout-mount" class="checkout-mount"></div>
+    </div>
+  </div>
+
   <!-- Premium -> Free: confirm before the subscription is set to end. -->
   <div id="sub-cancel-overlay" class="pay-overlay" hidden>
     <div class="pay-card" role="dialog" aria-modal="true" aria-labelledby="sub-cancel-title">

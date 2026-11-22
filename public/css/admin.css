@@ -1627,6 +1627,19 @@ html[data-theme="dark"] .pay-plan:hover:not(:disabled) { background: #2c453b; }
   .pay-card { max-width: none; max-height: 90dvh; border-radius: 22px 22px 0 0; border-width: 1px 0 0; padding-bottom: env(safe-area-inset-bottom); animation: sheet-slide-up 0.28s cubic-bezier(0.2, 0.9, 0.3, 1); }
   .pay-title { font-size: 1.1rem; }
 }
+/* Stripe Embedded Checkout inside the site: our header (logo + close) over Stripe's form. */
+.checkout-card { width: 100%; max-width: 560px; max-height: calc(100dvh - 32px); overflow-y: auto; background: #fff; border-radius: 20px; box-shadow: 0 18px 40px rgba(14, 40, 34, .3); }
+.checkout-head { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 10px; padding: 12px 12px 12px 16px; background: #d6f3e7; }
+.checkout-head img { width: 36px; height: 36px; flex: none; }
+.checkout-head-text { flex: 1; min-width: 0; }
+.checkout-head h2 { margin: 0; font-family: var(--font-heading); font-size: 1.05rem; line-height: 1.2; color: #23403a; }
+.checkout-head p { margin: 2px 0 0; font-size: .78rem; line-height: 1.35; color: #4d6b63; }
+.checkout-close { flex: none; width: 44px; height: 44px; border: 0; border-radius: 50%; background: #fff; color: #23403a; font-size: 1.1rem; font-weight: 700; cursor: pointer; box-shadow: 0 2px 0 #b9e3d3; }
+.checkout-close:hover { background: #f3faf7; }
+.checkout-mount { min-height: 320px; padding: 8px 0 12px; }
+@media (max-width: 480px) {
+  .checkout-card { max-width: none; max-height: 94dvh; border-radius: 22px 22px 0 0; padding-bottom: env(safe-area-inset-bottom); animation: sheet-slide-up 0.28s cubic-bezier(0.2, 0.9, 0.3, 1); }
+}
 html:root:root body #view-myaccount .acct-upgrade .acct-join-btn { background: #ffb324 !important; color: #4a3000 !important; }
 html:root:root body #view-myaccount .acct-upgrade .acct-join-btn:hover { background: #ffa400 !important; }
 html:root:root body #view-myaccount .acct-upgrade .pill.neutral { background: #dcefe7 !important; color: #0b6b57 !important; }

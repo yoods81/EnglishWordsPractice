@@ -267,13 +267,16 @@ export async function handleBilling({ route, request, env, url, h }) {
   // shows a stale number. `configured: false` keeps the old "coming soon" UI.
   if (route === "/billing/prices" && request.method === "GET") {
     if (!billingConfigured(env)) return json({ configured: false });
+    // Public by design (pk_...): lets the site show Stripe's checkout inside its own page.
+    const publishableKey = env.STRIPE_PUBLISHABLE_KEY || null;
     const [m, y] = await Promise.all([
       stripe(env, "GET", `/prices/${encodeURIComponent(env.STRIPE_PRICE_MONTHLY)}`),
       stripe(env, "GET", `/prices/${encodeURIComponent(env.STRIPE_PRICE_YEARLY)}`),
     ]);
-    if (!m.ok || !y.ok) return json({ configured: true, prices: null });
+    if (!m.ok || !y.ok) return json({ configured: true, prices: null, publishableKey });
     return json({
       configured: true,
+      publishableKey,
       prices: {
         month: { amount: m.data.unit_amount, currency: m.data.currency },
         year: { amount: y.data.unit_amount, currency: y.data.currency },
@@ -309,6 +312,9 @@ export async function handleBilling({ route, request, env, url, h }) {
     if (!interval) return json({ error: "bad_request" }, 400);
     // Stripe's page follows the site language (Korean screen -> Korean checkout).
     const locale = body?.lang === "ko" ? "ko" : "en";
+    // Embedded: Stripe's form opens inside the site (needs the publishable key);
+    // otherwise the browser goes to Stripe's own checkout page and comes back.
+    const embedded = body?.embedded === true && !!env.STRIPE_PUBLISHABLE_KEY;
 
     const user = await env.DB.prepare("SELECT id, email FROM users WHERE id = ?").bind(session.id).first();
     if (!user) return json({ error: "unauthorized" }, 401);
@@ -340,9 +346,14 @@ export async function handleBilling({ route, request, env, url, h }) {
       subscription_data: { metadata: { user_id: user.id } },
       allow_promotion_codes: true,
       locale,
-      success_url: `${baseUrl}/?checkout=success`,
-      cancel_url: `${baseUrl}/?checkout=cancel`,
+      ...(embedded
+        ? { ui_mode: "embedded", return_url: `${baseUrl}/?checkout=success` }
+        : { success_url: `${baseUrl}/?checkout=success`, cancel_url: `${baseUrl}/?checkout=cancel` }),
     });
+    if (embedded) {
+      if (!checkout.ok || !checkout.data?.client_secret) return json({ error: "billing_unavailable" }, 502);
+      return json({ clientSecret: checkout.data.client_secret });
+    }
     if (!checkout.ok || !checkout.data?.url) return json({ error: "billing_unavailable" }, 502);
     return json({ url: checkout.data.url });
   }

@@ -5629,8 +5629,15 @@ async function beginCheckout(interval) {
   const btns = [billingEl("plan-month-btn"), billingEl("plan-year-btn"), billingEl("plan-pay-btn")];
   btns.forEach((b) => { b.disabled = true; });
   try {
-    const { url } = await api("/billing/checkout", { method: "POST", body: JSON.stringify({ interval, lang: currentLang === "ko" ? "ko" : "en" }) });
-    location.href = url;
+    const info = await loadBillingInfo();
+    const pk = info && info.publishableKey;
+    const res = await api("/billing/checkout", { method: "POST", body: JSON.stringify({ interval, lang: currentLang === "ko" ? "ko" : "en", embedded: !!pk }) });
+    if (pk && res.clientSecret) {
+      await openEmbeddedCheckout(pk, res.clientSecret);
+      btns.forEach((b) => { b.disabled = false; });
+      return;
+    }
+    location.href = res.url;
     return;
   } catch (e) {
     const code = e && e.data && e.data.error;
@@ -5639,6 +5646,39 @@ async function beginCheckout(interval) {
   }
   btns.forEach((b) => { b.disabled = false; });
 }
+// Stripe's checkout form shown inside the site (Embedded Checkout), so the
+// parent never leaves Koala Study Mate. Stripe.js must come from js.stripe.com.
+let embeddedCheckout = null;
+function loadStripeJs() {
+  if (window.Stripe) return Promise.resolve(window.Stripe);
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = "https://js.stripe.com/v3/";
+    s.onload = () => (window.Stripe ? resolve(window.Stripe) : reject(new Error("stripe_js")));
+    s.onerror = () => reject(new Error("stripe_js"));
+    document.head.appendChild(s);
+  });
+}
+async function openEmbeddedCheckout(pk, clientSecret) {
+  const StripeFn = await loadStripeJs();
+  const stripeJs = StripeFn(pk, { locale: currentLang === "ko" ? "ko" : "en" });
+  billingEl("checkout-sub").textContent = rwL("Secure payment by Stripe — you stay on Koala Study Mate", "Stripe 안전 결제 — Koala Study Mate 안에서 결제해요");
+  billingEl("checkout-close-btn").setAttribute("aria-label", rwL("Close", "닫기"));
+  if (embeddedCheckout) { try { embeddedCheckout.destroy(); } catch (e) { /* already gone */ } embeddedCheckout = null; }
+  embeddedCheckout = await stripeJs.initEmbeddedCheckout({ fetchClientSecret: () => Promise.resolve(clientSecret) });
+  billingEl("plan-overlay").hidden = true;
+  billingEl("checkout-overlay").hidden = false;
+  embeddedCheckout.mount("#checkout-mount");
+}
+// Closing the form = leaving without paying (same as Stripe's "back" link).
+function closeEmbeddedCheckout() {
+  billingEl("checkout-overlay").hidden = true;
+  if (embeddedCheckout) { try { embeddedCheckout.destroy(); } catch (e) { /* already gone */ } embeddedCheckout = null; }
+  setPremiumSignupPending(false);
+  refreshVerifyGate();
+}
+billingEl("checkout-close-btn").addEventListener("click", closeEmbeddedCheckout);
+
 billingEl("plan-month-btn").addEventListener("click", () => selectPlan("month"));
 billingEl("plan-year-btn").addEventListener("click", () => selectPlan("year"));
 billingEl("plan-pay-btn").addEventListener("click", () => beginCheckout(selectedPlan));
