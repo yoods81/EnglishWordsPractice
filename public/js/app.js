@@ -5633,9 +5633,17 @@ async function beginCheckout(interval) {
     const pk = info && info.publishableKey;
     const res = await api("/billing/checkout", { method: "POST", body: JSON.stringify({ interval, lang: currentLang === "ko" ? "ko" : "en", embedded: !!pk }) });
     if (pk && res.clientSecret) {
-      await openEmbeddedCheckout(pk, res.clientSecret);
-      btns.forEach((b) => { b.disabled = false; });
-      return;
+      try {
+        await openEmbeddedCheckout(pk, res.clientSecret);
+        btns.forEach((b) => { b.disabled = false; });
+        return;
+      } catch (embedErr) {
+        // Stripe.js couldn't load or start the in-site form: use Stripe's own page.
+        billingEl("checkout-overlay").hidden = true;
+        const hosted = await api("/billing/checkout", { method: "POST", body: JSON.stringify({ interval, lang: currentLang === "ko" ? "ko" : "en", embedded: false }) });
+        location.href = hosted.url;
+        return;
+      }
     }
     location.href = res.url;
     return;

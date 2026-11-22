@@ -338,7 +338,7 @@ export async function handleBilling({ route, request, env, url, h }) {
         .run();
     }
 
-    const checkout = await stripe(env, "POST", "/checkout/sessions", {
+    const base = {
       mode: "subscription",
       customer: customerId,
       client_reference_id: user.id,
@@ -346,15 +346,19 @@ export async function handleBilling({ route, request, env, url, h }) {
       subscription_data: { metadata: { user_id: user.id } },
       allow_promotion_codes: true,
       locale,
-      ...(embedded
-        ? { ui_mode: "embedded", return_url: `${baseUrl}/?checkout=success` }
-        : { success_url: `${baseUrl}/?checkout=success`, cancel_url: `${baseUrl}/?checkout=cancel` }),
-    });
+    };
+    const hosted = { success_url: `${baseUrl}/?checkout=success`, cancel_url: `${baseUrl}/?checkout=cancel` };
     if (embedded) {
-      if (!checkout.ok || !checkout.data?.client_secret) return json({ error: "billing_unavailable" }, 502);
-      return json({ clientSecret: checkout.data.client_secret });
+      const e = await stripe(env, "POST", "/checkout/sessions", { ...base, ui_mode: "embedded", return_url: `${baseUrl}/?checkout=success` });
+      if (e.ok && e.data?.client_secret) return json({ clientSecret: e.data.client_secret });
+      // The account may not allow the in-site form: log Stripe's reason and use Stripe's own page instead.
+      console.error("embedded checkout failed:", e.status, e.data?.error?.message || "");
     }
-    if (!checkout.ok || !checkout.data?.url) return json({ error: "billing_unavailable" }, 502);
+    const checkout = await stripe(env, "POST", "/checkout/sessions", { ...base, ...hosted });
+    if (!checkout.ok || !checkout.data?.url) {
+      console.error("checkout failed:", checkout.status, checkout.data?.error?.message || "");
+      return json({ error: "billing_unavailable" }, 502);
+    }
     return json({ url: checkout.data.url });
   }
 

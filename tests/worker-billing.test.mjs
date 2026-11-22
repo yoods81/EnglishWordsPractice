@@ -52,6 +52,7 @@ globalThis.fetch = async (url, init = {}) => {
     fake.customers[id] = { id, email: params.email };
     return reply(200, fake.customers[id]);
   }
+  if (method === "POST" && path === "/checkout/sessions" && params.ui_mode === "embedded" && globalThis.__rejectEmbedded) return reply(400, { error: { message: "embedded not allowed" } });
   if (method === "POST" && path === "/checkout/sessions") return reply(200, params.ui_mode === "embedded" ? { id: "cs_e", client_secret: "cs_e_secret" } : { id: "cs_1", url: `https://checkout.stripe.test/${params.customer}` });
   if (method === "POST" && path === "/billing_portal/sessions") return reply(200, { url: "https://portal.stripe.test/x" });
   const sub = path.match(/^\/subscriptions\/(.+)$/);
@@ -173,6 +174,13 @@ test("embedded checkout: with a publishable key the form opens inside the site",
     assert.equal(last.params.ui_mode, "embedded");
     assert.equal(last.params.return_url, "https://koala.test/?checkout=success");
     assert.equal(last.params.success_url, undefined, "embedded mode takes return_url only");
+    // Stripe refuses the in-site form -> the parent still gets Stripe's own page.
+    globalThis.__rejectEmbedded = true;
+    const err = console.error; console.error = () => {};
+    const fb = await call(kid, "POST", "/billing/checkout", { interval: "month", embedded: true });
+    console.error = err; globalThis.__rejectEmbedded = false;
+    assert.equal(fb.status, 200);
+    assert.match(fb.data.url, /^https:\/\/checkout\.stripe\.test\//);
   } finally {
     delete env.STRIPE_PUBLISHABLE_KEY;
   }

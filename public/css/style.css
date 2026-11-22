@@ -14798,7 +14798,8 @@ html[data-theme="dark"] body #view-koala .kdt-tab:not(.on):not(#_m):not(#_n) { b
 html[data-theme="dark"] body #view-koala .kdt-tab:not(.on):not(#_m):not(#_n) :is(span, small, b, strong) { color: #9fe8d4 !important; }
 
 /* ======== Bigger touch areas, top bar & home (사이트평가 3차, 2026-11-22): same invisible ring, look unchanged ======== */
-html body :is(#theme-toggle, #lang-toggle, #auth-toggle, .mission-go, #promo-btn) { position: relative; }
+/* #lang-toggle / #theme-toggle are already position:absolute (top-left corner) — they must not get relative here */
+html body :is(#auth-toggle, .mission-go, #promo-btn) { position: relative; }
 html body :is(#theme-toggle, #lang-toggle, #auth-toggle, .mission-go, #promo-btn)::before { content: ""; position: absolute; inset: -10px -6px; border-radius: inherit; }
 
 /* ======== Places (장소별 단어 묶음, 시안 B 아이콘 격자, 2026-11-22) ======== */
