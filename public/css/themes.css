@@ -4257,3 +4257,10 @@ html[data-theme="dark"] body #view-koala :is(.badge-hint, .badge-summary, .koala
 html[data-theme="dark"] body .dash-muted { color: var(--muted) !important; }
 /*    the streak line is a note, not a button: no pill in dark either */
 html[data-theme="dark"] .koala-streak-chip { background: transparent !important; box-shadow: none !important; border-color: transparent !important; }
+
+/* ======== 단어 목록 필터: 고른 칸은 채워서 보이게 (2026-11-22, v286) ========
+   The dark / ivory ".wl-chip { background … !important }" above also covered the chosen chip, so "All" looked unselected. */
+html[data-theme="dark"] body .wl-chip.is-active { background: var(--accent) !important; border-color: var(--accent) !important; color: #06382d !important; }
+html[data-theme="ivory"] body .wl-chip.is-active { background: #0b7a62 !important; border-color: #0b7a62 !important; color: #fff !important; }
+html:is([data-theme="dark"], [data-theme="ivory"]) body .wl-chip[data-filter="wrong"].is-active { background: #be123c !important; border-color: #be123c !important; color: #fff !important; }
+html:is([data-theme="dark"], [data-theme="ivory"]) body .wl-chip[data-filter="review"].is-active { background: #fbbf24 !important; border-color: #f59e0b !important; color: #0f172a !important; }
