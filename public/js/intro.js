@@ -25,6 +25,21 @@
 
   // ---- Start free / Log in / Sign up ----
   document.querySelectorAll("[data-intro-start]").forEach((b) => b.addEventListener("click", () => enterApp()));
+  // START FREE (free-month offer): into the app with sign-up open on Premium = the free month (no card).
+  document.querySelectorAll("[data-intro-trial]").forEach((b) => b.addEventListener("click", () => {
+    enterApp();
+    if (typeof openAuthOverlay === "function") openAuthOverlay("signup");
+    if (typeof setSignupPlan === "function") setSignupPlan("premium");
+  }));
+  // Is the free-month offer on? (worker/trial.js) — swaps the hero to the offer.
+  fetch("/api/billing/trial", { credentials: "same-origin" }).then((r) => r.json()).then((d) => {
+    if (!d || !d.promo || !d.promo.active) return;
+    $("intro").classList.add("is-promo");
+    const end = Date.parse(d.promo.end + "T12:00:00+11:00");
+    document.querySelectorAll(".intro-promo-end").forEach((el) => {
+      el.textContent = new Date(end).toLocaleDateString(el.closest(".t-ko") ? "ko-KR" : "en-AU", { day: "numeric", month: "long", timeZone: "Australia/Sydney" });
+    });
+  }).catch(() => {});
   $("intro-login").addEventListener("click", () => { if (typeof openAuthOverlay === "function") openAuthOverlay("login"); });
   $("intro-signup").addEventListener("click", () => { enterApp({ level: year }); if (typeof openAuthOverlay === "function") openAuthOverlay("signup"); });
   $("intro-lang").addEventListener("click", () => {
@@ -46,6 +61,7 @@
     if (!d || !d.prices) return;
     const fmt = (p) => (String(p.currency).toLowerCase() === "aud" ? "AU$" : String(p.currency).toUpperCase() + " ") + (p.amount / 100).toFixed(2);
     $("intro-price-m").textContent = fmt(d.prices.month);
+    document.querySelectorAll(".intro-price-m2").forEach((el) => { el.textContent = fmt(d.prices.month); });
     document.querySelectorAll(".intro-price-y").forEach((el) => { el.textContent = fmt(d.prices.year); });
   }).catch(() => {});
 

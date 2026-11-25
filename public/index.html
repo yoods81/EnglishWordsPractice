@@ -39,7 +39,7 @@
   <!-- First-visit landing (#intro): show it only to someone who has never used the app on this device and didn't
        arrive from an email/checkout link. Anything stored by the app (ywp_* besides theme/language) means "been here";
        ywp_intro_pending keeps showing it to a new visitor until they go in (ywp_intro_done, js/intro.js). -->
-  <script>try{(function(){var L=localStorage,d=document.documentElement;if(L.getItem("ywp_lang_v1")==="ko")d.lang="ko";if(L.getItem("ywp_intro_done"))return;if(/[?&](join|verify|reset|checkout|closed|tts)=/.test(location.search)||location.hash)return;if(!L.getItem("ywp_intro_pending")){for(var i=0;i<L.length;i++){var k=L.key(i);if(/^ywp_/.test(k)&&!/^ywp_(theme|lang)_/.test(k))return;}L.setItem("ywp_intro_pending","1");}d.classList.add("intro-on");})();}catch(e){}</script>
+  <script>try{(function(){var L=localStorage,d=document.documentElement;if(L.getItem("ywp_lang_v1")==="ko")d.lang="ko";if(L.getItem("ywp_intro_done"))return;if(/[?&](join|verify|reset|checkout|closed|tts|trial)=/.test(location.search)||location.hash)return;if(!L.getItem("ywp_intro_pending")){for(var i=0;i<L.length;i++){var k=L.key(i);if(/^ywp_/.test(k)&&!/^ywp_(theme|lang)_/.test(k))return;}L.setItem("ywp_intro_pending","1");}d.classList.add("intro-on");})();}catch(e){}</script>
   <link rel="stylesheet" href="css/intro.css" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/koala-house.css" />
@@ -63,9 +63,19 @@
     <div class="intro-wrap">
       <div class="intro-split">
         <section class="intro-hero">
+          <!-- Free-month offer (js/intro.js adds #intro.is-promo while /api/billing/trial says it is on) -->
+          <div class="intro-hero-promo">
+            <p class="intro-eyebrow"><span class="t-en">English words, spelling &amp; times tables · Years 3–6</span><span class="t-ko">영어 단어·스펠링·구구단 · 호주 3~6학년</span></p>
+            <h2 class="intro-promo-h"><span class="t-en">Try Premium free for 1 month</span><span class="t-ko">프리미엄 1개월 무료 체험</span></h2>
+            <p><span class="t-en">No card needed. Then <span class="intro-price-m2">AU$5.99</span>/month or <span class="intro-price-y">AU$59.99</span>/year — only if you choose to continue. Offer ends <span class="intro-promo-end">31 January</span>.</span><span class="t-ko">카드 필요 없음. 계속 쓰고 싶을 때만 월 <span class="intro-price-m2">AU$5.99</span> 또는 연 <span class="intro-price-y">AU$59.99</span>. <span class="intro-promo-end">1월 31일</span>까지.</span></p>
+            <button type="button" class="intro-cta intro-cta-caps" data-intro-trial>START FREE</button>
+            <button type="button" class="intro-alt" data-intro-start><span class="t-en">or play now without an account →</span><span class="t-ko">또는 가입 없이 바로 해 보기 →</span></button>
+          </div>
+          <div class="intro-hero-std">
           <h1><span class="t-en">English words, spelling and times tables for Years 3–6</span><span class="t-ko">호주 초등 3~6학년을 위한 영어 단어·스펠링·구구단</span></h1>
           <p><span class="t-en">10 minutes a day. 2,096 Australian English words, spelling practice and six times-table games — all in one safe place.</span><span class="t-ko">하루 10분. 호주 영어 단어 2,096개, 스펠링 연습, 구구단 게임 6가지를 안전한 한곳에서.</span></p>
           <button type="button" class="intro-cta" data-intro-start><span class="t-en">Start free — no card needed</span><span class="t-ko">무료로 시작하기 — 카드 필요 없음</span></button>
+          </div>
           <div class="intro-safe"><span><span class="t-en">No ads</span><span class="t-ko">광고 없음</span></span><span><span class="t-en">No chat</span><span class="t-ko">채팅 없음</span></span><span><span class="t-en">No strangers</span><span class="t-ko">낯선 사람 없음</span></span><span><span class="t-en">Parent email only</span><span class="t-ko">부모 이메일만</span></span></div>
         </section>
         <section class="intro-card intro-try" aria-labelledby="intro-try-title">
@@ -115,10 +125,10 @@
 
       <div class="intro-price">
         <div class="intro-card"><h3><span class="t-en">Free</span><span class="t-ko">무료</span></h3><div class="intro-amt">$0</div><p><span class="t-en">Up to 100 questions a day, unlimited flashcards, 10 of your own words to try. No card needed.</span><span class="t-ko">하루 100문제까지, 플래시카드 무제한, 직접 입력 단어 10개 체험. 카드 필요 없음.</span></p></div>
-        <div class="intro-card intro-prem"><h3><span class="t-en">Premium</span><span class="t-ko">프리미엄</span></h3><div class="intro-amt"><span id="intro-price-m">AU$5.99</span> <small><span class="t-en">/ month</span><span class="t-ko">/ 월</span></small></div><p><span class="t-en">or <span class="intro-price-y">AU$59.99</span> a year. Unlimited questions, your own word lists (even from a homework photo), mistakes notebook, weekly report, up to 4 children.</span><span class="t-ko">연간 <span class="intro-price-y">AU$59.99</span>. 무제한 문제, 나만의 단어장(숙제 사진으로도), 오답 노트, 주간 리포트, 자녀 최대 4명.</span></p></div>
+        <div class="intro-card intro-prem"><h3><span class="t-en">Premium</span><span class="t-ko">프리미엄</span></h3><div class="intro-amt"><span id="intro-price-m">AU$5.99</span> <small><span class="t-en">/ month</span><span class="t-ko">/ 월</span></small></div><p><span class="t-en">or <span class="intro-price-y">AU$59.99</span> a year. Unlimited questions, your own word lists (even from a homework photo), mistakes notebook, weekly report, up to 4 children.</span><span class="t-ko">연간 <span class="intro-price-y">AU$59.99</span>. 무제한 문제, 나만의 단어장(숙제 사진으로도), 오답 노트, 주간 리포트, 자녀 최대 4명.</span></p><p class="intro-trial-note"><span class="t-en">🎁 First month free — no card needed. Then <span class="intro-price-m2">AU$5.99</span>/month only if you continue.</span><span class="t-ko">🎁 첫 달 무료 — 카드 필요 없음. 계속 쓸 때만 월 <span class="intro-price-m2">AU$5.99</span>.</span></p></div>
       </div>
       <p class="intro-more"><a href="/pricing"><span class="t-en">Compare all plans →</span><span class="t-ko">요금제 자세히 보기 →</span></a></p>
-      <div class="intro-end"><button type="button" class="intro-cta" data-intro-start><span class="t-en">Start free — no card needed</span><span class="t-ko">무료로 시작하기 — 카드 필요 없음</span></button></div>
+      <div class="intro-end"><button type="button" class="intro-cta intro-cta-caps intro-end-trial" data-intro-trial>START FREE</button><button type="button" class="intro-cta intro-end-std" data-intro-start><span class="t-en">Start free — no card needed</span><span class="t-ko">무료로 시작하기 — 카드 필요 없음</span></button></div>
       <footer class="intro-foot"><a href="/about">About</a><a href="/pricing">Pricing</a><a href="/learn">Free lists</a><a href="/faq">FAQ</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></footer>
     </div>
   </div>
@@ -417,12 +427,12 @@
         <h2 class="pay-title" id="plan-title"></h2>
         <p class="pay-message" id="plan-message"></p>
         <p class="auth-error" id="plan-error" hidden></p>
+        <button type="button" class="pay-go pay-trial" id="plan-trial-btn" hidden></button>
+        <p class="pay-trial-or" id="plan-trial-or" hidden></p>
         <div class="pay-plans" role="radiogroup" aria-labelledby="plan-title">
           <button type="button" class="pay-plan is-on" id="plan-month-btn" role="radio" aria-checked="true"></button>
           <button type="button" class="pay-plan" id="plan-year-btn" role="radio" aria-checked="false"></button>
         </div>
-        <button type="button" class="pay-go pay-trial" id="plan-trial-btn" hidden></button>
-        <p class="pay-trial-or" id="plan-trial-or" hidden></p>
         <button type="button" class="pay-go" id="plan-pay-btn"></button>
         <button type="button" class="pay-cancel" id="plan-cancel-btn"></button>
         <p class="pay-secure" id="plan-secure-note"></p>
@@ -654,6 +664,12 @@
           <span class="hero-line hl-3" data-i18n="heroWord3">Remember.</span>
         </h2>
         <p class="hero-sub" data-i18n="heroSub">A fun study buddy for Australian primary students, helping you build vocabulary, spelling and times-table skills.</p>
+      </div>
+      <!-- Free-month offer / trial countdown (C2, js/app.js renderTrialBanner) -->
+      <div class="trial-banner" id="trial-banner" hidden>
+        <div class="trial-banner-ico" aria-hidden="true">🎁</div>
+        <div class="trial-banner-text"><b id="trial-banner-title"></b><span id="trial-banner-sub"></span></div>
+        <button type="button" class="trial-banner-btn" id="trial-banner-btn"></button>
       </div>
       <div class="mission-card" id="mission-card">
         <div class="mission-head">

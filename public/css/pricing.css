@@ -34,3 +34,7 @@ header.site,footer.site,main.wrap{max-width:980px}
 .p-faq summary{font-weight:700;cursor:pointer;min-height:28px}
 .p-faq p{margin:6px 0 0}
 .p-faq .more{text-align:center;margin:14px 0 0}
+
+/* Free-month offer (2026-11-25) */
+.p-trial { margin: 0 0 12px; padding: 10px 12px; border-radius: 12px; background: #fff7e3; color: #4a2c00; font-weight: 800; font-size: .88rem; }
+.plan .btn.caps { letter-spacing: .06em; font-size: 1.08rem; background: linear-gradient(#ffc04d, #f29a1f); color: #4a2c00; box-shadow: 0 3px 0 #c97a0c; }

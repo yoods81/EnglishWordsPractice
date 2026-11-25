@@ -94,3 +94,15 @@ html[data-theme="dark"] .intro-tiles button { background: #3d3626; color: #ffe8b
 .intro-end { text-align: center; margin-top: 26px; }
 .intro-foot { text-align: center; margin-top: 30px; font-size: .85rem; }
 .intro-foot a { color: var(--i-ad); margin: 0 8px; white-space: nowrap; display: inline-block; }
+
+/* Free-month offer (A, 2026-11-25): #intro.is-promo swaps the hero and the bottom button */
+#intro .intro-hero-promo, #intro.is-promo .intro-hero-std, #intro .intro-end-trial, #intro.is-promo .intro-end-std, #intro .intro-trial-note { display: none; }
+#intro.is-promo .intro-hero-promo { display: block; }
+#intro.is-promo .intro-end-trial { display: inline-block; }
+#intro.is-promo .intro-trial-note { display: block; }
+.intro-eyebrow { color: var(--i-ad); font-weight: 800; font-size: .95rem; margin: 22px 0 0 !important; }
+#intro .intro-promo-h { font-size: 2.15rem; line-height: 1.15; margin: 6px 0 10px; }
+.intro-cta-caps { letter-spacing: .06em; font-size: 1.15rem; min-width: 220px; }
+.intro-alt { display: block; margin: 12px auto 0; border: 0; background: none; color: var(--i-ad); font: inherit; font-weight: 800; text-decoration: underline; cursor: pointer; padding: 8px 4px; min-height: 40px; }
+@media (min-width: 860px) { #intro .intro-promo-h { text-align: left; } .intro-alt { margin-left: 0; } }
+.intro-trial-note { margin-top: 10px !important; padding: 10px 12px; border-radius: 12px; background: #fff7e3; color: #4a2c00 !important; font-weight: 800; font-size: .88rem; }

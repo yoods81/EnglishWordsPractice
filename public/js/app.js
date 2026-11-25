@@ -3670,6 +3670,7 @@ function switchLanguage(lang) {
   resetManualForm();
   renderLevelChoices();
   renderTimesTableInstructions();
+  try { renderTrialUI(); } catch (e) { /* trial section not set up yet */ }
 
   if (savedLevels[lang]) {
     populateLevelSelects();
@@ -5717,11 +5718,46 @@ function renderTrialUI() {
   if (tb) {
     const on = trialEligible();
     tb.hidden = !on; or.hidden = !on;
-    tb.textContent = rwL(`🎁 Start my free month — no card needed`, `🎁 1개월 무료로 시작 — 카드 필요 없음`);
-    or.textContent = rwL("or pay now", "또는 바로 결제");
+    tb.textContent = "🎁 START FREE";
+    or.textContent = rwL("1 month free, no card needed. Or pay now:", "1개월 무료, 카드 필요 없음. 또는 바로 결제:");
   }
-  if (window.renderTrialBanner) window.renderTrialBanner();
+  renderTrialBanner();
 }
+// C2 card above Today's Mission: the offer for guests / free accounts that can take it, the countdown during a trial.
+function renderTrialBanner() {
+  const box = billingEl("trial-banner");
+  if (!box) return;
+  const title = billingEl("trial-banner-title"), sub = billingEl("trial-banner-sub"), btn = billingEl("trial-banner-btn");
+  const me = trialInfo && trialInfo.me, endTxt = trialInfo && trialInfo.promo ? trialDateText(Date.parse(trialInfo.promo.end + "T12:00:00+11:00")) : "";
+  let mode = "";
+  if (trialActive()) mode = "trial";
+  else if (trialPromoOn() && !currentUser) mode = "guest";
+  else if (trialPromoOn() && me && me.wanted && !me.emailVerified) mode = "wanted";
+  else if (trialEligible()) mode = "offer";
+  box.hidden = !mode;
+  box.dataset.mode = mode;
+  if (!mode) return;
+  btn.hidden = mode === "wanted";
+  if (mode === "trial") {
+    const left = Math.max(1, Math.ceil((me.trial.endsAt - Date.now()) / 86400000));
+    title.textContent = rwL(`Free Premium month: ${left} ${left === 1 ? "day" : "days"} left`, `프리미엄 무료 체험: ${left}일 남음`);
+    sub.textContent = rwL(`Add a card by ${trialDateText(me.trial.endsAt)} to keep it. No card = back to Free, no charge.`,
+      `${trialDateText(me.trial.endsAt)}까지 카드를 등록하면 계속 쓸 수 있어요. 등록 안 하면 무료로 돌아가고 결제 없음.`);
+    btn.textContent = rwL("Keep Premium", "계속 쓰기");
+  } else {
+    title.textContent = rwL("Premium free for 1 month — no card needed", "프리미엄 1개월 무료 — 카드 필요 없음");
+    sub.textContent = mode === "guest" ? rwL("Sign up and confirm your email to start.", "가입하고 이메일을 인증하면 시작돼요.")
+      : mode === "wanted" ? rwL("Open the link in your email — your free month starts as soon as it's confirmed.", "이메일의 링크를 눌러 주세요. 인증되면 바로 무료 체험이 시작돼요.")
+      : rwL(`Offer ends ${endTxt}.`, `${endTxt}까지 행사 중이에요.`);
+    btn.textContent = "START FREE";
+  }
+}
+billingEl("trial-banner-btn").addEventListener("click", () => {
+  const mode = billingEl("trial-banner").dataset.mode;
+  if (mode === "trial") trialAddCard();
+  else if (mode === "guest") { openAuthOverlay("signup"); setSignupPlan("premium"); }
+  else if (mode === "offer") startTrialNow(null);
+});
 async function startTrialNow(errEl) {
   try {
     const r = await api("/billing/trial/start", { method: "POST" });
@@ -5741,7 +5777,8 @@ async function startTrialNow(errEl) {
       had_premium: rwL("The free month is for accounts that haven't had Premium before.", "무료 체험은 프리미엄을 처음 쓰는 계정만 받을 수 있어요."),
       promo_over: rwL("The free-month offer has ended.", "무료 체험 행사가 끝났어요."),
     }[code];
-    if (errEl) { errEl.textContent = msg || rwL("Something went wrong. Please try again in a moment.", "문제가 생겼어요. 잠시 후 다시 시도해 주세요."); errEl.hidden = false; }
+    const text = msg || rwL("Something went wrong. Please try again in a moment.", "문제가 생겼어요. 잠시 후 다시 시도해 주세요.");
+    if (errEl) { errEl.textContent = text; errEl.hidden = false; } else showNotice("warn", rwL("Free month", "무료 체험"), text);
     if (code === "email_not_verified") {
       // Remember the wish: the server starts the trial when the email link is opened.
       api("/billing/trial/want", { method: "POST" }).catch(() => {});

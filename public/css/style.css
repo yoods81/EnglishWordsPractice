@@ -14820,3 +14820,14 @@ html:root:root:root:root body .scope-seg.scope-seg-3 .qz-seg-btn { padding-left:
 html body .scope-pick { flex-wrap: wrap; }
 html body .scope-pick > .scope-seg { flex: 1 1 0; min-width: 0; }
 html body .scope-pick > .town-box { flex: 0 0 auto; width: 100%; min-width: 0; }
+
+/* Free-month offer / trial countdown card above Today's Mission (C2, 2026-11-25, js/app.js renderTrialBanner) */
+.trial-banner { display: flex; align-items: center; gap: 12px; background: linear-gradient(#fff7e3, #ffefc7); border-radius: 18px; box-shadow: 0 3px 0 #f0d79a; padding: 12px 14px; margin: 0 0 14px; text-align: left; }
+.trial-banner[hidden] { display: none; }
+.trial-banner-ico { font-size: 1.6rem; flex: none; }
+.trial-banner-text { min-width: 0; }
+.trial-banner-text b { display: block; font-family: var(--font-heading); color: #4a2c00; line-height: 1.25; }
+.trial-banner-text span { display: block; font-size: .85rem; color: #6b5420; margin-top: 2px; }
+.trial-banner-btn { margin-left: auto; flex: none; border: 0; border-radius: 14px; background: linear-gradient(#ffc04d, #f29a1f); color: #4a2c00; font: inherit; font-weight: 800; letter-spacing: .04em; padding: 10px 14px; min-height: 44px; box-shadow: 0 3px 0 #c97a0c; cursor: pointer; }
+.trial-banner-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #c97a0c; }
+.trial-banner-btn[hidden] { display: none; }

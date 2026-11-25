@@ -84,6 +84,7 @@
           <li><span class="t-en">Up to 4 child profiles</span><span class="t-ko">자녀 프로필 최대 4명</span></li>
           <li><span class="t-en">Build town buildings by learning their words</span><span class="t-ko">단어 시험으로 마을 건물 짓기</span></li>
         </ul>
+        <p class="p-trial" id="p-trial" hidden><span class="t-en">🎁 First month free — no card needed. Then <span class="p-trial-m">AU$5.99</span>/month only if you continue. Offer ends <span class="p-trial-end">31 January</span>.</span><span class="t-ko">🎁 첫 달 무료 — 카드 필요 없음. 계속 쓸 때만 월 <span class="p-trial-m">AU$5.99</span>. <span class="p-trial-end">1월 31일</span>까지.</span></p>
         <a class="btn" id="prem-btn" href="/?join=premium"><span class="t-en">Go Premium</span><span class="t-ko">프리미엄 시작하기</span></a>
       </div>
     </div>
@@ -154,6 +155,19 @@
       apply(lang);
       fetch("/api/billing/prices", { credentials: "same-origin" }).then(function (r) { return r.json(); }).then(function (d) {
         if (d && d.prices && d.prices.month && d.prices.year) { prices = d.prices; render(); }
+      }).catch(function () {});
+      // Free-month offer (worker/trial.js): note on the Premium card and START FREE for whoever can take it.
+      fetch("/api/billing/trial", { credentials: "same-origin" }).then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || !d.promo || !d.promo.active) return;
+        if (d.me && !d.me.eligible) return;
+        document.getElementById("p-trial").hidden = false;
+        var end = Date.parse(d.promo.end + "T12:00:00+11:00");
+        document.querySelectorAll(".p-trial-end").forEach(function (el) { el.textContent = new Date(end).toLocaleDateString(el.closest(".t-ko") ? "ko-KR" : "en-AU", { day: "numeric", month: "long", timeZone: "Australia/Sydney" }); });
+        document.querySelectorAll(".p-trial-m").forEach(function (el) { el.textContent = money(prices.month); });
+        var p = document.getElementById("prem-btn");
+        p.href = "/?join=trial";
+        p.innerHTML = "START FREE";
+        p.classList.add("caps");
       }).catch(function () {});
       // Signed-in visitors: a free member goes straight to the plan picker; Premium sees that it is already on.
       fetch("/api/auth/me", { credentials: "same-origin" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {

@@ -141,6 +141,16 @@
         },
         {
           "q": {
+            "en": "Is there a free trial?",
+            "ko": "무료 체험이 있나요?"
+          },
+          "a": {
+            "en": "From 27 November 2026 to 31 January 2027, accounts that haven't had Premium before can try it free for one month — no card needed. Sign up, choose Premium and confirm your email, or tap START FREE on the home screen. If you want to keep Premium after the month, add a card any time (then it's the monthly price, cancel any time). If you don't, your account simply goes back to Free — nothing is charged and your child's words and progress are kept.",
+            "ko": "2026년 11월 27일부터 2027년 1월 31일까지, 프리미엄을 처음 쓰는 계정은 카드 없이 1개월 무료로 써 볼 수 있어요. 가입할 때 프리미엄을 고르고 이메일을 인증하거나, 첫 화면의 START FREE를 누르세요. 한 달 뒤에도 쓰고 싶으면 언제든 카드를 등록하면 되고(그 뒤 월 요금, 언제든 해지 가능), 등록하지 않으면 무료 계정으로 돌아가요. 결제는 되지 않고 아이의 단어와 기록은 그대로 남아요."
+          }
+        },
+        {
+          "q": {
             "en": "How much is Premium?",
             "ko": "프리미엄은 얼마인가요?"
           },
