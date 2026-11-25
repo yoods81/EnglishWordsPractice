@@ -14831,3 +14831,6 @@ html body .scope-pick > .town-box { flex: 0 0 auto; width: 100%; min-width: 0; }
 .trial-banner-btn { margin-left: auto; flex: none; border: 0; border-radius: 14px; background: linear-gradient(#ffc04d, #f29a1f); color: #4a2c00; font: inherit; font-weight: 800; letter-spacing: .04em; padding: 10px 14px; min-height: 44px; box-shadow: 0 3px 0 #c97a0c; cursor: pointer; }
 .trial-banner-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #c97a0c; }
 .trial-banner-btn[hidden] { display: none; }
+/* Photo card: photos left (worker/photo.js limits) */
+.ocr-allowance { margin: 2px 0 8px; font-size: .85rem; }
+.ocr-allowance.is-out { color: #b4570a; font-weight: 700; }

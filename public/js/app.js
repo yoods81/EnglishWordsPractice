@@ -14830,7 +14830,9 @@ function updatePaidFeatureGates() {
   // Free accounts get the manual form + their trial words list unlocked (10-word taste).
   const trialOpen = locked && isFreeAccount();
   const lockedManual = locked && !trialOpen;
-  setPremiumGate(addwordExtractCard, ocrPremiumOverlay, locked);
+  // Free accounts may read photos too (10 in total, worker/photo.js); PDF/Word/Excel stay Premium.
+  setPremiumGate(addwordExtractCard, ocrPremiumOverlay, locked && !trialOpen);
+  refreshPhotoAllowance();
   setPremiumGate(addwordManualCard, manualPremiumOverlay, lockedManual);
   setPremiumGate(myAddedWordsCard, customPremiumOverlay, lockedManual);
   let trialNote = document.getElementById("manual-trial-note");
@@ -15542,8 +15544,8 @@ ocrChooseBtn.addEventListener("click", () => {
   // The premium-gate overlay on top of this card catches a mouse/touch
   // click before it ever reaches this button, but pointer-events:none
   // doesn't stop a keyboard-focused button from being activated — this is
-  // the backstop for that path.
-  if (!canUsePaidFeatures()) {
+  // the backstop for that path. (Free accounts may pick a photo: 10-photo taste.)
+  if (!canUsePaidFeatures() && !isFreeAccount()) {
     promptUpgradeForFeature();
     return;
   }
@@ -15605,7 +15607,8 @@ function handleOcrFileChosen(file) {
     ocrFileInput.value = "";
     return;
   }
-  if (kind === "image" && typeof Tesseract === "undefined") {
+  // Accounts that use the server reader (Claude vision) don't need Tesseract; it is only their fallback.
+  if (kind === "image" && typeof Tesseract === "undefined" && !(canUsePaidFeatures() || isFreeAccount())) {
     ocrStatus.textContent = t("ocrNoTesseract");
     ocrReview.hidden = false;
     return;
@@ -15660,7 +15663,7 @@ const ocrDropzone = document.getElementById("ocr-dropzone");
 ["dragenter", "dragover"].forEach((evt) => {
   ocrDropzone.addEventListener(evt, (e) => {
     e.preventDefault();
-    if (!canUsePaidFeatures()) return;
+    if (!canUsePaidFeatures() && !isFreeAccount()) return;
     ocrDropzone.classList.add("ocr-dropzone-active");
   });
 });
@@ -15670,7 +15673,7 @@ const ocrDropzone = document.getElementById("ocr-dropzone");
 ocrDropzone.addEventListener("drop", (e) => {
   e.preventDefault();
   ocrDropzone.classList.remove("ocr-dropzone-active");
-  if (!canUsePaidFeatures()) {
+  if (!canUsePaidFeatures() && !isFreeAccount()) {
     promptUpgradeForFeature();
     return;
   }
@@ -15702,10 +15705,37 @@ async function extractWordsWithVision(file) {
   if (!res.ok) {
     const httpErr = new Error("extract_failed_" + res.status);
     httpErr.status = res.status;
+    try { httpErr.data = await res.json(); } catch (e) { /* no body */ }
     throw httpErr;
   }
   const data = await res.json();
+  if (data.photo) showPhotoAllowance(data.photo);
   return Array.isArray(data.words) ? data.words : [];
+}
+// "Photos left" line on the photo card: free = 10 in total, trial = 10 a day, Premium = 30 a day (worker/photo.js).
+function showPhotoAllowance(p) {
+  const card = document.getElementById("addword-extract-card");
+  if (!card) return;
+  let el = document.getElementById("ocr-allowance");
+  if (!el) {
+    el = document.createElement("p");
+    el.id = "ocr-allowance";
+    el.className = "muted ocr-allowance";
+    card.querySelector("h3").insertAdjacentElement("afterend", el);
+  }
+  if (!p || p.scope === "none" || p.scope === "unlimited" || p.limit == null) { el.hidden = true; return; }
+  const left = Math.max(0, p.left ?? 0);
+  el.hidden = false;
+  el.classList.toggle("is-out", left === 0);
+  el.textContent = p.scope === "total"
+    ? rwL(`Free taste: ${left} of ${p.limit} photos left (photos only). Premium reads up to 30 photos a day.`, `무료 체험: 사진 ${p.limit}장 중 ${left}장 남음(사진만). 프리미엄은 하루 30장까지 읽어요.`)
+    : rwL(`Photos left today: ${left} of ${p.limit}.`, `오늘 남은 사진: ${p.limit}장 중 ${left}장.`);
+}
+let photoAllowanceAt = 0;
+function refreshPhotoAllowance() {
+  if (!currentUser || Date.now() - photoAllowanceAt < 2000) return;
+  photoAllowanceAt = Date.now();
+  api("/extract-words/usage").then(showPhotoAllowance).catch(() => {});
 }
 ocrExtractBtn.addEventListener("click", async () => {
   const file = ocrPendingFile;
@@ -15716,7 +15746,7 @@ ocrExtractBtn.addEventListener("click", async () => {
   // "Add selected words" step to gate afterward (unlike the photo/PDF/text
   // candidate-review flow below), so this is where that write needs its own
   // paid-account check.
-  if (kind === "xlsx" && !canUsePaidFeatures()) {
+  if (kind !== "image" && !canUsePaidFeatures()) {
     promptUpgradeForFeature();
     return;
   }
@@ -15749,7 +15779,7 @@ ocrExtractBtn.addEventListener("click", async () => {
 
     try {
            // 프리미엄/관리자는 비전 모델로 추출하고, 실패하면 아래 Tesseract로 넘어간다.
-      if (canUsePaidFeatures()) {
+      if (canUsePaidFeatures() || isFreeAccount()) {
         try {
           ocrProgressFill.style.width = "50%";
           ocrProgressLabel.textContent = t("ocrProgressReadingFile");
@@ -15760,13 +15790,20 @@ ocrExtractBtn.addEventListener("click", async () => {
         } catch (visionErr) {
           if (visionErr && visionErr.status === 429) {
             ocrProgress.hidden = true;
-            ocrStatus.textContent = t("ocrDailyLimit");
+            const d = visionErr.data || {};
+            ocrStatus.textContent = d.error === "site_limit"
+              ? rwL("Photo reading is resting for today — please try again tomorrow, or type the words in.", "오늘은 사진 읽기가 쉬어요. 내일 다시 시도하거나 단어를 직접 입력해 주세요.")
+              : d.scope === "total"
+                ? rwL("You've used all 10 free photos. Premium reads up to 30 photos a day — or type the words in.", "무료 사진 10장을 모두 썼어요. 프리미엄은 하루 30장까지 읽어요. 단어를 직접 입력할 수도 있어요.")
+                : t("ocrDailyLimit");
+            if (d.scope) showPhotoAllowance({ scope: d.scope, limit: d.limit, left: 0 });
             ocrReview.hidden = false;
             return;
           }
           console.warn("Vision extraction failed, falling back to Tesseract", visionErr);
         }
       }
+      if (typeof Tesseract === "undefined") throw new Error("no_tesseract");
 	 const result = await Tesseract.recognize(file, "eng", {
         logger: (m) => {
           if (m.progress != null) {
@@ -16134,11 +16171,15 @@ async function fetchWordInfo(word) {
 }
 
 ocrAddBtn.addEventListener("click", async () => {
-  if (!canUsePaidFeatures()) {
+  // Free accounts keep photo words inside their 10-word trial (like typed words).
+  const trialRoom = isFreeAccount() ? Math.max(0, FREE_WORD_TRIAL - freeWordTrialUsed()) : Infinity;
+  if (!canUsePaidFeatures() && !(isFreeAccount() && trialRoom > 0)) {
     promptUpgradeForFeature();
     return;
   }
-  const selected = Array.from(ocrSelectedWords);
+  let selected = Array.from(ocrSelectedWords);
+  const cut = selected.length > trialRoom;
+  if (cut) selected = selected.slice(0, trialRoom);
   if (selected.length === 0) {
     ocrStatus.textContent = t("ocrSelectAtLeastOne");
     return;
@@ -16179,7 +16220,8 @@ ocrAddBtn.addEventListener("click", async () => {
     pushResult.failed.length > 0
       ? t("bulkAddedWithFailures", selected.length - pushResult.failed.length, pushResult.failed.length)
       : t("ocrAddedStatus", selected.length, levelLabel(level))
-  );
+  ) + (cut ? " " + rwL(`(Free trial: only ${selected.length} more words fit — Premium keeps them all.)`, `(무료 체험: ${selected.length}개만 더 담을 수 있어요 — 프리미엄은 모두 저장해요.)`) : "");
+  if (isFreeAccount() && refreshPaidFeatureGates) refreshPaidFeatureGates();
   ocrSelectedWords = new Set();
   ocrCandidateWords = [];
   ocrCandidateChips = new Map();

@@ -11,6 +11,7 @@ import KoalaCore from "../public/js/koala-core.js";
 import { handleHouse, houseRowKey, houseRowKeys, houseGate } from "./house.js";
 import { handleUsage } from "./usage.js";
 import { handleTrial, runTrialJobs, startWantedTrial } from "./trial.js";
+import { handlePhoto, photoPlan, takePhoto } from "./photo.js";
 
 const SESSION_COOKIE = "ywp_session";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
@@ -1709,11 +1710,17 @@ async function handleApi(request, env, url) {
   }
   // Photo -> vocabulary words using a vision model. Paid/admin only (same gate
   // as the other premium routes), with a per-user daily cap to bound API cost.
+  // Photo allowance (worker/photo.js): how many photos each account may still read, and its admin numbers.
+  if (route === "/extract-words/usage" || route === "/admin/photo-limits") {
+    const res = await handlePhoto(route, request, env, { json, getSessionUser });
+    if (res) return res;
+  }
+
   if (route === "/extract-words" && request.method === "POST") {
     const session = await getSessionUser(request, env);
-    if (!session || (session.role !== "admin" && session.role !== "paid")) {
-      return json({ error: "unauthorized" }, 401);
-    }
+    // guest: none · free: 10 in total · free-month trial: 10/day · Premium: 30/day · admin: unlimited (worker/photo.js)
+    const plan = await photoPlan(env, session);
+    if (!session || plan.scope === "none") return json({ error: "unauthorized" }, 401);
     if (!env.ANTHROPIC_API_KEY) return json({ error: "server_not_configured" }, 500);
 
     let body;
@@ -1726,22 +1733,10 @@ async function handleApi(request, env, url) {
     const mediaType = ["image/jpeg", "image/png", "image/webp"].includes(body?.mediaType) ? body.mediaType : "";
     if (!image || !mediaType || image.length > 5000000) return json({ error: "bad_image" }, 400);
 
-    const DAILY_LIMIT = 30;
-    const day = new Date().toISOString().slice(0, 10);
-    const refund = () =>
-      env.DB.prepare("UPDATE extract_usage SET count = MAX(count - 1, 0) WHERE user_id = ? AND day = ?")
-        .bind(session.id, day)
-        .run()
-        .catch(() => {});
-
-    if (session.role !== "admin") {
-      const row = await env.DB.prepare(
-        "INSERT INTO extract_usage (user_id, day, count) VALUES (?, ?, 1) ON CONFLICT(user_id, day) DO UPDATE SET count = count + 1 RETURNING count"
-      )
-        .bind(session.id, day)
-        .first();
-      if ((row?.count || 1) > DAILY_LIMIT) return json({ error: "daily_limit" }, 429);
-    }
+    const taken = await takePhoto(env, session, plan);
+    if (!taken.ok) return json({ error: taken.error, scope: plan.scope, limit: plan.limit, left: taken.left ?? 0 }, 429);
+    const refund = taken.refund;
+    const photo = { scope: plan.scope, limit: plan.limit, left: taken.left };
 
     try {
       console.log("extract-words calling anthropic, imageChars", image.length, "keyLen", env.ANTHROPIC_API_KEY.length);
@@ -1825,7 +1820,7 @@ async function handleApi(request, env, url) {
         )
       ).slice(0, 25);
       console.log("extract-words raw", text.slice(0, 300), "final", JSON.stringify(words));
-      return json({ words });
+      return json({ words, photo });
     } catch (e) {
       console.error("extract-words exception", String(e), String(e && e.stack).slice(0, 400));
       await refund();

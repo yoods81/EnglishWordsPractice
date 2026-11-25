@@ -2486,6 +2486,21 @@ to Flip!</span></div>
           <p id="admin-promo-result" class="auth-hint" hidden></p>
           <details class="admin-promo-log"><summary id="admin-promo-log-title"></summary><ul id="admin-promo-log"></ul></details>
         </div>
+        <!-- Photo -> words allowance (worker/photo.js): free total, trial/Premium per day, whole-site per day. -->
+        <div class="card" id="admin-photo-card">
+          <h3 id="admin-photo-title">📷 Photo reading limits</h3>
+          <p class="muted" id="admin-photo-desc"></p>
+          <p class="admin-house-now" id="admin-photo-now"></p>
+          <div class="admin-promo-row">
+            <label class="admin-house-lbl"><span id="admin-photo-free-lbl"></span><input type="number" id="admin-photo-free" min="0" max="100" step="1"></label>
+            <label class="admin-house-lbl"><span id="admin-photo-trial-lbl"></span><input type="number" id="admin-photo-trial" min="0" max="200" step="1"></label>
+            <label class="admin-house-lbl"><span id="admin-photo-paid-lbl"></span><input type="number" id="admin-photo-paid" min="0" max="200" step="1"></label>
+            <label class="admin-house-lbl"><span id="admin-photo-site-lbl"></span><input type="number" id="admin-photo-site" min="0" max="100000" step="1"></label>
+          </div>
+          <div class="auth-actions auth-actions-start"><button type="button" class="pill accent" id="admin-photo-save-btn"></button></div>
+          <p id="admin-photo-result" class="auth-hint" hidden></p>
+          <details class="admin-promo-log"><summary id="admin-photo-log-title"></summary><ul id="admin-photo-log"></ul></details>
+        </div>
         <div class="card" id="admin-notice-card">
           <h3 id="admin-notice-title">📢 Announcement banner</h3>
           <p class="muted" id="admin-notice-desc"></p>

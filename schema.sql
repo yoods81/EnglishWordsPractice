@@ -274,3 +274,13 @@ CREATE TABLE IF NOT EXISTS trials (
   remind3_at INTEGER,         -- 3 days before the end
   remind_last_at INTEGER      -- the last day
 );
+
+-- Photo -> words counter (worker/photo.js). Was used by the code but never defined in a migration;
+-- IF NOT EXISTS keeps this harmless where it was created by hand.
+-- day = "YYYY-MM-DD" (Sydney) for daily limits, "total" for the free lifetime count; user_id "__site__" = whole-site daily count.
+CREATE TABLE IF NOT EXISTS extract_usage (
+  user_id TEXT NOT NULL,
+  day TEXT NOT NULL,
+  count INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id, day)
+);

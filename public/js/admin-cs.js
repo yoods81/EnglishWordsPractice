@@ -106,7 +106,7 @@
     });
     document.querySelectorAll("[data-admin-pane]").forEach((p) => (p.hidden = p.dataset.adminPane !== name));
     if (name === "inbox") loadInbox();
-    if (name === "system") { fillNoticeCard(); loadHouseCard(); loadPromoCard(); }
+    if (name === "system") { fillNoticeCard(); loadHouseCard(); loadPromoCard(); loadPhotoCard(); }
   }
 
   function jump(name, opts = {}) {
@@ -1062,6 +1062,47 @@
       promo = (await api("/admin/promo", { method: "PUT", body: JSON.stringify({ on: promoOn, start: $("admin-promo-start").value, end: $("admin-promo-end").value, days: Number($("admin-promo-days").value) }) })).promo;
       res.textContent = L("Saved ✓ (in the change log)", "저장했어요 ✓ (변경 기록에 남아요)");
       paintPromoCard();
+    } catch (e) {
+      const d = e && e.data;
+      res.textContent = d && d.error === "invalid" ? L(`Check: ${(d.fields || []).join(", ")}`, `확인할 칸: ${(d.fields || []).join(", ")}`) : failMsg();
+    }
+    res.hidden = false;
+  });
+  // 📷 Photo reading limits — /api/admin/photo-limits, worker/photo.js
+  let photoL = null, photoToday = 0;
+  function paintPhotoCard() {
+    $("admin-photo-title").textContent = L("📷 Photo reading limits", "📷 사진 단어 추출 한도");
+    $("admin-photo-desc").textContent = L("Each photo uses the paid Claude API. Guests can't use it; admins are unlimited. The site limit stops everyone for the rest of the day (Sydney).",
+      "사진 한 장마다 유료 Claude API를 써요. 비회원은 못 쓰고 관리자는 무제한이에요. 사이트 전체 한도에 닿으면 그날(시드니 기준)은 모두 멈춰요.");
+    $("admin-photo-free-lbl").textContent = L("Free: photos in total", "무료: 평생 장수");
+    $("admin-photo-trial-lbl").textContent = L("Free month: per day", "1개월 체험: 하루");
+    $("admin-photo-paid-lbl").textContent = L("Premium: per day", "프리미엄: 하루");
+    $("admin-photo-site-lbl").textContent = L("Whole site: per day", "사이트 전체: 하루");
+    $("admin-photo-save-btn").textContent = L("Save", "저장");
+    $("admin-photo-log-title").textContent = L("Change log", "변경 기록");
+    if (!photoL) return;
+    $("admin-photo-now").textContent = L(`Now: free ${photoL.freeTotal} total · trial ${photoL.trialDaily}/day · Premium ${photoL.paidDaily}/day · site ${photoL.siteDaily}/day (used today: ${photoToday})`,
+      `지금: 무료 평생 ${photoL.freeTotal} · 체험 하루 ${photoL.trialDaily} · 프리미엄 하루 ${photoL.paidDaily} · 사이트 하루 ${photoL.siteDaily} (오늘 사용: ${photoToday})`);
+    const ul = $("admin-photo-log");
+    ul.innerHTML = "";
+    (photoL.log || []).forEach((x) => {
+      const li = document.createElement("li");
+      const f = (p) => `${p.freeTotal}/${p.trialDaily}/${p.paidDaily}/${p.siteDaily}`;
+      li.textContent = `${new Date(x.at).toLocaleString()} · ${f(x.before)} → ${f(x.after)}`;
+      ul.appendChild(li);
+    });
+  }
+  async function loadPhotoCard() {
+    try { const r = await api("/admin/photo-limits"); photoL = r.limits; photoToday = r.siteToday || 0; } catch (e) { photoL = null; $("admin-photo-now").textContent = failMsg(); paintPhotoCard(); return; }
+    $("admin-photo-free").value = photoL.freeTotal; $("admin-photo-trial").value = photoL.trialDaily; $("admin-photo-paid").value = photoL.paidDaily; $("admin-photo-site").value = photoL.siteDaily;
+    paintPhotoCard();
+  }
+  $("admin-photo-save-btn").addEventListener("click", async () => {
+    const res = $("admin-photo-result");
+    try {
+      photoL = (await api("/admin/photo-limits", { method: "PUT", body: JSON.stringify({ freeTotal: Number($("admin-photo-free").value), trialDaily: Number($("admin-photo-trial").value), paidDaily: Number($("admin-photo-paid").value), siteDaily: Number($("admin-photo-site").value) }) })).limits;
+      res.textContent = L("Saved ✓ (in the change log)", "저장했어요 ✓ (변경 기록에 남아요)");
+      paintPhotoCard();
     } catch (e) {
       const d = e && e.data;
       res.textContent = d && d.error === "invalid" ? L(`Check: ${(d.fields || []).join(", ")}`, `확인할 칸: ${(d.fields || []).join(", ")}`) : failMsg();
