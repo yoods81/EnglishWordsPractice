@@ -18,7 +18,7 @@ grep -qs '^SESSION_SECRET=localtestsecret123' .dev.vars || printf 'SESSION_SECRE
 for f in schema.sql migrations/0006_koala_coins.sql migrations/0007_koala_account_sync.sql \
          migrations/0014_koala_items.sql migrations/0015_item_fit.sql migrations/0016_item_fit2d.sql \
          migrations/0017_koala_sync_rev.sql migrations/0018_koala_house.sql migrations/0019_site_visits.sql \
-         migrations/0020_daily_usage.sql; do
+         migrations/0020_daily_usage.sql migrations/0021_trial.sql; do
   npx wrangler d1 execute englishwordspractice --local --file="./$f" >/dev/null 2>&1 || echo "note: $f had errors (usually 'already exists' — fine)"
 done
 

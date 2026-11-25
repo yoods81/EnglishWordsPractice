@@ -429,3 +429,4 @@ export async function closeBillingForUser(env, userId) {
 }
 
 export const _test = { verifyWebhookSignature, formEncode, hmacHex };
+export { stripe, billingConfigured, applySubscription };

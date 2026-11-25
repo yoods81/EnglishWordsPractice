@@ -421,6 +421,8 @@
           <button type="button" class="pay-plan is-on" id="plan-month-btn" role="radio" aria-checked="true"></button>
           <button type="button" class="pay-plan" id="plan-year-btn" role="radio" aria-checked="false"></button>
         </div>
+        <button type="button" class="pay-go pay-trial" id="plan-trial-btn" hidden></button>
+        <p class="pay-trial-or" id="plan-trial-or" hidden></p>
         <button type="button" class="pay-go" id="plan-pay-btn"></button>
         <button type="button" class="pay-cancel" id="plan-cancel-btn"></button>
         <p class="pay-secure" id="plan-secure-note"></p>
@@ -2452,6 +2454,21 @@ to Flip!</span></div>
             <button type="button" class="pill accent" id="admin-house-move-btn"></button>
           </div>
           <p id="admin-house-result" class="auth-hint" hidden></p>
+        </div>
+        <!-- 1-month free trial promotion (worker/trial.js): on/off, Sydney dates, trial length, change log. -->
+        <div class="card" id="admin-promo-card">
+          <h3 id="admin-promo-title">🎁 Free month</h3>
+          <p class="muted" id="admin-promo-desc"></p>
+          <p class="admin-house-now" id="admin-promo-now"></p>
+          <div class="admin-house-choices" id="admin-promo-onoff" role="radiogroup"></div>
+          <div class="admin-promo-row">
+            <label class="admin-house-lbl"><span id="admin-promo-start-lbl"></span><input type="date" id="admin-promo-start"></label>
+            <label class="admin-house-lbl"><span id="admin-promo-end-lbl"></span><input type="date" id="admin-promo-end"></label>
+            <label class="admin-house-lbl"><span id="admin-promo-days-lbl"></span><input type="number" id="admin-promo-days" min="7" max="60" step="1"></label>
+          </div>
+          <div class="auth-actions auth-actions-start"><button type="button" class="pill accent" id="admin-promo-save-btn"></button></div>
+          <p id="admin-promo-result" class="auth-hint" hidden></p>
+          <details class="admin-promo-log"><summary id="admin-promo-log-title"></summary><ul id="admin-promo-log"></ul></details>
         </div>
         <div class="card" id="admin-notice-card">
           <h3 id="admin-notice-title">📢 Announcement banner</h3>

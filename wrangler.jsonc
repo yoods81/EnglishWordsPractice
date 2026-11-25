@@ -38,7 +38,8 @@
 		"STRIPE_PUBLISHABLE_KEY": "pk_live_51URpQORseogsMezsteKbMmep2xROVwPAu4oisjZMPEfhlDGBBItjRCB1sz6eYA6FmJtMcYE2II3pYuTJh0AclEVr00h8H9D5Jy"
 	},
 	// Weekly parent report e-mails (for accounts that switched it on): Mondays 00:00 UTC.
-	"triggers": { "crons": ["0 0 * * 1"] },
+	// Free-trial first-week report + "ends soon" reminders (worker/trial.js): daily 22:00 UTC (9am Sydney).
+	"triggers": { "crons": ["0 0 * * 1", "0 22 * * *"] },
 	// The Worker reads this as env.DB.
 	"d1_databases": [
 		{

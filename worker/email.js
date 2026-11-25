@@ -200,6 +200,40 @@ export const templates = {
     ].join("\n");
     return { subject: `[${BRAND}] ${L.title} / ${ko ? "Weekly report" : "주간 리포트"} · ${str(r.range, 40)}`, text, html };
   },
+  // Free-trial reminders (worker/trial.js): 3 days before the end and on the last day, with the child's progress.
+  trialEnding({ username, lang, last, hasCard, endsAt, report, appUrl, priceText }) {
+    const ko = lang === "ko";
+    const app = (appUrl || DEFAULT_APP_URL).replace(/\/$/, "");
+    const price = priceText || "AU$5.99";
+    const date = new Date(endsAt).toLocaleDateString(ko ? "ko-KR" : "en-AU", { timeZone: "Australia/Sydney", day: "numeric", month: "long", year: "numeric" });
+    const u = escapeHtml(username || "");
+    const L = ko ? {
+      subject: last ? "프리미엄 무료 체험이 오늘 끝나요" : "프리미엄 무료 체험이 3일 남았어요",
+      head: last ? "무료 체험 마지막 날이에요" : "무료 체험이 3일 남았어요",
+      card: `준비 끝! ${date}부터 월 ${price}로 프리미엄이 이어져요. 내 계정에서 언제든 해지할 수 있어요.`,
+      nocard: `프리미엄을 계속 쓰려면 ${date} 전에 카드를 등록해 주세요. 그 뒤 월 ${price}, 언제든 해지할 수 있어요. 등록하지 않으면 무료 계정으로 돌아가고, 결제는 되지 않아요. 아이의 단어와 기록은 그대로 남아요.`,
+      cta: hasCard ? "앱 열기" : `월 ${price}로 계속하기`, prog: "지금까지의 학습",
+    } : {
+      subject: last ? "Your free Premium month ends today" : "Your free Premium month ends in 3 days",
+      head: last ? "It's the last day of your free month" : "3 days left in your free month",
+      card: `You're all set — Premium continues at ${price}/month from ${date}. You can cancel any time in My Account.`,
+      nocard: `To keep Premium, add a card before ${date} — then it's ${price}/month and you can cancel any time. If you don't, your account simply goes back to Free: nothing is charged, and your child's words and progress are kept.`,
+      cta: hasCard ? "Open the app" : `Continue at ${price}/month`, prog: "Progress so far",
+    };
+    const link = hasCard ? app : `${app}/?trial=continue`;
+    const msg = hasCard ? L.card : L.nocard;
+    const inner = report ? templates.weeklyReportOne(report, username, true).html : "";
+    const html = `<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;font-size:15px;color:#223;max-width:560px;margin:0 auto;padding:20px">
+      <h2 style="margin:0 0 4px;font-size:18px">🐨 ${BRAND}</h2>
+      <h3 style="margin:10px 0 8px;font-size:17px">${escapeHtml(L.head)}</h3>
+      <p style="margin:0 0 6px;color:#556">${u}</p>
+      <p style="margin:0 0 16px;line-height:1.55">${escapeHtml(msg)}</p>
+      <p style="margin:0 0 22px"><a href="${link}" style="display:inline-block;padding:12px 22px;background:#f29a1f;color:#3b2400;border-radius:10px;text-decoration:none;font-weight:800">${escapeHtml(L.cta)}</a></p>
+      ${inner ? `<h3 style="margin:0 0 8px;font-size:15px">${escapeHtml(L.prog)}</h3>${inner}` : ""}
+    </div>`;
+    const text = [`${BRAND} — ${L.head}`, "", msg, "", `${L.cta}: ${link}`].join("\n");
+    return { subject: `[${BRAND}] ${L.subject}`, text, html };
+  },
   // Sent once, when a Premium payment goes through. The invoice links come from Stripe.
   premiumWelcome({ username, interval, amountText, nextDateText, invoiceUrl, pdfUrl, number, appUrl }) {
     const u = escapeHtml(username);

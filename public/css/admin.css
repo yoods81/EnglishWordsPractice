@@ -1704,3 +1704,12 @@ html[data-theme="dark"] .admin-house-choice.on { color: #04281f; }
 .admin-house-lbl { display: block; margin: 6px 0 4px; font-weight: 700; font-size: 14px; }
 .admin-house-move { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,.08); }
 .admin-house-move .admin-house-now { margin: 0; }
+/* Admin System tab: free-month promotion card */
+.admin-promo-row { display: flex; flex-wrap: wrap; gap: 10px 16px; margin: 10px 0; }
+.admin-promo-row label { display: flex; flex-direction: column; gap: 4px; font-size: .85rem; }
+.admin-promo-row input { font: inherit; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--outline); min-height: 40px; }
+.admin-promo-log { margin-top: 8px; font-size: .82rem; }
+.admin-promo-log ul { padding-left: 18px; margin: 6px 0 0; }
+/* Plan popup: the free-month button above the paid plans */
+.pay-go.pay-trial { background: linear-gradient(#ffc04d, #f29a1f); color: #4a2c00; box-shadow: 0 3px 0 #c97a0c; white-space: normal; margin-bottom: 4px; }
+.pay-trial-or { margin: 10px 0 4px; text-align: center; font-size: .8rem; color: var(--muted); }

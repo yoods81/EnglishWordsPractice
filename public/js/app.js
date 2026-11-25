@@ -4792,6 +4792,12 @@ function updateAdminUI() {
   if (window.koalaSupportUI) koalaSupportUI.onAuthChange();
   // Signed in -> the first-visit landing (js/intro.js) is never needed on this device again.
   if (currentUser && window.introHide) window.introHide();
+  // (try: during start-up this can run before the trial section below has been set up)
+  if (currentUser) try {
+    let cont = false;
+    try { cont = sessionStorage.getItem("ywp_trial_continue") === "1"; sessionStorage.removeItem("ywp_trial_continue"); } catch (e) { /* ignore */ }
+    loadTrialInfo().then(() => { if (cont) { if (trialActive()) trialAddCard(); else if (currentUser.role === "free") document.getElementById("auth-menu-premium-btn").click(); } });
+  } catch (e) { /* trial section not ready yet: restoreSession() loads it */ }
   clampGoalsForRole();
   // Flashcards/Word List/Add Word/My Progress stay visible even signed out —
   // tapping one prompts to sign up instead of the tab just disappearing (see
@@ -5689,6 +5695,71 @@ function closeEmbeddedCheckout() {
 }
 billingEl("checkout-close-btn").addEventListener("click", closeEmbeddedCheckout);
 
+// ===== 1-MONTH FREE TRIAL, NO CARD (worker/trial.js, promotion 2026-11-27 ~ 2027-01-31) =====
+// GET /billing/trial says whether the offer is on and whether this account can take it.
+let trialInfo = null;
+async function loadTrialInfo() {
+  try { trialInfo = await api("/billing/trial"); } catch (e) { trialInfo = null; }
+  renderTrialUI();
+  return trialInfo;
+}
+const trialPromoOn = () => !!(trialInfo && trialInfo.promo && trialInfo.promo.active);
+const trialEligible = () => !!(trialInfo && trialInfo.me && trialInfo.me.eligible);
+const trialActive = () => !!(trialInfo && trialInfo.me && trialInfo.me.trial && trialInfo.me.trial.endsAt > Date.now() && currentUser && currentUser.role === "paid");
+function trialDays() { return (trialInfo && trialInfo.promo && trialInfo.promo.days) || 30; }
+function trialDateText(ms) { return new Date(ms).toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-AU", { day: "numeric", month: "long" }); }
+function renderTrialUI() {
+  // Sign-up "Premium" card: while the offer is on, Premium starts as the free month (no card).
+  const desc = document.querySelector('#signup-plan-premium-btn [data-i18n="signupPlanPremiumDesc"]');
+  if (desc) desc.textContent = trialPromoOn() ? rwL("First month free — no card needed", "첫 달 무료 — 카드 필요 없음") : t("signupPlanPremiumDesc");
+  // Plan popup: "Start my free month" above the paid plans for an account that can take it.
+  const tb = billingEl("plan-trial-btn"), or = billingEl("plan-trial-or");
+  if (tb) {
+    const on = trialEligible();
+    tb.hidden = !on; or.hidden = !on;
+    tb.textContent = rwL(`🎁 Start my free month — no card needed`, `🎁 1개월 무료로 시작 — 카드 필요 없음`);
+    or.textContent = rwL("or pay now", "또는 바로 결제");
+  }
+  if (window.renderTrialBanner) window.renderTrialBanner();
+}
+async function startTrialNow(errEl) {
+  try {
+    const r = await api("/billing/trial/start", { method: "POST" });
+    billingEl("plan-overlay").hidden = true;
+    await pullMe().catch(() => {});
+    refreshAfterPlanChange();
+    await loadTrialInfo();
+    showNotice("welcome", rwL("Your free Premium month has started!", "프리미엄 1개월 무료 체험이 시작됐어요!"),
+      rwL(`Enjoy everything in Premium until ${trialDateText(r.endsAt)}. No card needed — nothing is charged unless you add one.`,
+        `${trialDateText(r.endsAt)}까지 프리미엄의 모든 기능을 써 보세요. 카드가 필요 없고, 카드를 등록하지 않으면 결제되지 않아요.`));
+    return true;
+  } catch (e) {
+    const code = e && e.data && e.data.error;
+    const msg = {
+      email_not_verified: rwL("Please confirm your email first — the free month starts as soon as you open the link we sent.", "먼저 이메일 인증을 해 주세요. 보내 드린 링크를 누르면 바로 무료 체험이 시작돼요."),
+      used: rwL("This account has already had its free month.", "이 계정은 이미 무료 체험을 사용했어요."),
+      had_premium: rwL("The free month is for accounts that haven't had Premium before.", "무료 체험은 프리미엄을 처음 쓰는 계정만 받을 수 있어요."),
+      promo_over: rwL("The free-month offer has ended.", "무료 체험 행사가 끝났어요."),
+    }[code];
+    if (errEl) { errEl.textContent = msg || rwL("Something went wrong. Please try again in a moment.", "문제가 생겼어요. 잠시 후 다시 시도해 주세요."); errEl.hidden = false; }
+    if (code === "email_not_verified") {
+      // Remember the wish: the server starts the trial when the email link is opened.
+      api("/billing/trial/want", { method: "POST" }).catch(() => {});
+    }
+    return false;
+  }
+}
+// "Add a card to keep Premium" -> Stripe's page for a payment method, then back to /?trial=card.
+async function trialAddCard() {
+  try {
+    const { url } = await api("/billing/trial/card", { method: "POST", body: JSON.stringify({ lang: currentLang === "ko" ? "ko" : "en" }) });
+    location.href = url;
+  } catch (e) {
+    showNotice("warn", rwL("Couldn't open the card page", "카드 등록 화면을 열지 못했어요"), rwL("Please try again in a moment, or use My Account.", "잠시 후 다시 시도하거나 내 계정에서 해 주세요."));
+  }
+}
+billingEl("plan-trial-btn").addEventListener("click", () => startTrialNow(billingEl("plan-error")));
+
 billingEl("plan-month-btn").addEventListener("click", () => selectPlan("month"));
 billingEl("plan-year-btn").addEventListener("click", () => selectPlan("year"));
 billingEl("plan-pay-btn").addEventListener("click", () => beginCheckout(selectedPlan));
@@ -5931,7 +6002,9 @@ signupForm.addEventListener("submit", async (e) => {
   if (password !== signupPasswordConfirm.value) return fail("resetMismatch");
   if (!signupGuardianCheck.checked || !signupTermsCheck.checked) return fail("authSignupErrorConsent");
   const wantsPremium = signupPlan === "premium";
-  const billingReady = wantsPremium && !!(await loadBillingInfo()).configured;
+  // While the free-month offer is on, choosing Premium at sign-up means the free month (no card, no checkout).
+  const wantsTrial = wantsPremium && trialPromoOn();
+  const billingReady = wantsPremium && !wantsTrial && !!(await loadBillingInfo()).configured;
 
   try {
     const { user, verificationSent } = await api("/auth/signup", {
@@ -5943,7 +6016,12 @@ signupForm.addEventListener("submit", async (e) => {
     // after payment, when they enter the site. If online payment isn't set up,
     // or the person closes the popup, they get the normal welcome notice and
     // the normal email confirmation.
-    const welcome = () => showNotice("welcome", t("noticeSignupTitle"), t(verificationSent ? "noticeSignupSent" : "noticeSignupNotSent"));
+    const welcome = wantsTrial
+      ? () => showNotice("welcome", t("noticeSignupTitle"), rwL(
+        "Check your email and open the link we sent — your free Premium month starts as soon as your email is confirmed. No card needed.",
+        "이메일로 보내 드린 링크를 눌러 주세요. 이메일이 인증되면 바로 프리미엄 1개월 무료 체험이 시작돼요. 카드는 필요 없어요."))
+      : () => showNotice("welcome", t("noticeSignupTitle"), t(verificationSent ? "noticeSignupSent" : "noticeSignupNotSent"));
+    if (wantsTrial) api("/billing/trial/want", { method: "POST" }).catch(() => {});
     const goPay = wantsPremium && billingReady;
     if (goPay) setPremiumSignupPending(true);
     currentUser = user;
@@ -6046,7 +6124,14 @@ resetForm.addEventListener("submit", async (e) => {
   history.replaceState(null, "", location.pathname + location.hash);
   if (verifyToken) {
     api("/auth/verify-email", { method: "POST", body: JSON.stringify({ token: verifyToken }) })
-      .then(() => { showNotice("success", t("noticeVerifiedTitle"), t("noticeVerifiedText")); setTimeout(() => { if (currentUser) pullMe().catch(() => {}); }, 600); })
+      .then((res) => {
+        if (res && res.trialStarted) {
+          showNotice("welcome", rwL("Your free Premium month has started!", "프리미엄 1개월 무료 체험이 시작됐어요!"),
+            rwL("Your email is confirmed. Enjoy everything in Premium for a month — no card needed, nothing is charged unless you add one.",
+              "이메일 인증이 끝났어요. 한 달 동안 프리미엄의 모든 기능을 써 보세요. 카드가 필요 없고, 카드를 등록하지 않으면 결제되지 않아요."));
+        } else showNotice("success", t("noticeVerifiedTitle"), t("noticeVerifiedText"));
+        setTimeout(() => { if (currentUser) pullMe().then(() => { refreshAfterPlanChange(); loadTrialInfo(); }).catch(() => {}); }, 600);
+      })
       .catch(() => showNotice("warn", t("noticeVerifyFailedTitle"), t("noticeVerifyFailedText")));
   }
   if (resetToken) {
@@ -6423,15 +6508,29 @@ async function restoreSession() {
 // sign-up (Premium plan picked for "premium"). A free member asking for
 // Premium gets the plan picker, the same as the account menu's "Join Premium".
 function handleJoinLink() {
+  loadTrialInfo().then(handleTrialLink);
   const join = new URLSearchParams(location.search).get("join");
-  if (join !== "free" && join !== "premium") return;
+  if (join !== "free" && join !== "premium" && join !== "trial") return;
   history.replaceState(null, "", location.pathname + location.hash);
   if (!currentUser) {
     openAuthOverlay("signup");
-    if (join === "premium") setSignupPlan("premium");
+    if (join !== "free") setSignupPlan("premium");
     return;
   }
-  if (join === "premium" && currentUser.role === "free") document.getElementById("auth-menu-premium-btn").click();
+  if (join !== "free" && currentUser.role === "free") document.getElementById("auth-menu-premium-btn").click();
+}
+// Links in the trial emails: /?trial=continue (add a card) and Stripe's return /?trial=card.
+function handleTrialLink() {
+  const p = new URLSearchParams(location.search), v = p.get("trial");
+  if (v !== "continue" && v !== "card") return;
+  history.replaceState(null, "", location.pathname + location.hash);
+  if (v === "card") {
+    showNotice("success", rwL("Card saved", "카드가 등록됐어요"), rwL("Thank you! Premium continues after your free month. You can cancel any time in My Account.", "고마워요! 무료 체험이 끝나도 프리미엄이 이어져요. 내 계정에서 언제든 해지할 수 있어요."));
+    return;
+  }
+  if (!currentUser) { try { sessionStorage.setItem("ywp_trial_continue", "1"); } catch (e) { /* ignore */ } openAuthOverlay("login", rwL("Log in to keep Premium.", "프리미엄을 계속하려면 로그인해 주세요.")); return; }
+  if (trialActive()) trialAddCard();
+  else if (currentUser.role === "free") document.getElementById("auth-menu-premium-btn").click();
 }
 
 updateAdminUI();

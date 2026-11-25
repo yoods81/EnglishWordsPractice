@@ -106,7 +106,7 @@
     });
     document.querySelectorAll("[data-admin-pane]").forEach((p) => (p.hidden = p.dataset.adminPane !== name));
     if (name === "inbox") loadInbox();
-    if (name === "system") { fillNoticeCard(); loadHouseCard(); }
+    if (name === "system") { fillNoticeCard(); loadHouseCard(); loadPromoCard(); }
   }
 
   function jump(name, opts = {}) {
@@ -1018,6 +1018,56 @@
     $("admin-house-move-now").textContent = sw.MOVE === "on" ? L("Refund & move (MOVE): on", "환불·이사(MOVE): 켜짐") : L("Refund & move (MOVE): off", "환불·이사(MOVE): 꺼짐");
     $("admin-house-move-btn").textContent = sw.MOVE === "on" ? L("Turn off…", "끄기…") : L("Turn on…", "켜기…");
   }
+  // 🎁 Free month (1-month free trial without a card) — /api/admin/promo, worker/trial.js
+  let promo = null, promoOn = true;
+  function paintPromoCard() {
+    $("admin-promo-title").textContent = L("🎁 Free month (trial)", "🎁 1개월 무료 체험");
+    $("admin-promo-desc").textContent = L("Accounts that never had Premium can start a free month without a card, after confirming their email. Dates are Sydney days.",
+      "프리미엄을 한 번도 안 쓴 계정이 이메일 인증 후 카드 없이 1개월 무료 체험을 시작해요. 날짜는 시드니 기준이에요.");
+    $("admin-promo-start-lbl").textContent = L("Start", "시작일");
+    $("admin-promo-end-lbl").textContent = L("Last day", "마지막 날");
+    $("admin-promo-days-lbl").textContent = L("Trial days (7–60)", "체험 일수(7~60)");
+    $("admin-promo-save-btn").textContent = L("Save", "저장");
+    $("admin-promo-log-title").textContent = L("Change log", "변경 기록");
+    if (!promo) return;
+    $("admin-promo-now").textContent = L(`Now: ${promo.on ? "On" : "Off"} · ${promo.start} – ${promo.end} · ${promo.days} days`, `지금: ${promo.on ? "켜짐" : "꺼짐"} · ${promo.start} ~ ${promo.end} · ${promo.days}일`);
+    const box = $("admin-promo-onoff");
+    box.innerHTML = "";
+    [[true, L("On", "켜기")], [false, L("Off", "끄기")]].forEach(([v, label]) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "admin-house-choice" + (v === promoOn ? " on" : "");
+      b.setAttribute("role", "radio"); b.setAttribute("aria-checked", String(v === promoOn));
+      b.textContent = label;
+      b.addEventListener("click", () => { promoOn = v; paintPromoCard(); });
+      box.appendChild(b);
+    });
+    const ul = $("admin-promo-log");
+    ul.innerHTML = "";
+    (promo.log || []).forEach((x) => {
+      const li = document.createElement("li");
+      const f = (p) => `${p.on ? L("on", "켬") : L("off", "끔")} ${p.start}~${p.end} ${p.days}${L("d", "일")}`;
+      li.textContent = `${new Date(x.at).toLocaleString()} · ${f(x.before)} → ${f(x.after)}`;
+      ul.appendChild(li);
+    });
+  }
+  async function loadPromoCard() {
+    try { promo = (await api("/admin/promo")).promo; } catch (e) { promo = null; $("admin-promo-now").textContent = failMsg(); paintPromoCard(); return; }
+    promoOn = !!promo.on;
+    $("admin-promo-start").value = promo.start; $("admin-promo-end").value = promo.end; $("admin-promo-days").value = promo.days;
+    paintPromoCard();
+  }
+  $("admin-promo-save-btn").addEventListener("click", async () => {
+    const res = $("admin-promo-result");
+    try {
+      promo = (await api("/admin/promo", { method: "PUT", body: JSON.stringify({ on: promoOn, start: $("admin-promo-start").value, end: $("admin-promo-end").value, days: Number($("admin-promo-days").value) }) })).promo;
+      res.textContent = L("Saved ✓ (in the change log)", "저장했어요 ✓ (변경 기록에 남아요)");
+      paintPromoCard();
+    } catch (e) {
+      const d = e && e.data;
+      res.textContent = d && d.error === "invalid" ? L(`Check: ${(d.fields || []).join(", ")}`, `확인할 칸: ${(d.fields || []).join(", ")}`) : failMsg();
+    }
+    res.hidden = false;
+  });
   async function loadHouseCard() {
     try { house = await api("/admin/config"); } catch (e) { house = null; $("admin-house-now").textContent = failMsg(); return; }
     houseChoice = house.live.switches.HOUSE3D;

@@ -10,6 +10,7 @@ import { handleBilling, closeBillingForUser } from "./billing.js";
 import KoalaCore from "../public/js/koala-core.js";
 import { handleHouse, houseRowKey, houseRowKeys, houseGate } from "./house.js";
 import { handleUsage } from "./usage.js";
+import { handleTrial, runTrialJobs, startWantedTrial } from "./trial.js";
 
 const SESSION_COOKIE = "ywp_session";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
@@ -110,9 +111,26 @@ async function sendWeeklyReports(env) {
   }
 }
 
+// One account's report for the trial emails (worker/trial.js), the same shape as the weekly report.
+async function trialReportFor(env, userId, lang) {
+  let progress = null, tz = 660;
+  try {
+    const p = await env.DB.prepare("SELECT tz_offset FROM weekly_report_prefs WHERE user_id = ?").bind(userId).first();
+    if (p && Number.isFinite(Number(p.tz_offset))) tz = Number(p.tz_offset);
+    const row = await env.DB.prepare("SELECT progress_json FROM user_progress WHERE account_key = ?").bind(userId).first();
+    if (row) progress = JSON.parse(row.progress_json);
+  } catch (e) { /* an empty-week report rather than nothing */ }
+  const report = reportFromProgress(progress, tz, lang);
+  const kids = await childrenReports(env, userId, tz, lang, null);
+  if (kids.length > 1) report.children = kids;
+  return report;
+}
+
 export default {
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(sendWeeklyReports(env));
+    // Daily (22:00 UTC = 9am in Sydney): free-trial report + reminders. Mondays 00:00 UTC: weekly reports.
+    if (event.cron === "0 22 * * *") ctx.waitUntil(runTrialJobs(env, { sendEmail, templates, reportFor: (id, lang) => trialReportFor(env, id, lang) }));
+    else ctx.waitUntil(sendWeeklyReports(env));
   },
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -533,6 +551,12 @@ async function handleApi(request, env, url) {
     if (res) return res;
   }
 
+  // 1-month free trial without a card + its admin settings — worker/trial.js
+  if (route === "/billing/trial" || route.startsWith("/billing/trial/") || route === "/admin/promo") {
+    const res = await handleTrial(route, request, env, url, { json, getSessionUser });
+    if (res) return res;
+  }
+
   // Premium subscriptions (Stripe checkout, webhook, cancel/resume).
   if (route.startsWith("/billing/")) {
     const res = await handleBilling({
@@ -882,7 +906,9 @@ async function handleApi(request, env, url) {
     await env.DB.prepare("UPDATE users SET email_verified_at = ? WHERE id = ? AND email IS NOT NULL")
       .bind(Date.now(), row.user_id)
       .run();
-    return json({ ok: true });
+    // Asked for the free month at sign-up? It starts now that the email is confirmed.
+    const trial = await startWantedTrial(env, row.user_id);
+    return json({ ok: true, trialStarted: !!trial.ok });
   }
 
   // "I forgot my password": emails a one-time reset link to the address on
