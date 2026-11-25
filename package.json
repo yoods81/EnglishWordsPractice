@@ -5,7 +5,7 @@
   "description": "Aussie English Word Practice — static app plus a small Cloudflare Worker API for the shared word list.",
   "scripts": {
     "dev": "wrangler dev",
-    "test": "node --test tests/koala-core.test.js tests/koala-sync.test.js tests/quiz-core.test.js tests/house-bridge.test.mjs tests/house-move.test.mjs && node --experimental-sqlite --test tests/worker-koala.test.mjs tests/worker-sync.test.mjs tests/worker-house.test.mjs tests/worker-support.test.mjs tests/worker-word-ownership.test.mjs tests/worker-billing.test.mjs tests/worker-usage.test.mjs tests/worker-trial.test.mjs tests/worker-photo.test.mjs",
+    "test": "node --test tests/koala-core.test.js tests/koala-sync.test.js tests/quiz-core.test.js tests/house-bridge.test.mjs tests/house-move.test.mjs tests/typing-core.test.js && node --experimental-sqlite --test tests/worker-koala.test.mjs tests/worker-sync.test.mjs tests/worker-house.test.mjs tests/worker-support.test.mjs tests/worker-word-ownership.test.mjs tests/worker-billing.test.mjs tests/worker-usage.test.mjs tests/worker-trial.test.mjs tests/worker-photo.test.mjs tests/worker-typing.test.mjs",
     "house:sync": "node scripts/house-sync.mjs",
     "gen:faq": "node scripts/gen-faq.mjs",
     "gen:learn": "node scripts/gen-learn-pages.mjs",
@@ -27,6 +27,8 @@
     "db:migrate:email-id:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0012_email_as_login_id.sql",
     "db:migrate:trial": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0021_trial.sql",
     "db:migrate:trial:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0021_trial.sql",
+    "db:migrate:typing": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0022_typing_scores.sql",
+    "db:migrate:typing:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0022_typing_scores.sql",
     "db:migrate:billing": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0013_billing.sql",
     "db:migrate:billing:local": "wrangler d1 execute englishwordspractice --local --file=./migrations/0013_billing.sql",
     "db:migrate:items": "wrangler d1 execute englishwordspractice --remote --file=./migrations/0014_koala_items.sql",

@@ -3,10 +3,10 @@
      shows up immediately; the cached copy is used only when offline.
    - /api/* is never cached (logins, shared words, sync always go to the server).
    - Google Fonts: stale-while-revalidate. Bump CACHE when the list changes. */
-const CACHE = "koala-study-v297";
+const CACHE = "koala-study-v298";
 const PRECACHE = [
   "/", "/index.html", "/css/style.css", "/css/themes.css", "/css/admin.css", "/css/intro.css", "/js/app.js", "/js/intro.js", "/js/tt-games.js", "/js/support.js",
-  "/js/faq-data.js", "/js/faq.js", "/js/admin-cs.js", "/js/koala-core.js", "/js/quiz-core.js", "/js/asmr-sound.js", "/js/koala-wardrobe.js", "/js/koala-admin-items.js", "/css/koala-house.css", "/js/words.js", "/js/words_ko.js", "/js/town-words-data.js",
+  "/js/faq-data.js", "/js/faq.js", "/js/admin-cs.js", "/js/koala-core.js", "/js/quiz-core.js", "/js/asmr-sound.js", "/js/koala-wardrobe.js", "/js/koala-admin-items.js", "/js/typing-core.js", "/js/typing-hub.js", "/css/typing.css", "/css/koala-house.css", "/js/words.js", "/js/words_ko.js", "/js/town-words-data.js",
   "/favicon.svg?v=4", "/icon-192.png?v=4", "/icon-512.png?v=4", "/apple-touch-icon.png?v=4", "/manifest.webmanifest", "/screenshots/home.png",
 ];
 

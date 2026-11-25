@@ -268,6 +268,10 @@ const TRANSLATIONS = {
     upgradeRequestFulfilledMsg: "Admin sent you a code — enter it below to finish activating.",
     upgradeReadyBanner: "⭐ Your upgrade code has arrived — tap to enter it!",
     typeGameTitle: "⌨️ Typing Game",
+    tpHubTitle: "⌨️ Typing", tpBack: "Typing", tpTopicTitle: "Topic", tpShowTitle: "Sentences", tpModeTitle: "Words game speed",
+    tpDaily: "Today's challenge", tpDailyDesc: "One sentence for everyone", tpLetters: "Letters", tpLettersDesc: "Learn where your fingers go",
+    tpWords: "Words", tpWordsDesc: "Pop the falling words", tpSentences: "Sentences", tpSentencesDesc: "Type a sentence · WPM",
+    tpParagraphs: "Paragraphs", tpParagraphsDesc: "Type a paragraph · WPM", tpRecords: "Records", tpRecordsDesc: "Leaderboard",
     typeGameDesc: "Type the falling words!\nBefore they reach the bottom!",
     typeGameStartBtn: "Start Game",
     typeGameNotEnough: (lvl) => `${lvl} needs a few more words before you can play — add some in Add Word or Word List first!`,
@@ -1251,6 +1255,10 @@ const TRANSLATIONS = {
     upgradeRequestFulfilledMsg: "관리자가 코드를 보냈어요 — 아래에 입력해서 활성화를 완료하세요.",
     upgradeReadyBanner: "⭐ 업그레이드 코드가 도착했어요 — 눌러서 입력하세요!",
     typeGameTitle: "⌨️ 타이핑 게임",
+    tpHubTitle: "⌨️ 타이핑", tpBack: "타이핑", tpTopicTitle: "주제", tpShowTitle: "문장 보기", tpModeTitle: "단어 게임 속도",
+    tpDaily: "오늘의 도전", tpDailyDesc: "모두 같은 문장 하나", tpLetters: "알파벳", tpLettersDesc: "손가락 자리 익히기",
+    tpWords: "단어", tpWordsDesc: "떨어지는 단어 맞히기", tpSentences: "문장", tpSentencesDesc: "한 문장 · WPM",
+    tpParagraphs: "문단", tpParagraphsDesc: "한 문단 · WPM", tpRecords: "기록", tpRecordsDesc: "순위표",
     typeGameDesc: "떨어지는 단어를 타이핑해요!\n바닥에 닿기 전에!",
     typeGameStartBtn: "게임 시작",
     typeGameNotEnough: (lvl) => `${lvl} 레벨에 단어가 조금 더 필요해요 — 단어 추가나 단어장에서 먼저 추가해주세요!`,
@@ -2134,6 +2142,56 @@ function rewardLearning(mode) {
   const gmult = gm ? gameCoinMult(gm) : 1;
   paid.forEach((r) => showKoalaGift(r, gmult, gm && gameSpeedLocked[gm]));
   if (paid.length) checkLevelUp();
+}
+
+// Typing page (js/typing-hub.js): a finished sentence / paragraph counts as `n` Typing answers (all right when the
+// accuracy is good enough, otherwise answered but not right). Same coin rounds and daily caps as the Words game;
+// nothing goes into the wrong-answer notebook. `log` adds one line to progress.typingLog for the weekly report.
+function recordTypingText(n, ok, log) {
+  ensureRewardData();
+  const day = localDateKey(new Date());
+  const d = progress.daily[day] || (progress.daily[day] = {});
+  const m = d.typing || (d.typing = [0, 0]);
+  const life = progress.modes.typing || (progress.modes.typing = [0, 0]);
+  m[1] += n; life[1] += n;
+  if (ok) { m[0] += n; life[0] += n; }
+  if (log) {
+    const tl = Array.isArray(progress.typingLog) ? progress.typingLog : (progress.typingLog = []);
+    tl.push(log);
+    const cut = Date.now() - 60 * 86400000;
+    while (tl.length && (tl[0].t < cut || tl.length > 400)) tl.shift();
+  }
+  const streakChanged = bumpDailyStreak();
+  if (streakChanged) { checkBadges(); announceKoalaUnlocks(); }
+  if (ok) rewardLearning("typing");
+  saveProgress();
+  renderStreakChip();
+  if (typeof checkMissionComplete === "function") checkMissionComplete();
+}
+// Words picked on the Typing page's result screen go to the child's own list (Premium, like photo words).
+async function addTypingWordsToMine(words) {
+  if (!canUsePaidFeatures()) { promptUpgradeForFeature(); return 0; }
+  const have = new Set(customWords.map((w) => String(w.word).toLowerCase()));
+  const list = [...new Set(words.map((w) => String(w).toLowerCase()))].filter((w) => !have.has(w));
+  if (!list.length) return 0;
+  const infos = await mapWithConcurrency(list, 4, (w) => fetchWordInfo(w), () => {});
+  const other = otherLang(currentLang);
+  const added = list.map((word, i) => {
+    const info = infos[i];
+    const w = {
+      id: genId(), word, example: (info && info.example) || "",
+      definitionEn: (info && info.definitionEn) || null, definitionKo: (info && info.definitionKo) || null, pos: (info && info.pos) || null,
+      noDefinitionEn: !(info && info.definitionEn), noDefinitionKo: !(info && info.definitionKo),
+      source: "typing", createdAt: Date.now(), ...newWordStorageFlags(),
+    };
+    w[levelKey(currentLang)] = currentLevel;
+    w[levelKey(other)] = guessLevelForWord(word, other);
+    customWords.push(w);
+    return w;
+  });
+  saveCustomWords();
+  await pushSharedWords(added);
+  return added.length;
 }
 
 function recordResult(word, isCorrect, mode) {
@@ -8415,7 +8473,7 @@ quizCategorySel.addEventListener("change", buildQuizQuestions);
 bindSettingsNow("quiz-settings-body", "quiz-settings-now");
 bindSettingsNow("spelling-settings-body", "spelling-settings-now");
 bindSettingsNow("typegame-settings-body", "typegame-settings-now");
-wireSettingsDetails("typegame-settings", "typegame-start-overlay");
+wireSettingsDetails("typegame-settings", "tp-hub");
 wireSettingsDetails("timestable-settings", "timestable-start-overlay");
 wireSettingsDetails("quiz-settings", "quiz-start-screen");
 wireSettingsDetails("spelling-settings", "spelling-start-screen");
@@ -9703,6 +9761,8 @@ function enterTypeGameTab() {
     resumeTypeGame();
   } else if (!typeGameRunning) {
     resetTypeGame();
+    // Typing page hub (js/typing-hub.js): the tab opens on the six tiles unless another typing panel is in use.
+    if (window.TypingHub) window.TypingHub.enter();
   }
 }
 
@@ -10321,6 +10381,7 @@ function endTypeGame() {
     typeGameHighScores[key] = typeGameScore;
     saveTypeGameHighScores();
   }
+  if (window.TypingHub && typeGameScore > 0) window.TypingHub.submitWordsScore(typeGameScore);
   typeGameFinalScoreEl.textContent = t("typeGameFinalScore", typeGameScore);
   typeGameHighScoreEl.textContent = isNewBest ? t("typeGameNewHighScore") : t("typeGameHighScore", Math.max(prevBest, typeGameScore));
   showGameOverScreen("typegame", {
@@ -19024,6 +19085,7 @@ function parentReportData() {
     modes: PARENT_MODES.map(([m, name]) => ({ name: name(), c: w.perMode[m][0], t: w.perMode[m][1] })).filter((x) => x.t > 0),
     tricky: parentTrickyWords(6).map((x) => x.word),
     tips: parentTips(w, prev),
+    typing: typeof TypingCore !== "undefined" ? TypingCore.weekTyping(progress.typingLog, Date.now(), 7) : null,
     activeSlot: (typeof activeProfileNum === "number" ? activeProfileNum : 0),
     tzOffset: -new Date().getTimezoneOffset(),
   };

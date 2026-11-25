@@ -152,6 +152,11 @@ export const templates = {
     while (stages.length && stages.length < 5) stages.push(0);
     const tricky = (Array.isArray(r.tricky) ? r.tricky : []).slice(0, 8).map((w) => str(w, 30));
     const tips = (Array.isArray(r.tips) ? r.tips : []).slice(0, 4).map((t) => str(t, 220));
+    // Typing page (sentences / paragraphs): this week's average and best WPM, and last week's average.
+    const ty = r.typing && typeof r.typing === "object" ? { n: num(r.typing.n, 10000), avg: num(r.typing.avg, 200), best: num(r.typing.best, 200), acc: num(r.typing.acc, 100), prev: r.typing.prevAvg == null ? null : num(r.typing.prevAvg, 200) } : null;
+    const tyLine = ty && ty.n ? (ko
+      ? `타이핑: 평균 ${ty.avg} WPM · 최고 ${ty.best} WPM · 정확도 ${ty.acc}% (${ty.n}번)${ty.prev === null ? "" : ` · 지난주 평균 ${ty.prev} WPM`}`
+      : `Typing: average ${ty.avg} WPM · best ${ty.best} WPM · accuracy ${ty.acc}% (${ty.n} texts)${ty.prev === null ? "" : ` · last week ${ty.prev} WPM`}`) : "";
     const L = ko
       ? { title: "주간 학습 리포트", days: "학습 기간", ans: "학습 문제", acc: "정답률", streak: "연속 학습", known: "완료 단어", act: "활동별", tricky: "어려운 단어", tips: "조언", open: "앱 열기", right: "맞음", miss: "틀림", noteDays: "막대가 있는 날은 공부한 날이에요.", noteAns: "초록은 맞은 문제, 회색은 틀린 문제예요.", noteAcc: "하루에 맞힌 문제의 비율이에요.", noteStreak: "✓ 표시는 공부한 날이에요.", noteKnown: "3단계부터는 완료(잘 아는) 단어예요.", lv: "단계 " }
       : { title: "Weekly report", days: "Study days", ans: "Questions", acc: "Accuracy", streak: "Day streak", known: "Words mastered", act: "By activity", tricky: "Tricky words", tips: "Tips", open: "Open the app", right: "right", miss: "missed", noteDays: "A bar means a day with practice.", noteAns: "Green = right, grey = missed.", noteAcc: "Share of answers that were right each day.", noteStreak: "A ✓ marks a day with practice.", noteKnown: "Stage 3 and up counts as mastered.", lv: "Lv " };
@@ -179,6 +184,7 @@ export const templates = {
     const inner = `<table style="width:100%;background:#f1faf6;border-radius:12px;border-collapse:separate"><tr>${cell(`${active}/${days}`, L.days)}${cell(answers, L.ans)}${cell(pct === null ? "–" : pct + "%", L.acc)}${cell(streak, L.streak)}${cell(known, L.known)}</tr></table>
       ${charts}${knownChart}
       ${modeRows ? `<h3 style="margin:18px 0 6px;font-size:15px">${escapeHtml(L.act)}</h3><table style="width:100%;border-collapse:collapse">${modeRows}</table>` : ""}
+      ${tyLine ? `<p style="margin:14px 0 0;padding:10px 12px;background:#eef6ff;border-radius:10px">⌨️ ${escapeHtml(tyLine)}</p>` : ""}
       ${tricky.length ? `<h3 style="margin:18px 0 6px;font-size:15px">${escapeHtml(L.tricky)}</h3><p style="margin:0">${tricky.map(escapeHtml).join(", ")}</p>` : ""}
       ${tips.length ? `<h3 style="margin:18px 0 6px;font-size:15px">${escapeHtml(L.tips)}</h3>${tips.map((t) => `<p style="margin:0 0 8px;padding:10px 12px;background:#fff7dc;border-radius:10px">💡 ${escapeHtml(t)}</p>`).join("")}` : ""}
 `;
@@ -194,6 +200,7 @@ export const templates = {
       ...(series.length ? [`${L.ans}: ` + series.map((d) => `${d.l}=${d.c}/${d.t}`).join(" ")] : []),
       ...(stages.length ? [`${L.known}: ` + stages.map((n, i) => `${L.lv}${i + 1}=${n}`).join(" ")] : []),
       ...modes.map((m) => `• ${m.name}: ${m.c}/${m.t}`),
+      ...(tyLine ? [tyLine] : []),
       ...(tricky.length ? [`${L.tricky}: ${tricky.join(", ")}`] : []),
       ...tips.map((t) => `- ${t}`),
       ...(embedded ? [] : [appUrl]),

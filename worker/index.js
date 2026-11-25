@@ -8,8 +8,10 @@ import { sendEmail, templates, emailSettings } from "./email.js";
 import { handleSupport } from "./support.js";
 import { handleBilling, closeBillingForUser } from "./billing.js";
 import KoalaCore from "../public/js/koala-core.js";
+import TypingCore from "../public/js/typing-core.js";
 import { handleHouse, houseRowKey, houseRowKeys, houseGate } from "./house.js";
 import { handleUsage } from "./usage.js";
+import { handleTyping } from "./typing.js";
 import { handleTrial, runTrialJobs, startWantedTrial } from "./trial.js";
 import { handlePhoto, photoPlan, takePhoto } from "./photo.js";
 
@@ -58,6 +60,7 @@ function reportFromProgress(progress, tzOffset, lang) {
     streak: (progress && progress.streak && progress.streak.count) || 0, known: stages[2] + stages[3] + stages[4],
     modes: modeDefs.map(([m, name]) => ({ name, c: perMode[m][0], t: perMode[m][1] })).filter((x) => x.t > 0),
     series, stages, tricky, tips,
+    typing: TypingCore.weekTyping(progress && progress.typingLog, today, 7),
   };
 }
 
@@ -483,6 +486,7 @@ async function purgeUser(env, userId) {
     env.DB.prepare("DELETE FROM house_saves WHERE account_key IN (?, ?, ?, ?)").bind(...houseRowKeys(userId)), // Koala House saves (S3)
     env.DB.prepare("DELETE FROM email_tokens WHERE user_id = ?").bind(userId),
     env.DB.prepare("DELETE FROM weekly_report_prefs WHERE user_id = ?").bind(userId),
+    env.DB.prepare("DELETE FROM typing_scores WHERE user_id = ?").bind(userId),
     env.DB.prepare("DELETE FROM subscriptions WHERE user_id = ?").bind(userId),
     env.DB.prepare("DELETE FROM support_messages WHERE ticket_id IN (SELECT id FROM support_tickets WHERE user_id = ?)").bind(userId),
     env.DB.prepare("DELETE FROM support_tickets WHERE user_id = ?").bind(userId),
@@ -533,6 +537,9 @@ async function handleApi(request, env, url) {
 
   // Daily question limits counted on the server (guest / free) — worker/usage.js
   if (route === "/usage") return handleUsage(request, env, url, { json, getSessionUser });
+
+  // Typing page leaderboard (auto nicknames, best per child) — worker/typing.js
+  if (route === "/typing/score" || route === "/typing/board") return handleTyping(route, request, env, url, { json, getSessionUser });
 
   // Customer support: inquiries, admin inbox, customer notes, announcement.
   // Koala House settings (S12) and house saves (S3) — worker/house.js

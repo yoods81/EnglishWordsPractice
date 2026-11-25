@@ -284,3 +284,20 @@ CREATE TABLE IF NOT EXISTS extract_usage (
   count INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (user_id, day)
 );
+
+-- Typing page leaderboard (see migrations/0022_typing_scores.sql).
+CREATE TABLE IF NOT EXISTS typing_scores (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id TEXT NOT NULL,
+  slot INTEGER NOT NULL DEFAULT 0,
+  kind TEXT NOT NULL,
+  level TEXT NOT NULL,
+  input TEXT NOT NULL DEFAULT 'kb',
+  score INTEGER NOT NULL,
+  accuracy INTEGER NOT NULL DEFAULT 100,
+  day TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_typing_scores_board ON typing_scores (kind, level, input, score DESC);
+CREATE INDEX IF NOT EXISTS idx_typing_scores_user ON typing_scores (user_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_typing_scores_day ON typing_scores (kind, day, level);

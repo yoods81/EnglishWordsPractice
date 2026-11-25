@@ -45,6 +45,7 @@
   <link rel="stylesheet" href="css/koala-house.css" />
   <link rel="stylesheet" href="css/themes.css" />
   <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/typing.css" />
 </head>
 <body class="on-landing">
   <!-- First-visit landing (2026-11-22, docs/landing-plan.md, L2 + A): only for a signed-out visitor who has never
@@ -1451,7 +1452,73 @@ to Flip!</span></div>
 
     <!-- Typing Game (falling words) -->
     <section id="view-typegame" class="view">
-      <div class="card">
+      <!-- Typing page hub (2026-11-25): six tiles like the home page; a tile opens its panel straight away (no Start button). -->
+      <div class="tp-hub" id="tp-hub">
+        <h2 class="tp-hub-title"><span data-i18n="tpHubTitle">Typing</span> <small class="tp-hub-level" id="tp-hub-level"></small></h2>
+        <details class="fs-settings" id="typegame-settings"><summary class="fs-settings-sum"><span class="fs-settings-ico" aria-hidden="true">⚙️</span><span class="fs-settings-label" data-i18n="flashSettingsLabel">Settings</span><span class="fs-settings-now" id="typegame-settings-now"></span></summary><div class="fs-settings-body" id="typegame-settings-body" data-oneline="1">
+                <div class="qz-pick scope-pick">
+                  <div class="qz-pick-title" data-i18n="scopeTitle">Words from</div>
+                  <div class="qz-seg scope-seg" role="radiogroup" data-i18n-aria-label="scopeTitle" aria-label="Words from"></div>
+                  <p class="qz-pick-note scope-note" hidden></p>
+                </div>
+                <div class="qz-pick">
+                  <div class="qz-pick-title" data-i18n="setDifficultyTitle">Difficulty</div>
+                  <div class="qz-seg" id="typegame-level-seg" role="radiogroup" data-i18n-aria-label="setDifficultyTitle" aria-label="Difficulty"></div>
+                </div>
+                <div class="qz-pick">
+                  <div class="qz-pick-title" data-i18n="tpModeTitle">Words game speed</div>
+                  <div class="qz-seg" id="typegame-mode-seg" role="radiogroup" data-i18n-aria-label="setModeTitle" aria-label="Mode">
+                    <button type="button" class="qz-seg-btn" role="radio" data-mode="beginner"></button>
+                    <button type="button" class="qz-seg-btn" role="radio" data-mode="intermediate"></button>
+                    <button type="button" class="qz-seg-btn" role="radio" data-mode="pro"></button>
+                  </div>
+                </div>
+              
+                <div class="qz-pick tp-pick-topic">
+                  <div class="qz-pick-title" data-i18n="tpTopicTitle">Topic</div>
+                  <div class="tp-topic-box" id="tp-topic-box"></div>
+                </div>
+                <div class="qz-pick tp-pick-show">
+                  <div class="qz-pick-title" data-i18n="tpShowTitle">Sentences</div>
+                  <div class="qz-seg" id="tp-show-seg" role="radiogroup" data-i18n-aria-label="tpShowTitle" aria-label="Sentences">
+                    <button type="button" class="qz-seg-btn" role="radio" data-show="read"></button>
+                    <button type="button" class="qz-seg-btn" role="radio" data-show="listen"></button>
+                  </div>
+                </div>
+              </div></details>
+        <div class="landing-tiles tp-tiles" id="tp-tiles">
+          <button type="button" class="landing-tile tp-tile tp-tile-today" data-tp="daily">
+            <span class="landing-tile-icon" aria-hidden="true"><svg viewBox="0 0 48 48" width="1em" height="1em" class="tp-ico-svg"><path d="M15 27l-5 15 7-3 4 6 4-13z" fill="#ff7a8a" stroke="#b83a4e" stroke-width="2.2" stroke-linejoin="round"/><path d="M33 27l5 15-7-3-4 6-4-13z" fill="#4fb4ea" stroke="#22729e" stroke-width="2.2" stroke-linejoin="round"/><circle cx="24" cy="20" r="15" fill="#ffd166" stroke="#c98a00" stroke-width="2.6"/><circle cx="24" cy="20" r="10.5" fill="#ffe7a0" stroke="#e0a514" stroke-width="1.6"/><path d="M24 12.5l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4-3.9-3.8 5.4-.8z" fill="#f5a623" stroke="#c98a00" stroke-width="1.2" stroke-linejoin="round"/><path d="M14.5 14.5c1.4-2.6 3.6-4.3 6-5" stroke="#fff6d5" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></span>
+            <span class="landing-tile-body"><span class="landing-tile-title" data-i18n="tpDaily">Today's challenge</span><span class="landing-tile-desc" id="tp-desc-daily" data-i18n="tpDailyDesc">One sentence for everyone</span></span>
+          </button>
+          <button type="button" class="landing-tile tp-tile" data-tp="letters">
+            <span class="landing-tile-icon" aria-hidden="true"><svg viewBox="0 0 48 48" width="1em" height="1em" class="tp-ico-svg"><rect x="7" y="9" width="34" height="30" rx="7" fill="#0b6b57"/><rect x="7" y="6" width="34" height="29" rx="7" fill="#e9fbf4" stroke="#0b6b57" stroke-width="2.6"/><text x="24" y="28" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="19" fill="#0b6b57">F</text><rect x="17" y="30" width="14" height="2.6" rx="1.3" fill="#22c9a3"/><path d="M33 41c1.5-6 3-10 6.5-10.5 2.5-.3 3.3 2 2.5 4.5L39 44" fill="#ffd9a8" stroke="#b9763a" stroke-width="2.2" stroke-linejoin="round"/></svg></span>
+            <span class="landing-tile-body"><span class="landing-tile-title" data-i18n="tpLetters">Letters</span><span class="landing-tile-desc" id="tp-desc-letters" data-i18n="tpLettersDesc">Learn where your fingers go</span></span>
+          </button>
+          <button type="button" class="landing-tile tp-tile" data-tp="words">
+            <span class="landing-tile-icon" aria-hidden="true"><svg viewBox="0 0 48 48" width="1em" height="1em" class="tp-ico-svg"><path d="M24 31c-9 0-14-6.6-14-13.5C10 10 16.3 4 24 4s14 6 14 13.5C38 24.4 33 31 24 31z" fill="#ff8da1" stroke="#c23a5a" stroke-width="2.4"/><path d="M16.5 12.5c1.5-2.6 3.8-4 6-4.4" stroke="#ffd3dc" stroke-width="2.6" stroke-linecap="round" fill="none"/><path d="M22 31l2 3 2-3z" fill="#c23a5a"/><path d="M24 34c-2 3 2 5 0 8s2 4 1 5" stroke="#7a8a86" stroke-width="1.8" fill="none" stroke-linecap="round"/><text x="24" y="21.5" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="10" fill="#fff">cat</text></svg></span>
+            <span class="landing-tile-body"><span class="landing-tile-title" data-i18n="tpWords">Words</span><span class="landing-tile-desc" id="tp-desc-words" data-i18n="tpWordsDesc">Pop the falling words</span></span>
+          </button>
+          <button type="button" class="landing-tile tp-tile" data-tp="sentence">
+            <span class="landing-tile-icon" aria-hidden="true">💬</span>
+            <span class="landing-tile-body"><span class="landing-tile-title" data-i18n="tpSentences">Sentences</span><span class="landing-tile-desc" id="tp-desc-sentence" data-i18n="tpSentencesDesc">Type a sentence · WPM</span></span>
+          </button>
+          <button type="button" class="landing-tile tp-tile" data-tp="paragraph">
+            <span class="landing-tile-icon" aria-hidden="true">📖</span>
+            <span class="landing-tile-body"><span class="landing-tile-title" data-i18n="tpParagraphs">Paragraphs</span><span class="landing-tile-desc" id="tp-desc-paragraph" data-i18n="tpParagraphsDesc">Type a paragraph · WPM</span></span>
+          </button>
+          <button type="button" class="landing-tile tp-tile" data-tp="records">
+            <span class="landing-tile-icon" aria-hidden="true">🏆</span>
+            <span class="landing-tile-body"><span class="landing-tile-title" data-i18n="tpRecords">Records</span><span class="landing-tile-desc" id="tp-desc-records" data-i18n="tpRecordsDesc">Leaderboard</span></span>
+          </button>
+        </div>
+        <p class="tp-hub-msg" id="tp-hub-msg" role="status" hidden></p>
+      </div>
+      <div class="tp-panel" id="tp-panel-letters" hidden></div>
+      <div class="tp-panel" id="tp-panel-run" hidden></div>
+      <div class="tp-panel" id="tp-panel-records" hidden></div>
+      <div class="tp-back-row tp-words-back" id="tp-words-back" hidden><button type="button" class="tp-back" data-tp-back><span aria-hidden="true">←</span> <span data-i18n="tpBack">Typing</span></button></div>
+      <div class="card tp-words-card" id="tp-panel-words" hidden>
         <div class="setting-row setting-row-nowrap">
           <span class="score-tag" id="typegame-score">Score: 0</span>
           <span class="stage-tag" id="typegame-stage-tag"></span>
@@ -1545,25 +1612,7 @@ to Flip!</span></div>
             </div>
             <div class="tg-start-card">
               <h3 data-i18n="typeGameTitle">⌨️ Typing Game</h3>
-              <details class="fs-settings" id="typegame-settings"><summary class="fs-settings-sum"><span class="fs-settings-ico" aria-hidden="true">⚙️</span><span class="fs-settings-label" data-i18n="flashSettingsLabel">Settings</span><span class="fs-settings-now" id="typegame-settings-now"></span></summary><div class="fs-settings-body" id="typegame-settings-body" data-oneline="1">
-                <div class="qz-pick scope-pick">
-                  <div class="qz-pick-title" data-i18n="scopeTitle">Words from</div>
-                  <div class="qz-seg scope-seg" role="radiogroup" data-i18n-aria-label="scopeTitle" aria-label="Words from"></div>
-                  <p class="qz-pick-note scope-note" hidden></p>
-                </div>
-                <div class="qz-pick">
-                  <div class="qz-pick-title" data-i18n="setDifficultyTitle">Difficulty</div>
-                  <div class="qz-seg" id="typegame-level-seg" role="radiogroup" data-i18n-aria-label="setDifficultyTitle" aria-label="Difficulty"></div>
-                </div>
-                <div class="qz-pick">
-                  <div class="qz-pick-title" data-i18n="setModeTitle">Mode</div>
-                  <div class="qz-seg" id="typegame-mode-seg" role="radiogroup" data-i18n-aria-label="setModeTitle" aria-label="Mode">
-                    <button type="button" class="qz-seg-btn" role="radio" data-mode="beginner"></button>
-                    <button type="button" class="qz-seg-btn" role="radio" data-mode="intermediate"></button>
-                    <button type="button" class="qz-seg-btn" role="radio" data-mode="pro"></button>
-                  </div>
-                </div>
-              </div></details>
+
               <div class="tg-start-chips">
                 <span class="tg-start-chip tg-start-best" id="typegame-start-best" hidden></span>
               </div>
@@ -2761,7 +2810,9 @@ to Flip!</span></div>
   <script src="js/asmr-sound.js"></script>
   <script src="js/koala-wardrobe.js"></script>
   <script src="js/koala-admin-items.js"></script>
+  <script src="js/typing-core.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/typing-hub.js"></script>
   <script src="js/intro.js"></script>
   <script src="js/tt-games.js"></script>
   <script src="js/support.js"></script>
